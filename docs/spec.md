@@ -9,14 +9,18 @@
 - [ ] shadcn/ui 컴포넌트를 커스텀하여 고유 아이덴티티 확보
 - [ ] npm 패키지로 배포 가능한 구조
 - [ ] W3C DTCG 토큰 표준 준수
+- [ ] 토큰을 플랫폼 독립적으로 설계 (JSON → CSS 변수 + React Native StyleSheet 변환 가능)
 
-## Non-Goals (Out of Scope)
+## Non-Goals (Phase 1 Out of Scope)
 
 - 전용 커스텀 서체 제작 (Phase 1에서는 기존 서체 선택)
 - Figma 디자인 키트
 - Web Components / Vue / Svelte 포팅
-- 모바일 네이티브 (React Native) 지원
-- 마케팅 사이트 / 랜딩 페이지 템플릿
+
+## Future Phases (Phase 2+)
+
+- **React Native 컴포넌트 라이브러리** — 토큰은 Phase 1에서 RN 호환 설계, 컴포넌트는 Phase 2+
+- **랜딩 페이지 템플릿** — 컴포넌트 완성 후 쇼케이스/스타터 킷으로 제공
 
 ## Requirements
 
@@ -62,6 +66,7 @@
 - **접근성**: WCAG 2.1 AA 준수 (최소 대비 4.5:1), Radix 접근성 기본 제공
 - **성능**: CSS-only 토큰 (JS 런타임 의존 없음), Tailwind purge 적용
 - **호환성**: React 18+, Next.js 14+, Node 18+
+- **멀티플랫폼 토큰**: JSON 기반 토큰 → Style Dictionary로 CSS/RN/iOS 등 자동 변환 가능한 구조
 
 ## 디자인 원칙 (Design Principles)
 
