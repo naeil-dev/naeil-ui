@@ -1,0 +1,34 @@
+{
+  "font": {
+    "family": {
+      "sans": {
+        "$type": "fontFamily",
+        "$value": ["Pretendard Variable", "Pretendard", "-apple-system", "system-ui", "sans-serif"]
+      },
+      "mono": {
+        "$type": "fontFamily",
+        "$value": ["JetBrains Mono", "Geist Mono", "ui-monospace", "monospace"]
+      }
+    },
+    "size": {
+      "xs": { "$type": "dimension", "$value": "0.75rem" },
+      "sm": { "$type": "dimension", "$value": "0.875rem" },
+      "base": { "$type": "dimension", "$value": "1rem" },
+      "lg": { "$type": "dimension", "$value": "1.125rem" },
+      "xl": { "$type": "dimension", "$value": "1.25rem" },
+      "2xl": { "$type": "dimension", "$value": "1.5rem" },
+      "3xl": { "$type": "dimension", "$value": "1.875rem" },
+      "4xl": { "$type": "dimension", "$value": "2.25rem" }
+    },
+    "weight": {
+      "normal": { "$type": "number", "$value": 400 },
+      "medium": { "$type": "number", "$value": 500 },
+      "bold": { "$type": "number", "$value": 700 }
+    },
+    "lineHeight": {
+      "tight": { "$type": "number", "$value": 1.25 },
+      "normal": { "$type": "number", "$value": 1.5 },
+      "relaxed": { "$type": "number", "$value": 1.75 }
+    }
+  }
+}

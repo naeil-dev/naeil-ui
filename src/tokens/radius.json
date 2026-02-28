@@ -1,0 +1,9 @@
+{
+  "radius": {
+    "$description": "Border radius — mechanical aesthetic, no excessive rounding. lg(8px) is the maximum.",
+    "none": { "$type": "dimension", "$value": "0px" },
+    "sm": { "$type": "dimension", "$value": "2px" },
+    "md": { "$type": "dimension", "$value": "4px" },
+    "lg": { "$type": "dimension", "$value": "8px" }
+  }
+}
