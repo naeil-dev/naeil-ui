@@ -29,24 +29,340 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+  AvatarGroup,
+  AvatarGroupCount,
+} from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AccentPicker } from "@/components/accent-picker";
 import { toast } from "sonner";
+
+/* ─── Token Data (for showcase display) ─── */
+
+const GRAY_SCALE = [
+  { step: "50", oklch: "oklch(0.985 0 0)" },
+  { step: "100", oklch: "oklch(0.970 0 0)" },
+  { step: "200", oklch: "oklch(0.922 0 0)" },
+  { step: "300", oklch: "oklch(0.870 0 0)" },
+  { step: "400", oklch: "oklch(0.708 0 0)" },
+  { step: "500", oklch: "oklch(0.556 0 0)" },
+  { step: "600", oklch: "oklch(0.439 0 0)" },
+  { step: "700", oklch: "oklch(0.371 0 0)" },
+  { step: "800", oklch: "oklch(0.269 0 0)" },
+  { step: "900", oklch: "oklch(0.205 0 0)" },
+  { step: "950", oklch: "oklch(0.145 0 0)" },
+];
+
+const ACCENT_SCALE = [
+  { step: "50", oklch: "oklch(0.970 0.014 254)" },
+  { step: "100", oklch: "oklch(0.932 0.032 255)" },
+  { step: "200", oklch: "oklch(0.882 0.059 254)" },
+  { step: "300", oklch: "oklch(0.809 0.105 254)" },
+  { step: "400", oklch: "oklch(0.707 0.165 254)" },
+  { step: "500", oklch: "oklch(0.623 0.214 259)" },
+  { step: "600", oklch: "oklch(0.546 0.245 263)" },
+  { step: "700", oklch: "oklch(0.488 0.243 264.376)" },
+  { step: "800", oklch: "oklch(0.424 0.199 265)" },
+  { step: "900", oklch: "oklch(0.379 0.146 265)" },
+  { step: "950", oklch: "oklch(0.282 0.091 267)" },
+];
+
+const DESTRUCTIVE_SCALE = [
+  { step: "50", oklch: "oklch(0.971 0.013 17)" },
+  { step: "100", oklch: "oklch(0.936 0.032 17)" },
+  { step: "200", oklch: "oklch(0.885 0.062 18)" },
+  { step: "300", oklch: "oklch(0.808 0.114 19)" },
+  { step: "400", oklch: "oklch(0.704 0.191 22.216)" },
+  { step: "500", oklch: "oklch(0.637 0.237 25)" },
+  { step: "600", oklch: "oklch(0.577 0.245 27.325)" },
+  { step: "700", oklch: "oklch(0.505 0.213 27)" },
+  { step: "800", oklch: "oklch(0.444 0.177 26)" },
+  { step: "900", oklch: "oklch(0.396 0.141 25)" },
+  { step: "950", oklch: "oklch(0.258 0.092 26)" },
+];
+
+const SEMANTIC_TOKENS = [
+  "background",
+  "foreground",
+  "card",
+  "card-foreground",
+  "primary",
+  "primary-foreground",
+  "secondary",
+  "secondary-foreground",
+  "muted",
+  "muted-foreground",
+  "accent",
+  "accent-foreground",
+  "destructive",
+  "destructive-foreground",
+  "border",
+  "input",
+  "ring",
+];
+
+const TYPE_SIZES = [
+  { name: "xs", class: "text-xs" },
+  { name: "sm", class: "text-sm" },
+  { name: "base", class: "text-base" },
+  { name: "lg", class: "text-lg" },
+  { name: "xl", class: "text-xl" },
+  { name: "2xl", class: "text-2xl" },
+  { name: "3xl", class: "text-3xl" },
+  { name: "4xl", class: "text-4xl" },
+];
+
+const SPACING_STEPS = [
+  { name: "0", px: "0" },
+  { name: "1", px: "4" },
+  { name: "2", px: "8" },
+  { name: "3", px: "12" },
+  { name: "4", px: "16" },
+  { name: "5", px: "20" },
+  { name: "6", px: "24" },
+  { name: "8", px: "32" },
+  { name: "10", px: "40" },
+  { name: "12", px: "48" },
+  { name: "16", px: "64" },
+];
+
+/* ─── Helper Components ─── */
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-2xl font-bold tracking-tight border-b border-border pb-2">
+      {children}
+    </h2>
+  );
+}
+
+function SubHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+      {children}
+    </h3>
+  );
+}
+
+function ColorScale({
+  name,
+  colors,
+}: {
+  name: string;
+  colors: { step: string; oklch: string }[];
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <SubHeading>{name}</SubHeading>
+      <div className="flex gap-1">
+        {colors.map((c) => (
+          <div key={c.step} className="flex flex-col items-center gap-1 flex-1">
+            <div
+              className="w-full aspect-square rounded-md border border-border"
+              style={{ backgroundColor: c.oklch }}
+            />
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {c.step}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SemanticTokenGrid() {
+  return (
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+      {SEMANTIC_TOKENS.map((token) => (
+        <div key={token} className="flex flex-col items-center gap-1">
+          <div
+            className="w-full aspect-square rounded-md border border-border"
+            style={{ backgroundColor: `var(--${token})` }}
+          />
+          <span className="text-[10px] text-muted-foreground font-mono text-center leading-tight">
+            {token}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Main Page ─── */
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center gap-12 p-8 pb-20">
-      <div className="flex flex-col items-center gap-2">
+    <main className="flex min-h-screen flex-col gap-16 p-8 pb-24 max-w-4xl mx-auto">
+      {/* Header */}
+      <header className="flex flex-col items-center gap-4 pt-8">
         <h1 className="text-4xl font-bold tracking-tight">naeil-ui</h1>
         <p className="text-muted-foreground text-sm">
-          Phase 5 — 핵심 컴포넌트 쇼케이스
+          Design System Showcase — Tokens · Components · Themes
         </p>
-        <ThemeToggle />
-      </div>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+        </div>
+      </header>
 
-      {/* 1. Button */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Button</h2>
+      {/* ════════════════════════════════════════════
+          T45: Accent Demo
+          ════════════════════════════════════════════ */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Accent</SectionHeading>
+        <p className="text-sm text-muted-foreground">
+          프로젝트별 악센트 색상 주입. 아래 프리셋을 선택하면 모든 accent 토큰이 즉시 변경됩니다.
+        </p>
+        <AccentPicker />
+      </section>
+
+      {/* ════════════════════════════════════════════
+          T43: Token Showcase
+          ════════════════════════════════════════════ */}
+
+      {/* Colors — Primitive */}
+      <section className="flex flex-col gap-6">
+        <SectionHeading>Colors — Primitive</SectionHeading>
+        <ColorScale name="Gray" colors={GRAY_SCALE} />
+        <ColorScale name="Accent (Blue default)" colors={ACCENT_SCALE} />
+        <ColorScale name="Destructive" colors={DESTRUCTIVE_SCALE} />
+      </section>
+
+      {/* Colors — Semantic */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Colors — Semantic</SectionHeading>
+        <p className="text-sm text-muted-foreground">
+          현재 테마(다크/라이트)에 따라 매핑이 변경됩니다.
+        </p>
+        <SemanticTokenGrid />
+      </section>
+
+      {/* Typography */}
+      <section className="flex flex-col gap-6">
+        <SectionHeading>Typography</SectionHeading>
+
+        <div className="flex flex-col gap-1">
+          <SubHeading>Sans (Pretendard)</SubHeading>
+          <div className="flex flex-col gap-2">
+            {TYPE_SIZES.map((t) => (
+              <div key={t.name} className="flex items-baseline gap-4">
+                <span className="text-xs text-muted-foreground font-mono w-10 shrink-0 text-right">
+                  {t.name}
+                </span>
+                <span className={`${t.class} font-normal`}>
+                  가나다라 ABCabc 012
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <SubHeading>Mono (JetBrains Mono)</SubHeading>
+          <div className="flex flex-col gap-2">
+            {TYPE_SIZES.slice(0, 5).map((t) => (
+              <div key={t.name} className="flex items-baseline gap-4">
+                <span className="text-xs text-muted-foreground font-mono w-10 shrink-0 text-right">
+                  {t.name}
+                </span>
+                <span className={`${t.class} font-mono`}>
+                  const x = 42; // →
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <SubHeading>Weights</SubHeading>
+          <div className="flex flex-col gap-2">
+            <span className="text-lg font-normal">
+              400 Regular — 기본 텍스트 본문
+            </span>
+            <span className="text-lg font-medium">
+              500 Medium — 강조 라벨
+            </span>
+            <span className="text-lg font-bold">
+              700 Bold — 제목 헤딩
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Spacing */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Spacing</SectionHeading>
+        <div className="flex flex-col gap-2">
+          {SPACING_STEPS.map((s) => (
+            <div key={s.name} className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground font-mono w-8 text-right shrink-0">
+                {s.name}
+              </span>
+              <div
+                className="h-3 rounded-sm bg-primary"
+                style={{ width: `${s.px}px` }}
+              />
+              <span className="text-xs text-muted-foreground font-mono">
+                {s.px}px
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Radius */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Radius</SectionHeading>
+        <div className="flex gap-6">
+          {[
+            { name: "none", class: "rounded-none", px: "0px" },
+            { name: "sm", class: "rounded-sm", px: "2px" },
+            { name: "md", class: "rounded-md", px: "4px" },
+            { name: "lg", class: "rounded-lg", px: "8px" },
+          ].map((r) => (
+            <div key={r.name} className="flex flex-col items-center gap-2">
+              <div
+                className={`size-16 bg-primary ${r.class}`}
+              />
+              <span className="text-xs text-muted-foreground font-mono">
+                {r.name} ({r.px})
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Shadow */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Shadow</SectionHeading>
+        <div className="flex gap-6">
+          <div className="flex flex-col items-center gap-2">
+            <div className="size-24 rounded-md bg-card border border-border shadow-sm" />
+            <span className="text-xs text-muted-foreground font-mono">
+              shadow-sm
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <div className="size-24 rounded-md bg-card border border-border shadow-md" />
+            <span className="text-xs text-muted-foreground font-mono">
+              shadow-md
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════
+          T44: Component Showcase
+          ════════════════════════════════════════════ */}
+
+      {/* Button */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Button</SectionHeading>
+        <SubHeading>Variants</SubHeading>
         <div className="flex flex-wrap gap-3">
           <Button>Default</Button>
           <Button variant="secondary">Secondary</Button>
@@ -55,18 +371,25 @@ export default function Home() {
           <Button variant="ghost">Ghost</Button>
           <Button variant="link">Link</Button>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <SubHeading>Sizes</SubHeading>
+        <div className="flex flex-wrap items-center gap-3">
           <Button size="xs">XS</Button>
           <Button size="sm">SM</Button>
           <Button size="default">Default</Button>
           <Button size="lg">LG</Button>
+        </div>
+        <SubHeading>States</SubHeading>
+        <div className="flex flex-wrap gap-3">
           <Button disabled>Disabled</Button>
+          <Button variant="outline" disabled>
+            Outline Disabled
+          </Button>
         </div>
       </section>
 
-      {/* 2. Input */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Input</h2>
+      {/* Input */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Input</SectionHeading>
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder="기본 입력" />
           <Input type="email" placeholder="이메일" />
@@ -75,9 +398,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Card */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Card</h2>
+      {/* Card */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Card</SectionHeading>
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <CardHeader>
@@ -99,17 +422,22 @@ export default function Home() {
               <CardDescription>최근 배포 히스토리</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm font-mono text-muted-foreground">
-                v0.5.0 — 2026-02-28 15:00
-              </p>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-mono text-muted-foreground">
+                  v0.6.0 — Phase 6 Demo
+                </p>
+                <p className="text-sm font-mono text-muted-foreground">
+                  v0.5.0 — Core Components
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* 4. Dialog */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Dialog</h2>
+      {/* Dialog */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Dialog</SectionHeading>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline">다이얼로그 열기</Button>
@@ -131,9 +459,9 @@ export default function Home() {
         </Dialog>
       </section>
 
-      {/* 5. Dropdown Menu */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Dropdown Menu</h2>
+      {/* Dropdown Menu */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Dropdown Menu</SectionHeading>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">메뉴 열기</Button>
@@ -152,9 +480,9 @@ export default function Home() {
         </DropdownMenu>
       </section>
 
-      {/* 6. Sonner (Toast) */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Sonner (Toast)</h2>
+      {/* Sonner */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Sonner (Toast)</SectionHeading>
         <div className="flex flex-wrap gap-3">
           <Button
             variant="outline"
@@ -183,9 +511,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Badge */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Badge</h2>
+      {/* Badge */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Badge</SectionHeading>
         <div className="flex flex-wrap gap-3">
           <Badge>Default</Badge>
           <Badge variant="secondary">Secondary</Badge>
@@ -193,28 +521,74 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Avatar */}
-      <section className="flex w-full max-w-2xl flex-col gap-4">
-        <h2 className="text-lg font-semibold">Avatar</h2>
-        <div className="flex items-center gap-4">
-          <Avatar>
-            <AvatarImage
-              src="https://github.com/shadcn.png"
-              alt="shadcn"
-            />
-            <AvatarFallback>SC</AvatarFallback>
-          </Avatar>
-          <Avatar>
-            <AvatarFallback>JM</AvatarFallback>
-          </Avatar>
-          <Avatar size="sm">
-            <AvatarFallback>S</AvatarFallback>
-          </Avatar>
-          <Avatar size="lg">
-            <AvatarFallback>LG</AvatarFallback>
-          </Avatar>
+      {/* Avatar */}
+      <section className="flex flex-col gap-6">
+        <SectionHeading>Avatar</SectionHeading>
+
+        <div>
+          <SubHeading>Sizes</SubHeading>
+          <div className="flex items-center gap-4 mt-2">
+            <Avatar size="sm">
+              <AvatarFallback>S</AvatarFallback>
+            </Avatar>
+            <Avatar>
+              <AvatarImage
+                src="https://github.com/shadcn.png"
+                alt="shadcn"
+              />
+              <AvatarFallback>SC</AvatarFallback>
+            </Avatar>
+            <Avatar size="lg">
+              <AvatarFallback>LG</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+
+        <div>
+          <SubHeading>With Badge</SubHeading>
+          <div className="flex items-center gap-4 mt-2">
+            <Avatar>
+              <AvatarImage
+                src="https://github.com/shadcn.png"
+                alt="shadcn"
+              />
+              <AvatarFallback>SC</AvatarFallback>
+              <AvatarBadge />
+            </Avatar>
+            <Avatar size="lg">
+              <AvatarFallback>JM</AvatarFallback>
+              <AvatarBadge />
+            </Avatar>
+          </div>
+        </div>
+
+        <div>
+          <SubHeading>Group</SubHeading>
+          <div className="mt-2">
+            <AvatarGroup>
+              <Avatar>
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="1"
+                />
+                <AvatarFallback>A</AvatarFallback>
+              </Avatar>
+              <Avatar>
+                <AvatarFallback>B</AvatarFallback>
+              </Avatar>
+              <Avatar>
+                <AvatarFallback>C</AvatarFallback>
+              </Avatar>
+              <AvatarGroupCount>+5</AvatarGroupCount>
+            </AvatarGroup>
+          </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="text-center text-xs text-muted-foreground pt-8 border-t border-border">
+        naeil-ui · Phase 6 Demo · OKLCH · Tailwind v4 · shadcn/ui
+      </footer>
     </main>
   );
 }
