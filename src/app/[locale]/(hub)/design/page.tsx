@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AccentPicker } from "@/components/accent-picker";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { toast } from "sonner";
 
 /* ─── Token Data (for showcase display) ─── */
@@ -196,16 +198,19 @@ function SemanticTokenGrid() {
 /* ─── Main Page ─── */
 
 export default function Home() {
+  const t = useTranslations("design");
+
   return (
     <main className="flex min-h-screen flex-col gap-16 p-8 pb-24 max-w-4xl mx-auto">
       {/* Header */}
       <header className="flex flex-col items-center gap-4 pt-8">
-        <h1 className="text-4xl font-bold tracking-tight">naeil-ui</h1>
+        <h1 className="text-4xl font-bold tracking-tight">{t("title")}</h1>
         <p className="text-muted-foreground text-sm">
-          Design System Showcase — Tokens · Components · Themes
+          {t("subtitle")}
         </p>
         <div className="flex items-center gap-3">
           <ThemeToggle />
+          <LocaleSwitcher />
         </div>
       </header>
 

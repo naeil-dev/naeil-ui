@@ -1,0 +1,55 @@
+{
+  "common": {
+    "appName": "naeil",
+    "home": "Home",
+    "projects": "Projects",
+    "design": "Design System",
+    "loading": "Loading..."
+  },
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "design": "Design System"
+  },
+  "hero": {
+    "title": "naeil",
+    "subtitle": "Personal projects by Jay — built with a minimal, mechanical design system."
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Jay's personal projects — all built with naeil-ui.",
+    "cc": {
+      "name": "Content Collector",
+      "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization"
+    },
+    "pkm": {
+      "name": "PKM",
+      "description": "Personal knowledge management — document parsing, embeddings, semantic search"
+    },
+    "naeilUi": {
+      "name": "naeil-ui",
+      "description": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn"
+    },
+    "babyAgent": {
+      "name": "Baby Agent",
+      "description": "Parenting AI agent — LINE-based Q&A, records, reminders"
+    },
+    "status": {
+      "active": "Active",
+      "coming": "Coming Soon"
+    }
+  },
+  "cc": {
+    "placeholder": "Content Collector Dashboard — coming soon"
+  },
+  "pkm": {
+    "placeholder": "PKM Viewer — coming soon"
+  },
+  "design": {
+    "title": "naeil-ui",
+    "subtitle": "Design System Showcase — Tokens · Components · Themes"
+  },
+  "locale": {
+    "switchLabel": "Language"
+  }
+}

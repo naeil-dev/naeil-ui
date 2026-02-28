@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,43 +9,57 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-const PROJECTS = [
-  {
-    name: "Content Collector",
-    description: "RSS·YouTube·Reddit 콘텐츠 자동 수집 + AI 요약",
-    href: "/cc",
-    status: "active",
-  },
-  {
-    name: "PKM",
-    description: "개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
-    href: "/pkm",
-    status: "active",
-  },
-  {
-    name: "Baby Agent",
-    description: "육아 전용 AI 에이전트 — LINE 기반",
-    href: "#",
-    status: "coming",
-  },
-] as const;
+export default async function HubPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
 
-export default function HubPage() {
+  return <HubContent />;
+}
+
+function HubContent() {
+  const t = useTranslations();
+
+  const PROJECTS = [
+    {
+      name: t("projects.cc.name"),
+      description: t("projects.cc.description"),
+      href: "/cc" as const,
+      status: "active" as const,
+    },
+    {
+      name: t("projects.pkm.name"),
+      description: t("projects.pkm.description"),
+      href: "/pkm" as const,
+      status: "active" as const,
+    },
+    {
+      name: t("projects.babyAgent.name"),
+      description: t("projects.babyAgent.description"),
+      href: "#" as const,
+      status: "coming" as const,
+    },
+  ];
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-16 p-8">
       {/* Hero */}
       <section className="flex flex-col items-center gap-4 text-center">
-        <h1 className="text-5xl font-bold tracking-tight">naeil</h1>
+        <h1 className="text-5xl font-bold tracking-tight">
+          {t("hero.title")}
+        </h1>
         <p className="text-muted-foreground max-w-md text-lg">
-          Personal projects by Jay — built with a minimal, mechanical design
-          system.
+          {t("hero.subtitle")}
         </p>
         <div className="flex gap-3">
           <Button asChild>
-            <Link href="/projects">Projects</Link>
+            <Link href="/projects">{t("nav.projects")}</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/design">Design System</Link>
+            <Link href="/design">{t("nav.design")}</Link>
           </Button>
         </div>
       </section>
@@ -57,7 +73,9 @@ export default function HubPage() {
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-sm">{project.name}</CardTitle>
                   {project.status === "coming" && (
-                    <span className="text-muted-foreground text-xs">soon</span>
+                    <span className="text-muted-foreground text-xs">
+                      {t("projects.status.coming")}
+                    </span>
                   )}
                 </div>
                 <CardDescription className="text-xs">

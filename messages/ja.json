@@ -1,0 +1,55 @@
+{
+  "common": {
+    "appName": "naeil",
+    "home": "ホーム",
+    "projects": "プロジェクト",
+    "design": "デザインシステム",
+    "loading": "読み込み中..."
+  },
+  "nav": {
+    "home": "ホーム",
+    "projects": "プロジェクト",
+    "design": "デザインシステム"
+  },
+  "hero": {
+    "title": "naeil",
+    "subtitle": "ミニマルなデザインシステムで作った、Jayの個人プロジェクト。"
+  },
+  "projects": {
+    "title": "プロジェクト",
+    "subtitle": "naeil-uiで作ったJayの個人プロジェクト。",
+    "cc": {
+      "name": "Content Collector",
+      "description": "RSS・YouTube・Redditからコンテンツを自動収集 + AI要約"
+    },
+    "pkm": {
+      "name": "PKM",
+      "description": "個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+    },
+    "naeilUi": {
+      "name": "naeil-ui",
+      "description": "ミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+    },
+    "babyAgent": {
+      "name": "Baby Agent",
+      "description": "育児専用AIエージェント — LINE対応Q&A、記録、リマインダー"
+    },
+    "status": {
+      "active": "稼働中",
+      "coming": "準備中"
+    }
+  },
+  "cc": {
+    "placeholder": "Content Collector ダッシュボード — 準備中"
+  },
+  "pkm": {
+    "placeholder": "PKM ビューアー — 準備中"
+  },
+  "design": {
+    "title": "naeil-ui",
+    "subtitle": "デザインシステムショーケース — トークン · コンポーネント · テーマ"
+  },
+  "locale": {
+    "switchLabel": "言語"
+  }
+}

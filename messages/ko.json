@@ -1,0 +1,55 @@
+{
+  "common": {
+    "appName": "naeil",
+    "home": "홈",
+    "projects": "프로젝트",
+    "design": "디자인 시스템",
+    "loading": "로딩 중..."
+  },
+  "nav": {
+    "home": "홈",
+    "projects": "프로젝트",
+    "design": "디자인 시스템"
+  },
+  "hero": {
+    "title": "naeil",
+    "subtitle": "미니멀 디자인 시스템으로 만든 Jay의 개인 프로젝트."
+  },
+  "projects": {
+    "title": "프로젝트",
+    "subtitle": "naeil-ui로 만든 Jay의 개인 프로젝트.",
+    "cc": {
+      "name": "Content Collector",
+      "description": "RSS·YouTube·Reddit 콘텐츠 자동 수집 + AI 요약"
+    },
+    "pkm": {
+      "name": "PKM",
+      "description": "개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+    },
+    "naeilUi": {
+      "name": "naeil-ui",
+      "description": "미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+    },
+    "babyAgent": {
+      "name": "Baby Agent",
+      "description": "육아 전용 AI 에이전트 — LINE 기반 Q&A, 기록, 알림"
+    },
+    "status": {
+      "active": "운영 중",
+      "coming": "준비 중"
+    }
+  },
+  "cc": {
+    "placeholder": "Content Collector 대시보드 — 준비 중"
+  },
+  "pkm": {
+    "placeholder": "PKM 뷰어 — 준비 중"
+  },
+  "design": {
+    "title": "naeil-ui",
+    "subtitle": "디자인 시스템 쇼케이스 — 토큰 · 컴포넌트 · 테마"
+  },
+  "locale": {
+    "switchLabel": "언어"
+  }
+}
