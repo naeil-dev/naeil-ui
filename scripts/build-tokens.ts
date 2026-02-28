@@ -120,6 +120,18 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   lines.push("}");
   lines.push("");
 
+  // --- @media (prefers-color-scheme: dark) fallback ---
+  // Priority: user override (class) > system preference > fallback dark
+  lines.push("@media (prefers-color-scheme: dark) {");
+  lines.push("  :root:not(.light) {");
+  for (const t of darkTokens) {
+    const name = tokenNameFrom(t, 2);
+    lines.push(`    --${name}: ${tokenValue(t)};`);
+  }
+  lines.push("  }");
+  lines.push("}");
+  lines.push("");
+
   return lines.join("\n");
 }
 

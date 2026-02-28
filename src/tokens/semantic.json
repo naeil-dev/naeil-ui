@@ -52,7 +52,7 @@
       "muted-foreground": { "$type": "color", "$value": "{color.gray.400}" },
       "accent": { "$type": "color", "$value": "{color.gray.800}" },
       "accent-foreground": { "$type": "color", "$value": "{color.gray.50}" },
-      "destructive": { "$type": "color", "$value": "{color.destructive.400}" },
+      "destructive": { "$type": "color", "$value": "{color.destructive.600}" },
       "destructive-foreground": { "$type": "color", "$value": "{color.gray.50}" },
       "border": { "$type": "color", "$value": "oklch(1 0 0 / 10%)" },
       "input": { "$type": "color", "$value": "oklch(1 0 0 / 15%)" },
