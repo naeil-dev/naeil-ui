@@ -30,19 +30,19 @@
 
 ## Phase 3: Tailwind v4 테마 통합
 
-- [ ] T21: `dist/theme.css`에 토큰 → Tailwind 유틸리티 매핑 확인 (색상, 타이포, 라운딩)
-- [ ] T22: shadcn 표준 변수명 매핑 — naeil-ui 시맨틱 토큰 → `--primary`, `--secondary`, `--ring`, `--border` 등
-- [ ] T23: 프로젝트 내 `globals.css`에서 `@import "theme.css"` 연결
-- [ ] T24: **검증** — Tailwind 클래스(`bg-accent`, `text-muted`, `font-sans`)가 올바른 CSS 변수 참조 + shadcn 컴포넌트 정상 렌더링
+- [x] T21: `dist/theme.css`에 토큰 → Tailwind 유틸리티 매핑 확인 (색상, 타이포, 라운딩)
+- [x] T22: shadcn 표준 변수명 매핑 — naeil-ui 시맨틱 토큰 → `--primary`, `--secondary`, `--ring`, `--border` 등
+- [x] T23: 프로젝트 내 `globals.css`에서 `@import "theme.css"` 연결
+- [x] T24: **검증** — Tailwind 클래스(`bg-accent`, `text-muted`, `font-sans`)가 올바른 CSS 변수 참조 + shadcn 컴포넌트 정상 렌더링
 
 ## Phase 4: 테마 시스템
 
-- [ ] T25: `semantic.json`에 다크/라이트 모드별 OKLCH 값 정의
-- [ ] T26: SD 빌드 출력에 `:root`(다크) + `.light` + `prefers-color-scheme` 폴백 반영
-- [ ] T27: `next-themes` 설치 + ThemeProvider 설정
-- [ ] T28: 악센트 CSS 변수 오버라이드 메커니즘 구현 + 기본값 뉴트럴 블루 (OKLCH)
-- [ ] T29: WCAG 4.5:1 대비 자동 검증 스크립트 작성 (다크/라이트 양쪽)
-- [ ] T30: **검증** — 테마 토글 시 모든 시맨틱 토큰 즉시 전환 + 악센트 오버라이드 동작 + contrast 통과
+- [x] T25: `semantic.json`에 다크/라이트 모드별 OKLCH 값 정의
+- [x] T26: SD 빌드 출력에 `:root`(다크) + `.light` + `prefers-color-scheme` 폴백 반영
+- [x] T27: `next-themes` 설치 + ThemeProvider 설정
+- [x] T28: 악센트 CSS 변수 오버라이드 메커니즘 구현 + 기본값 뉴트럴 블루 (OKLCH)
+- [x] T29: WCAG 4.5:1 대비 자동 검증 스크립트 작성 (다크/라이트 양쪽)
+- [x] T30: **검증** — 테마 토글 시 모든 시맨틱 토큰 즉시 전환 + 악센트 오버라이드 동작 + contrast 통과
 
 ## Phase 5: 핵심 컴포넌트
 
