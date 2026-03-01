@@ -12,15 +12,15 @@
     "design": "디자인 시스템"
   },
   "hero": {
-    "title": "naeil",
-    "subtitle": "미니멀 디자인 시스템으로 만든 Jay의 개인 프로젝트."
+    "title": "naeil.",
+    "subtitle": "Build · Ship · Iterate"
   },
   "projects": {
     "title": "프로젝트",
-    "subtitle": "naeil-ui로 만든 Jay의 개인 프로젝트.",
+    "subtitle": "실사용을 위해 만든 개인 도구들.",
     "cc": {
       "name": "Content Collector",
-      "description": "RSS·YouTube·Reddit 콘텐츠 자동 수집 + AI 요약"
+      "description": "RSS, YouTube, Reddit 자동 수집 + AI 요약"
     },
     "pkm": {
       "name": "PKM",
@@ -32,12 +32,15 @@
     },
     "babyAgent": {
       "name": "Baby Agent",
-      "description": "육아 전용 AI 에이전트 — LINE 기반 Q&A, 기록, 알림"
+      "description": "육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
     },
     "status": {
-      "active": "운영 중",
+      "active": "활성",
       "coming": "준비 중"
     }
+  },
+  "stack": {
+    "label": "사용 기술"
   },
   "cc": {
     "placeholder": "Content Collector 대시보드 — 준비 중"

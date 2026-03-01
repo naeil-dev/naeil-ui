@@ -12,15 +12,15 @@
     "design": "デザインシステム"
   },
   "hero": {
-    "title": "naeil",
-    "subtitle": "ミニマルなデザインシステムで作った、Jayの個人プロジェクト。"
+    "title": "naeil.",
+    "subtitle": "Build · Ship · Iterate"
   },
   "projects": {
     "title": "プロジェクト",
-    "subtitle": "naeil-uiで作ったJayの個人プロジェクト。",
+    "subtitle": "実用のために作った個人ツール。",
     "cc": {
       "name": "Content Collector",
-      "description": "RSS・YouTube・Redditからコンテンツを自動収集 + AI要約"
+      "description": "RSS、YouTube、Redditの自動収集 + AI要約"
     },
     "pkm": {
       "name": "PKM",
@@ -32,18 +32,21 @@
     },
     "babyAgent": {
       "name": "Baby Agent",
-      "description": "育児専用AIエージェント — LINE対応Q&A、記録、リマインダー"
+      "description": "育児AIエージェント — LINE Q&A、記録、リマインダー"
     },
     "status": {
-      "active": "稼働中",
+      "active": "アクティブ",
       "coming": "準備中"
     }
+  },
+  "stack": {
+    "label": "使用技術"
   },
   "cc": {
     "placeholder": "Content Collector ダッシュボード — 準備中"
   },
   "pkm": {
-    "placeholder": "PKM ビューアー — 準備中"
+    "placeholder": "PKMビューア — 準備中"
   },
   "design": {
     "title": "naeil-ui",

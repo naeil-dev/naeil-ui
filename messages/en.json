@@ -12,12 +12,12 @@
     "design": "Design System"
   },
   "hero": {
-    "title": "naeil",
-    "subtitle": "Personal projects by Jay — built with a minimal, mechanical design system."
+    "title": "naeil.",
+    "subtitle": "Build · Ship · Iterate"
   },
   "projects": {
     "title": "Projects",
-    "subtitle": "Jay's personal projects — all built with naeil-ui.",
+    "subtitle": "Personal tools built for real use — not demos.",
     "cc": {
       "name": "Content Collector",
       "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization"
@@ -38,6 +38,9 @@
       "active": "Active",
       "coming": "Coming Soon"
     }
+  },
+  "stack": {
+    "label": "Built with"
   },
   "cc": {
     "placeholder": "Content Collector Dashboard — coming soon"
