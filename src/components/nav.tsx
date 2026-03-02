@@ -44,7 +44,7 @@ export function Nav() {
             className="text-foreground flex items-center gap-3 text-xl font-semibold tracking-tight"
           >
             <Logo size={28} />
-            naeil
+            .naeil
           </Link>
         </div>
 

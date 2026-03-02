@@ -15,7 +15,7 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <Logo size={20} />
             <span className="text-foreground text-sm font-semibold tracking-tight">
-              naeil
+              .naeil
             </span>
           </div>
           <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
