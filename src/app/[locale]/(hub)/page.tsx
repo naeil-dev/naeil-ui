@@ -132,16 +132,6 @@ function HubContent() {
         </div>
       </section>
 
-      {/* Stack */}
-      <section className="border-border/40 border-t px-6 py-16 text-center">
-        <p className="text-muted-foreground text-sm tracking-wide">
-          {t("stack.label")}
-        </p>
-        <p className="text-foreground/70 mt-2 font-mono text-xs tracking-wider">
-          React · Next.js · Tailwind · TypeScript · Python · SQLite · Playwright
-        </p>
-      </section>
-
       <Footer />
     </>
   );
