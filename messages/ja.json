@@ -9,7 +9,7 @@
   "nav": {
     "home": "ホーム",
     "projects": "プロジェクト",
-    "design": "デザインシステム"
+    "blog": "ブログ"
   },
   "hero": {
     "title": ".naeil",
@@ -56,7 +56,7 @@
     "tagline": "実用のための個人開発ツール。明日はここから。",
     "navigation": "ナビゲーション",
     "projects": "プロジェクト",
-    "designSystem": "デザインシステム",
+    "blog": "ブログ",
     "social": "ソーシャル"
   },
   "locale": {

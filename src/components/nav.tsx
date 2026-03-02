@@ -53,8 +53,8 @@ export function Nav() {
           <Link href="/projects" className={linkClass("/projects")}>
             {t("projects")}
           </Link>
-          <Link href="/design" className={linkClass("/design")}>
-            {t("design")}
+          <Link href="/blog" className={linkClass("/blog")}>
+            {t("blog")}
           </Link>
         </div>
 

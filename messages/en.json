@@ -9,7 +9,7 @@
   "nav": {
     "home": "Home",
     "projects": "Projects",
-    "design": "Design System"
+    "blog": "Blog"
   },
   "hero": {
     "title": ".naeil",
@@ -56,7 +56,7 @@
     "tagline": "Personal dev tools. Tomorrow starts here.",
     "navigation": "Navigation",
     "projects": "Projects",
-    "designSystem": "Design System",
+    "blog": "Blog",
     "social": "Social"
   },
   "locale": {

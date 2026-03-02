@@ -9,7 +9,7 @@
   "nav": {
     "home": "홈",
     "projects": "프로젝트",
-    "design": "디자인 시스템"
+    "blog": "블로그"
   },
   "hero": {
     "title": ".naeil",
@@ -56,7 +56,7 @@
     "tagline": "실사용을 위한 개인 개발 도구. 내일은 여기서 시작.",
     "navigation": "네비게이션",
     "projects": "프로젝트",
-    "designSystem": "디자인 시스템",
+    "blog": "블로그",
     "social": "소셜"
   },
   "locale": {

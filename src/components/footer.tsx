@@ -56,10 +56,10 @@ export function Footer() {
               {t("projects")}
             </Link>
             <Link
-              href="/design"
+              href="/blog"
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
-              {t("designSystem")}
+              {t("blog")}
             </Link>
           </div>
           <div className="flex flex-col gap-3">
