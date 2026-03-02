@@ -1,244 +1,683 @@
 "use client";
 
-import { useState, useRef, useMemo, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
-import type { Group, Mesh } from "three";
+import { useState, useRef, useMemo } from "react";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import type { Mesh } from "three";
 import * as THREE from "three";
 
-// ─── Shared ───
+// ─── Gradient Glow Sun (夕焼け) ───
 
-function useMouseParallax(intensity = 0.12) {
-  const smoothed = useRef({ x: 0, y: 0 });
-  useFrame(({ pointer, viewport }) => {
-    const mx = (pointer.x * viewport.width) / 2;
-    const my = (pointer.y * viewport.height) / 2;
-    smoothed.current.x += (mx * intensity - smoothed.current.x) * 0.04;
-    smoothed.current.y += (my * intensity - smoothed.current.y) * 0.04;
-  });
-  return smoothed;
-}
+const GRADIENT_VERTEX = /* glsl */ `
+  varying vec2 vUv;
+  varying float vWorldY;
+  void main() {
+    vUv = uv;
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);
+    vWorldY = worldPos.y;
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
+  }
+`;
 
-function ParallaxWrapper({ children }: { children: React.ReactNode }) {
-  const groupRef = useRef<Group>(null);
-  const mouse = useMouseParallax();
-  useFrame(() => {
-    if (!groupRef.current) return;
-    groupRef.current.rotation.y = mouse.current.x * 0.05;
-    groupRef.current.rotation.x = mouse.current.y * 0.02;
-  });
-  return <group ref={groupRef}>{children}</group>;
-}
+const GRADIENT_FRAGMENT = /* glsl */ `
+  uniform vec3 c1, c2, c3, c4, c5;
+  uniform float uTime;
+  uniform float uPeak;
+  uniform float uClipY;
+  varying vec2 vUv;
+  varying float vWorldY;
+  void main() {
+    float dist = length(vUv - 0.5) * 2.0;
+    float pulse = 1.0 + sin(uTime * 0.4) * 0.06;
+    float d = dist * pulse;
+    vec3 color = mix(c1, c2, smoothstep(0.0, 0.25, d));
+    color = mix(color, c3, smoothstep(0.15, 0.45, d));
+    color = mix(color, c4, smoothstep(0.35, 0.70, d));
+    color = mix(color, c5, smoothstep(0.55, 0.95, d));
+    float alpha = pow(max(1.0 - d * d, 0.0), 2.0) * uPeak;
+    alpha *= smoothstep(uClipY - 0.1, uClipY + 0.05, vWorldY);
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
 
-// ─── Camera controller ───
+// 夕焼け palette: red → orange → yellow → teal → cyan
+const SUNSET_STOPS: [number, number, number, number, number] = [0xdc2626, 0xea580c, 0xeab308, 0x0d9488, 0x0e7490];
 
-function CameraRig({ camY, camZ, fov }: { camY: number; camZ: number; fov: number }) {
-  const { camera } = useThree();
-  useEffect(() => {
-    camera.position.set(0, camY, camZ);
-    (camera as THREE.PerspectiveCamera).fov = fov;
-    camera.updateProjectionMatrix();
-  }, [camera, camY, camZ, fov]);
-  return null;
-}
+const GRADIENT_LAYERS = [
+  { r: 2.5, peak: 0.60, y: -0.25, z: -0.2 },
+  { r: 0.5, peak: 0.50, y: -0.38, z: -0.05 },
+];
 
-// ─── Ocean Ground ───
+function GradientGlowSun() {
+  const refs = useRef<(THREE.ShaderMaterial | null)[]>([]);
+  const [s0, s1, s2, s3, s4] = SUNSET_STOPS;
 
-function Ocean() {
-  const ref = useRef<Mesh>(null);
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    (ref.current.material as THREE.MeshStandardMaterial).envMapIntensity =
-      0.3 + Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
-  });
-  return (
-    <mesh ref={ref} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.52, 0]}>
-      <planeGeometry args={[14, 6]} />
-      <meshStandardMaterial color="#060606" metalness={0.97} roughness={0.2} envMapIntensity={0.3} />
-    </mesh>
+  const uniforms = useMemo(
+    () =>
+      GRADIENT_LAYERS.map((cfg) => ({
+        c1: { value: new THREE.Color(s0) },
+        c2: { value: new THREE.Color(s1) },
+        c3: { value: new THREE.Color(s2) },
+        c4: { value: new THREE.Color(s3) },
+        c5: { value: new THREE.Color(s4) },
+        uTime: { value: 0 },
+        uPeak: { value: cfg.peak },
+        uClipY: { value: -0.5 },
+      })),
+    [s0, s1, s2, s3, s4],
   );
-}
-
-// ─── Horizon Line ───
-
-function HorizonLine() {
-  const ref = useRef<Mesh>(null);
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    // Length pulse — ends visible, always wider than mountain base
-    ref.current.scale.x = Math.sin(clock.getElapsedTime() * 0.8) * 0.08 + 0.92;
-    // Opacity pulse
-    (ref.current.material as THREE.MeshBasicMaterial).opacity =
-      0.4 + Math.sin(clock.getElapsedTime() * 0.6) * 0.1;
-  });
-  return (
-    <mesh ref={ref} position={[0, -0.5, 0.1]}>
-      <boxGeometry args={[7, 0.008, 0.008]} />
-      <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.5} />
-    </mesh>
-  );
-}
-
-// ─── Sun Reflection variants ───
-
-function Reflection({ intensity }: { intensity: number }) {
-  const ref = useRef<Mesh>(null);
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    const t = clock.getElapsedTime();
-    (ref.current.material as THREE.MeshBasicMaterial).opacity = 0.04 * intensity + Math.sin(t * 0.7) * 0.015 * intensity;
-    ref.current.scale.x = 1 + Math.sin(t * 0.4) * 0.05;
-  });
-
-  return (
-    <>
-      {/* Main beam */}
-      <mesh ref={ref} position={[0, -0.53, 0.8]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.8 * intensity, 5]} />
-        <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.05 * intensity} side={THREE.DoubleSide} />
-      </mesh>
-      {/* Wide soft glow */}
-      <mesh position={[0, -0.53, 1.0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[2.0 * intensity, 4]} />
-        <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.015 * intensity} side={THREE.DoubleSide} />
-      </mesh>
-      {/* Shimmer strips */}
-      {intensity > 1 && [-0.3, 0.15, 0.4].map((x, i) => (
-        <mesh key={i} position={[x, -0.53, 0.6 + i * 0.3]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.12, 2.5]} />
-          <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.025 * intensity} side={THREE.DoubleSide} />
-        </mesh>
-      ))}
-      {/* Extra wide ambient for high intensity */}
-      {intensity > 2 && (
-        <mesh position={[0, -0.53, 0.5]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[4, 5]} />
-          <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.008 * intensity} side={THREE.DoubleSide} />
-        </mesh>
-      )}
-    </>
-  );
-}
-
-// ─── Setting Sun ───
-
-function SettingSun() {
-  const sunRef = useRef<Mesh>(null);
-  const glowRef = useRef<Mesh>(null);
-  const glow2Ref = useRef<Mesh>(null);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    if (sunRef.current) {
-      sunRef.current.position.y = -0.42 + Math.sin(t * 0.15) * 0.03;
-    }
-    if (glowRef.current) {
-      const s = 1 + Math.sin(t * 0.5) * 0.05;
-      glowRef.current.scale.set(s, s, 1);
-      (glowRef.current.material as THREE.MeshBasicMaterial).opacity = 0.1 + Math.sin(t * 0.6) * 0.03;
-    }
-    if (glow2Ref.current) {
-      (glow2Ref.current.material as THREE.MeshBasicMaterial).opacity = 0.03 + Math.sin(t * 0.3) * 0.01;
-    }
+    refs.current.forEach((mat) => {
+      if (mat) mat.uniforms.uTime.value = t;
+    });
   });
 
   return (
     <group position={[0, 0, -1.2]}>
-      <mesh ref={sunRef} position={[0, -0.42, 0]}>
-        <sphereGeometry args={[0.18, 32, 32]} />
-        <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.7} />
-      </mesh>
-      <mesh ref={glowRef} position={[0, -0.35, -0.1]}>
-        <circleGeometry args={[0.5, 32]} />
-        <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.1} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh ref={glow2Ref} position={[0, -0.2, -0.3]}>
-        <circleGeometry args={[1.5, 32]} />
-        <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.03} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[0, 0.3, -0.5]}>
-        <planeGeometry args={[5, 2]} />
-        <meshBasicMaterial color="oklch(0.623 0.214 259)" transparent opacity={0.008} side={THREE.DoubleSide} />
-      </mesh>
+      {GRADIENT_LAYERS.map((cfg, i) => (
+        <mesh key={i} position={[0, cfg.y, cfg.z]}>
+          <circleGeometry args={[cfg.r, 64]} />
+          <shaderMaterial
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            vertexShader={GRADIENT_VERTEX}
+            fragmentShader={GRADIENT_FRAGMENT}
+            uniforms={uniforms[i]}
+            transparent
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
     </group>
+  );
+}
+
+// ─── Clouds (Scatter) ───
+
+const CLOUD_VERTEX = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const CLOUD_FRAGMENT = /* glsl */ `
+  uniform float uTime;
+  varying vec2 vUv;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  }
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 4; i++) {
+      v += a * noise(p);
+      p *= 2.0;
+      a *= 0.5;
+    }
+    return v;
+  }
+  void main() {
+    vec2 uv = vUv;
+    uv.x += uTime * 0.015;
+    float n = fbm(uv * 12.0);
+    float cloud = smoothstep(0.35, 0.7, n);
+    float vFade = smoothstep(0.0, 0.3, vUv.y) * smoothstep(1.0, 0.7, vUv.y);
+    float hFade = smoothstep(0.0, 0.15, vUv.x) * smoothstep(1.0, 0.85, vUv.x);
+    float alpha = cloud * vFade * hFade * 0.08;
+    vec3 color = vec3(0.75, 0.55, 0.35);
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+function Clouds() {
+  const ref = useRef<THREE.ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 },
+  }), []);
+
+  useFrame(({ clock }) => {
+    if (ref.current) ref.current.uniforms.uTime.value = clock.getElapsedTime();
+  });
+
+  return (
+    <mesh position={[0, 0.5, -1.0]}>
+      <planeGeometry args={[8, 2]} />
+      <shaderMaterial
+        ref={ref}
+        vertexShader={CLOUD_VERTEX}
+        fragmentShader={CLOUD_FRAGMENT}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+// ─── Water Surface ───
+
+const WATER_VERTEX = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const WATER_FRAGMENT = /* glsl */ `
+  uniform float uTime;
+  varying vec2 vUv;
+  void main() {
+    float y = vUv.y;
+    float x = vUv.x;
+    float ripple1 = sin((y * 60.0) + uTime * 0.8 + x * 3.0) * 0.5 + 0.5;
+    float ripple2 = sin((y * 30.0) - uTime * 0.5 + 1.5) * 0.5 + 0.5;
+    float ripple3 = sin((y * 100.0) + uTime * 1.2 - x * 5.0) * 0.5 + 0.5;
+    float ripple = ripple1 * 0.4 + ripple2 * 0.35 + ripple3 * 0.25;
+    float shimmer = sin(x * 8.0 + uTime * 0.3) * sin(y * 12.0 - uTime * 0.4);
+    shimmer = max(shimmer, 0.0) * 0.4;
+    float fadeTop = pow(1.0 - y, 1.5);
+    float fadeBottom = smoothstep(0.0, 0.35, y);
+    float fade = fadeTop * fadeBottom;
+    vec3 warm = vec3(0.40, 0.14, 0.04);
+    vec3 hot  = vec3(0.55, 0.20, 0.06);
+    vec3 cold = vec3(0.03, 0.04, 0.06);
+    vec3 base = mix(warm, cold, y);
+    vec3 color = mix(base, hot, shimmer * (1.0 - y));
+    float alpha = (ripple + shimmer * 0.3) * fade * 1.0;
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+function WaterSurface() {
+  const ref = useRef<THREE.ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 },
+  }), []);
+
+  useFrame(({ clock }) => {
+    if (ref.current) ref.current.uniforms.uTime.value = clock.getElapsedTime();
+  });
+
+  return (
+    <mesh position={[0, -0.55, -0.5]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[14, 4]} />
+      <shaderMaterial
+        ref={ref}
+        vertexShader={WATER_VERTEX}
+        fragmentShader={WATER_FRAGMENT}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+// ─── Sea Creatures ───
+
+interface Swimmer {
+  label: string;
+  color: string;
+  speed: number;
+  y: number;
+  z: number;
+  scale: number;
+  shape: THREE.Shape;
+}
+
+function makeFish(): THREE.Shape {
+  const s = new THREE.Shape();
+  // Tail fork
+  s.moveTo(-0.10, 0.07);
+  s.lineTo(-0.07, 0.05);
+  s.lineTo(-0.10, 0.03);
+  s.lineTo(-0.07, 0.035);
+  // Body bottom
+  s.lineTo(-0.04, 0.02);
+  s.lineTo(0, 0.01);
+  s.lineTo(0.04, 0.01);
+  s.lineTo(0.08, 0.015);
+  // Mouth
+  s.lineTo(0.12, 0.03);
+  s.lineTo(0.13, 0.04);
+  s.lineTo(0.14, 0.05);
+  // Head top
+  s.lineTo(0.12, 0.065);
+  s.lineTo(0.10, 0.075);
+  // Eye indent
+  s.lineTo(0.09, 0.07);
+  s.lineTo(0.08, 0.075);
+  // Dorsal line
+  s.lineTo(0.05, 0.085);
+  s.lineTo(0.02, 0.09);
+  // Dorsal fin
+  s.lineTo(-0.01, 0.11);
+  s.lineTo(-0.02, 0.10);
+  s.lineTo(-0.03, 0.085);
+  // Back to tail
+  s.lineTo(-0.05, 0.075);
+  s.lineTo(-0.07, 0.065);
+  s.closePath();
+  // Pectoral fin
+  s.moveTo(0.04, 0.03);
+  s.lineTo(0.02, -0.01);
+  s.lineTo(0.06, 0.02);
+  return s;
+}
+
+function makeJellyfish(): THREE.Shape {
+  const s = new THREE.Shape();
+  // Bell dome (angular)
+  s.moveTo(-0.07, 0.01);
+  s.lineTo(-0.08, 0.03);
+  s.lineTo(-0.075, 0.06);
+  s.lineTo(-0.06, 0.08);
+  s.lineTo(-0.04, 0.10);
+  s.lineTo(-0.02, 0.11);
+  s.lineTo(0, 0.115);
+  s.lineTo(0.02, 0.11);
+  s.lineTo(0.04, 0.10);
+  s.lineTo(0.06, 0.08);
+  s.lineTo(0.075, 0.06);
+  s.lineTo(0.08, 0.03);
+  s.lineTo(0.07, 0.01);
+  // Bell rim
+  s.lineTo(0.06, 0.005);
+  s.lineTo(0.04, 0.01);
+  s.lineTo(0.02, 0.005);
+  s.lineTo(0, 0.01);
+  s.lineTo(-0.02, 0.005);
+  s.lineTo(-0.04, 0.01);
+  s.lineTo(-0.06, 0.005);
+  s.closePath();
+  // Tentacles (separate paths)
+  s.moveTo(-0.05, 0.005);
+  s.lineTo(-0.055, -0.04);
+  s.lineTo(-0.045, -0.02);
+  s.lineTo(-0.04, -0.06);
+  s.lineTo(-0.035, -0.03);
+  s.moveTo(-0.01, 0.005);
+  s.lineTo(-0.015, -0.05);
+  s.lineTo(-0.005, -0.03);
+  s.lineTo(0, -0.07);
+  s.lineTo(0.005, -0.03);
+  s.lineTo(0.015, -0.05);
+  s.moveTo(0.04, 0.005);
+  s.lineTo(0.035, -0.03);
+  s.lineTo(0.04, -0.06);
+  s.lineTo(0.045, -0.02);
+  s.lineTo(0.055, -0.04);
+  return s;
+}
+
+function makeTurtle(): THREE.Shape {
+  const s = new THREE.Shape();
+  // Head
+  s.moveTo(0.14, 0.04);
+  s.lineTo(0.16, 0.045);
+  s.lineTo(0.17, 0.04);
+  s.lineTo(0.16, 0.035);
+  s.lineTo(0.14, 0.035);
+  // Neck
+  s.lineTo(0.11, 0.03);
+  // Front flipper top
+  s.lineTo(0.09, 0.015);
+  s.lineTo(0.07, -0.01);
+  s.lineTo(0.10, 0.005);
+  // Shell bottom front
+  s.lineTo(0.08, 0.02);
+  s.lineTo(0.04, 0.015);
+  s.lineTo(0, 0.015);
+  // Rear flipper
+  s.lineTo(-0.04, 0.01);
+  s.lineTo(-0.07, -0.005);
+  s.lineTo(-0.05, 0.015);
+  // Tail
+  s.lineTo(-0.08, 0.025);
+  s.lineTo(-0.10, 0.03);
+  s.lineTo(-0.08, 0.035);
+  // Shell top
+  s.lineTo(-0.06, 0.04);
+  s.lineTo(-0.04, 0.055);
+  s.lineTo(-0.02, 0.065);
+  s.lineTo(0, 0.07);
+  s.lineTo(0.02, 0.07);
+  s.lineTo(0.04, 0.065);
+  s.lineTo(0.06, 0.06);
+  s.lineTo(0.08, 0.055);
+  // Shell pattern lines
+  s.lineTo(0.10, 0.048);
+  // Neck top
+  s.lineTo(0.12, 0.045);
+  s.closePath();
+  return s;
+}
+
+function makeWhale(): THREE.Shape {
+  const s = new THREE.Shape();
+  // Tail flukes
+  s.moveTo(-0.22, 0.06);
+  s.lineTo(-0.18, 0.04);
+  s.lineTo(-0.22, 0.02);
+  s.lineTo(-0.19, 0.035);
+  // Tail narrow
+  s.lineTo(-0.16, 0.03);
+  s.lineTo(-0.13, 0.025);
+  // Belly
+  s.lineTo(-0.08, 0.015);
+  s.lineTo(-0.03, 0.01);
+  s.lineTo(0.02, 0.01);
+  s.lineTo(0.07, 0.015);
+  // Jaw line
+  s.lineTo(0.12, 0.025);
+  s.lineTo(0.16, 0.035);
+  // Mouth
+  s.lineTo(0.18, 0.04);
+  s.lineTo(0.17, 0.045);
+  // Upper jaw
+  s.lineTo(0.15, 0.05);
+  s.lineTo(0.12, 0.055);
+  // Eye area
+  s.lineTo(0.10, 0.06);
+  s.lineTo(0.09, 0.058);
+  s.lineTo(0.08, 0.06);
+  // Forehead
+  s.lineTo(0.06, 0.07);
+  s.lineTo(0.03, 0.08);
+  // Back
+  s.lineTo(0, 0.085);
+  s.lineTo(-0.04, 0.08);
+  s.lineTo(-0.08, 0.075);
+  // Dorsal fin
+  s.lineTo(-0.10, 0.075);
+  s.lineTo(-0.11, 0.095);
+  s.lineTo(-0.13, 0.075);
+  // Tail section
+  s.lineTo(-0.15, 0.065);
+  s.lineTo(-0.17, 0.055);
+  s.lineTo(-0.19, 0.045);
+  s.closePath();
+  // Pectoral fin
+  s.moveTo(0.04, 0.02);
+  s.lineTo(0.02, -0.01);
+  s.lineTo(0.06, 0.01);
+  return s;
+}
+
+// Diver uses PNG sprite instead of Shape path
+
+const SWIMMERS: Swimmer[] = [];
+
+function SwimmingCreature({ swimmer }: { swimmer: Swimmer }) {
+  const ref = useRef<Mesh>(null);
+  const geo = useMemo(() => new THREE.ShapeGeometry(swimmer.shape), [swimmer.shape]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.getElapsedTime();
+    // Swim left to right, loop across screen
+    const x = ((t * swimmer.speed + swimmer.z * 2) % 5) - 2.5;
+    // Gentle bob up and down
+    const bob = Math.sin(t * 1.5 + swimmer.z * 10) * 0.008;
+    ref.current.position.x = x;
+    ref.current.position.y = swimmer.y + bob;
+  });
+
+  return (
+    <mesh ref={ref} position={[0, swimmer.y, swimmer.z]} scale={swimmer.scale}>
+      <primitive object={geo} attach="geometry" />
+      <meshBasicMaterial color={swimmer.color} transparent opacity={0.35} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+// Free-swimming sprite: Lissajous curves for organic 2D movement
+function useSwim(cfg: { cx: number; cy: number; rx: number; ry: number; freqX: number; freqY: number; phaseX: number; phaseY: number }) {
+  const ref = useRef<Mesh>(null);
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.getElapsedTime();
+    const x = cfg.cx + Math.sin(t * cfg.freqX + cfg.phaseX) * cfg.rx;
+    const y = cfg.cy + Math.sin(t * cfg.freqY + cfg.phaseY) * cfg.ry;
+    // Face movement direction
+    const dx = Math.cos(t * cfg.freqX + cfg.phaseX) * cfg.freqX * cfg.rx;
+    const dy = Math.cos(t * cfg.freqY + cfg.phaseY) * cfg.freqY * cfg.ry;
+    ref.current.position.x = x;
+    ref.current.position.y = y;
+    ref.current.rotation.z = Math.atan2(dy, dx) * 0.3;
+  });
+  return ref;
+}
+
+function JellyfishSprite() {
+  const texture = useLoader(THREE.TextureLoader, "/images/jellyfish.png");
+  const ref = useSwim({ cx: -0.8, cy: -0.62, rx: 0.6, ry: 0.12, freqX: 0.12, freqY: 0.25, phaseX: 0, phaseY: 1.5 });
+  return (
+    <mesh ref={ref} position={[0, -0.63, -0.4]} scale={0.16}>
+      <planeGeometry args={[0.85, 1]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.35} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+function FishSprite() {
+  const texture = useLoader(THREE.TextureLoader, "/images/fish.png");
+  const ref = useSwim({ cx: 0.3, cy: -0.60, rx: 1.2, ry: 0.10, freqX: 0.3, freqY: 0.7, phaseX: 2.0, phaseY: 0 });
+  return (
+    <mesh ref={ref} position={[0, -0.58, -0.3]} scale={0.22}>
+      <planeGeometry args={[1, 0.65]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.4} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+function WhaleSprite() {
+  const texture = useLoader(THREE.TextureLoader, "/images/whale.png");
+  const ref = useSwim({ cx: 0, cy: -0.65, rx: 1.0, ry: 0.15, freqX: 0.06, freqY: 0.1, phaseX: 3.0, phaseY: 0.5 });
+  return (
+    <mesh ref={ref} position={[0, -0.65, -0.5]} scale={0.5}>
+      <planeGeometry args={[1, 0.7]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.35} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+function TurtleSprite() {
+  const texture = useLoader(THREE.TextureLoader, "/images/turtle.png");
+  const ref = useSwim({ cx: 0.5, cy: -0.60, rx: 0.8, ry: 0.12, freqX: 0.15, freqY: 0.35, phaseX: 1.0, phaseY: 3.0 });
+  return (
+    <mesh ref={ref} position={[0, -0.56, -0.2]} scale={0.20}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.4} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+function DiverSprite() {
+  const texture = useLoader(THREE.TextureLoader, "/images/diver.png");
+  const ref = useSwim({ cx: -0.3, cy: -0.60, rx: 1.0, ry: 0.13, freqX: 0.18, freqY: 0.22, phaseX: 4.0, phaseY: 1.0 });
+  return (
+    <mesh ref={ref} position={[0, -0.60, -0.15]} scale={0.22}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.35} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+function SeaLife() {
+  return (
+    <group>
+      {SWIMMERS.map((sw) => (
+        <SwimmingCreature key={sw.label} swimmer={sw} />
+      ))}
+      <JellyfishSprite />
+      <FishSprite />
+      <WhaleSprite />
+      <TurtleSprite />
+      <DiverSprite />
+    </group>
+  );
+}
+
+// ─── BaseLine ───
+
+function BaseLine() {
+  return (
+    <mesh position={[0, -0.51, -0.98]}>
+      <boxGeometry args={[16, 0.012, 0.01]} />
+      <meshBasicMaterial color="#050505" />
+    </mesh>
   );
 }
 
 // ─── Mountain Silhouettes ───
 
 function MountainSilhouette() {
-  const geo = useMemo(() => {
+  const islandsGeo = useMemo(() => {
     const shape = new THREE.Shape();
-    shape.moveTo(-3.5, 0);
-    shape.lineTo(-2.0, 0);
+    shape.moveTo(-2.5, 0);
+    // Small rock (far left)
+    shape.lineTo(-1.8, 0);
+    shape.lineTo(-1.7, 0.08);
     shape.lineTo(-1.6, 0.15);
-    shape.lineTo(-1.4, 0.25);
-    shape.lineTo(-1.25, 0.22);
-    shape.lineTo(-1.1, 0.3);
-    shape.lineTo(-0.95, 0.2);
-    shape.lineTo(-0.7, 0.05);
-    shape.lineTo(-0.5, 0.1);
-    shape.lineTo(-0.3, 0.35);
-    shape.lineTo(-0.15, 0.28);
-    shape.lineTo(-0.05, 0.12);
-    shape.lineTo(0.05, 0.12);
-    shape.lineTo(0.2, 0.3);
-    shape.lineTo(0.4, 0.45);
-    shape.lineTo(0.6, 0.55);
-    shape.lineTo(0.8, 0.5);
-    shape.lineTo(1.0, 0.42);
-    shape.lineTo(1.2, 0.3);
-    shape.lineTo(1.5, 0.15);
-    shape.lineTo(2.0, 0);
-    shape.lineTo(3.5, 0);
-    shape.lineTo(3.5, -0.3);
-    shape.lineTo(-3.5, -0.3);
+    shape.lineTo(-1.5, 0.08);
+    shape.lineTo(-1.4, 0);
+    // Gap
+    shape.lineTo(-1.2, 0);
+    // Island with 3 peaks — tallest left, descending right
+    shape.lineTo(-1.1, 0.05);
+    shape.lineTo(-1.05, 0.20);
+    shape.lineTo(-1.0, 0.40);
+    shape.lineTo(-0.95, 0.45);
+    shape.lineTo(-0.88, 0.40);
+    shape.lineTo(-0.80, 0.28);
+    shape.lineTo(-0.70, 0.30);
+    shape.lineTo(-0.62, 0.22);
+    shape.lineTo(-0.52, 0.24);
+    shape.lineTo(-0.42, 0.15);
+    shape.lineTo(-0.30, 0.05);
+    shape.lineTo(-0.2, 0);
+    // Center gap — sun space
+    shape.lineTo(0.2, 0);
+    // Large rounded mountain (right)
+    shape.lineTo(0.3, 0.05);
+    shape.lineTo(0.5, 0.18);
+    shape.lineTo(0.7, 0.35);
+    shape.lineTo(0.9, 0.48);
+    shape.lineTo(1.1, 0.52);
+    shape.lineTo(1.3, 0.48);
+    shape.lineTo(1.5, 0.38);
+    shape.lineTo(1.7, 0.25);
+    shape.lineTo(1.9, 0.12);
+    shape.lineTo(2.1, 0.05);
+    shape.lineTo(2.5, 0);
+    // Close bottom
+    shape.lineTo(2.5, -0.02);
+    shape.lineTo(-2.5, -0.02);
     shape.closePath();
     return new THREE.ShapeGeometry(shape);
   }, []);
 
   return (
     <group position={[0, -0.5, -1]}>
-      <mesh geometry={geo}>
+      <mesh geometry={islandsGeo}>
         <meshBasicMaterial color="#050505" side={THREE.DoubleSide} />
       </mesh>
-      <mesh geometry={geo} position={[0, 0.003, 0.01]}>
+      <mesh geometry={islandsGeo} position={[0, 0.003, 0.01]}>
         <meshBasicMaterial color="#0a0a0a" side={THREE.DoubleSide} />
       </mesh>
+      {/* Pavilion on right mountain */}
+      <group position={[0.95, 0.48, 0.02]} scale={0.8}>
+        <mesh position={[-0.05, 0.025, 0]}>
+          <boxGeometry args={[0.006, 0.05, 0.01]} />
+          <meshBasicMaterial color="#050505" />
+        </mesh>
+        <mesh position={[0.05, 0.025, 0]}>
+          <boxGeometry args={[0.006, 0.05, 0.01]} />
+          <meshBasicMaterial color="#050505" />
+        </mesh>
+        <mesh position={[0, 0.053, 0]}>
+          <boxGeometry args={[0.14, 0.006, 0.01]} />
+          <meshBasicMaterial color="#050505" />
+        </mesh>
+        <mesh position={[0, 0.058, 0]}>
+          <boxGeometry args={[0.16, 0.004, 0.01]} />
+          <meshBasicMaterial color="#050505" />
+        </mesh>
+      </group>
     </group>
   );
 }
 
 // ─── Main Scene ───
 
+const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as const;
+
 export function HeroScene() {
+  const [layers, setLayers] = useState({
+    Glow: true,
+    Mountain: true,
+    BaseLine: true,
+    Water: true,
+    Clouds: true,
+    SeaLife: true,
+  });
   const canvasStyle = useMemo(() => ({ width: "100%", height: "100%" }) as const, []);
+  const toggle = (key: string) => setLayers((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
+  const on = (key: string) => layers[key as keyof typeof layers];
 
   return (
-    <div className="relative h-[400px] w-full md:h-[550px]">
-      {/* Bottom fade — blends canvas into page background */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-background to-transparent" />
+    <div className="relative h-[400px] w-full overflow-hidden md:h-[550px]">
       <div className="pointer-events-auto h-full w-full">
         <Canvas
           style={canvasStyle}
           camera={{ position: [0, 0.25, 3.0], fov: 50 }}
           gl={{ antialias: true, alpha: true }}
         >
-          <directionalLight position={[0, 2, -3]} intensity={0.3} color="oklch(0.623 0.214 259)" />
-          <directionalLight position={[3, 3, 3]} intensity={0.15} />
-          <ambientLight intensity={0.03} />
-
-          <ParallaxWrapper>
-            <Ocean />
-            <HorizonLine />
-            <Reflection intensity={2.5} />
-            <SettingSun />
-            <MountainSilhouette />
-          </ParallaxWrapper>
-
-          <Environment preset="city" environmentIntensity={0.15} />
-          <fog attach="fog" args={["#000000", 3, 9]} />
+          {on("Water") && <WaterSurface />}
+          {on("Glow") && <GradientGlowSun />}
+          {on("Clouds") && <Clouds />}
+          {on("Mountain") && <MountainSilhouette />}
+          {on("BaseLine") && <BaseLine />}
+          {on("SeaLife") && <SeaLife />}
         </Canvas>
+      </div>
+
+      {/* Layer toggles */}
+      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+        {LAYERS.map((key) => (
+          <button
+            key={key}
+            onClick={() => toggle(key)}
+            className={`rounded-md px-2 py-0.5 font-mono text-[9px] transition-colors ${
+              on(key)
+                ? "bg-foreground text-background"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {key}
+          </button>
+        ))}
       </div>
     </div>
   );
