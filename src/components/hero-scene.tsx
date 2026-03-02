@@ -47,8 +47,8 @@ const SUNSET_STOPS: [number, number, number, number, number] = [0xdc2626, 0xea58
 const SUNRISE_STOPS: [number, number, number, number, number] = [0xfda4af, 0xfb923c, 0xfde047, 0x93c5fd, 0x67e8f9];
 
 const SUNRISE_LAYERS = [
-  { r: 2.5, peak: 0.35, y: -0.25, z: -0.2 },
-  { r: 0.5, peak: 0.45, y: -0.38, z: -0.05 },
+  { r: 2.5, peak: 0.50, y: -0.25, z: -0.2 },
+  { r: 0.5, peak: 0.55, y: -0.38, z: -0.05 },
 ];
 
 const emptySubscribe = () => () => {};
@@ -169,7 +169,7 @@ function Clouds({ isDark }: { isDark: boolean }) {
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
     uCloudColor: { value: isDark ? new THREE.Vector3(0.75, 0.55, 0.35) : new THREE.Vector3(0.75, 0.60, 0.65) },
-    uMaxAlpha: { value: isDark ? 0.08 : 0.12 },
+    uMaxAlpha: { value: isDark ? 0.08 : 0.16 },
   }), [isDark]);
 
   useFrame(({ clock }) => {
@@ -234,9 +234,9 @@ function WaterSurface({ isDark }: { isDark: boolean }) {
   const ref = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-    uWarm: { value: isDark ? new THREE.Vector3(0.40, 0.14, 0.04) : new THREE.Vector3(0.80, 0.65, 0.50) },
-    uHot: { value: isDark ? new THREE.Vector3(0.55, 0.20, 0.06) : new THREE.Vector3(0.90, 0.70, 0.45) },
-    uCold: { value: isDark ? new THREE.Vector3(0.03, 0.04, 0.06) : new THREE.Vector3(0.55, 0.70, 0.85) },
+    uWarm: { value: isDark ? new THREE.Vector3(0.40, 0.14, 0.04) : new THREE.Vector3(0.85, 0.55, 0.35) },
+    uHot: { value: isDark ? new THREE.Vector3(0.55, 0.20, 0.06) : new THREE.Vector3(0.95, 0.60, 0.30) },
+    uCold: { value: isDark ? new THREE.Vector3(0.03, 0.04, 0.06) : new THREE.Vector3(0.45, 0.60, 0.80) },
   }), [isDark]);
 
   useFrame(({ clock }) => {
@@ -501,7 +501,7 @@ function JellyfishSprite({ isDark }: { isDark: boolean }) {
   return (
     <mesh ref={ref} position={[0, -0.63, -0.4]} scale={0.16}>
       <planeGeometry args={[0.85, 1]} />
-      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.55} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.65} side={THREE.DoubleSide} />
     </mesh>
   );
 }
@@ -512,7 +512,7 @@ function FishSprite({ isDark }: { isDark: boolean }) {
   return (
     <mesh ref={ref} position={[0, -0.58, -0.3]} scale={0.22}>
       <planeGeometry args={[1, 0.65]} />
-      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.4 : 0.6} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.4 : 0.7} side={THREE.DoubleSide} />
     </mesh>
   );
 }
@@ -523,7 +523,7 @@ function WhaleSprite({ isDark }: { isDark: boolean }) {
   return (
     <mesh ref={ref} position={[0, -0.65, -0.5]} scale={0.5}>
       <planeGeometry args={[1, 0.7]} />
-      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.55} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.65} side={THREE.DoubleSide} />
     </mesh>
   );
 }
@@ -534,7 +534,7 @@ function TurtleSprite({ isDark }: { isDark: boolean }) {
   return (
     <mesh ref={ref} position={[0, -0.56, -0.2]} scale={0.20}>
       <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.4 : 0.6} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.4 : 0.7} side={THREE.DoubleSide} />
     </mesh>
   );
 }
@@ -545,7 +545,7 @@ function DiverSprite({ isDark }: { isDark: boolean }) {
   return (
     <mesh ref={ref} position={[0, -0.60, -0.15]} scale={0.22}>
       <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.55} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.65} side={THREE.DoubleSide} />
     </mesh>
   );
 }
