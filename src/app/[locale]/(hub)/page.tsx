@@ -1,17 +1,11 @@
 import { setRequestLocale } from "next-intl/server";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HeroSection } from "@/components/hero-section";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import Image from "next/image";
 
 export default async function HubPage({
   params,
@@ -24,50 +18,47 @@ export default async function HubPage({
   return <HubContent />;
 }
 
-const PROJECT_ACCENTS = {
-  cc: "oklch(0.723 0.219 149)", // green
-  pkm: "oklch(0.702 0.183 293)", // purple
-  babyAgent: "oklch(0.769 0.188 70.08)", // warm amber
-  naeilUi: "oklch(0.623 0.214 259)", // default accent blue
-} as const;
+const PROJECTS = [
+  {
+    key: "cc" as const,
+    href: "/cc" as const,
+    icon: "/images/fish.png",
+    accent: "oklch(0.723 0.219 149)",
+    tags: ["Python", "RSS", "AI"],
+    status: "active" as const,
+    featured: true,
+  },
+  {
+    key: "pkm" as const,
+    href: "/pkm" as const,
+    icon: "/images/jellyfish.png",
+    accent: "oklch(0.702 0.183 293)",
+    tags: ["Python", "Embeddings", "Search"],
+    status: "active" as const,
+    featured: false,
+  },
+  {
+    key: "naeilUi" as const,
+    href: "/design" as const,
+    icon: "/images/whale.png",
+    accent: "oklch(0.623 0.214 259)",
+    tags: ["React", "Tailwind", "OKLCH"],
+    status: "active" as const,
+    featured: false,
+  },
+  {
+    key: "babyAgent" as const,
+    href: "#" as const,
+    icon: "/images/turtle.png",
+    accent: "oklch(0.769 0.188 70.08)",
+    tags: ["LINE", "AI"],
+    status: "coming" as const,
+    featured: false,
+  },
+] as const;
 
 function HubContent() {
   const t = useTranslations();
-
-  const PROJECTS = [
-    {
-      key: "cc" as const,
-      name: t("projects.cc.name"),
-      description: t("projects.cc.description"),
-      href: "/cc" as const,
-      tags: ["Python", "RSS", "AI"],
-      status: "active" as const,
-    },
-    {
-      key: "pkm" as const,
-      name: t("projects.pkm.name"),
-      description: t("projects.pkm.description"),
-      href: "/pkm" as const,
-      tags: ["Python", "Embeddings", "Search"],
-      status: "active" as const,
-    },
-    {
-      key: "naeilUi" as const,
-      name: t("projects.naeilUi.name"),
-      description: t("projects.naeilUi.description"),
-      href: "/design" as const,
-      tags: ["React", "Tailwind", "OKLCH"],
-      status: "active" as const,
-    },
-    {
-      key: "babyAgent" as const,
-      name: t("projects.babyAgent.name"),
-      description: t("projects.babyAgent.description"),
-      href: "#" as const,
-      tags: ["OpenClaw", "LINE", "AI"],
-      status: "coming" as const,
-    },
-  ];
 
   return (
     <>
@@ -76,7 +67,7 @@ function HubContent() {
       {/* Hero */}
       <HeroSection />
 
-      {/* Projects */}
+      {/* Projects — Bento Grid */}
       <section className="mx-auto max-w-4xl px-6 py-24">
         <h2 className="text-foreground mb-2 text-2xl font-bold tracking-tight">
           {t("projects.title")}
@@ -85,48 +76,72 @@ function HubContent() {
           {t("projects.subtitle")}
         </p>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3">
           {PROJECTS.map((project) => (
-            <Link key={project.key} href={project.href}>
-              <Card
-                className="group h-full transition-colors"
-                style={
-                  {
-                    "--project-accent":
-                      PROJECT_ACCENTS[project.key],
-                  } as React.CSSProperties
-                }
+            <Link
+              key={project.key}
+              href={project.href}
+              className={[
+                "group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] p-7 transition-all duration-250",
+                "hover:-translate-y-0.5 hover:border-white/[0.12] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
+                project.featured ? "col-span-2 flex items-center gap-8" : "",
+              ].join(" ")}
+              style={{ "--accent": project.accent } as React.CSSProperties}
+            >
+              {/* Icon */}
+              <div
+                className={[
+                  "flex shrink-0 items-center justify-center rounded-[14px]",
+                  project.featured
+                    ? "h-20 w-20"
+                    : "mb-5 h-14 w-14",
+                ].join(" ")}
+                style={{
+                  background: `color-mix(in oklch, ${project.accent} 8%, transparent)`,
+                  border: `1px solid color-mix(in oklch, ${project.accent} 20%, transparent)`,
+                }}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm group-hover:text-[var(--project-accent)] transition-colors">
-                      {project.name}
-                    </CardTitle>
+                <Image
+                  src={project.icon}
+                  alt=""
+                  width={project.featured ? 52 : 36}
+                  height={project.featured ? 52 : 36}
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Text */}
+              <div className={project.featured ? "flex-1" : ""}>
+                <div className="text-foreground mb-1.5 text-[15px] font-semibold">
+                  {t(`projects.${project.key}.name`)}
+                  {project.status === "coming" && (
                     <Badge
-                      variant={
-                        project.status === "active" ? "secondary" : "outline"
-                      }
-                      className="text-[10px]"
+                      variant="outline"
+                      className="text-muted-foreground ml-2 px-1.5 py-0 text-[9px] align-middle"
                     >
-                      {t(`projects.status.${project.status}`)}
+                      {t("projects.status.coming")}
                     </Badge>
-                  </div>
-                  <CardDescription className="text-xs">
-                    {project.description}
-                  </CardDescription>
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {project.tags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="outline"
-                        className="text-[10px]"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardHeader>
-              </Card>
+                  )}
+                </div>
+                <p className="text-muted-foreground mb-3 text-[13px] leading-relaxed">
+                  {t(`projects.${project.key}.description`)}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-white/[0.08] px-2 py-0.5 text-[10px] text-zinc-500"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <span className="text-muted-foreground/40 group-hover:text-foreground absolute right-6 top-6 text-sm transition-colors">
+                ↗
+              </span>
             </Link>
           ))}
         </div>

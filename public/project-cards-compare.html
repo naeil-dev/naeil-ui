@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Cards — A / B / C Comparison</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #09090b; color: #fafafa; font-family: -apple-system, 'Pretendard', sans-serif; }
+
+  .section { max-width: 900px; margin: 0 auto; padding: 60px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #71717a; margin-bottom: 8px; }
+  .section-title { font-size: 24px; font-weight: 700; margin-bottom: 32px; }
+  .section-title span { color: #3b82f6; }
+
+  /* Colors */
+  :root {
+    --cc: oklch(0.723 0.219 149);
+    --pkm: oklch(0.702 0.183 293);
+    --naeil: oklch(0.623 0.214 259);
+    --baby: oklch(0.769 0.188 70.08);
+  }
+
+  /* ===================== OPTION A — Bento Grid ===================== */
+  .bento { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 12px; }
+  .bento-card {
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.25s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .bento-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .bento-card.featured { grid-column: span 2; display: flex; gap: 32px; align-items: center; }
+  .bento-card.featured .bento-icon { width: 80px; height: 80px; }
+  .bento-card.featured .bento-text { flex: 1; }
+  .bento-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .bento-icon img { width: 36px; height: 36px; object-fit: contain; }
+  .bento-card.featured .bento-icon img { width: 52px; height: 52px; }
+  .bento-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .bento-desc { font-size: 13px; color: #a1a1aa; line-height: 1.5; }
+  .bento-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .bento-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); color: #71717a; }
+  .bento-arrow { position: absolute; top: 24px; right: 24px; color: #52525b; font-size: 14px; transition: color 0.2s; }
+  .bento-card:hover .bento-arrow { color: #fafafa; }
+  .bento-badge { font-size: 9px; padding: 1px 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #71717a; margin-left: 8px; vertical-align: middle; }
+
+  /* ===================== OPTION B — Full-width Horizontal ===================== */
+  .hcards { display: flex; flex-direction: column; gap: 12px; }
+  .hcard {
+    display: flex; align-items: center; gap: 24px;
+    padding: 24px 28px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .hcard:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateX(4px);
+  }
+  .hcard-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+  .hcard-icon img { width: 32px; height: 32px; object-fit: contain; }
+  .hcard-text { flex: 1; min-width: 0; }
+  .hcard-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .hcard-desc { font-size: 13px; color: #a1a1aa; }
+  .hcard-tags { display: flex; gap: 6px; flex-shrink: 0; }
+  .hcard-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); color: #71717a; }
+  .hcard-arrow { color: #52525b; font-size: 18px; margin-left: 12px; transition: all 0.2s; flex-shrink: 0; }
+  .hcard:hover .hcard-arrow { color: #fafafa; transform: translateX(4px); }
+
+  /* ===================== OPTION C — Glass Cards ===================== */
+  .glass-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .glass-card {
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(0,0,0,0.3);
+    border-color: transparent;
+  }
+  .glass-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .glass-icon img { width: 40px; height: 40px; object-fit: contain; position: relative; z-index: 1; }
+  .glass-icon::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 14px;
+    background: var(--accent);
+    opacity: 0.1;
+  }
+  .glass-icon::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 14px;
+    border: 1px solid var(--accent);
+    opacity: 0.2;
+  }
+  .glass-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .glass-desc { font-size: 13px; color: #a1a1aa; line-height: 1.5; margin-bottom: 16px; }
+  .glass-bottom { display: flex; align-items: center; justify-content: space-between; }
+  .glass-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .glass-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); color: #71717a; }
+  .glass-arrow { color: #52525b; font-size: 14px; transition: all 0.3s; }
+  .glass-card:hover .glass-arrow { color: #fafafa; transform: translate(2px, -2px); }
+  .glass-badge { font-size: 9px; padding: 1px 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #71717a; margin-left: 8px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<!-- ============ OPTION A — Bento Grid ============ -->
+<div class="section">
+  <div class="section-label">Option A</div>
+  <div class="section-title">Bento Grid <span>(Vercel style)</span></div>
+  <div class="bento">
+    <!-- Featured: CC -->
+    <div class="bento-card featured" style="--accent: var(--cc);">
+      <div class="bento-icon" style="background: color-mix(in oklch, var(--cc) 8%, transparent); border-color: color-mix(in oklch, var(--cc) 20%, transparent);">
+        <img src="/images/fish.png" alt="">
+      </div>
+      <div class="bento-text">
+        <div class="bento-name">Content Collector</div>
+        <div class="bento-desc">Automated content collection from RSS, YouTube, Reddit + AI summarization. Stay on top of everything that matters.</div>
+        <div class="bento-tags"><span class="bento-tag">Python</span><span class="bento-tag">RSS</span><span class="bento-tag">AI</span></div>
+      </div>
+      <span class="bento-arrow">↗</span>
+    </div>
+    <!-- PKM -->
+    <div class="bento-card" style="--accent: var(--pkm);">
+      <div class="bento-icon" style="background: color-mix(in oklch, var(--pkm) 8%, transparent); border-color: color-mix(in oklch, var(--pkm) 20%, transparent);">
+        <img src="/images/jellyfish.png" alt="">
+      </div>
+      <div class="bento-name">PKM</div>
+      <div class="bento-desc">Personal knowledge management — document parsing, embeddings, semantic search</div>
+      <div class="bento-tags"><span class="bento-tag">Python</span><span class="bento-tag">Embeddings</span></div>
+      <span class="bento-arrow">↗</span>
+    </div>
+    <!-- naeil-ui -->
+    <div class="bento-card" style="--accent: var(--naeil);">
+      <div class="bento-icon" style="background: color-mix(in oklch, var(--naeil) 8%, transparent); border-color: color-mix(in oklch, var(--naeil) 20%, transparent);">
+        <img src="/images/whale.png" alt="">
+      </div>
+      <div class="bento-name">naeil-ui</div>
+      <div class="bento-desc">Minimal design system — OKLCH tokens, Tailwind v4, shadcn</div>
+      <div class="bento-tags"><span class="bento-tag">React</span><span class="bento-tag">Tailwind</span></div>
+      <span class="bento-arrow">↗</span>
+    </div>
+    <!-- Baby Agent -->
+    <div class="bento-card" style="--accent: var(--baby); grid-column: span 2;">
+      <div class="bento-icon" style="background: color-mix(in oklch, var(--baby) 8%, transparent); border-color: color-mix(in oklch, var(--baby) 20%, transparent);">
+        <img src="/images/turtle.png" alt="">
+      </div>
+      <div class="bento-name">Baby Agent <span class="bento-badge">Coming Soon</span></div>
+      <div class="bento-desc">Parenting AI agent — LINE-based Q&A, records, reminders</div>
+      <div class="bento-tags"><span class="bento-tag">LINE</span><span class="bento-tag">AI</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OPTION B — Full-width Horizontal ============ -->
+<div class="section">
+  <div class="section-label">Option B</div>
+  <div class="section-title">Full-width Horizontal <span>(List style)</span></div>
+  <div class="hcards">
+    <div class="hcard">
+      <div class="hcard-icon" style="background: color-mix(in oklch, var(--cc) 8%, transparent); border-color: color-mix(in oklch, var(--cc) 20%, transparent);">
+        <img src="/images/fish.png" alt="">
+      </div>
+      <div class="hcard-text">
+        <div class="hcard-name">Content Collector</div>
+        <div class="hcard-desc">Automated content collection from RSS, YouTube, Reddit + AI summarization</div>
+      </div>
+      <div class="hcard-tags"><span class="hcard-tag">Python</span><span class="hcard-tag">RSS</span><span class="hcard-tag">AI</span></div>
+      <span class="hcard-arrow">→</span>
+    </div>
+    <div class="hcard">
+      <div class="hcard-icon" style="background: color-mix(in oklch, var(--pkm) 8%, transparent); border-color: color-mix(in oklch, var(--pkm) 20%, transparent);">
+        <img src="/images/jellyfish.png" alt="">
+      </div>
+      <div class="hcard-text">
+        <div class="hcard-name">PKM</div>
+        <div class="hcard-desc">Personal knowledge management — document parsing, embeddings, semantic search</div>
+      </div>
+      <div class="hcard-tags"><span class="hcard-tag">Python</span><span class="hcard-tag">Embeddings</span></div>
+      <span class="hcard-arrow">→</span>
+    </div>
+    <div class="hcard">
+      <div class="hcard-icon" style="background: color-mix(in oklch, var(--naeil) 8%, transparent); border-color: color-mix(in oklch, var(--naeil) 20%, transparent);">
+        <img src="/images/whale.png" alt="">
+      </div>
+      <div class="hcard-text">
+        <div class="hcard-name">naeil-ui</div>
+        <div class="hcard-desc">Minimal design system — OKLCH tokens, Tailwind v4, shadcn</div>
+      </div>
+      <div class="hcard-tags"><span class="hcard-tag">React</span><span class="hcard-tag">Tailwind</span></div>
+      <span class="hcard-arrow">→</span>
+    </div>
+    <div class="hcard">
+      <div class="hcard-icon" style="background: color-mix(in oklch, var(--baby) 8%, transparent); border-color: color-mix(in oklch, var(--baby) 20%, transparent);">
+        <img src="/images/turtle.png" alt="">
+      </div>
+      <div class="hcard-text">
+        <div class="hcard-name">Baby Agent <span class="bento-badge">Coming Soon</span></div>
+        <div class="hcard-desc">Parenting AI agent — LINE-based Q&A, records, reminders</div>
+      </div>
+      <div class="hcard-tags"><span class="hcard-tag">LINE</span><span class="hcard-tag">AI</span></div>
+      <span class="hcard-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OPTION C — Glass Cards ============ -->
+<div class="section" style="border-bottom: none;">
+  <div class="section-label">Option C ⭐ Recommended</div>
+  <div class="section-title">Glass Cards <span>(Accent glow)</span></div>
+  <div class="glass-grid">
+    <div class="glass-card" style="--accent: var(--cc);">
+      <div class="glass-icon" style="--accent: var(--cc);">
+        <img src="/images/fish.png" alt="">
+      </div>
+      <div class="glass-name">Content Collector</div>
+      <div class="glass-desc">Automated content collection from RSS, YouTube, Reddit + AI summarization</div>
+      <div class="glass-bottom">
+        <div class="glass-tags"><span class="glass-tag">Python</span><span class="glass-tag">RSS</span><span class="glass-tag">AI</span></div>
+        <span class="glass-arrow">↗</span>
+      </div>
+    </div>
+    <div class="glass-card" style="--accent: var(--pkm);">
+      <div class="glass-icon" style="--accent: var(--pkm);">
+        <img src="/images/jellyfish.png" alt="">
+      </div>
+      <div class="glass-name">PKM</div>
+      <div class="glass-desc">Personal knowledge management — document parsing, embeddings, semantic search</div>
+      <div class="glass-bottom">
+        <div class="glass-tags"><span class="glass-tag">Python</span><span class="glass-tag">Embeddings</span></div>
+        <span class="glass-arrow">↗</span>
+      </div>
+    </div>
+    <div class="glass-card" style="--accent: var(--naeil);">
+      <div class="glass-icon" style="--accent: var(--naeil);">
+        <img src="/images/whale.png" alt="">
+      </div>
+      <div class="glass-name">naeil-ui</div>
+      <div class="glass-desc">Minimal design system — OKLCH tokens, Tailwind v4, shadcn</div>
+      <div class="glass-bottom">
+        <div class="glass-tags"><span class="glass-tag">React</span><span class="glass-tag">Tailwind</span></div>
+        <span class="glass-arrow">↗</span>
+      </div>
+    </div>
+    <div class="glass-card" style="--accent: var(--baby);">
+      <div class="glass-icon" style="--accent: var(--baby);">
+        <img src="/images/turtle.png" alt="">
+      </div>
+      <div class="glass-name">Baby Agent <span class="glass-badge">Coming Soon</span></div>
+      <div class="glass-desc">Parenting AI agent — LINE-based Q&A, records, reminders</div>
+      <div class="glass-bottom">
+        <div class="glass-tags"><span class="glass-tag">LINE</span><span class="glass-tag">AI</span></div>
+        <span class="glass-arrow">↗</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
