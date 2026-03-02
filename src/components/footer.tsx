@@ -78,10 +78,6 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Copyright — integrated at bottom of main area */}
-      <div className="text-muted-foreground/50 mx-auto max-w-7xl px-6 pb-8 text-xs">
-        © 2026 Jay
-      </div>
     </footer>
   );
 }
