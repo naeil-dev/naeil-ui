@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useSyncExternalStore } from "react";
+import { useTheme } from "next-themes";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import type { Mesh } from "three";
 import * as THREE from "three";
@@ -42,18 +43,33 @@ const GRADIENT_FRAGMENT = /* glsl */ `
 // 夕焼け palette: red → orange → yellow → teal → cyan
 const SUNSET_STOPS: [number, number, number, number, number] = [0xdc2626, 0xea580c, 0xeab308, 0x0d9488, 0x0e7490];
 
+// 朝焼け (sunrise): rose → coral → gold → sky → cyan
+const SUNRISE_STOPS: [number, number, number, number, number] = [0xfda4af, 0xfb923c, 0xfde047, 0x93c5fd, 0x67e8f9];
+
+const SUNRISE_LAYERS = [
+  { r: 2.5, peak: 0.35, y: -0.25, z: -0.2 },
+  { r: 0.5, peak: 0.45, y: -0.38, z: -0.05 },
+];
+
+const emptySubscribe = () => () => {};
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+}
+
 const GRADIENT_LAYERS = [
   { r: 2.5, peak: 0.60, y: -0.25, z: -0.2 },
   { r: 0.5, peak: 0.50, y: -0.38, z: -0.05 },
 ];
 
-function GradientGlowSun() {
+function GradientGlowSun({ isDark }: { isDark: boolean }) {
   const refs = useRef<(THREE.ShaderMaterial | null)[]>([]);
-  const [s0, s1, s2, s3, s4] = SUNSET_STOPS;
+  const stops = isDark ? SUNSET_STOPS : SUNRISE_STOPS;
+  const layers = isDark ? GRADIENT_LAYERS : SUNRISE_LAYERS;
+  const [s0, s1, s2, s3, s4] = stops;
 
   const uniforms = useMemo(
     () =>
-      GRADIENT_LAYERS.map((cfg) => ({
+      layers.map((cfg) => ({
         c1: { value: new THREE.Color(s0) },
         c2: { value: new THREE.Color(s1) },
         c3: { value: new THREE.Color(s2) },
@@ -63,7 +79,7 @@ function GradientGlowSun() {
         uPeak: { value: cfg.peak },
         uClipY: { value: -0.5 },
       })),
-    [s0, s1, s2, s3, s4],
+    [s0, s1, s2, s3, s4, isDark],
   );
 
   useFrame(({ clock }) => {
@@ -75,7 +91,7 @@ function GradientGlowSun() {
 
   return (
     <group position={[0, 0, -1.2]}>
-      {GRADIENT_LAYERS.map((cfg, i) => (
+      {layers.map((cfg, i) => (
         <mesh key={i} position={[0, cfg.y, cfg.z]}>
           <circleGeometry args={[cfg.r, 64]} />
           <shaderMaterial
@@ -88,7 +104,7 @@ function GradientGlowSun() {
             transparent
             side={THREE.DoubleSide}
             depthWrite={false}
-            blending={THREE.AdditiveBlending}
+            blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
           />
         </mesh>
       ))}
@@ -108,6 +124,8 @@ const CLOUD_VERTEX = /* glsl */ `
 
 const CLOUD_FRAGMENT = /* glsl */ `
   uniform float uTime;
+  uniform vec3 uCloudColor;
+  uniform float uMaxAlpha;
   varying vec2 vUv;
 
   float hash(vec2 p) {
@@ -140,17 +158,19 @@ const CLOUD_FRAGMENT = /* glsl */ `
     float cloud = smoothstep(0.35, 0.7, n);
     float vFade = smoothstep(0.0, 0.3, vUv.y) * smoothstep(1.0, 0.7, vUv.y);
     float hFade = smoothstep(0.0, 0.15, vUv.x) * smoothstep(1.0, 0.85, vUv.x);
-    float alpha = cloud * vFade * hFade * 0.08;
-    vec3 color = vec3(0.75, 0.55, 0.35);
+    float alpha = cloud * vFade * hFade * uMaxAlpha;
+    vec3 color = uCloudColor;
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
-function Clouds() {
+function Clouds({ isDark }: { isDark: boolean }) {
   const ref = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-  }), []);
+    uCloudColor: { value: isDark ? new THREE.Vector3(0.75, 0.55, 0.35) : new THREE.Vector3(0.75, 0.60, 0.65) },
+    uMaxAlpha: { value: isDark ? 0.08 : 0.12 },
+  }), [isDark]);
 
   useFrame(({ clock }) => {
     if (ref.current) ref.current.uniforms.uTime.value = clock.getElapsedTime();
@@ -184,6 +204,9 @@ const WATER_VERTEX = /* glsl */ `
 
 const WATER_FRAGMENT = /* glsl */ `
   uniform float uTime;
+  uniform vec3 uWarm;
+  uniform vec3 uHot;
+  uniform vec3 uCold;
   varying vec2 vUv;
   void main() {
     float y = vUv.y;
@@ -197,9 +220,9 @@ const WATER_FRAGMENT = /* glsl */ `
     float fadeTop = pow(1.0 - y, 1.5);
     float fadeBottom = smoothstep(0.0, 0.35, y);
     float fade = fadeTop * fadeBottom;
-    vec3 warm = vec3(0.40, 0.14, 0.04);
-    vec3 hot  = vec3(0.55, 0.20, 0.06);
-    vec3 cold = vec3(0.03, 0.04, 0.06);
+    vec3 warm = uWarm;
+    vec3 hot  = uHot;
+    vec3 cold = uCold;
     vec3 base = mix(warm, cold, y);
     vec3 color = mix(base, hot, shimmer * (1.0 - y));
     float alpha = (ripple + shimmer * 0.3) * fade * 1.0;
@@ -207,11 +230,14 @@ const WATER_FRAGMENT = /* glsl */ `
   }
 `;
 
-function WaterSurface() {
+function WaterSurface({ isDark }: { isDark: boolean }) {
   const ref = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-  }), []);
+    uWarm: { value: isDark ? new THREE.Vector3(0.40, 0.14, 0.04) : new THREE.Vector3(0.80, 0.65, 0.50) },
+    uHot: { value: isDark ? new THREE.Vector3(0.55, 0.20, 0.06) : new THREE.Vector3(0.90, 0.70, 0.45) },
+    uCold: { value: isDark ? new THREE.Vector3(0.03, 0.04, 0.06) : new THREE.Vector3(0.55, 0.70, 0.85) },
+  }), [isDark]);
 
   useFrame(({ clock }) => {
     if (ref.current) ref.current.uniforms.uTime.value = clock.getElapsedTime();
@@ -469,72 +495,72 @@ function useSwim(cfg: { cx: number; cy: number; rx: number; ry: number; freqX: n
   return ref;
 }
 
-function JellyfishSprite() {
+function JellyfishSprite({ isDark }: { isDark: boolean }) {
   const texture = useLoader(THREE.TextureLoader, "/images/jellyfish.png");
   const ref = useSwim({ cx: -0.8, cy: -0.62, rx: 0.6, ry: 0.12, freqX: 0.12, freqY: 0.25, phaseX: 0, phaseY: 1.5 });
   return (
     <mesh ref={ref} position={[0, -0.63, -0.4]} scale={0.16}>
       <planeGeometry args={[0.85, 1]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.35} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.55} side={THREE.DoubleSide} />
     </mesh>
   );
 }
 
-function FishSprite() {
+function FishSprite({ isDark }: { isDark: boolean }) {
   const texture = useLoader(THREE.TextureLoader, "/images/fish.png");
   const ref = useSwim({ cx: 0.3, cy: -0.60, rx: 1.2, ry: 0.10, freqX: 0.3, freqY: 0.7, phaseX: 2.0, phaseY: 0 });
   return (
     <mesh ref={ref} position={[0, -0.58, -0.3]} scale={0.22}>
       <planeGeometry args={[1, 0.65]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.4} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.4 : 0.6} side={THREE.DoubleSide} />
     </mesh>
   );
 }
 
-function WhaleSprite() {
+function WhaleSprite({ isDark }: { isDark: boolean }) {
   const texture = useLoader(THREE.TextureLoader, "/images/whale.png");
   const ref = useSwim({ cx: 0, cy: -0.65, rx: 1.0, ry: 0.15, freqX: 0.06, freqY: 0.1, phaseX: 3.0, phaseY: 0.5 });
   return (
     <mesh ref={ref} position={[0, -0.65, -0.5]} scale={0.5}>
       <planeGeometry args={[1, 0.7]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.35} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.55} side={THREE.DoubleSide} />
     </mesh>
   );
 }
 
-function TurtleSprite() {
+function TurtleSprite({ isDark }: { isDark: boolean }) {
   const texture = useLoader(THREE.TextureLoader, "/images/turtle.png");
   const ref = useSwim({ cx: 0.5, cy: -0.60, rx: 0.8, ry: 0.12, freqX: 0.15, freqY: 0.35, phaseX: 1.0, phaseY: 3.0 });
   return (
     <mesh ref={ref} position={[0, -0.56, -0.2]} scale={0.20}>
       <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.4} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.4 : 0.6} side={THREE.DoubleSide} />
     </mesh>
   );
 }
 
-function DiverSprite() {
+function DiverSprite({ isDark }: { isDark: boolean }) {
   const texture = useLoader(THREE.TextureLoader, "/images/diver.png");
   const ref = useSwim({ cx: -0.3, cy: -0.60, rx: 1.0, ry: 0.13, freqX: 0.18, freqY: 0.22, phaseX: 4.0, phaseY: 1.0 });
   return (
     <mesh ref={ref} position={[0, -0.60, -0.15]} scale={0.22}>
       <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.35} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.35 : 0.55} side={THREE.DoubleSide} />
     </mesh>
   );
 }
 
-function SeaLife() {
+function SeaLife({ isDark }: { isDark: boolean }) {
   return (
     <group>
       {SWIMMERS.map((sw) => (
         <SwimmingCreature key={sw.label} swimmer={sw} />
       ))}
-      <JellyfishSprite />
-      <FishSprite />
-      <WhaleSprite />
-      <TurtleSprite />
-      <DiverSprite />
+      <JellyfishSprite isDark={isDark} />
+      <FishSprite isDark={isDark} />
+      <WhaleSprite isDark={isDark} />
+      <TurtleSprite isDark={isDark} />
+      <DiverSprite isDark={isDark} />
     </group>
   );
 }
@@ -651,6 +677,10 @@ function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void)
 const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as const;
 
 export function HeroScene() {
+  const { resolvedTheme } = useTheme();
+  const mounted = useIsMounted();
+  const isDark = !mounted || resolvedTheme !== "light";
+
   const [layers, setLayers] = useState({
     Glow: true,
     Mountain: true,
@@ -673,12 +703,12 @@ export function HeroScene() {
           gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
         >
           <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />
-          {on("Water") && <WaterSurface />}
-          {on("Glow") && <GradientGlowSun />}
-          {on("Clouds") && <Clouds />}
+          {on("Water") && <WaterSurface isDark={isDark} />}
+          {on("Glow") && <GradientGlowSun isDark={isDark} />}
+          {on("Clouds") && <Clouds isDark={isDark} />}
           {on("Mountain") && <MountainSilhouette />}
           {on("BaseLine") && <BaseLine />}
-          {on("SeaLife") && <SeaLife />}
+          {on("SeaLife") && <SeaLife isDark={isDark} />}
         </Canvas>
       </div>
 
