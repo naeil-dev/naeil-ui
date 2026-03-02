@@ -114,7 +114,7 @@ export function Nav() {
             </button>
 
             {/* Hover mega-dropdown */}
-            <div className="pointer-events-none absolute left-1/2 top-full pt-3 opacity-0 transition-opacity duration-150 -translate-x-1/2 group-hover:pointer-events-auto group-hover:opacity-100">
+            <div className="pointer-events-none absolute left-0 top-full pt-3 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
               <div className="border-border/40 bg-background/95 w-[520px] rounded-xl border p-4 shadow-xl backdrop-blur-md">
                 <div className="grid grid-cols-2 gap-1">
                   {PROJECTS.map((project) => (
