@@ -17,8 +17,10 @@ export function HeroSection() {
         <HeroScene />
       </div>
 
-      {/* Paraglider follows mouse */}
-      <ParagliderCursor containerRef={heroRef} />
+      {/* Paraglider follows mouse — desktop only */}
+      <div className="hidden md:block">
+        <ParagliderCursor containerRef={heroRef} />
+      </div>
 
       {/* Scroll hint */}
       <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-bounce">

@@ -76,7 +76,7 @@ function HubContent() {
           {t("projects.subtitle")}
         </p>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {PROJECTS.map((project) => (
             <Link
               key={project.key}
@@ -84,7 +84,7 @@ function HubContent() {
               className={[
                 "group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] p-7 transition-all duration-250",
                 "hover:-translate-y-0.5 hover:border-white/[0.12] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
-                project.featured ? "col-span-2 flex items-center gap-8" : "",
+                project.featured ? "sm:col-span-2 sm:flex sm:items-center sm:gap-8" : "",
               ].join(" ")}
               style={{ "--accent": project.accent } as React.CSSProperties}
             >
@@ -93,7 +93,7 @@ function HubContent() {
                 className={[
                   "flex shrink-0 items-center justify-center rounded-[14px]",
                   project.featured
-                    ? "h-20 w-20"
+                    ? "mb-5 h-14 w-14 sm:mb-0 sm:h-20 sm:w-20"
                     : "mb-5 h-14 w-14",
                 ].join(" ")}
                 style={{

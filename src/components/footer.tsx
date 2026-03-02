@@ -44,7 +44,7 @@ export function Footer() {
         </div>
 
         {/* Right: Links */}
-        <div className="flex gap-16">
+        <div className="flex gap-10 sm:gap-16">
           <div className="flex flex-col gap-3">
             <span className="text-foreground text-xs font-medium uppercase tracking-wider">
               {t("navigation")}
