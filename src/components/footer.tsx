@@ -78,14 +78,9 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-border/40 border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-xs">
-          <span>© 2026 Jay</span>
-          <span className="text-muted-foreground/60">
-            Build · Ship · Iterate
-          </span>
-        </div>
+      {/* Copyright — integrated at bottom of main area */}
+      <div className="text-muted-foreground/50 mx-auto max-w-7xl px-6 pb-8 text-xs">
+        © 2026 Jay
       </div>
     </footer>
   );
