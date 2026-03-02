@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { useState, useRef, useMemo, useCallback } from "react";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import type { Mesh } from "three";
 import * as THREE from "three";
 
@@ -631,6 +631,23 @@ function MountainSilhouette() {
 
 // ─── Main Scene ───
 
+// Screenshot helper — captures the WebGL canvas
+function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void) }) {
+  const { gl, scene, camera } = useThree();
+  const capture = useCallback(() => {
+    gl.render(scene, camera);
+    const dataUrl = gl.domElement.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = "hero-scene.png";
+    link.href = dataUrl;
+    link.click();
+  }, [gl, scene, camera]);
+
+  // Register the capture function
+  useMemo(() => onCapture(capture), [onCapture, capture]);
+  return null;
+}
+
 const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as const;
 
 export function HeroScene() {
@@ -642,6 +659,7 @@ export function HeroScene() {
     Clouds: true,
     SeaLife: true,
   });
+  const captureRef = useRef<(() => void) | null>(null);
   const canvasStyle = useMemo(() => ({ width: "100%", height: "100%" }) as const, []);
   const toggle = (key: string) => setLayers((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
   const on = (key: string) => layers[key as keyof typeof layers];
@@ -652,8 +670,9 @@ export function HeroScene() {
         <Canvas
           style={canvasStyle}
           camera={{ position: [0, 0.25, 3.0], fov: 50 }}
-          gl={{ antialias: true, alpha: true }}
+          gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
         >
+          <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />
           {on("Water") && <WaterSurface />}
           {on("Glow") && <GradientGlowSun />}
           {on("Clouds") && <Clouds />}
@@ -663,8 +682,15 @@ export function HeroScene() {
         </Canvas>
       </div>
 
-      {/* Layer toggles */}
-      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+      {/* Layer toggles — dev only */}
+      {process.env.NODE_ENV === "development" && <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+        <button
+          onClick={() => captureRef.current?.()}
+          className="rounded-md bg-muted/50 px-2 py-0.5 font-mono text-[9px] text-muted-foreground transition-colors hover:bg-muted"
+        >
+          📷
+        </button>
+        <span className="w-px self-stretch bg-muted/30" />
         {LAYERS.map((key) => (
           <button
             key={key}
@@ -678,7 +704,7 @@ export function HeroScene() {
             {key}
           </button>
         ))}
-      </div>
+      </div>}
     </div>
   );
 }

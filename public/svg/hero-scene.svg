@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500">
+  <defs>
+    <radialGradient id="sunGlow" cx="50%" cy="65%" r="35%">
+      <stop offset="0%" stop-color="#dc2626" stop-opacity="0.6"/><stop offset="25%" stop-color="#ea580c" stop-opacity="0.6"/><stop offset="45%" stop-color="#eab308" stop-opacity="0.6"/><stop offset="70%" stop-color="#0d9488" stop-opacity="0.3"/><stop offset="100%" stop-color="#0e7490" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5c2408" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#060810" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="500" fill="#0a0a0a"/>
+
+  <!-- Sunset glow -->
+  <ellipse cx="600.0" cy="325.0" rx="500.0" ry="300.0" fill="url(#sunGlow)"/>
+
+  <!-- Water surface -->
+  <rect x="0" y="325" width="1200" height="175" fill="url(#waterGrad)"/>
+
+  <!-- Mountain silhouette -->
+  <path d="M 100.0,325.0 L 240.0,325.0 L 260.0,309.0 L 280.0,295.0 L 300.0,309.0 L 320.0,325.0 L 360.0,325.0 L 380.0,315.0 L 390.0,285.0 L 400.0,245.0 L 410.0,235.0 L 424.0,245.0 L 440.0,269.0 L 460.0,265.0 L 476.0,281.0 L 496.0,277.0 L 516.0,295.0 L 540.0,315.0 L 560.0,325.0 L 640.0,325.0 L 660.0,315.0 L 700.0,289.0 L 740.0,255.0 L 780.0,229.0 L 820.0,221.0 L 860.0,229.0 L 900.0,249.0 L 940.0,275.0 L 980.0,301.0 L 1020.0,315.0 L 1100.0,325.0 L 1100.0,329.0 L 100.0,329.0 Z" fill="#050505"/>
+
+  <!-- Pavilion -->
+  <g transform="translate(790,229)">
+    <rect x="-8" y="-12" width="2" height="10" fill="#050505"/>
+    <rect x="6" y="-12" width="2" height="10" fill="#050505"/>
+    <rect x="-10" y="-14" width="20" height="2" fill="#050505"/>
+    <rect x="-12" y="-16" width="24" height="1.5" fill="#050505"/>
+  </g>
+
+  <!-- BaseLine -->
+  <line x1="0" y1="325" x2="1200" y2="325" stroke="#111" stroke-width="1.5"/>
+</svg>
