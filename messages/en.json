@@ -52,6 +52,13 @@
     "title": "naeil-ui",
     "subtitle": "Design System Showcase — Tokens · Components · Themes"
   },
+  "footer": {
+    "tagline": "Personal dev tools. Tomorrow starts here.",
+    "navigation": "Navigation",
+    "projects": "Projects",
+    "designSystem": "Design System",
+    "social": "Social"
+  },
   "locale": {
     "switchLabel": "Language"
   }

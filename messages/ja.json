@@ -52,6 +52,13 @@
     "title": "naeil-ui",
     "subtitle": "デザインシステムショーケース — トークン · コンポーネント · テーマ"
   },
+  "footer": {
+    "tagline": "実用のための個人開発ツール。明日はここから。",
+    "navigation": "ナビゲーション",
+    "projects": "プロジェクト",
+    "designSystem": "デザインシステム",
+    "social": "ソーシャル"
+  },
   "locale": {
     "switchLabel": "言語"
   }
