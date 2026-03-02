@@ -684,7 +684,7 @@ export function HeroScene() {
   const [layers, setLayers] = useState({
     Glow: true,
     Mountain: true,
-    BaseLine: true,
+    BaseLine: false,
     Water: true,
     Clouds: true,
     SeaLife: true,
