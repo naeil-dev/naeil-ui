@@ -9,7 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { HeroScene } from "@/components/hero-scene";
+import { HeroSection } from "@/components/hero-section";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 
@@ -74,36 +74,7 @@ function HubContent() {
       <Nav />
 
       {/* Hero */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
-        {/* 3D Scene — background */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-60">
-          <HeroScene />
-        </div>
-
-        {/* Content — foreground (hidden during 3D preview) */}
-        {/* <div className="relative z-10 flex flex-col items-center gap-6 text-center">
-          <h1 className="text-foreground text-6xl font-bold tracking-tighter md:text-8xl">
-            {t("hero.title")}
-          </h1>
-          <p className="text-muted-foreground max-w-lg text-lg md:text-xl">
-            {t("hero.subtitle")}
-          </p>
-          <div className="flex gap-3">
-            <Button asChild size="lg">
-              <Link href="/projects">{t("nav.projects")}</Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <a
-                href="https://github.com/jaymini1022"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </Button>
-          </div>
-        </div> */}
-      </section>
+      <HeroSection />
 
       {/* Projects */}
       <section className="mx-auto max-w-4xl px-6 py-24">
