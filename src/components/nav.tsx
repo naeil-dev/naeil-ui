@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggleIcon } from "@/components/theme-toggle-icon";
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -186,8 +187,9 @@ export function Nav() {
             </Link>
           </div>
 
-          {/* Desktop: Locale switcher */}
-          <div className="hidden md:block">
+          {/* Desktop: Theme + Locale */}
+          <div className="hidden items-center gap-4 md:flex">
+            <ThemeToggleIcon />
             <LocaleSwitcher />
           </div>
 
@@ -281,8 +283,9 @@ export function Nav() {
               {t("blog")}
             </Link>
 
-            {/* Locale switcher */}
-            <div className="border-border/40 border-t pt-4">
+            {/* Theme + Locale */}
+            <div className="border-border/40 flex items-center gap-4 border-t pt-4">
+              <ThemeToggleIcon />
               <LocaleSwitcher />
             </div>
           </div>
