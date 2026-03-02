@@ -6,34 +6,35 @@ import { Link, usePathname } from "@/i18n/routing";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 const PROJECTS = [
   {
     key: "cc",
     href: "/cc" as const,
     accent: "oklch(0.723 0.219 149)",
-    tags: ["Python", "RSS", "AI"],
+    icon: "/images/fish.png",
     status: "active" as const,
   },
   {
     key: "pkm",
     href: "/pkm" as const,
     accent: "oklch(0.702 0.183 293)",
-    tags: ["Python", "Embeddings"],
+    icon: "/images/jellyfish.png",
     status: "active" as const,
   },
   {
     key: "naeilUi",
     href: "/design" as const,
     accent: "oklch(0.623 0.214 259)",
-    tags: ["React", "Tailwind"],
+    icon: "/images/whale.png",
     status: "active" as const,
   },
   {
     key: "babyAgent",
     href: "#" as const,
     accent: "oklch(0.769 0.188 70.08)",
-    tags: ["LINE", "AI"],
+    icon: "/images/turtle.png",
     status: "coming" as const,
   },
 ] as const;
@@ -85,43 +86,80 @@ export function Nav() {
         <div className="flex flex-1 items-center gap-6">
           {/* Projects dropdown */}
           <div className="group relative">
-            <Link href="/projects" className={linkClass("/projects")}>
+            <button
+              className={[
+                "text-sm font-medium transition-colors",
+                pathname.startsWith("/projects") ||
+                pathname.startsWith("/cc") ||
+                pathname.startsWith("/pkm") ||
+                pathname.startsWith("/design")
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              ].join(" ")}
+            >
               {t("projects")}
-            </Link>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="ml-1 inline-block transition-transform group-hover:rotate-180"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
 
-            {/* Hover dropdown */}
-            <div className="pointer-events-none absolute left-0 top-full pt-2 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
-              <div className="border-border/40 bg-background/95 w-[280px] rounded-lg border p-2 shadow-lg backdrop-blur-md">
-                {PROJECTS.map((project) => (
-                  <Link
-                    key={project.key}
-                    href={project.href}
-                    className="hover:bg-muted/50 flex items-start gap-3 rounded-md px-3 py-2.5 transition-colors"
-                  >
-                    <div
-                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: project.accent }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-foreground text-sm font-medium">
-                          {pt(`${project.key}.name`)}
-                        </span>
-                        {project.status === "coming" && (
-                          <Badge
-                            variant="outline"
-                            className="text-muted-foreground text-[9px] px-1 py-0"
-                          >
-                            {pt("status.coming")}
-                          </Badge>
-                        )}
+            {/* Hover mega-dropdown */}
+            <div className="pointer-events-none absolute left-1/2 top-full pt-3 opacity-0 transition-opacity duration-150 -translate-x-1/2 group-hover:pointer-events-auto group-hover:opacity-100">
+              <div className="border-border/40 bg-background/95 w-[520px] rounded-xl border p-4 shadow-xl backdrop-blur-md">
+                <div className="grid grid-cols-2 gap-1">
+                  {PROJECTS.map((project) => (
+                    <Link
+                      key={project.key}
+                      href={project.href}
+                      className="hover:bg-muted/50 flex items-start gap-3.5 rounded-lg px-3 py-3 transition-colors"
+                    >
+                      {/* Icon container — Vercel style */}
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border"
+                        style={{
+                          borderColor: `color-mix(in oklch, ${project.accent} 30%, transparent)`,
+                          backgroundColor: `color-mix(in oklch, ${project.accent} 8%, transparent)`,
+                        }}
+                      >
+                        <Image
+                          src={project.icon}
+                          alt=""
+                          width={24}
+                          height={24}
+                          className="object-contain"
+                        />
                       </div>
-                      <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
-                        {pt(`${project.key}.description`)}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-foreground text-sm font-medium">
+                            {pt(`${project.key}.name`)}
+                          </span>
+                          {project.status === "coming" && (
+                            <Badge
+                              variant="outline"
+                              className="text-muted-foreground px-1 py-0 text-[9px]"
+                            >
+                              {pt("status.coming")}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
+                          {pt(`${project.key}.description`)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
