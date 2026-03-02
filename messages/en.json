@@ -43,7 +43,54 @@
     "label": "Built with"
   },
   "cc": {
-    "placeholder": "Content Collector Dashboard — coming soon"
+    "name": "Content Collector",
+    "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization",
+    "placeholder": "Content Collector — coming soon",
+    "overview": "Content Collector automatically gathers articles, videos, and discussions from multiple sources across the web.\n\nBuilt for a solo developer who wants to stay informed without doom-scrolling — it collects, classifies, and summarizes everything into a clean daily digest.\n\nRuns entirely on local hardware with free APIs. No subscriptions, no cloud dependencies.",
+    "features": {
+      "collect": {
+        "title": "Multi-source Collection",
+        "desc": "RSS feeds, YouTube channels, Reddit subs — all in one pipeline"
+      },
+      "ai": {
+        "title": "AI Summarization",
+        "desc": "Local Qwen3 14B for classification, Gemini Flash for editorial summaries"
+      },
+      "digest": {
+        "title": "Daily Digest",
+        "desc": "Automated HTML report with categorized content, delivered daily"
+      },
+      "alerts": {
+        "title": "Telegram Alerts",
+        "desc": "Real-time error notifications and collection status updates"
+      },
+      "zeroCost": {
+        "title": "Zero Cost",
+        "desc": "Runs on local hardware with free APIs — no monthly fees"
+      },
+      "pipeline": {
+        "title": "Automated Pipeline",
+        "desc": "LaunchAgent schedules collection every 30 minutes, hands-free"
+      }
+    },
+    "flow": {
+      "collect": {
+        "title": "Collect",
+        "desc": "RSS, YouTube, Reddit"
+      },
+      "classify": {
+        "title": "Classify",
+        "desc": "Qwen3 14B local"
+      },
+      "summarize": {
+        "title": "Summarize",
+        "desc": "Gemini Flash"
+      },
+      "deliver": {
+        "title": "Deliver",
+        "desc": "HTML digest + alerts"
+      }
+    }
   },
   "pkm": {
     "placeholder": "PKM Viewer — coming soon"

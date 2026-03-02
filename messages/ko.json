@@ -43,7 +43,54 @@
     "label": "사용 기술"
   },
   "cc": {
-    "placeholder": "Content Collector 대시보드 — 준비 중"
+    "name": "Content Collector",
+    "description": "RSS, YouTube, Reddit 자동 수집 + AI 요약",
+    "placeholder": "Content Collector — 준비 중",
+    "overview": "Content Collector는 웹 전반의 다양한 소스에서 기사, 영상, 토론을 자동으로 수집합니다.\n\n둠스크롤링 없이 최신 정보를 파악하고 싶은 1인 개발자를 위해 만들었습니다. 수집, 분류, 요약을 거쳐 깔끔한 일일 다이제스트로 정리됩니다.\n\n로컬 하드웨어와 무료 API만으로 동작합니다. 구독료도, 클라우드 의존성도 없습니다.",
+    "features": {
+      "collect": {
+        "title": "멀티소스 수집",
+        "desc": "RSS 피드, YouTube 채널, Reddit 서브레딧 — 하나의 파이프라인으로"
+      },
+      "ai": {
+        "title": "AI 요약",
+        "desc": "로컬 Qwen3 14B로 분류, Gemini Flash로 편집 요약"
+      },
+      "digest": {
+        "title": "일일 다이제스트",
+        "desc": "카테고리별 정리된 자동 HTML 리포트, 매일 전달"
+      },
+      "alerts": {
+        "title": "텔레그램 알림",
+        "desc": "실시간 에러 알림 및 수집 상태 업데이트"
+      },
+      "zeroCost": {
+        "title": "무료 운영",
+        "desc": "로컬 하드웨어 + 무료 API로 운영 — 월 비용 제로"
+      },
+      "pipeline": {
+        "title": "자동 파이프라인",
+        "desc": "LaunchAgent가 30분마다 수집 스케줄링, 완전 자동"
+      }
+    },
+    "flow": {
+      "collect": {
+        "title": "수집",
+        "desc": "RSS, YouTube, Reddit"
+      },
+      "classify": {
+        "title": "분류",
+        "desc": "Qwen3 14B 로컬"
+      },
+      "summarize": {
+        "title": "요약",
+        "desc": "Gemini Flash"
+      },
+      "deliver": {
+        "title": "전달",
+        "desc": "HTML 다이제스트 + 알림"
+      }
+    }
   },
   "pkm": {
     "placeholder": "PKM 뷰어 — 준비 중"
