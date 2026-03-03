@@ -56,9 +56,28 @@ function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
-function useAnimationProfile() {
-  const [animate, setAnimate] = useState(true);
-  const [targetFps, setTargetFps] = useState(45);
+type Tier = "low" | "medium" | "high";
+
+type SceneProfile = {
+  animate: boolean;
+  targetFps: number;
+  tier: Tier;
+  enableClouds: boolean;
+  enableSeaLife: boolean;
+  seaLifeLite: boolean;
+  sunSegments: number;
+};
+
+function useSceneProfile(): SceneProfile {
+  const [profile, setProfile] = useState<SceneProfile>({
+    animate: true,
+    targetFps: 45,
+    tier: "high",
+    enableClouds: true,
+    enableSeaLife: true,
+    seaLifeLite: false,
+    sunSegments: 64,
+  });
 
   useEffect(() => {
     const reduceMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -69,10 +88,20 @@ function useAnimationProfile() {
       const isMobile = mobileMedia.matches;
       const cores = navigator.hardwareConcurrency ?? 8;
       const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
-      const lowTier = isMobile || cores <= 4 || memory <= 4;
+      const lowDevice = isMobile || cores <= 4 || memory <= 4;
+      const midDevice = !lowDevice && (cores <= 6 || memory <= 6);
 
-      setTargetFps(lowTier ? 30 : 45);
-      setAnimate(!reduceMotion && document.visibilityState === "visible");
+      const tier: Tier = lowDevice ? "low" : midDevice ? "medium" : "high";
+
+      setProfile({
+        animate: !reduceMotion && document.visibilityState === "visible",
+        targetFps: tier === "low" ? 24 : tier === "medium" ? 35 : 45,
+        tier,
+        enableClouds: tier !== "low",
+        enableSeaLife: true,
+        seaLifeLite: tier === "low",
+        sunSegments: tier === "low" ? 24 : tier === "medium" ? 40 : 64,
+      });
     };
 
     update();
@@ -89,7 +118,7 @@ function useAnimationProfile() {
     };
   }, []);
 
-  return { animate, targetFps };
+  return profile;
 }
 
 const GRADIENT_LAYERS = [
@@ -97,7 +126,7 @@ const GRADIENT_LAYERS = [
   { r: 0.5, peak: 0.50, y: -0.38, z: -0.05 },
 ];
 
-function GradientGlowSun({ isDark }: { isDark: boolean }) {
+function GradientGlowSun({ isDark, segments = 64 }: { isDark: boolean; segments?: number }) {
   const refs = useRef<(THREE.ShaderMaterial | null)[]>([]);
   const stops = isDark ? SUNSET_STOPS : SUNRISE_STOPS;
   const layers = isDark ? GRADIENT_LAYERS : SUNRISE_LAYERS;
@@ -129,7 +158,7 @@ function GradientGlowSun({ isDark }: { isDark: boolean }) {
     <group position={[0, 0, -1.2]}>
       {layers.map((cfg, i) => (
         <mesh key={i} position={[0, cfg.y, cfg.z]}>
-          <circleGeometry args={[cfg.r, 64]} />
+          <circleGeometry args={[cfg.r, segments]} />
           <shaderMaterial
             ref={(el) => {
               refs.current[i] = el;
@@ -586,17 +615,17 @@ function DiverSprite({ isDark }: { isDark: boolean }) {
   );
 }
 
-function SeaLife({ isDark }: { isDark: boolean }) {
+function SeaLife({ isDark, lite = false }: { isDark: boolean; lite?: boolean }) {
   return (
     <group>
       {SWIMMERS.map((sw) => (
         <SwimmingCreature key={sw.label} swimmer={sw} />
       ))}
-      <JellyfishSprite isDark={isDark} />
       <FishSprite isDark={isDark} />
-      <WhaleSprite isDark={isDark} />
-      <TurtleSprite isDark={isDark} />
       <DiverSprite isDark={isDark} />
+      {!lite && <JellyfishSprite isDark={isDark} />}
+      {!lite && <WhaleSprite isDark={isDark} />}
+      {!lite && <TurtleSprite isDark={isDark} />}
     </group>
   );
 }
@@ -741,7 +770,7 @@ const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as
 export function HeroScene() {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
-  const { animate, targetFps } = useAnimationProfile();
+  const profile = useSceneProfile();
   const isDark = !mounted || resolvedTheme !== "light";
   const isDev = process.env.NODE_ENV === "development";
 
@@ -767,14 +796,14 @@ export function HeroScene() {
           frameloop="demand"
           gl={{ antialias: true, alpha: true, preserveDrawingBuffer: isDev }}
         >
-          <FrameDriver active={animate} targetFps={targetFps} />
+          <FrameDriver active={profile.animate} targetFps={profile.targetFps} />
           <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />
           {on("Water") && <WaterSurface isDark={isDark} />}
-          {on("Glow") && <GradientGlowSun isDark={isDark} />}
-          {on("Clouds") && <Clouds isDark={isDark} />}
+          {on("Glow") && <GradientGlowSun isDark={isDark} segments={profile.sunSegments} />}
+          {profile.enableClouds && on("Clouds") && <Clouds isDark={isDark} />}
           {on("Mountain") && <MountainSilhouette />}
           {on("BaseLine") && <BaseLine />}
-          {on("SeaLife") && <SeaLife isDark={isDark} />}
+          {profile.enableSeaLife && on("SeaLife") && <SeaLife isDark={isDark} lite={profile.seaLifeLite} />}
         </Canvas>
       </div>
 
