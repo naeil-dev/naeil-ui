@@ -44,51 +44,75 @@
   },
   "cc": {
     "name": "Content Collector",
-    "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization",
+    "description": "Automated content pipeline with local AI — collect, classify, and digest tech news",
     "placeholder": "Content Collector — coming soon",
-    "overview": "Content Collector automatically gathers articles, videos, and discussions from multiple sources across the web.\n\nBuilt for a solo developer who wants to stay informed without doom-scrolling — it collects, classifies, and summarizes everything into a clean daily digest.\n\nRuns entirely on local hardware with free APIs. No subscriptions, no cloud dependencies.",
+    "overview": "Content Collector automatically gathers articles, videos, and discussions from multiple sources across the web.\n\nBuilt for a solo developer who wants to stay informed without doom-scrolling — it collects, classifies with local AI, clusters similar content, and summarizes everything into a clean daily digest.\n\nRuns entirely on local hardware with free APIs. No subscriptions, no cloud dependencies.",
     "features": {
       "collect": {
         "title": "Multi-source Collection",
-        "desc": "RSS feeds, YouTube channels, Reddit subs — all in one pipeline"
+        "desc": "RSS feeds, Reddit, Threads profiles — all in one automated pipeline"
       },
-      "ai": {
-        "title": "AI Summarization",
-        "desc": "Local Qwen3 14B for classification, Gemini Flash for editorial summaries"
+      "classify": {
+        "title": "AI Classification",
+        "desc": "Local Qwen3 14B labels topics, importance, and content types on every item"
+      },
+      "embed": {
+        "title": "Vector Embeddings",
+        "desc": "BGE-M3 generates 1024-dim multilingual vectors for semantic clustering"
       },
       "digest": {
         "title": "Daily Digest",
-        "desc": "Automated HTML report with categorized content, delivered daily"
-      },
-      "alerts": {
-        "title": "Telegram Alerts",
-        "desc": "Real-time error notifications and collection status updates"
+        "desc": "Gemini Flash generates editorial summaries — LINE message + detailed HTML report"
       },
       "zeroCost": {
         "title": "Zero Cost",
-        "desc": "Runs on local hardware with free APIs — no monthly fees"
+        "desc": "Local Ollama + free Gemini API — no monthly fees, no cloud lock-in"
       },
-      "pipeline": {
-        "title": "Automated Pipeline",
-        "desc": "LaunchAgent schedules collection every 30 minutes, hands-free"
+      "alerts": {
+        "title": "Real-time Alerts",
+        "desc": "Telegram notifications for collection errors and pipeline status"
       }
     },
-    "flow": {
-      "collect": {
-        "title": "Collect",
-        "desc": "RSS, YouTube, Reddit"
+    "workflow": {
+      "github": {
+        "desc": "GitHub releases and discussions via RSS feeds",
+        "meta": "30min interval"
+      },
+      "reddit": {
+        "desc": "Subreddit posts via RSS and JSON search API",
+        "meta": "30min interval"
+      },
+      "threads": {
+        "desc": "Profile scraping via Playwright headless browser",
+        "meta": "30min interval"
+      },
+      "collector": {
+        "desc": "Dispatches to source-specific collectors, deduplicates by content hash",
+        "meta": "SHA-256 dedup"
+      },
+      "postgres": {
+        "desc": "Stores raw items, classifications, embeddings, clusters, and digest history"
+      },
+      "embed": {
+        "desc": "Generates 1024-dim multilingual vectors for similarity search",
+        "meta": "~2s per item"
       },
       "classify": {
-        "title": "Classify",
-        "desc": "Qwen3 14B local"
+        "desc": "Labels topic, importance score, content type, and tags",
+        "meta": "~18s per item"
       },
-      "summarize": {
-        "title": "Summarize",
-        "desc": "Gemini Flash"
+      "cluster": {
+        "desc": "Groups similar items by cosine similarity, ranks by hot score"
       },
-      "deliver": {
-        "title": "Deliver",
-        "desc": "HTML digest + alerts"
+      "digest": {
+        "desc": "Generates editorial LINE summary and detailed HTML report from top content",
+        "meta": "Free API"
+      },
+      "line": {
+        "desc": "Concise daily summary pushed to LINE group"
+      },
+      "html": {
+        "desc": "Full categorized report with links and scores"
       }
     }
   },

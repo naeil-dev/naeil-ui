@@ -44,51 +44,75 @@
   },
   "cc": {
     "name": "Content Collector",
-    "description": "RSS、YouTube、Redditの自動収集 + AI要約",
+    "description": "ローカルAIによる自動コンテンツパイプライン — 収集、分類、ダイジェスト",
     "placeholder": "Content Collector — 準備中",
-    "overview": "Content Collectorは、ウェブ上のさまざまなソースから記事、動画、ディスカッションを自動的に収集します。\n\nドゥームスクロールなしで最新情報を把握したい個人開発者のために作りました。収集、分類、要約を経て、きれいなデイリーダイジェストにまとめます。\n\nローカルハードウェアと無料APIだけで動作します。サブスクリプションもクラウド依存もありません。",
+    "overview": "Content Collectorは、ウェブ上のさまざまなソースから記事、動画、ディスカッションを自動的に収集します。\n\nドゥームスクロールなしで最新情報を把握したい個人開発者のために作りました。ローカルAIで分類し、類似コンテンツをクラスタリングし、きれいなデイリーダイジェストにまとめます。\n\nローカルハードウェアと無料APIだけで動作します。サブスクリプションもクラウド依存もありません。",
     "features": {
       "collect": {
         "title": "マルチソース収集",
-        "desc": "RSSフィード、YouTubeチャンネル、Redditサブ — 一つのパイプラインで"
+        "desc": "RSSフィード、Reddit、Threadsプロフィール — 一つの自動パイプラインで"
       },
-      "ai": {
-        "title": "AI要約",
-        "desc": "ローカルQwen3 14Bで分類、Gemini Flashで編集要約"
+      "classify": {
+        "title": "AI分類",
+        "desc": "ローカルQwen3 14Bがトピック、重要度、コンテンツタイプを自動ラベリング"
+      },
+      "embed": {
+        "title": "ベクター埋め込み",
+        "desc": "BGE-M3が1024次元の多言語ベクターを生成、セマンティッククラスタリングに活用"
       },
       "digest": {
         "title": "デイリーダイジェスト",
-        "desc": "カテゴリ別に整理された自動HTMLレポート、毎日配信"
-      },
-      "alerts": {
-        "title": "Telegramアラート",
-        "desc": "リアルタイムエラー通知と収集ステータス更新"
+        "desc": "Gemini Flashが編集要約を生成 — LINEメッセージ + 詳細HTMLレポート"
       },
       "zeroCost": {
         "title": "ゼロコスト",
-        "desc": "ローカルハードウェア+無料APIで運用 — 月額費用ゼロ"
+        "desc": "ローカルOllama + 無料Gemini API — 月額費用ゼロ、クラウドロックインなし"
       },
-      "pipeline": {
-        "title": "自動パイプライン",
-        "desc": "LaunchAgentが30分ごとに収集スケジューリング、完全自動"
+      "alerts": {
+        "title": "リアルタイムアラート",
+        "desc": "収集エラーとパイプラインステータスをTelegramでリアルタイム通知"
       }
     },
-    "flow": {
-      "collect": {
-        "title": "収集",
-        "desc": "RSS, YouTube, Reddit"
+    "workflow": {
+      "github": {
+        "desc": "RSSフィードを通じたGitHubリリースとディスカッション収集",
+        "meta": "30分間隔"
+      },
+      "reddit": {
+        "desc": "RSSとJSON検索APIを通じたサブレディット投稿収集",
+        "meta": "30分間隔"
+      },
+      "threads": {
+        "desc": "Playwrightヘッドレスブラウザでプロフィールスクレイピング",
+        "meta": "30分間隔"
+      },
+      "collector": {
+        "desc": "ソース別コレクターにディスパッチ、コンテンツハッシュで重複排除",
+        "meta": "SHA-256重複排除"
+      },
+      "postgres": {
+        "desc": "生アイテム、分類、埋め込み、クラスター、ダイジェスト履歴を保存"
+      },
+      "embed": {
+        "desc": "類似検索のための1024次元多言語ベクター生成",
+        "meta": "アイテムあたり~2秒"
       },
       "classify": {
-        "title": "分類",
-        "desc": "Qwen3 14B ローカル"
+        "desc": "トピック、重要度スコア、コンテンツタイプ、タグを自動ラベリング",
+        "meta": "アイテムあたり~18秒"
       },
-      "summarize": {
-        "title": "要約",
-        "desc": "Gemini Flash"
+      "cluster": {
+        "desc": "コサイン類似度で類似アイテムをグループ化、ホットスコアでランキング"
       },
-      "deliver": {
-        "title": "配信",
-        "desc": "HTMLダイジェスト + アラート"
+      "digest": {
+        "desc": "上位コンテンツから編集LINE要約 + 詳細HTMLレポートを生成",
+        "meta": "無料API"
+      },
+      "line": {
+        "desc": "LINEグループに簡潔なデイリー要約をプッシュ"
+      },
+      "html": {
+        "desc": "リンクとスコア付きのカテゴリ別詳細レポート"
       }
     }
   },

@@ -2,15 +2,19 @@
 
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import {
+  WorkflowDiagram,
+  type WorkflowNode,
+  type WorkflowEdge,
+} from "@/components/workflow-diagram";
 import Image from "next/image";
+
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
 
 export interface ProjectFeature {
   icon: string;
-  title: string;
-  description: string;
-}
-
-export interface ProjectFlowStep {
   title: string;
   description: string;
 }
@@ -27,11 +31,19 @@ export interface ProjectData {
   accent: string;
   tags: string[];
   github?: string;
+  demo?: string;
   overview: string;
   features: ProjectFeature[];
-  flow?: ProjectFlowStep[];
+  workflow?: {
+    nodes: WorkflowNode[];
+    edges: WorkflowEdge[];
+  };
   stack: ProjectStackItem[];
 }
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 
 export function ProjectLayout({ data }: { data: ProjectData }) {
   return (
@@ -40,46 +52,70 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 pt-28 pb-16">
-        <div
-          className="mb-5 flex h-14 w-14 items-center justify-center rounded-[14px] border"
-          style={{
-            background: `color-mix(in oklch, ${data.accent} 8%, transparent)`,
-            border: `1px solid color-mix(in oklch, ${data.accent} 20%, transparent)`,
-          }}
-        >
-          <Image
-            src={data.icon}
-            alt=""
-            width={36}
-            height={36}
-            className="object-contain"
-          />
-        </div>
-        <h1 className="text-foreground mb-2 text-3xl font-bold tracking-tight">
-          {data.name}
-        </h1>
-        <p className="text-muted-foreground mb-5 max-w-lg text-base leading-relaxed">
-          {data.description}
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
-          {data.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-black/[0.08] px-2.5 py-1 text-[11px] text-zinc-500 dark:border-white/[0.08]"
-            >
-              {tag}
-            </span>
-          ))}
-          {data.github && (
-            <a
-              href={data.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground ml-auto text-sm transition-colors"
-            >
-              GitHub ↗
-            </a>
-          )}
+        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
+          {/* Text */}
+          <div className="flex-1">
+            <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
+              {data.name}
+            </h1>
+            <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">
+              {data.description}
+            </p>
+
+            {/* Tags */}
+            <div className="mb-6 flex flex-wrap gap-2">
+              {data.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-black/[0.08] px-2.5 py-1 text-[11px] text-zinc-500 dark:border-white/[0.08]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* Links */}
+            <div className="flex flex-wrap items-center gap-3">
+              {data.github && (
+                <a
+                  href={data.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
+                  style={{
+                    background: data.accent,
+                    color: "var(--background)",
+                  }}
+                >
+                  GitHub →
+                </a>
+              )}
+              {data.demo && (
+                <a
+                  href={data.demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition-colors"
+                >
+                  Live Demo
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Animal visual */}
+          <div className="flex-shrink-0">
+            <Image
+              src={data.icon}
+              alt=""
+              width={220}
+              height={220}
+              className="animate-float object-contain"
+              style={{
+                filter: `drop-shadow(0 4px 12px color-mix(in oklch, ${data.accent} 15%, transparent))`,
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -112,32 +148,17 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
         </div>
       </section>
 
-      {/* How It Works (optional) */}
-      {data.flow && data.flow.length > 0 && (
+      {/* Architecture */}
+      {data.workflow && (
         <section className="mx-auto max-w-4xl px-6 pb-16">
           <h2 className="text-foreground mb-8 text-lg font-bold">
-            How It Works
+            Architecture
           </h2>
-          <div className="flex flex-wrap items-center justify-center gap-0">
-            {data.flow.map((step, i) => (
-              <div key={step.title} className="flex items-center">
-                <div className="min-w-[120px] px-4 py-3 text-center sm:min-w-[140px] sm:px-6">
-                  <div className="text-muted-foreground/50 mb-1 text-[11px]">
-                    {String(i + 1).padStart(2, "0")}
-                  </div>
-                  <h4 className="text-foreground mb-1 text-sm font-semibold">
-                    {step.title}
-                  </h4>
-                  <p className="text-muted-foreground text-xs">
-                    {step.description}
-                  </p>
-                </div>
-                {i < data.flow!.length - 1 && (
-                  <span className="text-muted-foreground/30 text-lg">→</span>
-                )}
-              </div>
-            ))}
-          </div>
+          <WorkflowDiagram
+            nodes={data.workflow.nodes}
+            edges={data.workflow.edges}
+            accent={data.accent}
+          />
         </section>
       )}
 
