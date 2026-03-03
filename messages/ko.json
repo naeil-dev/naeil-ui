@@ -44,33 +44,32 @@
   },
   "cc": {
     "name": "Content Collector",
-    "description": "로컬 AI 기반 자동 콘텐츠 파이프라인 — 수집, 분류, 다이제스트",
-    "placeholder": "Content Collector — 준비 중",
-    "overview": "Content Collector는 웹 전반의 다양한 소스에서 기사, 영상, 토론을 자동으로 수집합니다.\n\n둠스크롤링 없이 최신 정보를 파악하고 싶은 1인 개발자를 위해 만들었습니다. 로컬 AI로 분류하고, 유사 콘텐츠를 클러스터링하고, 깔끔한 일일 다이제스트로 요약합니다.\n\n로컬 하드웨어와 무료 API만으로 동작합니다. 구독료도, 클라우드 의존성도 없습니다.",
+    "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스를 매일 읽을 브리프로",
+    "overview": "RSS, Reddit, Threads를 매일 훑는 건 시간 낭비에 중요한 신호를 놓치기 쉽다. Content Collector는 이 반복 작업을 자동화한다.\n\n연속 수집, 로컬 Qwen3 14B 분류, BGE-M3 임베딩을 PostgreSQL + pgvector에 저장해 의미 기반 검색. Gemini가 편집형 요약 생성.\n\nMac Mini 한 대에서 Docker Compose + LaunchAgent로 전체 스택 가동. LINE 다이제스트, HTML 리포트, 실시간 알림. 월 운영비 0원.",
     "features": {
       "collect": {
-        "title": "멀티소스 수집",
-        "desc": "RSS 피드, Reddit, Threads 프로필 — 하나의 자동 파이프라인으로"
+        "title": "멀티 소스 수집",
+        "desc": "RSS, Reddit, Threads — 한 파이프라인으로 수집·정규화"
       },
       "classify": {
-        "title": "AI 분류",
-        "desc": "로컬 Qwen3 14B가 토픽, 중요도, 콘텐츠 유형을 자동 라벨링"
+        "title": "로컬 AI 분류",
+        "desc": "Qwen3 14B 온디바이스 — 관련도 판별, 토픽 라벨링, 우선순위 랭킹"
       },
       "embed": {
-        "title": "벡터 임베딩",
-        "desc": "BGE-M3로 1024차원 다국어 벡터 생성, 시맨틱 클러스터링에 활용"
+        "title": "벡터 임베딩 검색",
+        "desc": "BGE-M3 + pgvector — 의미 기반 유사 검색과 주제 추적"
       },
       "digest": {
-        "title": "일일 다이제스트",
-        "desc": "Gemini Flash가 편집 요약 생성 — LINE 메시지 + 상세 HTML 리포트"
+        "title": "데일리 다이제스트",
+        "desc": "Gemini 편집 요약 — LINE 메시지 + 상세 HTML 리포트"
       },
       "zeroCost": {
-        "title": "무료 운영",
-        "desc": "로컬 Ollama + 무료 Gemini API — 월 비용 제로, 클라우드 종속 없음"
+        "title": "월 비용 0원",
+        "desc": "로컬 Mac Mini, 오픈 모델, 무료 API — 고정 인프라 비용 없음"
       },
       "alerts": {
         "title": "실시간 알림",
-        "desc": "수집 에러 및 파이프라인 상태를 텔레그램으로 실시간 알림"
+        "desc": "우선순위 높은 신호 감지 즉시 알림 — 몇 시간 뒤가 아니라 바로"
       }
     },
     "workflow": {
@@ -87,22 +86,22 @@
         "meta": "30분 간격"
       },
       "collector": {
-        "desc": "소스별 수집기에 디스패치, 콘텐츠 해시로 중복 제거",
+        "desc": "소스별 디스패치, 콘텐츠 해시 중복 제거",
         "meta": "SHA-256 중복 제거"
       },
       "postgres": {
         "desc": "원본 아이템, 분류, 임베딩, 클러스터, 다이제스트 이력 저장"
       },
       "embed": {
-        "desc": "유사도 검색을 위한 1024차원 다국어 벡터 생성",
+        "desc": "유사 검색을 위한 1024차원 다국어 벡터 생성",
         "meta": "아이템당 ~2초"
       },
       "classify": {
-        "desc": "토픽, 중요도 점수, 콘텐츠 유형, 태그를 자동 라벨링",
+        "desc": "토픽, 중요도, 콘텐츠 유형, 태그 — 자동 라벨링",
         "meta": "아이템당 ~18초"
       },
       "cluster": {
-        "desc": "코사인 유사도로 유사 아이템 그룹화, 핫 스코어로 랭킹"
+        "desc": "코사인 유사도 그룹화, 핫 스코어 랭킹"
       },
       "digest": {
         "desc": "상위 콘텐츠에서 편집 LINE 요약 + 상세 HTML 리포트 생성",
@@ -112,7 +111,7 @@
         "desc": "LINE 그룹에 간결한 일일 요약 푸시"
       },
       "html": {
-        "desc": "링크와 점수가 포함된 카테고리별 상세 리포트"
+        "desc": "링크와 점수 포함 카테고리별 상세 리포트"
       }
     }
   },
