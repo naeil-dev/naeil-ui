@@ -40,6 +40,7 @@ import {
   AvatarGroupCount,
 } from "@/components/ui/avatar";
 import { AccentPicker } from "@/components/accent-picker";
+import { PageTitle, SectionTitle } from "@/components/typography";
 import { toast } from "sonner";
 
 /* ─── Token Data (for showcase display) ─── */
@@ -144,11 +145,7 @@ const SPACING_STEPS = [
 /* ─── Helper Components ─── */
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="text-2xl font-bold tracking-tight border-b border-border pb-2">
-      {children}
-    </h2>
-  );
+  return <SectionTitle>{children}</SectionTitle>;
 }
 
 function SubHeading({ children }: { children: React.ReactNode }) {
@@ -215,9 +212,7 @@ export default function Home() {
       <section className="mx-auto max-w-4xl px-6 pb-16">
         <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
-            <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
-              {t("title")}
-            </h1>
+            <PageTitle className="mb-3">{t("title")}</PageTitle>
             <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">
               {t("subtitle")}
             </p>

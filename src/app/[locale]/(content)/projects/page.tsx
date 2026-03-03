@@ -9,6 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageTitle } from "@/components/typography";
 
 export default async function ProjectsPage({
   params,
@@ -62,9 +63,7 @@ function ProjectsContent() {
   return (
     <section className="mx-auto max-w-4xl px-6 pb-24">
       <div className="mb-10">
-        <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
-          {t("projects.title")}
-        </h1>
+        <PageTitle className="mb-3">{t("projects.title")}</PageTitle>
         <p className="text-muted-foreground text-lg">
           {t("projects.subtitle")}
         </p>

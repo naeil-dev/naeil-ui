@@ -5,6 +5,7 @@ import {
   type WorkflowNode,
   type WorkflowEdge,
 } from "@/components/workflow-diagram";
+import { PageTitle, SectionTitle } from "@/components/typography";
 import Image from "next/image";
 
 /* ------------------------------------------------------------------ */
@@ -52,9 +53,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
         <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
           {/* Text */}
           <div className="flex-1">
-            <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
-              {data.name}
-            </h1>
+            <PageTitle className="mb-3">{data.name}</PageTitle>
             <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">
               {data.description}
             </p>
@@ -130,7 +129,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
       {/* Overview */}
       {data.overview && (
         <section className="mx-auto max-w-4xl px-6 pb-16">
-          <h2 className="text-foreground mb-3 text-lg font-bold">Overview</h2>
+          <SectionTitle className="mb-3">Overview</SectionTitle>
           <p className="text-muted-foreground max-w-2xl text-sm leading-7 whitespace-pre-line">
             {data.overview}
           </p>
@@ -140,7 +139,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
       {/* Features */}
       {data.features && data.features.length > 0 && (
         <section className="mx-auto max-w-4xl px-6 pb-16">
-          <h2 className="text-foreground mb-6 text-lg font-bold">Features</h2>
+          <SectionTitle className="mb-6">Features</SectionTitle>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.features.map((feat) => (
               <div
@@ -163,9 +162,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
       {/* Architecture */}
       {data.workflow && (
         <section className="mx-auto max-w-4xl px-6 pb-16">
-          <h2 className="text-foreground mb-8 text-lg font-bold">
-            Architecture
-          </h2>
+          <SectionTitle className="mb-8">Architecture</SectionTitle>
           <WorkflowDiagram
             nodes={data.workflow.nodes}
             edges={data.workflow.edges}
@@ -177,7 +174,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
       {/* Stack */}
       {data.stack && data.stack.length > 0 && (
         <section className="mx-auto max-w-4xl px-6 pb-24">
-          <h2 className="text-foreground mb-6 text-lg font-bold">Stack</h2>
+          <SectionTitle className="mb-6">Stack</SectionTitle>
           <div className="flex flex-wrap gap-2">
             {data.stack.map((item) => (
               <div
