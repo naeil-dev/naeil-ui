@@ -62,6 +62,8 @@ type SceneProfile = {
   animate: boolean;
   targetFps: number;
   tier: Tier;
+  dpr: [number, number];
+  antialias: boolean;
   enableClouds: boolean;
   enableSeaLife: boolean;
   seaLifeLite: boolean;
@@ -73,6 +75,8 @@ function useSceneProfile(): SceneProfile {
     animate: true,
     targetFps: 45,
     tier: "high",
+    dpr: [1, 2],
+    antialias: true,
     enableClouds: true,
     enableSeaLife: true,
     seaLifeLite: false,
@@ -97,6 +101,8 @@ function useSceneProfile(): SceneProfile {
         animate: !reduceMotion && document.visibilityState === "visible",
         targetFps: tier === "low" ? 24 : tier === "medium" ? 35 : 45,
         tier,
+        dpr: tier === "low" ? [1, 1.25] : tier === "medium" ? [1, 1.5] : [1, 2],
+        antialias: tier !== "low",
         enableClouds: tier !== "low",
         enableSeaLife: true,
         seaLifeLite: tier === "low",
@@ -767,12 +773,13 @@ function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void)
 
 const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as const;
 
-export function HeroScene() {
+export function HeroScene({ active = true }: { active?: boolean }) {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
   const profile = useSceneProfile();
   const isDark = !mounted || resolvedTheme !== "light";
   const isDev = process.env.NODE_ENV === "development";
+  const shouldAnimate = active && profile.animate;
 
   const [layers, setLayers] = useState({
     Glow: true,
@@ -794,9 +801,15 @@ export function HeroScene() {
           style={canvasStyle}
           camera={{ position: [0, 0.25, 3.0], fov: 50 }}
           frameloop="demand"
-          gl={{ antialias: true, alpha: true, preserveDrawingBuffer: isDev }}
+          dpr={profile.dpr}
+          gl={{
+            antialias: profile.antialias,
+            alpha: true,
+            preserveDrawingBuffer: isDev,
+            powerPreference: profile.tier === "low" ? "low-power" : "default",
+          }}
         >
-          <FrameDriver active={profile.animate} targetFps={profile.targetFps} />
+          <FrameDriver active={shouldAnimate} targetFps={profile.targetFps} />
           <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />
           {on("Water") && <WaterSurface isDark={isDark} />}
           {on("Glow") && <GradientGlowSun isDark={isDark} segments={profile.sunSegments} />}

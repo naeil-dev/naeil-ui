@@ -1,11 +1,24 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { HeroScene } from "@/components/hero-scene";
 import { ParagliderCursor } from "@/components/paraglider-cursor";
 
 export function HeroSection() {
   const heroRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(true);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: "200px 0px", threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -14,7 +27,7 @@ export function HeroSection() {
     >
       {/* 3D Scene — background */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-60">
-        <HeroScene />
+        <HeroScene active={inView} />
       </div>
 
       {/* Paraglider follows mouse — desktop only */}
