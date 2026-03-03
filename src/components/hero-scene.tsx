@@ -754,6 +754,54 @@ function FrameDriver({ active, targetFps }: { active: boolean; targetFps: number
   return null;
 }
 
+/** Handles WebGL context lost/restored — forces re-render on recovery */
+function ContextGuard() {
+  const { gl, invalidate } = useThree();
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const onLost = (e: Event) => {
+      e.preventDefault();
+      console.warn("[HeroScene] WebGL context lost — pausing");
+    };
+    const onRestored = () => {
+      console.info("[HeroScene] WebGL context restored — resuming");
+      invalidate();
+    };
+    canvas.addEventListener("webglcontextlost", onLost);
+    canvas.addEventListener("webglcontextrestored", onRestored);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", onLost);
+      canvas.removeEventListener("webglcontextrestored", onRestored);
+    };
+  }, [gl, invalidate]);
+
+  return null;
+}
+
+/** Disposes scene geometry/materials on unmount (renderer lifecycle managed by R3F) */
+function ResourceCleanup() {
+  const { scene } = useThree();
+
+  useEffect(() => {
+    return () => {
+      scene.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          obj.geometry?.dispose();
+          const mat = obj.material;
+          if (Array.isArray(mat)) {
+            mat.forEach((m) => m.dispose());
+          } else if (mat) {
+            mat.dispose();
+          }
+        }
+      });
+    };
+  }, [scene]);
+
+  return null;
+}
+
 // Screenshot helper — captures the WebGL canvas
 function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void) }) {
   const { gl, scene, camera } = useThree();
@@ -773,6 +821,20 @@ function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void)
 
 const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as const;
 
+/** Static CSS gradient fallback for reduced-motion / no-WebGL */
+function StaticFallback({ isDark }: { isDark: boolean }) {
+  return (
+    <div
+      className="h-full w-full"
+      style={{
+        background: isDark
+          ? "radial-gradient(ellipse 80% 60% at 50% 65%, rgba(220,38,38,0.25) 0%, rgba(234,88,12,0.15) 25%, rgba(14,116,144,0.08) 50%, transparent 80%)"
+          : "radial-gradient(ellipse 80% 60% at 50% 65%, rgba(253,164,175,0.3) 0%, rgba(251,146,60,0.18) 25%, rgba(147,197,253,0.1) 50%, transparent 80%)",
+      }}
+    />
+  );
+}
+
 export function HeroScene({ active = true }: { active?: boolean }) {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
@@ -780,6 +842,16 @@ export function HeroScene({ active = true }: { active?: boolean }) {
   const isDark = !mounted || resolvedTheme !== "light";
   const isDev = process.env.NODE_ENV === "development";
   const shouldAnimate = active && profile.animate;
+
+  // reduced-motion: show static CSS fallback instead of WebGL
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const onChange = () => setReducedMotion(mq.matches);
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
 
   const [layers, setLayers] = useState({
     Glow: true,
@@ -793,6 +865,14 @@ export function HeroScene({ active = true }: { active?: boolean }) {
   const canvasStyle = useMemo(() => ({ width: "100%", height: "100%" }) as const, []);
   const toggle = (key: string) => setLayers((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
   const on = (key: string) => layers[key as keyof typeof layers];
+
+  if (reducedMotion) {
+    return (
+      <div className="relative h-[400px] w-full overflow-hidden md:h-[550px]">
+        <StaticFallback isDark={isDark} />
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-[400px] w-full overflow-hidden md:h-[550px]">
@@ -809,8 +889,10 @@ export function HeroScene({ active = true }: { active?: boolean }) {
             powerPreference: profile.tier === "low" ? "low-power" : "default",
           }}
         >
+          <ContextGuard />
+          <ResourceCleanup />
           <FrameDriver active={shouldAnimate} targetFps={profile.targetFps} />
-          <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />
+          {isDev && <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />}
           {on("Water") && <WaterSurface isDark={isDark} />}
           {on("Glow") && <GradientGlowSun isDark={isDark} segments={profile.sunSegments} />}
           {profile.enableClouds && on("Clouds") && <Clouds isDark={isDark} />}
@@ -821,7 +903,7 @@ export function HeroScene({ active = true }: { active?: boolean }) {
       </div>
 
       {/* Layer toggles — dev only */}
-      {process.env.NODE_ENV === "development" && <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+      {isDev && <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
         <button
           onClick={() => captureRef.current?.()}
           className="rounded-md bg-muted/50 px-2 py-0.5 font-mono text-[9px] text-muted-foreground transition-colors hover:bg-muted"
