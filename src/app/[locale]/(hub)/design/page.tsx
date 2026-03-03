@@ -1,6 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Nav } from "@/components/nav";
+import { Footer } from "@/components/footer";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,9 +41,7 @@ import {
   AvatarGroup,
   AvatarGroupCount,
 } from "@/components/ui/avatar";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { AccentPicker } from "@/components/accent-picker";
-import { LocaleSwitcher } from "@/components/locale-switcher";
 import { toast } from "sonner";
 
 /* ─── Token Data (for showcase display) ─── */
@@ -211,18 +212,60 @@ export default function Home() {
   const t = useTranslations("design");
 
   return (
-    <main className="flex min-h-screen flex-col gap-16 p-8 pb-24 max-w-4xl mx-auto">
-      {/* Header */}
-      <header className="flex flex-col items-center gap-4 pt-8">
-        <h1 className="text-4xl font-bold tracking-tight">{t("title")}</h1>
-        <p className="text-muted-foreground text-sm">
-          {t("subtitle")}
-        </p>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <LocaleSwitcher />
+    <>
+      <Nav />
+
+      {/* Hero — matches ProjectLayout */}
+      <section className="mx-auto max-w-4xl px-6 pt-28 pb-16">
+        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex-1">
+            <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
+              {t("title")}
+            </h1>
+            <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">
+              {t("subtitle")}
+            </p>
+            <div className="mb-6 flex flex-wrap gap-2">
+              {["React", "Tailwind v4", "OKLCH", "shadcn/ui"].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-black/[0.08] px-2.5 py-1 text-[11px] text-zinc-500 dark:border-white/[0.08]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="https://github.com/jaymini1022/design-system"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
+                style={{
+                  background: "oklch(0.623 0.214 259)",
+                  color: "var(--background)",
+                }}
+              >
+                GitHub →
+              </a>
+            </div>
+          </div>
+          <div className="flex-shrink-0">
+            <Image
+              src="/images/whale.png"
+              alt=""
+              width={220}
+              height={220}
+              className="animate-float object-contain"
+              style={{
+                filter: "drop-shadow(0 4px 12px color-mix(in oklch, oklch(0.623 0.214 259) 15%, transparent))",
+              }}
+            />
+          </div>
         </div>
-      </header>
+      </section>
+
+      <main className="flex flex-col gap-16 pb-24 max-w-4xl mx-auto px-6">
 
       {/* ════════════════════════════════════════════
           T45: Accent Demo
@@ -621,10 +664,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="text-center text-xs text-muted-foreground pt-8 border-t border-border">
-        naeil-ui · Phase 6 Demo · OKLCH · Tailwind v4 · shadcn/ui
-      </footer>
-    </main>
+      </main>
+
+      <Footer />
+    </>
   );
 }
