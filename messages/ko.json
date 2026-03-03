@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스를 매일 읽을 브리프로",
-    "overview": "RSS, Reddit, Threads를 매일 훑는 건 시간 낭비에 중요한 신호를 놓치기 쉽다. Content Collector는 이 반복 작업을 자동화한다.\n\n연속 수집, 로컬 Qwen3 14B 분류, BGE-M3 임베딩을 PostgreSQL + pgvector에 저장해 의미 기반 검색. Gemini가 편집형 요약 생성.\n\nMac Mini 한 대에서 Docker Compose + LaunchAgent로 전체 스택 가동. LINE 다이제스트, HTML 리포트, 실시간 알림. 월 운영비 0원.",
+    "overview": "RSS, Reddit, Threads — 직접 읽기엔 너무 시끄럽고, 무시하기엔 너무 중요하다.\n\nContent Collector는 전체 루프를 자동화한다. 수집. 분류. 클러스터링. 요약. 전달.",
     "features": {
       "collect": {
         "title": "멀티 소스 수집",

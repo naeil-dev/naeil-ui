@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "ローカルAI自動パイプライン — 散在する技術情報を毎日のダイジェストに",
-    "overview": "RSS、Reddit、Threadsを手動で追うのは手間が大きく、重要な情報を取りこぼしがち。Content Collectorはこの監視作業を自動化する。\n\n継続的な収集、ローカルQwen3 14Bによる分類、BGE-M3埋め込みをPostgreSQL + pgvectorに保存しセマンティック検索を実現。Geminiが編集要約を生成。\n\nMac Mini一台でDocker Compose + LaunchAgentによりフルスタック稼働。LINEダイジェスト、HTMLレポート、リアルタイム通知。月額コストゼロ。",
+    "overview": "RSS、Reddit、Threads — 手動で読むにはノイズが多すぎ、無視するには重要すぎる。\n\nContent Collectorはループ全体を自動化する。収集。分類。クラスタリング。要約。配信。",
     "features": {
       "collect": {
         "title": "マルチソース収集",

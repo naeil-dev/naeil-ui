@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "Autonomous local pipeline — noisy tech streams to a daily, decision-ready brief.",
-    "overview": "Tracking RSS, Reddit, and Threads manually is noisy and fragmented. Content Collector separates signal from noise automatically.\n\nContinuous ingestion, local Qwen3 14B classification, BGE-M3 embeddings in PostgreSQL + pgvector for semantic retrieval. Gemini generates concise editorial summaries.\n\nFull stack on a single Mac Mini — Docker Compose, LaunchAgent scheduling. LINE digest, HTML report, real-time alerts. Zero monthly cost.",
+    "overview": "RSS, Reddit, Threads — too noisy to read manually, too important to ignore.\n\nContent Collector automates the entire loop. Collect. Classify. Cluster. Summarize. Deliver.",
     "features": {
       "collect": {
         "title": "Multi-Source Ingestion",
