@@ -56,98 +56,40 @@ function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
-type PerformanceTier = "low" | "medium" | "high";
-
-type PerformanceProfile = {
-  tier: PerformanceTier;
-  dpr: [number, number];
-  antialias: boolean;
-  enableClouds: boolean;
-  enableSeaLife: boolean;
-  seaLifeLite: boolean;
-  sunSegments: number;
-  reduceMotion: boolean;
-};
-
-function detectPerformanceProfile(): PerformanceProfile {
-  if (typeof window === "undefined") {
-    return {
-      tier: "medium",
-      dpr: [1, 1.5],
-      antialias: true,
-      enableClouds: true,
-      enableSeaLife: true,
-      seaLifeLite: false,
-      sunSegments: 48,
-      reduceMotion: false,
-    };
-  }
-
-  const isMobile = window.matchMedia("(max-width: 767px)").matches;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData ?? false;
-  const cores = navigator.hardwareConcurrency ?? 8;
-  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
-  const lowDevice = isMobile || cores <= 4 || memory <= 4 || saveData;
-  const midDevice = cores <= 6 || memory <= 6;
-
-  if (reduceMotion || lowDevice) {
-    return {
-      tier: "low",
-      dpr: [1, 1.25],
-      antialias: false,
-      enableClouds: false,
-      enableSeaLife: true,
-      seaLifeLite: true,
-      sunSegments: 32,
-      reduceMotion,
-    };
-  }
-
-  if (midDevice) {
-    return {
-      tier: "medium",
-      dpr: [1, 1.5],
-      antialias: true,
-      enableClouds: true,
-      enableSeaLife: true,
-      seaLifeLite: false,
-      sunSegments: 48,
-      reduceMotion,
-    };
-  }
-
-  return {
-    tier: "high",
-    dpr: [1, 2],
-    antialias: true,
-    enableClouds: true,
-    enableSeaLife: true,
-    seaLifeLite: false,
-    sunSegments: 64,
-    reduceMotion,
-  };
-}
-
-function usePerformanceProfile() {
-  const [profile, setProfile] = useState<PerformanceProfile>(() => detectPerformanceProfile());
+function useAnimationProfile() {
+  const [animate, setAnimate] = useState(true);
+  const [targetFps, setTargetFps] = useState(45);
 
   useEffect(() => {
-    const update = () => setProfile(detectPerformanceProfile());
+    const reduceMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mobileMedia = window.matchMedia("(max-width: 767px)");
+
+    const update = () => {
+      const reduceMotion = reduceMotionMedia.matches;
+      const isMobile = mobileMedia.matches;
+      const cores = navigator.hardwareConcurrency ?? 8;
+      const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+      const lowTier = isMobile || cores <= 4 || memory <= 4;
+
+      setTargetFps(lowTier ? 30 : 45);
+      setAnimate(!reduceMotion && document.visibilityState === "visible");
+    };
+
     update();
     window.addEventListener("resize", update, { passive: true });
-
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onMedia = () => update();
-    media.addEventListener?.("change", onMedia);
+    document.addEventListener("visibilitychange", update);
+    reduceMotionMedia.addEventListener?.("change", update);
+    mobileMedia.addEventListener?.("change", update);
 
     return () => {
       window.removeEventListener("resize", update);
-      media.removeEventListener?.("change", onMedia);
+      document.removeEventListener("visibilitychange", update);
+      reduceMotionMedia.removeEventListener?.("change", update);
+      mobileMedia.removeEventListener?.("change", update);
     };
   }, []);
 
-  return profile;
+  return { animate, targetFps };
 }
 
 const GRADIENT_LAYERS = [
@@ -155,13 +97,7 @@ const GRADIENT_LAYERS = [
   { r: 0.5, peak: 0.50, y: -0.38, z: -0.05 },
 ];
 
-function GradientGlowSun({
-  isDark,
-  segments,
-}: {
-  isDark: boolean;
-  segments: number;
-}) {
+function GradientGlowSun({ isDark }: { isDark: boolean }) {
   const refs = useRef<(THREE.ShaderMaterial | null)[]>([]);
   const stops = isDark ? SUNSET_STOPS : SUNRISE_STOPS;
   const layers = isDark ? GRADIENT_LAYERS : SUNRISE_LAYERS;
@@ -193,7 +129,7 @@ function GradientGlowSun({
     <group position={[0, 0, -1.2]}>
       {layers.map((cfg, i) => (
         <mesh key={i} position={[0, cfg.y, cfg.z]}>
-          <circleGeometry args={[cfg.r, segments]} />
+          <circleGeometry args={[cfg.r, 64]} />
           <shaderMaterial
             ref={(el) => {
               refs.current[i] = el;
@@ -650,23 +586,17 @@ function DiverSprite({ isDark }: { isDark: boolean }) {
   );
 }
 
-function SeaLife({
-  isDark,
-  lite = false,
-}: {
-  isDark: boolean;
-  lite?: boolean;
-}) {
+function SeaLife({ isDark }: { isDark: boolean }) {
   return (
     <group>
       {SWIMMERS.map((sw) => (
         <SwimmingCreature key={sw.label} swimmer={sw} />
       ))}
+      <JellyfishSprite isDark={isDark} />
       <FishSprite isDark={isDark} />
+      <WhaleSprite isDark={isDark} />
+      <TurtleSprite isDark={isDark} />
       <DiverSprite isDark={isDark} />
-      {!lite && <JellyfishSprite isDark={isDark} />}
-      {!lite && <WhaleSprite isDark={isDark} />}
-      {!lite && <TurtleSprite isDark={isDark} />}
     </group>
   );
 }
@@ -763,6 +693,32 @@ function MountainSilhouette() {
 
 // ─── Main Scene ───
 
+function FrameDriver({ active, targetFps }: { active: boolean; targetFps: number }) {
+  const { invalidate } = useThree();
+
+  useEffect(() => {
+    invalidate();
+    if (!active) return;
+
+    let raf = 0;
+    let last = 0;
+    const interval = 1000 / Math.max(1, targetFps);
+
+    const tick = (now: number) => {
+      if (now - last >= interval) {
+        last = now;
+        invalidate();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, targetFps, invalidate]);
+
+  return null;
+}
+
 // Screenshot helper — captures the WebGL canvas
 function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void) }) {
   const { gl, scene, camera } = useThree();
@@ -776,16 +732,16 @@ function ScreenshotHelper({ onCapture }: { onCapture: ((fn: () => void) => void)
   }, [gl, scene, camera]);
 
   // Register the capture function
-  useMemo(() => onCapture(capture), [onCapture, capture]);
+  useEffect(() => onCapture(capture), [onCapture, capture]);
   return null;
 }
 
 const LAYERS = ["Glow", "Mountain", "BaseLine", "Water", "Clouds", "SeaLife"] as const;
 
-export function HeroScene({ active = true }: { active?: boolean }) {
+export function HeroScene() {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
-  const profile = usePerformanceProfile();
+  const { animate, targetFps } = useAnimationProfile();
   const isDark = !mounted || resolvedTheme !== "light";
   const isDev = process.env.NODE_ENV === "development";
 
@@ -794,84 +750,57 @@ export function HeroScene({ active = true }: { active?: boolean }) {
     Mountain: true,
     BaseLine: false,
     Water: true,
-    Clouds: profile.enableClouds,
-    SeaLife: profile.enableSeaLife,
+    Clouds: true,
+    SeaLife: true,
   });
-
-  useEffect(() => {
-    setLayers((prev) => ({
-      ...prev,
-      Clouds: profile.enableClouds ? prev.Clouds : false,
-      SeaLife: profile.enableSeaLife ? prev.SeaLife : false,
-    }));
-  }, [profile.enableClouds, profile.enableSeaLife]);
-
   const captureRef = useRef<(() => void) | null>(null);
   const canvasStyle = useMemo(() => ({ width: "100%", height: "100%" }) as const, []);
-  const shouldAnimate = active && !profile.reduceMotion;
-
-  const toggle = (key: string) =>
-    setLayers((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
+  const toggle = (key: string) => setLayers((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
   const on = (key: string) => layers[key as keyof typeof layers];
 
   return (
     <div className="relative h-[400px] w-full overflow-hidden md:h-[550px]">
-      <div className="pointer-events-auto h-full w-full">
+      <div className="pointer-events-none h-full w-full">
         <Canvas
           style={canvasStyle}
           camera={{ position: [0, 0.25, 3.0], fov: 50 }}
-          dpr={profile.dpr}
-          frameloop={shouldAnimate ? "always" : "demand"}
-          gl={{
-            antialias: profile.antialias,
-            alpha: true,
-            preserveDrawingBuffer: isDev,
-            powerPreference: profile.tier === "low" ? "low-power" : "high-performance",
-          }}
+          frameloop="demand"
+          gl={{ antialias: true, alpha: true, preserveDrawingBuffer: isDev }}
         >
-          {isDev && (
-            <ScreenshotHelper
-              onCapture={(fn) => {
-                captureRef.current = fn;
-              }}
-            />
-          )}
+          <FrameDriver active={animate} targetFps={targetFps} />
+          <ScreenshotHelper onCapture={(fn) => { captureRef.current = fn; }} />
           {on("Water") && <WaterSurface isDark={isDark} />}
-          {on("Glow") && <GradientGlowSun isDark={isDark} segments={profile.sunSegments} />}
-          {on("Clouds") && profile.enableClouds && <Clouds isDark={isDark} />}
+          {on("Glow") && <GradientGlowSun isDark={isDark} />}
+          {on("Clouds") && <Clouds isDark={isDark} />}
           {on("Mountain") && <MountainSilhouette />}
           {on("BaseLine") && <BaseLine />}
-          {on("SeaLife") && profile.enableSeaLife && (
-            <SeaLife isDark={isDark} lite={profile.seaLifeLite} />
-          )}
+          {on("SeaLife") && <SeaLife isDark={isDark} />}
         </Canvas>
       </div>
 
       {/* Layer toggles — dev only */}
-      {isDev && (
-        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+      {process.env.NODE_ENV === "development" && <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1">
+        <button
+          onClick={() => captureRef.current?.()}
+          className="rounded-md bg-muted/50 px-2 py-0.5 font-mono text-[9px] text-muted-foreground transition-colors hover:bg-muted"
+        >
+          📷
+        </button>
+        <span className="w-px self-stretch bg-muted/30" />
+        {LAYERS.map((key) => (
           <button
-            onClick={() => captureRef.current?.()}
-            className="rounded-md bg-muted/50 px-2 py-0.5 font-mono text-[9px] text-muted-foreground transition-colors hover:bg-muted"
+            key={key}
+            onClick={() => toggle(key)}
+            className={`rounded-md px-2 py-0.5 font-mono text-[9px] transition-colors ${
+              on(key)
+                ? "bg-foreground text-background"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+            }`}
           >
-            📷
+            {key}
           </button>
-          <span className="w-px self-stretch bg-muted/30" />
-          {LAYERS.map((key) => (
-            <button
-              key={key}
-              onClick={() => toggle(key)}
-              className={`rounded-md px-2 py-0.5 font-mono text-[9px] transition-colors ${
-                on(key)
-                  ? "bg-foreground text-background"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {key}
-            </button>
-          ))}
-        </div>
-      )}
+        ))}
+      </div>}
     </div>
   );
 }
