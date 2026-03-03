@@ -1,20 +1,57 @@
 "use client";
 
-import { useRef } from "react";
-import { HeroScene } from "@/components/hero-scene";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { ParagliderCursor } from "@/components/paraglider-cursor";
+
+const LazyHeroScene = dynamic(
+  () => import("@/components/hero-scene").then((m) => m.HeroScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full md:h-[550px] bg-[radial-gradient(ellipse_at_center,var(--muted)_0%,transparent_70%)]" />
+    ),
+  },
+);
 
 export function HeroSection() {
   const heroRef = useRef<HTMLElement>(null);
+  const [isInView, setIsInView] = useState(true);
+  const [shouldMountScene, setShouldMountScene] = useState(false);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setShouldMountScene(true);
+      setIsInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        setIsInView(visible);
+        if (visible) setShouldMountScene(true); // lazy-mount once
+      },
+      {
+        root: null,
+        rootMargin: "300px 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
       ref={heroRef}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6"
     >
-      {/* 3D Scene — background */}
+      {/* 3D Scene — background (lazy + viewport aware) */}
       <div className="absolute inset-0 flex items-center justify-center opacity-60">
-        <HeroScene />
+        {shouldMountScene ? <LazyHeroScene active={isInView} /> : null}
       </div>
 
       {/* Paraglider follows mouse — desktop only */}
