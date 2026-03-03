@@ -40,7 +40,12 @@ import {
   AvatarGroupCount,
 } from "@/components/ui/avatar";
 import { AccentPicker } from "@/components/accent-picker";
-import { PageTitle, SectionTitle } from "@/components/typography";
+import {
+  PageTitle,
+  SectionTitle,
+  pageTitleClass,
+  sectionTitleClass,
+} from "@/components/typography";
 import { toast } from "sonner";
 
 /* ─── Token Data (for showcase display) ─── */
@@ -308,6 +313,28 @@ export default function Home() {
               </span>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Heading Primitives */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Heading Primitives</SectionHeading>
+        <p className="text-sm text-muted-foreground">
+          공통 헤딩 컴포넌트로 모든 페이지의 제목 스케일을 통합 관리.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5">
+            <p className="mb-2 text-xs font-mono text-muted-foreground">PageTitle</p>
+            <p className={pageTitleClass}>System-level page heading</p>
+            <p className="mt-2 text-xs text-muted-foreground">text-4xl → lg:text-5xl</p>
+          </div>
+
+          <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5">
+            <p className="mb-2 text-xs font-mono text-muted-foreground">SectionTitle</p>
+            <p className={sectionTitleClass}>Section heading baseline</p>
+            <p className="mt-2 text-xs text-muted-foreground">text-lg</p>
+          </div>
         </div>
       </section>
 
