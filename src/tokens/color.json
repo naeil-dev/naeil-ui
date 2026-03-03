@@ -43,6 +43,13 @@
       "900": { "$type": "color", "$value": "oklch(0.396 0.141 25)" },
       "950": { "$type": "color", "$value": "oklch(0.258 0.092 26)" }
     },
+    "project": {
+      "$description": "Per-project accent colors — theme-independent, used across light/dark.",
+      "cc": { "$type": "color", "$value": "oklch(0.723 0.219 149)" },
+      "pkm": { "$type": "color", "$value": "oklch(0.627 0.265 303)" },
+      "naeilUi": { "$type": "color", "$value": "oklch(0.623 0.214 259)" },
+      "baby": { "$type": "color", "$value": "oklch(0.769 0.188 70.08)" }
+    },
     "white": { "$type": "color", "$value": "oklch(1 0 0)" },
     "black": { "$type": "color", "$value": "oklch(0 0 0)" }
   }

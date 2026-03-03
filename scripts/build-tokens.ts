@@ -66,6 +66,13 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   }
   lines.push("");
 
+  // Project accent colors (theme-independent)
+  const projectTokens = allTokens.filter((t) => pathStartsWith(t, "color", "project"));
+  for (const t of projectTokens) {
+    lines.push(`  --color-project-${tokenName(t)}: var(--project-${tokenName(t)});`);
+  }
+  lines.push("");
+
   // Font families
   const fontSans = allTokens.find((t) =>
     pathStartsWith(t, "font", "family", "sans"),
@@ -98,6 +105,11 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   for (const t of lightTokens) {
     const name = tokenNameFrom(t, 2);
     lines.push(`  --${name}: ${tokenValue(t)};`);
+  }
+  lines.push("");
+  // Project colors (same in light/dark)
+  for (const t of projectTokens) {
+    lines.push(`  --project-${tokenName(t)}: ${tokenValue(t)};`);
   }
   lines.push("");
   for (const t of radiusTokens) {
@@ -155,6 +167,15 @@ function formatTokensTS({ dictionary }: FormatFnArguments): string {
     lines.push(`  ${group}: {`);
     for (const t of groupTokens) {
       lines.push(`    "${tokenName(t)}": "${tokenValue(t)}",`);
+    }
+    lines.push("  },");
+  }
+  // Project accent colors
+  const projectTkns = allTokens.filter((t) => pathStartsWith(t, "color", "project"));
+  if (projectTkns.length > 0) {
+    lines.push("  project: {");
+    for (const t of projectTkns) {
+      lines.push(`    ${tokenName(t)}: "${tokenValue(t)}",`);
     }
     lines.push("  },");
   }

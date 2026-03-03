@@ -82,8 +82,8 @@ function HubContent() {
               key={project.key}
               href={project.href}
               className={[
-                "group relative rounded-2xl border border-black/[0.06] bg-black/[0.02] dark:border-white/[0.06] dark:bg-white/[0.03] p-7 transition-all duration-250",
-                "hover:-translate-y-0.5 hover:border-black/[0.12] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:hover:border-white/[0.12] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
+                "group relative rounded-2xl border border-border-subtle bg-surface-subtle p-7 transition-all duration-250",
+                "hover:-translate-y-0.5 hover:border-border-subtle-hover hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
                 project.featured ? "sm:col-span-2 sm:flex sm:items-center sm:gap-8" : "",
               ].join(" ")}
               style={{ "--accent": project.accent } as React.CSSProperties}
@@ -130,7 +130,7 @@ function HubContent() {
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border border-black/[0.08] dark:border-white/[0.08] px-2 py-0.5 text-[10px] text-zinc-500"
+                      className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] text-zinc-500"
                     >
                       {tag}
                     </span>

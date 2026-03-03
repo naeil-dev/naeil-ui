@@ -149,7 +149,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
             {data.features.map((feat) => (
               <div
                 key={feat.title}
-                className="rounded-2xl border border-black/[0.06] bg-black/[0.02] p-6 transition-colors hover:border-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.02] dark:hover:border-white/[0.12]"
+                className="rounded-2xl border border-border-subtle bg-surface-subtle p-6 transition-colors hover:border-border-subtle-hover"
               >
                 <span className="mb-3 block text-2xl">{feat.icon}</span>
                 <h3 className="text-foreground mb-1 text-sm font-semibold">
@@ -186,7 +186,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
             {data.stack.map((item) => (
               <div
                 key={item.name}
-                className="flex items-center gap-2 rounded-lg border border-black/[0.06] px-3 py-2 text-[13px] dark:border-white/[0.06]"
+                className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2 text-[13px]"
               >
                 <span className="text-base">{item.icon}</span>
                 <span className="text-muted-foreground">{item.name}</span>
