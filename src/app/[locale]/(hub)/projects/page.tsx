@@ -31,15 +31,15 @@ function ProjectsContent() {
       href: "/cc" as const,
       tags: ["Python", "RSS", "AI"],
       status: t("projects.status.active"),
-      isActive: true,
+      coming: false,
     },
     {
       name: t("projects.pkm.name"),
       description: t("projects.pkm.description"),
       href: "/pkm" as const,
       tags: ["Python", "Embeddings", "Search"],
-      status: t("projects.status.active"),
-      isActive: true,
+      status: t("projects.status.coming"),
+      coming: true,
     },
     {
       name: t("projects.naeilUi.name"),
@@ -47,15 +47,15 @@ function ProjectsContent() {
       href: "/design" as const,
       tags: ["React", "Tailwind", "Design Tokens"],
       status: t("projects.status.active"),
-      isActive: true,
+      coming: false,
     },
     {
       name: t("projects.babyAgent.name"),
       description: t("projects.babyAgent.description"),
-      href: "#" as const,
+      href: "/baby-agent" as const,
       tags: ["OpenClaw", "LINE", "AI"],
       status: t("projects.status.coming"),
-      isActive: false,
+      coming: true,
     },
   ];
 
@@ -71,21 +71,13 @@ function ProjectsContent() {
       </div>
 
       <div className="grid gap-4">
-        {PROJECTS.map((project) => {
-          const card = (
-            <Card
-              className={
-                project.isActive
-                  ? "transition-colors hover:border-foreground/20"
-                  : "opacity-50"
-              }
-            >
+        {PROJECTS.map((project) => (
+          <Link key={project.name} href={project.href}>
+            <Card className="transition-colors hover:border-foreground/20">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{project.name}</CardTitle>
-                  <Badge
-                    variant={project.isActive ? "secondary" : "outline"}
-                  >
+                  <Badge variant={project.coming ? "outline" : "secondary"}>
                     {project.status}
                   </Badge>
                 </div>
@@ -101,16 +93,8 @@ function ProjectsContent() {
                 </div>
               </CardContent>
             </Card>
-          );
-
-          return project.isActive ? (
-            <Link key={project.name} href={project.href}>
-              {card}
-            </Link>
-          ) : (
-            <div key={project.name}>{card}</div>
-          );
-        })}
+          </Link>
+        ))}
       </div>
     </main>
   );

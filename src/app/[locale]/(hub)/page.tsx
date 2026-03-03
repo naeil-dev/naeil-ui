@@ -34,7 +34,7 @@ const PROJECTS = [
     icon: "/images/jellyfish.png",
     accent: "oklch(0.702 0.183 293)",
     tags: ["Python", "Embeddings", "Search"],
-    status: "active" as const,
+    status: "coming" as const,
     featured: false,
   },
   {
@@ -48,7 +48,7 @@ const PROJECTS = [
   },
   {
     key: "babyAgent" as const,
-    href: "#" as const,
+    href: "/baby-agent" as const,
     icon: "/images/turtle.png",
     accent: "oklch(0.769 0.188 70.08)",
     tags: ["LINE", "AI"],

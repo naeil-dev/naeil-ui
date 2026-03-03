@@ -22,7 +22,7 @@ const PROJECTS = [
     href: "/pkm" as const,
     accent: "oklch(0.702 0.183 293)",
     icon: "/images/jellyfish.png",
-    status: "active" as const,
+    status: "coming" as const,
   },
   {
     key: "naeilUi",
@@ -33,7 +33,7 @@ const PROJECTS = [
   },
   {
     key: "babyAgent",
-    href: "#" as const,
+    href: "/baby-agent" as const,
     accent: "oklch(0.769 0.188 70.08)",
     icon: "/images/turtle.png",
     status: "coming" as const,
