@@ -52,7 +52,7 @@ function ProjectsContent() {
     {
       name: t("projects.babyAgent.name"),
       description: t("projects.babyAgent.description"),
-      href: "/baby-agent" as const,
+      href: "#" as const,
       tags: ["OpenClaw", "LINE", "AI"],
       status: t("projects.status.coming"),
       isActive: false,
@@ -71,9 +71,15 @@ function ProjectsContent() {
       </div>
 
       <div className="grid gap-4">
-        {PROJECTS.map((project) => (
-          <Link key={project.name} href={project.href}>
-            <Card className="transition-colors hover:border-foreground/20">
+        {PROJECTS.map((project) => {
+          const card = (
+            <Card
+              className={
+                project.isActive
+                  ? "transition-colors hover:border-foreground/20"
+                  : "opacity-50"
+              }
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{project.name}</CardTitle>
@@ -95,8 +101,16 @@ function ProjectsContent() {
                 </div>
               </CardContent>
             </Card>
-          </Link>
-        ))}
+          );
+
+          return project.isActive ? (
+            <Link key={project.name} href={project.href}>
+              {card}
+            </Link>
+          ) : (
+            <div key={project.name}>{card}</div>
+          );
+        })}
       </div>
     </main>
   );
