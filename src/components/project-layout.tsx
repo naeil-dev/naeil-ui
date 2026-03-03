@@ -1,7 +1,5 @@
 "use client";
 
-import { Nav } from "@/components/nav";
-import { Footer } from "@/components/footer";
 import {
   WorkflowDiagram,
   type WorkflowNode,
@@ -49,8 +47,6 @@ export interface ProjectData {
 export function ProjectLayout({ data }: { data: ProjectData }) {
   return (
     <>
-      <Nav />
-
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 pt-28 pb-16">
         <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
@@ -196,7 +192,6 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
         </section>
       )}
 
-      <Footer />
     </>
   );
 }

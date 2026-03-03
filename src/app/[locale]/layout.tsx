@@ -8,6 +8,8 @@ import {
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { Nav } from "@/components/nav";
+import { Footer } from "@/components/footer";
 import { locales, type Locale } from "@/i18n/config";
 
 export function generateStaticParams() {
@@ -60,7 +62,9 @@ export default async function LocaleLayout({
         enableSystem
         disableTransitionOnChange
       >
+        <Nav />
         {children}
+        <Footer />
         <Toaster />
       </ThemeProvider>
     </NextIntlClientProvider>

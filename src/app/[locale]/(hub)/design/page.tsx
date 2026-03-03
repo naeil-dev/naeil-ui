@@ -1,8 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Nav } from "@/components/nav";
-import { Footer } from "@/components/footer";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -213,8 +211,6 @@ export default function Home() {
 
   return (
     <>
-      <Nav />
-
       {/* Hero — matches ProjectLayout */}
       <section className="mx-auto max-w-4xl px-6 pt-28 pb-16">
         <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
@@ -665,8 +661,6 @@ export default function Home() {
       </section>
 
       </main>
-
-      <Footer />
     </>
   );
 }

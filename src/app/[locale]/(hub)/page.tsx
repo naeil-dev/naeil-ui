@@ -3,8 +3,6 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
 import { HeroSection } from "@/components/hero-section";
-import { Nav } from "@/components/nav";
-import { Footer } from "@/components/footer";
 import Image from "next/image";
 
 export default async function HubPage({
@@ -62,8 +60,6 @@ function HubContent() {
 
   return (
     <>
-      <Nav />
-
       {/* Hero */}
       <HeroSection />
 
@@ -147,7 +143,6 @@ function HubContent() {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 }
