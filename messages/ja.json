@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "ローカルAI自動パイプライン — 散在する技術情報を毎日のダイジェストに",
-    "overview": "ローカルAI処理による自動コンテンツパイプライン。\n\nGitHub、Reddit、Threadsなど複数ソースからテックコンテンツを収集。ローカルAIパイプラインで埋め込み、分類、クラスタリング、要約 — 生コンテンツから日次編集ダイジェストへの変換。\n\nOllama+無料APIによる全処理のローカル実行。PostgreSQL+pgvectorで構造化データ保存、セマンティック検索対応。",
+    "overview": "ローカルAI処理による自動コンテンツパイプライン。\n\nGitHub、Reddit、Threadsなど複数ソースのテックコンテンツをローカルAIパイプラインで処理。埋め込み、分類、クラスタリング、要約。生コンテンツから日次編集ダイジェストへの変換。\n\nOllama+無料APIによる全処理のローカル実行。PostgreSQL+pgvectorに構造化データ保存。セマンティック検索内蔵。",
     "features": {
       "collect": {
         "title": "マルチソース収集",
