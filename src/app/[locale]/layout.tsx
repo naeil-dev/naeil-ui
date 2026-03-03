@@ -35,12 +35,12 @@ export async function generateMetadata({
     title: t("appName"),
     description: "Personal projects by Jay",
     alternates: {
-      canonical: `/${locale}`,
+      canonical: `https://naeil.dev/${locale}`,
       languages: {
-        en: "/en",
-        ko: "/ko",
-        ja: "/ja",
-        "x-default": "/en",
+        en: "https://naeil.dev/en",
+        ko: "https://naeil.dev/ko",
+        ja: "https://naeil.dev/ja",
+        "x-default": "https://naeil.dev/en",
       },
     },
   };
