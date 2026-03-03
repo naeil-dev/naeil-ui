@@ -116,7 +116,12 @@
     }
   },
   "pkm": {
-    "placeholder": "PKM Viewer — coming soon"
+    "name": "PKM",
+    "description": "Personal knowledge base — parse, embed, search your own documents."
+  },
+  "babyAgent": {
+    "name": "Baby Agent",
+    "description": "Parenting AI companion on LINE — Q&A, growth tracking, schedule reminders."
   },
   "design": {
     "title": "naeil-ui",

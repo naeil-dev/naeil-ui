@@ -116,7 +116,12 @@
     }
   },
   "pkm": {
-    "placeholder": "PKMビューア — 準備中"
+    "name": "PKM",
+    "description": "個人ナレッジベース — ドキュメント解析、埋め込み、セマンティック検索"
+  },
+  "babyAgent": {
+    "name": "Baby Agent",
+    "description": "LINE育児AIコンパニオン — Q&A、成長記録、スケジュールリマインダー"
   },
   "design": {
     "title": "naeil-ui",

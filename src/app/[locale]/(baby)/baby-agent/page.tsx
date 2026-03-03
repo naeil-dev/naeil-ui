@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { ProjectLayout } from "@/components/project-layout";
 import type { ProjectData } from "@/components/project-layout";
 
-export default async function PKMPage({
+export default async function BabyAgentPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -11,19 +11,18 @@ export default async function PKMPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <PKMContent />;
+  return <BabyAgentContent />;
 }
 
-function PKMContent() {
-  const t = useTranslations("pkm");
+function BabyAgentContent() {
+  const t = useTranslations("babyAgent");
 
   const data: ProjectData = {
-    icon: "/images/jellyfish.png",
+    icon: "/images/turtle.png",
     name: t("name"),
     description: t("description"),
-    accent: "oklch(0.627 0.265 303)",
-    tags: ["Python", "Embeddings", "Semantic Search"],
-    github: "https://github.com/jaymini1022/pkm",
+    accent: "oklch(0.769 0.188 70.08)",
+    tags: ["OpenClaw", "LINE", "AI Agent"],
     comingSoon: true,
   };
 

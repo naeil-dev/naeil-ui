@@ -52,7 +52,7 @@ function ProjectsContent() {
     {
       name: t("projects.babyAgent.name"),
       description: t("projects.babyAgent.description"),
-      href: "#" as const,
+      href: "/baby-agent" as const,
       tags: ["OpenClaw", "LINE", "AI"],
       status: t("projects.status.coming"),
       isActive: false,

@@ -32,13 +32,14 @@ export interface ProjectData {
   tags: string[];
   github?: string;
   demo?: string;
-  overview: string;
-  features: ProjectFeature[];
+  comingSoon?: boolean;
+  overview?: string;
+  features?: ProjectFeature[];
   workflow?: {
     nodes: WorkflowNode[];
     edges: WorkflowEdge[];
   };
-  stack: ProjectStackItem[];
+  stack?: ProjectStackItem[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -119,34 +120,49 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
         </div>
       </section>
 
+      {/* Coming Soon */}
+      {data.comingSoon && (
+        <section className="mx-auto max-w-4xl px-6 pb-24">
+          <div className="rounded-2xl border border-dashed border-black/[0.08] p-12 text-center dark:border-white/[0.08]">
+            <p className="text-muted-foreground text-sm">
+              Coming Soon
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Overview */}
-      <section className="mx-auto max-w-4xl px-6 pb-16">
-        <h2 className="text-foreground mb-3 text-lg font-bold">Overview</h2>
-        <p className="text-muted-foreground max-w-2xl text-sm leading-7 whitespace-pre-line">
-          {data.overview}
-        </p>
-      </section>
+      {data.overview && (
+        <section className="mx-auto max-w-4xl px-6 pb-16">
+          <h2 className="text-foreground mb-3 text-lg font-bold">Overview</h2>
+          <p className="text-muted-foreground max-w-2xl text-sm leading-7 whitespace-pre-line">
+            {data.overview}
+          </p>
+        </section>
+      )}
 
       {/* Features */}
-      <section className="mx-auto max-w-4xl px-6 pb-16">
-        <h2 className="text-foreground mb-6 text-lg font-bold">Features</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {data.features.map((feat) => (
-            <div
-              key={feat.title}
-              className="rounded-2xl border border-black/[0.06] bg-black/[0.02] p-6 transition-colors hover:border-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.02] dark:hover:border-white/[0.12]"
-            >
-              <span className="mb-3 block text-2xl">{feat.icon}</span>
-              <h3 className="text-foreground mb-1 text-sm font-semibold">
-                {feat.title}
-              </h3>
-              <p className="text-muted-foreground text-[13px] leading-relaxed">
-                {feat.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {data.features && data.features.length > 0 && (
+        <section className="mx-auto max-w-4xl px-6 pb-16">
+          <h2 className="text-foreground mb-6 text-lg font-bold">Features</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {data.features.map((feat) => (
+              <div
+                key={feat.title}
+                className="rounded-2xl border border-black/[0.06] bg-black/[0.02] p-6 transition-colors hover:border-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.02] dark:hover:border-white/[0.12]"
+              >
+                <span className="mb-3 block text-2xl">{feat.icon}</span>
+                <h3 className="text-foreground mb-1 text-sm font-semibold">
+                  {feat.title}
+                </h3>
+                <p className="text-muted-foreground text-[13px] leading-relaxed">
+                  {feat.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Architecture */}
       {data.workflow && (
@@ -163,20 +179,22 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
       )}
 
       {/* Stack */}
-      <section className="mx-auto max-w-4xl px-6 pb-24">
-        <h2 className="text-foreground mb-6 text-lg font-bold">Stack</h2>
-        <div className="flex flex-wrap gap-2">
-          {data.stack.map((item) => (
-            <div
-              key={item.name}
-              className="flex items-center gap-2 rounded-lg border border-black/[0.06] px-3 py-2 text-[13px] dark:border-white/[0.06]"
-            >
-              <span className="text-base">{item.icon}</span>
-              <span className="text-muted-foreground">{item.name}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      {data.stack && data.stack.length > 0 && (
+        <section className="mx-auto max-w-4xl px-6 pb-24">
+          <h2 className="text-foreground mb-6 text-lg font-bold">Stack</h2>
+          <div className="flex flex-wrap gap-2">
+            {data.stack.map((item) => (
+              <div
+                key={item.name}
+                className="flex items-center gap-2 rounded-lg border border-black/[0.06] px-3 py-2 text-[13px] dark:border-white/[0.06]"
+              >
+                <span className="text-base">{item.icon}</span>
+                <span className="text-muted-foreground">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Footer />
     </>

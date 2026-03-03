@@ -44,8 +44,8 @@
   },
   "cc": {
     "name": "Content Collector",
-    "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스를 매일 읽을 브리프로",
-    "overview": "로컬 AI 처리 기반 자동 콘텐츠 파이프라인.\n\nGitHub, Reddit, Threads 등 다양한 소스의 테크 콘텐츠를 로컬 AI 파이프라인으로 처리. 임베딩, 분류, 클러스터링, 요약. 원시 콘텐츠에서 일일 편집 다이제스트로 변환.\n\nOllama + 무료 API 기반 전체 로컬 실행. PostgreSQL + pgvector에 구조화 데이터 저장. 시맨틱 검색 내장.",
+    "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스, 하루 한 장으로",
+    "overview": "GitHub, Reddit, Threads — 여러 소스의 테크 콘텐츠를 수집하고 로컬 AI로 처리.\n\n임베딩, 분류, 클러스터링, 요약. 원시 콘텐츠에서 매일 편집된 다이제스트로.\n\nOllama + 무료 API 기반 전부 로컬 실행. PostgreSQL + pgvector 구조화 저장. 시맨틱 검색 내장.",
     "features": {
       "collect": {
         "title": "멀티 소스 수집",
@@ -116,7 +116,12 @@
     }
   },
   "pkm": {
-    "placeholder": "PKM 뷰어 — 준비 중"
+    "name": "PKM",
+    "description": "개인 지식 베이스 — 문서 파싱, 임베딩, 시맨틱 검색"
+  },
+  "babyAgent": {
+    "name": "Baby Agent",
+    "description": "LINE 기반 육아 AI — Q&A, 성장 기록, 일정 리마인더"
   },
   "design": {
     "title": "naeil-ui",
