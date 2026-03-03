@@ -103,8 +103,18 @@ const SEMANTIC_TOKENS = [
   "destructive",
   "destructive-foreground",
   "border",
+  "border-subtle",
+  "border-subtle-hover",
+  "surface-subtle",
   "input",
   "ring",
+];
+
+const PROJECT_COLORS = [
+  { name: "CC", token: "--project-cc", oklch: "oklch(0.723 0.219 149)" },
+  { name: "PKM", token: "--project-pkm", oklch: "oklch(0.627 0.265 303)" },
+  { name: "naeil-ui", token: "--project-naeilUi", oklch: "oklch(0.623 0.214 259)" },
+  { name: "Baby Agent", token: "--project-baby", oklch: "oklch(0.769 0.188 70.08)" },
 ];
 
 const TYPE_SIZES = [
@@ -244,6 +254,27 @@ export default function Home() {
           현재 테마(다크/라이트)에 따라 매핑이 변경됩니다.
         </p>
         <SemanticTokenGrid />
+      </section>
+
+      {/* Colors — Project Accents */}
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Colors — Project</SectionHeading>
+        <p className="text-sm text-muted-foreground">
+          프로젝트별 악센트 색상. 라이트/다크 동일.
+        </p>
+        <div className="flex gap-4">
+          {PROJECT_COLORS.map((c) => (
+            <div key={c.name} className="flex flex-col items-center gap-2 flex-1">
+              <div
+                className="w-full aspect-square rounded-md border border-border"
+                style={{ backgroundColor: c.oklch }}
+              />
+              <span className="text-[11px] text-muted-foreground font-mono text-center leading-tight">
+                {c.name}
+              </span>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Typography */}
