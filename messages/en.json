@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "Autonomous local pipeline — noisy tech streams to a daily, decision-ready brief.",
-    "overview": "Automated content pipeline with local AI processing.\n\nContent Collector gathers tech content from multiple sources — GitHub, Reddit, Threads — and processes it through a local AI pipeline. The system performs embedding, classification, clustering, and summarization to transform raw content into a daily editorial digest.\n\nAll processing runs on local hardware with Ollama and free APIs. Structured data is stored in PostgreSQL with pgvector for semantic search.",
+    "overview": "Automated content pipeline with local AI processing.\n\nContent Collector gathers tech content from multiple sources — GitHub, Reddit, Threads — and processes it through a local AI pipeline. The system performs embedding, classification, clustering, and summarization to transform raw content into a daily editorial digest.\n\nAll processing runs on local hardware with Ollama and free APIs. Structured data stored in PostgreSQL with pgvector for semantic search.",
     "features": {
       "collect": {
         "title": "Multi-Source Ingestion",
