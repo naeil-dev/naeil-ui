@@ -60,12 +60,12 @@ function ProjectsContent() {
   ];
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 p-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
+    <section className="mx-auto max-w-4xl px-6 pb-24">
+      <div className="mb-10">
+        <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
           {t("projects.title")}
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-muted-foreground text-lg">
           {t("projects.subtitle")}
         </p>
       </div>
@@ -96,6 +96,6 @@ function ProjectsContent() {
           </Link>
         ))}
       </div>
-    </main>
+    </section>
   );
 }

@@ -212,7 +212,7 @@ export default function Home() {
   return (
     <>
       {/* Hero — matches ProjectLayout */}
-      <section className="mx-auto max-w-4xl px-6 pt-28 pb-16">
+      <section className="mx-auto max-w-4xl px-6 pb-16">
         <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
           <div className="flex-1">
             <h1 className="text-foreground mb-3 text-4xl font-bold tracking-tight lg:text-5xl">
@@ -261,7 +261,7 @@ export default function Home() {
         </div>
       </section>
 
-      <main className="flex flex-col gap-16 pb-24 max-w-4xl mx-auto px-6">
+      <div className="flex flex-col gap-16 pb-24 max-w-4xl mx-auto px-6">
 
       {/* ════════════════════════════════════════════
           T45: Accent Demo
@@ -660,7 +660,7 @@ export default function Home() {
         </div>
       </section>
 
-      </main>
+      </div>
     </>
   );
 }
