@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "ローカルAI自動パイプライン — 散在する技術情報を毎日のダイジェストに",
-    "overview": "RSS、Reddit、Threads — 手動で読むにはノイズが多すぎ、無視するには重要すぎる。\n\nContent Collectorはループ全体を自動化する。収集。分類。クラスタリング。要約。配信。",
+    "overview": "ローカルAI処理による自動コンテンツパイプライン。\n\nContent CollectorはGitHub、Reddit、Threadsなど複数のソースからテックコンテンツを収集し、ローカルAIパイプラインで処理する。埋め込み、分類、クラスタリング、要約を通じて、生のコンテンツを日次編集ダイジェストに変換する。\n\nすべての処理はOllamaと無料APIを使いローカルハードウェアで実行。構造化データはPostgreSQL + pgvectorに保存し、セマンティック検索に対応する。",
     "features": {
       "collect": {
         "title": "マルチソース収集",

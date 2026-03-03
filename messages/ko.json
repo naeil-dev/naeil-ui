@@ -45,7 +45,7 @@
   "cc": {
     "name": "Content Collector",
     "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스를 매일 읽을 브리프로",
-    "overview": "RSS, Reddit, Threads — 직접 읽기엔 너무 시끄럽고, 무시하기엔 너무 중요하다.\n\nContent Collector는 전체 루프를 자동화한다. 수집. 분류. 클러스터링. 요약. 전달.",
+    "overview": "로컬 AI 처리 기반 자동 콘텐츠 파이프라인.\n\nContent Collector는 GitHub, Reddit, Threads 등 다양한 소스에서 테크 콘텐츠를 수집하고, 로컬 AI 파이프라인으로 처리한다. 임베딩, 분류, 클러스터링, 요약을 거쳐 원시 콘텐츠를 일일 편집 다이제스트로 변환한다.\n\n모든 처리는 Ollama와 무료 API를 사용해 로컬 하드웨어에서 실행. 구조화된 데이터는 PostgreSQL + pgvector에 저장해 시맨틱 검색을 지원한다.",
     "features": {
       "collect": {
         "title": "멀티 소스 수집",
