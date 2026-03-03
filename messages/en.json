@@ -127,6 +127,11 @@
     "title": "naeil-ui",
     "subtitle": "Design System Showcase — Tokens · Components · Themes"
   },
+  "blogPage": {
+    "title": "Blog",
+    "subtitle": "Build notes, research, and iteration logs.",
+    "comingSoon": "Coming Soon"
+  },
   "footer": {
     "tagline": "Tomorrow starts here.",
     "navigation": "Navigation",

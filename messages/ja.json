@@ -127,6 +127,11 @@
     "title": "naeil-ui",
     "subtitle": "デザインシステムショーケース — トークン · コンポーネント · テーマ"
   },
+  "blogPage": {
+    "title": "ブログ",
+    "subtitle": "ビルド記録、リサーチ、反復改善ログ。",
+    "comingSoon": "準備中"
+  },
   "footer": {
     "tagline": "Tomorrow starts here.",
     "navigation": "ナビゲーション",
