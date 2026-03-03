@@ -20,7 +20,7 @@ function BlogContent() {
   return (
     <>
       <section className="mx-auto max-w-4xl px-6 pb-16">
-        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-start md:justify-between">
           <div className="flex-1">
             <PageTitle className="mb-3">{t("title")}</PageTitle>
             <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">

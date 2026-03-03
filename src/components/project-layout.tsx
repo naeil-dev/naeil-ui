@@ -50,7 +50,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
     <>
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 pb-16">
-        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-start md:justify-between">
           {/* Text */}
           <div className="flex-1">
             <PageTitle className="mb-3">{data.name}</PageTitle>
