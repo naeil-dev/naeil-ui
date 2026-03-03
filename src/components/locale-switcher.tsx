@@ -30,7 +30,7 @@ export function LocaleSwitcher() {
       <DropdownMenuTrigger asChild>
         <button
           className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors focus:outline-none"
-          aria-label="Change language"
+          aria-label={`Change language — current: ${localeLabels[locale].short}`}
         >
           <GlobeIcon />
           {localeLabels[locale].short}

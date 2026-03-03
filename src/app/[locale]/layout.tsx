@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import {
   getMessages,
@@ -11,6 +12,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { locales, type Locale } from "@/i18n/config";
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+import "../globals.css";
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+});
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -55,18 +63,22 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <Nav />
-        {children}
-        <Footer />
-        <Toaster />
-      </ThemeProvider>
-    </NextIntlClientProvider>
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${jetbrainsMono.variable} antialiased`}>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Nav />
+            <main>{children}</main>
+            <Footer />
+            <Toaster />
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

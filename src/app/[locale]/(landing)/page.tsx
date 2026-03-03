@@ -126,7 +126,7 @@ function HubContent() {
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] text-zinc-500"
+                      className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] text-zinc-400"
                     >
                       {tag}
                     </span>

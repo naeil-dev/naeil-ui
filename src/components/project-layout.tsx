@@ -63,7 +63,7 @@ export function ProjectLayout({ data }: { data: ProjectData }) {
               {data.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-black/[0.08] px-2.5 py-1 text-[11px] text-zinc-500 dark:border-white/[0.08]"
+                  className="rounded-full border border-black/[0.08] px-2.5 py-1 text-[11px] text-zinc-400 dark:border-white/[0.08]"
                 >
                   {tag}
                 </span>

@@ -34,7 +34,7 @@ function BlogContent() {
               ].map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-border-subtle px-2.5 py-1 text-[11px] text-zinc-500"
+                  className="rounded-full border border-border-subtle px-2.5 py-1 text-[11px] text-zinc-400"
                 >
                   {tag}
                 </span>
