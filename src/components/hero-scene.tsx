@@ -621,6 +621,23 @@ function DiverSprite({ isDark }: { isDark: boolean }) {
   );
 }
 
+function CoralSprite({ isDark }: { isDark: boolean }) {
+  const texture = useLoader(THREE.TextureLoader, "/images/coral.png");
+  const ref = useRef<Mesh>(null);
+  // Gentle sway — stationary coral, subtle rotation
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.getElapsedTime();
+    ref.current.rotation.z = Math.sin(t * 0.3) * 0.02;
+  });
+  return (
+    <mesh ref={ref} position={[0.9, -0.78, -0.6]} scale={0.22}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial map={texture} transparent opacity={isDark ? 0.3 : 0.55} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
 function SeaLife({ isDark, lite = false }: { isDark: boolean; lite?: boolean }) {
   return (
     <group>
@@ -632,6 +649,7 @@ function SeaLife({ isDark, lite = false }: { isDark: boolean; lite?: boolean }) 
       {!lite && <JellyfishSprite isDark={isDark} />}
       {!lite && <WhaleSprite isDark={isDark} />}
       {!lite && <TurtleSprite isDark={isDark} />}
+      {!lite && <CoralSprite isDark={isDark} />}
     </group>
   );
 }

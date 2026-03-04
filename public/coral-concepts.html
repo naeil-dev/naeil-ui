@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coral Clusters — Extended</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+    background: #0a0a0a; color: #e5e5e5; padding: 40px 24px; max-width: 1200px; margin: 0 auto;
+  }
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; color: #fff; }
+  .subtitle { color: #737373; font-size: 14px; margin-bottom: 40px; }
+  .section-title {
+    font-size: 18px; font-weight: 500; color: #a3a3a3;
+    margin: 48px 0 20px; padding-bottom: 8px; border-bottom: 1px solid #262626;
+  }
+  .full-card {
+    background: #141414; border: 1px solid #262626; border-radius: 12px;
+    padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 16px;
+    margin-bottom: 24px;
+  }
+  .full-card:hover { border-color: #333; }
+  .card-label { font-size: 15px; font-weight: 500; color: #fff; }
+  .card-desc { font-size: 12px; color: #737373; text-align: center; line-height: 1.5; max-width: 600px; }
+  .wide-wrap {
+    width: 100%; max-width: 750px; display: flex; align-items: center; justify-content: center;
+    background: #0a0a0a; border-radius: 8px; overflow: hidden;
+  }
+  .wide-wrap svg { width: 100%; height: auto; }
+  .note { font-size: 13px; color: #525252; margin-top: 12px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<h1>🪸 Coral Cluster Gallery</h1>
+<p class="subtitle">E2 Natural Asymmetric · Metaball σ=4~5 · 8가지 군집 구성</p>
+
+<!-- === SHARED CORAL MACROS (conceptual — repeated inline for SVG) === -->
+<!-- Large = E2 original 18-branch -->
+<!-- Medium = variant B 13-branch -->
+<!-- Small = variant C 11-branch -->
+<!-- Tiny = variant D 9-branch -->
+<!-- Micro = minimal 5-branch -->
+
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">기존 3종</div>
+
+<!-- G1: Centered -->
+<div class="full-card">
+  <div class="card-label">G1 — Centered Cluster</div>
+  <div class="card-desc">메인 크게 + 양옆 크기별. CC fish 학교 구성.</div>
+  <div class="wide-wrap" style="height:320px;">
+    <svg viewBox="0 0 800 420" fill="none">
+      <defs><filter id="f1" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 24 -11"/></filter></defs>
+      <!-- Tiny far left -->
+      <g filter="url(#f1)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(-55,105) scale(0.42)">
+        <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M318 322 L302 282" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/><path d="M268 268 L290 228" stroke-width="12"/>
+      </g>
+      <!-- Small left -->
+      <g filter="url(#f1)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.65" transform="translate(40,50) scale(0.55)">
+        <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+      </g>
+      <!-- LARGE center -->
+      <g filter="url(#f1)" stroke="white" stroke-linecap="round" stroke-linejoin="round" transform="translate(200,-30) scale(0.85)">
+        <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+      </g>
+      <!-- Medium right -->
+      <g filter="url(#f1)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" transform="translate(500,20) scale(0.6)">
+        <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M188 210 L165 238" stroke-width="13"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M312 318 L338 335" stroke-width="14"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+      </g>
+      <!-- Tiny far right -->
+      <g filter="url(#f1)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(600,95) scale(0.4)">
+        <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- G2: Depth -->
+<div class="full-card">
+  <div class="card-label">G2 — Depth Cluster ✅</div>
+  <div class="card-desc">opacity로 전/중/후경 깊이감. 전경 산호 잘림 수정.</div>
+  <div class="wide-wrap" style="height:400px;">
+    <svg viewBox="0 0 700 540" fill="none">
+      <defs><filter id="f2" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 24 -11"/></filter></defs>
+      <!-- Background (far) -->
+      <g filter="url(#f2)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.2" transform="translate(60,110) scale(0.55)">
+        <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+      </g>
+      <g filter="url(#f2)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.18" transform="translate(410,135) scale(0.45)">
+        <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+      </g>
+      <!-- Midground -->
+      <g filter="url(#f2)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(320,75) scale(0.65)">
+        <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+      </g>
+      <!-- Foreground (main) — scaled to fit fully -->
+      <g filter="url(#f2)" stroke="white" stroke-linecap="round" stroke-linejoin="round" transform="translate(80,50) scale(0.78)">
+        <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+      </g>
+      <!-- Foreground small companion -->
+      <g filter="url(#f2)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" transform="translate(445,105) scale(0.55)">
+        <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M318 322 L302 282" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/><path d="M268 268 L290 228" stroke-width="12"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- G3: Compact -->
+<div class="full-card">
+  <div class="card-label">G3 — Compact Square (512×512)</div>
+  <div class="card-desc">스프라이트 아이콘용. 정사각형 구도.</div>
+  <div style="width:280px; height:280px; background:#0a0a0a; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid #262626;">
+    <svg viewBox="0 0 512 512" fill="none" width="260" height="260">
+      <defs><filter id="f3" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 24 -11"/></filter></defs>
+      <g filter="url(#f3)" stroke="white" stroke-linecap="round" stroke-linejoin="round" transform="translate(-30,0) scale(0.78)">
+        <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+      </g>
+      <g filter="url(#f3)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" transform="translate(200,60) scale(0.48)">
+        <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+      </g>
+      <g filter="url(#f3)" stroke="white" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" transform="translate(-80,110) scale(0.35)">
+        <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">신규 5종</div>
+
+<!-- G4: Wide Panoramic Reef -->
+<div class="full-card">
+  <div class="card-label">G4 — Wide Reef (파노라마)</div>
+  <div class="card-desc">넓게 펼쳐진 산호초. 히어로 씬 하단 Water 레이어 위 장식에 적합. 7그루.</div>
+  <div class="wide-wrap" style="height:280px;">
+    <svg viewBox="0 0 900 340" fill="none">
+      <defs><filter id="f4" x="-12%" y="-12%" width="124%" height="124%"><feGaussianBlur in="SourceGraphic" stdDeviation="3.5"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 26 -12"/></filter></defs>
+      <g filter="url(#f4)" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+        <!-- #1 micro far left -->
+        <g opacity="0.4" transform="translate(-10,120) scale(0.3)">
+          <path d="M255 480 L252 395 L235 350 L218 312" stroke-width="15"/><path d="M218 312 L200 280" stroke-width="12"/><path d="M218 312 L238 278" stroke-width="12"/><path d="M252 420 L278 378 L298 345" stroke-width="14"/><path d="M298 345 L318 315" stroke-width="11"/>
+        </g>
+        <!-- #2 small -->
+        <g opacity="0.6" transform="translate(60,55) scale(0.48)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <!-- #3 medium-large -->
+        <g opacity="0.8" transform="translate(200,-10) scale(0.62)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M188 210 L165 238" stroke-width="13"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M312 318 L338 335" stroke-width="14"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <!-- #4 large (center-hero) -->
+        <g opacity="1" transform="translate(360,-30) scale(0.72)">
+          <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+        </g>
+        <!-- #5 medium -->
+        <g opacity="0.75" transform="translate(580,5) scale(0.58)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <!-- #6 small -->
+        <g opacity="0.55" transform="translate(720,60) scale(0.45)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M318 322 L302 282" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <!-- #7 micro far right -->
+        <g opacity="0.38" transform="translate(810,115) scale(0.3)">
+          <path d="M255 480 L252 395 L235 350 L218 312" stroke-width="15"/><path d="M218 312 L200 280" stroke-width="12"/><path d="M252 420 L278 378 L298 345" stroke-width="14"/><path d="M298 345 L318 315" stroke-width="11"/><path d="M252 395 L260 355 L265 320" stroke-width="13"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- G5: Dense Forest -->
+<div class="full-card">
+  <div class="card-label">G5 — Dense Forest (밀림)</div>
+  <div class="card-desc">8그루 밀집. 겹침 많고 간격 좁아서 숲 느낌. 배경 텍스처 적합.</div>
+  <div class="wide-wrap" style="height:340px;">
+    <svg viewBox="0 0 750 420" fill="none">
+      <defs><filter id="f5" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="4.5"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 22 -10"/></filter></defs>
+      <g filter="url(#f5)" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Back layer -->
+        <g opacity="0.3" transform="translate(80,40) scale(0.58)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <g opacity="0.25" transform="translate(320,50) scale(0.55)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <g opacity="0.28" transform="translate(460,45) scale(0.52)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <!-- Mid layer -->
+        <g opacity="0.6" transform="translate(30,10) scale(0.68)">
+          <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/>
+        </g>
+        <g opacity="0.55" transform="translate(380,-5) scale(0.7)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M188 210 L165 238" stroke-width="13"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M312 318 L338 335" stroke-width="14"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <!-- Front layer -->
+        <g opacity="0.9" transform="translate(160,-25) scale(0.8)">
+          <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+        </g>
+        <g opacity="0.7" transform="translate(480,15) scale(0.62)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <g opacity="0.5" transform="translate(600,50) scale(0.48)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M318 322 L302 282" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- G6: Asymmetric Natural -->
+<div class="full-card">
+  <div class="card-label">G6 — Asymmetric Patch (자연 불균형)</div>
+  <div class="card-desc">왼쪽 밀집 + 오른쪽 흩어짐. 실제 해저처럼 비대칭. 6그루.</div>
+  <div class="wide-wrap" style="height:340px;">
+    <svg viewBox="0 0 800 420" fill="none">
+      <defs><filter id="f6" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 24 -11"/></filter></defs>
+      <g filter="url(#f6)" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Dense left cluster -->
+        <g opacity="0.45" transform="translate(20,30) scale(0.6)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <g opacity="0.95" transform="translate(80,-20) scale(0.82)">
+          <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+        </g>
+        <g opacity="0.7" transform="translate(280,5) scale(0.65)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M188 210 L165 238" stroke-width="13"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M312 318 L338 335" stroke-width="14"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <!-- Scattered right -->
+        <g opacity="0.5" transform="translate(500,55) scale(0.5)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <g opacity="0.35" transform="translate(640,90) scale(0.38)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <g opacity="0.22" transform="translate(730,130) scale(0.28)">
+          <path d="M255 480 L252 395 L235 350 L218 312" stroke-width="15"/><path d="M218 312 L200 280" stroke-width="12"/><path d="M252 420 L278 378 L298 345" stroke-width="14"/><path d="M298 345 L318 315" stroke-width="11"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- G7: Arc Formation -->
+<div class="full-card">
+  <div class="card-label">G7 — Arc Formation (아치형)</div>
+  <div class="card-desc">반원형 배치. 양끝 작고 중앙 크게. 무대 커튼처럼 프레이밍. 7그루.</div>
+  <div class="wide-wrap" style="height:340px;">
+    <svg viewBox="0 0 800 420" fill="none">
+      <defs><filter id="f7" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 24 -11"/></filter></defs>
+      <g filter="url(#f7)" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Far left (tiny, low) -->
+        <g opacity="0.35" transform="translate(-20,130) scale(0.32)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <!-- Left (small, mid-height) -->
+        <g opacity="0.55" transform="translate(65,65) scale(0.48)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <!-- Center-left (medium, taller) -->
+        <g opacity="0.75" transform="translate(170,10) scale(0.65)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M188 210 L165 238" stroke-width="13"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M312 318 L338 335" stroke-width="14"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <!-- Center (large, tallest) -->
+        <g opacity="1" transform="translate(300,-30) scale(0.82)">
+          <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+        </g>
+        <!-- Center-right (medium) -->
+        <g opacity="0.75" transform="translate(510,10) scale(0.63)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M162 198 L180 152" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <!-- Right (small) -->
+        <g opacity="0.55" transform="translate(630,65) scale(0.48)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M318 322 L302 282" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <!-- Far right (tiny) -->
+        <g opacity="0.35" transform="translate(730,130) scale(0.3)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- G8: Scattered Field -->
+<div class="full-card">
+  <div class="card-label">G8 — Scattered Field (산개 필드)</div>
+  <div class="card-desc">넓은 간격으로 흩어진 산호. 깊이+크기 자연 분포. 히어로 전체 배경용. 9그루.</div>
+  <div class="wide-wrap" style="height:380px;">
+    <svg viewBox="0 0 900 450" fill="none">
+      <defs><filter id="f8" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceGraphic" stdDeviation="3.8"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 25 -11"/></filter></defs>
+      <g filter="url(#f8)" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Far background (very faded) -->
+        <g opacity="0.15" transform="translate(150,60) scale(0.4)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <g opacity="0.12" transform="translate(550,50) scale(0.35)">
+          <path d="M255 480 L252 395 L235 350 L218 312" stroke-width="15"/><path d="M218 312 L200 280" stroke-width="12"/><path d="M252 420 L278 378 L298 345" stroke-width="14"/><path d="M298 345 L318 315" stroke-width="11"/>
+        </g>
+        <!-- Mid background -->
+        <g opacity="0.3" transform="translate(30,40) scale(0.52)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M335 292 L315 248" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+        <g opacity="0.35" transform="translate(650,30) scale(0.55)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <!-- Midground heroes -->
+        <g opacity="0.7" transform="translate(200,-10) scale(0.7)">
+          <path d="M240 480 L235 310 L190 240 L150 180" stroke-width="26"/><path d="M190 240 L160 265 L125 250" stroke-width="18"/><path d="M150 180 L110 130 L80 80" stroke-width="20"/><path d="M110 130 L85 148" stroke-width="14"/><path d="M150 180 L175 120" stroke-width="18"/><path d="M175 120 L155 68" stroke-width="16"/><path d="M175 120 L208 72" stroke-width="16"/><path d="M235 360 L300 290 L355 230" stroke-width="22"/><path d="M300 290 L330 308" stroke-width="16"/><path d="M355 230 L395 178" stroke-width="18"/><path d="M395 178 L428 135" stroke-width="16"/><path d="M395 178 L372 128" stroke-width="16"/><path d="M355 230 L332 172" stroke-width="16"/><path d="M235 310 L252 228 L262 158" stroke-width="20"/><path d="M252 228 L228 182" stroke-width="16"/><path d="M262 158 L242 98" stroke-width="14"/><path d="M262 158 L298 105" stroke-width="14"/><path d="M235 400 L198 368 L172 332" stroke-width="14"/>
+        </g>
+        <g opacity="0.6" transform="translate(480,10) scale(0.62)">
+          <path d="M265 480 L260 320 L220 260 L188 210" stroke-width="24"/><path d="M188 210 L155 168" stroke-width="18"/><path d="M155 168 L125 125" stroke-width="15"/><path d="M155 168 L178 120" stroke-width="15"/><path d="M188 210 L165 238" stroke-width="13"/><path d="M260 380 L312 318 L352 268" stroke-width="21"/><path d="M312 318 L338 335" stroke-width="14"/><path d="M352 268 L388 222" stroke-width="16"/><path d="M388 222 L415 180" stroke-width="14"/><path d="M388 222 L365 175" stroke-width="14"/><path d="M260 320 L275 248 L282 188" stroke-width="18"/><path d="M282 188 L262 138" stroke-width="14"/><path d="M282 188 L312 142" stroke-width="14"/>
+        </g>
+        <!-- Foreground accents -->
+        <g opacity="0.85" transform="translate(80,40) scale(0.5)">
+          <path d="M255 480 L252 375 L225 322 L205 280" stroke-width="17"/><path d="M205 280 L180 242" stroke-width="14"/><path d="M205 280 L225 240" stroke-width="14"/><path d="M252 420 L290 368 L318 322" stroke-width="15"/><path d="M318 322 L342 285" stroke-width="12"/><path d="M318 322 L302 282" stroke-width="12"/><path d="M252 375 L262 318 L268 268" stroke-width="15"/><path d="M268 268 L252 225" stroke-width="12"/><path d="M268 268 L290 228" stroke-width="12"/>
+        </g>
+        <g opacity="0.75" transform="translate(720,55) scale(0.45)">
+          <path d="M245 480 L250 345 L218 285 L192 240" stroke-width="20"/><path d="M192 240 L162 198" stroke-width="16"/><path d="M192 240 L215 195" stroke-width="16"/><path d="M162 198 L138 158" stroke-width="13"/><path d="M250 400 L298 342 L335 292" stroke-width="18"/><path d="M335 292 L365 250" stroke-width="15"/><path d="M250 345 L265 282 L272 228" stroke-width="17"/><path d="M272 228 L255 182" stroke-width="13"/><path d="M272 228 L298 185" stroke-width="13"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<p class="note" style="margin-top: 40px; padding: 16px; background: #141414; border-radius: 8px; border: 1px solid #262626;">
+  <strong>8종 요약:</strong><br>
+  • <strong>G1</strong> — 중앙 집중 (5그루) · CC fish 구성 매칭<br>
+  • <strong>G2</strong> — 깊이감 (5그루) · opacity 레이어링<br>
+  • <strong>G3</strong> — 정사각형 (3그루) · 512×512 스프라이트<br>
+  • <strong>G4</strong> — 파노라마 (7그루) · 히어로 하단 장식 🏆<br>
+  • <strong>G5</strong> — 밀림 (8그루) · 숲처럼 겹침 많음<br>
+  • <strong>G6</strong> — 비대칭 (6그루) · 자연 불균형 패치<br>
+  • <strong>G7</strong> — 아치형 (7그루) · 무대 커튼 프레이밍<br>
+  • <strong>G8</strong> — 산개 (9그루) · 히어로 전체 배경 필드
+</p>
+
+</body>
+</html>
