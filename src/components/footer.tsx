@@ -23,7 +23,7 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com/jaymini1022"
+              href="https://github.com/naeil-dev"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -67,7 +67,7 @@ export function Footer() {
               {t("social")}
             </span>
             <a
-              href="https://github.com/jaymini1022"
+              href="https://github.com/naeil-dev"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"

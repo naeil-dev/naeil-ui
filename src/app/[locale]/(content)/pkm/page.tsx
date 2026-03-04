@@ -23,7 +23,7 @@ function PKMContent() {
     description: t("description"),
     accent: "oklch(0.627 0.265 303)",
     tags: ["Python", "Embeddings", "Semantic Search"],
-    github: "https://github.com/jaymini1022/pkm",
+    github: "https://github.com/naeil-dev/pkm",
     comingSoon: true,
   };
 

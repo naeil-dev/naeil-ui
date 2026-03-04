@@ -37,6 +37,10 @@
     "status": {
       "active": "Active",
       "coming": "Coming Soon"
+    },
+    "sa": {
+      "name": "Sustainability Analyzer",
+      "description": "AI-powered ESG report analysis — PDF parsing, qualitative assessment, comparison tables"
     }
   },
   "stack": {
@@ -141,5 +145,68 @@
   },
   "locale": {
     "switchLabel": "Language"
+  },
+  "sa": {
+    "name": "Sustainability Analyzer",
+    "description": "AI-driven ESG report analysis — topic discovery, qualitative assessment, automated cross-company comparison.",
+    "overview": "An analysis pipeline that parses corporate ESG report PDFs and performs systematic qualitative assessments with AI.\n\nDocling layout parser preserves table and text structure through hierarchical chunking. BGE-M3 embeddings (Dense+Sparse) enable hybrid semantic search. Claude auto-discovers 41 ESG topics and generates 415 checklist items for qualitative evaluation.\n\nLocal embeddings + free APIs. Structured storage in PostgreSQL + pgvector.",
+    "features": {
+      "ingest": {
+        "title": "Structure-Preserving PDF Parsing",
+        "desc": "Docling layout parser — hierarchical chunking that preserves tables and section boundaries"
+      },
+      "embed": {
+        "title": "Hybrid Search",
+        "desc": "BGE-M3 Dense+Sparse embeddings — pgvector hybrid semantic search"
+      },
+      "topics": {
+        "title": "Auto Topic Discovery",
+        "desc": "Claude Sonnet — auto-discovers 41 topics and 415 checklist items from ESG reports"
+      },
+      "assess": {
+        "title": "AI Qualitative Assessment",
+        "desc": "Checklist-based evaluation per topic — cited evidence, scores, and commentary"
+      },
+      "compare": {
+        "title": "Cross-Company Comparison",
+        "desc": "Sector-filtered topic × company matrix — auto-generated comparison tables"
+      },
+      "zeroCost": {
+        "title": "Local + Free",
+        "desc": "BGE-M3 on-device embeddings, Claude & Gemini free-tier usage"
+      }
+    },
+    "workflow": {
+      "pdf": {
+        "desc": "Corporate ESG/sustainability report PDF input",
+        "meta": "Annual reports"
+      },
+      "docling": {
+        "desc": "Layout-based structural parsing — single-chunk tables, section boundary preservation",
+        "meta": "Tables+Text"
+      },
+      "chunk": {
+        "desc": "Parent-child hierarchical chunking — context preservation + granular retrieval",
+        "meta": "parent 1K / child 512"
+      },
+      "bgem3": {
+        "desc": "Dense (1024d) + Sparse (learned BM25) simultaneous embedding generation",
+        "meta": "FlagEmbedding"
+      },
+      "pgvector": {
+        "desc": "Chunks, embeddings, assessments, comparisons — full structured storage"
+      },
+      "search": {
+        "desc": "Dense+Sparse hybrid search with parent context expansion"
+      },
+      "claude": {
+        "desc": "Topic discovery, checklist generation, evidence-based qualitative assessment",
+        "meta": "Sonnet"
+      },
+      "report": {
+        "desc": "Topic × company comparison table HTML report generation",
+        "meta": "Sector filter"
+      }
+    }
   }
 }

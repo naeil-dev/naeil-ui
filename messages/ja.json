@@ -37,6 +37,10 @@
     "status": {
       "active": "アクティブ",
       "coming": "準備中"
+    },
+    "sa": {
+      "name": "Sustainability Analyzer",
+      "description": "ESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
     }
   },
   "stack": {
@@ -141,5 +145,68 @@
   },
   "locale": {
     "switchLabel": "言語"
+  },
+  "sa": {
+    "name": "Sustainability Analyzer",
+    "description": "ESGレポートをAIで分析 — トピック発見、定性評価、企業間比較表を自動生成",
+    "overview": "企業ESGレポートPDFを解析し、AIで体系的な定性評価を行う分析パイプライン。\n\nDoclingレイアウトパーサーで表・テキスト構造を保持したまま階層的にチャンキング。BGE-M3エンベディング（Dense+Sparse）でハイブリッドセマンティック検索。Claudeが41のESGトピックを自動発見し、415のチェックリスト項目で定性評価を実施。\n\nローカルエンベディング＋無料API基盤。PostgreSQL＋pgvectorに構造化保存。",
+    "features": {
+      "ingest": {
+        "title": "PDF構造保存パーシング",
+        "desc": "Doclingレイアウトパーサー — 表・セクション境界を保持した階層チャンキング"
+      },
+      "embed": {
+        "title": "ハイブリッド検索",
+        "desc": "BGE-M3 Dense+Sparseエンベディング — pgvectorハイブリッドセマンティック検索"
+      },
+      "topics": {
+        "title": "トピック自動発見",
+        "desc": "Claude Sonnet — ESGレポートから41トピック・415チェックリスト自動生成"
+      },
+      "assess": {
+        "title": "AI定性評価",
+        "desc": "トピック別チェックリスト基盤の自動評価 — 根拠引用・スコア・コメント"
+      },
+      "compare": {
+        "title": "企業間比較表",
+        "desc": "セクター別フィルタリング — トピック×企業マトリクス自動生成"
+      },
+      "zeroCost": {
+        "title": "ローカル＋無料",
+        "desc": "BGE-M3オンデバイスエンベディング、Claude・Gemini無料ティア活用"
+      }
+    },
+    "workflow": {
+      "pdf": {
+        "desc": "企業ESG/サステナビリティレポートPDF入力",
+        "meta": "年次レポート"
+      },
+      "docling": {
+        "desc": "レイアウト基盤の構造解析 — 表単一チャンク、セクション境界保持",
+        "meta": "表+テキスト"
+      },
+      "chunk": {
+        "desc": "Parent-Child階層チャンキング — コンテキスト保持＋精密検索",
+        "meta": "parent 1K / child 512"
+      },
+      "bgem3": {
+        "desc": "Dense（1024次元）+ Sparse（学習済みBM25）同時エンベディング生成",
+        "meta": "FlagEmbedding"
+      },
+      "pgvector": {
+        "desc": "チャンク、エンベディング、評価、比較表 — 全構造化保存"
+      },
+      "search": {
+        "desc": "Dense+Sparseハイブリッド検索、Parentコンテキスト展開"
+      },
+      "claude": {
+        "desc": "トピック発見、チェックリスト生成、根拠ベース定性評価",
+        "meta": "Sonnet"
+      },
+      "report": {
+        "desc": "トピック×企業比較表HTMLレポート自動生成",
+        "meta": "セクターフィルタ"
+      }
+    }
   }
 }

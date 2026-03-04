@@ -37,6 +37,10 @@
     "status": {
       "active": "활성",
       "coming": "준비 중"
+    },
+    "sa": {
+      "name": "Sustainability Analyzer",
+      "description": "ESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
     }
   },
   "stack": {
@@ -141,5 +145,68 @@
   },
   "locale": {
     "switchLabel": "언어"
+  },
+  "sa": {
+    "name": "Sustainability Analyzer",
+    "description": "ESG 리포트를 AI로 분석 — 주제 발견, 정성평가, 기업간 비교표 자동 생성",
+    "overview": "기업 ESG 리포트 PDF를 파싱하고, AI로 체계적 정성평가를 수행하는 분석 파이프라인.\n\nDocling 레이아웃 파서로 표·텍스트 구조를 보존한 채 청킹. BGE-M3 임베딩(Dense+Sparse)으로 하이브리드 시맨틱 검색. Claude가 41개 ESG 주제를 자동 발견하고 415개 체크리스트 항목으로 정성평가를 수행.\n\n로컬 임베딩 + 무료 API 기반. PostgreSQL + pgvector에 구조화 저장.",
+    "features": {
+      "ingest": {
+        "title": "PDF 구조 보존 파싱",
+        "desc": "Docling 레이아웃 파서 — 표·섹션 경계를 보존한 계층적 청킹"
+      },
+      "embed": {
+        "title": "하이브리드 검색",
+        "desc": "BGE-M3 Dense+Sparse 임베딩 — pgvector 하이브리드 시맨틱 검색"
+      },
+      "topics": {
+        "title": "주제 자동 발견",
+        "desc": "Claude Sonnet — ESG 리포트에서 41개 주제·415개 체크리스트 자동 생성"
+      },
+      "assess": {
+        "title": "AI 정성평가",
+        "desc": "주제별 체크리스트 기반 자동 평가 — 근거 인용·점수·코멘트"
+      },
+      "compare": {
+        "title": "기업간 비교표",
+        "desc": "섹터별 필터링 — 주제×기업 매트릭스 자동 생성"
+      },
+      "zeroCost": {
+        "title": "로컬 + 무료",
+        "desc": "BGE-M3 온디바이스 임베딩, Claude·Gemini 무료 티어 활용"
+      }
+    },
+    "workflow": {
+      "pdf": {
+        "desc": "기업 ESG/지속가능성 리포트 PDF 입력",
+        "meta": "연간 리포트"
+      },
+      "docling": {
+        "desc": "레이아웃 기반 구조 파싱 — 표 단일 청킹, 섹션 경계 보존",
+        "meta": "표+텍스트"
+      },
+      "chunk": {
+        "desc": "Parent-Child 계층 청킹 — 문맥 보존 + 세밀 검색",
+        "meta": "parent 1K / child 512"
+      },
+      "bgem3": {
+        "desc": "Dense(1024d) + Sparse(학습된 BM25) 동시 임베딩 생성",
+        "meta": "FlagEmbedding"
+      },
+      "pgvector": {
+        "desc": "청크, 임베딩, 평가, 비교표 — 전체 구조화 저장"
+      },
+      "search": {
+        "desc": "Dense+Sparse 하이브리드 검색, Parent Context 확장"
+      },
+      "claude": {
+        "desc": "주제 발견, 체크리스트 생성, 근거 기반 정성평가",
+        "meta": "Sonnet"
+      },
+      "report": {
+        "desc": "주제×기업 비교표 HTML 리포트 자동 생성",
+        "meta": "섹터 필터"
+      }
+    }
   }
 }

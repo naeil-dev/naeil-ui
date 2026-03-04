@@ -18,12 +18,12 @@ function CCContent() {
   const t = useTranslations("cc");
 
   const data: ProjectData = {
-    icon: "/images/fish.png",
+    icon: "/images/coral.png",
     name: t("name"),
     description: t("description"),
-    accent: "oklch(0.723 0.219 149)",
+    accent: "oklch(0.704 0.140 181)",
     tags: ["Python", "PostgreSQL", "Ollama", "Gemini", "LINE"],
-    github: "https://github.com/jaymini1022/content-collector",
+    github: "https://github.com/naeil-dev/content-collector",
 
     overview: t("overview"),
 

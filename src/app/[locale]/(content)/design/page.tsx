@@ -117,7 +117,8 @@ const SEMANTIC_TOKENS = [
 ];
 
 const PROJECT_COLORS = [
-  { name: "CC", token: "--project-cc", oklch: "oklch(0.723 0.219 149)" },
+  { name: "CC", token: "--project-cc", oklch: "oklch(0.704 0.140 181)" },
+  { name: "SA", token: "--project-sa", oklch: "oklch(0.723 0.219 149)" },
   { name: "PKM", token: "--project-pkm", oklch: "oklch(0.627 0.265 303)" },
   { name: "naeil-ui", token: "--project-naeilUi", oklch: "oklch(0.623 0.214 259)" },
   { name: "Baby Agent", token: "--project-baby", oklch: "oklch(0.769 0.188 70.08)" },
@@ -234,7 +235,7 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <a
-                href="https://github.com/jaymini1022/design-system"
+                href="https://github.com/naeil-dev/design-system"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
@@ -530,6 +531,18 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+        </div>
+        <SubHeading>Elevated</SubHeading>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <CardElevated>
+            <CardHeader>
+              <CardTitle>Elevated Card</CardTitle>
+              <CardDescription>다크 모드에서 밝기 차이로 elevation 표현</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">shadow-sm + 다크 배경 밝기 상승</p>
+            </CardContent>
+          </CardElevated>
         </div>
       </section>
 

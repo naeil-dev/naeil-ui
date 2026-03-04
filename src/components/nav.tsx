@@ -13,8 +13,8 @@ const PROJECTS = [
   {
     key: "cc",
     href: "/cc" as const,
-    accent: "oklch(0.723 0.219 149)",
-    icon: "/images/fish.png",
+    accent: "oklch(0.704 0.140 181)",
+    icon: "/images/coral.png",
     status: "active" as const,
   },
   {
@@ -29,6 +29,13 @@ const PROJECTS = [
     href: "/design" as const,
     accent: "oklch(0.623 0.214 259)",
     icon: "/images/whale.png",
+    status: "active" as const,
+  },
+  {
+    key: "sa",
+    href: "/sa" as const,
+    accent: "oklch(0.723 0.219 149)",
+    icon: "/images/fish.png",
     status: "active" as const,
   },
   {
@@ -80,6 +87,7 @@ export function Nav() {
     pathname.startsWith("/projects") ||
     pathname.startsWith("/cc") ||
     pathname.startsWith("/pkm") ||
+    pathname.startsWith("/sa") ||
     pathname.startsWith("/design");
 
   return (
