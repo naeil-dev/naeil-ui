@@ -16,8 +16,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="toaster group"
+      className="toaster group font-sans"
       position="bottom-right"
+      duration={4000}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
@@ -27,21 +28,21 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--success-bg": "var(--popover)",
-          "--success-text": "var(--popover-foreground)",
-          "--success-border": "var(--border)",
-          "--error-bg": "var(--popover)",
-          "--error-text": "var(--popover-foreground)",
-          "--error-border": "var(--border)",
-          "--info-bg": "var(--popover)",
-          "--info-text": "var(--popover-foreground)",
-          "--info-border": "var(--border)",
-          "--warning-bg": "var(--popover)",
-          "--warning-text": "var(--popover-foreground)",
-          "--warning-border": "var(--border)",
+          "--normal-bg": "var(--card)",
+          "--normal-text": "var(--card-foreground)",
+          "--normal-border": "var(--border-subtle)",
+          "--success-bg": "var(--card)",
+          "--success-text": "var(--card-foreground)",
+          "--success-border": "var(--border-subtle)",
+          "--error-bg": "var(--card)",
+          "--error-text": "var(--destructive)",
+          "--error-border": "var(--border-subtle)",
+          "--info-bg": "var(--card)",
+          "--info-text": "var(--card-foreground)",
+          "--info-border": "var(--border-subtle)",
+          "--warning-bg": "var(--card)",
+          "--warning-text": "var(--card-foreground)",
+          "--warning-border": "var(--border-subtle)",
           "--border-radius": "var(--radius-md-value)",
         } as React.CSSProperties
       }

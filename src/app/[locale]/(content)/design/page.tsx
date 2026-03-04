@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Card,
+  CardElevated,
   CardHeader,
   CardTitle,
   CardDescription,
@@ -615,6 +616,7 @@ export default function Home() {
           <Badge>Default</Badge>
           <Badge variant="secondary">Secondary</Badge>
           <Badge variant="outline">Outline</Badge>
+          <Badge variant="destructive">Destructive</Badge>
         </div>
       </section>
 
