@@ -1,52 +1,50 @@
 "use client";
 
-import { useLocale } from "next-intl";
-import { useRouter, usePathname } from "@/i18n/routing";
-import { locales, type Locale } from "@/i18n/config";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+} from "./ui/dropdown-menu";
 
-const localeLabels: Record<Locale, { short: string; full: string }> = {
-  en: { short: "EN", full: "English" },
-  ko: { short: "KO", full: "한국어" },
-  ja: { short: "JA", full: "日本語" },
-};
+interface LocaleSwitcherProps {
+  /** Available locales */
+  locales: Array<{ code: string; short: string; full: string }>;
+  /** Current locale */
+  currentLocale: string;
+  /** Called when user selects a new locale */
+  onLocaleChange: (locale: string) => void;
+}
 
-export function LocaleSwitcher() {
-  const locale = useLocale() as Locale;
-  const router = useRouter();
-  const pathname = usePathname();
-
-  function onSelectLocale(nextLocale: Locale) {
-    router.replace(pathname, { locale: nextLocale });
-  }
+export function LocaleSwitcher({
+  locales,
+  currentLocale,
+  onLocaleChange,
+}: LocaleSwitcherProps) {
+  const current = locales.find((l) => l.code === currentLocale);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors focus:outline-none"
-          aria-label={`Change language — current: ${localeLabels[locale].short}`}
+          aria-label={`Change language — current: ${current?.short ?? currentLocale}`}
         >
           <GlobeIcon />
-          {localeLabels[locale].short}
+          {current?.short ?? currentLocale.toUpperCase()}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">
         {locales.map((l) => (
           <DropdownMenuItem
-            key={l}
-            onClick={() => onSelectLocale(l)}
-            className={l === locale ? "font-medium" : ""}
+            key={l.code}
+            onClick={() => onLocaleChange(l.code)}
+            className={l.code === currentLocale ? "font-medium" : ""}
           >
             <span className="text-muted-foreground mr-2 w-5 text-xs">
-              {localeLabels[l].short}
+              {l.short}
             </span>
-            {localeLabels[l].full}
+            {l.full}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

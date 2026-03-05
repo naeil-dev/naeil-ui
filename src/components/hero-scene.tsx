@@ -638,7 +638,7 @@ function CoralSprite({ isDark }: { isDark: boolean }) {
   );
 }
 
-function SeaLife({ isDark, lite = false }: { isDark: boolean; lite?: boolean }) {
+function SeaLife({ isDark }: { isDark: boolean }) {
   return (
     <group>
       {SWIMMERS.map((sw) => (
@@ -646,10 +646,10 @@ function SeaLife({ isDark, lite = false }: { isDark: boolean; lite?: boolean }) 
       ))}
       <FishSprite isDark={isDark} />
       <DiverSprite isDark={isDark} />
-      {!lite && <JellyfishSprite isDark={isDark} />}
-      {!lite && <WhaleSprite isDark={isDark} />}
-      {!lite && <TurtleSprite isDark={isDark} />}
-      {!lite && <CoralSprite isDark={isDark} />}
+      <JellyfishSprite isDark={isDark} />
+      <WhaleSprite isDark={isDark} />
+      <TurtleSprite isDark={isDark} />
+      <CoralSprite isDark={isDark} />
     </group>
   );
 }
@@ -916,7 +916,7 @@ export function HeroScene({ active = true }: { active?: boolean }) {
           {profile.enableClouds && on("Clouds") && <Clouds isDark={isDark} />}
           {on("Mountain") && <MountainSilhouette />}
           {on("BaseLine") && <BaseLine />}
-          {profile.enableSeaLife && on("SeaLife") && <SeaLife isDark={isDark} lite={profile.seaLifeLite} />}
+          {profile.enableSeaLife && on("SeaLife") && <SeaLife isDark={isDark} />}
         </Canvas>
       </div>
 

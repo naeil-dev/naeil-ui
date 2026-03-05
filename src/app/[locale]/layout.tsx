@@ -9,8 +9,8 @@ import {
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { Nav } from "@/components/nav";
-import { Footer } from "@/components/footer";
+import { NavWrapper } from "@/components/nav-wrapper";
+import { FooterWrapper } from "@/components/footer-wrapper";
 import { locales, type Locale } from "@/i18n/config";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "../globals.css";
@@ -72,9 +72,9 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Nav />
+            <NavWrapper />
             <main>{children}</main>
-            <Footer />
+            <FooterWrapper />
             <Toaster />
           </ThemeProvider>
         </NextIntlClientProvider>

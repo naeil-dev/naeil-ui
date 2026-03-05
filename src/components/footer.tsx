@@ -1,11 +1,56 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
-import { Logo } from "@/components/logo";
 
-export function Footer() {
+interface FooterProps {
+  /** Link component from consumer */
+  Link?: React.ComponentType<{
+    href: string;
+    children: React.ReactNode;
+    className?: string;
+  }>;
+  /** Whether links go to naeil.dev (external) or are internal. Default: false */
+  linksExternal?: boolean;
+}
+
+export function Footer({ Link, linksExternal = false }: FooterProps) {
   const t = useTranslations("footer");
+
+  // Render a navigation link — external <a> or internal Link
+  const NavLink = ({
+    href,
+    children,
+    className,
+  }: {
+    href: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => {
+    if (linksExternal) {
+      return (
+        <a
+          href={`https://naeil.dev${href}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={className}
+        >
+          {children}
+        </a>
+      );
+    }
+    if (Link) {
+      return (
+        <Link href={href} className={className}>
+          {children}
+        </Link>
+      );
+    }
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  };
 
   return (
     <footer className="border-border/40 border-t">
@@ -49,18 +94,18 @@ export function Footer() {
             <span className="text-foreground text-xs font-medium uppercase tracking-wider">
               {t("navigation")}
             </span>
-            <Link
+            <NavLink
               href="/projects"
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               {t("projects")}
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               href="/blog"
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               {t("blog")}
-            </Link>
+            </NavLink>
           </div>
           <div className="flex flex-col gap-3">
             <span className="text-foreground text-xs font-medium uppercase tracking-wider">
@@ -77,8 +122,45 @@ export function Footer() {
           </div>
         </div>
       </div>
-
     </footer>
+  );
+}
+
+/* ── Inline Logo (pure SVG) ── */
+function Logo({ size = 20 }: { size?: number }) {
+  const id = `naeil-footer-logo-${size}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-label="naeil"
+    >
+      <path
+        d="M6 4 L6 16 L20 16"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
+      <circle
+        cx="15"
+        cy="16"
+        r="3.5"
+        fill={`url(#${id}-grad)`}
+        mask={`url(#${id})`}
+      />
+      <defs>
+        <linearGradient id={`${id}-grad`} x1="15" y1="12.5" x2="15" y2="16">
+          <stop stopColor="#eab308" />
+          <stop offset="1" stopColor="#dc2626" />
+        </linearGradient>
+        <mask id={id}>
+          <rect x="0" y="0" width="24" height="16" fill="white" />
+        </mask>
+      </defs>
+    </svg>
   );
 }
 
