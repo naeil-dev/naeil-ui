@@ -57,10 +57,9 @@ export async function GET(request: Request) {
     const redirectCookie = cookieStore.get("auth_redirect_to");
     
     if (!error) {
-      // decodeURIComponent needed: Next.js cookies.set() URL-encodes values,
+      // decodeURIComponent required: Next.js cookies.set() URL-encodes values,
       // but cookies.get() returns them raw (still encoded)
-      const rawNext = redirectCookie?.value || "/";
-      const next = rawNext.startsWith("http") ? decodeURIComponent(rawNext) : rawNext;
+      const next = decodeURIComponent(redirectCookie?.value || "/");
 
       // Clear the redirect cookie
       cookieStore.set("auth_redirect_to", "", { path: "/", maxAge: 0, domain });
