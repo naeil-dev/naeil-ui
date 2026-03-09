@@ -1,73 +1,41 @@
 # naeil-ui (Design System) — Status
 
 > Status: Active
-> 최종 업데이트: 2026-03-05
+> 최종 업데이트: 2026-03-09
 
 ## 현재 상태
-**MVP 완료 + 프로덕션 배포 완료**
+- **인증 시스템 Phase 1+2 완료**, SSO 통합 진행 중
+- Vercel 프로덕션: https://naeil.dev
+- GitHub: naeil-dev/naeil-ui (private)
 
-Phase 1~6 (T01~T46) 전체 완료. https://naeil.dev 라이브. Vercel Hobby + GitHub 자동 배포.
+## 인증 시스템 (auth)
+- **Phase 1 (A04-A09) ✅**: Supabase Auth 기반 — @supabase/ssr 쿠키, PKCE, proxy.ts 미들웨어, /login, /auth/callback, logout
+- **Phase 2 (A11-A16) ✅**: Nav AuthSlot (동물아바타 해시), NavServerWrapper, 보호라우트 (/sa/reports/:id)
+- **SSO 통합 진행 중**: 쿠키 domain .naeil.dev, esg.naeil.dev 연동 완료
+- **버그**: 로그인 후 원래 페이지 리다이렉트 미동작 — middleware 쿠키 방식 4차 시도 (커밋 37954d3), 테스트 대기
+- Phase 3 (리포트 동기화) 미착수
+- Phase 4 (리포트 UI) 미착수
 
-## 완료 Phase
-- **Phase 1** (T01-T09): Next.js 16 + Tailwind v4 + shadcn + Pretendard/JetBrains Mono
-- **Phase 2** (T10-T20): DTCG 디자인 토큰 (OKLCH, semantic, 다크/라이트)
-- **Phase 3** (T21-T24): Tailwind v4 테마 통합 (@theme inline)
-- **Phase 4** (T25-T30): 테마 시스템 (next-themes, accent 오버라이드, WCAG 검증)
-- **Phase 5** (T31-T42): 컴포넌트 커스텀 (DNA 적용, focus ring 통일, lint 스크립트)
-- **Phase 6** (T43-T46): 데모 페이지 완료 (토큰+컴포넌트 쇼케이스, 악센트 피커)
-
-## 랜딩 사이트 (tasks.md 밖)
-- 3D 히어로 씬 (Three.js/R3F, 다크=sunset/라이트=sunrise)
-- 프로젝트 페이지 6개: CC(상세), SA(상세), PKM/Baby Agent/Blog(Coming Soon), Design(쇼케이스)
-- Nav 드롭다운 + Footer + i18n (ko/en/ja)
-- 성능 최적화 P0~P2 + Lighthouse 감사 (Perf 98, A11y 100, BP 100)
-- 아이콘 6종: fish(CC), coral(SA), jellyfish(PKM), whale(naeil-ui), turtle(Baby Agent), diver(Blog)
-
-## 프로젝트-색상 매핑
-| 프로젝트 | 동물 | 악센트 OKLCH |
-|---------|------|-------------|
-| CC | 물고기 | oklch(0.723 0.219 149) green |
-| SA | 산호 | oklch(0.704 0.140 181) teal |
-| PKM | 해파리 | oklch(0.627 0.265 303) purple |
-| naeil-ui | 고래 | oklch(0.623 0.214 259) blue |
-| Baby Agent | 거북이 | oklch(0.769 0.188 70.08) amber |
-| Blog | 다이버 | — |
-
-## 배포
-- **프로덕션**: https://naeil.dev (Vercel Hobby, 무료)
-- **GitHub**: github.com/naeil-dev/naeil-ui (private)
-- GitHub push → 자동 배포
-- DNS: Cloudflare A레코드 `@ → 216.198.79.1` (Proxy OFF)
-
-## 남은 작업
-- **인증 시스템** (A01~A28): Supabase Auth + SA 리포트 열람 — plan/tasks 작성 완료, Phase 1 착수 대기 (Jay A01~A03 수동 설정 필요)
-  - docs: `brainstorm-auth.md`, `spec-auth.md`, `plan-auth.md`, `tasks-auth.md`
-- **Phase 7** (T47-T53): Storybook (P2)
-- **Phase 8** (T54-T59): npm 패키지 배포 (P2)
-- Three.js 번들 분리 (Turbopack 대기)
-- PKM/Baby Agent 상세 페이지 (프로젝트 준비 시)
+## Supabase 설정
+- 프로젝트: dathsxdsaxooifnxjket.supabase.co
+- Providers: Google OAuth, GitHub OAuth
+- Site URL: https://naeil.dev
+- Redirect URLs: naeil.dev/auth/callback, esg.naeil.dev/auth/callback
+- Vercel env: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ## 기술 스택
-- Next.js 16 + React 19 + TypeScript
-- Tailwind CSS v4 (CSS-first, @theme inline)
-- shadcn/ui (Radix Primitives)
-- Three.js + React Three Fiber (3D 히어로)
-- next-intl (i18n: ko/en/ja)
-- OKLCH 색상 공간, DTCG 토큰 표준
+- Next.js 16.1.6, next-intl 4.8.3, @supabase/ssr 0.9.0
+- @naeil/ui 패키지 — SA frontend과 공유 (Nav, Footer, 테마, 로케일)
+- Vercel Hobby (무료), Supabase Free
 
-## 채널
-- Dev-sub3
+## 디자인 결정
+- 동물 아바타: user ID 해시로 결정적 배정 (coral/fish/jellyfish/turtle/whale/diver)
+- Auth 위치: toolbarSlot 맨 오른쪽 [🌙] [EN] | [로그인/🐢]
+- 비로그인: ghost 텍스트 링크, 로그인: Avatar + DropdownMenu
+- 중앙 로그인: esg.naeil.dev → naeil.dev/login → OAuth → 쿠키(.naeil.dev) → 복귀
 
-## 프로젝트 경로
-- `~/projects/design-system`
-- 도메인: `https://naeil.dev`
-
-## GitHub username 변경
-- `jaymini1022` → `naeil-dev` (2026-03-04)
-- 전 프로젝트 remote + 사이트 링크 업데이트 완료
-
-## 최근 커밋
-- `ae3ddc5` GitHub 링크 naeil-dev 업데이트 + SA 페이지 + Phase 6
-- `d2eca1b` Phase 5 컴포넌트 DNA 커스텀 (T32-T42)
-- `0c23337` SEO absolute URLs
-- `1bb1bb8` Lighthouse a11y+seo
+## 남은 작업
+- [ ] 리다이렉트 버그 해결 확인
+- [ ] Phase 3: SA → Supabase 리포트 동기화 파이프라인
+- [ ] Phase 4: /sa/reports 목록 + /sa/reports/[id] 상세 UI
+- [ ] Vercel GitHub webhook 배포 에러 원인 조사 (layout.tsx dist/theme.css 참조 문제)

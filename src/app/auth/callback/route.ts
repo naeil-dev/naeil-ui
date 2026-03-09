@@ -53,17 +53,26 @@ export async function GET(request: Request) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
+    // Debug: log all cookies received by callback
+    const allCookieNames = cookieStore.getAll().map(c => c.name);
+    const redirectCookie = cookieStore.get("auth_redirect_to");
+    console.log("[callback] code exchange error:", error?.message || "none");
+    console.log("[callback] all cookies:", allCookieNames);
+    console.log("[callback] auth_redirect_to:", redirectCookie?.value || "NOT FOUND");
+    
     if (!error) {
-      // Read return URL from cookie (set by login page server component)
-      const redirectCookie = cookieStore.get("auth_redirect_to");
       const next = redirectCookie?.value || "/";
 
       // Clear the redirect cookie
       cookieStore.set("auth_redirect_to", "", { path: "/", maxAge: 0, domain });
 
+      console.log("[callback] redirecting to:", next, "isAllowed:", isAllowedRedirect(next));
+
       // Redirect to original page
       if (isAllowedRedirect(next)) {
         const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
+        console.log("[callback] final redirect URL:", redirectUrl);
         return NextResponse.redirect(redirectUrl);
       }
       return NextResponse.redirect(origin);
