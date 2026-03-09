@@ -12,8 +12,11 @@ export default async function proxy(request: NextRequest) {
   // 1. Refresh Supabase session (updates auth cookies)
   const { response: supabaseResponse, user } = await updateSession(request);
 
-  // 2. Check protected routes — redirect to login if unauthenticated
+  // 2. Capture URL info BEFORE intl middleware (which may mutate request.nextUrl)
   const { pathname } = request.nextUrl;
+  const nextParam = request.nextUrl.searchParams.get("next");
+
+  // 3. Check protected routes — redirect to login if unauthenticated
   if (PROTECTED_ROUTE.test(pathname) && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
@@ -21,13 +24,11 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 3. Run next-intl middleware for locale routing
+  // 4. Run next-intl middleware for locale routing
   const intlResponse = intlMiddleware(request);
 
-  // 4. If visiting /login with a ?next param, store it in a cookie for post-OAuth redirect
-  //    (cookies().set() doesn't work in Server Components, only in middleware/route handlers)
+  // 5. If visiting /login with a ?next param, store it in a cookie for post-OAuth redirect
   const loginMatch = pathname.match(/^\/(?:(?:en|ko|ja)\/)?login$/);
-  const nextParam = request.nextUrl.searchParams.get("next");
   if (loginMatch && nextParam) {
     intlResponse.cookies.set("auth_redirect_to", nextParam, {
       path: "/",
@@ -37,7 +38,7 @@ export default async function proxy(request: NextRequest) {
     });
   }
 
-  // 5. Copy Supabase auth cookies onto the intl response
+  // 6. Copy Supabase auth cookies onto the intl response
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     intlResponse.cookies.set(cookie.name, cookie.value);
   });
