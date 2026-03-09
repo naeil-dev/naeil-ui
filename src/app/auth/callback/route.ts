@@ -1,6 +1,26 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+
+function getCookieDomain(headerStore: Headers): string | undefined {
+  const host = headerStore.get("host") || "";
+  return host.endsWith(".naeil.dev") || host === "naeil.dev"
+    ? ".naeil.dev"
+    : undefined;
+}
+
+function isAllowedRedirect(url: string): boolean {
+  if (url.startsWith("/")) return true;
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.hostname === "naeil.dev" ||
+      parsed.hostname.endsWith(".naeil.dev")
+    );
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -9,6 +29,9 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies();
+    const headerStore = await headers();
+    const domain = getCookieDomain(headerStore);
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -20,7 +43,7 @@ export async function GET(request: Request) {
           setAll(cookiesToSet) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options),
+                cookieStore.set(name, value, { ...options, domain }),
               );
             } catch {
               // Ignore — cookies can only be set in Server Actions or Route Handlers
@@ -32,7 +55,12 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      // Support cross-subdomain redirects (*.naeil.dev only)
+      if (isAllowedRedirect(next)) {
+        const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
+        return NextResponse.redirect(redirectUrl);
+      }
+      return NextResponse.redirect(origin);
     }
   }
 
