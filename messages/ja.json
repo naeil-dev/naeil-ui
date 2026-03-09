@@ -148,7 +148,9 @@
     "loginWithGoogle": "Googleでログイン",
     "loginWithGithub": "GitHubでログイン",
     "loginDescription": "すべての機能を利用するにはログインしてください",
-    "redirecting": "リダイレクト中..."
+    "redirecting": "リダイレクト中...",
+    "logout": "ログアウト",
+    "profile": "プロフィール"
   },
   "locale": {
     "switchLabel": "言語"

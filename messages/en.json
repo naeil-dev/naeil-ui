@@ -148,7 +148,9 @@
     "loginWithGoogle": "Sign in with Google",
     "loginWithGithub": "Sign in with GitHub",
     "loginDescription": "Sign in to access all features",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "logout": "Sign out",
+    "profile": "Profile"
   },
   "locale": {
     "switchLabel": "Language"

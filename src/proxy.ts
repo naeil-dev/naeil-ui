@@ -1,18 +1,30 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
+// Matches /sa/reports/<id> with optional locale prefix, but NOT /sa/reports
+const PROTECTED_ROUTE = /^\/(?:(?:en|ko|ja)\/)?sa\/reports\/[^/]+/;
+
 export default async function proxy(request: NextRequest) {
   // 1. Refresh Supabase session (updates auth cookies)
-  const supabaseResponse = await updateSession(request);
+  const { response: supabaseResponse, user } = await updateSession(request);
 
-  // 2. Run next-intl middleware for locale routing
+  // 2. Check protected routes — redirect to login if unauthenticated
+  const { pathname } = request.nextUrl;
+  if (PROTECTED_ROUTE.test(pathname) && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // 3. Run next-intl middleware for locale routing
   const intlResponse = intlMiddleware(request);
 
-  // 3. Copy Supabase auth cookies onto the intl response
+  // 4. Copy Supabase auth cookies onto the intl response
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     intlResponse.cookies.set(cookie.name, cookie.value);
   });

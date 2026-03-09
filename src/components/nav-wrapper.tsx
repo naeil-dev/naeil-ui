@@ -3,9 +3,10 @@
 import { Nav } from "./nav";
 import { ThemeToggleIcon } from "./theme-toggle-icon";
 import { LocaleSwitcher } from "./locale-switcher";
+import { AuthSlot } from "./auth-slot";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale } from "next-intl";
-import { locales, type Locale } from "@/i18n/config";
+import { type Locale } from "@/i18n/config";
 
 const LOCALE_LIST = [
   { code: "en", short: "EN", full: "English" },
@@ -13,16 +14,23 @@ const LOCALE_LIST = [
   { code: "ja", short: "JA", full: "日本語" },
 ];
 
-export function NavWrapper() {
+interface NavWrapperProps {
+  user: { id: string; name?: string; email?: string } | null;
+}
+
+export function NavWrapper({ user }: NavWrapperProps) {
   const pathname = usePathname();
   const locale = useLocale();
   const router = useRouter();
+
+  const authElement = <AuthSlot user={user} />;
 
   return (
     <Nav
       Link={Link}
       usePathname={() => pathname}
       showBlog={true}
+      authSlot={authElement}
       toolbarSlot={
         <>
           <ThemeToggleIcon />

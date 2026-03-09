@@ -26,7 +26,9 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refresh the session — this calls Supabase Auth to validate/refresh tokens
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return supabaseResponse;
+  return { response: supabaseResponse, user };
 }
