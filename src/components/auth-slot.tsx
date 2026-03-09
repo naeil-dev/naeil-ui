@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import {
@@ -40,11 +40,12 @@ interface AuthUser {
 export function AuthSlot({ user }: { user: AuthUser | null }) {
   const t = useTranslations("auth");
   const locale = useLocale();
+  const pathname = usePathname();
 
   if (!user) {
     return (
       <Link
-        href="/login"
+        href={`/login?next=${encodeURIComponent(pathname)}`}
         className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
       >
         {t("login")}
