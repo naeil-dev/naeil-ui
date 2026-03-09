@@ -54,9 +54,9 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      // Read return URL from cookie (set before OAuth started)
+      // Read return URL from cookie (set by login page server component)
       const redirectCookie = cookieStore.get("auth_redirect_to");
-      const next = redirectCookie ? decodeURIComponent(redirectCookie.value) : "/";
+      const next = redirectCookie?.value || "/";
 
       // Clear the redirect cookie
       cookieStore.set("auth_redirect_to", "", { path: "/", maxAge: 0, domain });

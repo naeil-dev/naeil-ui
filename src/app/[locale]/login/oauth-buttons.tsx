@@ -8,10 +8,6 @@ export function OAuthButtons({ next }: { next?: string }) {
   const t = useTranslations("auth");
 
   const handleOAuth = async (provider: "google" | "github") => {
-    // Store return URL in cookie before OAuth (Supabase strips query params from redirectTo)
-    if (next) {
-      document.cookie = `auth_redirect_to=${encodeURIComponent(next)}; path=/; max-age=600; samesite=lax${window.location.hostname.endsWith(".naeil.dev") ? "; domain=.naeil.dev" : ""}`;
-    }
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider,
