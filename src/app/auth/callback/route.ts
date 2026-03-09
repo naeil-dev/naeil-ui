@@ -54,25 +54,20 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     
-    // Debug: log all cookies received by callback
-    const allCookieNames = cookieStore.getAll().map(c => c.name);
     const redirectCookie = cookieStore.get("auth_redirect_to");
-    console.log("[callback] code exchange error:", error?.message || "none");
-    console.log("[callback] all cookies:", allCookieNames);
-    console.log("[callback] auth_redirect_to:", redirectCookie?.value || "NOT FOUND");
     
     if (!error) {
-      const next = redirectCookie?.value || "/";
+      // decodeURIComponent needed: Next.js cookies.set() URL-encodes values,
+      // but cookies.get() returns them raw (still encoded)
+      const rawNext = redirectCookie?.value || "/";
+      const next = rawNext.startsWith("http") ? decodeURIComponent(rawNext) : rawNext;
 
       // Clear the redirect cookie
       cookieStore.set("auth_redirect_to", "", { path: "/", maxAge: 0, domain });
 
-      console.log("[callback] redirecting to:", next, "isAllowed:", isAllowedRedirect(next));
-
       // Redirect to original page
       if (isAllowedRedirect(next)) {
         const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
-        console.log("[callback] final redirect URL:", redirectUrl);
         return NextResponse.redirect(redirectUrl);
       }
       return NextResponse.redirect(origin);

@@ -28,7 +28,6 @@ export default async function proxy(request: NextRequest) {
   //    (cookies().set() doesn't work in Server Components, only in middleware/route handlers)
   const loginMatch = pathname.match(/^\/(?:(?:en|ko|ja)\/)?login$/);
   const nextParam = request.nextUrl.searchParams.get("next");
-  console.log("[middleware]", { pathname, loginMatch: !!loginMatch, nextParam, responseType: intlResponse.headers.get("location") ? "redirect" : "rewrite" });
   if (loginMatch && nextParam) {
     intlResponse.cookies.set("auth_redirect_to", nextParam, {
       path: "/",
@@ -36,7 +35,6 @@ export default async function proxy(request: NextRequest) {
       httpOnly: true,
       sameSite: "lax",
     });
-    console.log("[middleware] SET auth_redirect_to cookie:", nextParam);
   }
 
   // 5. Copy Supabase auth cookies onto the intl response
