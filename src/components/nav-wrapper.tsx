@@ -23,14 +23,11 @@ export function NavWrapper({ user }: NavWrapperProps) {
   const locale = useLocale();
   const router = useRouter();
 
-  const authElement = <AuthSlot user={user} />;
-
   return (
     <Nav
       Link={Link}
       usePathname={() => pathname}
       showBlog={true}
-      authSlot={authElement}
       toolbarSlot={
         <>
           <ThemeToggleIcon />
@@ -39,6 +36,8 @@ export function NavWrapper({ user }: NavWrapperProps) {
             currentLocale={locale}
             onLocaleChange={(l) => router.replace(pathname, { locale: l as Locale })}
           />
+          <div className="h-4 w-px bg-border/40" />
+          <AuthSlot user={user} />
         </>
       }
     />
