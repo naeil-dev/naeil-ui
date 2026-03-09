@@ -28,8 +28,10 @@ export default async function proxy(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
 
   // 5. If visiting /login with a ?next param, store it in a cookie for post-OAuth redirect
+  //    Skip if next points back to /login itself (RSC refetch sends next=/login which overwrites the real value)
   const loginMatch = pathname.match(/^\/(?:(?:en|ko|ja)\/)?login$/);
-  if (loginMatch && nextParam) {
+  const isLoginSelf = nextParam?.replace(/^\/(?:en|ko|ja)\//, '/') === '/login';
+  if (loginMatch && nextParam && !isLoginSelf) {
     intlResponse.cookies.set("auth_redirect_to", nextParam, {
       path: "/",
       maxAge: 600,
