@@ -25,7 +25,6 @@ function isAllowedRedirect(url: string): boolean {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
 
   if (code) {
     const cookieStore = await cookies();
@@ -55,7 +54,14 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      // Support cross-subdomain redirects (*.naeil.dev only)
+      // Read return URL from cookie (set before OAuth started)
+      const redirectCookie = cookieStore.get("auth_redirect_to");
+      const next = redirectCookie ? decodeURIComponent(redirectCookie.value) : "/";
+
+      // Clear the redirect cookie
+      cookieStore.set("auth_redirect_to", "", { path: "/", maxAge: 0, domain });
+
+      // Redirect to original page
       if (isAllowedRedirect(next)) {
         const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
         return NextResponse.redirect(redirectUrl);
