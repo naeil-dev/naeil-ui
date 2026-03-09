@@ -24,7 +24,20 @@ export default async function proxy(request: NextRequest) {
   // 3. Run next-intl middleware for locale routing
   const intlResponse = intlMiddleware(request);
 
-  // 4. Copy Supabase auth cookies onto the intl response
+  // 4. If visiting /login with a ?next param, store it in a cookie for post-OAuth redirect
+  //    (cookies().set() doesn't work in Server Components, only in middleware/route handlers)
+  const loginMatch = pathname.match(/^\/(?:(?:en|ko|ja)\/)?login$/);
+  const nextParam = request.nextUrl.searchParams.get("next");
+  if (loginMatch && nextParam) {
+    intlResponse.cookies.set("auth_redirect_to", nextParam, {
+      path: "/",
+      maxAge: 600,
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+
+  // 5. Copy Supabase auth cookies onto the intl response
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     intlResponse.cookies.set(cookie.name, cookie.value);
   });

@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
-import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { OAuthButtons } from "./oauth-buttons";
 
@@ -21,17 +20,6 @@ export default async function LoginPage({
 
   if (user) {
     redirect({ href: next || "/", locale });
-  }
-
-  // Store return URL in cookie for post-OAuth redirect
-  if (next) {
-    const cookieStore = await cookies();
-    cookieStore.set("auth_redirect_to", next, {
-      path: "/",
-      maxAge: 600,
-      httpOnly: true,
-      sameSite: "lax",
-    });
   }
 
   const t = await getTranslations("auth");
