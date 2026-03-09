@@ -143,6 +143,13 @@
     "blog": "블로그",
     "social": "소셜"
   },
+  "auth": {
+    "login": "로그인",
+    "loginWithGoogle": "Google로 로그인",
+    "loginWithGithub": "GitHub로 로그인",
+    "loginDescription": "모든 기능을 이용하려면 로그인하세요",
+    "redirecting": "리다이렉트 중..."
+  },
   "locale": {
     "switchLabel": "언어"
   },

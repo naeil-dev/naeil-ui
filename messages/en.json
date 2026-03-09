@@ -143,6 +143,13 @@
     "blog": "Blog",
     "social": "Social"
   },
+  "auth": {
+    "login": "Sign in",
+    "loginWithGoogle": "Sign in with Google",
+    "loginWithGithub": "Sign in with GitHub",
+    "loginDescription": "Sign in to access all features",
+    "redirecting": "Redirecting..."
+  },
   "locale": {
     "switchLabel": "Language"
   },
