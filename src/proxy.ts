@@ -54,6 +54,6 @@ export const config = {
      * - favicon.ico
      * - auth/callback (handled by route handler, not locale-prefixed)
      */
-    "/((?!_next|auth/callback|.*\\..*|favicon\\.ico).*)",
+    "/((?!_next|auth/|.*\\..*|favicon\\.ico).*)",
   ],
 };
