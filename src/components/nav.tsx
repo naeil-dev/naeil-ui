@@ -69,6 +69,8 @@ interface NavProps {
   subNav?: Array<{ label: string; href: string }>;
   /** React node for auth UI (rendered in desktop right side + mobile bottom) */
   authSlot?: React.ReactNode;
+  /** Show Projects dropdown in nav. Default: true */
+  showProjects?: boolean;
   /** Show blog link in nav. Default: true */
   showBlog?: boolean;
   /** Right-side toolbar (theme toggle, locale switcher, etc.) */
@@ -86,6 +88,7 @@ export function Nav({
   currentProjectHref,
   subNav,
   authSlot,
+  showProjects = true,
   showBlog = true,
   toolbarSlot,
 }: NavProps) {
@@ -177,7 +180,7 @@ export function Nav({
           {/* Desktop: Nav links */}
           <div className="hidden flex-1 items-center gap-6 md:flex">
             {/* Projects dropdown */}
-            <div className="group relative">
+            {showProjects && <div className="group relative">
               <button
                 className={[
                   "text-sm font-medium transition-colors",
@@ -262,7 +265,7 @@ export function Nav({
                   </div>
                 </div>
               </div>
-            </div>
+            </div>}
 
             {/* Blog link (conditional) */}
             {showBlog && (
@@ -326,88 +329,92 @@ export function Nav({
         <div className="bg-background/95 fixed inset-0 z-40 overflow-y-auto pt-[58px] backdrop-blur-md md:hidden">
           <div className="flex flex-col px-6 py-6">
             {/* Projects accordion */}
-            <button
-              className="text-foreground flex items-center justify-between py-3 text-base font-medium"
-              onClick={() => setProjectsOpen(!projectsOpen)}
-            >
-              {t("projects")}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={[
-                  "transition-transform duration-200",
-                  projectsOpen ? "rotate-180" : "",
-                ].join(" ")}
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
+            {showProjects && (
+              <>
+                <button
+                  className="text-foreground flex items-center justify-between py-3 text-base font-medium"
+                  onClick={() => setProjectsOpen(!projectsOpen)}
+                >
+                  {t("projects")}
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={[
+                      "transition-transform duration-200",
+                      projectsOpen ? "rotate-180" : "",
+                    ].join(" ")}
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
 
-            {projectsOpen && (
-              <div className="mb-2 flex flex-col gap-1 pl-1">
-                {PROJECTS.map((project) => {
-                  const { href, external } = getProjectLink(project);
-                  const inner = (
-                    <div className="hover:bg-muted/50 flex items-center gap-3 rounded-lg px-3 py-3 transition-colors">
-                      <div
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
-                        style={{
-                          borderColor: `color-mix(in oklch, ${project.accent} 30%, transparent)`,
-                          backgroundColor: `color-mix(in oklch, ${project.accent} 8%, transparent)`,
-                        }}
-                      >
-                        <Image
-                          src={project.icon}
-                          alt=""
-                          width={20}
-                          height={20}
-                          className="object-contain"
-                        />
-                      </div>
-                      <div>
-                        <span className="text-foreground text-sm font-medium">
-                          {pt(`${project.key}.name`)}
-                        </span>
-                        {project.status === "coming" && (
-                          <Badge
-                            variant="outline"
-                            className="text-muted-foreground ml-2 px-1 py-0 text-[9px]"
+                {projectsOpen && (
+                  <div className="mb-2 flex flex-col gap-1 pl-1">
+                    {PROJECTS.map((project) => {
+                      const { href, external } = getProjectLink(project);
+                      const inner = (
+                        <div className="hover:bg-muted/50 flex items-center gap-3 rounded-lg px-3 py-3 transition-colors">
+                          <div
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
+                            style={{
+                              borderColor: `color-mix(in oklch, ${project.accent} 30%, transparent)`,
+                              backgroundColor: `color-mix(in oklch, ${project.accent} 8%, transparent)`,
+                            }}
                           >
-                            {pt("status.coming")}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  );
+                            <Image
+                              src={project.icon}
+                              alt=""
+                              width={20}
+                              height={20}
+                              className="object-contain"
+                            />
+                          </div>
+                          <div>
+                            <span className="text-foreground text-sm font-medium">
+                              {pt(`${project.key}.name`)}
+                            </span>
+                            {project.status === "coming" && (
+                              <Badge
+                                variant="outline"
+                                className="text-muted-foreground ml-2 px-1 py-0 text-[9px]"
+                              >
+                                {pt("status.coming")}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      );
 
-                  if (external) {
-                    return (
-                      <a
-                        key={project.key}
-                        href={href}
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        {inner}
-                      </a>
-                    );
-                  }
-                  return (
-                    <Link
-                      key={project.key}
-                      href={href}
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {inner}
-                    </Link>
-                  );
-                })}
-              </div>
+                      if (external) {
+                        return (
+                          <a
+                            key={project.key}
+                            href={href}
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {inner}
+                          </a>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={project.key}
+                          href={href}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {inner}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             )}
 
             {/* Blog link (conditional) */}
