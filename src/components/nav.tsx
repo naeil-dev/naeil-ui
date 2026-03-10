@@ -58,6 +58,8 @@ interface NavProps {
   brandHref?: string;
   /** Whether brandHref is external (renders <a>) or internal (renders Link). Default: false */
   brandExternal?: boolean;
+  /** Custom brand content (replaces default Logo + ".naeil" text) */
+  brandSlot?: React.ReactNode;
   /** When true, project links (except current) are rendered as external <a> to externalBaseUrl. Default: false */
   projectsExternal?: boolean;
   /** Base URL for external project links. Default: "https://naeil.dev" */
@@ -82,6 +84,7 @@ export function Nav({
   usePathname,
   brandHref = "/",
   brandExternal = false,
+  brandSlot,
   projectsExternal = false,
   externalBaseUrl = "https://naeil.dev",
   currentProjectKey,
@@ -148,7 +151,7 @@ export function Nav({
   }
 
   // Brand logo element
-  const brandContent = (
+  const brandContent = brandSlot ?? (
     <span className="text-foreground flex items-center gap-3 text-xl font-semibold tracking-tight">
       <Logo size={28} />
       .naeil
