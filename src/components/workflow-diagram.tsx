@@ -125,9 +125,8 @@ function Tooltip({
 
 function MobilePipeline({
   nodes,
-  edges,
   accent,
-}: WorkflowDiagramProps) {
+}: Omit<WorkflowDiagramProps, "edges">) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   // Topological-ish order: sort by y position
@@ -407,7 +406,7 @@ export function WorkflowDiagram({
 
       {/* Mobile */}
       <div className="md:hidden">
-        <MobilePipeline nodes={nodes} edges={edges} accent={accent} />
+        <MobilePipeline nodes={nodes} accent={accent} />
       </div>
     </>
   );

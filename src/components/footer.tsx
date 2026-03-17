@@ -13,44 +13,47 @@ interface FooterProps {
   linksExternal?: boolean;
 }
 
-export function Footer({ Link, linksExternal = false }: FooterProps) {
-  const t = useTranslations("footer");
-
-  // Render a navigation link — external <a> or internal Link
-  const NavLink = ({
-    href,
-    children,
-    className,
-  }: {
-    href: string;
-    children: React.ReactNode;
-    className?: string;
-  }) => {
-    if (linksExternal) {
-      return (
-        <a
-          href={`https://naeil.dev${href}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={className}
-        >
-          {children}
-        </a>
-      );
-    }
-    if (Link) {
-      return (
-        <Link href={href} className={className}>
-          {children}
-        </Link>
-      );
-    }
+function NavLink({
+  href,
+  children,
+  className,
+  linksExternal,
+  Link,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  linksExternal: boolean;
+  Link?: FooterProps["Link"];
+}) {
+  if (linksExternal) {
     return (
-      <a href={href} className={className}>
+      <a
+        href={`https://naeil.dev${href}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
         {children}
       </a>
     );
-  };
+  }
+  if (Link) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  );
+}
+
+export function Footer({ Link, linksExternal = false }: FooterProps) {
+  const t = useTranslations("footer");
 
   return (
     <footer className="border-border/40 border-t">
@@ -97,12 +100,16 @@ export function Footer({ Link, linksExternal = false }: FooterProps) {
             <NavLink
               href="/projects"
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              linksExternal={linksExternal}
+              Link={Link}
             >
               {t("projects")}
             </NavLink>
             <NavLink
               href="/blog"
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              linksExternal={linksExternal}
+              Link={Link}
             >
               {t("blog")}
             </NavLink>
