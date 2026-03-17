@@ -1,7 +1,6 @@
 {
   "name": "@naeil/ui",
   "version": "0.1.0",
-  "private": true,
   "exports": {
     "./components/*": "./src/components/*.tsx",
     "./lib/*": "./src/lib/*.ts",
@@ -57,5 +56,18 @@
       "style-dictionary",
       "@bundled-es-modules/glob"
     ]
+  },
+  "files": [
+    "src/",
+    "messages/",
+    "tailwind.config.*",
+    "postcss.config.*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/naeil-dev/design-system"
   }
 }
