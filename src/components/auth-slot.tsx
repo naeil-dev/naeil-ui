@@ -13,23 +13,7 @@ import {
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
 import { logout } from "@/app/[locale]/login/actions";
-
-const ANIMALS = [
-  "/images/coral.png",
-  "/images/fish.png",
-  "/images/jellyfish.png",
-  "/images/turtle.png",
-  "/images/whale.png",
-  "/images/diver.png",
-];
-
-function hashUserId(id: string): number {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash) % ANIMALS.length;
-}
+import { ANIMALS, hashUserId } from "@/lib/auth/avatar";
 
 interface AuthUser {
   id: string;

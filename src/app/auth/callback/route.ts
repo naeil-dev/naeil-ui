@@ -1,26 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-
-function getCookieDomain(headerStore: Headers): string | undefined {
-  const host = headerStore.get("host") || "";
-  return host.endsWith(".naeil.dev") || host === "naeil.dev"
-    ? ".naeil.dev"
-    : undefined;
-}
-
-function isAllowedRedirect(url: string): boolean {
-  if (url.startsWith("/")) return true;
-  try {
-    const parsed = new URL(url);
-    return (
-      parsed.hostname === "naeil.dev" ||
-      parsed.hostname.endsWith(".naeil.dev")
-    );
-  } catch {
-    return false;
-  }
-}
+import { getCookieDomainFromHost } from "@/lib/auth/cookie-domain";
+import { isAllowedRedirect } from "@/lib/auth/redirect";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -29,7 +11,7 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = await cookies();
     const headerStore = await headers();
-    const domain = getCookieDomain(headerStore);
+    const domain = getCookieDomainFromHost(headerStore.get("host"));
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

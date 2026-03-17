@@ -1,16 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-
-function getCookieDomain(request: NextRequest): string | undefined {
-  const host = request.headers.get("host") || "";
-  return host.endsWith(".naeil.dev") || host === "naeil.dev"
-    ? ".naeil.dev"
-    : undefined;
-}
+import { getCookieDomainFromHost } from "../auth/cookie-domain";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
-  const domain = getCookieDomain(request);
+  const domain = getCookieDomainFromHost(request.headers.get("host"));
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
