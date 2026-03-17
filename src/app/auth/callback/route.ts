@@ -35,9 +35,13 @@ export async function GET(request: Request) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    
+
+    if (error) {
+      console.error("[auth/callback] session exchange failed:", error.message);
+    }
+
     const redirectCookie = cookieStore.get("auth_redirect_to");
-    
+
     if (!error) {
       // decodeURIComponent required: Next.js cookies.set() URL-encodes values,
       // but cookies.get() returns them raw (still encoded)
@@ -51,6 +55,7 @@ export async function GET(request: Request) {
         const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
         return NextResponse.redirect(redirectUrl);
       }
+      console.warn("[auth/callback] blocked redirect to disallowed destination");
       return NextResponse.redirect(origin);
     }
   }
