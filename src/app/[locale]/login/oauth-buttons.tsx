@@ -4,19 +4,17 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
+// next prop is reserved for future use (redirect is handled via middleware cookie)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function OAuthButtons({ next }: { next?: string }) {
   const t = useTranslations("auth");
 
   const handleOAuth = async (provider: "google" | "github") => {
     const supabase = createClient();
-    const redirectTo = new URL("/auth/callback", window.location.origin);
-    if (next) {
-      redirectTo.searchParams.set("next", next);
-    }
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: redirectTo.toString(),
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
   };
