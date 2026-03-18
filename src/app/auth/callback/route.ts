@@ -1,26 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-
-function getCookieDomain(headerStore: Headers): string | undefined {
-  const host = headerStore.get("host") || "";
-  return host.endsWith(".naeil.dev") || host === "naeil.dev"
-    ? ".naeil.dev"
-    : undefined;
-}
-
-function isAllowedRedirect(url: string): boolean {
-  if (url.startsWith("/")) return true;
-  try {
-    const parsed = new URL(url);
-    return (
-      parsed.hostname === "naeil.dev" ||
-      parsed.hostname.endsWith(".naeil.dev")
-    );
-  } catch {
-    return false;
-  }
-}
+import { getCookieDomainFromHost } from "@/lib/auth/cookie-domain";
+import { isAllowedRedirect } from "@/lib/auth/redirect";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -29,7 +11,7 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = await cookies();
     const headerStore = await headers();
-    const domain = getCookieDomain(headerStore);
+    const domain = getCookieDomainFromHost(headerStore.get("host"));
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,9 +35,13 @@ export async function GET(request: Request) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    
+
+    if (error) {
+      console.error("[auth/callback] session exchange failed:", error.message);
+    }
+
     const redirectCookie = cookieStore.get("auth_redirect_to");
-    
+
     if (!error) {
       // decodeURIComponent required: Next.js cookies.set() URL-encodes values,
       // but cookies.get() returns them raw (still encoded)
@@ -69,6 +55,7 @@ export async function GET(request: Request) {
         const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
         return NextResponse.redirect(redirectUrl);
       }
+      console.warn("[auth/callback] blocked redirect to disallowed destination");
       return NextResponse.redirect(origin);
     }
   }

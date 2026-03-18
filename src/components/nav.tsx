@@ -45,13 +45,9 @@ const PROJECTS = [
 
 interface NavProps {
   /** Internal Link component (from consumer's next-intl routing) */
-  Link: React.ComponentType<{
-    href: string;
-    children: React.ReactNode;
-    className?: string;
-    onClick?: () => void;
-    [key: string]: any;
-  }>;
+  Link: React.ComponentType<
+    React.ComponentPropsWithoutRef<"a"> & { href: string }
+  >;
   /** Current pathname value (already resolved, not a hook) */
   usePathname: () => string;
   /** Where the .naeil logo links to. Default: "/" */

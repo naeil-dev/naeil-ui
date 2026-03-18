@@ -9,10 +9,14 @@ export function OAuthButtons({ next }: { next?: string }) {
 
   const handleOAuth = async (provider: "google" | "github") => {
     const supabase = createClient();
+    const redirectTo = new URL("/auth/callback", window.location.origin);
+    if (next) {
+      redirectTo.searchParams.set("next", next);
+    }
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectTo.toString(),
       },
     });
   };

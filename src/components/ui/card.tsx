@@ -20,7 +20,7 @@ function CardElevated({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border-subtle py-6 shadow-sm dark:bg-[oklch(0.18_0_0)] transition-colors duration-150", // ok-hardcoded
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border-subtle py-6 shadow-sm dark:bg-card-elevated transition-colors duration-150",
         className
       )}
       {...props}

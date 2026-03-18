@@ -56,6 +56,23 @@ function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
+const reducedMotionQuery = typeof window !== "undefined"
+  ? window.matchMedia("(prefers-reduced-motion: reduce)")
+  : null;
+
+function subscribeReducedMotion(cb: () => void) {
+  reducedMotionQuery?.addEventListener("change", cb);
+  return () => reducedMotionQuery?.removeEventListener("change", cb);
+}
+
+function useReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => reducedMotionQuery?.matches ?? false,
+    () => false,
+  );
+}
+
 type Tier = "low" | "medium" | "high";
 
 type SceneProfile = {
@@ -150,7 +167,7 @@ function GradientGlowSun({ isDark, segments = 64 }: { isDark: boolean; segments?
         uPeak: { value: cfg.peak },
         uClipY: { value: -0.5 },
       })),
-    [s0, s1, s2, s3, s4, isDark],
+    [layers, s0, s1, s2, s3, s4],
   );
 
   useFrame(({ clock }) => {
@@ -332,222 +349,6 @@ function WaterSurface({ isDark }: { isDark: boolean }) {
 
 // ─── Sea Creatures ───
 
-interface Swimmer {
-  label: string;
-  color: string;
-  speed: number;
-  y: number;
-  z: number;
-  scale: number;
-  shape: THREE.Shape;
-}
-
-function makeFish(): THREE.Shape {
-  const s = new THREE.Shape();
-  // Tail fork
-  s.moveTo(-0.10, 0.07);
-  s.lineTo(-0.07, 0.05);
-  s.lineTo(-0.10, 0.03);
-  s.lineTo(-0.07, 0.035);
-  // Body bottom
-  s.lineTo(-0.04, 0.02);
-  s.lineTo(0, 0.01);
-  s.lineTo(0.04, 0.01);
-  s.lineTo(0.08, 0.015);
-  // Mouth
-  s.lineTo(0.12, 0.03);
-  s.lineTo(0.13, 0.04);
-  s.lineTo(0.14, 0.05);
-  // Head top
-  s.lineTo(0.12, 0.065);
-  s.lineTo(0.10, 0.075);
-  // Eye indent
-  s.lineTo(0.09, 0.07);
-  s.lineTo(0.08, 0.075);
-  // Dorsal line
-  s.lineTo(0.05, 0.085);
-  s.lineTo(0.02, 0.09);
-  // Dorsal fin
-  s.lineTo(-0.01, 0.11);
-  s.lineTo(-0.02, 0.10);
-  s.lineTo(-0.03, 0.085);
-  // Back to tail
-  s.lineTo(-0.05, 0.075);
-  s.lineTo(-0.07, 0.065);
-  s.closePath();
-  // Pectoral fin
-  s.moveTo(0.04, 0.03);
-  s.lineTo(0.02, -0.01);
-  s.lineTo(0.06, 0.02);
-  return s;
-}
-
-function makeJellyfish(): THREE.Shape {
-  const s = new THREE.Shape();
-  // Bell dome (angular)
-  s.moveTo(-0.07, 0.01);
-  s.lineTo(-0.08, 0.03);
-  s.lineTo(-0.075, 0.06);
-  s.lineTo(-0.06, 0.08);
-  s.lineTo(-0.04, 0.10);
-  s.lineTo(-0.02, 0.11);
-  s.lineTo(0, 0.115);
-  s.lineTo(0.02, 0.11);
-  s.lineTo(0.04, 0.10);
-  s.lineTo(0.06, 0.08);
-  s.lineTo(0.075, 0.06);
-  s.lineTo(0.08, 0.03);
-  s.lineTo(0.07, 0.01);
-  // Bell rim
-  s.lineTo(0.06, 0.005);
-  s.lineTo(0.04, 0.01);
-  s.lineTo(0.02, 0.005);
-  s.lineTo(0, 0.01);
-  s.lineTo(-0.02, 0.005);
-  s.lineTo(-0.04, 0.01);
-  s.lineTo(-0.06, 0.005);
-  s.closePath();
-  // Tentacles (separate paths)
-  s.moveTo(-0.05, 0.005);
-  s.lineTo(-0.055, -0.04);
-  s.lineTo(-0.045, -0.02);
-  s.lineTo(-0.04, -0.06);
-  s.lineTo(-0.035, -0.03);
-  s.moveTo(-0.01, 0.005);
-  s.lineTo(-0.015, -0.05);
-  s.lineTo(-0.005, -0.03);
-  s.lineTo(0, -0.07);
-  s.lineTo(0.005, -0.03);
-  s.lineTo(0.015, -0.05);
-  s.moveTo(0.04, 0.005);
-  s.lineTo(0.035, -0.03);
-  s.lineTo(0.04, -0.06);
-  s.lineTo(0.045, -0.02);
-  s.lineTo(0.055, -0.04);
-  return s;
-}
-
-function makeTurtle(): THREE.Shape {
-  const s = new THREE.Shape();
-  // Head
-  s.moveTo(0.14, 0.04);
-  s.lineTo(0.16, 0.045);
-  s.lineTo(0.17, 0.04);
-  s.lineTo(0.16, 0.035);
-  s.lineTo(0.14, 0.035);
-  // Neck
-  s.lineTo(0.11, 0.03);
-  // Front flipper top
-  s.lineTo(0.09, 0.015);
-  s.lineTo(0.07, -0.01);
-  s.lineTo(0.10, 0.005);
-  // Shell bottom front
-  s.lineTo(0.08, 0.02);
-  s.lineTo(0.04, 0.015);
-  s.lineTo(0, 0.015);
-  // Rear flipper
-  s.lineTo(-0.04, 0.01);
-  s.lineTo(-0.07, -0.005);
-  s.lineTo(-0.05, 0.015);
-  // Tail
-  s.lineTo(-0.08, 0.025);
-  s.lineTo(-0.10, 0.03);
-  s.lineTo(-0.08, 0.035);
-  // Shell top
-  s.lineTo(-0.06, 0.04);
-  s.lineTo(-0.04, 0.055);
-  s.lineTo(-0.02, 0.065);
-  s.lineTo(0, 0.07);
-  s.lineTo(0.02, 0.07);
-  s.lineTo(0.04, 0.065);
-  s.lineTo(0.06, 0.06);
-  s.lineTo(0.08, 0.055);
-  // Shell pattern lines
-  s.lineTo(0.10, 0.048);
-  // Neck top
-  s.lineTo(0.12, 0.045);
-  s.closePath();
-  return s;
-}
-
-function makeWhale(): THREE.Shape {
-  const s = new THREE.Shape();
-  // Tail flukes
-  s.moveTo(-0.22, 0.06);
-  s.lineTo(-0.18, 0.04);
-  s.lineTo(-0.22, 0.02);
-  s.lineTo(-0.19, 0.035);
-  // Tail narrow
-  s.lineTo(-0.16, 0.03);
-  s.lineTo(-0.13, 0.025);
-  // Belly
-  s.lineTo(-0.08, 0.015);
-  s.lineTo(-0.03, 0.01);
-  s.lineTo(0.02, 0.01);
-  s.lineTo(0.07, 0.015);
-  // Jaw line
-  s.lineTo(0.12, 0.025);
-  s.lineTo(0.16, 0.035);
-  // Mouth
-  s.lineTo(0.18, 0.04);
-  s.lineTo(0.17, 0.045);
-  // Upper jaw
-  s.lineTo(0.15, 0.05);
-  s.lineTo(0.12, 0.055);
-  // Eye area
-  s.lineTo(0.10, 0.06);
-  s.lineTo(0.09, 0.058);
-  s.lineTo(0.08, 0.06);
-  // Forehead
-  s.lineTo(0.06, 0.07);
-  s.lineTo(0.03, 0.08);
-  // Back
-  s.lineTo(0, 0.085);
-  s.lineTo(-0.04, 0.08);
-  s.lineTo(-0.08, 0.075);
-  // Dorsal fin
-  s.lineTo(-0.10, 0.075);
-  s.lineTo(-0.11, 0.095);
-  s.lineTo(-0.13, 0.075);
-  // Tail section
-  s.lineTo(-0.15, 0.065);
-  s.lineTo(-0.17, 0.055);
-  s.lineTo(-0.19, 0.045);
-  s.closePath();
-  // Pectoral fin
-  s.moveTo(0.04, 0.02);
-  s.lineTo(0.02, -0.01);
-  s.lineTo(0.06, 0.01);
-  return s;
-}
-
-// Diver uses PNG sprite instead of Shape path
-
-const SWIMMERS: Swimmer[] = [];
-
-function SwimmingCreature({ swimmer }: { swimmer: Swimmer }) {
-  const ref = useRef<Mesh>(null);
-  const geo = useMemo(() => new THREE.ShapeGeometry(swimmer.shape), [swimmer.shape]);
-
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    const t = clock.getElapsedTime();
-    // Swim left to right, loop across screen
-    const x = ((t * swimmer.speed + swimmer.z * 2) % 5) - 2.5;
-    // Gentle bob up and down
-    const bob = Math.sin(t * 1.5 + swimmer.z * 10) * 0.008;
-    ref.current.position.x = x;
-    ref.current.position.y = swimmer.y + bob;
-  });
-
-  return (
-    <mesh ref={ref} position={[0, swimmer.y, swimmer.z]} scale={swimmer.scale}>
-      <primitive object={geo} attach="geometry" />
-      <meshBasicMaterial color={swimmer.color} transparent opacity={0.35} side={THREE.DoubleSide} />
-    </mesh>
-  );
-}
-
 // Free-swimming sprite: Lissajous curves for organic 2D movement
 function useSwim(cfg: { cx: number; cy: number; rx: number; ry: number; freqX: number; freqY: number; phaseX: number; phaseY: number }) {
   const ref = useRef<Mesh>(null);
@@ -641,9 +442,6 @@ function CoralSprite({ isDark }: { isDark: boolean }) {
 function SeaLife({ isDark }: { isDark: boolean }) {
   return (
     <group>
-      {SWIMMERS.map((sw) => (
-        <SwimmingCreature key={sw.label} swimmer={sw} />
-      ))}
       <FishSprite isDark={isDark} />
       <DiverSprite isDark={isDark} />
       <JellyfishSprite isDark={isDark} />
@@ -862,14 +660,7 @@ export function HeroScene({ active = true }: { active?: boolean }) {
   const shouldAnimate = active && profile.animate;
 
   // reduced-motion: show static CSS fallback instead of WebGL
-  const [reducedMotion, setReducedMotion] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener?.("change", onChange);
-    return () => mq.removeEventListener?.("change", onChange);
-  }, []);
+  const reducedMotion = useReducedMotion();
 
   const [layers, setLayers] = useState({
     Glow: true,

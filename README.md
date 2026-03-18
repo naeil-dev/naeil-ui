@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# @naeil/ui
+
+Design system and component library for [naeil.dev](https://naeil.dev) — a portfolio, blog, and project showcase with cross-subdomain SSO authentication.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **UI:** React 19, Tailwind CSS v4, Radix UI
+- **Language:** TypeScript (strict)
+- **Auth:** Supabase Auth (OAuth via Google/GitHub)
+- **i18n:** next-intl (en, ko, ja)
+- **3D:** React Three Fiber (hero scene)
+- **Hosting:** Vercel (Hobby)
+
+## Prerequisites
+
+- Node.js 22+
+- pnpm
+
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── app/                  # Next.js App Router pages & API routes
+│   ├── [locale]/         # Locale-prefixed pages (en/ko/ja)
+│   ├── api/health/       # Health check endpoint
+│   └── auth/callback/    # OAuth callback handler
+├── components/           # Shared UI components
+│   └── ui/               # Primitive components (button, card, etc.)
+├── i18n/                 # Internationalization config & routing
+├── lib/
+│   ├── auth/             # Auth utilities (cookie domain, redirect, avatar, routes)
+│   └── supabase/         # Supabase client (server, middleware, browser)
+├── styles/               # Theme tokens & global CSS
+└── proxy.ts              # Middleware (auth guard, i18n, cookie sync)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Auth / SSO Architecture
 
-## Learn More
+The auth system enables cross-subdomain SSO between `naeil.dev` and `esg.naeil.dev`:
 
-To learn more about Next.js, take a look at the following resources:
+- OAuth flow: Login page → Supabase OAuth → `/auth/callback` → redirect to original page
+- Cookie domain is set to `.naeil.dev` in production, enabling session sharing across subdomains
+- Protected routes (e.g., `/sa/reports/:id`) redirect unauthenticated users to login with a `?next` param
+- The middleware (`proxy.ts`) handles session refresh, route protection, i18n routing, and cookie sync
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Available Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Script | Description |
+|---|---|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm test` | Run unit tests (Vitest) |
+| `pnpm build:tokens` | Generate design tokens |
+| `pnpm check:contrast` | Check color contrast ratios |
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Auto-deploys from `main` via Vercel (Hobby plan). Push to `main` triggers a production deployment.

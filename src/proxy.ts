@@ -2,11 +2,9 @@ import { type NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
+import { isProtectedReportRoute } from "./lib/auth/routes";
 
 const intlMiddleware = createIntlMiddleware(routing);
-
-// Matches /sa/reports/<id> with optional locale prefix, but NOT /sa/reports
-const PROTECTED_ROUTE = /^\/(?:(?:en|ko|ja)\/)?sa\/reports\/[^/]+/;
 
 export default async function proxy(request: NextRequest) {
   // 1. Refresh Supabase session (updates auth cookies)
@@ -17,7 +15,7 @@ export default async function proxy(request: NextRequest) {
   const nextParam = request.nextUrl.searchParams.get("next");
 
   // 3. Check protected routes — redirect to login if unauthenticated
-  if (PROTECTED_ROUTE.test(pathname) && !user) {
+  if (isProtectedReportRoute(pathname) && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);

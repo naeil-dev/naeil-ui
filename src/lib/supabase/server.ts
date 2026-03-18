@@ -1,17 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-
-function getCookieDomain(headerStore: Headers): string | undefined {
-  const host = headerStore.get("host") || "";
-  return host.endsWith(".naeil.dev") || host === "naeil.dev"
-    ? ".naeil.dev"
-    : undefined;
-}
+import { getCookieDomainFromHost } from "../auth/cookie-domain";
 
 export async function createClient() {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const domain = getCookieDomain(headerStore);
+  const domain = getCookieDomainFromHost(headerStore.get("host"));
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
