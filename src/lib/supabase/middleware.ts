@@ -30,7 +30,19 @@ export async function updateSession(request: NextRequest) {
   // Refresh the session — this calls Supabase Auth to validate/refresh tokens
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  // If refresh token is invalid/expired, clear stale auth cookies
+  // so they don't interfere with new login attempts (PKCE flow)
+  if (error && !user) {
+    const cookiePrefix = "sb-" + (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/^https?:\/\//, "").split(".")[0] + "-auth-token";
+    request.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith(cookiePrefix)) {
+        supabaseResponse.cookies.set(name, "", { ...{ path: "/", maxAge: 0 }, domain });
+      }
+    });
+  }
 
   return { response: supabaseResponse, user };
 }
