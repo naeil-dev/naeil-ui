@@ -39,7 +39,11 @@ export async function updateSession(request: NextRequest) {
     const cookiePrefix = "sb-" + (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/^https?:\/\//, "").split(".")[0] + "-auth-token";
     request.cookies.getAll().forEach(({ name }) => {
       if (name.startsWith(cookiePrefix)) {
-        supabaseResponse.cookies.set(name, "", { ...{ path: "/", maxAge: 0 }, domain });
+        supabaseResponse.cookies.delete({
+          name,
+          path: "/",
+          domain: domain ?? undefined,
+        });
       }
     });
   }
