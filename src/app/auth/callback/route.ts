@@ -13,11 +13,6 @@ export async function GET(request: Request) {
     const headerStore = await headers();
     const domain = getCookieDomainFromHost(headerStore.get("host"));
 
-    // DEBUG: log all cookies to trace PKCE code_verifier
-    const allCookies = cookieStore.getAll();
-    console.log("[auth/callback] cookies received:", allCookies.map(c => `${c.name}=${c.value.slice(0, 20)}...`));
-    console.log("[auth/callback] code:", code.slice(0, 20) + "...");
-
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -27,13 +22,12 @@ export async function GET(request: Request) {
             return cookieStore.getAll();
           },
           setAll(cookiesToSet) {
-            console.log("[auth/callback] setAll called with:", cookiesToSet.map(c => c.name));
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, { ...options, domain }),
               );
-            } catch (e) {
-              console.error("[auth/callback] setAll error:", e);
+            } catch {
+              // Ignore — cookies can only be set in Server Actions or Route Handlers
             }
           },
         },
@@ -44,16 +38,16 @@ export async function GET(request: Request) {
     try {
       const result = await supabase.auth.exchangeCodeForSession(code);
       error = result.error;
-      if (error) {
-        console.error("[auth/callback] session exchange failed:", error.message, error);
-      }
     } catch (e) {
       error = e instanceof Error ? e : new Error(String(e));
-      console.error("[auth/callback] exchangeCodeForSession THREW:", error.message);
+      console.error("[auth/callback] exchangeCodeForSession threw:", error.message);
+    }
+
+    if (error) {
+      console.error("[auth/callback] session exchange failed:", error.message);
     }
 
     const redirectCookie = cookieStore.get("auth_redirect_to");
-    console.log("[auth/callback] exchange result:", { error: error?.message, redirectCookie: redirectCookie?.value });
 
     if (!error) {
       // decodeURIComponent required: Next.js cookies.set() URL-encodes values,
