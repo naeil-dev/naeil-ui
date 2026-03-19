@@ -40,10 +40,16 @@ export async function GET(request: Request) {
       },
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (error) {
-      console.error("[auth/callback] session exchange failed:", error.message, error);
+    let error: Error | null = null;
+    try {
+      const result = await supabase.auth.exchangeCodeForSession(code);
+      error = result.error;
+      if (error) {
+        console.error("[auth/callback] session exchange failed:", error.message, error);
+      }
+    } catch (e) {
+      error = e instanceof Error ? e : new Error(String(e));
+      console.error("[auth/callback] exchangeCodeForSession THREW:", error.message);
     }
 
     const redirectCookie = cookieStore.get("auth_redirect_to");
