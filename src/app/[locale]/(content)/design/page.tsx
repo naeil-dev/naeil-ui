@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -208,10 +209,126 @@ function SemanticTokenGrid() {
   );
 }
 
+/* ─── Interactive Controls ─── */
+
+const BUTTON_VARIANTS = ["default", "secondary", "outline", "destructive", "ghost", "link"] as const;
+const BUTTON_SIZES = ["xs", "sm", "default", "lg"] as const;
+
+function InteractiveButton() {
+  const [variant, setVariant] = useState<(typeof BUTTON_VARIANTS)[number]>("default");
+  const [size, setSize] = useState<(typeof BUTTON_SIZES)[number]>("default");
+  const [disabled, setDisabled] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5 flex flex-col gap-4">
+      <SubHeading>Interactive</SubHeading>
+
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <label className="flex items-center gap-2 text-muted-foreground">
+          <span className="font-mono text-xs">variant</span>
+          <select
+            value={variant}
+            onChange={(e) => setVariant(e.target.value as typeof variant)}
+            className="rounded-md border border-border-subtle bg-background px-2 py-1 text-xs font-mono outline-none focus-visible:border-accent focus-visible:ring-accent/25 focus-visible:ring-[2px]"
+          >
+            {BUTTON_VARIANTS.map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex items-center gap-2 text-muted-foreground">
+          <span className="font-mono text-xs">size</span>
+          <select
+            value={size}
+            onChange={(e) => setSize(e.target.value as typeof size)}
+            className="rounded-md border border-border-subtle bg-background px-2 py-1 text-xs font-mono outline-none focus-visible:border-accent focus-visible:ring-accent/25 focus-visible:ring-[2px]"
+          >
+            {BUTTON_SIZES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+          <input
+            type="checkbox"
+            checked={disabled}
+            onChange={(e) => setDisabled(e.target.checked)}
+            className="accent-primary"
+          />
+          <span className="font-mono text-xs">disabled</span>
+        </label>
+      </div>
+
+      {/* Live Preview */}
+      <div className="flex items-center gap-3 rounded-md border border-border bg-background p-4">
+        <Button variant={variant} size={size} disabled={disabled}>
+          Preview
+        </Button>
+        <span className="text-xs font-mono text-muted-foreground">
+          variant=&quot;{variant}&quot; size=&quot;{size}&quot;{disabled ? " disabled" : ""}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function InteractiveInput() {
+  const [disabled, setDisabled] = useState(false);
+  const [invalid, setInvalid] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5 flex flex-col gap-4">
+      <SubHeading>Interactive</SubHeading>
+
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+          <input
+            type="checkbox"
+            checked={disabled}
+            onChange={(e) => setDisabled(e.target.checked)}
+            className="accent-primary"
+          />
+          <span className="font-mono text-xs">disabled</span>
+        </label>
+
+        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+          <input
+            type="checkbox"
+            checked={invalid}
+            onChange={(e) => setInvalid(e.target.checked)}
+            className="accent-primary"
+          />
+          <span className="font-mono text-xs">aria-invalid</span>
+        </label>
+      </div>
+
+      {/* Live Preview */}
+      <div className="rounded-md border border-border bg-background p-4">
+        <Input
+          placeholder="인터랙티브 입력 프리뷰"
+          disabled={disabled}
+          aria-invalid={invalid || undefined}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Page ─── */
 
 export default function Home() {
   const t = useTranslations("design");
+
+  // Dev-only: axe-core a11y audit
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      import("@/lib/axe").then(({ initAxe }) => initAxe());
+    }
+  }, []);
 
   return (
     <>
@@ -461,6 +578,7 @@ export default function Home() {
       {/* Button */}
       <section className="flex flex-col gap-4">
         <SectionHeading>Button</SectionHeading>
+        <InteractiveButton />
         <SubHeading>Variants</SubHeading>
         <div className="flex flex-wrap gap-3">
           <Button>Default</Button>
@@ -489,6 +607,7 @@ export default function Home() {
       {/* Input */}
       <section className="flex flex-col gap-4">
         <SectionHeading>Input</SectionHeading>
+        <InteractiveInput />
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder="기본 입력" />
           <Input type="email" placeholder="이메일" />
