@@ -1,6 +1,6 @@
 {
   "name": "@naeil/ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
@@ -99,5 +99,16 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/naeil-dev/design-system"
-  }
+  },
+  "description": "Design system for naeil.dev — React components, design tokens, and i18n support built with Next.js, Radix UI, and Tailwind CSS.",
+  "keywords": [
+    "design-system",
+    "react",
+    "components",
+    "tailwindcss",
+    "radix-ui",
+    "next.js",
+    "i18n"
+  ],
+  "homepage": "https://naeil.dev"
 }
