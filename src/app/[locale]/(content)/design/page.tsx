@@ -352,7 +352,7 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <a
-                href="https://github.com/naeil-dev/design-system"
+                href="https://github.com/naeil-dev/naeil-ui"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
@@ -362,6 +362,14 @@ export default function Home() {
                 }}
               >
                 GitHub →
+              </a>
+              <a
+                href="https://www.npmjs.com/package/@naeil/ui"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+              >
+                npm →
               </a>
             </div>
           </div>
