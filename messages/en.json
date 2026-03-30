@@ -134,7 +134,15 @@
   "blogPage": {
     "title": "Blog",
     "subtitle": "Build notes, research, and iteration logs.",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "noPosts": "No posts available yet. Check back soon!"
+  },
+  "blogPost": {
+    "backToBlog": "Back to Blog",
+    "languages": "Languages",
+    "sources": "Sources",
+    "previousPost": "Previous Post",
+    "nextPost": "Next Post"
   },
   "footer": {
     "tagline": "Tomorrow starts here.",

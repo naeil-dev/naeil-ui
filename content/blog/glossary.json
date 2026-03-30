@@ -1,0 +1,78 @@
+{
+  "en_to_ko": {
+    "AI": "AI",
+    "Machine Learning": "머신러닝(Machine Learning)",
+    "Deep Learning": "딥러닝(Deep Learning)",
+    "Neural Network": "신경망(Neural Network)",
+    "LLM": "LLM",
+    "Large Language Model": "대규모 언어모델(Large Language Model)",
+    "API": "API",
+    "Framework": "프레임워크(Framework)",
+    "Library": "라이브러리(Library)",
+    "Repository": "리포지토리(Repository)",
+    "GitHub": "GitHub",
+    "TypeScript": "TypeScript",
+    "JavaScript": "JavaScript",
+    "Python": "Python",
+    "React": "React",
+    "Next.js": "Next.js",
+    "Node.js": "Node.js",
+    "Embedding": "임베딩(Embedding)",
+    "Vector Database": "벡터 데이터베이스(Vector Database)",
+    "Fine-tuning": "파인튜닝(Fine-tuning)",
+    "Prompt Engineering": "프롬프트 엔지니어링(Prompt Engineering)",
+    "Claude": "Claude",
+    "GPT": "GPT",
+    "Copilot": "Copilot",
+    "Inference": "추론(Inference)",
+    "Training": "훈련(Training)",
+    "Model": "모델(Model)"
+  },
+  "en_to_ja": {
+    "AI": "AI",
+    "Machine Learning": "機械学習（Machine Learning）",
+    "Deep Learning": "ディープラーニング（Deep Learning）",
+    "Neural Network": "ニューラルネットワーク（Neural Network）",
+    "LLM": "LLM",
+    "Large Language Model": "大規模言語モデル（Large Language Model）",
+    "API": "API",
+    "Framework": "フレームワーク（Framework）",
+    "Library": "ライブラリ（Library）",
+    "Repository": "リポジトリ（Repository）",
+    "GitHub": "GitHub",
+    "TypeScript": "TypeScript",
+    "JavaScript": "JavaScript",
+    "Python": "Python",
+    "React": "React",
+    "Next.js": "Next.js",
+    "Node.js": "Node.js",
+    "Embedding": "エンベディング（Embedding）",
+    "Vector Database": "ベクターデータベース（Vector Database）",
+    "Fine-tuning": "ファインチューニング（Fine-tuning）",
+    "Prompt Engineering": "プロンプトエンジニアリング（Prompt Engineering）",
+    "Claude": "Claude",
+    "GPT": "GPT",
+    "Copilot": "Copilot",
+    "Inference": "推論（Inference）",
+    "Training": "トレーニング（Training）",
+    "Model": "モデル（Model）"
+  },
+  "categories": {
+    "headlines": {
+      "ko": "헤드라인",
+      "ja": "ヘッドライン"
+    },
+    "research": {
+      "ko": "연구",
+      "ja": "研究"
+    },
+    "tools": {
+      "ko": "도구",
+      "ja": "ツール"
+    },
+    "quick": {
+      "ko": "퀵비트",
+      "ja": "クイックビット"
+    }
+  }
+}
