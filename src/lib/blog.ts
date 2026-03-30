@@ -69,9 +69,9 @@ export function getAllPosts(locale: Locale): BlogPostMeta[] {
       const readingTimeResult = readingTime(content);
 
       return {
-        slug: data.slug || name.replace(/\.mdx$/, ""),
+        slug: data.slug instanceof Date ? data.slug.toISOString().split("T")[0] : String(data.slug || name.replace(/\.mdx$/, "")),
         title: data.title,
-        date: data.date,
+        date: data.date instanceof Date ? data.date.toISOString().split("T")[0] : String(data.date),
         summary: data.summary,
         categories: data.categories || [],
         tags: data.tags || [],
@@ -107,9 +107,9 @@ export async function getPost(locale: Locale, slug: string): Promise<BlogPost | 
   const contentHtml = processedContent.toString();
 
   return {
-    slug: data.slug || slug,
+    slug: data.slug instanceof Date ? data.slug.toISOString().split("T")[0] : String(data.slug || slug),
     title: data.title,
-    date: data.date,
+    date: data.date instanceof Date ? data.date.toISOString().split("T")[0] : String(data.date),
     summary: data.summary,
     categories: data.categories || [],
     tags: data.tags || [],
