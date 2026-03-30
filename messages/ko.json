@@ -134,7 +134,15 @@
   "blogPage": {
     "title": "블로그",
     "subtitle": "빌드 기록, 리서치, 반복 개선 로그.",
-    "comingSoon": "준비 중"
+    "comingSoon": "준비 중",
+    "noPosts": "아직 게시된 글이 없습니다. 곧 찾아오세요!"
+  },
+  "blogPost": {
+    "backToBlog": "블로그로 돌아가기",
+    "languages": "언어",
+    "sources": "출처",
+    "previousPost": "이전 글",
+    "nextPost": "다음 글"
   },
   "footer": {
     "tagline": "Tomorrow starts here.",

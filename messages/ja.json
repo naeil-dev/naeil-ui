@@ -134,7 +134,15 @@
   "blogPage": {
     "title": "ブログ",
     "subtitle": "ビルド記録、リサーチ、反復改善ログ。",
-    "comingSoon": "準備中"
+    "comingSoon": "準備中",
+    "noPosts": "まだ投稿がありません。近日中にお越しください！"
+  },
+  "blogPost": {
+    "backToBlog": "ブログに戻る",
+    "languages": "言語",
+    "sources": "出典",
+    "previousPost": "前の投稿",
+    "nextPost": "次の投稿"
   },
   "footer": {
     "tagline": "Tomorrow starts here.",
