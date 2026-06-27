@@ -111,11 +111,11 @@ export default async function BlogPage({
         {posts.length > 0 ? (
           <div className="space-y-8">
             {posts.map((post) => (
-              <article key={post.slug} className="group">
-                <Link href={`/${locale}/blog/${post.slug}`}>
-                  <div className="rounded-2xl border border-border-subtle p-6 transition-colors hover:bg-muted/50">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3">
+              <article key={post.slug} className="group min-w-0">
+                <Link href={`/${locale}/blog/${post.slug}`} className="block min-w-0">
+                  <div className="min-w-0 rounded-2xl border border-border-subtle p-6 transition-colors hover:bg-muted/50">
+                    <div className="flex min-w-0 flex-col gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                         <time className="text-sm text-muted-foreground">
                           {new Date(post.date).toLocaleDateString(locale, {
                             year: 'numeric',
@@ -133,15 +133,15 @@ export default async function BlogPage({
                         )}
                       </div>
                       
-                      <h2 className="text-xl font-semibold group-hover:text-foreground">
+                      <h2 className="break-words text-xl font-semibold group-hover:text-foreground">
                         {post.title}
                       </h2>
                       
-                      <p className="text-muted-foreground leading-relaxed">
+                      <p className="break-words text-muted-foreground leading-relaxed">
                         {post.summary}
                       </p>
                       
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex min-w-0 flex-wrap gap-2">
                         {post.categories.map((category) => (
                           <span
                             key={category}
