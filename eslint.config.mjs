@@ -16,6 +16,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "dist/**",
+    "storybook-static/**",
   ]),
   // naeil-ui: no hardcoded colors in UI components
   {

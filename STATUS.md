@@ -1,7 +1,7 @@
 # naeil-ui (Design System) — Status
 
 > Status: Complete ✅
-> 최종 업데이트: 2026-03-23
+> 최종 업데이트: 2026-06-28
 
 ## 프로젝트 완료 요약
 - **@naeil/ui@0.2.0** npm publish 완료
@@ -15,6 +15,7 @@
 - **Phase 1-6**: 컴포넌트 라이브러리, 테마, i18n, 3D hero scene
 - **Phase 7**: axe-core a11y 검증 + InteractiveButton/Input props controls
 - **Phase 8**: tsup build + npm 패키지 설정 + @naeil/ui@0.2.0 publish
+- **M5-lite Storybook baseline**: local Storybook 10 설정, `Button`/`Card`/`Badge` stories, `pnpm run build:storybook` 검증
 - **인증 시스템 Phase 1 (A04-A09)**: Supabase Auth — @supabase/ssr 쿠키, PKCE, proxy.ts 미들웨어, /login, /auth/callback, logout
 - **인증 시스템 Phase 2 (A11-A16)**: Nav AuthSlot (동물아바타 해시), NavServerWrapper, 보호라우트
 - **SSO 통합**: 쿠키 domain .naeil.dev, esg.naeil.dev 연동

@@ -30,6 +30,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "storybook": "storybook dev -p 6006",
+    "build:storybook": "storybook build",
     "build:tokens": "tsx scripts/build-tokens.ts",
     "check:contrast": "tsx scripts/check-contrast.ts"
   },
@@ -70,6 +72,8 @@
   },
   "devDependencies": {
     "@axe-core/react": "^4.11.1",
+    "@storybook/addon-a11y": "10.4.6",
+    "@storybook/nextjs-vite": "10.4.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -80,6 +84,7 @@
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.1",
     "shadcn": "^3.8.5",
+    "storybook": "10.4.6",
     "style-dictionary": "^4.4.0",
     "tailwindcss": "^4",
     "tsup": "^8.5.1",
