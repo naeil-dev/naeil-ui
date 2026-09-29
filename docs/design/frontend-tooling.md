@@ -23,7 +23,7 @@
 | Component Gallery | 브라우저 참고 가능 | HTTP403 후 브라우저 읽기 성공 |
 | Kinetics | 브라우저 참고 가능 | HTTP403 후 브라우저에서 예제 목록 읽기 성공. 효과는 이번 설정 작업에서 채택하지 않음 |
 | Impeccable | 공식 스킬 설치 및 엔진 실행 확인 | skill4.4.0, engine0.1.6. engine-probe와 프로젝트 context 성공. polish/distill 실행과는 구분 |
-| 21st MCP | 인증·연결 확인, 활성화 | 실제 initialize·tools/list·get_usage 성공. Codex 두 환경과 Claude Code 등록. 검색·코드 다운로드는 아직 실행하지 않음 |
+| 21st MCP | 인증·연결 확인, 활성화 | 실제 initialize·tools/list·get_usage 성공. Codex 두 환경과 Claude Code 등록. 이후 RelayDock 두 적용에서 실제 검색 확인; 코드 다운로드와 구분 |
 
 21st.dev의 무료 한도·요금·AI 이용권은 실행 시 실제 계정에서 확인한다. Threads의 숫자를 고정된 현재 정책으로 간주하지 않는다.
 
@@ -72,3 +72,18 @@ Claude Code에서는 `$` 대신 `/`를 사용한다. 실제 요청 시 설치된
 - UI 소스·토큰·런타임 의존성은 이번 작업에서 변경하지 않아 전체 UI 테스트를 반복하지 않았다.
 
 공식 설치/API 참고 링크는 [스킬 도구 안내](../../skills/frontend-reference-workflow/references/tools.md)에 있다.
+
+
+## 실전 점검 후 스킬 보완
+
+기존 스킬에 다음 실행 규칙과 도구를 추가했다.
+
+- 시작 시 프로젝트 DESIGN/token 출처와 화면·상태·예외·재사용 방식·검증 기준을 기존 작업 문서에 기록한다.
+- 미정인 결정과 실제 참고·채택을 연결하고, 이미 정해진 항목은 재검색하지 않는다.
+- 네이티브21st 도구가 없는 세션에서는 `scripts/twenty_first.py status|search`로 기존 인증 launcher를 재사용한다. 자동 설치·retrieval·유료 생성은 하지 않는다.
+- `scripts/browser-check.cjs`로 기존 Playwright/axe 설치를 이용해 대비·중첩 조작·넘침·프로젝트 CSS 기대값·터치 영역 검토 대상을 확인한다. 프로젝트별 입력값이며44px 등은 도구에 고정하지 않았다.
+- 완료 보고는 실제 실행·상태별 증거·미검증 항목을 구분한다. 자동 통과를 전체 디자인 합격으로 해석하지 않는다.
+
+설치본 및 Opus5.5 리뷰를 포함한 최종 검증은 [스킬 개선 기록](frontend-workflow-v2-verification.md)에 기록한다. 공식 Impeccable은 변경하지 않는다. 이 작업은 플러그인화나 RelayDock 제품 수정이 아니다.
+
+개선 스킬은 사용자 공통 설치본에 반영했다. Opus 5.5 두 차례 리뷰를 수행하고 지적 사항을 반영했으며, 마지막 수정의 추가 재리뷰 요청은 공급자 사용 한도로 실행되지 못했다. 최종 설치 경로 검증은 브라우저 11개·MCP 5개 통과했다. 구체적인 검토 범위와 한계는 위 검증 기록을 따른다.

@@ -1,0 +1,32 @@
+[
+  {
+    "removedCondition": "overflow",
+    "exitCode": 1,
+    "detected": true,
+    "log": "docs/design/frontend-workflow-evidence/mutation-overflow.log"
+  },
+  {
+    "removedCondition": "incomplete",
+    "exitCode": 1,
+    "detected": true,
+    "log": "docs/design/frontend-workflow-evidence/mutation-incomplete.log"
+  },
+  {
+    "removedCondition": "mobile",
+    "exitCode": 1,
+    "detected": true,
+    "log": "docs/design/frontend-workflow-evidence/mutation-mobile.log"
+  },
+  {
+    "removedCondition": "empty-css",
+    "exitCode": 1,
+    "detected": true,
+    "log": "docs/design/frontend-workflow-evidence/mutation-empty-css.log"
+  },
+  {
+    "removedCondition": "transparent",
+    "exitCode": 1,
+    "detected": true,
+    "log": "docs/design/frontend-workflow-evidence/mutation-transparent.log"
+  }
+]

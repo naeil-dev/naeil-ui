@@ -6,8 +6,8 @@ Official sources checked 2026-09-29. Recheck before changing installations; the 
 
 - Refero: https://styles.refero.design — browse real styles and read the selected DESIGN.md. Authentication/download access may vary. No mandatory MCP.
 - awesome-design-md: https://github.com/VoltAgent/awesome-design-md — choose an actual brand folder and pin its source when adopting rules. Do not assume names/counts from memory.
-- Component Gallery: https://component.gallery — compare the relevant component's behavior across systems. Plain HTTP returned403 in setup verification; the browser read succeeded.
-- Kinetics: https://kinetics.colorion.co — inspect a specific example's code/prompt only when motion is needed. Plain HTTP returned403; the browser read succeeded. Available does not mean its effects fit every UI.
+- Component Gallery: https://component.gallery — compare the relevant component's behavior across systems. Plain HTTP returned 403 in setup verification; the browser read succeeded.
+- Kinetics: https://kinetics.colorion.co — inspect a specific example's code/prompt only when motion is needed. Plain HTTP returned 403; the browser read succeeded. Available does not mean its effects fit every UI.
 
 ## 21st MCP
 
@@ -38,14 +38,29 @@ Register/enable only when that process will receive the variable. Confirm discov
 
 ### This machine's verified connection
 
-The initial disabled HTTP entries were activated using a local stdio launcher in both Codex homes and Claude Code user scope. The launcher at `~/.local/share/naeil-frontend/21st-mcp/launch.py` loads `~/.config/naeil/21st/api-key` (0600) into the official proxy's environment, then runs the pinned `@21st-dev/magic@0.2.3` package. This is the maintained compatibility proxy to the current21st endpoint, not the retired Magic backend. It avoids depending on GUI inheritance of terminal exports or embedding secrets in MCP config/arguments.
+The initial disabled HTTP entries were activated using a local stdio launcher in both Codex homes and Claude Code user scope. The launcher at `~/.local/share/naeil-frontend/21st-mcp/launch.py` loads `~/.config/naeil/21st/api-key` (0600) into the official proxy's environment, then runs the pinned `@21st-dev/magic@0.2.3` package. This is the maintained compatibility proxy to the current 21st endpoint, not the retired Magic backend. It avoids depending on GUI inheritance of terminal exports or embedding secrets in MCP config/arguments.
 
 Initialize, tools/list, and get_usage succeeded. The account currently has free-tier catalog access with hosted AI disabled. No component retrieval/generation was run during connection verification. Check current usage before retrieval; this dated check does not guarantee future allowance. New sessions must load the registered MCP to expose tools to the agent.
+
+## Reusable 21st client when native tools are not exposed
+
+Use the native MCP tools when present. Otherwise the existing authorized stdio launcher can be called without rebuilding a protocol client:
+
+```sh
+python3 <skill>/scripts/twenty_first.py status
+python3 <skill>/scripts/twenty_first.py search --query "data table filter toolbar"
+```
+
+Announce the gap/query before search. `status` initializes MCP, discovers current tools and calls `get_usage`; `search` also calls the metadata search. The default launcher is this machine's verified path above. On another machine, supply `--launcher /absolute/path/to/approved-launcher.py` only after verifying its configuration. No automatic installation or changes to MCP configuration occur.
+
+The client never opens the credential file itself. The existing launcher supplies credentials. Raw child stderr and protocol error content are suppressed; timeout/auth/tool errors stop without retries. Successful usage/search results contain service metadata; store only necessary design evidence, not unrelated returned content. `--timeout` bounds each protocol call.
+
+This helper intentionally supports **status and search only**. It does not download component code, generate, upload, subscribe or spend a retrieval allowance. If component code is needed, use the discovered native retrieval tool under the existing usage/authorization rules; absent retrieval tools are a specific blocked step, not permission to invent a new bridge. A successful search is evidence of real MCP search, not component adoption.
 
 ## Impeccable
 
 Source: https://github.com/pbakaus/impeccable
-Skill source checked: `.agents/skills/impeccable` at commit `114ea1d3838fca73b253af45f873b9c4f5f213c8` (skill4.4.0). Installed from the official repository, not a homemade imitation.
+Skill source checked: `.agents/skills/impeccable` at commit `114ea1d3838fca73b253af45f873b9c4f5f213c8` (skill 4.4.0). Installed from the official repository, not a homemade imitation.
 
 Codex: `$impeccable polish <target>` / `$impeccable distill <target>` / `$impeccable bolder <target>`.
 Claude Code: `/impeccable polish <target>` / `/impeccable distill <target>` / `/impeccable bolder <target>`.

@@ -1,0 +1,30 @@
+{
+  "observedAt": "2026-09-29T12:24:30.372628+00:00",
+  "method": "bundled Python client through existing configured launcher",
+  "actions": [
+    {
+      "status": "connected",
+      "transport": "configured-stdio-launcher",
+      "toolCount": 34,
+      "hasUsageResponse": true,
+      "hasSearchResponse": false,
+      "codeRetrieved": false,
+      "reason": null
+    },
+    {
+      "status": "searched",
+      "transport": "configured-stdio-launcher",
+      "toolCount": 34,
+      "hasUsageResponse": true,
+      "hasSearchResponse": true,
+      "codeRetrieved": false,
+      "reason": null
+    }
+  ],
+  "finalStatusCheck": {
+    "observedAt": "2026-09-29T12:31:32.231245+00:00",
+    "status": "connected",
+    "hasUsageResponse": true,
+    "clientSHA256": "8e2e6743caee97f20f3fa1b755a45783b932f89894c99c37a9543a6887bb5dd9"
+  }
+}

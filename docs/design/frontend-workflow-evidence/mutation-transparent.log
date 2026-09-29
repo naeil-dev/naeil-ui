@@ -1,0 +1,32 @@
+TAP version 13
+# Subtest: transparent input overlay remains a touch target
+not ok 1 - transparent input overlay remains a touch target
+  ---
+  duration_ms: 316.648625
+  type: 'test'
+  location: '/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmp0nzx5g07/test.cjs:306:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(r.touchReview.some((x) => x.id === "overlay"))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmp0nzx5g07/test.cjs:319:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 520.072208

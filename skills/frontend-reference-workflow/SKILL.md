@@ -5,27 +5,43 @@ description: Use when building a new frontend page, when the user dislikes or re
 
 # Frontend references
 
-Use real references to fill a concrete design gap. Making every service available does not mean using every service on every task. Preserve the user's current authorization and choices.
+Use real references to resolve a concrete design decision, then verify the rendered result against the project's approved system. Preserve prior authorization and choices.
 
-## Start with the existing product
+## Establish the task contract
 
-Read applicable project instructions, DESIGN.md, existing tokens/components and the target screen. Identify the missing decision before browsing. A shared library and a product's page composition are different scopes. Keep existing APIs and accessible primitives unless the requested change requires otherwise.
+Read applicable instructions, DESIGN.md, existing tokens/components and the target screen. For substantial work, record a compact contract in the project's existing design/task notes (if none exist, create one concise task note in its established docs location):
 
-If the existing design answers the question, reuse it. Do not reselect its style or install dependencies for a typo or small fix. For new direction, show a concise, concrete proposal with source URLs or images before applying it; wait only for decisions not already authorized. Show proposed durable instruction additions before writing them, honoring approval already given in the session.
+- **Scope:** changed screens/states and existing approval; distinguish shared foundations from product composition.
+- **Authority:** source path/section or token for each relevant font, color, size, width and motion rule; record approved exceptions. Do not transplant another project's numeric values.
+- **Reuse:** actual package/version/imports, or pinned copied source plus adaptations and update responsibility. Do not describe copied CSS as package/component integration. A migration is a separate scope decision, not an automatic prerequisite.
+- **Gaps:** unresolved decisions and references needed; existing answers require no new discovery.
+- **Acceptance:** affected states, viewport/input modes, expected checks and evidence locations. Include product-relevant wide screens, not just one desktop size.
 
-## Reference routes
+For a new direction, show source URLs/images and a concrete proposal before applying it. Wait only for decisions not already authorized. Durable instruction additions follow the same existing-approval rule.
 
-1. **Style — [Refero](https://styles.refero.design) or [awesome-design-md](https://github.com/VoltAgent/awesome-design-md).** Read the actual candidate DESIGN file. Preserve the source URL and chosen revision where available. Integrate approved rules into root DESIGN.md; do not overwrite an established design wholesale. Claude projects can import it with `@DESIGN.md` in CLAUDE.md; AGENTS.md should direct Codex to read it. Marketing-page analyses are references, not official product specifications or accessibility evidence.
-2. **Components — [21st.dev](https://21st.dev), then [Component Gallery](https://component.gallery).** First identify the missing component and announce the query and intended retrieval. Discover the actual MCP tools; check account access/remaining allowance before code retrieval. Current setup is in [tools.md](references/tools.md). Search does not authorize paid retrieval or hosted generation. Authorized use of an existing included allowance does not need repeated approval; additional charges or a new subscription do. Compare behavior and accessibility examples in Component Gallery. Reuse existing project primitives; adapt only needed structure into its tokens. Inspect license, dependencies, keyboard behavior and responsive states before incorporating code.
-3. **Motion — [Kinetics](https://kinetics.colorion.co).** Use when motion serves the requested interaction. Read the specific example and its actual CSS/React/prompt before adopting it. Retain reduced-motion support and the existing motion budget. If an example conflicts with an approved restrained style, report that it was considered and not adopted. Do not add springs or decoration just to use the site.
-4. **Finish — [Impeccable](https://impeccable.style).** Invoke the installed official `impeccable` skill and its actual `polish` or `distill` playbook when substantial work needs finishing. `bolder` is available for an explicitly requested stronger direction, not a default pass. Preserve the approved palette, type, functionality and task scope even if generic advice recommends another aesthetic. Follow its bounded verification passes.
+## Choose references by the gap
 
-## Missing access and truthful evidence
+| Decision | Route |
+|---|---|
+| Unsettled visual direction | Read an actual DESIGN file from [Refero](https://styles.refero.design) or [awesome-design-md](https://github.com/VoltAgent/awesome-design-md). Pin source/revision; integrate approved rules without overwriting the established system. |
+| Missing component pattern | Announce the gap and intended query/retrieval; use 21st search, then [Component Gallery](https://component.gallery) and relevant original guidance. Reuse existing primitives; inspect license, dependencies and interaction before adopting code. |
+| Necessary motion | Read the specific [Kinetics](https://kinetics.colorion.co) example. Preserve the project's motion budget and reduced-motion behavior. |
+| Substantial finishing requested or agreed in task scope | Read the installed official `impeccable` skill and relevant polish/distill playbook; perform its inspection and corrections within the approved design. Use bolder only for a requested stronger direction. |
 
-- Check available tools/skills before claiming execution. If a required tool is absent, explain the exact missing dependency and prepare a reviewable setup; ask to install only if installation is not already authorized. Never pretend a manual pass ran a tool.
-- If a page fails, try the available authorized browser. If still unreadable, stop the source-dependent step and request pasted content or another accessible source. Continue only independent work; do not fill unread source content from memory.
-- API keys stay in a local environment or approved credential store, never chat, committed config, logs, or URLs. No account creation, subscription, paid call, or hosted code upload without its needed authorization.
-- When adopting external material, report **source → what was used/adapted → affected files**. For substantial work, record it in the project's design source notes. Distinguish read, installed, executed, adopted, skipped, and blocked.
-- Verify the rendered result at representative desktop/mobile sizes, keyboard/focus, long/localized text, relevant states and reduced motion. Use the project's tests; do not claim checks that were not run.
+Record **gap → source actually read → adopted/adapted or rejected decision → affected files**. Search metadata is discovery, not inspection of component code. Marketing references are not accessibility evidence. A playbook is executed by following its procedure; reading it or running engine-probe/context alone is not execution. No standalone polish/distill shell verb is implied.
 
-Read [tools.md](references/tools.md) for current installation, invocation, and authentication details. Site counts, prices, and free quotas are mutable: check live information rather than repeating the Threads numbers as guarantees.
+## Use verified tools
+
+Discover available tools first. For 21st, use exposed native MCP tools, or the existing configured launcher through the bundled read-only client described in [tools.md](references/tools.md). Reuse this client instead of writing an ad hoc protocol bridge. Check current usage before retrieval; do not hardcode quota or silently retry auth/payment failures.
+
+Missing required tooling: identify the dependency, prepare concrete setup, and ask to install only when not already authorized. Never imitate an unavailable tool. On unreadable sources, try the authorized browser; if still unreadable, stop that source-dependent step and request pasted content or an accessible alternative. Continue independent work.
+
+Keep secrets in the approved credential store. New accounts, charges and hosted uploads require their applicable authorization. Existing authorized included usage does not require repeated approval.
+
+## Verify and report
+
+For substantial UI work, follow [verification.md](references/verification.md). Use existing project tests and the bundled browser helper where compatible. Measure approved foundations, current-state text contrast, page overflow, nested controls and touch areas. Separately check non-text/state contrast (control boundaries, focus and selected indicators), keyboard/focus, relevant states, long/localized content, motion and visual hierarchy. Read automation's manual-review results. Unit-test success or a polished screenshot does not establish these checks.
+
+Fix in-scope failures and recheck affected behavior. Report unrelated inherited problems without silently expanding scope. Do not change acceptance thresholds to obtain a pass.
+
+Finish with: **changes; reference/tool evidence; checks and tested scope; remaining failures/manual reviews/unverified items**. Distinguish installed, read, searched, retrieved, adopted, executed, skipped and blocked. An automated pass describes only the checks run; unresolved required checks mean verification is incomplete. Keep detailed evidence in project notes, not a lengthy user-facing tool diary.

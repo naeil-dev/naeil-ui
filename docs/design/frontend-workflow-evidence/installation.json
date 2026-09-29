@@ -1,0 +1,37 @@
+{
+  "installedAt": "2026-09-29T12:39:33.670906+00:00",
+  "installed": "/Users/jaymini/.agents/skills/frontend-reference-workflow",
+  "backup": "/Users/jaymini/.local/share/naeil-frontend/backups/frontend-reference-workflow-20260929-213427",
+  "claudeSymlinkVerified": true,
+  "excluded": [
+    "tests/",
+    "__pycache__/",
+    "*.pyc"
+  ],
+  "files": [
+    {
+      "path": "references/verification.md",
+      "sha256": "8cfe0ddce6233dfd30c184ce28d43009e72d2f7f0fac3a0adef2a456337420f7"
+    },
+    {
+      "path": "references/tools.md",
+      "sha256": "997732e0da02286f958ff37b725b85c5a0509fbc2c3025af3a51e14de6c81b6f"
+    },
+    {
+      "path": "scripts/twenty_first.py",
+      "sha256": "8e2e6743caee97f20f3fa1b755a45783b932f89894c99c37a9543a6887bb5dd9"
+    },
+    {
+      "path": "scripts/browser-check.cjs",
+      "sha256": "1fd25eb2c742ea0d2728193b9232debf3bcd19a23a6b6c94f04b0a7a27607f96"
+    },
+    {
+      "path": "agents/openai.yaml",
+      "sha256": "7d5c0506f2f4efee8fa1c1fd41629cc325803cb6c87b76216282a27db9531765"
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "349efc5d1f8fed501a4d643b2cfc44bd2dae6516f92d25f29bfd2f3e74028dc1"
+    }
+  ]
+}
