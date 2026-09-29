@@ -3,7 +3,7 @@
  *
  * Uses SD v4 programmatic API with usesDtcg for W3C Design Token parsing.
  * Custom formatters output:
- *   dist/theme.css   — @theme inline + :root (light) + .dark
+ *   src/styles/theme.css   — @theme inline + :root (light) + .dark
  *   dist/tokens.ts   — TypeScript constants with type helpers
  */
 
@@ -48,7 +48,7 @@ function tokenNameFrom(token: TransformedToken, from: number): string {
 /** CSS format: @theme inline { } + :root { } + .dark { } */
 function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   const allTokens = dictionary.allTokens;
-  const lines: string[] = [];
+  const lines: string[] = ["/* Generated from src/tokens — DO NOT EDIT. */"];
 
   // Semantic token names that map to --color-* in @theme inline
   const semanticNames: string[] = [];
@@ -84,6 +84,11 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   if (fontMono) lines.push(`  --font-mono: ${tokenValue(fontMono)};`);
   lines.push("");
 
+  for (const t of allTokens.filter(t => pathStartsWith(t, "font", "size"))) lines.push(`  --text-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter(t => pathStartsWith(t, "font", "weight"))) lines.push(`  --font-weight-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter(t => pathStartsWith(t, "font", "lineHeight"))) lines.push(`  --leading-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter(t => pathStartsWith(t, "shadow"))) lines.push(`  --shadow-${tokenName(t)}: ${tokenValue(t)};`);
+
   // Radius
   const radiusTokens = allTokens.filter((t) => pathStartsWith(t, "radius"));
   for (const t of radiusTokens) {
@@ -107,6 +112,7 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
     lines.push(`  --${name}: ${tokenValue(t)};`);
   }
   lines.push("");
+  for (const t of allTokens.filter(t => pathStartsWith(t, "ui"))) lines.push(`  --ui-${tokenName(t)}: ${tokenValue(t)};`);
   // Project colors (same in light/dark)
   for (const t of projectTokens) {
     lines.push(`  --project-${tokenName(t)}: ${tokenValue(t)};`);
@@ -144,6 +150,15 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   lines.push("}");
   lines.push("");
 
+  lines.push(':root[data-ui-density="compact"] {');
+  for (const name of ["control-height", "row-height", "panel-padding", "field-gap"]) {
+    const token = allTokens.find(t => t.path.join(".") === `ui.${name}-compact`);
+    if (token) lines.push(`  --ui-${name}: ${tokenValue(token)};`);
+  }
+  lines.push('}');
+  lines.push('@media (max-width: 560px), (pointer: coarse) {');
+  lines.push('  :root, :root[data-ui-density="compact"] { --ui-control-height: var(--ui-touch-target); --ui-row-height: 72px; }');
+  lines.push('}');
   return lines.join("\n");
 }
 
@@ -302,7 +317,7 @@ async function main() {
     platforms: {
       css: {
         transformGroup: "css",
-        buildPath: "dist/",
+        buildPath: "src/styles/",
         files: [
           {
             destination: "theme.css",

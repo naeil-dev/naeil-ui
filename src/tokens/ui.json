@@ -1,0 +1,64 @@
+{
+  "ui": {
+    "control-height": {
+      "$type": "dimension",
+      "$value": "40px"
+    },
+    "control-height-compact": {
+      "$type": "dimension",
+      "$value": "36px"
+    },
+    "touch-target": {
+      "$type": "dimension",
+      "$value": "44px"
+    },
+    "row-height": {
+      "$type": "dimension",
+      "$value": "72px"
+    },
+    "row-height-compact": {
+      "$type": "dimension",
+      "$value": "60px"
+    },
+    "panel-padding": {
+      "$type": "dimension",
+      "$value": "24px"
+    },
+    "panel-padding-compact": {
+      "$type": "dimension",
+      "$value": "20px"
+    },
+    "field-gap": {
+      "$type": "dimension",
+      "$value": "24px"
+    },
+    "field-gap-compact": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "width-reading": {
+      "$type": "dimension",
+      "$value": "640px"
+    },
+    "width-settings": {
+      "$type": "dimension",
+      "$value": "640px"
+    },
+    "width-list": {
+      "$type": "dimension",
+      "$value": "1200px"
+    },
+    "width-short-form": {
+      "$type": "dimension",
+      "$value": "480px"
+    },
+    "motion-fast": {
+      "$type": "duration",
+      "$value": "120ms"
+    },
+    "motion-standard": {
+      "$type": "duration",
+      "$value": "180ms"
+    }
+  }
+}

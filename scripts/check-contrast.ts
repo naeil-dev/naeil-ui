@@ -1,7 +1,7 @@
 /**
  * WCAG 2.1 contrast ratio checker for naeil-ui design tokens.
  *
- * Parses dist/theme.css to extract OKLCH color values from :root (light)
+ * Parses src/styles/theme.css to extract OKLCH color values from :root (light)
  * and .dark blocks, converts them to sRGB, and checks contrast ratios.
  *
  * Usage: pnpm check:contrast
@@ -50,6 +50,8 @@ function clamp01(v: number): number {
 
 /** Parse an OKLCH value string → [r, g, b] in 0-255, plus alpha */
 function parseOklch(value: string): { r: number; g: number; b: number; a: number } | null {
+  const hex = value.match(/^#([0-9a-f]{6})$/i);
+  if (hex) return { r: parseInt(hex[1].slice(0,2),16), g: parseInt(hex[1].slice(2,4),16), b: parseInt(hex[1].slice(4,6),16), a: 1 };
   // Match oklch(L C H) or oklch(L C H / A)
   const m = value.match(
     /oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/,
@@ -174,10 +176,23 @@ const REQUIRED_CHECKS = [
   ["destructive-foreground", "destructive", 4.5, "destructive-fg on destructive"],
   ["card-foreground", "card", 4.5, "card-fg on card"],
   ["popover-foreground", "popover", 4.5, "popover-fg on popover"],
+  ["primary-foreground", "primary-hover", 4.5, "action hover"],
+  ["foreground", "surface-selected", 4.5, "selected text"],
+  ["muted-foreground", "card", 4.5, "secondary text on card"],
+  ["ring", "background", 3, "focus on canvas"],
+  ["ring", "popover", 3, "focus on raised surface"],
+  ["input", "background", 3, "input boundary"],
+  ["border-strong", "card", 3, "control boundary"],
+  ["error", "background", 4.5, "inline error"],
+  ["error", "error-bg", 4.5, "error badge"],
+  ["success", "success-bg", 4.5, "success badge"],
+  ["warning", "warning-bg", 4.5, "warning badge"],
+  ["info", "info-bg", 4.5, "info badge"],
 ] as const;
 
 function main() {
-  const cssPath = resolve(import.meta.dirname ?? __dirname, "../dist/theme.css");
+  const cssArg = process.argv.indexOf("--css");
+  const cssPath = cssArg >= 0 ? resolve(process.argv[cssArg + 1]) : resolve(import.meta.dirname ?? __dirname, "../src/styles/theme.css");
   const css = readFileSync(cssPath, "utf-8");
 
   const lightTokens = parseBlock(css, ":root");
@@ -197,6 +212,7 @@ function main() {
       const bgVal = bgTokens[bgName];
 
       if (!fgVal || !bgVal) {
+        allPassed = false;
         results.push(`  ⚠️  ${desc}: missing token (fg=${fgName}: ${fgVal || "N/A"}, bg=${bgName}: ${bgVal || "N/A"})`);
         continue;
       }
@@ -205,6 +221,7 @@ function main() {
       const bgColor = parseOklch(bgVal);
 
       if (!fgColor || !bgColor) {
+        allPassed = false;
         results.push(`  ⚠️  ${desc}: could not parse color (fg=${fgVal}, bg=${bgVal})`);
         continue;
       }
