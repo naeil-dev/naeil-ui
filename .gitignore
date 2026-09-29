@@ -21,6 +21,7 @@
 /build
 /dist
 /storybook-static
+/.superpowers/
 
 # misc
 .DS_Store
