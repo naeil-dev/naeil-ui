@@ -156,3 +156,20 @@ for (const theme of ["라이트", "다크"])
       .analyze();
     expect(result.violations).toEqual([]);
   });
+
+test("compact panels and consumer height overrides", async ({ page }) => {
+  const card = page.locator('[data-slot="card"]').first();
+  await expect(card).toHaveCSS("padding-top", "24px");
+  await page.getByRole("button", { name: "촘촘하게", exact: true }).click();
+  await expect(card).toHaveCSS("padding-top", "20px");
+  await expect(card).toHaveCSS("row-gap", "16px");
+  await expect(card.locator('[data-slot="card-content"]').first()).toHaveCSS(
+    "padding-left",
+    "20px",
+  );
+  const input = page.getByLabel("워크스페이스 이름");
+  await input.evaluate((e) => e.classList.add("h-8"));
+  await expect(input).toHaveCSS("height", "32px");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(input).toHaveCSS("height", "44px");
+});

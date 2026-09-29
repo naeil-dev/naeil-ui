@@ -49,6 +49,7 @@
   --color-info-bg: var(--info-bg);
 
   --color-project-cc: var(--project-cc);
+  --color-project-sa: var(--project-sa);
   --color-project-pkm: var(--project-pkm);
   --color-project-naeilUi: var(--project-naeilUi);
   --color-project-baby: var(--project-baby);
@@ -155,7 +156,8 @@
   --ui-width-short-form: 480px;
   --ui-motion-fast: 120ms;
   --ui-motion-standard: 180ms;
-  --project-cc: oklch(0.723 0.219 149);
+  --project-cc: oklch(0.704 0.140 181);
+  --project-sa: oklch(0.723 0.219 149);
   --project-pkm: oklch(0.627 0.265 303);
   --project-naeilUi: oklch(0.623 0.214 259);
   --project-baby: oklch(0.769 0.188 70.08);

@@ -45,7 +45,8 @@
     },
     "project": {
       "$description": "Per-project accent colors — theme-independent, used across light/dark.",
-      "cc": { "$type": "color", "$value": "oklch(0.723 0.219 149)" },
+      "cc": { "$type": "color", "$value": "oklch(0.704 0.140 181)" },
+      "sa": { "$type": "color", "$value": "oklch(0.723 0.219 149)" },
       "pkm": { "$type": "color", "$value": "oklch(0.627 0.265 303)" },
       "naeilUi": { "$type": "color", "$value": "oklch(0.623 0.214 259)" },
       "baby": { "$type": "color", "$value": "oklch(0.769 0.188 70.08)" }

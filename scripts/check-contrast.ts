@@ -15,16 +15,24 @@ import { resolve } from "node:path";
 // ---------------------------------------------------------------------------
 
 /** Convert OKLCH to OKLab */
-function oklchToOklab(l: number, c: number, h: number): [number, number, number] {
+function oklchToOklab(
+  l: number,
+  c: number,
+  h: number,
+): [number, number, number] {
   const hRad = (h * Math.PI) / 180;
   return [l, c * Math.cos(hRad), c * Math.sin(hRad)];
 }
 
 /** Convert OKLab to linear sRGB */
-function oklabToLinearSrgb(L: number, a: number, b: number): [number, number, number] {
+function oklabToLinearSrgb(
+  L: number,
+  a: number,
+  b: number,
+): [number, number, number] {
   const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
   const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const s_ = L - 0.0894841775 * a - 1.291485548 * b;
 
   const l = l_ * l_ * l_;
   const m = m_ * m_ * m_;
@@ -33,7 +41,7 @@ function oklabToLinearSrgb(L: number, a: number, b: number): [number, number, nu
   return [
     +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
     -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
   ];
 }
 
@@ -49,12 +57,23 @@ function clamp01(v: number): number {
 }
 
 /** Parse an OKLCH value string → [r, g, b] in 0-255, plus alpha */
-function parseOklch(value: string): { r: number; g: number; b: number; a: number } | null {
+function parseOklch(
+  value: string,
+): { r: number; g: number; b: number; a: number } | null {
   const hex = value.match(/^#([0-9a-f]{6})$/i);
-  if (hex) return { r: parseInt(hex[1].slice(0,2),16), g: parseInt(hex[1].slice(2,4),16), b: parseInt(hex[1].slice(4,6),16), a: 1 };
+  if (hex)
+    return {
+      r: parseInt(hex[1].slice(0, 2), 16),
+      g: parseInt(hex[1].slice(2, 4), 16),
+      b: parseInt(hex[1].slice(4, 6), 16),
+      a: 1,
+    };
   // Match oklch(L C H) or oklch(L C H / A)
+  const number = String.raw`[+-]?(?:\d*\.\d+|\d+)(?:[eE][+-]?\d+)?`;
   const m = value.match(
-    /oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/,
+    new RegExp(
+      String.raw`^oklch\(\s*(${number})\s+(${number})\s+(${number})(?:\s*\/\s*(${number}%?))?\s*\)$`,
+    ),
   );
   if (!m) return null;
 
@@ -65,6 +84,9 @@ function parseOklch(value: string): { r: number; g: number; b: number; a: number
   if (m[4]) {
     alpha = m[4].endsWith("%") ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
   }
+
+  if (![L, C, H, alpha].every(Number.isFinite)) return null;
+  if (L < 0 || L > 1 || C < 0 || alpha < 0 || alpha > 1) return null;
 
   const [labL, labA, labB] = oklchToOklab(L, C, H);
   const [lr, lg, lb] = oklabToLinearSrgb(labL, labA, labB);
@@ -173,7 +195,12 @@ const REQUIRED_CHECKS = [
   ["secondary-foreground", "secondary", 4.5, "secondary-fg on secondary"],
   ["muted-foreground", "background", 4.5, "muted-foreground on background"],
   ["accent-foreground", "accent", 4.5, "accent-fg on accent"],
-  ["destructive-foreground", "destructive", 4.5, "destructive-fg on destructive"],
+  [
+    "destructive-foreground",
+    "destructive",
+    4.5,
+    "destructive-fg on destructive",
+  ],
   ["card-foreground", "card", 4.5, "card-fg on card"],
   ["popover-foreground", "popover", 4.5, "popover-fg on popover"],
   ["primary-foreground", "primary-hover", 4.5, "action hover"],
@@ -192,7 +219,10 @@ const REQUIRED_CHECKS = [
 
 function main() {
   const cssArg = process.argv.indexOf("--css");
-  const cssPath = cssArg >= 0 ? resolve(process.argv[cssArg + 1]) : resolve(import.meta.dirname ?? __dirname, "../src/styles/theme.css");
+  const cssPath =
+    cssArg >= 0
+      ? resolve(process.argv[cssArg + 1])
+      : resolve(import.meta.dirname ?? __dirname, "../src/styles/theme.css");
   const css = readFileSync(cssPath, "utf-8");
 
   const lightTokens = parseBlock(css, ":root");
@@ -213,7 +243,9 @@ function main() {
 
       if (!fgVal || !bgVal) {
         allPassed = false;
-        results.push(`  ⚠️  ${desc}: missing token (fg=${fgName}: ${fgVal || "N/A"}, bg=${bgName}: ${bgVal || "N/A"})`);
+        results.push(
+          `  ⚠️  ${desc}: missing token (fg=${fgName}: ${fgVal || "N/A"}, bg=${bgName}: ${bgVal || "N/A"})`,
+        );
         continue;
       }
 
@@ -222,12 +254,19 @@ function main() {
 
       if (!fgColor || !bgColor) {
         allPassed = false;
-        results.push(`  ⚠️  ${desc}: could not parse color (fg=${fgVal}, bg=${bgVal})`);
+        results.push(
+          `  ⚠️  ${desc}: could not parse color (fg=${fgVal}, bg=${bgVal})`,
+        );
         continue;
       }
 
       // For semi-transparent colors, composite over the mode's background
-      const modeBg = parseOklch(bgTokens["background"] || "oklch(0 0 0)") || { r: 0, g: 0, b: 0, a: 1 };
+      const modeBg = parseOklch(bgTokens["background"] || "oklch(0 0 0)") || {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 1,
+      };
 
       const ratio = contrastRatio(fgColor, bgColor, modeBg);
       const pass = ratio >= minRatio;

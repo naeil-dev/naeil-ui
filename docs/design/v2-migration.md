@@ -34,7 +34,7 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 ## 기본 규칙
 
 - 본문·입력·버튼 16px, 보조 14px, 메타정보 13px. 작은 화면에서도 입력 글씨를 줄이지 않는다.
-- 기본 컨트롤 높이 40px. 문서 루트에 `data-ui-density="compact"`를 주면 36px가 된다. 작은 화면과 거친 포인터에서는 최소 44px를 유지한다.
+- 기본 컨트롤 높이 40px. 문서 루트에 `data-ui-density="compact"`를 주면 36px가 된다. 작은 화면과 거친 포인터에서는 최소 44px를 유지한다. 데스크톱에서 `className="h-8"` 같은 높이 재정의는 적용되며, 모바일의 44px 최소 터치 크기는 유지된다.
 - `.light`/`.dark`는 OS 테마보다 우선한다. 기존 ThemeProvider를 사용할 수 있다.
 - `data-ui-layout="reading|settings|list|short-form|fluid"`로 콘텐츠 폭을 적용한다. 각각 최대 640/640/1200/480px 또는 가용 폭이다. 이 속성은 전체 앱의 레이아웃을 강제하지 않는다.
 - 레이블·도움말·오류 문구는 소비 화면이 연결한다. Input의 `aria-invalid`와 `aria-describedby`를 사용하고, 로딩 중에는 Button의 `disabled`와 `aria-busy`를 함께 지정한다.

@@ -1,6 +1,6 @@
 # naeil UI v2 — Design brief
 
-Status: Visual direction accepted on 2026-09-29: neutral palette, Pretendard, larger text, purpose-specific widths, comfortable spacing by default, compact spacing for dense views, and short restrained transitions respecting reduced motion. Production package implementation is unchanged. The consolidated implementation-scope design is in [the v2 specification](docs/superpowers/specs/2026-09-29-shared-ui-v2-design.md) and awaits written review.
+Status: Visual direction accepted on 2026-09-29: neutral palette, Pretendard, larger text, purpose-specific widths, comfortable spacing by default, compact spacing for dense views, and short restrained transitions respecting reduced motion. Implemented in the shared package and actual-component Storybook examples. Independent review findings have been addressed; validation evidence and remaining limits are in [the verification report](docs/design/v2-verification.md). See [the v2 specification](docs/superpowers/specs/2026-09-29-shared-ui-v2-design.md) for scope. Publishing and deployment are separate.
 
 ## Purpose and scope
 
@@ -122,7 +122,11 @@ Compare the same compositions and content in light/dark themes, desktop/mobile w
 
 Before release, verify generated token consistency, public-package consumption, component behavior and accessibility, and visual results. Review actual screenshots or a working preview; a token table alone does not establish visual quality.
 
-The visual comparisons are accepted. Review the consolidated written specification for token generation, component coverage, compatibility, and validation before preparing the implementation plan. Final production validation and polish remain outstanding.
+The visual comparisons and implementation scope are accepted. Token generation, component behavior, packed consumption, and actual browser examples have been implemented and checked; see the verification report for results and limits.
+
+## Historical design studies
+
+The sections below record prototype-stage decisions and checks as they occurred. Their references to pending production work describe that earlier stage; current implementation status is above.
 
 ## Accepted direction — typography and content widths
 
