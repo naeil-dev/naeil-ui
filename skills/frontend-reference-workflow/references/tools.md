@@ -36,6 +36,12 @@ claude mcp add-json --scope user 21st '{"type":"http","url":"https://21st.dev/ap
 
 Register/enable only when that process will receive the variable. Confirm discovery and account usage without printing credentials. If API access is pending, public browser browsing is still an option; label it as browser use, never MCP execution.
 
+### This machine's verified connection
+
+The initial disabled HTTP entries were activated using a local stdio launcher in both Codex homes and Claude Code user scope. The launcher at `~/.local/share/naeil-frontend/21st-mcp/launch.py` loads `~/.config/naeil/21st/api-key` (0600) into the official proxy's environment, then runs the pinned `@21st-dev/magic@0.2.3` package. This is the maintained compatibility proxy to the current21st endpoint, not the retired Magic backend. It avoids depending on GUI inheritance of terminal exports or embedding secrets in MCP config/arguments.
+
+Initialize, tools/list, and get_usage succeeded. The account currently has free-tier catalog access with hosted AI disabled. No component retrieval/generation was run during connection verification. Check current usage before retrieval; this dated check does not guarantee future allowance. New sessions must load the registered MCP to expose tools to the agent.
+
 ## Impeccable
 
 Source: https://github.com/pbakaus/impeccable

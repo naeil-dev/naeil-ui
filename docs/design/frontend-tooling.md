@@ -23,7 +23,7 @@
 | Component Gallery | 브라우저 참고 가능 | HTTP403 후 브라우저 읽기 성공 |
 | Kinetics | 브라우저 참고 가능 | HTTP403 후 브라우저에서 예제 목록 읽기 성공. 효과는 이번 설정 작업에서 채택하지 않음 |
 | Impeccable | 공식 스킬 설치 및 엔진 실행 확인 | skill4.4.0, engine0.1.6. engine-probe와 프로젝트 context 성공. polish/distill 실행과는 구분 |
-| 21st MCP | 설정 준비, 인증 대기 | 새 endpoint와 환경변수 연결을 준비했지만 API 키가 없어 비활성. 도구 조회·검색·코드 다운로드는 아직 실행하지 않음 |
+| 21st MCP | 인증·연결 확인, 활성화 | 실제 initialize·tools/list·get_usage 성공. Codex 두 환경과 Claude Code 등록. 검색·코드 다운로드는 아직 실행하지 않음 |
 
 21st.dev의 무료 한도·요금·AI 이용권은 실행 시 실제 계정에서 확인한다. Threads의 숫자를 고정된 현재 정책으로 간주하지 않는다.
 
@@ -47,13 +47,18 @@ Claude Code에서는 `$` 대신 `/`를 사용한다. 실제 요청 시 설치된
 
 공식 Impeccable 원본은 수정하지 않았다. 프로젝트의 승인된 무채색·글꼴·폭·절제된 모션이 일반적인 외부 스타일 조언보다 우선한다. 자동 편집 훅이나 확장은 설치하지 않았다. 필요할 때 명령으로 쓰는 구성이다. 신규 제품 작업에 필요한 PRODUCT.md 설정은 해당 제품의 사실을 바탕으로 하며, 이번 공통 도구 설치 과정에서 제품 정보를 새로 만들어내지 않았다.
 
-## 21st MCP 활성화에 남은 단계
+## 21st MCP 연결
 
-1. https://21st.dev/mcp 에서 본인 계정의 API 키를 준비한다. 키는 채팅·저장소에 붙여넣지 않는다.
-2. 실제 에이전트를 시작하는 환경에 `API_KEY_21ST`를 제공한다. 터미널 환경변수가 GUI 세션에 자동 전달된다고 가정하지 않는다.
-3. Codex의 `~/.codex/config.toml` 및 현재 Paseo 환경의 `~/.codex-pooled/config.toml`에는 키 값 없이 endpoint/env header와 `enabled = false`만 준비했다. 사용하는 환경에서 키가 전달된 뒤 활성화하고 재시작한다.
-4. Claude Code 연결은 키가 준비된 후 [tools.md](../../skills/frontend-reference-workflow/references/tools.md)의 `claude mcp add-json` 명령으로 등록한다. 인증 실패를 일으키는 활성 서버는 미리 등록하지 않았다.
-5. 실제 MCP 도구 목록과 get_usage를 확인한 뒤 연결 완료로 기록한다. 홈페이지를 볼 수 있다는 것만으로 MCP 인증 성공을 주장하지 않는다.
+사용자가 로컬 터미널에서 입력한 API 키로 실제 MCP 인증과 도구 조회에 성공했다. 계정은 free tier이며 `aiGenerationEnabled=false`이고, `search`, `get_component`, `get_usage` 등이 노출된다. 호스팅 생성 도구는 이번 계정의 목록에 없다. 실제 무료 잔여량은 사용 직전에 get_usage로 확인한다.
+
+- 키 저장: `~/.config/naeil/21st/api-key`, 파일 권한0600, 디렉터리0700. 저장소·채팅·MCP 설정에 키 값을 넣지 않았다.
+- 실행기: `~/.local/share/naeil-frontend/21st-mcp/launch.py`. 시작 시 키를 메모리에서 환경변수로 전달한다. GUI가 터미널의 export를 상속할 필요가 없다.
+- 전송: 공식 `@21st-dev/magic@0.2.3` 호환 프록시가 stdio를 현재 `https://21st.dev/api/mcp`로 전달한다. 이전 Magic 서비스로 연결하는 것이 아니다. 이 공식 패키지는 API 키를 환경변수로 받는 지원 경로이며, 직접 HTTP 설정 대신 Codex/Claude가 같은 로컬 입력 방식을 사용하도록 선택했다.
+- Codex: `~/.codex/config.toml`와 `~/.codex-pooled/config.toml`의21st 항목을 로컬 실행기·enabled=true로 변경했다.
+- Claude Code: user scope에 같은 실행기로 등록했다.
+- 새 세션에서 MCP 도구를 로드한다. 기존 세션의 도구 목록이 자동 갱신된다고 가정하지 않는다.
+
+이번 확인은 인증·도구 목록·계정 이용권 조회만 수행했다. 컴포넌트 코드 retrieval, hosted generation, 유료 호출은 수행하지 않았다.
 
 원래 전역 Claude 지침과 두 Codex 설정은 동일 디렉터리의 `.bak-frontend-20260929-152727` 파일로 백업했다. 이번에 추가한 섹션/서버 항목만 제거해 되돌릴 수 있다. 이후 사용자가 다른 설정을 바꿨다면 전체 백업으로 덮어쓰지 않는다.
 
@@ -61,7 +66,7 @@ Claude Code에서는 `$` 대신 `/`를 사용한다. 실제 요청 시 설치된
 
 - 공통 스킬 frontmatter/구조 검사 통과; 저장소 원본과 사용자 설치본 일치.
 - Claude의 두 스킬 링크와 DESIGN/AGENTS import 경로 확인.
-- 두 Codex 설정 TOML 구문 확인, 21st 비활성 및 secret-free 환경변수 참조 확인.
+- 두 Codex 설정 TOML 구문 및 활성 로컬 실행기 확인. 실제 MCP initialize·tools/list·get_usage 성공.
 - 공식 Impeccable engine-probe: `impeccable-engine 0.1.6`; context가 실제 DESIGN.md를 읽는 것 확인.
 - 독립 에이전트의 네 가지 행동 시나리오 검토: 작은 수정, 인증 없는 21st 요청, 기존 시각 규칙과 충돌하는 참고, 요청하지 않은 유료 생성. 설치/실행/채택 구분 및 기존 규칙 우선 확인.
 - UI 소스·토큰·런타임 의존성은 이번 작업에서 변경하지 않아 전체 UI 테스트를 반복하지 않았다.
