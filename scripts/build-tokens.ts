@@ -21,7 +21,15 @@ import type {
 function tokenValue(token: TransformedToken): string {
   const val = token.$value ?? token.value;
   if (Array.isArray(val)) {
-    return val.map((v: string) => `"${v}"`).join(", ");
+    return val
+      .map((v: string) =>
+        /^(sans-serif|serif|monospace|system-ui|ui-monospace|-apple-system)$/.test(
+          v,
+        )
+          ? v
+          : `"${v}"`,
+      )
+      .join(", ");
   }
   return String(val);
 }
@@ -52,7 +60,9 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
 
   // Semantic token names that map to --color-* in @theme inline
   const semanticNames: string[] = [];
-  const lightTokens = allTokens.filter((t) => pathStartsWith(t, "semantic", "light"));
+  const lightTokens = allTokens.filter((t) =>
+    pathStartsWith(t, "semantic", "light"),
+  );
   for (const t of lightTokens) {
     semanticNames.push(tokenNameFrom(t, 2));
   }
@@ -67,9 +77,13 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   lines.push("");
 
   // Project accent colors (theme-independent)
-  const projectTokens = allTokens.filter((t) => pathStartsWith(t, "color", "project"));
+  const projectTokens = allTokens.filter((t) =>
+    pathStartsWith(t, "color", "project"),
+  );
   for (const t of projectTokens) {
-    lines.push(`  --color-project-${tokenName(t)}: var(--project-${tokenName(t)});`);
+    lines.push(
+      `  --color-project-${tokenName(t)}: var(--project-${tokenName(t)});`,
+    );
   }
   lines.push("");
 
@@ -84,22 +98,32 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   if (fontMono) lines.push(`  --font-mono: ${tokenValue(fontMono)};`);
   lines.push("");
 
-  for (const t of allTokens.filter(t => pathStartsWith(t, "font", "size"))) lines.push(`  --text-${tokenName(t)}: ${tokenValue(t)};`);
-  for (const t of allTokens.filter(t => pathStartsWith(t, "font", "weight"))) lines.push(`  --font-weight-${tokenName(t)}: ${tokenValue(t)};`);
-  for (const t of allTokens.filter(t => pathStartsWith(t, "font", "lineHeight"))) lines.push(`  --leading-${tokenName(t)}: ${tokenValue(t)};`);
-  for (const t of allTokens.filter(t => pathStartsWith(t, "shadow"))) lines.push(`  --shadow-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter((t) => pathStartsWith(t, "font", "size")))
+    lines.push(`  --text-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter((t) => pathStartsWith(t, "font", "weight")))
+    lines.push(`  --font-weight-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter((t) =>
+    pathStartsWith(t, "font", "lineHeight"),
+  ))
+    lines.push(`  --leading-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter((t) => pathStartsWith(t, "shadow")))
+    lines.push(`  --shadow-${tokenName(t)}: ${tokenValue(t)};`);
 
   // Radius
   const radiusTokens = allTokens.filter((t) => pathStartsWith(t, "radius"));
   for (const t of radiusTokens) {
-    lines.push(`  --radius-${tokenName(t)}: var(--radius-${tokenName(t)}-value);`);
+    lines.push(
+      `  --radius-${tokenName(t)}: var(--radius-${tokenName(t)}-value);`,
+    );
   }
   lines.push("");
 
   // Spacing
   const spacingTokens = allTokens.filter((t) => pathStartsWith(t, "spacing"));
   for (const t of spacingTokens) {
-    lines.push(`  --spacing-${tokenName(t)}: var(--spacing-${tokenName(t)}-value);`);
+    lines.push(
+      `  --spacing-${tokenName(t)}: var(--spacing-${tokenName(t)}-value);`,
+    );
   }
 
   lines.push("}");
@@ -112,7 +136,8 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
     lines.push(`  --${name}: ${tokenValue(t)};`);
   }
   lines.push("");
-  for (const t of allTokens.filter(t => pathStartsWith(t, "ui"))) lines.push(`  --ui-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter((t) => pathStartsWith(t, "ui")))
+    lines.push(`  --ui-${tokenName(t)}: ${tokenValue(t)};`);
   // Project colors (same in light/dark)
   for (const t of projectTokens) {
     lines.push(`  --project-${tokenName(t)}: ${tokenValue(t)};`);
@@ -130,7 +155,9 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
 
   // --- .dark ---
   lines.push(".dark {");
-  const darkTokens = allTokens.filter((t) => pathStartsWith(t, "semantic", "dark"));
+  const darkTokens = allTokens.filter((t) =>
+    pathStartsWith(t, "semantic", "dark"),
+  );
   for (const t of darkTokens) {
     const name = tokenNameFrom(t, 2);
     lines.push(`  --${name}: ${tokenValue(t)};`);
@@ -151,14 +178,23 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   lines.push("");
 
   lines.push(':root[data-ui-density="compact"] {');
-  for (const name of ["control-height", "row-height", "panel-padding", "field-gap"]) {
-    const token = allTokens.find(t => t.path.join(".") === `ui.${name}-compact`);
+  for (const name of [
+    "control-height",
+    "row-height",
+    "panel-padding",
+    "field-gap",
+  ]) {
+    const token = allTokens.find(
+      (t) => t.path.join(".") === `ui.${name}-compact`,
+    );
     if (token) lines.push(`  --ui-${name}: ${tokenValue(token)};`);
   }
-  lines.push('}');
-  lines.push('@media (max-width: 560px), (pointer: coarse) {');
-  lines.push('  :root, :root[data-ui-density="compact"] { --ui-control-height: var(--ui-touch-target); --ui-row-height: 72px; }');
-  lines.push('}');
+  lines.push("}");
+  lines.push("@media (max-width: 560px), (pointer: coarse) {");
+  lines.push(
+    '  :root, :root[data-ui-density="compact"] { --ui-control-height: var(--ui-touch-target); --ui-row-height: 72px; }',
+  );
+  lines.push("}");
   return lines.join("\n");
 }
 
@@ -186,7 +222,9 @@ function formatTokensTS({ dictionary }: FormatFnArguments): string {
     lines.push("  },");
   }
   // Project accent colors
-  const projectTkns = allTokens.filter((t) => pathStartsWith(t, "color", "project"));
+  const projectTkns = allTokens.filter((t) =>
+    pathStartsWith(t, "color", "project"),
+  );
   if (projectTkns.length > 0) {
     lines.push("  project: {");
     for (const t of projectTkns) {
@@ -227,7 +265,9 @@ function formatTokensTS({ dictionary }: FormatFnArguments): string {
   lines.push("  },");
 
   lines.push("  weight: {");
-  for (const t of allTokens.filter((t) => pathStartsWith(t, "font", "weight"))) {
+  for (const t of allTokens.filter((t) =>
+    pathStartsWith(t, "font", "weight"),
+  )) {
     lines.push(`    ${tokenName(t)}: ${tokenValue(t)},`);
   }
   lines.push("  },");
@@ -269,12 +309,16 @@ function formatTokensTS({ dictionary }: FormatFnArguments): string {
   // --- Semantic (light + dark) ---
   lines.push("export const semantic = {");
   lines.push("  light: {");
-  for (const t of allTokens.filter((t) => pathStartsWith(t, "semantic", "light"))) {
+  for (const t of allTokens.filter((t) =>
+    pathStartsWith(t, "semantic", "light"),
+  )) {
     lines.push(`    "${tokenNameFrom(t, 2)}": "${tokenValue(t)}",`);
   }
   lines.push("  },");
   lines.push("  dark: {");
-  for (const t of allTokens.filter((t) => pathStartsWith(t, "semantic", "dark"))) {
+  for (const t of allTokens.filter((t) =>
+    pathStartsWith(t, "semantic", "dark"),
+  )) {
     lines.push(`    "${tokenNameFrom(t, 2)}": "${tokenValue(t)}",`);
   }
   lines.push("  },");

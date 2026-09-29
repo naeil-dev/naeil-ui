@@ -14,19 +14,19 @@ function useIsMounted() {
 }
 
 export function ThemeToggleIcon() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
 
   if (!mounted) {
     return <div className="h-4 w-4" />;
   }
 
-  const isDark = theme === "dark";
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="text-muted-foreground hover:text-foreground transition-colors"
+      className="ui-control ui-focus inline-flex w-11 items-center justify-center text-muted-foreground hover:text-foreground"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (

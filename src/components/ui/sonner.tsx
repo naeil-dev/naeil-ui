@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   CircleCheckIcon,
@@ -6,12 +6,12 @@ import {
   Loader2Icon,
   OctagonXIcon,
   TriangleAlertIcon,
-} from "lucide-react"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme = "system" } = useTheme();
 
   return (
     <Sonner
@@ -28,27 +28,27 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--card)",
+          "--normal-bg": "var(--popover)",
           "--normal-text": "var(--card-foreground)",
-          "--normal-border": "var(--border-subtle)",
-          "--success-bg": "var(--card)",
-          "--success-text": "var(--card-foreground)",
-          "--success-border": "var(--border-subtle)",
-          "--error-bg": "var(--card)",
-          "--error-text": "var(--destructive)",
-          "--error-border": "var(--border-subtle)",
-          "--info-bg": "var(--card)",
-          "--info-text": "var(--card-foreground)",
-          "--info-border": "var(--border-subtle)",
-          "--warning-bg": "var(--card)",
-          "--warning-text": "var(--card-foreground)",
-          "--warning-border": "var(--border-subtle)",
+          "--normal-border": "var(--border-strong)",
+          "--success-bg": "var(--popover)",
+          "--success-text": "var(--success)",
+          "--success-border": "var(--border-strong)",
+          "--error-bg": "var(--popover)",
+          "--error-text": "var(--error)",
+          "--error-border": "var(--border-strong)",
+          "--info-bg": "var(--popover)",
+          "--info-text": "var(--info)",
+          "--info-border": "var(--border-strong)",
+          "--warning-bg": "var(--popover)",
+          "--warning-text": "var(--warning)",
+          "--warning-border": "var(--border-strong)",
           "--border-radius": "var(--radius-md-value)",
         } as React.CSSProperties
       }
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

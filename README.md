@@ -1,3 +1,5 @@
+> **공통 UI v2:** 무채색, Pretendard, 16px 컨트롤과 용도별 폭을 적용했습니다. [디자인 규칙](DESIGN.md), [사용·이전 안내](docs/design/v2-migration.md), Storybook의 **UI v2 / Workspace**를 기준으로 사용하세요. 패키지 게시와 사이트 배포는 별도입니다.
+
 # @naeil/ui
 
 Design system and component library for [naeil.dev](https://naeil.dev) — a portfolio, blog, and project showcase with cross-subdomain SSO authentication.

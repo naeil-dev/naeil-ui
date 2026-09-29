@@ -6,9 +6,9 @@ type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
 };
 
 export const pageTitleClass =
-  "text-foreground text-4xl font-bold tracking-tight lg:text-5xl";
+  "text-foreground text-3xl font-semibold leading-tight";
 
-export const sectionTitleClass = "text-foreground text-lg font-bold";
+export const sectionTitleClass = "text-foreground text-xl font-semibold";
 
 export function PageTitle({ className, children, ...props }: HeadingProps) {
   return (

@@ -1,28 +1,19 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "../styles/theme.css";
-
-@custom-variant dark (&:is(.dark *));
+@import "../styles/globals.css";
 
 /* Register float animation as Tailwind utility */
 @theme inline {
   --animate-float: float 4s ease-in-out infinite;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground font-sans;
-  }
-}
-
 /* Float keyframes */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

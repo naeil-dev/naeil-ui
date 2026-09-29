@@ -56,3 +56,18 @@ export {
 export { Input } from "./input";
 
 export { Toaster } from "./sonner";
+
+export {
+  Select,
+  SelectValue,
+  SelectGroup,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+} from "./select";
+export { Switch } from "./switch";
+export { Checkbox } from "./checkbox";

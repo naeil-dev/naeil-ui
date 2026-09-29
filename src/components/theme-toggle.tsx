@@ -10,12 +10,12 @@ function useIsMounted() {
   return useSyncExternalStore(
     emptySubscribe,
     () => true,
-    () => false
+    () => false,
   );
 }
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
 
   if (!mounted) {
@@ -31,9 +31,9 @@ export function ThemeToggle() {
       variant="outline"
       size="sm"
       className="w-24"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
-      {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+      {resolvedTheme === "dark" ? "☀️ Light" : "🌙 Dark"}
     </Button>
   );
 }
