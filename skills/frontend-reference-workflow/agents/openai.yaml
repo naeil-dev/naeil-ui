@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend reference workflow"
+  short_description: "Use design references while preserving the project system"
+  default_prompt: "Use $frontend-reference-workflow to improve this interface with appropriate references and verified tools."
