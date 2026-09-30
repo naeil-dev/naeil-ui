@@ -2,6 +2,14 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { createRequire } = require("node:module");
+const { createHash } = require("node:crypto");
+
+const checker = {
+  revision: "2026-09-30",
+  sha256: createHash("sha256")
+    .update(fs.readFileSync(__filename))
+    .digest("hex"),
+};
 
 class CheckError extends Error {}
 let outputPath;
@@ -130,6 +138,7 @@ async function auditPage(page, rules, AxeBuilder) {
         }
       }
       return {
+        documentLanguage: document.documentElement.lang,
         viewport: { width: innerWidth, height: innerHeight, coarse },
         scrollWidth: document.documentElement.scrollWidth,
         overflow: document.documentElement.scrollWidth > innerWidth + 1,
@@ -185,6 +194,120 @@ async function auditPage(page, rules, AxeBuilder) {
       "Keyboard behavior, visual hierarchy, reduced motion and other states require separate checks.",
     ],
   };
+}
+
+function validateComparisons(comparisons, cases) {
+  if (!Array.isArray(comparisons))
+    throw new CheckError("layoutComparisons must be an array");
+  const caseMap = new Map(cases.map((entry) => [entry.name, entry]));
+  if (caseMap.size !== cases.length)
+    throw new CheckError("Case names must be unique");
+  const names = new Set();
+  for (const item of comparisons) {
+    if (
+      !item ||
+      typeof item.name !== "string" ||
+      !item.name.trim() ||
+      names.has(item.name) ||
+      typeof item.selector !== "string" ||
+      !item.selector.trim() ||
+      !Array.isArray(item.cases) ||
+      item.cases.length < 2 ||
+      new Set(item.cases).size !== item.cases.length ||
+      item.cases.some((name) => !caseMap.has(name)) ||
+      !Array.isArray(item.properties) ||
+      !item.properties.length ||
+      item.properties.some((p) => !["x", "y", "width", "height"].includes(p)) ||
+      !Number.isFinite(item.tolerance) ||
+      item.tolerance < 0
+    )
+      throw new CheckError(
+        "Each layout comparison requires a unique name, selector, at least two distinct known cases, geometry properties and nonnegative tolerance",
+      );
+    names.add(item.name);
+    const modes = item.cases.map((name) => {
+      const entry = caseMap.get(name);
+      return JSON.stringify([
+        entry.viewport.width,
+        entry.viewport.height,
+        !!entry.touch,
+        entry.colorScheme || "dark",
+        entry.locale || "en-US",
+      ]);
+    });
+    if (new Set(modes).size !== 1)
+      throw new CheckError(
+        "Compare cases with the same viewport, touch mode, colorScheme and locale",
+      );
+  }
+}
+
+async function measureLandmark(page, selector) {
+  return page.locator(selector).evaluateAll((elements) => {
+    const visible = elements.filter((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return false;
+      for (let node = el; node; node = node.parentElement) {
+        const style = getComputedStyle(node);
+        if (
+          style.display === "none" ||
+          style.visibility === "hidden" ||
+          style.opacity === "0"
+        )
+          return false;
+      }
+      return true;
+    });
+    if (visible.length !== 1) return { count: visible.length, rect: null };
+    const { x, y, width, height } = visible[0].getBoundingClientRect();
+    return { count: 1, rect: { x, y, width, height } };
+  });
+}
+
+function compareLayouts(comparisons, results) {
+  return comparisons.map((item) => {
+    const cases = item.cases.map((name) =>
+      results.find((r) => r.name === name),
+    );
+    const base = { ...item };
+    if (cases.some((r) => !r || r.status === "blocked"))
+      return {
+        ...base,
+        status: "blocked",
+        reason: "A comparison case was not measured",
+      };
+    if (new Set(cases.map((r) => r.documentLanguage)).size !== 1)
+      return {
+        ...base,
+        status: "blocked",
+        reason: "Compared pages have different document languages",
+      };
+    const measurements = cases.map((r) => ({
+      name: r.name,
+      ...r.landmarks.find((m) => m.selector === item.selector),
+    }));
+    if (measurements.some((m) => m.count !== 1 || !m.rect))
+      return {
+        ...base,
+        measurements,
+        status: "needs-work",
+        reason: "Each case must have exactly one visible landmark",
+      };
+    const deltas = Object.fromEntries(
+      item.properties.map((property) => {
+        const values = measurements.map((m) => m.rect[property]);
+        return [property, Math.max(...values) - Math.min(...values)];
+      }),
+    );
+    return {
+      ...base,
+      measurements,
+      deltas,
+      status: Object.values(deltas).some((delta) => delta > item.tolerance)
+        ? "needs-work"
+        : "automated-checks-passed",
+    };
+  });
 }
 
 async function main() {
@@ -250,6 +373,15 @@ async function main() {
       );
     if (entry.touch !== undefined && typeof entry.touch !== "boolean")
       throw new CheckError("Case touch must be boolean");
+    if (entry.locale !== undefined) {
+      try {
+        if (typeof entry.locale !== "string" || !entry.locale.trim())
+          throw new Error();
+        Intl.getCanonicalLocales(entry.locale);
+      } catch {
+        throw new CheckError("Case locale must be a valid language tag");
+      }
+    }
     if (
       entry.colorScheme !== undefined &&
       !["dark", "light", "no-preference"].includes(entry.colorScheme)
@@ -270,6 +402,9 @@ async function main() {
         "Each CLI case requires readySelector; prepare complex states in project tests",
       );
   }
+  const comparisons =
+    config.layoutComparisons === undefined ? [] : config.layoutComparisons;
+  validateComparisons(comparisons, config.cases);
   const browser = await chromium.launch();
   const results = [];
   try {
@@ -280,12 +415,14 @@ async function main() {
         hasTouch: !!entry.touch,
         isMobile: !!entry.touch,
         colorScheme: entry.colorScheme || "dark",
+        locale: entry.locale || "en-US",
         reducedMotion: "reduce",
       });
       const caseInfo = {
         name: entry.name,
         path: entry.path,
         colorScheme: entry.colorScheme || "dark",
+        locale: entry.locale || "en-US",
         touch: !!entry.touch,
         viewportConfig: entry.viewport,
       };
@@ -302,7 +439,20 @@ async function main() {
             .locator(entry.readySelector)
             .waitFor({ state: "visible", timeout: 20000 });
         const result = await auditPage(page, config.rules || {}, AxeBuilder);
-        results.push({ ...caseInfo, ...result });
+        const selectors = [
+          ...new Set(
+            comparisons
+              .filter((c) => c.cases.includes(entry.name))
+              .map((c) => c.selector),
+          ),
+        ];
+        const landmarks = [];
+        for (const selector of selectors)
+          landmarks.push({
+            selector,
+            ...(await measureLandmark(page, selector)),
+          });
+        results.push({ ...caseInfo, ...result, landmarks });
       } catch (e) {
         results.push({
           ...caseInfo,
@@ -317,15 +467,18 @@ async function main() {
   } finally {
     await browser.close();
   }
+  const layoutComparisons = compareLayouts(comparisons, results);
   const status =
     ["blocked", "needs-work", "needs-review"].find((value) =>
-      results.some((r) => r.status === value),
+      [...results, ...layoutComparisons].some((r) => r.status === value),
     ) || "automated-checks-passed";
   const report = {
     status,
+    checker,
     checkedAt: new Date().toISOString(),
     authority: config.authority,
     results,
+    layoutComparisons,
     scope:
       "Isolated browser; only configured initial states, reduced motion enabled; no mutation flows run.",
   };
@@ -334,12 +487,11 @@ async function main() {
   console.log(
     JSON.stringify({
       report: output,
+      status,
       statuses: results.map((r) => ({ name: r.name, status: r.status })),
     }),
   );
-  process.exitCode = results.some((r) => r.status !== "automated-checks-passed")
-    ? 1
-    : 0;
+  process.exitCode = status === "automated-checks-passed" ? 0 : 1;
 }
 module.exports = { auditPage };
 if (require.main === module)
@@ -355,6 +507,7 @@ if (require.main === module)
             {
               checkedAt: new Date().toISOString(),
               status: "blocked",
+              checker,
               reason,
               results: [],
             },

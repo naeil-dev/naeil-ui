@@ -108,6 +108,14 @@ First implement the foundation and existing eight families: Button, Input, Card,
 
 Demonstrate the system in three neutral compositions: a settings form, a selectable list with metadata, and a detail panel with actions. These are library examples, not a redesign of a particular website. Additional public components require a demonstrated composition need.
 
+### Application frame and content widths
+
+The application frame owns navigation placement and outer gutters; each content region owns its purpose-specific width. A narrow settings form inside that frame must not move the shared navigation. For routes using the same frame, keep navigation anchors stable at the same viewport, language and theme, including loading and changing summary counts. A shared Header import alone does not establish this consistency.
+
+Choose a product's frame width from its tasks, information density and representative content. A dashboard name or a wide monitor alone does not justify filling all available space. Inspect sparse as well as dense content before selecting a cap or fluid layout. The shared reading/settings/list defaults remain content rules, not a universal application maximum; RelayDock's 1600px decision is not a shared token.
+
+Internal columns must respond to the space available inside their region. Use container queries or an equivalent content-aware layout when viewport breakpoints no longer represent that space. Keep wide tables locally scrollable; check localized labels, wrapping and controls inside cells as well as page overflow. See the [consumer composition guide](docs/design/v2-migration.md#앱-전체-틀과-콘텐츠-폭) for application ownership and checks.
+
 ## Connection to implementation
 
 Use one canonical token source to generate the CSS that the package actually exports and that contrast checks inspect. Wire typography, radii, spacing, elevation, and motion into that same system. The visual design brief explains roles; numeric implementation values must be synchronized with the token source.
@@ -121,6 +129,8 @@ Consumer and repository agent guidance must explicitly point to this design docu
 Compare the same compositions and content in light/dark themes, desktop/mobile widths, and Korean/Japanese/English. Include long labels, multiline content, keyboard focus, errors, disabled controls, and loading examples.
 
 Before release, verify generated token consistency, public-package consumption, component behavior and accessibility, and visual results. Review actual screenshots or a working preview; a token table alone does not establish visual quality.
+
+For application layout changes, compare affected routes side by side under the same conditions and verify the frame invariants separately from each page's component checks. Record functional checks, shared-design compliance and visual composition as distinct results. Keep prior findings open until remeasured or explicitly scoped out; a layout review does not close unrelated contrast, nested-control or touch findings.
 
 The visual comparisons and implementation scope are accepted. Token generation, component behavior, packed consumption, and actual browser examples have been implemented and checked; see the verification report for results and limits.
 

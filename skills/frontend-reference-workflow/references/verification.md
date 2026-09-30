@@ -8,6 +8,8 @@ Copy relevant rules from the actual DESIGN.md/tokens into project notes with sou
 
 For each substantial changed screen, cover representative desktop and touch sizes, a wide viewport when the product uses one, relevant light/dark themes, and changed loading/empty/error/long-content/editor states. Choose cases based on the changed behavior; a tiny copy fix does not require this whole matrix.
 
+For frame/navigation/width changes, use the [layout contract](layout.md), including sparse and dense content and supported languages. Compare routes under matching conditions. Record actual active theme/language and fixture identity; browser locale alone does not select an application's translation.
+
 Document how the shared system is consumed: imports/version or copied revision/adaptations/update responsibility. Do not require an unrelated dependency migration merely to improve one screen.
 
 ## Browser helper
@@ -48,9 +50,35 @@ const result = await auditPage(page, projectRules, AxeBuilder);
 
 The caller supplies `AxeBuilder` from its installed `@axe-core/playwright`. Close contexts/browser in finally blocks. Store JSON alongside the state name, viewport, theme and exact commands. Screenshots are separate visual-review evidence, not automatically captured by this helper. CSS expectations use exact computed values (for example `rgb(...)` for colors), not token spellings.
 
+## Cross-route layout comparison
+
+For a CLI run, add `layoutComparisons` to compare an explicit landmark across named cases. Example config (replace routes/selectors and sizes with the product contract):
+
+```json
+{
+  "authority": "Project DESIGN: navigation is stable across these routes",
+  "baseURL": "http://127.0.0.1:18477",
+  "cases": [
+    {"name": "overview en wide", "path": "/", "locale": "en-US", "colorScheme": "light", "viewport": {"width": 3440, "height": 1200}, "readySelector": "main[data-ready]"},
+    {"name": "settings en wide", "path": "/settings", "locale": "en-US", "colorScheme": "light", "viewport": {"width": 3440, "height": 1200}, "readySelector": "main[data-ready]"}
+  ],
+  "layoutComparisons": [
+    {"name": "stable navigation", "cases": ["overview en wide", "settings en wide"], "selector": "header nav", "properties": ["x", "y", "height"], "tolerance": 1}
+  ]
+}
+```
+
+Each comparison needs a unique name, two or more distinct existing case names, a selector matching exactly one visible element in each case, nonempty `properties` chosen from `x`, `y`, `width`, `height`, and an explicit nonnegative pixel tolerance. The largest minus smallest value must be within that tolerance. Choose properties and tolerance from the intended invariant; do not increase tolerance to hide a real shift. Multiple comparisons may target navigation, header or other stable landmarks. Different content widths need not be equal.
+
+Compared cases must have identical viewport dimensions, touch mode, requested color scheme and locale. Invalid or unknown cases/configurations are blocked before navigation. The CLI uses `en-US` when locale is omitted and records locale and document `lang`; differing document languages block a comparison. It does not translate the page, verify class-driven themes or prove the language of its text. Use fixture URLs or project tests for those states.
+
+Each result includes measured `landmarks`; top-level `layoutComparisons` records rectangles/deltas and status. A missing or ambiguous visible landmark or excessive delta is `needs-work`. Unavailable cases make their comparison `blocked`. Overall report status and exit code include comparison findings even if every page's own audit passed. Without configured comparisons, no cross-route stability check is claimed.
+
+The helper records its revision and source SHA-256 in `checker`, including blocked reports. Record the SKILL path/revision separately in task notes. Keep the exact config, fixture preparation/script and reports in the project's evidence location. These measurements compare initial rendered positions, not navigation transitions, visual quality or optimal width. Use project interaction tests and side-by-side screenshot inspection for those claims.
+
 ## Interpret results
 
-- `needs-work`: axe WCAG2/2.1 AA violations, page overflow, viewport mismatch or a failed/missing visible CSS expectation.
+- `needs-work`: axe WCAG2/2.1 AA violations, page overflow, viewport mismatch, a failed/missing visible CSS expectation or configured layout-comparison failure.
 - `needs-review`: no automatic failures, but axe could not determine a result or a control's visible box is below the configured touch minimum.
 - `automated-checks-passed`: only the executed automatic checks passed. This is not “design complete.”
 - `blocked`: page preparation or execution failed; inspect the safe diagnostic before claiming coverage. Fatal setup errors replace the requested output report with a blocked record to avoid reusing an earlier success.
@@ -68,7 +96,7 @@ A small switch/checkbox graphic may have a larger label or pseudo-element click 
 - Keyboard: tab order, visible focus, Enter/Space, dialog/menu Escape and focus return, disabled behavior.
 - States: prepare and inspect relevant editors/dialogs, empty/error/loading, long/localized text; a closed dialog scan says nothing about its contents.
 - Motion: explicitly check normal and reduced-motion behavior; a run with motion disabled is not a motion test.
-- Visual review: hierarchy, density, alignment, space use and product flow against screenshots at the agreed sizes.
+- Visual review: hierarchy, density, alignment, space use and product flow against screenshots at the agreed sizes. For layout work, inspect affected routes together, including sparse content, actual region widths and clipped/wrapped labels. Record which images were inspected; capturing them alone is not review.
 - Shared reuse: actual package imports and consumption checks only when package behavior/integration changed; copied-source checks should verify provenance and document synchronization.
 
 Use a compact ledger in existing task notes:
@@ -79,13 +107,15 @@ Use a compact ledger in existing task notes:
 
 A required fail, unreviewed finding or not-run item keeps verification incomplete. The final response can still explain implemented work and remaining limitations accurately. Fixes should stay within the authorized task.
 
+For layout work, record separate functional, shared-rule compliance and composition verdicts. Retain prior finding IDs/dispositions and final checked revision or file hashes. Later edits need relevant rechecks; do not silently extend earlier reviewer approval to them.
+
 
 ## Testing this skill's helpers
 
 Regression tests live in the repository source, not the user skill installation. They resolve dependencies from that repository and can be invoked from another working directory with an absolute test path:
 
 ```sh
-node --test <repo>/skills/frontend-reference-workflow/tests/browser-check.test.cjs
+node --test <repo>/skills/frontend-reference-workflow/tests/*.test.cjs
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s <repo>/skills/frontend-reference-workflow/tests -p 'test_*.py'
 ```
 

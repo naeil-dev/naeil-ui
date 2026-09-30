@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: detects route navigation shift even when each page passes its own audit
+ok 1 - detects route navigation shift even when each page passes its own audit
+  ---
+  duration_ms: 1046.651625
+  type: 'test'
+  ...
+# Subtest: accepts stable geometry and records locale and exact checker provenance
+ok 2 - accepts stable geometry and records locale and exact checker provenance
+  ---
+  duration_ms: 731.648
+  type: 'test'
+  ...
+# Subtest: missing or ambiguous landmarks cannot silently pass a comparison
+ok 3 - missing or ambiguous landmarks cannot silently pass a comparison
+  ---
+  duration_ms: 1348.361208
+  type: 'test'
+  ...
+# Subtest: rejects invalid comparisons before navigating any page
+ok 4 - rejects invalid comparisons before navigating any page
+  ---
+  duration_ms: 1702.289667
+  type: 'test'
+  ...
+# Subtest: an unavailable comparison page leaves overall verification blocked
+ok 5 - an unavailable comparison page leaves overall verification blocked
+  ---
+  duration_ms: 524.482709
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5387.173417

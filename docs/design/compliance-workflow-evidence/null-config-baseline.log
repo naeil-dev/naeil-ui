@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: rejects invalid comparisons before navigating any page
+not ok 1 - rejects invalid comparisons before navigating any page
+  ---
+  duration_ms: 689.083458
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:114:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:156:14
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:64:5)
+    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:115:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 722.17625

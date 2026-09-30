@@ -1,0 +1,106 @@
+TAP version 13
+# Subtest: browser helper is available
+ok 1 - browser helper is available
+  ---
+  duration_ms: 0.49425
+  type: 'test'
+  ...
+# Subtest: finds real contrast, nested interaction, small touch targets and overflow; accepts repaired UI
+ok 2 - finds real contrast, nested interaction, small touch targets and overflow; accepts repaired UI
+  ---
+  duration_ms: 635.418542
+  type: 'test'
+  ...
+# Subtest: small visuals with expanded label area require review, not invented touch failure
+ok 3 - small visuals with expanded label area require review, not invented touch failure
+  ---
+  duration_ms: 321.712542
+  type: 'test'
+  ...
+# Subtest: CLI writes pass/finding/blocked reports using an isolated local fixture
+ok 4 - CLI writes pass/finding/blocked reports using an isolated local fixture
+  ---
+  duration_ms: 2399.997833
+  type: 'test'
+  ...
+# Subtest: isolates overflow, incomplete, missing expectations and fine-pointer coverage
+ok 5 - isolates overflow, incomplete, missing expectations and fine-pointer coverage
+  ---
+  duration_ms: 665.75875
+  type: 'test'
+  ...
+# Subtest: rejects malformed expectations instead of silently checking nothing
+ok 6 - rejects malformed expectations instead of silently checking nothing
+  ---
+  duration_ms: 0.440542
+  type: 'test'
+  ...
+# Subtest: rejects empty CSS expectations
+ok 7 - rejects empty CSS expectations
+  ---
+  duration_ms: 0.07475
+  type: 'test'
+  ...
+# Subtest: mobile layout viewport mismatch is a finding
+ok 8 - mobile layout viewport mismatch is a finding
+  ---
+  duration_ms: 292.426375
+  type: 'test'
+  ...
+# Subtest: touch candidates exclude noninteractive focus anchors and clipped skip links but include tabs
+ok 9 - touch candidates exclude noninteractive focus anchors and clipped skip links but include tabs
+  ---
+  duration_ms: 289.466458
+  type: 'test'
+  ...
+# Subtest: transparent input overlay remains a touch target
+ok 10 - transparent input overlay remains a touch target
+  ---
+  duration_ms: 276.277625
+  type: 'test'
+  ...
+# Subtest: transparent non-pointer form mirror is not a touch target
+ok 11 - transparent non-pointer form mirror is not a touch target
+  ---
+  duration_ms: 278.34225
+  type: 'test'
+  ...
+# Subtest: detects route navigation shift even when each page passes its own audit
+ok 12 - detects route navigation shift even when each page passes its own audit
+  ---
+  duration_ms: 792.38375
+  type: 'test'
+  ...
+# Subtest: accepts stable geometry and records locale and exact checker provenance
+ok 13 - accepts stable geometry and records locale and exact checker provenance
+  ---
+  duration_ms: 850.908792
+  type: 'test'
+  ...
+# Subtest: missing or ambiguous landmarks cannot silently pass a comparison
+ok 14 - missing or ambiguous landmarks cannot silently pass a comparison
+  ---
+  duration_ms: 1571.296125
+  type: 'test'
+  ...
+# Subtest: rejects invalid comparisons before navigating any page
+ok 15 - rejects invalid comparisons before navigating any page
+  ---
+  duration_ms: 2161.732791
+  type: 'test'
+  ...
+# Subtest: an unavailable comparison page leaves overall verification blocked
+ok 16 - an unavailable comparison page leaves overall verification blocked
+  ---
+  duration_ms: 519.880792
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5931.56625

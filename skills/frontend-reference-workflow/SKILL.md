@@ -5,6 +5,8 @@ description: Use when building a new frontend page, when the user dislikes or re
 
 # Frontend references
 
+Workflow revision: **2026-09-30**. At a substantial task boundary, read the current entrypoint and record its path/revision in task evidence. An installation update does not refresh instructions already read by a running agent; reload relevant references when resuming after an update.
+
 Use real references to resolve a concrete design decision, then verify the rendered result against the project's approved system. Preserve prior authorization and choices.
 
 ## Establish the task contract
@@ -16,6 +18,8 @@ Read applicable instructions, DESIGN.md, existing tokens/components and the targ
 - **Reuse:** actual package/version/imports, or pinned copied source plus adaptations and update responsibility. Do not describe copied CSS as package/component integration. A migration is a separate scope decision, not an automatic prerequisite.
 - **Gaps:** unresolved decisions and references needed; existing answers require no new discovery.
 - **Acceptance:** affected states, viewport/input modes, expected checks and evidence locations. Include product-relevant wide screens, not just one desktop size.
+- **Layout (when changing frame, navigation, widths or columns):** follow [layout.md](references/layout.md); distinguish application-frame invariants from content widths and record comparable routes, content/locale fixtures and width rationale.
+- **Carry-forward:** previous findings with their affected scope, current status and evidence needed to close them. A new layout review does not automatically close accessibility findings.
 
 For a new direction, show source URLs/images and a concrete proposal before applying it. Wait only for decisions not already authorized. Durable instruction additions follow the same existing-approval rule.
 
@@ -45,3 +49,5 @@ For substantial UI work, follow [verification.md](references/verification.md). U
 Fix in-scope failures and recheck affected behavior. Report unrelated inherited problems without silently expanding scope. Do not change acceptance thresholds to obtain a pass.
 
 Finish with: **changes; reference/tool evidence; checks and tested scope; remaining failures/manual reviews/unverified items**. Distinguish installed, read, searched, retrieved, adopted, executed, skipped and blocked. An automated pass describes only the checks run; unresolved required checks mean verification is incomplete. Keep detailed evidence in project notes, not a lengthy user-facing tool diary.
+
+For layout work, report functionality, shared-design compliance and visual composition separately. Preserve the runnable check/config and reports; identify the final checked revision or hashes and any later edits with their scoped rechecks.

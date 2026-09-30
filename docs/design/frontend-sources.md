@@ -25,3 +25,11 @@ Component Gallery와 Kinetics는 직접 HTTP 읽기가403이었으나 브라우�
 ### 21st 인증 완료 후 연결 보완
 
 공식 npm 패키지 `@21st-dev/magic@0.2.3`의 메타데이터와 배포 소스를 확인했다. 이 버전은 현재21st HTTP 서버에 전달하는 공식 호환 프록시다. GUI 환경에서 키를 안전하게 전달하기 위해 로컬 stdio 실행기로 연결했다. 실제 인증·도구 조회·get_usage가 성공했으며, free tier와 hosted AI 비활성 상태를 확인했다. Codex 두 환경과 Claude Code의 연결을 활성화했다. 기존 키 대기 상태는 이 확인으로 갱신된다.
+
+## 2026-09-30 — 공통 기준 적용과 페이지 간 배치 검증
+
+- 근거: [RelayDock 추가 실행 감사](relaydock-followup-lessons.md), 기존 DESIGN.md와 소비자 가이드. 외부 스타일을 새로 선택하는 작업이 아니다.
+- 확인한 빈 부분: 페이지별 자동 검사만으로 공통 메뉴 이동을 찾지 못함; 앱 틀과 콘텐츠 폭의 적용 구분, 이전 발견 사항과 스킬 버전 추적이 부족함.
+- 반영: DESIGN.md·v2-migration.md의 구성 기준, AGENTS.md 연결, 스킬의 조건부 layout 계약, `browser-check.cjs`의 명시적 페이지 간 비교와 실행 파일 해시.
+- 실제 실행: 로컬 Chromium/axe 회귀 검사와 독립 행동·코드 검토. 도구·결과 범위는 [개선 검증 기록](common-design-compliance-verification.md)에 보존한다.
+- Refero/21st/Component Gallery/Kinetics 재검색·코드 retrieval·Impeccable polish/distill은 실행하지 않았다. 승인된 시스템의 적용·검증 개선이라 새 외부 참고가 필요하지 않았다. 새 외부 코드·라이선스·의존성도 추가하지 않았다.
