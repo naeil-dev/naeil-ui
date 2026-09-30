@@ -1,0 +1,14 @@
+[
+  {
+    "mutation": "falsy-rules",
+    "exit": 1,
+    "detected": true,
+    "output": "TAP version 13\n# Subtest: rejects invalid comparisons before navigating any page\nnot ok 1 - rejects invalid comparisons before navigating any page\n  ---\n  duration_ms: 807.63275\n  type: 'test'\n  location: '/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/falsy-rules.test.cjs:153:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    0 !== 2\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 2\n  actual: 0\n  operator: 'strictEqual'\n  stack: |-\n    /private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/falsy-rules.test.cjs:233:14\n    process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    async fixture (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/falsy-rules.test.cjs:103:5)\n    async TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/falsy-rules.test.cjs:154:3)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 838.145416\n"
+  },
+  {
+    "mutation": "overflow",
+    "exit": 1,
+    "detected": true,
+    "output": "TAP version 13\n# Subtest: page overflow includes widths smaller than the native scrollbar\nnot ok 1 - page overflow includes widths smaller than the native scrollbar\n  ---\n  duration_ms: 495.717875\n  type: 'test'\n  location: '/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/overflow.test.cjs:340:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    /small-overflow\n    \n    false !== true\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  actual: false\n  operator: 'strictEqual'\n  stack: |-\n    /private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/overflow.test.cjs:348:14\n    process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    async fixture (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/overflow.test.cjs:103:5)\n    async TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-final-mutations-fb8a85cr/overflow.test.cjs:341:3)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 527.558667\n"
+  }
+]

@@ -252,7 +252,7 @@ test("rejects malformed expectations instead of silently checking nothing", asyn
         { expectations: [{ selector: "body", cs: { fontSize: "18px" } }] },
         AxeBuilder,
       ),
-    /selector and nonempty css/,
+    /unsupported keys/,
   );
 });
 test("rejects empty CSS expectations", async () => {
@@ -339,6 +339,30 @@ test("transparent non-pointer form mirror is not a touch target", async () => {
     );
     const r = await auditPage(page, { touchMin: 44 }, AxeBuilder);
     assert.deepEqual(r.touchReview, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("hidden ancestors cannot satisfy visible CSS expectations or non-pointer touch targets", async () => {
+  const { auditPage } = require(script);
+  const browser = await chromium.launch();
+  try {
+    const page = await (await browser.newContext({ hasTouch: true })).newPage();
+    await page.setContent(
+      '<html lang="en"><title>Fixture</title><main><div style="opacity:0;pointer-events:none"><button id="hidden" style="width:20px;height:20px;font-size:16px">Hidden</button></div></main></html>',
+    );
+    const result = await auditPage(
+      page,
+      {
+        touchMin: 44,
+        expectations: [{ selector: "#hidden", css: { fontSize: "16px" } }],
+      },
+      AxeBuilder,
+    );
+    assert.equal(result.status, "needs-work");
+    assert.equal(result.expectations[0].reason, "No visible match");
+    assert.deepEqual(result.touchReview, []);
   } finally {
     await browser.close();
   }

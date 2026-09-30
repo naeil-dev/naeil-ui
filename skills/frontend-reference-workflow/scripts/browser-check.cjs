@@ -5,7 +5,7 @@ const { createRequire } = require("node:module");
 const { createHash } = require("node:crypto");
 
 const checker = {
-  revision: "2026-09-30",
+  revision: "2026-09-30.2",
   sha256: createHash("sha256")
     .update(fs.readFileSync(__filename))
     .digest("hex"),
@@ -13,12 +13,37 @@ const checker = {
 
 class CheckError extends Error {}
 let outputPath;
+function knownKeys(value, allowed, label) {
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new CheckError(label + " must be an object");
+  if (Object.keys(value).some((key) => !allowed.includes(key)))
+    throw new CheckError(label + " contains unsupported keys; check spelling");
+}
 function validateRules(rules) {
-  if (!rules || typeof rules !== "object" || Array.isArray(rules))
-    throw new CheckError("rules must be an object");
+  knownKeys(rules, ["touchMin", "expectations", "fontsLoaded"], "rules");
+  if (
+    rules.touchMin !== undefined &&
+    (!Number.isFinite(rules.touchMin) || rules.touchMin <= 0)
+  )
+    throw new CheckError("touchMin must be a positive project-defined number");
+  if (rules.fontsLoaded !== undefined && !Array.isArray(rules.fontsLoaded))
+    throw new CheckError("fontsLoaded must be an array");
+  for (const font of rules.fontsLoaded || []) {
+    knownKeys(font, ["font", "text"], "font probe");
+    if (
+      typeof font.font !== "string" ||
+      !font.font.trim() ||
+      typeof font.text !== "string" ||
+      !font.text.trim()
+    )
+      throw new CheckError(
+        "Font probes require nonempty font shorthand and sample text",
+      );
+  }
   if (rules.expectations !== undefined && !Array.isArray(rules.expectations))
     throw new CheckError("expectations must be an array");
   for (const rule of rules.expectations || []) {
+    knownKeys(rule, ["selector", "css"], "expectation");
     if (
       !rule ||
       typeof rule.selector !== "string" ||
@@ -43,22 +68,64 @@ function safeError(error) {
   if (error instanceof SyntaxError) return "Invalid JSON configuration";
   if (error.name === "TimeoutError")
     return "Timed out preparing the page or ready selector";
+  if (String(error.message).includes("strict mode violation"))
+    return "Ready selector must match exactly one element";
   return "Browser or audit execution failed; inspect local setup and selectors (raw output suppressed)";
 }
 async function auditPage(page, rules, AxeBuilder) {
   validateRules(rules);
-  if (
-    rules.touchMin !== undefined &&
-    (!Number.isFinite(rules.touchMin) || rules.touchMin <= 0)
-  ) {
-    throw new CheckError("touchMin must be a positive project-defined number");
-  }
   await page.evaluate(() => document.fonts.ready);
+  const fonts = await page.evaluate(async (probes) => {
+    const results = [];
+    for (const probe of probes) {
+      try {
+        const faces = await document.fonts.load(probe.font, probe.text);
+        const loaded =
+          faces.length > 0 &&
+          faces.every((face) => face.status === "loaded") &&
+          document.fonts.check(probe.font, probe.text);
+        results.push({
+          font: probe.font,
+          status: loaded ? "pass" : "fail",
+          faces: faces.map((face) => ({
+            family: face.family,
+            status: face.status,
+          })),
+          reason: loaded
+            ? null
+            : "No loaded web font faces for the requested sample",
+        });
+      } catch {
+        results.push({
+          font: probe.font,
+          status: "fail",
+          reason: "Web font loading failed or shorthand is invalid",
+        });
+      }
+    }
+    return results;
+  }, rules.fontsLoaded || []);
+  const fontReview =
+    !fonts.length &&
+    (rules.expectations || []).some((rule) =>
+      Object.keys(rule.css).some((p) =>
+        ["font", "fontFamily", "font-family"].includes(p),
+      ),
+    )
+      ? [
+          "Computed font-family is only a declaration; verify actual font loading separately or configure fontsLoaded.",
+        ]
+      : [];
   const measurements = await page.evaluate(
     ({ touchMin, expectations = [] }) => {
       const visible = (el, includeTransparent = false) => {
         const r = el.getBoundingClientRect();
         const s = getComputedStyle(el);
+        if (!includeTransparent) {
+          for (let node = el.parentElement; node; node = node.parentElement) {
+            if (getComputedStyle(node).opacity === "0") return false;
+          }
+        }
         return (
           r.width > 0 &&
           r.height > 0 &&
@@ -86,8 +153,7 @@ async function auditPage(page, rules, AxeBuilder) {
         )) {
           if (
             !visible(el, true) ||
-            (getComputedStyle(el).opacity === "0" &&
-              getComputedStyle(el).pointerEvents === "none") ||
+            (getComputedStyle(el).pointerEvents === "none" && !visible(el)) ||
             el.matches(':disabled,[aria-disabled="true"],[inert],[inert] *') ||
             el.getAttribute("type") === "hidden"
           )
@@ -140,8 +206,12 @@ async function auditPage(page, rules, AxeBuilder) {
       return {
         documentLanguage: document.documentElement.lang,
         viewport: { width: innerWidth, height: innerHeight, coarse },
+        scrollbarWidth: Math.max(
+          0,
+          innerWidth - document.documentElement.clientWidth,
+        ),
         scrollWidth: document.documentElement.scrollWidth,
-        overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
         touchStatus: touchMin
           ? coarse
             ? "measured"
@@ -176,21 +246,28 @@ async function auditPage(page, rules, AxeBuilder) {
     violations.length ||
     measurements.overflow ||
     measurements.viewportMismatch ||
+    fonts.some((font) => font.status === "fail") ||
     measurements.expectations.some((x) => x.status === "fail")
       ? "needs-work"
-      : measurements.touchReview.length || incomplete.length
+      : measurements.touchReview.length ||
+          incomplete.length ||
+          fontReview.length
         ? "needs-review"
         : "automated-checks-passed";
   return {
     ...measurements,
     violations,
     incomplete,
+    fonts,
+    fontReview,
     status,
     limits: [
       "Only the current rendered state was measured; axe contrast covers text in that state.",
       "Control boundaries, focus and selected/state indicators need separate non-text contrast checks against the project standard.",
       "Page scroll overflow only; clipped/ellipsized content and inner-region overflow require visual review.",
       "Small visual boxes need effective-hit-area review.",
+      "Font probes establish web font availability for configured samples, not every rendered glyph or system font. Computed font-family alone is not loading evidence.",
+      "Scrollbar width is environment-dependent; project API callers must verify their browser launch settings.",
       "Keyboard behavior, visual hierarchy, reduced motion and other states require separate checks.",
     ],
   };
@@ -204,6 +281,11 @@ function validateComparisons(comparisons, cases) {
     throw new CheckError("Case names must be unique");
   const names = new Set();
   for (const item of comparisons) {
+    knownKeys(
+      item,
+      ["name", "selector", "cases", "properties", "tolerance"],
+      "layout comparison",
+    );
     if (
       !item ||
       typeof item.name !== "string" ||
@@ -246,7 +328,15 @@ async function measureLandmark(page, selector) {
   return page.locator(selector).evaluateAll((elements) => {
     const visible = elements.filter((el) => {
       const rect = el.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return false;
+      if (
+        rect.width <= 0 ||
+        rect.height <= 0 ||
+        rect.right <= 0 ||
+        rect.bottom <= 0 ||
+        rect.left >= innerWidth ||
+        rect.top >= innerHeight
+      )
+        return false;
       for (let node = el; node; node = node.parentElement) {
         const style = getComputedStyle(node);
         if (
@@ -326,6 +416,11 @@ async function main() {
   outputPath = path.resolve(value("--out"));
   const configPath = path.resolve(value("--config"));
   const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  knownKeys(
+    config,
+    ["authority", "baseURL", "rules", "cases", "layoutComparisons"],
+    "config",
+  );
   const output = outputPath;
   if (!config || typeof config.baseURL !== "string" || !config.baseURL.trim())
     throw new CheckError("Provide a valid baseURL");
@@ -355,8 +450,22 @@ async function main() {
   const AxeBuilder = req("@axe-core/playwright").default;
   if (!config.authority || !Array.isArray(config.cases) || !config.cases.length)
     throw new CheckError("Provide authority and nonempty cases");
-  validateRules(config.rules || {});
+  const rules = config.rules === undefined ? {} : config.rules;
+  validateRules(rules);
   for (const entry of config.cases) {
+    knownKeys(
+      entry,
+      [
+        "name",
+        "path",
+        "viewport",
+        "touch",
+        "colorScheme",
+        "locale",
+        "readySelector",
+      ],
+      "case",
+    );
     if (
       !entry ||
       typeof entry.name !== "string" ||
@@ -371,6 +480,7 @@ async function main() {
       throw new CheckError(
         "Each case requires name, path and positive integer viewport width/height",
       );
+    knownKeys(entry.viewport, ["width", "height"], "viewport");
     if (entry.touch !== undefined && typeof entry.touch !== "boolean")
       throw new CheckError("Case touch must be boolean");
     if (entry.locale !== undefined) {
@@ -405,7 +515,9 @@ async function main() {
   const comparisons =
     config.layoutComparisons === undefined ? [] : config.layoutComparisons;
   validateComparisons(comparisons, config.cases);
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    ignoreDefaultArgs: ["--hide-scrollbars"],
+  });
   const results = [];
   try {
     for (const entry of config.cases) {
@@ -426,19 +538,43 @@ async function main() {
         touch: !!entry.touch,
         viewportConfig: entry.viewport,
       };
+      let originError;
       try {
         const page = await context.newPage();
+        const recordDestination = () => {
+          const destination = new URL(page.url());
+          caseInfo.finalURL = destination.origin + destination.pathname;
+          if (
+            destination.origin !== base.origin ||
+            destination.username ||
+            destination.password
+          )
+            originError = new CheckError(
+              "Final page must remain on the preview origin without embedded credentials",
+            );
+        };
+        // Keep departures sticky even if the page later returns to the preview.
+        page.on("framenavigated", (frame) => {
+          if (frame === page.mainFrame()) recordDestination();
+        });
+        const checkDestination = () => {
+          recordDestination();
+          if (originError) throw originError;
+        };
         const response = await page.goto(url.href, {
           waitUntil: "domcontentloaded",
           timeout: 20000,
         });
         if (!response || !response.ok())
           throw new CheckError("Preview returned a failed HTTP response");
+        checkDestination();
         if (entry.readySelector)
           await page
             .locator(entry.readySelector)
             .waitFor({ state: "visible", timeout: 20000 });
-        const result = await auditPage(page, config.rules || {}, AxeBuilder);
+        checkDestination();
+        const result = await auditPage(page, rules, AxeBuilder);
+        checkDestination();
         const selectors = [
           ...new Set(
             comparisons
@@ -452,13 +588,14 @@ async function main() {
             selector,
             ...(await measureLandmark(page, selector)),
           });
+        checkDestination();
         results.push({ ...caseInfo, ...result, landmarks });
       } catch (e) {
         results.push({
           ...caseInfo,
           status: "blocked",
           reason: "Page preparation or audit failed",
-          detail: safeError(e),
+          detail: safeError(originError || e),
         });
       } finally {
         await context.close();
@@ -479,6 +616,7 @@ async function main() {
     authority: config.authority,
     results,
     layoutComparisons,
+    scrollbarMode: "native; Playwright hide-scrollbars argument removed",
     scope:
       "Isolated browser; only configured initial states, reduced motion enabled; no mutation flows run.",
   };

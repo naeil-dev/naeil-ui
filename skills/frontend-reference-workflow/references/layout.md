@@ -20,6 +20,8 @@ Check column behavior at both constrained and wide available widths. A capped ma
 
 The browser helper's optional `layoutComparisons` measures explicit landmarks across cases; see [verification.md](verification.md#cross-route-layout-comparison). Equivalent project measurements are valid. Initial-page comparisons do not prove client-side route transitions, scroll restoration, dynamic loading or browser zoom. Check those in the existing product test flow when affected.
 
+Include short/tall content when scrollbar appearance can change centered anchors. The CLI leaves native scrollbars enabled and records their measured width; project-owned browsers must verify their own launch settings. Inspect actual font loading separately from CSS font-family declarations.
+
 ## Review and closure
 
 Give reviewers the task/authority, intended frame invariants, exact routes/states and current artifacts. Ask for actual composition and cross-route inspection when layout changed; code review alone does not establish it. Preserve scripts/configs with reports so the check can be reproduced.

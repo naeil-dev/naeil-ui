@@ -1,5 +1,7 @@
 # Frontend reference workflow 개선 검증
 
+이 문서는 2026-09-29 단계의 역사적 검증 기록이다. 파일 수·해시·테스트 수는 당시 값이며 현재 설치본과의 일치를 주장하지 않는다. 이후 변경은 [공통 기준 적용 검증](common-design-compliance-verification.md)과 [두 모델 종합 리뷰](frontend-v2-dual-review.md)를 따른다.
+
 범위: 사용자가 승인한 다섯 가지 스킬 개선. RelayDock 제품·공통 UI 토큰·공식 Impeccable·플러그인 설정은 변경하지 않는다.
 
 ## 구현
@@ -63,4 +65,3 @@ Low 지적은 모바일 layout viewport와 불일치 검출, 설정 오타 차�
 - 실제 설치 경로의 browser helper로 [11개 검사 통과](frontend-workflow-evidence/installed-browser-tests.log), MCP helper로 [5개 검사 통과](frontend-workflow-evidence/installed-mcp-tests.log).
 - 저장소 원본과 설치된 모든 파일 해시 일치, 설치본 스킬 validator 통과.
 - 플러그인 설치·운영 배포·RelayDock 제품 수정은 수행하지 않았다. 사용 방식은 기존 `$frontend-reference-workflow` 그대로다. 오래 실행 중인 세션이 이전 본문을 기억하고 있다면 스킬을 다시 읽거나 새 세션에서 호출한다.
-

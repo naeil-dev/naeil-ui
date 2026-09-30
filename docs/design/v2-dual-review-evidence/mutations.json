@@ -1,0 +1,32 @@
+[
+  {
+    "mutation": "document-language",
+    "exit": 1,
+    "detected": true,
+    "summary": [
+      "not ok 1 - rendered languages and tolerance boundary are enforced",
+      "# pass 0",
+      "# fail 1"
+    ]
+  },
+  {
+    "mutation": "tolerance",
+    "exit": 1,
+    "detected": true,
+    "summary": [
+      "not ok 1 - rendered languages and tolerance boundary are enforced",
+      "# pass 0",
+      "# fail 1"
+    ]
+  },
+  {
+    "mutation": "ancestor-opacity",
+    "exit": 1,
+    "detected": true,
+    "summary": [
+      "not ok 1 - landmarks need to be onscreen and visible through ancestors",
+      "# pass 0",
+      "# fail 1"
+    ]
+  }
+]

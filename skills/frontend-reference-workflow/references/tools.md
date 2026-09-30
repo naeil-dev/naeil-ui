@@ -18,6 +18,8 @@ The current endpoint is `https://21st.dev/api/mcp`, using an `x-api-key` header.
 
 Before retrieval, announce what is being searched, discover current tools, and inspect `get_usage` if exposed. Do not hardcode a daily free quota. `search` and `get_component` are distinct from hosted `generate`/`iterate_generation`; hosted AI access is separate and should not be used just to inspect a component. Stop on quota/auth/payment errors, explain the limitation, and do not silently retry paid operations.
 
+The normal reference route uses `get_usage`, `search`, and, when code inspection is needed and usage is authorized, `get_component`. Discovery may also expose publishing, deleting, profile/media editing, bookmarks or feedback tools; their presence is not permission to change account state. Inspect any other tool's current schema and purpose before use. Account mutations and hosted generation need explicit applicable authorization; preserve authorization already provided.
+
 Codex HTTP config (place only in the active authorized config; preserve unrelated entries):
 
 ```toml
@@ -56,6 +58,8 @@ Announce the gap/query before search. `status` initializes MCP, discovers curren
 The client never opens the credential file itself. The existing launcher supplies credentials. Raw child stderr and protocol error content are suppressed; timeout/auth/tool errors stop without retries. Successful usage/search results contain service metadata; store only necessary design evidence, not unrelated returned content. `--timeout` bounds each protocol call.
 
 This helper intentionally supports **status and search only**. It does not download component code, generate, upload, subscribe or spend a retrieval allowance. If component code is needed, use the discovered native retrieval tool under the existing usage/authorization rules; absent retrieval tools are a specific blocked step, not permission to invent a new bridge. A successful search is evidence of real MCP search, not component adoption.
+
+The helper validates tool-list and result-envelope types and requires nonempty text/structured usage data before search. An absent result object is blocked; a valid empty search content array can mean zero matches. It returns the provider's data for inspection, without interpreting arbitrary text as sufficient quota or permission to retrieve. Timeouts must be finite and positive. Provider tool pricing/semantics still require current discovery; the metadata-search classification is based on the previously inspected schema, not a new live check on every installation.
 
 ## Impeccable
 

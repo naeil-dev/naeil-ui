@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-09-30T01:31:45.149382+00:00",
+  "commit": "82456d93061e875ea554fa8567537a920cee3361",
+  "reviewers": {
+    "opus": {
+      "id": "bf3ea4a4-b4e1-4a87-a5bc-bccd51d1911d",
+      "provider": "claude/claude-opus-5-5",
+      "thinking": "high"
+    },
+    "sol": {
+      "id": "9a158256-6392-4898-9457-64ac32e19967",
+      "provider": "codex/gpt-6.1-sol",
+      "thinking": "high"
+    }
+  },
+  "files": {
+    "AGENTS.md": "c2c8808b31c997df2af81e8f8496ee55338bc1e0ccce5269f9aa27c9410e940f",
+    "DESIGN.md": "9e0a51577d4e684878df2f81de98612fa49be52cd1c4da9733db49c2d400ee33",
+    "docs/design/common-design-compliance-verification.md": "e6304f150b596a3629b65c7e56c067776021a40f6476f1df9f05086424d3ae87",
+    "docs/design/frontend-sources.md": "a068e5024017465adb718c460baaa953a6289e60d1ccd3c7690fadd9d1f52385",
+    "docs/design/frontend-tooling.md": "5293c9e2cf16d3de2c8811fea1bd4413bb94a47cda5ca170ca6309cb2a99a946",
+    "docs/design/frontend-workflow-v2-verification.md": "d33340afe1aec1ecb60ce6d225f7f70d2ddd021516827aaad43d4c66c3e0d791",
+    "docs/design/v2-migration.md": "ef71a6b4ca74dbc6fcde89a0064461c85bb8a8b56ed946c82097d0db3626974a",
+    "skills/frontend-reference-workflow/.gitignore": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793",
+    "skills/frontend-reference-workflow/SKILL.md": "44c3d5f595037f2eda646f5d823a628ec139d12a16434c4e8ad8b48e848f8259",
+    "skills/frontend-reference-workflow/agents/openai.yaml": "7d5c0506f2f4efee8fa1c1fd41629cc325803cb6c87b76216282a27db9531765",
+    "skills/frontend-reference-workflow/references/layout.md": "906aaa7dd587b6c2c241ef1ff2d87dbba03e8728f24e3aa658e419755e8632b4",
+    "skills/frontend-reference-workflow/references/tools.md": "997732e0da02286f958ff37b725b85c5a0509fbc2c3025af3a51e14de6c81b6f",
+    "skills/frontend-reference-workflow/references/verification.md": "606bf277c4741a17ee81144a7e271a36c64550bb7f8b8dd3202e4723ff8785a6",
+    "skills/frontend-reference-workflow/scripts/browser-check.cjs": "df95d249b2446116486a121de931ab19d027d3afcc58d4842a2189f884ed3f0b",
+    "skills/frontend-reference-workflow/scripts/twenty_first.py": "8e2e6743caee97f20f3fa1b755a45783b932f89894c99c37a9543a6887bb5dd9",
+    "skills/frontend-reference-workflow/tests/browser-check.test.cjs": "66a401b07046741fcdaf2361736f54865509d5978fc854a24dcb27dc04252022",
+    "skills/frontend-reference-workflow/tests/layout-comparison.test.cjs": "dd83d8c7ea1c374b831bbd8680c1e423a2cf9f5fb0013233c22c6a7dd6634509",
+    "skills/frontend-reference-workflow/tests/test_mcp_client.py": "cd0724e92beb5b2f55cb6c47902f846dd2cf627e5dc3e3d33302014507dc0d9b"
+  },
+  "installedRuntimeMatches": true
+}

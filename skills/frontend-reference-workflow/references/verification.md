@@ -50,6 +50,18 @@ const result = await auditPage(page, projectRules, AxeBuilder);
 
 The caller supplies `AxeBuilder` from its installed `@axe-core/playwright`. Close contexts/browser in finally blocks. Store JSON alongside the state name, viewport, theme and exact commands. Screenshots are separate visual-review evidence, not automatically captured by this helper. CSS expectations use exact computed values (for example `rgb(...)` for colors), not token spellings.
 
+Configuration objects reject unknown keys, including misspelled rule/case/comparison keys. Omission of `rules` permits the general axe/overflow checks; explicit null/false/zero is invalid. `touchMin` is validated before navigation. Keep task annotations outside this execution config. A readySelector must match exactly one element. The report records the final origin/path (query and fragment omitted); main-frame origin departures during preparation or measurement keep the case blocked, even if it later returns. The destination is checked after readiness, audit and landmark measurements; it is also updated on main-frame navigation. This is a result-integrity check, not network isolation or a claim that no cross-origin request occurred.
+
+### Font loading
+
+Computed `font-family` is a declaration, not proof of the rendered face. A font/fontFamily CSS expectation without explicit loading probes produces `needs-review`. To check that a web font is available for a requested font shorthand and text sample, add:
+
+```json
+{"fontsLoaded": [{"font": "400 16px Pretendard", "text": "한글 Latin"}]}
+```
+
+This is a `rules` field. Each probe requires CSS font shorthand and nonempty sample text. The helper uses `document.fonts.load/check` and requires a nonempty set of loaded web font faces; a missing declaration or a failed download is `needs-work`, even if computed CSS matches. Results appear in `fonts`; unconfigured declaration-only checks appear in `fontReview`. System-font availability, exact per-glyph fallback, and exact weight/style matching are outside this check. Browsers may satisfy a 700-weight request with a nearby 400-weight face or synthetic bold; this probe does not verify the requested face descriptors. Choose representative samples/weights and inspect actual typography; a passing font probe is not proof that every element or glyph uses that face.
+
 ## Cross-route layout comparison
 
 For a CLI run, add `layoutComparisons` to compare an explicit landmark across named cases. Example config (replace routes/selectors and sizes with the product contract):
@@ -76,10 +88,14 @@ Each result includes measured `landmarks`; top-level `layoutComparisons` records
 
 The helper records its revision and source SHA-256 in `checker`, including blocked reports. Record the SKILL path/revision separately in task notes. Keep the exact config, fixture preparation/script and reports in the project's evidence location. These measurements compare initial rendered positions, not navigation transitions, visual quality or optimal width. Use project interaction tests and side-by-side screenshot inspection for those claims.
 
+The CLI removes Playwright's default `--hide-scrollbars` argument. Every case records `scrollbarWidth`, and the report records `scrollbarMode`. Compare short and tall content to catch centering shifts when a classic scrollbar appears; consider the product's `scrollbar-gutter` policy. The observed width still depends on the browser/OS. Zero width does not certify classic-scrollbar behavior. Direct `auditPage` callers own their browser launch configuration.
+
+Landmarks must overlap the viewport and have no transparent ancestor. Fully clipped or occluded shapes and actual hit testing still need visual/interaction review. CSS expectations exclude transparent ancestors; touch candidates retain transparent pointer-active overlays, while non-pointer transparent subtrees are excluded. A transparent element that can still intercept input needs review even if its parent is transparent.
+
 ## Interpret results
 
 - `needs-work`: axe WCAG2/2.1 AA violations, page overflow, viewport mismatch, a failed/missing visible CSS expectation or configured layout-comparison failure.
-- `needs-review`: no automatic failures, but axe could not determine a result or a control's visible box is below the configured touch minimum.
+- `needs-review`: no automatic failures, but axe could not determine a result, a control's visible box is below the configured touch minimum, or a font declaration has no configured loading probe.
 - `automated-checks-passed`: only the executed automatic checks passed. This is not “design complete.”
 - `blocked`: page preparation or execution failed; inspect the safe diagnostic before claiming coverage. Fatal setup errors replace the requested output report with a blocked record to avoid reusing an earlier success.
 - Use the report's top-level `status` or the process exit code for the overall verdict; an empty `results` array on setup failure is not a pass. The overall status prioritizes blocked, needs-work, then needs-review.

@@ -1,0 +1,15 @@
+{
+  "revision": "2026-09-30.2",
+  "backup": "/Users/jaymini/.local/share/naeil-frontend/skill-backups/20260930T020452Z",
+  "installed": "/Users/jaymini/.agents/skills/frontend-reference-workflow",
+  "files": {
+    "SKILL.md": "88d3175d50d0b7066a7b3e89d718b123b515f27be5b8410fc304268a2946c779",
+    "scripts/twenty_first.py": "6c547e44de60a907c1412386eb7ed44818d5f99c4736127d6477b5b5fda3a69f",
+    "scripts/browser-check.cjs": "90d5dacbc9c5f29e7cbcab5c2ec341a38ae3d893e0c4726b8084145184403338",
+    "references/verification.md": "e027413583b6c849e821d1445e11d4960e97035e10e2a0010c79a841d3a754ad",
+    "references/layout.md": "40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a",
+    "references/tools.md": "d111c540890d6e8fb99030bdc417204f49a1770f1ddf3f767731ea21ca4906a2",
+    "agents/openai.yaml": "7d5c0506f2f4efee8fa1c1fd41629cc325803cb6c87b76216282a27db9531765"
+  },
+  "claudeLinkMatches": true
+}

@@ -1,0 +1,258 @@
+TAP version 13
+# Subtest: browser helper is available
+ok 1 - browser helper is available
+  ---
+  duration_ms: 0.446917
+  type: 'test'
+  ...
+# Subtest: finds real contrast, nested interaction, small touch targets and overflow; accepts repaired UI
+ok 2 - finds real contrast, nested interaction, small touch targets and overflow; accepts repaired UI
+  ---
+  duration_ms: 914.32775
+  type: 'test'
+  ...
+# Subtest: small visuals with expanded label area require review, not invented touch failure
+ok 3 - small visuals with expanded label area require review, not invented touch failure
+  ---
+  duration_ms: 332.050917
+  type: 'test'
+  ...
+# Subtest: CLI writes pass/finding/blocked reports using an isolated local fixture
+ok 4 - CLI writes pass/finding/blocked reports using an isolated local fixture
+  ---
+  duration_ms: 2602.763417
+  type: 'test'
+  ...
+# Subtest: isolates overflow, incomplete, missing expectations and fine-pointer coverage
+ok 5 - isolates overflow, incomplete, missing expectations and fine-pointer coverage
+  ---
+  duration_ms: 730.60075
+  type: 'test'
+  ...
+# Subtest: rejects malformed expectations instead of silently checking nothing
+ok 6 - rejects malformed expectations instead of silently checking nothing
+  ---
+  duration_ms: 0.928958
+  type: 'test'
+  ...
+# Subtest: rejects empty CSS expectations
+ok 7 - rejects empty CSS expectations
+  ---
+  duration_ms: 0.205083
+  type: 'test'
+  ...
+# Subtest: mobile layout viewport mismatch is a finding
+ok 8 - mobile layout viewport mismatch is a finding
+  ---
+  duration_ms: 338.803917
+  type: 'test'
+  ...
+# Subtest: touch candidates exclude noninteractive focus anchors and clipped skip links but include tabs
+ok 9 - touch candidates exclude noninteractive focus anchors and clipped skip links but include tabs
+  ---
+  duration_ms: 329.384416
+  type: 'test'
+  ...
+# Subtest: transparent input overlay remains a touch target
+ok 10 - transparent input overlay remains a touch target
+  ---
+  duration_ms: 313.421208
+  type: 'test'
+  ...
+# Subtest: transparent non-pointer form mirror is not a touch target
+ok 11 - transparent non-pointer form mirror is not a touch target
+  ---
+  duration_ms: 312.063167
+  type: 'test'
+  ...
+# Subtest: hidden ancestors cannot satisfy visible CSS expectations or non-pointer touch targets
+not ok 12 - hidden ancestors cannot satisfy visible CSS expectations or non-pointer touch targets
+  ---
+  duration_ms: 310.427625
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/browser-check.test.cjs:348:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'needs-review'
+    - 'needs-work'
+             ^
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'needs-work'
+  actual: 'needs-review'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/browser-check.test.cjs:355:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: detects route navigation shift even when each page passes its own audit
+ok 13 - detects route navigation shift even when each page passes its own audit
+  ---
+  duration_ms: 1080.433125
+  type: 'test'
+  ...
+# Subtest: accepts stable geometry and records locale and exact checker provenance
+ok 14 - accepts stable geometry and records locale and exact checker provenance
+  ---
+  duration_ms: 859.473125
+  type: 'test'
+  ...
+# Subtest: missing or ambiguous landmarks cannot silently pass a comparison
+ok 15 - missing or ambiguous landmarks cannot silently pass a comparison
+  ---
+  duration_ms: 1659.461541
+  type: 'test'
+  ...
+# Subtest: rejects invalid comparisons before navigating any page
+not ok 16 - rejects invalid comparisons before navigating any page
+  ---
+  duration_ms: 796.447375
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:131:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:184:14
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:132:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: an unavailable comparison page leaves overall verification blocked
+ok 17 - an unavailable comparison page leaves overall verification blocked
+  ---
+  duration_ms: 672.91075
+  type: 'test'
+  ...
+# Subtest: classic scrollbar changes are measured across short and tall content
+not ok 18 - classic scrollbar changes are measured across short and tall content
+  ---
+  duration_ms: 858.393041
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:202:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:206:12
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:203:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: landmarks need to be onscreen and visible through ancestors
+not ok 19 - landmarks need to be onscreen and visible through ancestors
+  ---
+  duration_ms: 1572.403416
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:212:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:217:14
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:213:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: rendered languages and tolerance boundary are enforced
+ok 20 - rendered languages and tolerance boundary are enforced
+  ---
+  duration_ms: 2357.550292
+  type: 'test'
+  ...
+# Subtest: font availability is checked independently from the CSS declaration
+not ok 21 - font availability is checked independently from the CSS declaration
+  ---
+  duration_ms: 529.879458
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:234:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'automated-checks-passed'
+    - 'needs-review'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'needs-review'
+  actual: 'automated-checks-passed'
+  operator: 'strictEqual'
+  stack: |-
+    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:240:12
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:235:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: cross-origin redirect is blocked and final location is recorded
+not ok 22 - cross-origin redirect is blocked and final location is recorded
+  ---
+  duration_ms: 523.921291
+  type: 'test'
+  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:254:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:259:12
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:255:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 16
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10947.278417

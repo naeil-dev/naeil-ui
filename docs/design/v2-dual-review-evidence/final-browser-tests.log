@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: browser helper is available
+ok 1 - browser helper is available
+  ---
+  duration_ms: 0.420542
+  type: 'test'
+  ...
+# Subtest: finds real contrast, nested interaction, small touch targets and overflow; accepts repaired UI
+ok 2 - finds real contrast, nested interaction, small touch targets and overflow; accepts repaired UI
+  ---
+  duration_ms: 650.047167
+  type: 'test'
+  ...
+# Subtest: small visuals with expanded label area require review, not invented touch failure
+ok 3 - small visuals with expanded label area require review, not invented touch failure
+  ---
+  duration_ms: 306.535334
+  type: 'test'
+  ...
+# Subtest: CLI writes pass/finding/blocked reports using an isolated local fixture
+ok 4 - CLI writes pass/finding/blocked reports using an isolated local fixture
+  ---
+  duration_ms: 2322.209209
+  type: 'test'
+  ...
+# Subtest: isolates overflow, incomplete, missing expectations and fine-pointer coverage
+ok 5 - isolates overflow, incomplete, missing expectations and fine-pointer coverage
+  ---
+  duration_ms: 666.158875
+  type: 'test'
+  ...
+# Subtest: rejects malformed expectations instead of silently checking nothing
+ok 6 - rejects malformed expectations instead of silently checking nothing
+  ---
+  duration_ms: 0.439167
+  type: 'test'
+  ...
+# Subtest: rejects empty CSS expectations
+ok 7 - rejects empty CSS expectations
+  ---
+  duration_ms: 0.081958
+  type: 'test'
+  ...
+# Subtest: mobile layout viewport mismatch is a finding
+ok 8 - mobile layout viewport mismatch is a finding
+  ---
+  duration_ms: 275.756834
+  type: 'test'
+  ...
+# Subtest: touch candidates exclude noninteractive focus anchors and clipped skip links but include tabs
+ok 9 - touch candidates exclude noninteractive focus anchors and clipped skip links but include tabs
+  ---
+  duration_ms: 294.044416
+  type: 'test'
+  ...
+# Subtest: transparent input overlay remains a touch target
+ok 10 - transparent input overlay remains a touch target
+  ---
+  duration_ms: 286.907125
+  type: 'test'
+  ...
+# Subtest: transparent non-pointer form mirror is not a touch target
+ok 11 - transparent non-pointer form mirror is not a touch target
+  ---
+  duration_ms: 292.316042
+  type: 'test'
+  ...
+# Subtest: hidden ancestors cannot satisfy visible CSS expectations or non-pointer touch targets
+ok 12 - hidden ancestors cannot satisfy visible CSS expectations or non-pointer touch targets
+  ---
+  duration_ms: 276.662625
+  type: 'test'
+  ...
+# Subtest: detects route navigation shift even when each page passes its own audit
+ok 13 - detects route navigation shift even when each page passes its own audit
+  ---
+  duration_ms: 790.528208
+  type: 'test'
+  ...
+# Subtest: accepts stable geometry and records locale and exact checker provenance
+ok 14 - accepts stable geometry and records locale and exact checker provenance
+  ---
+  duration_ms: 777.010625
+  type: 'test'
+  ...
+# Subtest: missing or ambiguous landmarks cannot silently pass a comparison
+ok 15 - missing or ambiguous landmarks cannot silently pass a comparison
+  ---
+  duration_ms: 1549.080834
+  type: 'test'
+  ...
+# Subtest: rejects invalid comparisons before navigating any page
+ok 16 - rejects invalid comparisons before navigating any page
+  ---
+  duration_ms: 3911.476125
+  type: 'test'
+  ...
+# Subtest: an unavailable comparison page leaves overall verification blocked
+ok 17 - an unavailable comparison page leaves overall verification blocked
+  ---
+  duration_ms: 524.915208
+  type: 'test'
+  ...
+# Subtest: classic scrollbar changes are measured across short and tall content
+ok 18 - classic scrollbar changes are measured across short and tall content
+  ---
+  duration_ms: 707.610167
+  type: 'test'
+  ...
+# Subtest: landmarks need to be onscreen and visible through ancestors
+ok 19 - landmarks need to be onscreen and visible through ancestors
+  ---
+  duration_ms: 1381.583292
+  type: 'test'
+  ...
+# Subtest: rendered languages and tolerance boundary are enforced
+ok 20 - rendered languages and tolerance boundary are enforced
+  ---
+  duration_ms: 2048.934333
+  type: 'test'
+  ...
+# Subtest: font availability is checked independently from the CSS declaration
+ok 21 - font availability is checked independently from the CSS declaration
+  ---
+  duration_ms: 1920.558542
+  type: 'test'
+  ...
+# Subtest: cross-origin redirect is blocked and final location is recorded
+ok 22 - cross-origin redirect is blocked and final location is recorded
+  ---
+  duration_ms: 306.096875
+  type: 'test'
+  ...
+# Subtest: ambiguous ready selector reports a safe actionable reason
+ok 23 - ambiguous ready selector reports a safe actionable reason
+  ---
+  duration_ms: 316.53975
+  type: 'test'
+  ...
+# Subtest: page overflow includes widths smaller than the native scrollbar
+ok 24 - page overflow includes widths smaller than the native scrollbar
+  ---
+  duration_ms: 953.214584
+  type: 'test'
+  ...
+# Subtest: navigation during readiness checks the actual origin and records the destination
+ok 25 - navigation during readiness checks the actual origin and records the destination
+  ---
+  duration_ms: 1170.443292
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16389.40675

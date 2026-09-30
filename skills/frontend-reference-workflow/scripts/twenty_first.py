@@ -1,6 +1,7 @@
 """Read-only 21st MCP status/search through the already configured stdio launcher."""
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import selectors
@@ -12,6 +13,30 @@ import time
 
 class ClientError(Exception):
     """Safe diagnostic: never includes child output or authentication data."""
+
+
+def validate_timeout(timeout):
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ClientError('Use a finite positive timeout.')
+
+
+def validate_tool_result(result, require_usage=False):
+    """Validate the MCP envelope, without inventing provider quota semantics."""
+    if 'content' not in result and 'structuredContent' not in result:
+        raise ClientError('MCP tool result has no content envelope.')
+    content = result.get('content', [])
+    structured = result.get('structuredContent', {})
+    if not isinstance(content, list) or not isinstance(structured, dict):
+        raise ClientError('MCP tool result has invalid content types.')
+    for item in content:
+        if not isinstance(item, dict) or item.get('type') not in (
+                'text', 'image', 'audio', 'resource', 'resource_link'):
+            raise ClientError('MCP tool result has an invalid content block.')
+        if item['type'] == 'text' and not isinstance(item.get('text'), str):
+            raise ClientError('MCP text content is invalid.')
+    if require_usage and not structured and not any(
+            item.get('type') == 'text' and item['text'].strip() for item in content):
+        raise ClientError('Account usage data is absent; search was not attempted.')
 
 
 class Client:
@@ -104,6 +129,7 @@ class Client:
 
 
 def run(command, query=None, timeout=30):
+    validate_timeout(timeout)
     client = Client(command, timeout)
     try:
         client.call('initialize', {'protocolVersion': '2024-11-05', 'capabilities': {},
@@ -113,8 +139,15 @@ def run(command, query=None, timeout=30):
         cursor = None
         for _ in range(10):
             result = client.call('tools/list', {'cursor': cursor} if cursor else {})
-            names.extend(item['name'] for item in result.get('tools', []) if isinstance(item, dict) and 'name' in item)
+            listed = result.get('tools')
+            if not isinstance(listed, list) or any(
+                    not isinstance(item, dict) or not isinstance(item.get('name'), str) or
+                    not item['name'].strip() for item in listed):
+                raise ClientError('MCP tools list is invalid.')
+            names.extend(item['name'] for item in listed)
             cursor = result.get('nextCursor')
+            if cursor is not None and not isinstance(cursor, str):
+                raise ClientError('MCP pagination cursor is invalid.')
             if not cursor:
                 break
         else:
@@ -122,6 +155,7 @@ def run(command, query=None, timeout=30):
         if 'get_usage' not in names:
             raise ClientError('get_usage unavailable; account status is unverified.')
         usage = client.call('tools/call', {'name': 'get_usage', 'arguments': {}})
+        validate_tool_result(usage, require_usage=True)
         output = {'status': 'connected', 'transport': 'configured-stdio-launcher',
                   'tools': names, 'usage': usage, 'codeRetrieved': False}
         if query is not None:
@@ -129,6 +163,7 @@ def run(command, query=None, timeout=30):
                 raise ClientError('Search unavailable; no substitute tool was invoked.')
             output['search'] = client.call('tools/call', {'name': 'search',
                 'arguments': {'query': query, 'type': 'component', 'limit': 3}})
+            validate_tool_result(output['search'])
             output['status'] = 'searched'
         return output
     finally:
@@ -142,8 +177,8 @@ def main():
     parser.add_argument('--launcher', type=Path, default=Path.home()/'.local/share/naeil-frontend/21st-mcp/launch.py')
     parser.add_argument('--timeout', type=float, default=30)
     args = parser.parse_args()
-    if args.timeout <= 0 or (args.action == 'search' and not args.query):
-        parser.error('Use a positive timeout and provide --query for search.')
+    if not math.isfinite(args.timeout) or args.timeout <= 0 or (args.action == 'search' and not args.query):
+        parser.error('Use a finite positive timeout and provide --query for search.')
     if not args.launcher.is_file():
         print(json.dumps({'status': 'blocked', 'reason': 'Configured launcher is missing; no installation attempted.'}))
         return 2

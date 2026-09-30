@@ -86,7 +86,7 @@ for line in sys.stdin:
   if reply.get('error',{}).get('code')!=-32601:raise SystemExit(3)
   r={'protocolVersion':'2024-11-05','capabilities':{}}
  elif q['method']=='tools/list':r={'tools':[{'name':'get_usage'}]}
- else:r={'content':[]}
+ else:r={'content':[{'type':'text','text':'Account usage: remaining 2'}]}
  print('',flush=True)
  print(json.dumps({'jsonrpc':'2.0','id':q['id'],'result':r}),flush=True)
 """)
@@ -112,5 +112,45 @@ for line in sys.stdin:
                 if pid_file.exists():
                     try:os.kill(int(pid_file.read_text()),9)
                     except ProcessLookupError:pass
+
+class ResponseValidationTest(unittest.TestCase):
+    def test_malformed_tools_empty_tool_results_and_valid_empty_search(self):
+        spec = importlib.util.spec_from_file_location('client_validation', SCRIPT)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        with tempfile.TemporaryDirectory() as folder:
+            server = Path(folder) / 'server.py'
+            server.write_text("""import json,sys
+mode=sys.argv[1]
+for line in sys.stdin:
+ q=json.loads(line)
+ if 'id' not in q:continue
+ if q['method']=='initialize':r={'protocolVersion':'2024-11-05','capabilities':{}}
+ elif q['method']=='tools/list':r={'tools':None if mode=='bad-tools' else [{'name':True}] if mode=='bad-name' else [{'name':'get_usage'},{'name':'search'}]}
+ elif q['params']['name']=='get_usage':r={} if mode=='empty-usage' else {'content':[]} if mode=='no-usage-data' else {'content':[{'type':'text','text':'Account usage: remaining 2'}]}
+ else:r={} if mode=='empty-search' else {'content':[]}
+ print(json.dumps({'jsonrpc':'2.0','id':q['id'],'result':r}),flush=True)
+""")
+            for mode in ['bad-tools','bad-name','empty-usage','no-usage-data','empty-search']:
+                with self.subTest(mode=mode):
+                    with self.assertRaises(m.ClientError):
+                        m.run([sys.executable,str(server),mode],query='table',timeout=1)
+            result=m.run([sys.executable,str(server),'valid'],query='table',timeout=1)
+            self.assertEqual(result['status'],'searched')
+            self.assertEqual(result['search']['content'],[])
+
+    def test_nonfinite_timeout_is_rejected_before_launcher_runs(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as folder:
+            launched=Path(folder)/'launched'
+            server=Path(folder)/'server.py'
+            server.write_text('from pathlib import Path; Path('+repr(str(launched))+').touch()')
+            for value in ['nan','inf','-inf','0']:
+                with self.subTest(value=value):
+                    launched.unlink(missing_ok=True)
+                    p=subprocess.run([sys.executable,str(SCRIPT),'status','--launcher',str(server),'--timeout='+value],capture_output=True,text=True,timeout=5)
+                    self.assertEqual(p.returncode,2)
+                    self.assertNotIn('Traceback',p.stderr)
+                    self.assertFalse(launched.exists())
 
 if __name__=='__main__':unittest.main()
