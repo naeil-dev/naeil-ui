@@ -1,0 +1,59 @@
+name: Publish reviewed UI docs (manual only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_sha:
+        description: Full commit SHA whose docs and acceptance evidence were approved
+        required: true
+        type: string
+      confirmation:
+        description: Type PUBLISH_REVIEWED_DOCS after explicit publication authorization
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-ui-docs
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: inputs.confirmation == 'PUBLISH_REVIEWED_DOCS'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.reviewed_sha }}
+      - name: Require the exact reviewed commit
+        env:
+          REVIEWED_SHA: ${{ inputs.reviewed_sha }}
+        run: test "$(git rev-parse HEAD)" = "$REVIEWED_SHA"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:storybook
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:browser
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish the approved documentation artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

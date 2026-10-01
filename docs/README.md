@@ -3,6 +3,8 @@
 ## Maintained public guides
 
 - [Design authority](../DESIGN.md): approved visual rules and shared versus site scope.
+- [11 component usage guides](components/README.md): exact wrapper APIs, states, keyboard and consumer responsibilities; matching Storybook Docs and runnable Usage examples.
+- [Current support and manual acceptance](design/public-ui-support.md), [Stage 3 verification](design/public-ui-stage3-verification.md) and [preview artifact instructions](package-release.md#storybook-preview-artifact).
 - [UI consumer and migration guide](design/v2-migration.md): imports, styles, fonts, density, layout, compatibility.
 - [Optional frontend-reference workflow setup](design/frontend-tooling.md): tools, keys, no-key fallback, and helper checks.
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.

@@ -49,3 +49,6 @@ next-env.d.ts
 # Browser verification artifacts
 /test-results/
 /playwright-report/
+
+# Generated documentation notices
+/.storybook/.generated/

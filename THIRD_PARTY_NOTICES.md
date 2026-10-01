@@ -36,6 +36,8 @@ SOFTWARE.
 
 Shared package styles declare families; consumers own font delivery. The website imports Pretendard Variable from `pretendard`; Storybook imports Pretendard static CSS and `@fontsource/noto-sans-jp` 400/500/600. Both installed packages carry SIL Open Font License 1.1. Exact installed notices are preserved in [Pretendard](licenses/Pretendard-OFL.txt) and [Noto Sans JP](licenses/Noto-Sans-JP-OFL.txt). Keep the notice/license when redistributing font files; modified fonts must follow reserved-name rules.
 
+Storybook 10.4.6 also bundles Nunito Sans for its manager interface. The original Google Fonts OFL body was read on 2026-10-02 and is preserved in [Nunito Sans](licenses/Nunito-Sans-OFL.txt), including the original project-author notice; documentation preview output carries this notice as well. This manager font is Storybook tooling, not a new shared UI font choice.
+
 The site's `src/app/layout.tsx` separately requests JetBrains Mono via `next/font/google`; no copied font binary is tracked here. Before redistributing fetched site-build fonts, retain the original license/notice supplied with that font (https://github.com/JetBrains/JetBrainsMono). This audit did not inspect the fetched Google font binary/license and does not certify a deployed site's font-notice bundle. Prototype HTML uses external CDNs separately from packed UI styles.
 
 ## Dependencies and references

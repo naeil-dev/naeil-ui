@@ -37,7 +37,7 @@ In a Tailwind 4 app, load the styles once and register the package's classes (ad
 @source "../node_modules/@naeil/ui/dist";
 ```
 
-The [consumer guide](docs/design/v2-migration.md) covers peer dependencies, fonts, themes, density, Select versus DropdownMenu, overrides, and layout ownership. Fonts are delivered by the consumer; shared CSS does not fetch them automatically. `/ui` and `/utils` work without Next.js. The legacy root remains a framework compatibility entry with static Next/next-intl imports; install those optional peers when using it, Nav, Footer or i18n/routing. ThemeProvider/controls and Toaster retain the React library next-themes. Shared deep imports use the exact [allowlist and migration](docs/design/v2-migration.md#03-package-boundary); website-only paths belong in your application.
+The [11 component guides](docs/components/README.md) cover exact APIs, state composition and accessibility responsibilities. Each has a built Storybook Docs page and runnable Usage example. The [consumer guide](docs/design/v2-migration.md) covers peer dependencies, fonts, themes, density, Select versus DropdownMenu, overrides, and layout ownership. Fonts are delivered by the consumer; shared CSS does not fetch them automatically. `/ui` and `/utils` work without Next.js. The legacy root remains a framework compatibility entry with static Next/next-intl imports; install those optional peers when using it, Nav, Footer or i18n/routing. ThemeProvider/controls and Toaster retain the React library next-themes. Shared deep imports use the exact [allowlist and migration](docs/design/v2-migration.md#03-package-boundary); website-only paths belong in your application.
 
 ## Develop the shared UI
 
@@ -62,11 +62,11 @@ pnpm pack --pack-destination /tmp
 | `pnpm build:tokens` | Generate theme CSS from `src/tokens/*.json` |
 | `pnpm check:contrast` | Check declared light/dark color combinations |
 | `pnpm test` / `pnpm check:types` / `pnpm lint` | Unit tests / types / lint |
-| `pnpm build:storybook` / `pnpm test:browser` | Build Storybook / Chromium component checks (install Playwright Chromium first) |
+| `pnpm build:storybook` / `pnpm test:browser` | Build Docs/examples / Chromium, Firefox and WebKit checks (install configured Playwright engines first) |
 | `pnpm build:pkg` / `pnpm check:package` | Build package / inspect package boundary and independently install/build packed React + Next consumers |
 | `pnpm dev` / `pnpm build` | Brand/example website development / build |
 
-A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/main/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook.
+A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/main/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts, with no hosted deployment; see [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md).
 
 Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
 

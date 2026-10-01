@@ -5,6 +5,7 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 
 import { cn } from "../../lib/utils";
+import { useOverlayRef, useRadixHiddenInert } from "../../lib/design/modal-inert";
 
 function DropdownMenu({
   ...props
@@ -32,13 +33,17 @@ function DropdownMenuTrigger({
 }
 
 function DropdownMenuContent({
+  ref,
   className,
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  const [content, contentRef] = useOverlayRef(ref);
+  useRadixHiddenInert(content);
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
+        ref={contentRef}
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(

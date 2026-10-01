@@ -1,3 +1,4 @@
+import { checkConsumerBrowser } from "./check-consumer-browser";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import {
@@ -126,6 +127,8 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   console.log(
     "Clean React consumer: PASS (types, Vite production JS/CSS, SSR, deep imports; Next absent)",
   );
+
+  await checkConsumerBrowser(core);
 
   const next = fixture("next", resolve("scripts/fixtures/next"), tarball);
   for (const name of [

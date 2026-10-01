@@ -195,3 +195,31 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Background-only switch tracks/thumbs both become Canvas under forced colors.
+   System colors preserve the control boundary, state and moving thumb. */
+@media (forced-colors: active) {
+  [data-slot="switch"] {
+    forced-color-adjust: none;
+    border: 1px solid ButtonText;
+    background: Canvas;
+  }
+  [data-slot="switch-thumb"] {
+    background: ButtonText;
+  }
+  [data-slot="switch"][data-state="checked"] {
+    background: Highlight;
+    border-color: Highlight;
+  }
+  [data-slot="switch-thumb"][data-state="checked"] {
+    background: HighlightText;
+  }
+  [data-slot="switch"]:disabled {
+    opacity: 1;
+    background: Canvas;
+    border-color: GrayText;
+  }
+  [data-slot="switch"]:disabled [data-slot="switch-thumb"] {
+    background: GrayText;
+  }
+}

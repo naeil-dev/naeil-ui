@@ -26,6 +26,7 @@ export default defineConfig({
     "src/components/theme-toggle-icon.tsx",
     "src/components/typography.tsx",
     "src/lib/utils.ts",
+    "src/lib/design/modal-inert.ts", // Internal helper; no package export.
     "src/i18n/config.ts",
     "src/i18n/routing.ts",
   ],

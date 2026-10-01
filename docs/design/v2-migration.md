@@ -101,6 +101,10 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 공통 globals에서 사이트 전용 float 애니메이션을 분리했다. 저장소의 사이트는 로컬 `src/app/globals.css`에서 이를 계속 정의한다. 다른 소비자가 `animate-float`에 의존했다면 자기 사이트 스타일로 명시적으로 옮긴다.
 
+## 개별 컴포넌트 안내
+
+[11개 사용 안내](../components/README.md)는 실제 wrapper API·기본값, 키보드, 상태, 레이블·오류 연결, 재정의 책임을 설명한다. Storybook의 각 `UI / 컴포넌트 / Docs`와 `Usage`에서 같은 안내와 실행 예시를 확인한다. [지원 범위와 수동 점검](public-ui-support.md)은 자동 검사와 실제 보조 기술·운영체제 검증의 차이를 기록한다.
+
 ## 확인 방법
 
 - `pnpm storybook`: 실제 공개 컴포넌트의 `UI v2 / Workspace` 화면.
