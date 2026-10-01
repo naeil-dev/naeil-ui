@@ -28,6 +28,18 @@ Import the named components from `@naeil/ui/ui`. Variables/handlers in snippets 
 
 Use alt="" and hide redundant initials when an adjacent name conveys the identity; otherwise provide meaningful alt and a labeled fallback (e.g. role="img" aria-label="Alex Lee"). Avatar itself is not a button/tab stop. Presence markers/counts need visible or accessible text; color alone is insufficient.
 
+For a named group, supply `role="group"` with `aria-label` on AvatarGroup. AvatarGroupCount is a generic div: convey the count with actual text rather than `aria-label`. For example, hide the visual shorthand and provide the full meaning as screen-reader text:
+
+```tsx
+<AvatarGroup role="group" aria-label="Team members">
+  {/* Consumer-owned member avatars */}
+  <AvatarGroupCount>
+    <span aria-hidden="true">+3</span>
+    <span className="sr-only">3 additional members</span>
+  </AvatarGroupCount>
+</AvatarGroup>
+```
+
 ## States, resilience and mistakes
 
 Loading or failed image falls back; demonstrate missing/error/loaded images. Empty identity needs a consumer placeholder, not fabricated initials. Disabled does not apply to the graphic. GroupCount is supplied by consumers and does not compute hidden members. Long Korean/English/Japanese names belong beside the fixed graphic and wrap; keep meaningful counts accessible and do not turn tiny avatar imagery into an undersized target.

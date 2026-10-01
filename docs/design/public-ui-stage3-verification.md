@@ -1,10 +1,10 @@
 # Public UI usage verification — 2026-10-02
 
-Stage 3 implementation was verified locally against the source hashes below, based on frozen Stage 2 `8bbbdf62d9a3cc6794d2c5fcf7cfafeca034dbb8`. This is executor evidence pending a separate freeze/independent review; it does not extend earlier review approval or authorize publication. No commit, push, package publication, workflow dispatch or site deployment was performed.
+The original Stage 3 implementation was verified locally against the original source hashes below, based on frozen Stage 2 `8bbbdf62d9a3cc6794d2c5fcf7cfafeca034dbb8`, and frozen at `80732074349b35d41e31b674f248171101481742`. Independent review found one P3 Avatar example accessibility issue; the focused correction and its replacement hashes are recorded separately below, pending an independent scoped recheck. This evidence does not authorize publication. No commit, push, package publication, workflow dispatch or site deployment was performed by either executor.
 
 Authority: DESIGN.md, the shared v2 specification/migration and actual wrappers/installed primitive declarations. Scope: maintained guides and runnable Docs/Usage for all 11 existing families, accessibility/resilience examples, documented public support, independently packed consumption, preview asset/notices boundary and manual-only deployment preparation. The public export allowlist, approved palette/fonts, numeric foundations and product/site scope remain unchanged.
 
-## Fresh verification
+## Original frozen broad verification
 
 Local execution used Node 22.23.2, pnpm 10.30.3 and Playwright 1.63.0 on macOS. Installed browser metadata identifies Chromium 153.0.8010.12, WebKit 26.6 and Firefox 155.0.
 
@@ -49,9 +49,9 @@ Preview notices preserve complete installed/original LICENSE/NOTICE bodies, incl
 
 Screen readers, actual Safari, native desktop 200%/400% zoom, actual Windows high contrast, physical iOS/Android devices, all peer-version combinations, deployed behavior and arbitrary consumer overrides were not tested. Local Firefox application checks are blocked as above. Use the [support matrix and manual acceptance checklist](public-ui-support.md) before a release. The manual-only Pages workflow/recipe is prepared, unexecuted, and still requires future explicit publication authorization and protected-environment setup.
 
-## Source identity before freeze
+## Original frozen source identity
 
-SHA-256 identifies the tested runtime/fixture/tooling scope below. The orchestrator will bind this report to a freeze commit before independent review; orchestration-plan edits are outside executor ownership. Evidence/prose-only finalization does not change these runtime/fixture hashes.
+SHA-256 identifies the scope of the original broad run frozen at `80732074349b35d41e31b674f248171101481742`. These historical hashes remain attached to that run; only the affected files have replacement hashes in the focused follow-up below. Orchestration-plan edits are outside executor ownership.
 
 | File | SHA-256 |
 | --- | --- |
@@ -70,3 +70,29 @@ SHA-256 identifies the tested runtime/fixture/tooling scope below. The orchestra
 | `package.json` | `6d327bae94fae383eb37c3c0e9c6f0b8e06d4291b3c77075ed509820ed925665` |
 | `pnpm-lock.yaml` | `807b43593d1362afe9278091a5220dc146ecfb46b210f45fb2a68ddb0f56e65c` |
 | `.storybook/main.ts` | `162591a47e0b2095be02d24ffb4c13e9be33e5c36e455389c992d7f08ae1ea74` |
+
+## Focused P3 Avatar follow-up — 2026-10-02
+
+The named generic AvatarGroup lacked a supported role, and AvatarGroupCount's generic-div `aria-label` did not convey the additional-member count. The consumer-owned Usage example now supplies `role="group"` and keeps the visual `+3` in an `aria-hidden` span with actual `sr-only` text, `3 additional members`. The Avatar guide documents both compositions. No package component runtime, API, style, token or override changed.
+
+The existing Avatar mobile checks now require the exact group accessibility snapshot, including both named fallback images and the additional-member text; they also check the loaded image, failed-image fallback and visual count. Full axe violations/incomplete attachments remain unsuppressed, and Avatar checks additionally reject any `aria-prohibited-attr` incomplete result. The existing actual Docs checks verify that the rebuilt guide includes the correction.
+
+| Focused command / check | Observed result |
+| --- | --- |
+| `pnpm build:storybook` | Passed: 11 built Docs/Usage entries, exact notices/fonts and asset boundary; 74 preview + 254 manager notice entries. |
+| `pnpm exec playwright test e2e/component-usage.spec.ts --grep avatar --project=chromium --project=webkit` | **6/6 passed (5.6s)**: actual manager Avatar Docs in both engines; 320px light/dark compact Usage in both engines, including loaded/failed/missing image content and localized reflow. |
+| Actual snapshot / axe inspection | All four Usage snapshots expose group `Team members`, images `Alex Lee`/`田中 遥`, and text `3 additional members`, with no accessible `+3` duplicate. All four scans have **0 violations** and **no `aria-prohibited-attr` incomplete**. The sole remaining incomplete rule is `bypass` on the standalone story document's `html` (no heading/landmark/skip link); retained for manual review, outside this group/count correction. |
+| Actual visual inspection | Opened rebuilt Avatar manager Docs through Aside REPL; inspected its capture and a Chromium capture of the corrected guide section, plus all four Chromium/WebKit light/dark 320px Usage captures. Circular graphics, overlapping group, visual `+3` and localized wrapping remain intact; accessible count text is visually hidden. |
+| `pnpm check:types`, `pnpm lint`, `pnpm check:contrast` | Passed; lint retains only the pre-existing website unused-`locale` warning; **40/40** semantic contrast pairs pass. |
+| Final `pnpm check:package:boundary` and packed Avatar guide inspection | Passed: the freshly packed consumer-facing guide matches repository bytes and includes the named-group role and actual hidden count text; document links and package boundary pass. |
+| `git diff --check` | Passed. |
+
+Focused artifacts are separate at `/tmp/naeil-stage3-avatar-fix-evidence/`: command logs, browser HTML report with full attachments, extracted axe/snapshot attachments, four Usage screenshots, actual manager Docs snapshots/captures, packed tarball/content inspection and replacement source hashes. The original broad artifacts remain at `/tmp/naeil-stage3-evidence/`. The original **111 passed / 1 expected skip** browser result, unit/package-runtime/clean-consumer results and manual/environment limitations are historical frozen evidence; the full browser suite, package runtime build and clean React/Next consumer browser checks were not rerun for this example/packed-guide-only correction. No new screen-reader, Safari or Firefox pass is claimed.
+
+The following SHA-256 values supersede only these affected files for the focused follow-up. Source is frozen for the independent scoped recheck; the orchestrator owns the orchestration record and any later freeze commit.
+
+| File | Focused follow-up SHA-256 |
+| --- | --- |
+| `src/stories/component-examples.tsx` | `4386e8ca9b7cf58da083258568bb97427bf331c237d52396399202081f1eb04a` |
+| `e2e/component-usage.spec.ts` | `ed9f67d33283e07d3c3698a6035ae21a1598cbccaabc7466c0dfb9eddfb75a99` |
+| `docs/components/avatar.md` | `5be6ff754f98336a6a5ace144ed7d757ec92929eaf38d0af42c686f102041231` |

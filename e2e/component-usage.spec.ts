@@ -23,6 +23,7 @@ async function axe(page: Page, info: TestInfo, state: string) {
   const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
   await info.attach(`axe-${state}`, { body: JSON.stringify({ state, violations: result.violations, incomplete: result.incomplete }, null, 2), contentType: "application/json" });
   expect(result.violations).toEqual([]);
+  return result;
 }
 async function noOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -35,6 +36,10 @@ for (const family of families) {
     await expect(docs.getByRole("heading", { name: "API and wrapper defaults", exact: true })).toBeVisible({ timeout: 15000 });
     await expect(docs.getByRole("heading", { name: "States, resilience and mistakes", exact: true })).toBeVisible();
     await expect(docs.getByRole("link", { name: "shared usage contract", exact: true })).toHaveAttribute("href", /docs\/components\/common.md$/);
+    if (family === "avatar") {
+      await expect(docs.getByText('For a named group, supply', { exact: false })).toBeVisible();
+      await expect(docs.getByText('3 additional members', { exact: false })).toBeVisible();
+    }
   });
   for (const theme of ["light", "dark"]) test(`${family}: ${theme} mobile compact localized accessibility`, async ({ page }, info) => {
     await page.setViewportSize({ width: 320, height: 900 });
@@ -47,7 +52,22 @@ for (const family of families) {
     await expect(page.locator('[lang="ko"]').first()).toBeVisible();
     await expect(page.locator('[lang="en"]').first()).toBeVisible();
     await expect(page.locator('[lang="ja"]').first()).toBeVisible();
-    await axe(page, info, `${family}-${theme}-mobile`);
+    if (family === "avatar") {
+      const group = page.getByRole("group", { name: "Team members", exact: true });
+      await expect(group).toMatchAriaSnapshot(`
+        - group "Team members":
+          - img "Alex Lee": AL
+          - img "田中 遥": 田
+          - text: 3 additional members
+      `);
+      await info.attach("avatar-group-accessibility", { body: await group.ariaSnapshot(), contentType: "text/plain" });
+      await expect(page.locator('[data-slot="avatar-image"]')).toBeVisible();
+      await expect(page.locator('[data-slot="avatar-fallback"]', { hasText: "KM" })).toBeVisible();
+      await expect(group.locator('[data-slot="avatar-group-count"] > [aria-hidden="true"]')).toHaveText("+3");
+      await page.screenshot({ path: info.outputPath(`avatar-${theme}-320-compact.png`), fullPage: true });
+    }
+    const result = await axe(page, info, `${family}-${theme}-mobile`);
+    if (family === "avatar") expect(result.incomplete.filter(finding => finding.id === "aria-prohibited-attr")).toEqual([]);
   });
 }
 

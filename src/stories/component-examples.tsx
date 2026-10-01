@@ -169,9 +169,9 @@ export function AvatarUsage() {
     <div className="flex items-center gap-3"><Avatar size="lg"><AvatarImage src={portrait} alt="" />
       <AvatarFallback aria-hidden="true">AL</AvatarFallback><AvatarBadge aria-label="Available" role="img" /></Avatar><span>Alex Lee — available</span></div>
     <div className="flex items-center gap-3"><Avatar><AvatarImage src="data:image/png;base64,broken" alt="" /><AvatarFallback aria-hidden="true">KM</AvatarFallback></Avatar><span>김민서 — image unavailable</span></div>
-    <AvatarGroup aria-label="Team members"><Avatar><AvatarFallback role="img" aria-label="Alex Lee">AL</AvatarFallback></Avatar>
+    <AvatarGroup role="group" aria-label="Team members"><Avatar><AvatarFallback role="img" aria-label="Alex Lee">AL</AvatarFallback></Avatar>
       <Avatar size="sm"><AvatarFallback role="img" aria-label="田中 遥">田</AvatarFallback></Avatar>
-      <AvatarGroupCount aria-label="3 additional members">+3</AvatarGroupCount></AvatarGroup>
+      <AvatarGroupCount><span aria-hidden="true">+3</span><span className="sr-only">3 additional members</span></AvatarGroupCount></AvatarGroup>
     {localized.map(([lang, label]) => <div key={lang} lang={lang} className="flex items-center gap-3"><Avatar><AvatarFallback aria-hidden="true">N</AvatarFallback></Avatar><p className="min-w-0 break-words">{label}</p></div>)}
   </div>;
 }
