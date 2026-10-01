@@ -4,7 +4,7 @@ not ok 1 - rejects empty CSS expectations
   ---
   duration_ms: 1.242084
   type: 'test'
-  location: '/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmppxluw_bd/test.cjs:255:1'
+  location: '/private<historical-scratch-path>
   failureType: 'testCodeFailure'
   error: |-
     The input did not match the regular expression /selector and nonempty css/. Input:
@@ -18,18 +18,18 @@ not ok 1 - rejects empty CSS expectations
   error: 'page.evaluate is not a function'
   name: 'TypeError'
   stack: |-
-    auditPage (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmppxluw_bd/browser-check.cjs:47:14)
-    /private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmppxluw_bd/test.cjs:259:7
+    auditPage (/private<historical-scratch-path>)
+    /private<historical-scratch-path>
     waitForActual (node:assert:630:21)
     Function.rejects (node:assert:767:31)
-    TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmppxluw_bd/test.cjs:257:16)
+    TestContext.<anonymous> (/private<historical-scratch-path>)
     Test.runInAsyncScope (node:async_hooks:214:14)
     Test.run (node:internal/test_runner/test:1047:25)
     Test.start (node:internal/test_runner/test:944:17)
     startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
   operator: 'rejects'
   stack: |-
-    async TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmppxluw_bd/test.cjs:257:3)
+    async TestContext.<anonymous> (/private<historical-scratch-path>)
     async Test.run (node:internal/test_runner/test:1054:7)
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
   ...

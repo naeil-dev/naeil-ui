@@ -4,7 +4,7 @@ not ok 1 - rejects invalid comparisons before navigating any page
   ---
   duration_ms: 689.083458
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:114:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:114:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -17,10 +17,10 @@ not ok 1 - rejects invalid comparisons before navigating any page
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:156:14
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:156:14
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:64:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:115:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:64:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:115:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
   ...

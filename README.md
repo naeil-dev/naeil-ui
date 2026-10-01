@@ -1,77 +1,74 @@
-> **공통 UI v2:** 무채색, Pretendard, 16px 컨트롤과 용도별 폭을 적용했습니다. [디자인 규칙](DESIGN.md), [사용·이전 안내](docs/design/v2-migration.md), Storybook의 **UI v2 / Workspace**를 기준으로 사용하세요. 패키지 게시와 사이트 배포는 별도입니다.
-
 # @naeil/ui
 
-Design system and component library for [naeil.dev](https://naeil.dev) — a portfolio, blog, and project showcase with cross-subdomain SSO authentication.
+React components, semantic design tokens, and shared styles for naeil products. The approved system uses a neutral light/dark palette, Pretendard, 16px controls, comfortable or compact density, purpose-specific content widths, and restrained motion. Radix supplies interaction behavior.
 
-## Tech Stack
+This repository also contains the **naeil.dev brand/example website** and an **optional agent reference workflow**. Choose the path you need:
 
-- **Framework:** Next.js 16 (App Router)
-- **UI:** React 19, Tailwind CSS v4, Radix UI
-- **Language:** TypeScript (strict)
-- **Auth:** Supabase Auth (OAuth via Google/GitHub)
-- **i18n:** next-intl (en, ko, ja)
-- **3D:** React Three Fiber (hero scene)
-- **Hosting:** Vercel (Hobby)
+| Path | Start here | Tools / keys |
+| --- | --- | --- |
+| Use the UI in an app | [Consumer guide](docs/design/v2-migration.md) | React 19, Tailwind 4, declared package peers; **no API keys** |
+| Develop the shared UI | Commands below and [contributing](CONTRIBUTING.md) | Node.js 22+, pnpm; no Supabase or 21st key |
+| Use frontend references with an agent | [Optional workflow setup](docs/design/frontend-tooling.md) | Supported agent; Python for bundled helpers; your own 21st key only for optional MCP |
+| Develop the brand/example website | [Site setup](docs/site-development.md) | Next.js and a separate Supabase project for site authentication |
 
-## Prerequisites
+## Use the UI
 
-- Node.js 22+
-- pnpm
+The source manifest version is `0.2.0`; that alone does not prove an npm release exists. Install an available published version, or build a local tarball as described below.
 
-## Environment Variables
-
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
-
-## Getting Started
-
-```bash
-pnpm install
-pnpm dev
-# Open http://localhost:3000
+```sh
+pnpm add @naeil/ui
 ```
 
-## Project Structure
+Import primitives from the dedicated entrypoint:
 
-```
-src/
-├── app/                  # Next.js App Router pages & API routes
-│   ├── [locale]/         # Locale-prefixed pages (en/ko/ja)
-│   ├── api/health/       # Health check endpoint
-│   └── auth/callback/    # OAuth callback handler
-├── components/           # Shared UI components
-│   └── ui/               # Primitive components (button, card, etc.)
-├── i18n/                 # Internationalization config & routing
-├── lib/
-│   ├── auth/             # Auth utilities (cookie domain, redirect, avatar, routes)
-│   └── supabase/         # Supabase client (server, middleware, browser)
-├── styles/               # Theme tokens & global CSS
-└── proxy.ts              # Middleware (auth guard, i18n, cookie sync)
+```tsx
+import { Button, Input } from '@naeil/ui/ui';
+
+export function NameField() {
+  return <label>Name <Input name="name" /></label>;
+}
 ```
 
-## Auth / SSO Architecture
+In a Tailwind 4 app, load the styles once and register the package's classes (adjust the source path relative to your CSS file):
 
-The auth system enables cross-subdomain SSO between `naeil.dev` and `esg.naeil.dev`:
+```css
+@import "@naeil/ui/globals.css";
+@source "../node_modules/@naeil/ui/dist";
+```
 
-- OAuth flow: Login page → Supabase OAuth → `/auth/callback` → redirect to original page
-- Cookie domain is set to `.naeil.dev` in production, enabling session sharing across subdomains
-- Protected routes (e.g., `/sa/reports/:id`) redirect unauthenticated users to login with a `?next` param
-- The middleware (`proxy.ts`) handles session refresh, route protection, i18n routing, and cookie sync
+The [consumer guide](docs/design/v2-migration.md) covers peer dependencies, fonts, themes, density, Select versus DropdownMenu, overrides, and layout ownership. Fonts are delivered by the consumer; shared CSS does not fetch them automatically. Existing root and deep imports remain compatibility contracts; the primitive entrypoint is the starting point for ordinary UI use.
 
-## Available Scripts
+## Develop the shared UI
 
-| Script | Description |
-|---|---|
-| `pnpm dev` | Start development server |
-| `pnpm build` | Production build |
-| `pnpm lint` | Run ESLint |
-| `pnpm test` | Run unit tests (Vitest) |
-| `pnpm build:tokens` | Generate design tokens |
-| `pnpm check:contrast` | Check color contrast ratios |
+From the repository root:
 
-## Deployment
+```sh
+pnpm install --frozen-lockfile
+pnpm storybook
+# http://localhost:6006 — UI v2 / Workspace
+```
 
-Auto-deploys from `main` via Vercel (Hobby plan). Push to `main` triggers a production deployment.
+Storybook uses the actual public components with simulated example data. It needs no Supabase project or external design API. For local package consumption:
+
+```sh
+pnpm build:pkg
+pnpm pack --pack-destination /tmp
+# In your consumer app: pnpm add /tmp/naeil-ui-0.2.0.tgz
+```
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm build:tokens` | Generate theme CSS from `src/tokens/*.json` |
+| `pnpm check:contrast` | Check declared light/dark color combinations |
+| `pnpm test` / `pnpm lint` | Unit tests / lint |
+| `pnpm build:storybook` / `pnpm test:browser` | Build Storybook / Chromium component checks (install Playwright Chromium first) |
+| `pnpm build:pkg` / `pnpm check:package` | Build package / verify packed consumption |
+| `pnpm dev` / `pnpm build` | Brand/example website development / build |
+
+Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
+
+[Documentation index](docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
+
+## Project and license
+
+Maintained in [naeil-dev/naeil-ui](https://github.com/naeil-dev/naeil-ui). See [contributing](CONTRIBUTING.md), [security reporting](SECURITY.md), [MIT license](LICENSE), and [third-party notices](THIRD_PARTY_NOTICES.md). Third-party code, fonts, and brand assets have their own attribution and scope limits.

@@ -1,5 +1,7 @@
 # Spec: naeil.dev 인증 시스템
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > Supabase 기반 인증 + SA 리포트 열람 — naeil.dev의 첫 번째 사용자 인터랙션 레이어.
 
 ## Goals

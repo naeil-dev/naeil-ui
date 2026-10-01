@@ -4,6 +4,10 @@
 
 ## 시작하기
 
+공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React 19와 Tailwind 4를 기준으로 한다. 현재 manifest의 peer는 React/React DOM 19, Next 15 또는 16, next-intl 4, next-themes 0.4, tailwind-merge 3이다. `@naeil/ui/ui`는 일반 primitive 진입점이며, Next/i18n을 쓰는 브랜드 컴포넌트와 기존 deep import 계약은 별도로 확인한다. 패키지 의존성 경계가 축소됐다고 주장하지 않는다.
+
+`pnpm add @naeil/ui`로 게시된 버전을 설치하거나 저장소에서 `pnpm build:pkg` 후 `pnpm pack --pack-destination /tmp`로 만든 tarball을 소비 앱에 설치한다. manifest 버전만으로 npm 게시 여부를 판단하지 않는다.
+
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
 ```css

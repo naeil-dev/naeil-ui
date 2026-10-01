@@ -1,9 +1,9 @@
 
-> @naeil/ui@0.2.0 test /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri
+> @naeil/ui@0.2.0 test <historical-repository>
 > vitest run
 
 
- RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri
+ RUN  v4.1.0 <historical-repository>
 
 
  Test Files  7 passed (7)

@@ -1,5 +1,7 @@
 # Spec: naeil-ui
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > 미니멀 · 기계적 · 다크 우선의 개인 디자인 시스템. React + Tailwind v4 + shadcn/ui 기반으로, 모든 프로젝트에 일관된 아이덴티티를 부여한다.
 
 ## Goals

@@ -1,5 +1,7 @@
 # Tasks: naeil.dev 인증 시스템
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > plan-auth.md 기반. 총 28 태스크, 4 Phase.
 
 ## Phase 1: Supabase 셋업 + Auth 기반

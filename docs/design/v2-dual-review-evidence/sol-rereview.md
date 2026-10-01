@@ -1,6 +1,8 @@
 # frontend-reference-workflow v2 독립 Sol 재리뷰
 
-대상: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`. HEAD는 `82456d93061e875ea554fa8567537a920cee3361`이며, 검토 대상은 **커밋 이후 미커밋 수정본**이다. SKILL/checker revision은 `2026-09-30.2`다. 아래 SHA-256이 이번 판정의 정확한 소스를 지정한다.
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
+대상: `<historical-repository>`. HEAD는 `82456d93061e875ea554fa8567537a920cee3361`이며, 검토 대상은 **커밋 이후 미커밋 수정본**이다. SKILL/checker revision은 `2026-09-30.2`다. 아래 SHA-256이 이번 판정의 정확한 소스를 지정한다.
 
 ## 판정
 
@@ -8,7 +10,7 @@
 
 이 보고서는 내 실제 소스 검토와 실행에 근거한다. 다른 모델의 일반적 승인이나 dispositions 문서를 코드 검증으로 대체하지 않았다. `docs/design/frontend-v2-dual-review.md`는 처리 의도를 확인하는 데만 사용했고 다른 리뷰 원문은 읽지 않았다. 이 판정은 스킬/helper 준비도이며 제품 UI·패키지·출시 승인과 다르다.
 
-설치본이 이전 기준을 유지하는 것은 **계획된 설치 경계이며 결함이 아니다**. 설치본 7개 파일이 모두 HEAD 기준과 일치하고 Claude 링크가 같은 설치 경로를 가리킴을 직접 확인했다. 원본 보고서 `/tmp/frontend-v2-comprehensive-sol.md`는 변경하지 않았다. 검토 시작·종료 사이 고정 소스와 원본 보고서의 해시 변경은 없었다.
+설치본이 이전 기준을 유지하는 것은 **계획된 설치 경계이며 결함이 아니다**. 설치본 7개 파일이 모두 HEAD 기준과 일치하고 Claude 링크가 같은 설치 경로를 가리킴을 직접 확인했다. 원본 보고서 `<historical-scratch>/frontend-v2-comprehensive-sol.md`는 변경하지 않았다. 검토 시작·종료 사이 고정 소스와 원본 보고서의 해시 변경은 없었다.
 
 ## 기존 지적의 disposition
 
@@ -31,7 +33,7 @@
 
 스크롤바를 정상 표시하도록 바꾸었지만 overflow 비교는 여전히 `document.documentElement.scrollWidth > innerWidth + 1`이다. classic 세로 스크롤바가 있으면 `innerWidth`는 스크롤바 폭까지 포함하고 실제 가로 가용 폭은 `clientWidth`다. 그 차이보다 작은 실제 가로 scroll overflow가 사라진다.
 
-**재현:** `node /tmp/frontend-v2-sol-rereview-regression-probe.cjs`. 현재 CLI와 별도 동일 Chromium native-scrollbar context에서 800×600, 5000px 높이 main의 폭을 `calc(100% + 8px)`로 설정했다.
+**재현:** `node <historical-scratch>/frontend-v2-sol-rereview-regression-probe.cjs`. 현재 CLI와 별도 동일 Chromium native-scrollbar context에서 800×600, 5000px 높이 main의 폭을 `calc(100% + 8px)`로 설정했다.
 
 | 값 | 관측 |
 |---|---|
@@ -68,10 +70,10 @@
 
 첫 mutation이 `config.layoutComparison`이라는 잘못된 key를 추가한다. 다음 iteration의 `Object.assign(config, structuredClone(original))`은 그 key를 삭제하지 않는다. 따라서 뒤의 falsy rules, touchMin, case/viewport/comparison/font 오타 등은 모두 앞서 남은 root 오타만으로 exit 2가 된다. 원래 config에 없던 `rules`도 이전 iteration에서 남을 수 있다.
 
-**독립 mutation 재현:** 현재 helper를 `/tmp/frontend-v2-sol-rereview-mutant-browser.cjs`에 복사해 **딱 한 줄**, undefined-only rules fallback을 다시 `config.rules || {}`로 되돌렸다. 현재 layout test를 `/tmp`로 복사해 projectRoot/script 경로만 이 mutant를 가리키게 했다.
+**독립 mutation 재현:** 현재 helper를 `<historical-scratch>/frontend-v2-sol-rereview-mutant-browser.cjs`에 복사해 **딱 한 줄**, undefined-only rules fallback을 다시 `config.rules || {}`로 되돌렸다. 현재 layout test를 `/tmp`로 복사해 projectRoot/script 경로만 이 mutant를 가리키게 했다.
 
 ```sh
-node --test --test-name-pattern='rejects invalid comparisons' /tmp/frontend-v2-sol-rereview-masked-test.cjs
+node --test --test-name-pattern='rejects invalid comparisons' <historical-scratch>/frontend-v2-sol-rereview-masked-test.cjs
 ```
 
 결과는 **1/1 pass, exit 0**이었다. 그러나 이 mutant에 원래 독립 rules probe를 실행하면 null/false/0 세 개가 모두 **exit 0 / automated-checks-passed / 요청 1회**로 퇴행한다. 즉 해당 회귀 검사는 M1이 다시 발생해도 감지하지 못한다.
@@ -103,7 +105,7 @@ node --test --test-name-pattern='rejects invalid comparisons' /tmp/frontend-v2-s
 | 고정 source/original report 시작·종료 SHA 비교 | 변경 없음 |
 | installed 7파일 대 HEAD baseline 비교 | 모두 일치; 의도된 이전 설치본 유지 |
 
-원래 probe script와 결과는 보존했고 rereview 출력은 `/tmp/frontend-v2-sol-rereview-*.json` 및 동명 `.cjs`/`.py`에 따로 기록했다. 주된 새 근거는 `/tmp/frontend-v2-sol-rereview-regression-results.json`, `/tmp/frontend-v2-sol-rereview-baseline-regression-results.json`, `/tmp/frontend-v2-sol-rereview-mutation-probe-results.json`이다. mutation probe의 최초 scratch 실행은 파일명 치환 오류로 실패했으며 `/tmp`의 경로만 바로잡아 재실행했다. 소스 오류로 세지 않았다.
+원래 probe script와 결과는 보존했고 rereview 출력은 `<historical-scratch>/frontend-v2-sol-rereview-*.json` 및 동명 `.cjs`/`.py`에 따로 기록했다. 주된 새 근거는 `<historical-scratch>/frontend-v2-sol-rereview-regression-results.json`, `<historical-scratch>/frontend-v2-sol-rereview-baseline-regression-results.json`, `<historical-scratch>/frontend-v2-sol-rereview-mutation-probe-results.json`이다. mutation probe의 최초 scratch 실행은 파일명 치환 오류로 실패했으며 `/tmp`의 경로만 바로잡아 재실행했다. 소스 오류로 세지 않았다.
 
 ## 수정본 SHA-256
 
@@ -121,7 +123,7 @@ node --test --test-name-pattern='rejects invalid comparisons' /tmp/frontend-v2-s
 | references/tools.md | `d111c540890d6e8fb99030bdc417204f49a1770f1ddf3f767731ea21ca4906a2` |
 | references/verification.md | `06ce492288ddb85e5bd29223c8875d5b4c1af9a0f4163f62f757b5bdbc7dee5a` |
 
-추가 파일과 원본 보고서 hash는 `/tmp/frontend-v2-sol-rereview-start-hashes.json`, 설치 baseline 비교는 `/tmp/frontend-v2-sol-rereview-installed-baseline.json`, 종료 비교는 `/tmp/frontend-v2-sol-rereview-end-verification.json`에 보존한다. 원래 보고서는 그대로이며 이번 새 판정은 이 파일에만 기록한다.
+추가 파일과 원본 보고서 hash는 `<historical-scratch>/frontend-v2-sol-rereview-start-hashes.json`, 설치 baseline 비교는 `<historical-scratch>/frontend-v2-sol-rereview-installed-baseline.json`, 종료 비교는 `<historical-scratch>/frontend-v2-sol-rereview-end-verification.json`에 보존한다. 원래 보고서는 그대로이며 이번 새 판정은 이 파일에만 기록한다.
 
 ## 제한과 준비도
 

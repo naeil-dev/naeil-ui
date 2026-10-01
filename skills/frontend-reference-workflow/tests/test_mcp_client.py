@@ -113,6 +113,36 @@ for line in sys.stdin:
                     try:os.kill(int(pid_file.read_text()),9)
                     except ProcessLookupError:pass
 
+class PortableCommandTest(unittest.TestCase):
+    def test_no_configuration_blocks_and_explicit_command_connects(self):
+        import subprocess
+        empty = subprocess.run([sys.executable, str(SCRIPT), 'status'],
+                               capture_output=True, text=True, timeout=5)
+        self.assertEqual(empty.returncode, 2)
+        self.assertEqual(json.loads(empty.stdout)['status'], 'blocked')
+        self.assertNotIn('Traceback', empty.stderr)
+        with tempfile.TemporaryDirectory() as folder:
+            server = Path(folder) / 'server.py'
+            server.write_text("""import json,sys
+for line in sys.stdin:
+ q=json.loads(line)
+ if 'id' not in q:continue
+ if q['method']=='initialize':r={'protocolVersion':'2024-11-05','capabilities':{}}
+ elif q['method']=='tools/list':r={'tools':[{'name':'get_usage'}]}
+ else:r={'content':[{'type':'text','text':'Fixture usage only'}]}
+ print(json.dumps({'jsonrpc':'2.0','id':q['id'],'result':r}),flush=True)
+""")
+            connected = subprocess.run([sys.executable, str(SCRIPT), 'status',
+                '--timeout', '2', '--command', sys.executable, str(server)],
+                capture_output=True, text=True, timeout=5)
+            self.assertEqual(connected.returncode, 0, connected.stderr)
+            self.assertEqual(json.loads(connected.stdout)['status'], 'connected')
+            conflict = subprocess.run([sys.executable, str(SCRIPT), 'status',
+                '--launcher', str(server), '--command', sys.executable, str(server)],
+                capture_output=True, text=True, timeout=5)
+            self.assertEqual(conflict.returncode, 2)
+
+
 class ResponseValidationTest(unittest.TestCase):
     def test_malformed_tools_empty_tool_results_and_valid_empty_search(self):
         spec = importlib.util.spec_from_file_location('client_validation', SCRIPT)

@@ -1,6 +1,8 @@
 # frontend-reference-workflow v2 독립 전체 리뷰
 
-검토일: 2026-09-30. 대상: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`, HEAD `82456d93061e875ea554fa8567537a920cee3361`.
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
+검토일: 2026-09-30. 대상: `<historical-repository>`, HEAD `82456d93061e875ea554fa8567537a920cee3361`.
 
 ## 판정
 
@@ -18,7 +20,7 @@ Critical 0 / High 0 / Medium 3 / Low 3. 이 판정은 스킬과 helper의 검증
 
 - 위치: `skills/frontend-reference-workflow/scripts/browser-check.cjs:358`, `:441`.
 - `validateRules(config.rules || {})`와 `auditPage(page, config.rules || {}, ...)`가 명시적 `null`, `false`, `0`을 모두 `{}`로 바꾼다. `validateRules` 자체는 이 입력을 거부하지만 CLI가 검증 전에 지운다.
-- 재현: `/tmp/frontend-v2-sol-probe.cjs`의 `rules-null`, `rules-false`, `rules-0`. 각각 현재 helper를 실행한 결과 **exit 0, `automated-checks-passed`, 로컬 요청 1회**, CSS expectations는 빈 배열이고 touch는 `not-configured`였다.
+- 재현: `<historical-scratch>/frontend-v2-sol-probe.cjs`의 `rules-null`, `rules-false`, `rules-0`. 각각 현재 helper를 실행한 결과 **exit 0, `automated-checks-passed`, 로컬 요청 1회**, CSS expectations는 빈 배열이고 touch는 `not-configured`였다.
 - 효과: 설정 생성/병합 오류로 프로젝트 기반 검사 규칙이 사라져도 성공한 보고서가 나온다. 이는 `layoutComparisons: null`을 오류로 처리하는 현재 정책 및 `references/verification.md:73`의 잘못된 설정 사전 차단 설명과 어긋난다. 의도적으로 `rules`를 생략한 일반 axe/overflow 검사는 문제로 세지 않는다.
 - 최소 수정: 생략된 `undefined`만 기본 `{}`로 처리하고, 명시적 다른 타입은 그대로 검증에 전달한다. CLI 회귀 검사에 위 세 입력을 추가한다.
 
@@ -26,7 +28,7 @@ Critical 0 / High 0 / Medium 3 / Low 3. 이 판정은 스킬과 helper의 검증
 
 - 위치: `skills/frontend-reference-workflow/scripts/browser-check.cjs:59-73`, `:87-93`, `:115-117`.
 - `visible()`은 요소 자신의 computed opacity만 검사한다. 조상의 `opacity:0`은 자식의 computed opacity를 0으로 바꾸지 않는다. 별도의 landmark 검사(`:250-258`)는 조상을 확인하므로 두 검사 경로도 일관되지 않다.
-- 재현: `node /tmp/frontend-v2-sol-hidden-probe.cjs`. 똑같은 20×20 버튼에 opacity/pointer-events를 직접 지정하면 CSS expectation은 `No visible match`로 실패한다. 이를 부모 `<div style="opacity:0;pointer-events:none">`로 옮기면 **CSS expectation은 pass, 전체 CSS-only audit은 `automated-checks-passed`**가 된다. touch 검사까지 켜면 클릭할 수 없는 그 버튼이 `touchReview`에 들어간다.
+- 재현: `node <historical-scratch>/frontend-v2-sol-hidden-probe.cjs`. 똑같은 20×20 버튼에 opacity/pointer-events를 직접 지정하면 CSS expectation은 `No visible match`로 실패한다. 이를 부모 `<div style="opacity:0;pointer-events:none">`로 옮기면 **CSS expectation은 pass, 전체 CSS-only audit은 `automated-checks-passed`**가 된다. touch 검사까지 켜면 클릭할 수 없는 그 버튼이 `touchReview`에 들어간다.
 - 효과: 숨겨진 템플릿·비활성 화면을 현재 보이는 기반 스타일의 증거로 사용할 수 있고, 숨김 컨트롤 때문에 불필요한 touch 수동 검토가 생긴다. 이는 `references/verification.md:81,89`의 visible expectation/visible control 계약에 어긋난다.
 - 최소 수정: CSS expectation에는 조상까지 포함한 표시 여부를 반영한다. touch에서는 투명 native overlay를 보존하되 실제 pointer 입력을 받을 수 없는 투명 subtree를 제외한다. 두 경로를 무조건 같은 opacity 규칙으로 합쳐 overlay 검사를 망가뜨리면 안 된다. 직접 숨김/조상 숨김 비교를 작은 회귀 검사로 남긴다.
 
@@ -34,7 +36,7 @@ Critical 0 / High 0 / Medium 3 / Low 3. 이 판정은 스킬과 helper의 검증
 
 - 위치: `skills/frontend-reference-workflow/scripts/twenty_first.py:74-79`, `:115-116`, `:124-133`, `:155-158`.
 - `Client.call()`은 result가 dict인지와 `isError`만 확인한다. 따라서 `get_usage`와 `search`가 `{}`를 반환해도 성공이다. `tools/list`의 tools 타입도 확인하지 않는다.
-- 재현: `PYTHONDONTWRITEBYTECODE=1 python3 /tmp/frontend-v2-sol-mcp-probe.py`. 격리된 로컬 stdio 서버가 initialize와 목록은 정상 응답하고 두 tool call에 `{}`를 반환한다. 실제 CLI의 `status`는 **exit 0, `connected`, `usage:{}`**, `search`는 **exit 0, `searched`, `usage:{}`, `search:{}`**를 출력한다. 같은 서버의 `tools:null` 변형은 safe `ClientError` 대신 **TypeError**를 발생시킨다.
+- 재현: `PYTHONDONTWRITEBYTECODE=1 python3 <historical-scratch>/frontend-v2-sol-mcp-probe.py`. 격리된 로컬 stdio 서버가 initialize와 목록은 정상 응답하고 두 tool call에 `{}`를 반환한다. 실제 CLI의 `status`는 **exit 0, `connected`, `usage:{}`**, `search`는 **exit 0, `searched`, `usage:{}`, `search:{}`**를 출력한다. 같은 서버의 `tools:null` 변형은 safe `ClientError` 대신 **TypeError**를 발생시킨다.
 - 효과: 계정 이용권이나 검색 결과를 확인하지 못한 응답이 성공 증거가 된다. 검색 전에 이용권을 확인하라는 `SKILL.md:39`와 안전한 실패 처리를 설명한 `references/tools.md:54-58`의 보장을 충족하지 못한다.
 - 최소 수정: tools가 배열인지와 필요한 이름 타입, tool result의 실제 응답 구조를 좁게 확인하고 잘못된 구조를 safe `ClientError`로 변환한다. 이용권 데이터가 확인되지 않은 경우에는 그 사실을 분리해서 보고한다. 정상적인 “검색 결과 0건”은 오류로 만들지 않는다. 새 MCP 프레임워크는 필요하지 않다.
 
@@ -42,7 +44,7 @@ Critical 0 / High 0 / Medium 3 / Low 3. 이 판정은 스킬과 helper의 검증
 
 - 위치: `skills/frontend-reference-workflow/scripts/browser-check.cjs:48-54`, `:358`, `:431-441`.
 - `touchMin` 검증이 `auditPage`에만 있어 CLI 설정 검증 단계에서는 걸러지지 않는다.
-- 재현: `/tmp/frontend-v2-sol-probe.cjs`의 `invalid-touch`: `rules:{"touchMin":-1}`로 **로컬 요청 1회 이후 exit 1 / blocked**. 설정 실패의 exit 2 / 탐색 0회와 다르다.
+- 재현: `<historical-scratch>/frontend-v2-sol-probe.cjs`의 `invalid-touch`: `rules:{"touchMin":-1}`로 **로컬 요청 1회 이후 exit 1 / blocked**. 설정 실패의 exit 2 / 탐색 0회와 다르다.
 - 효과: 실패를 성공으로 오인하지는 않지만, `references/verification.md:73,87`의 설정 오류 사전 차단/종료 코드 계약이 깨진다.
 - 최소 수정: touchMin 검증을 이미 존재하는 `validateRules`에 포함해 CLI와 API가 공유한다.
 
@@ -80,7 +82,7 @@ AGENTS.md, DESIGN.md, 관련 shared UI spec, v2-migration.md의 승인된 neutra
 
 요청 테마/locale과 앱의 실제 테마/번역은 다르다는 설명, local scroll/clipping과 page overflow의 구분, 현재 text contrast와 non-text/focus/state contrast의 구분은 정확한 범위 제한이다. reduced-motion으로 측정한 결과를 motion 테스트로 주장하지 않는다. transparent overlays, aria-hidden, label/pseudo hit-area, axe incomplete를 고려한 기존 테스트도 의미 있다. M1/M2/L1은 이 좋은 계약의 구현에서 남은 틈이다.
 
-추가 관찰: `measureLandmark(:245-263)`는 `clip-path:inset(100%)`로 완전히 잘린 nav도 count 1로 측정한다. `/tmp/frontend-v2-sol-probe.cjs`의 `clipped-landmark`에서 두 route 비교가 exit 0이었다. **별도 필수 결함으로 세지 않았다.** 문서가 clipping을 시각 검토 범위로 명시하기 때문이다. 이 경우의 자동 geometry 통과를 “실제로 보이는 navigation 확인”으로 확대해석하면 안 된다. 완전히 잘린 landmark를 차단하는 좁은 보완은 선택 사항이다.
+추가 관찰: `measureLandmark(:245-263)`는 `clip-path:inset(100%)`로 완전히 잘린 nav도 count 1로 측정한다. `<historical-scratch>/frontend-v2-sol-probe.cjs`의 `clipped-landmark`에서 두 route 비교가 exit 0이었다. **별도 필수 결함으로 세지 않았다.** 문서가 clipping을 시각 검토 범위로 명시하기 때문이다. 이 경우의 자동 geometry 통과를 “실제로 보이는 navigation 확인”으로 확대해석하면 안 된다. 완전히 잘린 landmark를 차단하는 좁은 보완은 선택 사항이다.
 
 ### stdio MCP·실패·비밀정보
 
@@ -102,14 +104,14 @@ STATUS.md는 2026-06-28의 기존 출시 완료 기록이다. 이번 9월 스킬
 |---|---|
 | `node --test skills/frontend-reference-workflow/tests/*.test.cjs` | 16 tests, pass 16, fail 0, skipped 0; exit 0 |
 | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/frontend-reference-workflow/tests -p 'test_*.py'` | 5 tests; OK; exit 0 |
-| `node /tmp/frontend-v2-sol-probe.cjs` | 5 CLI probes + opacity API probe; 재현 결과 JSON 보존; exit 0은 probe 실행 성공이며 대상의 결함 부재를 뜻하지 않음 |
-| `node /tmp/frontend-v2-sol-hidden-probe.cjs` | 직접 숨김/조상 숨김 각각 CSS/touch 비교; exit 0 |
-| `PYTHONDONTWRITEBYTECODE=1 python3 /tmp/frontend-v2-sol-mcp-probe.py` | empty status/search, malformed tools, nan/inf timeout; 전부 fake stdio launcher; exit 0 |
+| `node <historical-scratch>/frontend-v2-sol-probe.cjs` | 5 CLI probes + opacity API probe; 재현 결과 JSON 보존; exit 0은 probe 실행 성공이며 대상의 결함 부재를 뜻하지 않음 |
+| `node <historical-scratch>/frontend-v2-sol-hidden-probe.cjs` | 직접 숨김/조상 숨김 각각 CSS/touch 비교; exit 0 |
+| `PYTHONDONTWRITEBYTECODE=1 python3 <historical-scratch>/frontend-v2-sol-mcp-probe.py` | empty status/search, malformed tools, nan/inf timeout; 전부 fake stdio launcher; exit 0 |
 | HEAD blob 대 현재 읽은 파일 바이트 비교 | manifest 20개 모두 HEAD와 일치 |
 | 배포 대상 source 대 installed 바이트/SHA 비교 | 7/7 일치; Claude symlink는 installed 경로로 resolve |
 | 시작 시와 마지막 `git status --short` | 출력 없음; tracked 변경 없음 |
 
-재현 코드와 입력/결과는 `/tmp/frontend-v2-sol-probe.cjs`, `/tmp/frontend-v2-sol-hidden-probe.cjs`, `/tmp/frontend-v2-sol-mcp-probe.py`, `/tmp/frontend-v2-sol-fake-mcp.py`, `/tmp/frontend-v2-sol-*-config.json`, `/tmp/frontend-v2-sol-*-report.json`, `/tmp/frontend-v2-sol-probe-results.json`, `/tmp/frontend-v2-sol-hidden-probe-results.json`, `/tmp/frontend-v2-sol-mcp-probe-results.json`에 보존했다. 실행은 모두 기존 의존성·로컬 fixture에 한정했다.
+재현 코드와 입력/결과는 `<historical-scratch>/frontend-v2-sol-probe.cjs`, `<historical-scratch>/frontend-v2-sol-hidden-probe.cjs`, `<historical-scratch>/frontend-v2-sol-mcp-probe.py`, `<historical-scratch>/frontend-v2-sol-fake-mcp.py`, `<historical-scratch>/frontend-v2-sol-*-config.json`, `<historical-scratch>/frontend-v2-sol-*-report.json`, `<historical-scratch>/frontend-v2-sol-probe-results.json`, `<historical-scratch>/frontend-v2-sol-hidden-probe-results.json`, `<historical-scratch>/frontend-v2-sol-mcp-probe-results.json`에 보존했다. 실행은 모두 기존 의존성·로컬 fixture에 한정했다.
 
 기존 테스트는 실제 Chromium/axe와 subprocess를 쓰고 결과/exit/오류 처리까지 확인하므로 가치가 있다. 그러나 falsy rules, 조상 opacity, tool result 누락/잘못된 목록 타입, 유한하지 않은 timeout, threshold 사전 검증에는 빈틈이 있다. 테스트 통과가 위 독립 반례를 닫지 못한다. 보완에는 해당 경계 입력의 작은 회귀 검사만 필요하며 framework/plugin 전환은 필요 없다.
 
@@ -135,7 +137,7 @@ STATUS.md는 2026-06-28의 기존 출시 완료 기록이다. 이번 9월 스킬
 | `tests/layout-comparison.test.cjs` | `dd83d8c7ea1c374b831bbd8680c1e423a2cf9f5fb0013233c22c6a7dd6634509` |
 | `tests/test_mcp_client.py` | `cd0724e92beb5b2f55cb6c47902f846dd2cf627e5dc3e3d33302014507dc0d9b` |
 
-전체 읽은 scope 파일 20개의 SHA와 HEAD 일치 여부는 `/tmp/frontend-v2-sol-source-manifest.json`에 있다. source/installed 개별 비교는 `/tmp/frontend-v2-sol-identity.json`에 있다. source `.gitignore`와 tests가 installation에 없는 것은 배포 대상 제외이며 equality 결함이 아니다.
+전체 읽은 scope 파일 20개의 SHA와 HEAD 일치 여부는 `<historical-scratch>/frontend-v2-sol-source-manifest.json`에 있다. source/installed 개별 비교는 `<historical-scratch>/frontend-v2-sol-identity.json`에 있다. source `.gitignore`와 tests가 installation에 없는 것은 배포 대상 제외이며 equality 결함이 아니다.
 
 ## 제한과 다음 조치
 

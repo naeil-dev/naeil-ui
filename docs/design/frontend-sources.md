@@ -1,5 +1,24 @@
 # 프론트엔드 참고 출처
 
+## 2026-10-02 — Public onboarding and portable optional tools
+
+Gap: separate shared UI consumption, optional agent tools, and brand/example-site authentication; remove dependence on a maintainer's private 21st launcher and establish copied-code notices. No visual direction, component code, tokens or site UI changed.
+
+Original bodies read through research-router `fetch.py extract`, captured once outside the repository and inspected offline in full:
+
+- 21st-dev maintainers, [official magic-mcp README](https://github.com/21st-dev/magic-mcp/blob/main/README.md), publication/update date unknown, accessed 2026-10-02; 5,102 characters read. Documented current HTTP endpoint, own-key issuance URL, environment variable support, compatibility proxy, tool discovery and AI/catalog distinction. Applied to `references/tools.md`, public tooling setup, and configurable `twenty_first.py` command selection. The proxy was not installed or authenticated during this change; no real search, retrieval, generation or native MCP discovery is claimed.
+- shadcn maintainers, [original MIT license](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md), publication/update date unknown, accessed 2026-10-02; 1,062 characters read. Original notice included in THIRD_PARTY_NOTICES.md; matched the installed shadcn license. Local git history establishes shadcn adaptation but not an exact upstream registry revision.
+
+Installed `pretendard/dist/LICENSE.txt` and `@fontsource/noto-sans-jp/LICENSE` were read locally and preserved in `licenses/`. Local source/history audits found site-art provenance and fetched JetBrains Mono notice verification unresolved; see THIRD_PARTY_NOTICES.md. No external design code was adopted.
+
+This narrow check establishes documented setup/license facts, not reliability, popularity, a new design direction, or live API availability. Shared UI execution checks are separate from helper/documentation checks.
+
+| Source | Status / reason | Collected | Cited | Newest published/updated | Means |
+| --- | --- | ---: | ---: | --- | --- |
+| 21st-dev/magic-mcp README | OK, relevant original setup body read in full | 1 | 1 | Unknown; accessed 2026-10-02 | research-router local-extract + offline inspect-extract |
+| shadcn-ui/ui LICENSE.md | OK, full license body read | 1 | 1 | Unknown; accessed 2026-10-02 | research-router local-extract + offline inspect-extract |
+
+
 ## 2026-10-01 — 검사기 Low 3건 보완
 
 이전 Opus 리뷰의 남은 진단·회귀 테스트·quirks 넘침 항목을 로컬 fixture로 재현해 수정했다. Chromium/axe·가짜 MCP launcher·기본 단위 테스트·설치 경로 검증을 실행했다. 외부 참고 검색이나 실제 계정/API 호출은 하지 않았다. 실제 변경과 검증 범위는 [후속 기록](frontend-v2-low-followup.md)에 남겼다.

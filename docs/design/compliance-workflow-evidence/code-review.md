@@ -1,5 +1,7 @@
 # Compliance workflow code review
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 Reviewed current uncommitted changes against HEAD `00bf90b4e8be836f711a7ddc46a0096fdc66c263`, including untracked layout reference and tests. Read-only review; no worktree edits, installation, external APIs, RelayDock changes or subagents.
 
 ## Finding
@@ -9,7 +11,7 @@ Reviewed current uncommitted changes against HEAD `00bf90b4e8be836f711a7ddc46a00
 
 `const comparisons = config.layoutComparisons ?? []` normalizes an explicitly invalid `null` to an empty array before `validateComparisons` can reject it. A malformed/generated config therefore returns an overall success without running the intended cross-route checks, contrary to the requirement that invalid configurations cannot pass. Omission can remain optional, but a present non-array should be rejected.
 
-Concrete reproduction: use the new layout fixture with settings on `/shifted` (352px navigation shift), then set `config.layoutComparisons = null`. Run the normal CLI against the fixture. Actual output: exit code `0`, top-level status `automated-checks-passed`, `layoutComparisons: []`. Expected: fatal invalid configuration (`blocked`, exit `2`) before navigation. Repro saved at `/tmp/compliance-null-comparison.test.cjs`; command: `node --test --test-name-pattern='review reproduction' /tmp/compliance-null-comparison.test.cjs`. Its expected-block assertion fails with `0 !== 2`.
+Concrete reproduction: use the new layout fixture with settings on `/shifted` (352px navigation shift), then set `config.layoutComparisons = null`. Run the normal CLI against the fixture. Actual output: exit code `0`, top-level status `automated-checks-passed`, `layoutComparisons: []`. Expected: fatal invalid configuration (`blocked`, exit `2`) before navigation. Repro saved at `<historical-scratch>/compliance-null-comparison.test.cjs`; command: `node --test --test-name-pattern='review reproduction' <historical-scratch>/compliance-null-comparison.test.cjs`. Its expected-block assertion fails with `0 !== 2`.
 
 Suggested correction: default only when the property is undefined, pass explicit null through to the array validator, and include null among invalid-configuration regression cases.
 

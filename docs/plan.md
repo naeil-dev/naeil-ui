@@ -1,5 +1,7 @@
 # Plan: naeil-ui
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > spec.md의 요구사항을 실행 가능한 단계로 분해한 구현 계획.
 
 ## Phase 개요

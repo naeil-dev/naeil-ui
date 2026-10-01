@@ -1,5 +1,7 @@
 # Scoped re-review: explicit null layout comparisons
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 Result: **P2 finding resolved; no findings in the reviewed fix.**
 
 The fix at `skills/frontend-reference-workflow/scripts/browser-check.cjs:405-407` defaults only an omitted/undefined `layoutComparisons` to `[]`. Explicit null now reaches the existing array validator and produces a blocked report. The invalid-configuration regression list at `skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:119` includes null.
@@ -7,7 +9,7 @@ The fix at `skills/frontend-reference-workflow/scripts/browser-check.cjs:405-407
 Checks independently executed:
 
 - `node --test --test-name-pattern='rejects invalid comparisons' skills/frontend-reference-workflow/tests/layout-comparison.test.cjs`: 1 selected test passed, including all 11 invalid-config mutations. It asserts exit code 2, blocked report, and zero fixture requests.
-- `node --test --test-name-pattern='review reproduction' /tmp/compliance-null-comparison.test.cjs`: the original review reproduction now passes; observed CLI exit `2` and report status `blocked`.
+- `node --test --test-name-pattern='review reproduction' <historical-scratch>/compliance-null-comparison.test.cjs`: the original review reproduction now passes; observed CLI exit `2` and report status `blocked`.
 
 Reviewed SHA-256 identities:
 

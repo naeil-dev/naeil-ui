@@ -1,10 +1,12 @@
 # frontend-reference-workflow v2 재리뷰 (Opus 5.5)
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 - 날짜: 2026-09-30
 - 리뷰어: Claude Opus 5.5 (`claude-opus-5-5`). 단독으로 수행했고 서브에이전트는 쓰지 않았다. 이 판정은 제가 직접 실행한 검사에만 근거하며, 다른 모델이나 일반적인 승인 의견으로 대체하지 않았다.
-- 대상: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`. HEAD는 `82456d9`이고, 그 위에 커밋되지 않은 수정 12개 파일과 추적되지 않은 `docs/design/frontend-v2-dual-review.md`, `docs/design/v2-dual-review-evidence/`가 있다.
-- 모드: 읽기 전용이다. 저장소·설치본·원 리포트는 수정하지 않았다. 스크래치는 `/tmp/fw-opus-probe/`에만 만들었다. 외부 API, 키, 21st 실계정은 사용하지 않았다.
-- 원 리포트 `/tmp/frontend-v2-comprehensive-opus.md`의 SHA-256은 `0497c0ca…a026`으로 변경되지 않았다. `v2-dual-review-evidence/opus-initial.md`와 해시가 같다.
+- 대상: `<historical-repository>`. HEAD는 `82456d9`이고, 그 위에 커밋되지 않은 수정 12개 파일과 추적되지 않은 `docs/design/frontend-v2-dual-review.md`, `docs/design/v2-dual-review-evidence/`가 있다.
+- 모드: 읽기 전용이다. 저장소·설치본·원 리포트는 수정하지 않았다. 스크래치는 `<historical-scratch>/fw-opus-probe/`에만 만들었다. 외부 API, 키, 21st 실계정은 사용하지 않았다.
+- 원 리포트 `<historical-scratch>/frontend-v2-comprehensive-opus.md`의 SHA-256은 `0497c0ca…a026`으로 변경되지 않았다. `v2-dual-review-evidence/opus-initial.md`와 해시가 같다.
 
 ## 1. 재리뷰 대상 SHA-256 (고정본)
 

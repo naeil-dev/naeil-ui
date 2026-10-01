@@ -1,5 +1,7 @@
 # Plan: naeil.dev 인증 시스템
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > spec-auth.md 기반. 4 Phase, 의존성 순서대로 진행.
 
 ## Phase 1: Supabase 셋업 + Auth 기반 (REQ-1, 2, 7, 8)

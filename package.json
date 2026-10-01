@@ -130,9 +130,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/naeil-dev/design-system"
+    "url": "git+https://github.com/naeil-dev/naeil-ui.git"
   },
-  "description": "Design system for naeil.dev — React components, design tokens, and i18n support built with Next.js, Radix UI, and Tailwind CSS.",
+  "description": "React components, semantic design tokens, and shared styles for naeil products, built with Radix UI and Tailwind CSS.",
   "keywords": [
     "design-system",
     "react",
@@ -142,5 +142,8 @@
     "next.js",
     "i18n"
   ],
-  "homepage": "https://naeil.dev"
+  "homepage": "https://github.com/naeil-dev/naeil-ui#readme",
+  "bugs": {
+    "url": "https://github.com/naeil-dev/naeil-ui/issues"
+  }
 }

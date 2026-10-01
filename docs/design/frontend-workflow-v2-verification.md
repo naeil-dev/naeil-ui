@@ -1,5 +1,7 @@
 # Frontend reference workflow 개선 검증
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 이 문서는 2026-09-29 단계의 역사적 검증 기록이다. 파일 수·해시·테스트 수는 당시 값이며 현재 설치본과의 일치를 주장하지 않는다. 이후 변경은 [공통 기준 적용 검증](common-design-compliance-verification.md)과 [두 모델 종합 리뷰](frontend-v2-dual-review.md)를 따른다.
 
 범위: 사용자가 승인한 다섯 가지 스킬 개선. RelayDock 제품·공통 UI 토큰·공식 Impeccable·플러그인 설정은 변경하지 않는다.
@@ -30,7 +32,7 @@
 
 ## 독립 리뷰와 보완
 
-리뷰어: 사용자가 지정한 Opus 5.5 (`claude/claude-opus-5-5`, high), 에이전트 `bf9df210-129f-4d43-be10-7ecb4ad4e7da`. 제품과 스킬 수정 권한 없이 코드 검사·로컬 fixture 실행을 요청했다.
+리뷰어: 사용자가 지정한 Opus 5.5 (`claude/claude-opus-5-5`, high), 에이전트 `historical-id-redacted`. 제품과 스킬 수정 권한 없이 코드 검사·로컬 fixture 실행을 요청했다.
 
 [1차 리뷰](frontend-workflow-evidence/opus-review.md)의 Medium 2건에 대해:
 

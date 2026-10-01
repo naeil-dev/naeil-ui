@@ -1,6 +1,6 @@
 # Tool routes and setup
 
-Official sources checked 2026-09-29. Recheck before changing installations; the original Threads setup instructions may age.
+Reference links were checked 2026-09-29; the official 21st README was read again 2026-10-02. Recheck before changing installations; the original Threads setup instructions may age.
 
 ## Read-only references
 
@@ -38,33 +38,44 @@ claude mcp add-json --scope user 21st '{"type":"http","url":"https://21st.dev/ap
 
 Register/enable only when that process will receive the variable. Confirm discovery and account usage without printing credentials. If API access is pending, public browser browsing is still an option; label it as browser use, never MCP execution.
 
-### This machine's verified connection
+## Portable read-only client (optional)
 
-The initial disabled HTTP entries were activated using a local stdio launcher in both Codex homes and Claude Code user scope. The launcher at `~/.local/share/naeil-frontend/21st-mcp/launch.py` loads `~/.config/naeil/21st/api-key` (0600) into the official proxy's environment, then runs the pinned `@21st-dev/magic@0.2.3` package. This is the maintained compatibility proxy to the current 21st endpoint, not the retired Magic backend. It avoids depending on GUI inheritance of terminal exports or embedding secrets in MCP config/arguments.
+The repository includes `scripts/twenty_first.py`; Python 3 is required. It supports **status and metadata search only** and does not register an MCP server in your agent. Prefer native MCP tools when available. This route supplies no credentials and assumes no private launcher exists.
 
-Initialize, tools/list, and get_usage succeeded. The account currently has free-tier catalog access with hosted AI disabled. No component retrieval/generation was run during connection verification. Check current usage before retrieval; this dated check does not guarantee future allowance. New sessions must load the registered MCP to expose tools to the agent.
+1. Obtain **your own** key at https://21st.dev/mcp. The official setup instructions and HTTP endpoint are documented in https://github.com/21st-dev/magic-mcp/blob/main/README.md (read 2026-10-02). Legacy keys may need replacement.
+2. Make `API_KEY_21ST` available to the process using your credential manager, or enter it locally without echo/history in Bash or Zsh:
 
-## Reusable 21st client when native tools are not exposed
+   ```sh
+   read -r -s 'API_KEY_21ST?21st API key: '
+   export API_KEY_21ST
+   ```
 
-Use the native MCP tools when present. Otherwise the existing authorized stdio launcher can be called without rebuilding a protocol client:
+   The prompt syntax above is Zsh. In Bash use `read -r -s -p '21st API key: ' API_KEY_21ST`. Never paste the key into chat, committed files, CLI arguments, or screenshots. A terminal export may not reach a GUI agent. For persisted credentials use your own secret store; protect any local credential file with directory mode 0700 and file mode 0600 and keep it outside the repository.
+3. If you authorize npm to download/run the official compatibility proxy, use this **explicit** command from the repository root:
 
-```sh
-python3 <skill>/scripts/twenty_first.py status
-python3 <skill>/scripts/twenty_first.py search --query "data table filter toolbar"
-```
+   ```sh
+   python3 skills/frontend-reference-workflow/scripts/twenty_first.py status \
+     --command npx --yes @21st-dev/magic@0.2.3
+   python3 skills/frontend-reference-workflow/scripts/twenty_first.py search \
+     --query "data table filter toolbar" \
+     --command npx --yes @21st-dev/magic@0.2.3
+   unset API_KEY_21ST
+   ```
 
-Announce the gap/query before search. `status` initializes MCP, discovers current tools and calls `get_usage`; `search` also calls the metadata search. The default launcher is this machine's verified path above. On another machine, supply `--launcher /absolute/path/to/approved-launcher.py` only after verifying its configuration. No automatic installation or changes to MCP configuration occur.
+   Node.js/npm are needed for this proxy. `npx --yes` can install into npm's cache; it is an optional, explicit tool installation, separate from UI consumption. The pinned proxy uses the environment variable, not an argument containing the key. Review the official package/version before changing the pin. An already installed stdio executable can instead be passed after `--command`. A user-owned Python launcher can be passed with `--launcher /path/to/your/launcher.py`. The options are mutually exclusive; `--command` must come last because it consumes remaining arguments. With neither option, the helper exits blocked without starting a process.
 
-The client never opens the credential file itself. The existing launcher supplies credentials. Raw child stderr and protocol error content are suppressed; timeout/auth/tool errors stop without retries. Successful usage/search results contain service metadata; store only necessary design evidence, not unrelated returned content. `--timeout` bounds each protocol call.
+`status` initializes MCP, lists tools, and calls `get_usage`; success proves that invocation's stdio connection and returned usage data. It does **not** prove native agent MCP discovery, remaining quota, a component download, or future availability. Search also calls the metadata `search` tool. Announce the gap/query first and inspect current usage; the helper does not infer permission from arbitrary usage text.
 
-This helper intentionally supports **status and search only**. It does not download component code, generate, upload, subscribe or spend a retrieval allowance. If component code is needed, use the discovered native retrieval tool under the existing usage/authorization rules; absent retrieval tools are a specific blocked step, not permission to invent a new bridge. A successful search is evidence of real MCP search, not component adoption.
+For no-key use, skip 21st and inspect existing components or public Component Gallery/21st pages with the browser. Record browser reading accurately. Authentication/expired-key errors require local credential correction; rate limits require waiting under the provider's current policy; exhausted quota/payment/AI-access errors stop the dependent operation. Do not silently retry, buy credits, create accounts, or switch to generation. The helper suppresses child stderr/raw error bodies to avoid credential leaks, so use safe provider/account diagnostics separately without printing secrets. Finite positive `--timeout` bounds each protocol call.
+
+The helper does not download code, generate, upload, subscribe, or change account state. For code inspection, use a discovered native retrieval tool under the usage/authorization rules. Its absence is a specific unavailable step, not permission to invent a bridge. Successful metadata search is MCP search evidence, not component adoption.
 
 The helper validates tool-list and result-envelope types and requires nonempty text/structured usage data before search. An absent result object is blocked; a valid empty search content array can mean zero matches. It returns the provider's data for inspection, without interpreting arbitrary text as sufficient quota or permission to retrieve. Timeouts must be finite and positive. Provider tool pricing/semantics still require current discovery; the metadata-search classification is based on the previously inspected schema, not a new live check on every installation.
 
 ## Impeccable
 
 Source: https://github.com/pbakaus/impeccable
-Skill source checked: `.agents/skills/impeccable` at commit `114ea1d3838fca73b253af45f873b9c4f5f213c8` (skill 4.4.0). Installed from the official repository, not a homemade imitation.
+Historical maintainer check (2026-09-29): `.agents/skills/impeccable` at commit `114ea1d3838fca73b253af45f873b9c4f5f213c8` (skill 4.4.0). That dated installation was from the official repository; this repository does not bundle or prove an installation in your environment.
 
 Codex: `$impeccable polish <target>` / `$impeccable distill <target>` / `$impeccable bolder <target>`.
 Claude Code: `/impeccable polish <target>` / `/impeccable distill <target>` / `/impeccable bolder <target>`.

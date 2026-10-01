@@ -1,7 +1,9 @@
 # frontend-reference-workflow 좁은 재리뷰 (Opus 5.5)
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 - 일시: 2026-09-29 21:3x JST
-- 범위: 1차 리뷰(`/tmp/frontend-workflow-opus-review.md`)의 Medium 2건 해결 여부와, 수정으로 새로 생긴 회귀
+- 범위: 1차 리뷰(`<historical-scratch>/frontend-workflow-opus-review.md`)의 Medium 2건 해결 여부와, 수정으로 새로 생긴 회귀
 - 방식: 읽기 전용. 로컬 fixture와 `127.0.0.1` 임시 서버, `/tmp` 복사본 mutation만 사용. 외부 호출, 계정, 키 접근은 하지 않았고 원본은 수정하지 않음.
 
 ## 0. 스냅샷
@@ -14,11 +16,11 @@
 |---|---|
 | `node --test <abs>/tests/browser-check.test.cjs` (cwd `/tmp`) | 8/8 통과. 다른 cwd에서도 동작 확인 |
 | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover …` (cwd `/tmp`) | 5/5 OK |
-| Mutation 직접 재현 (`/tmp/rr` 복사본, package.json과 node_modules는 symlink) | overflow 제거 → 검출. incomplete 제거 → 검출. viewportMismatch 제거 → 검출. role=tab 제거 → 검출 |
+| Mutation 직접 재현 (`<historical-scratch>/rr` 복사본, package.json과 node_modules는 symlink) | overflow 제거 → 검출. incomplete 제거 → 검출. viewportMismatch 제거 → 검출. role=tab 제거 → 검출 |
 | 같은 방식으로 추가 mutation | **CLI `isMobile` 제거, `opacity` 규칙 제거, 빈 `css:{}` 검증 제거 → 모두 미검출** (R1, R4) |
-| 1차 probe(`/tmp/fr-probe.cjs`) 재실행 | 아래 2절 표 참고 |
-| 회귀 probe(`/tmp/fr-probe2.cjs`) | R1 확인 |
-| Python probe(`/tmp/fr-py-probe.py`, `/tmp/fr-py-probe3.py`) | 빈 줄 → connected. timeout 시 손자 프로세스 정리 확인(`ps` stat 빈 값). 1차 probe의 "alive: True"는 내 `ps` 문자열 매칭의 오탐이었음 |
+| 1차 probe(`<historical-scratch>/fr-probe.cjs`) 재실행 | 아래 2절 표 참고 |
+| 회귀 probe(`<historical-scratch>/fr-probe2.cjs`) | R1 확인 |
+| Python probe(`<historical-scratch>/fr-py-probe.py`, `<historical-scratch>/fr-py-probe3.py`) | 빈 줄 → connected. timeout 시 손자 프로세스 정리 확인(`ps` stat 빈 값). 1차 probe의 "alive: True"는 내 `ps` 문자열 매칭의 오탐이었음 |
 | CLI 오류 경로 (로컬 서버) | 잘못된 selector → case blocked(exit 1). origin 위반 → blocked 보고서(exit 2). baseURL 누락 → exit 2 (R3) |
 | evidence 파일 비밀정보 검색 (`api key/token/secret/bearer/email`) | 검출 없음. `live-mcp-summary.json`에는 개수와 불리언만 있음 |
 
@@ -46,7 +48,7 @@
 ### R1. [Medium] `opacity:0` 제외 규칙이 실제 hit target을 숨겨 touch false pass를 만듦 (L4 수정의 회귀)
 
 - 위치: `scripts/browser-check.cjs:59` (`s.opacity !== "0"`)
-- 재현 (`/tmp/fr-probe2.cjs`, `isMobile` + `touchMin:44`):
+- 재현 (`<historical-scratch>/fr-probe2.cjs`, `isMobile` + `touchMin:44`):
   - 16×16 커스텀 체크박스: 투명한 native `<input type=checkbox aria-label>`를 시각 span 위에 겹친 흔한 패턴 → `automated-checks-passed`, touchReview 0건. 수정 전에는 이 input이 review 대상이었음
   - `opacity:0`에서 fade-in 중인 20px 버튼도 동일하게 누락됨
 - 영향:
@@ -95,4 +97,4 @@
 
 - 실제 21st launcher 호출은 부모가 남긴 기록(`live-mcp-summary.json`)으로만 확인했습니다. 리뷰어는 외부 호출을 하지 않았습니다.
 - 실제 제품 preview, 로그인된 상태, Firefox/WebKit, Windows는 검증하지 않았습니다.
-- 재현 스크립트: `/tmp/fr-probe.cjs`, `/tmp/fr-probe2.cjs`(repo root에서 실행), `/tmp/fr-py-probe.py`, `/tmp/fr-py-probe3.py`
+- 재현 스크립트: `<historical-scratch>/fr-probe.cjs`, `<historical-scratch>/fr-probe2.cjs`(repo root에서 실행), `<historical-scratch>/fr-py-probe.py`, `<historical-scratch>/fr-py-probe3.py`

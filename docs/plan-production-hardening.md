@@ -1,5 +1,7 @@
 # Plan: Production Hardening for naeil.dev
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > 목적: `AUDIT-REPORT.md`의 🔴 Must Fix + 🟡 Should Fix 항목을 빠짐없이 수정하여 `❌ Not Ready` → `✅ Production Ready`로 끌어올린다.
 
 ## 목표

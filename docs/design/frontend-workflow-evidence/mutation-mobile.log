@@ -4,7 +4,7 @@ not ok 1 - CLI writes pass/finding/blocked reports using an isolated local fixtu
   ---
   duration_ms: 1058.597625
   type: 'test'
-  location: '/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmpf7gpuw4s/test.cjs:87:1'
+  location: '/private<historical-scratch-path>
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -17,7 +17,7 @@ not ok 1 - CLI writes pass/finding/blocked reports using an isolated local fixtu
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmpf7gpuw4s/test.cjs:154:12)
+    TestContext.<anonymous> (/private<historical-scratch-path>)
     async Test.run (node:internal/test_runner/test:1054:7)
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
   ...

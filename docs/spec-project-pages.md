@@ -1,5 +1,7 @@
 # Project Detail Pages — Spec
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 ## Overview
 
 4개 프로젝트(CC, PKM, naeil-ui, Baby Agent)의 상세 페이지를 공통 레이아웃 + 프로젝트별 데이터로 구성한다.

@@ -3,10 +3,10 @@
 ERROR: test_malformed_tools_empty_tool_results_and_valid_empty_search (test_mcp_client.ResponseValidationTest.test_malformed_tools_empty_tool_results_and_valid_empty_search) (mode='bad-tools')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 137, in test_malformed_tools_empty_tool_results_and_valid_empty_search
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 137, in test_malformed_tools_empty_tool_results_and_valid_empty_search
     m.run([sys.executable,str(server),mode],query='table',timeout=1)
     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/scripts/twenty_first.py", line 116, in run
+  File "skills/frontend-reference-workflow/scripts/twenty_first.py", line 116, in run
     names.extend(item['name'] for item in result.get('tools', []) if isinstance(item, dict) and 'name' in item)
                                           ~~~~~~~~~~^^^^^^^^^^^^^
 TypeError: 'NoneType' object is not iterable
@@ -15,7 +15,7 @@ TypeError: 'NoneType' object is not iterable
 FAIL: test_malformed_tools_empty_tool_results_and_valid_empty_search (test_mcp_client.ResponseValidationTest.test_malformed_tools_empty_tool_results_and_valid_empty_search) (mode='empty-usage')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 136, in test_malformed_tools_empty_tool_results_and_valid_empty_search
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 136, in test_malformed_tools_empty_tool_results_and_valid_empty_search
     with self.assertRaises(m.ClientError):
          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
 AssertionError: ClientError not raised
@@ -24,7 +24,7 @@ AssertionError: ClientError not raised
 FAIL: test_malformed_tools_empty_tool_results_and_valid_empty_search (test_mcp_client.ResponseValidationTest.test_malformed_tools_empty_tool_results_and_valid_empty_search) (mode='no-usage-data')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 136, in test_malformed_tools_empty_tool_results_and_valid_empty_search
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 136, in test_malformed_tools_empty_tool_results_and_valid_empty_search
     with self.assertRaises(m.ClientError):
          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
 AssertionError: ClientError not raised
@@ -33,7 +33,7 @@ AssertionError: ClientError not raised
 FAIL: test_malformed_tools_empty_tool_results_and_valid_empty_search (test_mcp_client.ResponseValidationTest.test_malformed_tools_empty_tool_results_and_valid_empty_search) (mode='empty-search')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 136, in test_malformed_tools_empty_tool_results_and_valid_empty_search
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 136, in test_malformed_tools_empty_tool_results_and_valid_empty_search
     with self.assertRaises(m.ClientError):
          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
 AssertionError: ClientError not raised
@@ -42,7 +42,7 @@ AssertionError: ClientError not raised
 FAIL: test_nonfinite_timeout_is_rejected_before_launcher_runs (test_mcp_client.ResponseValidationTest.test_nonfinite_timeout_is_rejected_before_launcher_runs) (value='nan')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 151, in test_nonfinite_timeout_is_rejected_before_launcher_runs
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 151, in test_nonfinite_timeout_is_rejected_before_launcher_runs
     self.assertEqual(p.returncode,2)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
 AssertionError: 1 != 2
@@ -51,7 +51,7 @@ AssertionError: 1 != 2
 FAIL: test_nonfinite_timeout_is_rejected_before_launcher_runs (test_mcp_client.ResponseValidationTest.test_nonfinite_timeout_is_rejected_before_launcher_runs) (value='inf')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 151, in test_nonfinite_timeout_is_rejected_before_launcher_runs
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 151, in test_nonfinite_timeout_is_rejected_before_launcher_runs
     self.assertEqual(p.returncode,2)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
 AssertionError: 1 != 2
@@ -60,7 +60,7 @@ AssertionError: 1 != 2
 FAIL: test_nonfinite_timeout_is_rejected_before_launcher_runs (test_mcp_client.ResponseValidationTest.test_nonfinite_timeout_is_rejected_before_launcher_runs) (value='-inf')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 153, in test_nonfinite_timeout_is_rejected_before_launcher_runs
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 153, in test_nonfinite_timeout_is_rejected_before_launcher_runs
     self.assertFalse(launched.exists())
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
 AssertionError: True is not false
@@ -69,7 +69,7 @@ AssertionError: True is not false
 FAIL: test_nonfinite_timeout_is_rejected_before_launcher_runs (test_mcp_client.ResponseValidationTest.test_nonfinite_timeout_is_rejected_before_launcher_runs) (value='0')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/test_mcp_client.py", line 153, in test_nonfinite_timeout_is_rejected_before_launcher_runs
+  File "skills/frontend-reference-workflow/tests/test_mcp_client.py", line 153, in test_nonfinite_timeout_is_rejected_before_launcher_runs
     self.assertFalse(launched.exists())
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
 AssertionError: True is not false

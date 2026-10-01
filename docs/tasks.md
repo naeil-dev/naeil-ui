@@ -1,5 +1,7 @@
 # Tasks: naeil-ui
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > plan.md Phase 1~8을 실행 가능한 단위 태스크로 분해.
 
 ## Phase 1: 프로젝트 셋업
