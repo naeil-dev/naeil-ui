@@ -18,6 +18,11 @@ const eslintConfig = defineConfig([
     "dist/**",
     "storybook-static/**",
   ]),
+  // These Node helpers are deliberately CommonJS; require is their module API.
+  {
+    files: ["**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   // naeil-ui: no hardcoded colors in UI components
   {
     files: ["src/components/ui/**/*.{ts,tsx}"],

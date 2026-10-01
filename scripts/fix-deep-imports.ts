@@ -1,10 +1,4 @@
-import {
-  cpSync,
-  existsSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
 const root = resolve("dist/source");
@@ -40,5 +34,3 @@ function visit(dir: string) {
   }
 }
 visit(root);
-// request.ts retains its relative dynamic JSON imports.
-cpSync("messages", "dist/messages", { recursive: true });

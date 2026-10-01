@@ -20,6 +20,9 @@
 # production
 /build
 /dist
+/naeil-ui-*.tgz
+/examples/**/node_modules/
+/examples/**/dist/
 /storybook-static
 /.superpowers/
 

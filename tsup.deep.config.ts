@@ -1,18 +1,33 @@
 import { defineConfig } from "tsup";
 
-// Preserve source module boundaries and their own client/server directives.
-// Deep imports historically point to these modules, including server helpers.
+// An explicit allowlist prevents website actions and dependencies entering the package.
 export default defineConfig({
   tsconfig: "tsconfig.build.json",
   entry: [
-    "src/components/**/*.tsx",
     "src/components/index.ts",
     "src/components/ui/index.ts",
-    "!src/**/*.stories.tsx",
-    "src/lib/**/*.ts",
-    "!src/**/*.test.ts",
-    "src/i18n/*.ts",
-    "src/app/**/actions.ts",
+    "src/components/ui/avatar.tsx",
+    "src/components/ui/badge.tsx",
+    "src/components/ui/button.tsx",
+    "src/components/ui/card.tsx",
+    "src/components/ui/checkbox.tsx",
+    "src/components/ui/dialog.tsx",
+    "src/components/ui/dropdown-menu.tsx",
+    "src/components/ui/input.tsx",
+    "src/components/ui/select.tsx",
+    "src/components/ui/sonner.tsx",
+    "src/components/ui/switch.tsx",
+    "src/components/nav.tsx",
+    "src/components/footer.tsx",
+    "src/components/logo.tsx",
+    "src/components/locale-switcher.tsx",
+    "src/components/theme-provider.tsx",
+    "src/components/theme-toggle.tsx",
+    "src/components/theme-toggle-icon.tsx",
+    "src/components/typography.tsx",
+    "src/lib/utils.ts",
+    "src/i18n/config.ts",
+    "src/i18n/routing.ts",
   ],
   format: ["esm"],
   bundle: false,

@@ -2,11 +2,15 @@
 
 이 변경은 `@naeil/ui`의 기본 모양과 재사용 규칙을 개선한다. 패키지를 게시하거나 소비 사이트에 자동 배포하지 않는다.
 
+준비 중인 npm 버전은 **0.3.0 (미게시)**이며, UI v2는 디자인 세대 이름이다. 2026-10-02에 확인한 npm latest는 0.2.0이다. 아래 v2 CSS/신규 API/패키지 경계는 로컬 0.3.0 tarball 또는 이후 승인된 게시 버전을 대상으로 한다. 기존 npm 0.2.0에 전부 구현됐다고 가정하지 않는다.
+
 ## 시작하기
 
-공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React 19와 Tailwind 4를 기준으로 한다. 현재 manifest의 peer는 React/React DOM 19, Next 15 또는 16, next-intl 4, next-themes 0.4, tailwind-merge 3이다. `@naeil/ui/ui`는 일반 primitive 진입점이며, Next/i18n을 쓰는 브랜드 컴포넌트와 기존 deep import 계약은 별도로 확인한다. 패키지 의존성 경계가 축소됐다고 주장하지 않는다.
+React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용한다. API 키와 Next.js는 필요 없다. 아직 게시하지 않은 버전을 확인하려면 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.3.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/main/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
-`pnpm add @naeil/ui`로 게시된 버전을 설치하거나 저장소에서 `pnpm build:pkg` 후 `pnpm pack --pack-destination /tmp`로 만든 tarball을 소비 앱에 설치한다. manifest 버전만으로 npm 게시 여부를 판단하지 않는다.
+공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
+
+`pnpm add @naeil/ui`는 현재 게시된 구버전을 설치한다. 이 안내의 0.3.0을 확인할 때는 위의 로컬 tarball을 사용한다. 게시 승인 후에도 실제 registry 버전과 변경 기록을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -91,7 +95,7 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 ## 바뀌는 점과 호환성
 
-기존 root, `/ui`, `/utils`, `/components/*`, `/lib/*`, `/i18n/*` 경로와 기존 컴포넌트 이름을 유지한다. 깊은 경로는 배포 파일에 실제로 존재하는 컴파일된 JS와 타입으로 연결한다. Select·Switch·Checkbox와 `/components.css`는 추가 API다.
+기존 root, `/ui`, `/utils`와 공통 컴포넌트 이름을 유지한다. 깊은 경로는 아래의 명시적 허용 목록에 있는 공통/호환 모듈만 배포된 JS와 타입으로 연결한다. 열린 wildcard 선언은 제거하며, 사이트 전용 경로별 이전 방법을 아래 표에 기록했다. Select·Switch·Checkbox와 `/components.css`는 추가 API다.
 
 기본 색·글자·컨트롤 크기·모서리·움직임이 바뀐다. 기존에 작은 높이를 가정한 고정 레이아웃은 확인해야 한다. Button의 기존 size 이름은 유지하되 v2의 읽기/터치 기준에 맞춘다. 명시적인 `className`은 소비 화면이 책임지는 예외이며 너무 작은 높이나 낮은 대비로 기본 규칙을 깨지 않도록 한다.
 
@@ -102,6 +106,62 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 - `pnpm storybook`: 실제 공개 컴포넌트의 `UI v2 / Workspace` 화면.
 - `pnpm build:tokens`, `pnpm check:contrast`: 실제 배포 CSS와 대비 확인.
 - `pnpm test`, `pnpm build:storybook`, `pnpm test:browser`: 규칙, 키보드, 상태, 모바일, 자동 접근성 확인.
-- `pnpm build:pkg`, `pnpm check:package`: 실제 tarball과 외부 React 소비 예시 확인.
+- `pnpm build:pkg`, `pnpm check:package`: 실제 tarball 경계와 독립 React/Next 소비 예시 확인.
 
 자동 검사와 HTML 시안만으로 모든 소비 화면의 품질을 보장하지 않는다. 실제 앱에서 긴 문장·테마·포커스·오류 상태를 확인한다. DESIGN.md의 선택한 방향을 우선하고 외부 예시는 부족한 부분만 보완한다.
+
+## 0.3 package boundary
+
+`/ui` is the React core. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use `/ui`, `/utils` and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
+
+Next.js `^15 || ^16` and next-intl `^4` are optional peers. Install both when using root, Nav, Footer or `i18n/routing`. This is an existing compatibility contract, not a claim that every peer combination has browser validation; the clean Next fixture checks Next 16.1.7. React/ReactDOM `^19` come from the host. Tailwind 4 is the documented styling pipeline. Explicit `className`, Radix props, Toaster options and theme-provider props remain consumer overrides.
+
+The compiled deep import allowlist is exact (prefix each with `@naeil/ui/`):
+
+```text
+components/index
+components/ui/index
+components/ui/avatar
+components/ui/badge
+components/ui/button
+components/ui/card
+components/ui/checkbox
+components/ui/dialog
+components/ui/dropdown-menu
+components/ui/input
+components/ui/select
+components/ui/sonner
+components/ui/switch
+components/nav
+components/footer
+components/logo
+components/locale-switcher
+components/theme-provider
+components/theme-toggle
+components/theme-toggle-icon
+components/typography
+lib/utils
+i18n/config
+i18n/routing
+```
+
+`components/index` has the same framework requirements as root. `/utils` and `lib/utils` remain aliases for `cn`. `i18n/config` preserves the compatibility locale names; products may instead own their locale list and routing. There are no open-ended component/lib/i18n export patterns. Root, `/ui`, `/utils`, `/theme.css`, `/globals.css` and `/components.css` remain public.
+
+Every excluded source path stays in this repository for the brand/example website. Move any local-source consumer use into the consumer application before upgrading:
+
+| Previously declared source path | Ownership/migration |
+| --- | --- |
+| `components/nav-wrapper`, `components/nav-server-wrapper` | Compose preserved Nav and its slots in your app; your app loads users/sessions. |
+| `components/footer-wrapper` | Compose preserved Footer with your app's Link. |
+| `components/auth-slot` | App-owned account UI, logout action and avatar policy; pass it through Nav slots. |
+| `components/hero-scene`, `components/hero-section`, `components/paraglider-cursor` | Website scene/cursor source, assets and Three dependencies stay website-owned. |
+| `components/project-layout`, `components/workflow-diagram`, `components/accent-picker` | Website showcase/data/theme editing composition; use shared primitives in product-owned compositions. |
+| `components/blog/MarkdownRenderer`, `lib/blog` | Application-owned content rendering, filesystem and MDX/remark pipeline. |
+| `lib/supabase/client`, `lib/supabase/server`, `lib/supabase/middleware` | Application-owned Supabase clients, environment, cookies and authentication. |
+| `lib/auth/avatar`, `lib/auth/cookie-domain`, `lib/auth/redirect`, `lib/auth/routes` | Application-owned identity, cookie and protected-route policies. |
+| `lib/axe` | Development-only accessibility initialization; configure your own tooling. |
+| `i18n/request` | Application-owned `next-intl/server` request config and messages; keep compatible config/routing only if useful. |
+
+npm 0.2.0 declared wildcard source paths but its actual tarball omitted those targets. Repository source aliases and unpublished local builds could nevertheless use them. This explicit migration documents both cases rather than silently treating the broad declaration as a stable working API. Unknown paths now fail at package exports instead of reaching website internals.
+
+The reachable Next consumer's observed deep imports (Nav, Footer, ThemeProvider, ThemeToggleIcon, LocaleSwitcher) remain supported. Its old Tailwind `@source` paths scan `src/components`/`src/lib`; update them to `node_modules/@naeil/ui/dist` relative to the consumer CSS file and import shared component CSS. Site assets/messages and authentication are supplied by the application. This repository does not automatically modify or upgrade that consumer. The copied-UI consumer currently uses locally copied primitives, so publishing a new package will not update those copies.
