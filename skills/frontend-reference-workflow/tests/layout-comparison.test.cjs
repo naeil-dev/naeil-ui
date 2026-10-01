@@ -25,6 +25,24 @@ async function fixture(check) {
       res.writeHead(200, { "Content-Type": "text/html" });
       return res.end(`<html lang="en"><title>Loading</title><script>setTimeout(() => location.href = 'http://${host}:${server.address().port}/?secret=omit#omit', 150)</script><p>Loading</p></html>`);
     }
+    if (req.url === "/bounce" || req.url === "/away") {
+      const next = req.url === "/bounce"
+        ? `http://localhost:${server.address().port}/away`
+        : `http://127.0.0.1:${server.address().port}/?secret=omit#omit`;
+      res.writeHead(200, { "Content-Type": "text/html" });
+      return res.end(`<html lang="en"><title>Loading</title><script>setTimeout(() => location.href = ${JSON.stringify(next)}, 50)</script><p>Loading</p></html>`);
+    }
+    if (req.url === "/audit-navigation") {
+      const next = `http://localhost:${server.address().port}/?secret=omit#omit`;
+      res.writeHead(200, { "Content-Type": "text/html" });
+      // Trigger navigation at the helper's font-readiness measurement, not on a timer.
+      return res.end(`<!doctype html><html lang="en"><title>Fixture</title><main>Ready</main><script>
+        Object.defineProperty(document.fonts, 'ready', { get() {
+          location.href = ${JSON.stringify(next)};
+          return new Promise(() => {});
+        }});
+      </script></html>`);
+    }
     if (req.url === "/font.woff2") {
       res.writeHead(200, { "Content-Type": "font/woff2" });
       return res.end(
@@ -47,6 +65,8 @@ async function fixture(check) {
     const nav = '<nav aria-label="Main"><a href="/">Overview</a></nav>';
     const extra =
       {
+        "/quirks-root": "html{width:2000px}main{height:5000px}",
+        "/standard-root": "html{width:2000px}main{height:5000px}",
         "/small-overflow": "main{height:5000px;width:calc(100% + 8px);max-width:none;margin:0}",
         "/vw-overflow": "main{height:5000px;width:100vw;max-width:none;margin:0}",
         "/tall": "header{margin:0 auto;max-width:800px} main{height:5000px}",
@@ -58,7 +78,7 @@ async function fixture(check) {
         "/font-fail":
           "@font-face{font-family:FixtureFont;src:url(/missing.woff2)}body{font-family:FixtureFont,sans-serif}",
       }[req.url] || "";
-    res.end(`<html lang="${req.url === "/ko" ? "ko" : "en"}"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Fixture</title>
+    res.end(`${req.url.startsWith("/standard") ? "<!doctype html>" : ""}<html lang="${req.url === "/ko" ? "ko" : "en"}"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Fixture</title>
       <style>body{margin:0;background:#fff;color:#111;font:16px Arial}header{margin-left:${left}px}nav{display:inline-block}main{max-width:600px;margin:auto}${extra}</style>
       <header>${req.url === "/absent" ? "" : nav}${req.url === "/duplicate" ? nav : ""}</header><main><h1>Accounts</h1><p>Three records</p></main></html>`);
   });
@@ -366,5 +386,47 @@ test("navigation during readiness checks the actual origin and records the desti
     const allowed = await run();
     assert.equal(allowed.code, 0);
     assert.equal(allowed.report.results[0].finalURL, config.baseURL + "/");
+  });
+});
+
+
+test("origin departure remains blocked after returning to the preview", async () => {
+  await fixture(async ({ config, run }) => {
+    config.cases = [config.cases[0]];
+    delete config.layoutComparisons;
+    config.cases[0].path = "/bounce";
+    const { code, report } = await run();
+    assert.equal(code, 1);
+    assert.equal(report.status, "blocked");
+    assert.match(report.results[0].detail, /origin/);
+    assert.equal(report.results[0].finalURL, config.baseURL + "/");
+  });
+});
+
+test("audit navigation failure reports the committed destination and origin reason", async () => {
+  await fixture(async ({ config, run }) => {
+    config.cases = [config.cases[0]];
+    delete config.layoutComparisons;
+    config.cases[0].path = "/audit-navigation";
+    const { code, report } = await run();
+    assert.equal(code, 1);
+    assert.equal(report.status, "blocked");
+    assert.match(report.results[0].detail, /origin/);
+    assert.equal(report.results[0].finalURL, config.baseURL.replace("127.0.0.1", "localhost") + "/");
+  });
+});
+
+test("root width overflow uses the viewport in standard and quirks documents", async () => {
+  await fixture(async ({ config, run }) => {
+    config.cases = [config.cases[0]];
+    delete config.layoutComparisons;
+    for (const route of ["/quirks-root", "/standard-root", "/", "/standard"]) {
+      config.cases[0].path = route;
+      const { code, report } = await run();
+      const overflowing = route.endsWith("-root");
+      assert.equal(report.results[0].overflow, overflowing, route);
+      assert.equal(code, overflowing ? 1 : 0, route);
+      if (overflowing) assert.ok(report.results[0].scrollbarWidth > 0);
+    }
   });
 });

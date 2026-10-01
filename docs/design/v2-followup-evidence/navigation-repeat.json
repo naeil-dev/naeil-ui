@@ -1,0 +1,27 @@
+[
+  {
+    "run": 1,
+    "exit": 0,
+    "output": "TAP version 13\n# Subtest: audit navigation failure reports the committed destination and origin reason\nok 1 - audit navigation failure reports the committed destination and origin reason\n  ---\n  duration_ms: 349.442334\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 387.407875\n"
+  },
+  {
+    "run": 2,
+    "exit": 0,
+    "output": "TAP version 13\n# Subtest: audit navigation failure reports the committed destination and origin reason\nok 1 - audit navigation failure reports the committed destination and origin reason\n  ---\n  duration_ms: 416.256417\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 451.77575\n"
+  },
+  {
+    "run": 3,
+    "exit": 0,
+    "output": "TAP version 13\n# Subtest: audit navigation failure reports the committed destination and origin reason\nok 1 - audit navigation failure reports the committed destination and origin reason\n  ---\n  duration_ms: 387.388\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 421.95575\n"
+  },
+  {
+    "run": 4,
+    "exit": 0,
+    "output": "TAP version 13\n# Subtest: audit navigation failure reports the committed destination and origin reason\nok 1 - audit navigation failure reports the committed destination and origin reason\n  ---\n  duration_ms: 372.980333\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 409.41325\n"
+  },
+  {
+    "run": 5,
+    "exit": 0,
+    "output": "TAP version 13\n# Subtest: audit navigation failure reports the committed destination and origin reason\nok 1 - audit navigation failure reports the committed destination and origin reason\n  ---\n  duration_ms: 387.246042\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 426.483667\n"
+  }
+]

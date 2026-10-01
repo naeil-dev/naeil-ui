@@ -5,7 +5,7 @@ const { createRequire } = require("node:module");
 const { createHash } = require("node:crypto");
 
 const checker = {
-  revision: "2026-09-30.2",
+  revision: "2026-10-01.1",
   sha256: createHash("sha256")
     .update(fs.readFileSync(__filename))
     .digest("hex"),
@@ -203,15 +203,20 @@ async function auditPage(page, rules, AxeBuilder) {
           }
         }
       }
+      // CSSOM View exposes the viewport through BODY in quirks mode.
+      const viewportElement = document.compatMode === "BackCompat"
+        ? document.body : document.documentElement;
+      const scrollRoot = document.scrollingElement || viewportElement;
       return {
+        documentMode: document.compatMode,
         documentLanguage: document.documentElement.lang,
         viewport: { width: innerWidth, height: innerHeight, coarse },
         scrollbarWidth: Math.max(
           0,
-          innerWidth - document.documentElement.clientWidth,
+          innerWidth - viewportElement.clientWidth,
         ),
-        scrollWidth: document.documentElement.scrollWidth,
-        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        scrollWidth: scrollRoot.scrollWidth,
+        overflow: scrollRoot.scrollWidth > viewportElement.clientWidth + 1,
         touchStatus: touchMin
           ? coarse
             ? "measured"
@@ -538,10 +543,12 @@ async function main() {
         touch: !!entry.touch,
         viewportConfig: entry.viewport,
       };
-      let originError;
+      let originError, page, recordDestination;
+      let navigationCount = 0;
+      let auditNavigationCount = 0;
       try {
-        const page = await context.newPage();
-        const recordDestination = () => {
+        page = await context.newPage();
+        recordDestination = () => {
           const destination = new URL(page.url());
           caseInfo.finalURL = destination.origin + destination.pathname;
           if (
@@ -555,7 +562,10 @@ async function main() {
         };
         // Keep departures sticky even if the page later returns to the preview.
         page.on("framenavigated", (frame) => {
-          if (frame === page.mainFrame()) recordDestination();
+          if (frame === page.mainFrame()) {
+            navigationCount++;
+            recordDestination();
+          }
         });
         const checkDestination = () => {
           recordDestination();
@@ -573,6 +583,7 @@ async function main() {
             .locator(entry.readySelector)
             .waitFor({ state: "visible", timeout: 20000 });
         checkDestination();
+        auditNavigationCount = navigationCount;
         const result = await auditPage(page, rules, AxeBuilder);
         checkDestination();
         const selectors = [
@@ -591,6 +602,20 @@ async function main() {
         checkDestination();
         results.push({ ...caseInfo, ...result, landmarks });
       } catch (e) {
+        if (page && /Execution context was destroyed|Cannot find context with specified id/.test(String(e.message))) {
+          // Evaluation can fail just before the navigation event is delivered.
+          // Bound diagnostic recovery; never rerun an audit on the destination.
+          if (navigationCount === auditNavigationCount) {
+            await page.waitForEvent("framenavigated", {
+              predicate: (frame) => frame === page.mainFrame(),
+              timeout: 1000,
+            }).catch(() => {});
+          }
+          recordDestination();
+          caseInfo.finalURLStatus = navigationCount > auditNavigationCount
+            ? "committed" : "last-observed";
+          e = new CheckError("Navigation interrupted the audit; finalURL is the last observed destination");
+        }
         results.push({
           ...caseInfo,
           status: "blocked",

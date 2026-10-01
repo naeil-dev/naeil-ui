@@ -5,7 +5,7 @@ description: Use when building a new frontend page, when the user dislikes or re
 
 # Frontend references
 
-Workflow revision: **2026-09-30.2**. At a substantial task boundary, read the current entrypoint and record its path/revision plus SHA-256 (and hashes of references actually read) in task evidence. An installation update does not refresh instructions already read by a running agent; reload relevant references when resuming after an update.
+Workflow revision: **2026-10-01.1**. At a substantial task boundary, read the current entrypoint and record its path/revision plus SHA-256 (and hashes of references actually read) in task evidence. An installation update does not refresh instructions already read by a running agent; reload relevant references when resuming after an update.
 
 Use real references to resolve a concrete design decision, then verify the rendered result against the project's approved system. Preserve prior authorization and choices.
 

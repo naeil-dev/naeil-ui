@@ -1,5 +1,7 @@
 # Frontend workflow v2 종합 리뷰와 보완
 
+후속 상태(2026-10-01): 아래 Low 3건은 `2026-10-01.1`에서 보완하고 재현·회귀 테스트 및 설치 검증을 완료했다. [후속 개선 기록](frontend-v2-low-followup.md)을 따른다. 아래 두 모델의 리뷰는 원래 검토한 `2026-09-30.2` 버전의 기록이다.
+
 대상: frontend-reference-workflow v2 전체, 공통 디자인 적용 지침, 검사기, 설치본. UI 패키지·RelayDock 제품의 출시 판정은 범위 밖이다.
 초기 기준 커밋: 82456d93061e875ea554fa8567537a920cee3361. 두 초기 리뷰가 끝날 때까지 소스를 고정했다. [기준 해시·모델 설정](v2-dual-review-evidence/baseline.json).
 

@@ -1,0 +1,13 @@
+{
+  "skills/frontend-reference-workflow/.gitignore": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793",
+  "skills/frontend-reference-workflow/SKILL.md": "f7be3bb40b251dd6c6c2092a3fa8803e623edd6d8196afc1af859b69690626a4",
+  "skills/frontend-reference-workflow/agents/openai.yaml": "7d5c0506f2f4efee8fa1c1fd41629cc325803cb6c87b76216282a27db9531765",
+  "skills/frontend-reference-workflow/references/layout.md": "40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a",
+  "skills/frontend-reference-workflow/references/tools.md": "d111c540890d6e8fb99030bdc417204f49a1770f1ddf3f767731ea21ca4906a2",
+  "skills/frontend-reference-workflow/references/verification.md": "b504804320724354584885782fe5522ca002028e647b3e146743649cb0a50efe",
+  "skills/frontend-reference-workflow/scripts/browser-check.cjs": "d5b9accc3f0836689d4e18a75baf042bfe3002b991c276f684dcbd50912a0706",
+  "skills/frontend-reference-workflow/scripts/twenty_first.py": "6c547e44de60a907c1412386eb7ed44818d5f99c4736127d6477b5b5fda3a69f",
+  "skills/frontend-reference-workflow/tests/browser-check.test.cjs": "9df425dc2ca93047b96f15055470756b5509d99613d444069e54bbe0801ea518",
+  "skills/frontend-reference-workflow/tests/layout-comparison.test.cjs": "e5f5459d748a2a6ba120f225a05e01799e9f4d0f340a4cf48d2a8535fdff1779",
+  "skills/frontend-reference-workflow/tests/test_mcp_client.py": "8f180ad90086814b9545d0186a78db15ee521ac5c0b26eb421b5c3228da3d5c4"
+}

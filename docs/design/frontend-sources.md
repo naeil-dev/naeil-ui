@@ -1,5 +1,9 @@
 # 프론트엔드 참고 출처
 
+## 2026-10-01 — 검사기 Low 3건 보완
+
+이전 Opus 리뷰의 남은 진단·회귀 테스트·quirks 넘침 항목을 로컬 fixture로 재현해 수정했다. Chromium/axe·가짜 MCP launcher·기본 단위 테스트·설치 경로 검증을 실행했다. 외부 참고 검색이나 실제 계정/API 호출은 하지 않았다. 실제 변경과 검증 범위는 [후속 기록](frontend-v2-low-followup.md)에 남겼다.
+
 ## 2026-09-30 — v2 이중 모델 종합 리뷰와 검사기 보완
 
 - 실제 실행: Opus 5.5와 GPT Sol 6.1의 독립 리뷰·재리뷰·마지막 수정 확인, 로컬 Chromium/axe·폰트 fixture·가짜 MCP launcher 검사. [최종 보고서와 원문](frontend-v2-dual-review.md)에 범위와 해시를 보존했다.
