@@ -4,6 +4,7 @@ import * as React from "react";
 import { Select as Primitive } from "radix-ui";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useOverlayRef, useRadixHiddenInert } from "../../lib/design/modal-inert";
 
 const Select = Primitive.Root;
 const SelectValue = Primitive.Value;
@@ -32,15 +33,19 @@ function SelectTrigger({
 }
 
 function SelectContent({
+  ref,
   className,
   children,
   position = "popper",
   sideOffset = 6,
   ...props
 }: React.ComponentProps<typeof Primitive.Content>) {
+  const [content, contentRef] = useOverlayRef(ref);
+  useRadixHiddenInert(content);
   return (
     <Primitive.Portal>
       <Primitive.Content
+        ref={contentRef}
         data-slot="select-content"
         position={position}
         sideOffset={sideOffset}

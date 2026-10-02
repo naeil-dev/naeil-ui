@@ -1,7 +1,7 @@
 {
   "revision": "2026-10-01.1",
-  "backup": "/Users/jaymini/.local/share/naeil-frontend/skill-backups/20261001T043116Z",
-  "installed": "/Users/jaymini/.agents/skills/frontend-reference-workflow",
+  "backup": "<historical-local-path>",
+  "installed": "<historical-local-path>",
   "files": {
     "SKILL.md": "f7be3bb40b251dd6c6c2092a3fa8803e623edd6d8196afc1af859b69690626a4",
     "scripts/twenty_first.py": "6c547e44de60a907c1412386eb7ed44818d5f99c4736127d6477b5b5fda3a69f",
@@ -11,5 +11,6 @@
     "references/tools.md": "d111c540890d6e8fb99030bdc417204f49a1770f1ddf3f767731ea21ca4906a2",
     "agents/openai.yaml": "7d5c0506f2f4efee8fa1c1fd41629cc325803cb6c87b76216282a27db9531765"
   },
-  "claudeLinkMatches": true
+  "claudeLinkMatches": true,
+  "_publicHygiene": "Personal paths/session IDs anonymized; hashes/results describe original dated artifacts."
 }

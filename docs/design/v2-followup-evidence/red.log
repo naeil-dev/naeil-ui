@@ -10,7 +10,7 @@ not ok 2 - audit navigation failure reports the committed destination and origin
   ---
   duration_ms: 325.836834
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:406:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:406:1'
   failureType: 'testCodeFailure'
   error: |-
     The input did not match the regular expression /origin/. Input:
@@ -23,10 +23,10 @@ not ok 2 - audit navigation failure reports the committed destination and origin
   actual: 'Browser or audit execution failed; inspect local setup and selectors (raw output suppressed)'
   operator: 'match'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:414:12
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:414:12
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:123:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:407:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:123:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:407:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -35,7 +35,7 @@ not ok 3 - root width overflow uses the viewport in standard and quirks document
   ---
   duration_ms: 517.288417
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:419:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:419:1'
   failureType: 'testCodeFailure'
   error: |-
     /quirks-root
@@ -48,10 +48,10 @@ not ok 3 - root width overflow uses the viewport in standard and quirks document
   actual: false
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:427:14
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:427:14
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:123:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:420:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:123:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:420:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...

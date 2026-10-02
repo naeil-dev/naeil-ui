@@ -1,9 +1,11 @@
 # frontend-reference-workflow v2 종합 독립 리뷰 (Opus 5.5)
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 - 리뷰 날짜: 2026-09-30
 - 리뷰어: Claude Opus 5.5 (`claude-opus-5-5`), 단독 수행. 서브에이전트 없음. 다른 리뷰어의 결과물은 읽지 않았다.
-- 대상: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`, HEAD `82456d93061e875ea554fa8567537a920cee3361`, 작업 트리 깨끗함(리뷰 전후 `git status` 빈 결과)
-- 모드: 읽기 전용. 저장소·설치본 수정 없음. 스크래치 파일은 `/tmp/fw-opus-probe/`에만 작성했다. 실제 21st/인증 파일/외부 API/설치/git 변경은 사용하지 않았다.
+- 대상: `<historical-repository>`, HEAD `82456d93061e875ea554fa8567537a920cee3361`, 작업 트리 깨끗함(리뷰 전후 `git status` 빈 결과)
+- 모드: 읽기 전용. 저장소·설치본 수정 없음. 스크래치 파일은 `<historical-scratch>/fw-opus-probe/`에만 작성했다. 실제 21st/인증 파일/외부 API/설치/git 변경은 사용하지 않았다.
 
 ## 1. 소스 식별 (SHA-256)
 
@@ -57,7 +59,7 @@ Medium 3건은 모두 **브라우저 도우미가 실제로는 확인하지 않�
 ### M2 (Medium) — 헤드리스 Chromium이 스크롤바를 숨겨, 가장 흔한 "경로 간 메뉴 이동"을 놓친다
 
 - 위치: `scripts/browser-check.cjs:408`(`chromium.launch()`의 기본 인자에 Playwright의 `--hide-scrollbars`가 포함된다), 비교 로직 `:245-264`. 문서화된 한계 `references/verification.md:77`, `references/layout.md:21`에는 이 내용이 없다.
-- 재현(P4 + `/tmp/fw-opus-probe/sb.cjs`): `max-width:800px; margin:0 auto`로 가운데 정렬한 nav를 짧은 페이지와 5000px 긴 페이지에서 비교했다.
+- 재현(P4 + `<historical-scratch>/fw-opus-probe/sb.cjs`): `max-width:800px; margin:0 auto`로 가운데 정렬한 nav를 짧은 페이지와 5000px 긴 페이지에서 비교했다.
   - 기본 CLI: `deltas {x:0,width:0}`, `tolerance: 0`에서도 **통과, exit 0**. `innerWidth - clientWidth = 0`.
   - 같은 fixture를 `ignoreDefaultArgs:['--hide-scrollbars']`로 실행하면 스크롤바가 15px이고 nav x가 240 → 232.5로 **7.5px 이동**했다.
 - 영향: 스킬이 핵심 증상으로 제시하는 "navigation moves between routes"(`layout.md:5`)의 대표 원인은, 짧은 설정 폼과 긴 목록 사이에서 스크롤바 유무가 달라지는 것이다. Windows/Linux나 macOS "항상 스크롤바 표시" 환경에서 실제로 흔하다. 도우미는 이 원인을 구조적으로 볼 수 없는데도 해당 불변식에 합격을 준다.
@@ -134,7 +136,7 @@ Medium 3건은 모두 **브라우저 도우미가 실제로는 확인하지 않�
 
 - CLI는 실행 끝에만 보고서를 쓴다(`:485-486`). 실행 도중 중단되면 이전 성공 보고서가 남는다. 시작 시 "running/blocked" 자리표시를 먼저 쓰면 fatal 경로와 일관된다.
 - 랜드마크는 Playwright locator 엔진(shadow DOM 투과, `text=` 등 확장 문법 허용)을 쓰고, 기대값은 `querySelectorAll`(순수 CSS)을 쓴다. 문서에 "CSS selector"라고 적거나 한쪽으로 통일하는 것을 고려한다.
-- `compliance-workflow-evidence/installation.json`의 백업 경로가 `/var/folders/.../T/`(OS 임시 디렉터리)라 되돌리기 근거가 오래 유지되지 않을 수 있다.
+- `compliance-workflow-evidence/installation.json`의 백업 경로가 `<historical-scratch-path>`(OS 임시 디렉터리)라 되돌리기 근거가 오래 유지되지 않을 수 있다.
 - 터치 후보 셀렉터에 `summary`가 없다.
 - 플러그인이나 프레임워크로 이전할 필요는 없다고 판단한다. 현재의 단일 스크립트 + 기존 의존성 구성이 적절하다.
 

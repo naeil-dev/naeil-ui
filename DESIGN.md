@@ -1,6 +1,6 @@
 # naeil UI v2 — Design brief
 
-Status: Visual direction accepted on 2026-09-29: neutral palette, Pretendard, larger text, purpose-specific widths, comfortable spacing by default, compact spacing for dense views, and short restrained transitions respecting reduced motion. Implemented in the shared package and actual-component Storybook examples. Independent review findings have been addressed; validation evidence and remaining limits are in [the verification report](docs/design/v2-verification.md). See [the v2 specification](docs/superpowers/specs/2026-09-29-shared-ui-v2-design.md) for scope. Publishing and deployment are separate.
+Status: Visual direction accepted on 2026-09-29: neutral palette, Pretendard, larger text, purpose-specific widths, comfortable spacing by default, compact spacing for dense views, and short restrained transitions respecting reduced motion. Implemented in the shared package and actual-component Storybook examples. Independent review findings have been addressed; validation evidence and remaining limits are in [the verification report](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/design/v2-verification.md). See [the v2 specification](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/superpowers/specs/2026-09-29-shared-ui-v2-design.md) for scope. Publishing and deployment are separate.
 
 ## Purpose and scope
 

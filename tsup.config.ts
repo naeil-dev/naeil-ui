@@ -23,12 +23,7 @@ export default defineConfig({
     "next-intl/routing",
     "next-intl/navigation",
     "next-themes",
-    "@supabase/ssr",
-    "@supabase/supabase-js",
-    "three",
-    "@react-three/fiber",
-    "@react-three/drei",
-    // Peer dependencies
+    // Shared component runtime dependencies
     "class-variance-authority",
     "clsx",
     "tailwind-merge",

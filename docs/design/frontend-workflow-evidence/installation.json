@@ -1,7 +1,7 @@
 {
   "installedAt": "2026-09-29T12:39:33.670906+00:00",
-  "installed": "/Users/jaymini/.agents/skills/frontend-reference-workflow",
-  "backup": "/Users/jaymini/.local/share/naeil-frontend/backups/frontend-reference-workflow-20260929-213427",
+  "installed": "<historical-local-path>",
+  "backup": "<historical-local-path>",
   "claudeSymlinkVerified": true,
   "excluded": [
     "tests/",
@@ -33,5 +33,6 @@
       "path": "SKILL.md",
       "sha256": "349efc5d1f8fed501a4d643b2cfc44bd2dae6516f92d25f29bfd2f3e74028dc1"
     }
-  ]
+  ],
+  "_publicHygiene": "Personal paths/session IDs anonymized; hashes/results describe original dated artifacts."
 }

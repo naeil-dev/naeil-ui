@@ -20,6 +20,9 @@
 # production
 /build
 /dist
+/naeil-ui-*.tgz
+/examples/**/node_modules/
+/examples/**/dist/
 /storybook-static
 /.superpowers/
 
@@ -46,3 +49,6 @@ next-env.d.ts
 # Browser verification artifacts
 /test-results/
 /playwright-report/
+
+# Generated documentation notices
+/.storybook/.generated/

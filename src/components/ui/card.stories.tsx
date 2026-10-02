@@ -1,3 +1,6 @@
+import usageGuide from "../../../docs/components/card.md?raw";
+import { guide } from "../../stories/guide";
+import { CardUsage } from "../../stories/component-examples";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Badge } from "./badge"
@@ -17,7 +20,8 @@ const meta = {
   title: "UI/Card",
   component: Card,
   parameters: {
-    layout: "centered",
+    layout: "padded",
+    docs: { description: { component: guide(usageGuide) } },
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof Card>
@@ -28,7 +32,7 @@ type Story = StoryObj<typeof meta>
 
 export const Basic: Story = {
   render: () => (
-    <Card className="w-[360px]">
+    <Card className="w-full max-w-[360px]">
       <CardHeader>
         <CardTitle>Project snapshot</CardTitle>
         <CardDescription>Shared UI library component baseline.</CardDescription>
@@ -47,7 +51,7 @@ export const Basic: Story = {
 
 export const WithAction: Story = {
   render: () => (
-    <CardElevated className="w-[420px]">
+    <CardElevated className="w-full max-w-[420px]">
       <CardHeader>
         <CardTitle>naeil.dev design system</CardTitle>
         <CardDescription>Local Storybook baseline before MCP or visual-regression work.</CardDescription>
@@ -76,3 +80,5 @@ export const WithAction: Story = {
     </CardElevated>
   ),
 }
+
+export const Usage: Story = { render: () => <CardUsage /> };

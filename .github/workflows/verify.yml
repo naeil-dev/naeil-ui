@@ -1,0 +1,80 @@
+name: Verify UI package and examples
+
+on:
+  pull_request:
+  push:
+    branches: [main, feat/public-ui-readiness]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  package-and-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm check:types
+      - run: pnpm lint
+      - run: pnpm build:tokens
+      - run: git diff --exit-code -- src/styles/theme.css
+      - run: pnpm check:contrast
+      - run: pnpm build:pkg
+      - run: pnpm exec playwright install --with-deps chromium webkit
+      - run: pnpm check:package
+      - run: node --test scripts/consumer-font-notices.test.mjs
+      - name: Separate website compatibility build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: public-build-fixture
+
+  storybook-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:storybook
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storybook-preview
+          path: storybook-static/
+          retention-days: 14
+          if-no-files-found: error
+      # Actual projects: Chromium, Firefox, WebKit; artifact upload does not deploy.
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:browser
+      - name: Optional reference-workflow regressions (no credentials)
+        run: |
+          node --test skills/frontend-reference-workflow/tests/browser-check.test.cjs
+          node --test skills/frontend-reference-workflow/tests/layout-comparison.test.cjs
+          python3 -m unittest discover -s skills/frontend-reference-workflow/tests -p 'test_mcp_client.py'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore

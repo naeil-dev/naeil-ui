@@ -5,7 +5,7 @@ description: Use when building a new frontend page, when the user dislikes or re
 
 # Frontend references
 
-Workflow revision: **2026-10-01.1**. At a substantial task boundary, read the current entrypoint and record its path/revision plus SHA-256 (and hashes of references actually read) in task evidence. An installation update does not refresh instructions already read by a running agent; reload relevant references when resuming after an update.
+Workflow revision: **2026-10-02.1**. At a substantial task boundary, read the current entrypoint and record its path/revision plus SHA-256 (and hashes of references actually read) in task evidence. An installation update does not refresh instructions already read by a running agent; reload relevant references when resuming after an update.
 
 Use real references to resolve a concrete design decision, then verify the rendered result against the project's approved system. Preserve prior authorization and choices.
 
@@ -36,7 +36,7 @@ Record **gap → source actually read → adopted/adapted or rejected decision �
 
 ## Use verified tools
 
-Discover available tools first. For 21st, use exposed native MCP tools, or the existing configured launcher through the bundled read-only client described in [tools.md](references/tools.md). Reuse this client instead of writing an ad hoc protocol bridge. Check current usage before retrieval; do not hardcode quota or silently retry auth/payment failures.
+Discover available tools first. For 21st, use exposed native MCP tools, or a user-configured stdio command or launcher through the bundled read-only client described in [tools.md](references/tools.md). Reuse this client instead of writing an ad hoc protocol bridge. Check current usage before retrieval; do not hardcode quota or silently retry auth/payment failures.
 
 Missing required tooling: identify the dependency, prepare concrete setup, and ask to install only when not already authorized. Never imitate an unavailable tool. On unreadable sources, try the authorized browser; if still unreadable, stop that source-dependent step and request pasted content or an accessible alternative. Continue independent work.
 

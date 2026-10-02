@@ -4,7 +4,7 @@ not ok 1 - isolates overflow, incomplete, missing expectations and fine-pointer 
   ---
   duration_ms: 648.827667
   type: 'test'
-  location: '/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmphr969zt_/test.cjs:202:1'
+  location: '/private<historical-scratch-path>
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -19,7 +19,7 @@ not ok 1 - isolates overflow, incomplete, missing expectations and fine-pointer 
   actual: 'automated-checks-passed'
   operator: 'strictEqual'
   stack: |-
-    TestContext.<anonymous> (/private/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/tmphr969zt_/test.cjs:217:12)
+    TestContext.<anonymous> (/private<historical-scratch-path>)
     async Test.run (node:internal/test_runner/test:1054:7)
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
   ...

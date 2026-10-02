@@ -1,3 +1,6 @@
+import usageGuide from "../../../docs/components/badge.md?raw";
+import { guide } from "../../stories/guide";
+import { BadgeUsage } from "../../stories/component-examples";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Badge } from "./badge"
@@ -6,13 +9,14 @@ const meta = {
   title: "UI/Badge",
   component: Badge,
   parameters: {
-    layout: "centered",
+    layout: "padded",
+    docs: { description: { component: guide(usageGuide) } },
   },
   tags: ["autodocs"],
   argTypes: {
     variant: {
       control: "select",
-      options: ["default", "secondary", "outline", "destructive"],
+      options: ["default", "secondary", "outline", "destructive", "success", "warning", "error", "info"],
     },
   },
   args: {
@@ -37,3 +41,5 @@ export const Variants: Story = {
     </div>
   ),
 }
+
+export const Usage: Story = { render: () => <BadgeUsage /> };

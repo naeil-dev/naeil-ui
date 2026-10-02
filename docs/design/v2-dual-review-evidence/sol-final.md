@@ -1,6 +1,8 @@
 # frontend-reference-workflow v2 마지막 범위 제한 확인
 
-대상: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`의 고정된 미커밋 수정본. HEAD: `82456d93061e875ea554fa8567537a920cee3361`. 확인일: 2026-09-30.
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
+대상: `<historical-repository>`의 고정된 미커밋 수정본. HEAD: `82456d93061e875ea554fa8567537a920cee3361`. 확인일: 2026-09-30.
 
 **최종 판정: READY FOR INSTALLATION — 마지막 필수 R1–R3은 해결됐으며 이번 제한 범위에서 남은 must-fix는 없다.** 실제 Node 25/25·Python 7/7 검사가 모두 exit 0으로 통과했다. 이 판정은 아래 해시의 소스를 사용자 스킬 경로에 설치할 준비 여부다. 실제 설치·게시·제품 UI 준수·두 모델 공동 승인까지 수행하거나 보장한 판정이 아니다.
 
@@ -23,13 +25,13 @@
 |---|---|
 | `node --test skills/frontend-reference-workflow/tests/*.test.cjs` | 25 tests, pass 25, fail 0, skipped 0; exit 0 |
 | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/frontend-reference-workflow/tests -p 'test_*.py'` | 7 tests; OK; exit 0 |
-| `node /tmp/frontend-v2-sol-final-regression-probe.cjs` | 원래 +0/+8/+24 overflow 및 delayed cross-origin 독립 재현; harness exit 0, 대상 판정은 위 표와 같음 |
-| `node /tmp/frontend-v2-sol-final-sticky-probe.cjs` | origin 이탈 후 복귀에서도 blocked 및 안전한 최종 URL 확인; harness exit 0 |
+| `node <historical-scratch>/frontend-v2-sol-final-regression-probe.cjs` | 원래 +0/+8/+24 overflow 및 delayed cross-origin 독립 재현; harness exit 0, 대상 판정은 위 표와 같음 |
+| `node <historical-scratch>/frontend-v2-sol-final-sticky-probe.cjs` | origin 이탈 후 복귀에서도 blocked 및 안전한 최종 URL 확인; harness exit 0 |
 | 현재 helper의 `/tmp` 복사본에 falsy-rules 결함 한 줄 재삽입 후 targeted test | `rejects invalid comparisons` test 실패, exit 1, `0 !== 2` |
 | 현재 helper의 `/tmp` 복사본에 innerWidth overflow 비교 한 줄 재삽입 후 targeted test | `page overflow includes widths` test 실패, exit 1, `/small-overflow`, `false !== true` |
 | `final-fix-hashes.json` 대 현재 파일의 직접 SHA-256 계산 | 11/11 일치 |
 
-Mutation 실패는 실제 수정본의 실패가 아니라, 퇴행을 회귀 검사가 검출한다는 양성 증거다. 자체 실행 결과를 `/tmp/frontend-v2-sol-final-mutations.json`에 남겼으며 repository의 `final-mutations.json` 결과를 그대로 승인 근거로 대신하지 않았다.
+Mutation 실패는 실제 수정본의 실패가 아니라, 퇴행을 회귀 검사가 검출한다는 양성 증거다. 자체 실행 결과를 `<historical-scratch>/frontend-v2-sol-final-mutations.json`에 남겼으며 repository의 `final-mutations.json` 결과를 그대로 승인 근거로 대신하지 않았다.
 
 요청된 `docs/design/v2-dual-review-evidence/final-red.log`, `final-browser-tests.log`, `final-mcp-tests.log`, `final-mutations.json`도 읽었다. 각각 수정 전 overflow/delayed-navigation 실패, 보고된 25/7 통과, 두 mutation 검출을 기록한다. 이번 판정은 별도로 직접 다시 실행한 결과에 근거한다.
 
@@ -51,9 +53,9 @@ Mutation 실패는 실제 수정본의 실패가 아니라, 퇴행을 회귀 검
 | `tests/layout-comparison.test.cjs` | `fd8d2ac6b8dc0ed4e2d7b2ae3c49f78f612585ffc464ed3d9f3c34e7c7ab6de5` |
 | `tests/test_mcp_client.py` | `8f180ad90086814b9545d0186a78db15ee521ac5c0b26eb421b5c3228da3d5c4` |
 
-시작/종료 identity 확인 파일: `/tmp/frontend-v2-sol-final-start-hashes.json`, `/tmp/frontend-v2-sol-final-identity-check.json`. 자체 probe의 config/report/results는 `/tmp/frontend-v2-sol-final-*.json`과 실행한 `.cjs`에 보존했다.
+시작/종료 identity 확인 파일: `<historical-scratch>/frontend-v2-sol-final-start-hashes.json`, `<historical-scratch>/frontend-v2-sol-final-identity-check.json`. 자체 probe의 config/report/results는 `<historical-scratch>/frontend-v2-sol-final-*.json`과 실행한 `.cjs`에 보존했다.
 
-검토 중 `docs/design/frontend-v2-dual-review.md` 한 파일의 해시 변경을 감지했다. 이를 고정돼 있었다고 주장하지 않는다. 마지막 판정 대상인 위 11개 스킬/helper/test 파일은 검토 내내 그대로였으며 제시된 identity와 일치한다. 기존 `/tmp/frontend-v2-comprehensive-sol.md`와 `/tmp/frontend-v2-comprehensive-sol-rereview.md`도 변경되지 않았다.
+검토 중 `docs/design/frontend-v2-dual-review.md` 한 파일의 해시 변경을 감지했다. 이를 고정돼 있었다고 주장하지 않는다. 마지막 판정 대상인 위 11개 스킬/helper/test 파일은 검토 내내 그대로였으며 제시된 identity와 일치한다. 기존 `<historical-scratch>/frontend-v2-comprehensive-sol.md`와 `<historical-scratch>/frontend-v2-comprehensive-sol-rereview.md`도 변경되지 않았다.
 
 ## 제한과 설치 준비 여부
 

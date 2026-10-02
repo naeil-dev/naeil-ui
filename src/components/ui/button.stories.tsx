@@ -1,3 +1,6 @@
+import usageGuide from "../../../docs/components/button.md?raw";
+import { guide } from "../../stories/guide";
+import { ButtonUsage } from "../../stories/component-examples";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Button } from "./button"
@@ -6,7 +9,8 @@ const meta = {
   title: "UI/Button",
   component: Button,
   parameters: {
-    layout: "centered",
+    layout: "padded",
+    docs: { description: { component: guide(usageGuide) } },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -62,3 +66,5 @@ export const Sizes: Story = {
     </div>
   ),
 }
+
+export const Usage: Story = { render: () => <ButtonUsage /> };

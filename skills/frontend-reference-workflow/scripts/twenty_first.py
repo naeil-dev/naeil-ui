@@ -1,4 +1,4 @@
-"""Read-only 21st MCP status/search through the already configured stdio launcher."""
+"""Read-only 21st MCP status/search through a user-configured stdio command or Python launcher."""
 import argparse
 import json
 import math
@@ -174,16 +174,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['status', 'search'])
     parser.add_argument('--query', help='Announce the design gap and query to the user before search.')
-    parser.add_argument('--launcher', type=Path, default=Path.home()/'.local/share/naeil-frontend/21st-mcp/launch.py')
+    launch = parser.add_mutually_exclusive_group()
+    launch.add_argument('--launcher', type=Path, help='User-owned Python stdio launcher; no default private path.')
+    launch.add_argument('--command', nargs=argparse.REMAINDER, help='Executable and arguments; place last. Never pass credentials as arguments.')
     parser.add_argument('--timeout', type=float, default=30)
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or args.timeout <= 0 or (args.action == 'search' and not args.query):
         parser.error('Use a finite positive timeout and provide --query for search.')
-    if not args.launcher.is_file():
-        print(json.dumps({'status': 'blocked', 'reason': 'Configured launcher is missing; no installation attempted.'}))
+    if args.launcher is not None:
+        if not args.launcher.is_file():
+            print(json.dumps({'status': 'blocked', 'reason': 'Configured launcher is missing; no installation attempted.'}))
+            return 2
+        command = [sys.executable, str(args.launcher)]
+    elif args.command:
+        command = args.command
+    else:
+        print(json.dumps({'status': 'blocked', 'reason': 'Supply --command or --launcher; no installation attempted.'}))
         return 2
     try:
-        result = run([sys.executable, str(args.launcher)],
+        result = run(command,
                      args.query if args.action == 'search' else None, args.timeout)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0

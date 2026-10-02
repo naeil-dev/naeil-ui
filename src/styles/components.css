@@ -1,4 +1,54 @@
 @layer components {
+  .ui-textarea {
+    min-height: var(--ui-control-height);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    padding-block: var(--spacing-2-value);
+    transition:
+      color var(--ui-motion-fast),
+      background-color var(--ui-motion-fast),
+      border-color var(--ui-motion-fast);
+  }
+  .ui-textarea[aria-invalid="true"] {
+    border-color: var(--error);
+  }
+  .ui-textarea::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+  .ui-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3-value);
+  }
+  .ui-tabs[data-orientation="vertical"] {
+    flex-direction: row;
+  }
+  .ui-tabs-list {
+    display: flex;
+    align-items: flex-start;
+    max-width: 100%;
+    min-width: 0;
+    gap: var(--spacing-2-value);
+    padding: var(--spacing-2-value);
+    overflow-x: auto;
+  }
+  .ui-tabs-list[aria-orientation="vertical"] {
+    flex-direction: column;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  .ui-tabs-trigger {
+    color: var(--foreground);
+    border-bottom-color: transparent;
+  }
+  .ui-tabs-trigger:hover:not(:disabled) {
+    background-color: var(--surface-subtle);
+  }
+  .ui-tabs-trigger[data-state="active"] {
+    background-color: var(--surface-selected);
+    border-bottom-color: var(--primary);
+  }
   .ui-focus:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
@@ -177,6 +227,7 @@
 }
 @media (max-width: 560px), (pointer: coarse) {
   .ui-control,
+  .ui-textarea,
   [data-slot="dialog-close"] {
     min-height: 44px;
   }
@@ -193,5 +244,33 @@
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Background-only switch tracks/thumbs both become Canvas under forced colors.
+   System colors preserve the control boundary, state and moving thumb. */
+@media (forced-colors: active) {
+  [data-slot="switch"] {
+    forced-color-adjust: none;
+    border: 1px solid ButtonText;
+    background: Canvas;
+  }
+  [data-slot="switch-thumb"] {
+    background: ButtonText;
+  }
+  [data-slot="switch"][data-state="checked"] {
+    background: Highlight;
+    border-color: Highlight;
+  }
+  [data-slot="switch-thumb"][data-state="checked"] {
+    background: HighlightText;
+  }
+  [data-slot="switch"]:disabled {
+    opacity: 1;
+    background: Canvas;
+    border-color: GrayText;
+  }
+  [data-slot="switch"]:disabled [data-slot="switch-thumb"] {
+    background: GrayText;
   }
 }

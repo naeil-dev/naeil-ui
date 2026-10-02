@@ -4,7 +4,7 @@ not ok 1 - detects route navigation shift even when each page passes its own aud
   ---
   duration_ms: 1091.732708
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:52:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:52:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -17,10 +17,10 @@ not ok 1 - detects route navigation shift even when each page passes its own aud
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:57:12
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:57:12
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:53:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:53:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
   ...
@@ -29,16 +29,16 @@ not ok 2 - accepts stable geometry and records locale and exact checker provenan
   ---
   duration_ms: 681.084291
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:64:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:64:1'
   failureType: 'testCodeFailure'
   error: "Cannot read properties of undefined (reading '0')"
   code: 'ERR_TEST_FAILURE'
   name: 'TypeError'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:68:42
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:68:42
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:65:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:65:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -47,7 +47,7 @@ not ok 3 - missing or ambiguous landmarks cannot silently pass a comparison
   ---
   duration_ms: 673.727
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:75:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:75:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -60,10 +60,10 @@ not ok 3 - missing or ambiguous landmarks cannot silently pass a comparison
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:80:14
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:80:14
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:76:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:76:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -72,7 +72,7 @@ not ok 4 - rejects invalid comparisons before navigating any page
   ---
   duration_ms: 695.784542
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:87:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:87:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -85,10 +85,10 @@ not ok 4 - rejects invalid comparisons before navigating any page
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:106:14
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:106:14
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:88:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:88:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -97,16 +97,16 @@ not ok 5 - an unavailable comparison page leaves overall verification blocked
   ---
   duration_ms: 507.879583
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:113:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:113:1'
   failureType: 'testCodeFailure'
   error: "Cannot read properties of undefined (reading '0')"
   code: 'ERR_TEST_FAILURE'
   name: 'TypeError'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:119:42
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:119:42
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:114:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:45:9)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:114:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...

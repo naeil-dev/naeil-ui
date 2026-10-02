@@ -1,5 +1,7 @@
 # Tasks: Production Hardening for naeil.dev
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 > `AUDIT-REPORT.md` 기반 remediation 실행 체크리스트.
 > 원칙: 작은 단위, 검증 가능, 한 태스크 = 한 커밋.
 

@@ -1,7 +1,9 @@
 # frontend-reference-workflow 독립 리뷰 (Opus 5.5)
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 - 일시: 2026-09-29 21:2x JST
-- workspace: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`, branch `understand-design-system`
+- workspace: `<historical-repository>`, branch `understand-design-system`
 - 범위: `skills/frontend-reference-workflow/{SKILL.md, references/tools.md, references/verification.md, scripts/twenty_first.py, scripts/browser-check.cjs, tests/*}`
 - 방식: 읽기 전용. 로컬 fixture 테스트, `/tmp` 복사본에 대한 mutation, 로컬 probe만 실행. 외부 네트워크, 21st 계정, 키 파일은 접근하지 않음. 제품 코드와 스킬 파일도 수정하지 않음.
 
@@ -19,7 +21,7 @@ e5a9c66d  tests/browser-check.test.cjs
 cf8ff4da  tests/test_mcp_client.py
 ```
 
-**추가 (보고서 작성 직후):** `scripts/browser-check.cjs`가 `25a2553b`로, `tests/browser-check.test.cjs`가 `faaca4b0`로 다시 바뀌었습니다(21:24, 포맷 변경으로 보임). 새 버전에서 node 테스트 4/4, python 3 tests OK를 다시 확인했습니다. `/tmp/fr-probe.cjs` 재실행 결과 M1, L1–L4가 **동일하게 재현**됩니다. 테스트에는 여전히 overflow 단독 fixture와 incomplete 단독 fixture가 없습니다(M2 유효). 아래 `browser-check.cjs` 줄 번호는 이전 스냅샷 기준입니다. 새 파일 기준 대응 줄은 다음과 같습니다.
+**추가 (보고서 작성 직후):** `scripts/browser-check.cjs`가 `25a2553b`로, `tests/browser-check.test.cjs`가 `faaca4b0`로 다시 바뀌었습니다(21:24, 포맷 변경으로 보임). 새 버전에서 node 테스트 4/4, python 3 tests OK를 다시 확인했습니다. `<historical-scratch>/fr-probe.cjs` 재실행 결과 M1, L1–L4가 **동일하게 재현**됩니다. 테스트에는 여전히 overflow 단독 fixture와 incomplete 단독 fixture가 없습니다(M2 유효). 아래 `browser-check.cjs` 줄 번호는 이전 스냅샷 기준입니다. 새 파일 기준 대응 줄은 다음과 같습니다.
 
 | 항목 | 새 줄 |
 |---|---|
@@ -45,8 +47,8 @@ cf8ff4da  tests/test_mcp_client.py
 | Mutation (`/tmp` 복사본): status에서 `measurements.overflow` 제거 | **4/4 통과 → 검출 안 됨** |
 | Mutation (`/tmp` 복사본): needs-review에서 `incomplete.length` 제거 | **4/4 통과 → 검출 안 됨** |
 | Mutation: status에서 overflow와 expectation을 모두 제거 | 새 CLI 테스트가 검출 (fail 1) |
-| `/tmp/fr-probe.cjs` (auditPage fixture 10종) | 아래 M1, L1–L4 근거 |
-| `/tmp/fr-py-probe.py` (MCP client edge case 4종) | 아래 L6–L8 근거 |
+| `<historical-scratch>/fr-probe.cjs` (auditPage fixture 10종) | 아래 M1, L1–L4 근거 |
+| `<historical-scratch>/fr-py-probe.py` (MCP client edge case 4종) | 아래 L6–L8 근거 |
 | `/tmp`에서 node 테스트 실행 | `Cannot find module '@playwright/test'` (L10) |
 | 21st `search`/`get_usage`/`get_component` 스키마 확인 (로컬 ToolSearch로 스키마만 로드, 호출 없음) | `search`는 "FREE"이고 `type:'component'`와 `limit`(1–30)을 받음. `get_component`는 PAID |
 | launcher 프로세스 모델: `launch.py`에서 exec/subprocess 줄만 grep (키 관련 줄은 제외하고 키 파일은 열지 않음) | `os.execve(node, magic-0.2.3/dist/index.js)`로 node를 직접 exec |
@@ -56,7 +58,7 @@ cf8ff4da  tests/test_mcp_client.py
 ### M1. [Medium] 비텍스트 대비와 포커스 가시성은 자동 검사 범위 밖인데, 문서상 "contrast 측정"으로 읽힘 (false pass 위험)
 
 - 위치: `SKILL.md:43`("Measure approved foundations and actual rendered contrast…"), `references/verification.md:63-69`(별도 확인 목록), `scripts/browser-check.cjs:53-54`(`limits`)
-- 재현 (`/tmp/fr-probe.cjs`):
+- 재현 (`<historical-scratch>/fr-probe.cjs`):
   - 흰 배경 위 `input{border:1px solid #f2f2f2}` → `automated-checks-passed`
   - `button{outline:none!important}` → `automated-checks-passed`
 - 원인: axe `color-contrast`는 텍스트만 봅니다. 기본(rest) 상태만 측정합니다. placeholder, hover/selected/disabled 상태, 컨트롤 경계, 포커스 링의 3:1 대비는 검사하지 않습니다. DESIGN.md가 요구하는 "essential control boundaries and state indicators 3:1"은 자동화되지 않습니다. 그런데 별도 확인 목록에도 이 항목이 없습니다.
@@ -121,7 +123,7 @@ cf8ff4da  tests/test_mcp_client.py
 ### L6. [Low] MCP client가 서버발 request를 응답으로 오인할 수 있음
 
 - 위치: `scripts/twenty_first.py:57-65`
-- 재현 (`/tmp/fr-py-probe.py`): initialize 도중 서버가 `{"id":1,"method":"ping"}`을 보내면 `ClientError: MCP returned an invalid result.`가 발생합니다. 서버와 클라이언트의 id 공간은 독립이므로 id 1 충돌은 현실적입니다. 서버 ping에는 응답도 하지 않습니다.
+- 재현 (`<historical-scratch>/fr-py-probe.py`): initialize 도중 서버가 `{"id":1,"method":"ping"}`을 보내면 `ClientError: MCP returned an invalid result.`가 발생합니다. 서버와 클라이언트의 id 공간은 독립이므로 id 1 충돌은 현실적입니다. 서버 ping에는 응답도 하지 않습니다.
 - 영향: fail-closed이므로 false pass나 유출은 없습니다. 연결 실패 오진만 생깁니다.
 - 권장: `'method' in message`인 메시지는 응답 후보에서 제외합니다. `ping` request에는 `{"jsonrpc":"2.0","id":…,"result":{}}`로 응답하고, 그 외 request에는 `-32601`로 응답합니다.
 
@@ -195,4 +197,4 @@ cf8ff4da  tests/test_mcp_client.py
 - 외부 호출을 금지했으므로 실제 21st launcher와 계정으로는 동작을 확인하지 않았습니다. launcher는 exec 관련 줄만 확인했습니다.
 - 실제 프로젝트 preview 대상 CLI 실행, 인증된 상태, 다크/라이트 앱 토글, Safari/Firefox는 검증하지 않았습니다.
 - 리뷰 중 파일이 계속 수정되었습니다(0절). 이후 변경분은 리뷰 범위 밖입니다. Python 테스트 3개(usage error 포함)는 최종 스냅샷에서 재실행해 OK를 확인했습니다.
-- 재현 스크립트: `/tmp/fr-probe.cjs`(repo root에서 `node /tmp/fr-probe.cjs`), `/tmp/fr-py-probe.py`
+- 재현 스크립트: `<historical-scratch>/fr-probe.cjs`(repo root에서 `node <historical-scratch>/fr-probe.cjs`), `<historical-scratch>/fr-py-probe.py`

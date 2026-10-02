@@ -71,3 +71,5 @@ export {
 } from "./select";
 export { Switch } from "./switch";
 export { Checkbox } from "./checkbox";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
+export { Textarea } from "./textarea";

@@ -1,6 +1,6 @@
 {
   "name": "@naeil/ui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
@@ -8,32 +8,124 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/components/index.js",
-      "types": "./dist/components/index.d.ts"
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
     },
     "./ui": {
-      "import": "./dist/components/ui/index.js",
-      "types": "./dist/components/ui/index.d.ts"
+      "types": "./dist/components/ui/index.d.ts",
+      "import": "./dist/components/ui/index.js"
     },
     "./utils": {
-      "import": "./dist/lib/utils.js",
-      "types": "./dist/lib/utils.d.ts"
+      "types": "./dist/lib/utils.d.ts",
+      "import": "./dist/lib/utils.js"
     },
     "./theme.css": "./src/styles/theme.css",
     "./globals.css": "./src/styles/globals.css",
-    "./components/*": {
-      "types": "./dist/source/components/*.d.ts",
-      "import": "./dist/source/components/*.js"
+    "./components.css": "./src/styles/components.css",
+    "./components/index": {
+      "types": "./dist/source/components/index.d.ts",
+      "import": "./dist/source/components/index.js"
     },
-    "./lib/*": {
-      "types": "./dist/source/lib/*.d.ts",
-      "import": "./dist/source/lib/*.js"
+    "./components/ui/index": {
+      "types": "./dist/source/components/ui/index.d.ts",
+      "import": "./dist/source/components/ui/index.js"
     },
-    "./i18n/*": {
-      "types": "./dist/source/i18n/*.d.ts",
-      "import": "./dist/source/i18n/*.js"
+    "./components/ui/avatar": {
+      "types": "./dist/source/components/ui/avatar.d.ts",
+      "import": "./dist/source/components/ui/avatar.js"
     },
-    "./components.css": "./src/styles/components.css"
+    "./components/ui/badge": {
+      "types": "./dist/source/components/ui/badge.d.ts",
+      "import": "./dist/source/components/ui/badge.js"
+    },
+    "./components/ui/button": {
+      "types": "./dist/source/components/ui/button.d.ts",
+      "import": "./dist/source/components/ui/button.js"
+    },
+    "./components/ui/card": {
+      "types": "./dist/source/components/ui/card.d.ts",
+      "import": "./dist/source/components/ui/card.js"
+    },
+    "./components/ui/checkbox": {
+      "types": "./dist/source/components/ui/checkbox.d.ts",
+      "import": "./dist/source/components/ui/checkbox.js"
+    },
+    "./components/ui/dialog": {
+      "types": "./dist/source/components/ui/dialog.d.ts",
+      "import": "./dist/source/components/ui/dialog.js"
+    },
+    "./components/ui/dropdown-menu": {
+      "types": "./dist/source/components/ui/dropdown-menu.d.ts",
+      "import": "./dist/source/components/ui/dropdown-menu.js"
+    },
+    "./components/ui/input": {
+      "types": "./dist/source/components/ui/input.d.ts",
+      "import": "./dist/source/components/ui/input.js"
+    },
+    "./components/ui/select": {
+      "types": "./dist/source/components/ui/select.d.ts",
+      "import": "./dist/source/components/ui/select.js"
+    },
+    "./components/ui/sonner": {
+      "types": "./dist/source/components/ui/sonner.d.ts",
+      "import": "./dist/source/components/ui/sonner.js"
+    },
+    "./components/ui/switch": {
+      "types": "./dist/source/components/ui/switch.d.ts",
+      "import": "./dist/source/components/ui/switch.js"
+    },
+    "./components/nav": {
+      "types": "./dist/source/components/nav.d.ts",
+      "import": "./dist/source/components/nav.js"
+    },
+    "./components/footer": {
+      "types": "./dist/source/components/footer.d.ts",
+      "import": "./dist/source/components/footer.js"
+    },
+    "./components/logo": {
+      "types": "./dist/source/components/logo.d.ts",
+      "import": "./dist/source/components/logo.js"
+    },
+    "./components/locale-switcher": {
+      "types": "./dist/source/components/locale-switcher.d.ts",
+      "import": "./dist/source/components/locale-switcher.js"
+    },
+    "./components/theme-provider": {
+      "types": "./dist/source/components/theme-provider.d.ts",
+      "import": "./dist/source/components/theme-provider.js"
+    },
+    "./components/theme-toggle": {
+      "types": "./dist/source/components/theme-toggle.d.ts",
+      "import": "./dist/source/components/theme-toggle.js"
+    },
+    "./components/theme-toggle-icon": {
+      "types": "./dist/source/components/theme-toggle-icon.d.ts",
+      "import": "./dist/source/components/theme-toggle-icon.js"
+    },
+    "./components/typography": {
+      "types": "./dist/source/components/typography.d.ts",
+      "import": "./dist/source/components/typography.js"
+    },
+    "./lib/utils": {
+      "types": "./dist/source/lib/utils.d.ts",
+      "import": "./dist/source/lib/utils.js"
+    },
+    "./i18n/config": {
+      "types": "./dist/source/i18n/config.d.ts",
+      "import": "./dist/source/i18n/config.js"
+    },
+    "./i18n/routing": {
+      "types": "./dist/source/i18n/routing.d.ts",
+      "import": "./dist/source/i18n/routing.js"
+    },
+    "./components/ui/tabs": {
+      "types": "./dist/source/components/ui/tabs.d.ts",
+      "import": "./dist/source/components/ui/tabs.js"
+    },
+    "./components/ui/textarea": {
+      "types": "./dist/source/components/ui/textarea.d.ts",
+      "import": "./dist/source/components/ui/textarea.js"
+    }
   },
   "scripts": {
     "dev": "next dev",
@@ -42,57 +134,50 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "storybook": "storybook dev -p 6006",
-    "build:storybook": "storybook build",
+    "storybook": "tsx scripts/prepare-storybook.ts && storybook dev -p 6006",
+    "build:storybook": "tsx scripts/prepare-storybook.ts && storybook build && tsx scripts/check-storybook.ts",
     "build:tokens": "tsx scripts/build-tokens.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
     "test:browser": "playwright test",
-    "check:package": "tsx scripts/check-package.ts"
+    "check:package": "tsx scripts/check-package.ts && tsx scripts/check-consumers.ts",
+    "check:types": "tsc --noEmit",
+    "check:package:boundary": "tsx scripts/check-package.ts",
+    "check:consumers": "tsx scripts/check-consumers.ts",
+    "preview:storybook": "tsx scripts/serve-storybook.ts"
   },
   "peerDependencies": {
     "next": "^15 || ^16",
     "next-intl": "^4",
-    "next-themes": "^0.4",
     "react": "^19",
-    "react-dom": "^19",
-    "tailwind-merge": "^3"
+    "react-dom": "^19"
   },
   "dependencies": {
-    "@mdx-js/loader": "^3.1.1",
-    "@mdx-js/react": "^3.1.1",
-    "@next/mdx": "^16.2.1",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.6.1",
-    "@supabase/ssr": "^0.9.0",
-    "@supabase/supabase-js": "^2.98.0",
-    "@types/mdx": "^2.0.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "gray-matter": "^4.0.3",
     "lucide-react": "^0.575.0",
-    "next": "16.1.7",
-    "next-intl": "^4.8.3",
     "next-themes": "^0.4.6",
-    "pretendard": "^1.3.9",
     "radix-ui": "^1.4.3",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "reading-time": "^1.5.0",
-    "remark": "^15.0.1",
-    "remark-html": "^16.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
-    "three": "^0.183.2",
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@axe-core/react": "^4.11.1",
     "@fontsource/noto-sans-jp": "^5.3.0",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.2.1",
     "@playwright/test": "^1.63.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@storybook/addon-a11y": "10.4.6",
+    "@storybook/addon-docs": "10.4.6",
     "@storybook/nextjs-vite": "10.4.6",
+    "@supabase/ssr": "^0.9.0",
+    "@supabase/supabase-js": "^2.98.0",
     "@tailwindcss/postcss": "^4",
+    "@types/mdx": "^2.0.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -100,11 +185,21 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.7",
     "eslint-config-prettier": "^10.1.8",
+    "gray-matter": "^4.0.3",
+    "next": "16.1.7",
+    "next-intl": "^4.8.3",
+    "pretendard": "^1.3.9",
     "prettier": "^3.8.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "reading-time": "^1.5.0",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
     "shadcn": "^3.8.5",
     "storybook": "10.4.6",
     "style-dictionary": "^4.4.0",
     "tailwindcss": "^4",
+    "three": "^0.183.2",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5",
@@ -113,10 +208,19 @@
   "files": [
     "dist/",
     "src/styles/",
-    "messages/",
     "DESIGN.md",
     "docs/design/v2-migration.md",
-    "docs/design/v2-verification.md"
+    "docs/package-release.md",
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses/",
+    "docs/components/",
+    "docs/design/public-ui-support.md",
+    "docs/design/public-ui-stage3-verification.md",
+    "docs/design/component-demand.md",
+    "docs/design/public-ui-stage4-verification.md",
+    "docs/design/public-ui-final-verification.md",
+    "docs/design/public-ui-release-validation.md"
   ],
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -130,9 +234,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/naeil-dev/design-system"
+    "url": "git+https://github.com/naeil-dev/naeil-ui.git"
   },
-  "description": "Design system for naeil.dev — React components, design tokens, and i18n support built with Next.js, Radix UI, and Tailwind CSS.",
+  "description": "React UI components, semantic design tokens and shared styles; optional Next.js brand compatibility components.",
   "keywords": [
     "design-system",
     "react",
@@ -142,5 +246,17 @@
     "next.js",
     "i18n"
   ],
-  "homepage": "https://naeil.dev"
+  "homepage": "https://github.com/naeil-dev/naeil-ui#readme",
+  "bugs": {
+    "url": "https://github.com/naeil-dev/naeil-ui/issues"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "next-intl": {
+      "optional": true
+    }
+  },
+  "packageManager": "pnpm@10.30.3"
 }

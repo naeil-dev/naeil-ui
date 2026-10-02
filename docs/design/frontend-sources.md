@@ -1,5 +1,24 @@
 # 프론트엔드 참고 출처
 
+## 2026-10-02 — Public onboarding and portable optional tools
+
+Gap: separate shared UI consumption, optional agent tools, and brand/example-site authentication; remove dependence on a maintainer's private 21st launcher and establish copied-code notices. No visual direction, component code, tokens or site UI changed.
+
+Original bodies read through research-router `fetch.py extract`, captured once outside the repository and inspected offline in full:
+
+- 21st-dev maintainers, [official magic-mcp README](https://github.com/21st-dev/magic-mcp/blob/main/README.md), publication/update date unknown, accessed 2026-10-02; 5,102 characters read. Documented current HTTP endpoint, own-key issuance URL, environment variable support, compatibility proxy, tool discovery and AI/catalog distinction. Applied to `references/tools.md`, public tooling setup, and configurable `twenty_first.py` command selection. The proxy was not installed or authenticated during this change; no real search, retrieval, generation or native MCP discovery is claimed.
+- shadcn maintainers, [original MIT license](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md), publication/update date unknown, accessed 2026-10-02; 1,062 characters read. Original notice included in THIRD_PARTY_NOTICES.md; matched the installed shadcn license. Local git history establishes shadcn adaptation but not an exact upstream registry revision.
+
+Installed `pretendard/dist/LICENSE.txt` and `@fontsource/noto-sans-jp/LICENSE` were read locally and preserved in `licenses/`. Local source/history audits found site-art provenance and fetched JetBrains Mono notice verification unresolved; see THIRD_PARTY_NOTICES.md. No external design code was adopted.
+
+This narrow check establishes documented setup/license facts, not reliability, popularity, a new design direction, or live API availability. Shared UI execution checks are separate from helper/documentation checks.
+
+| Source | Status / reason | Collected | Cited | Newest published/updated | Means |
+| --- | --- | ---: | ---: | --- | --- |
+| 21st-dev/magic-mcp README | OK, relevant original setup body read in full | 1 | 1 | Unknown; accessed 2026-10-02 | research-router local-extract + offline inspect-extract |
+| shadcn-ui/ui LICENSE.md | OK, full license body read | 1 | 1 | Unknown; accessed 2026-10-02 | research-router local-extract + offline inspect-extract |
+
+
 ## 2026-10-01 — 검사기 Low 3건 보완
 
 이전 Opus 리뷰의 남은 진단·회귀 테스트·quirks 넘침 항목을 로컬 fixture로 재현해 수정했다. Chromium/axe·가짜 MCP launcher·기본 단위 테스트·설치 경로 검증을 실행했다. 외부 참고 검색이나 실제 계정/API 호출은 하지 않았다. 실제 변경과 검증 범위는 [후속 기록](frontend-v2-low-followup.md)에 남겼다.
@@ -43,3 +62,37 @@ Component Gallery와 Kinetics는 직접 HTTP 읽기가403이었으나 브라우�
 - 반영: DESIGN.md·v2-migration.md의 구성 기준, AGENTS.md 연결, 스킬의 조건부 layout 계약, `browser-check.cjs`의 명시적 페이지 간 비교와 실행 파일 해시.
 - 실제 실행: 로컬 Chromium/axe 회귀 검사와 독립 행동·코드 검토. 도구·결과 범위는 [개선 검증 기록](common-design-compliance-verification.md)에 보존한다.
 - Refero/21st/Component Gallery/Kinetics 재검색·코드 retrieval·Impeccable polish/distill은 실행하지 않았다. 승인된 시스템의 적용·검증 개선이라 새 외부 참고가 필요하지 않았다. 새 외부 코드·라이선스·의존성도 추가하지 않았다.
+
+## 2026-10-02 — Scoped Vercel Git deployment control
+
+The orchestrator read the official [Vercel Git Configuration: git.deploymentEnabled](https://vercel.com/docs/project-configuration/git-configuration#git.deploymentenabled) through research-router, updated 2026-08-25 and accessed 2026-10-02. Adopted only the branch-specific mapping `feat/public-ui-readiness: false` in `vercel.json`. Unspecified branches retain their defaults; no wildcard enablement was added. This prevents this implementation branch's Git integration deployment when pushed; it neither deploys the website nor grants publication or deployment approval. No external design tool or new visual source was used for this package boundary change.
+
+
+## 2026-10-02 — Public UI guides, runnable Docs and Stage 3 resilience
+
+This extends the approved system and existing 11 component families; no external visual style or catalog component was selected. Read DESIGN.md, v2 specification/migration, the local reference workflow/verification guidance and installed Impeccable harden/craft-floor instructions. The orchestrator had run Impeccable's context loader; the executor did not rerun it. Actual execution used local source/type inspection, Storybook/Vite, Chromium/WebKit, axe, font/forced-color/CSS scaling probes, production package consumers and screenshot inspection. No Refero/21st/Component Gallery/Kinetics retrieval, hosted design tool, screen reader or actual Safari/Windows session was run for this scope.
+
+| Original source / inspected material | Adopted facts and artifact scope |
+| --- | --- |
+| Installed `src/components/ui` wrappers and Radix declarations reached through radix-ui 1.4.3 | Exact public usage contracts/defaults; no invented Button loading API. 11 maintained guides + matching actual Storybook Docs/Usage pages. Primitive type links identify locally inspected package versions. |
+| Installed Pretendard 1.3.9 and @fontsource/noto-sans-jp 5.3.0 LICENSE bodies | Exact OFL copies in preview and consumer-owned font assets/notices. Shared font choices remain unchanged. |
+| [Nunito Sans original OFL](https://raw.githubusercontent.com/google/fonts/main/ofl/nunitosans/OFL.txt), read 2026-10-02 | Full author/OFL notice for Storybook manager's bundled Nunito Sans; tooling font, not shared UI adoption. |
+| [Storybook 10.4.6 LICENSE](https://raw.githubusercontent.com/storybookjs/storybook/v10.4.6/LICENSE) and [original yarn.lock](https://raw.githubusercontent.com/storybookjs/storybook/v10.4.6/yarn.lock), read 2026-10-02 | Pinned complete Storybook MIT body and conservative source-lock version superset for 190 annotated manager/addon package names. Lock SHA-256: `d64255d89357127ea39412a61456f1ee503c9ca66622727d1efd2fe88111dea1`. `.storybook/manager-notices.json` preserves 254 package-version notice entries, obtained through npm tarball/source retrieval; opt-in refresh executed, ordinary builds use checked-in bodies offline. |
+| Original npm tarballs/installed LICENSE/NOTICE files enumerated by `scripts/bundled-notices.ts` and `scripts/refresh-storybook-notices.py` | Actual Vite chunk inventory plus complete installed notices. Package lookup passes unnamed type-only manifests. Next 16.1.7 vendored React/ReactDOM/scheduler/path-to-regexp preserve their actual LICENSE bodies and explicitly unspecified manifest versions. Lucide 0.575.0 preserves its mixed ISC/Feather MIT notice in full. These are bundled-artifact notices, not invented component provenance. |
+| [react-remove-scroll-bar original LICENSE](https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/master/LICENSE), read 2026-10-02 | Installed 2.3.8 omitted a standalone file; retain original MIT/copyright body. The master URL is not claimed as a pinned release revision; checked-in full notice/hash is evidence of the body used. |
+| [popper.js 1.16.1 LICENSE](https://raw.githubusercontent.com/floating-ui/floating-ui/v1.16.1/LICENSE.md), [store2 LICENSE-MIT](https://raw.githubusercontent.com/nbubna/store/master/LICENSE-MIT), [toggle-selection LICENSE](https://raw.githubusercontent.com/sudodoki/toggle-selection/master/LICENSE), read 2026-10-02 | Original complete fallback notices for manager packages whose tarball omitted the standalone body. Master URLs do not establish an exact historical embedded version. |
+| use-composed-ref@1.4.0 npm metadata/tarball and [original repository](https://github.com/Andarist/use-composed-ref), inspected 2026-10-02 | No standalone notice was supplied. Preserve exact upstream MIT metadata and complete declared MIT terms; no copyright date/holder invented. This is a concrete documented gap, not a generic missing-license fallback. |
+| client-only@0.0.1 installed package metadata / React project links, plus exact Next-vendored React LICENSE | Empty client marker omitted a notice; preserve exact metadata and full original React MIT copyright/terms in `licenses/React-MIT.txt`. Arbitrary missing notices fail builds. |
+| Manager's vendored is-dom/is-function/is-object/is-window module comments, source lock and original npm notice files | Embedded versions are not specified. Checked-in JSON explicitly labels conservative notice sources 1.1.0/1.0.2 without claiming those are exact embedded versions. |
+
+The reproduced shared changes are limited to forced-colors Switch visibility and inert coordination for Radix-hidden Select/menu backgrounds. The latter uses a document-owned symbol registry across bundled/deep module copies, with nested/overlapping cleanup/ref checks. Raw website `public/` assets are excluded from preview and npm; their unresolved rights remain carried forward. Preview publication configuration is manual-only preparation, unexecuted. Dated results and manual limitations are in [Stage 3 verification](public-ui-stage3-verification.md).
+
+## 2026-10-02 — Demand-led Tabs, Textarea and native composition
+
+Gap: repeated local/copied Radix panel switching and repeated multiline fields needed a maintained shared contract. The [generalized demand decision](component-demand.md) records roles and counts without publishing private consumer identities. Adopted minimal wrappers around the already installed Radix Tabs and native HTML textarea, plus label/help/error and native fieldset/legend/same-name radio composition guidance. No form-state wrapper, RadioGroup API, dependency, external visual source or business behavior was added.
+
+Read DESIGN.md, the accepted v2 specification/migration, finished Stage 3 guides, repository frontend-reference-workflow revision 2026-10-02.1 and its verification guidance, and Impeccable 4.4.0 harden/craft-floor instructions. Inspected installed `@radix-ui/react-tabs@1.1.13` runtime and declarations reached through `radix-ui@1.4.3`; the [Tabs guide](../components/tabs.md) links the matching versioned original package files. These installed primitive semantics, native textarea behavior and existing tokens were adopted, rather than catalog code. Existing Radix MIT notices remain covered; no new license/dependency was introduced.
+
+Actual tools: local source/type inspection, Impeccable context loader once against `.storybook/preview.tsx`, its mechanical detector once against final extension sources, unit tests, token/rendered contrast checks, actual built Storybook manager Docs and Usage pages, Playwright Chromium/WebKit with axe, screenshots, production package builds and independent packed React/Next fixtures. The detector's sole `border-accent-on-rounded` warning matched Tabs' 2px bottom border; it was retained as an intentional neutral selection indicator on a control, with rendered contrast and forced-colors checks. No Impeccable polish/distill, Aside browser session, Refero/21st/Component Gallery/Kinetics retrieval, hosted design tool or external design code was used. Installed/configured tooling is not an execution claim.
+
+The [dated Stage 4 verification](public-ui-stage4-verification.md) supplies reproducible commands, inspected source identities, corrected geometry/contrast findings, final results and manual limitations. Stage 3's dated 11-family results remain historical; current navigation covers 13 families. Publication and deployment remain unexecuted.

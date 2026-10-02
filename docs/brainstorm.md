@@ -1,5 +1,7 @@
 # Brainstorm: Design System
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 **Date:** 2026-02-27
 
 ## Idea

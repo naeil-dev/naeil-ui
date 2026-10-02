@@ -3,12 +3,12 @@
   "commit": "82456d93061e875ea554fa8567537a920cee3361",
   "reviewers": {
     "opus": {
-      "id": "bf3ea4a4-b4e1-4a87-a5bc-bccd51d1911d",
+      "id": "historical-id-redacted",
       "provider": "claude/claude-opus-5-5",
       "thinking": "high"
     },
     "sol": {
-      "id": "9a158256-6392-4898-9457-64ac32e19967",
+      "id": "historical-id-redacted",
       "provider": "codex/gpt-6.1-sol",
       "thinking": "high"
     }
@@ -33,5 +33,6 @@
     "skills/frontend-reference-workflow/tests/layout-comparison.test.cjs": "dd83d8c7ea1c374b831bbd8680c1e423a2cf9f5fb0013233c22c6a7dd6634509",
     "skills/frontend-reference-workflow/tests/test_mcp_client.py": "cd0724e92beb5b2f55cb6c47902f846dd2cf627e5dc3e3d33302014507dc0d9b"
   },
-  "installedRuntimeMatches": true
+  "installedRuntimeMatches": true,
+  "_publicHygiene": "Personal paths/session IDs anonymized; hashes/results describe original dated artifacts."
 }

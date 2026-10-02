@@ -1,5 +1,7 @@
 # Brainstorm: naeil.dev 인증 시스템
 
+> Historical implementation/planning record. Status, proposals and environment claims describe the recorded stage. Use [the documentation index](README.md) for maintained public guides and current authority.
+
 **Date:** 2026-03-05
 
 ## Idea

@@ -1,13 +1,15 @@
 # frontend-reference-workflow v2 — 최종 범위 제한 재확인 (Opus 5.5)
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 - 날짜: 2026-09-30
 - 리뷰어: Claude Opus 5.5 (`claude-opus-5-5`). 단독으로 확인했고 서브에이전트는 쓰지 않았다. 판정은 아래에 적은, 제가 직접 실행한 확인에만 근거한다.
-- 대상: `/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri`. HEAD `82456d9`에 커밋되지 않은 고정 수정본이 올라가 있다(`git status` 14줄, 확인 전후 동일).
+- 대상: `<historical-repository>`. HEAD `82456d9`에 커밋되지 않은 고정 수정본이 올라가 있다(`git status` 14줄, 확인 전후 동일).
 - 범위: 사용자가 지정한 마지막 수정 1–4와 직접 관련된 회귀만 확인했다. 종합 리뷰는 반복하지 않았다.
-- 제약: 외부 API·키·설치·저장소 수정은 하지 않았다. 스크래치는 `/tmp/fw-opus-probe/`에만 만들었고, fixture 서버는 모두 종료했다.
+- 제약: 외부 API·키·설치·저장소 수정은 하지 않았다. 스크래치는 `<historical-scratch>/fw-opus-probe/`에만 만들었고, fixture 서버는 모두 종료했다.
 - 기존 보고서는 보존했다.
-  - `/tmp/frontend-v2-comprehensive-opus.md`: `0497c0ca…a026`
-  - `/tmp/frontend-v2-comprehensive-opus-rereview.md`: `e69fafba…28d2`(`opus-rereview.md`와 동일)
+  - `<historical-scratch>/frontend-v2-comprehensive-opus.md`: `0497c0ca…a026`
+  - `<historical-scratch>/frontend-v2-comprehensive-opus-rereview.md`: `e69fafba…28d2`(`opus-rereview.md`와 동일)
 - 설치본 browser-check는 이전 기준본 `df95d249…`이다. 요청하신 대로 의도된 배포 경계로 취급했다.
 
 ## 1. 현재 파일 식별 (SHA-256, `final-fix-hashes.json`과 전부 일치)

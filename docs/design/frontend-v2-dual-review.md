@@ -1,5 +1,7 @@
 # Frontend workflow v2 종합 리뷰와 보완
 
+> Archived evidence: personal paths/session IDs anonymized; original hashes/results retain dated scope. External scratch artifacts are unavailable here and were not rerun.
+
 후속 상태(2026-10-01): 아래 Low 3건은 `2026-10-01.1`에서 보완하고 재현·회귀 테스트 및 설치 검증을 완료했다. [후속 개선 기록](frontend-v2-low-followup.md)을 따른다. 아래 두 모델의 리뷰는 원래 검토한 `2026-09-30.2` 버전의 기록이다.
 
 대상: frontend-reference-workflow v2 전체, 공통 디자인 적용 지침, 검사기, 설치본. UI 패키지·RelayDock 제품의 출시 판정은 범위 밖이다.
@@ -9,8 +11,8 @@
 
 | 리뷰어 | 실행 설정 | 초기 판정 |
 |---|---|---|
-| Opus 5.5 | claude/claude-opus-5-5, high; bf3ea4a4-b4e1-4a87-a5bc-bccd51d1911d | 조건부 준비됨; Medium 3, Low 8 |
-| GPT Sol 6.1 | codex/gpt-6.1-sol, high; 9a158256-6392-4898-9457-64ac32e19967 | 검사기 승인 보류; Medium 3, Low 3 |
+| Opus 5.5 | claude/claude-opus-5-5, high; historical-id-redacted | 조건부 준비됨; Medium 3, Low 8 |
+| GPT Sol 6.1 | codex/gpt-6.1-sol, high; historical-id-redacted | 검사기 승인 보류; Medium 3, Low 3 |
 
 [Opus 원문](v2-dual-review-evidence/opus-initial.md) · [Sol 원문](v2-dual-review-evidence/sol-initial.md)
 

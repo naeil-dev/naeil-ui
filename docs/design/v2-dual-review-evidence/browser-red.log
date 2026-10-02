@@ -70,7 +70,7 @@ not ok 12 - hidden ancestors cannot satisfy visible CSS expectations or non-poin
   ---
   duration_ms: 310.427625
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/browser-check.test.cjs:348:1'
+  location: 'skills/frontend-reference-workflow/tests/browser-check.test.cjs:348:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -86,7 +86,7 @@ not ok 12 - hidden ancestors cannot satisfy visible CSS expectations or non-poin
   actual: 'needs-review'
   operator: 'strictEqual'
   stack: |-
-    TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/browser-check.test.cjs:355:12)
+    TestContext.<anonymous> (skills/frontend-reference-workflow/tests/browser-check.test.cjs:355:12)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -113,7 +113,7 @@ not ok 16 - rejects invalid comparisons before navigating any page
   ---
   duration_ms: 796.447375
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:131:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:131:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -126,10 +126,10 @@ not ok 16 - rejects invalid comparisons before navigating any page
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:184:14
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:184:14
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:132:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:132:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -144,7 +144,7 @@ not ok 18 - classic scrollbar changes are measured across short and tall content
   ---
   duration_ms: 858.393041
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:202:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:202:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -157,10 +157,10 @@ not ok 18 - classic scrollbar changes are measured across short and tall content
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:206:12
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:206:12
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:203:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:203:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -169,7 +169,7 @@ not ok 19 - landmarks need to be onscreen and visible through ancestors
   ---
   duration_ms: 1572.403416
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:212:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:212:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -182,10 +182,10 @@ not ok 19 - landmarks need to be onscreen and visible through ancestors
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:217:14
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:217:14
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:213:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:213:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -200,7 +200,7 @@ not ok 21 - font availability is checked independently from the CSS declaration
   ---
   duration_ms: 529.879458
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:234:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:234:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -215,10 +215,10 @@ not ok 21 - font availability is checked independently from the CSS declaration
   actual: 'automated-checks-passed'
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:240:12
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:240:12
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:235:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:235:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...
@@ -227,7 +227,7 @@ not ok 22 - cross-origin redirect is blocked and final location is recorded
   ---
   duration_ms: 523.921291
   type: 'test'
-  location: '/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:254:1'
+  location: 'skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:254:1'
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
@@ -240,10 +240,10 @@ not ok 22 - cross-origin redirect is blocked and final location is recorded
   actual: 0
   operator: 'strictEqual'
   stack: |-
-    /Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:259:12
+    skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:259:12
     process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    async fixture (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
-    async TestContext.<anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:255:3)
+    async fixture (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:81:5)
+    async TestContext.<anonymous> (skills/frontend-reference-workflow/tests/layout-comparison.test.cjs:255:3)
     async Test.run (node:internal/test_runner/test:1054:7)
     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
   ...

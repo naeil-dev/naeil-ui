@@ -1,8 +1,8 @@
 {
   "checkedAt": "2026-09-30T00:05:42.074704+00:00",
-  "source": "/Users/jaymini/.paseo/worktrees/28nele6j/spiky-kolibri/skills/frontend-reference-workflow",
-  "installed": "/Users/jaymini/.agents/skills/frontend-reference-workflow",
-  "backup": "/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/frontend-compliance-backup-v5jda8hg",
+  "source": "skills/frontend-reference-workflow",
+  "installed": "<historical-local-path>",
+  "backup": "<historical-scratch-path>",
   "claudeLinkMatches": true,
   "files": [
     {
@@ -40,5 +40,6 @@
       "sha256": "7d5c0506f2f4efee8fa1c1fd41629cc325803cb6c87b76216282a27db9531765",
       "installedMatches": true
     }
-  ]
+  ],
+  "_publicHygiene": "Personal paths/session IDs anonymized; hashes/results describe original dated artifacts."
 }
