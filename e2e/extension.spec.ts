@@ -186,7 +186,14 @@ test("Extensions forced-colors retains selected border and invalid focus", async
   test.skip(browserName !== "chromium", "Chromium forced-colors media emulation only; actual Windows high contrast remains manual.");
   await page.emulateMedia({ forcedColors: "active" });
   await usage(page, "tabs");
-  const tab = page.getByRole("tab", { name: "Overview", exact: true }); await tab.focus(); await tab.press("ArrowRight"); await page.keyboard.press("ArrowLeft");
+  const tab = page.getByRole("tab", { name: "Overview", exact: true });
+  const history = page.getByRole("tab", { name: "History", exact: true });
+  await tab.focus();
+  await expect(tab).toBeFocused(); await expect(tab).toHaveAttribute("aria-selected", "true");
+  await tab.press("ArrowRight");
+  await expect(history).toBeFocused(); await expect(history).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowLeft");
+  await expect(tab).toBeFocused(); await expect(tab).toHaveAttribute("aria-selected", "true");
   await expect(tab).toHaveCSS("outline-style", "solid"); await expect(tab).toHaveCSS("border-bottom-width", "2px");
   expect(await tab.evaluate(element => getComputedStyle(element).borderBottomColor)).not.toBe("rgba(0, 0, 0, 0)");
   await page.screenshot({ path: info.outputPath("tabs-forced-colors.png"), fullPage: true });
