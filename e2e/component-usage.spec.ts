@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 const families = ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea"];
 async function usage(page: Page, family: string, theme = "light", density = "comfortable") {
-  await page.goto(`/iframe.html?id=ui-${family}--usage&viewMode=story&globals=theme:${theme};density:${density};a11y:(manual:!true)`);
+  await page.goto(`/iframe.html?id=ui-${family}--usage&viewMode=story&globals=theme:${theme};density:${density};a11y.manual:!true`);
   await expect(page.locator("#storybook-root")).not.toBeEmpty();
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator("html")).toHaveClass(new RegExp(theme));
@@ -38,7 +38,19 @@ for (const family of families) {
     await expect(docs.getByRole("link", { name: "shared usage contract", exact: true })).toHaveAttribute("href", /docs\/components\/common.md$/);
     if (family === "avatar") {
       await expect(docs.getByText('For a named group, supply', { exact: false })).toBeVisible();
-      await expect(docs.getByText('3 additional members', { exact: false })).toBeVisible();
+      const countSample = docs.locator(".docblock-source").filter({ hasText: "3 additional members" });
+      await expect(countSample).toBeVisible();
+      await expect(countSample).toContainText('role="group" aria-label="Team members"');
+      await expect(countSample).toContainText('aria-hidden="true">+3');
+      await expect(countSample).toContainText('className="sr-only">3 additional members');
+      const group = docs.getByRole("group", { name: "Team members", exact: true });
+      await expect(group).toMatchAriaSnapshot(`
+        - group "Team members":
+          - img "Alex Lee": AL
+          - img "田中 遥": 田
+          - text: 3 additional members
+      `);
+      await expect(group.locator('[data-slot="avatar-group-count"] > [aria-hidden="true"]')).toHaveText("+3");
     }
   });
   for (const theme of ["light", "dark"]) test(`${family}: ${theme} mobile compact localized accessibility`, async ({ page }, info) => {
@@ -247,7 +259,7 @@ test("Forced-colors emulation retains control states and visible focus", async (
 
 for (const theme of ["light", "dark"]) test(`Workspace visual evidence: ${theme}, wide/default and mobile/compact`, async ({ page }, info) => {
   await page.setViewportSize({ width: 2560, height: 1100 });
-  await page.goto("/iframe.html?id=ui-v2--workspace&viewMode=story&globals=a11y:(manual:!true)");
+  await page.goto("/iframe.html?id=ui-v2--workspace&viewMode=story&globals=a11y.manual:!true");
   await page.getByRole("button", { name: theme === "light" ? "라이트" : "다크", exact: true }).click();
   await page.evaluate(() => document.fonts.ready);
   await expect(page.getByLabel("워크스페이스 이름")).toHaveCSS("font-size", "16px");
@@ -284,7 +296,7 @@ test("Choice labels and pseudo-element hit areas work without overlapping adjace
 });
 
 test("Required Checkbox consumer error/focus and pending recovery", async ({ page }, info) => {
-  await page.goto("/iframe.html?id=ui-checkbox--required-consent&globals=theme:light;a11y:(manual:!true)");
+  await page.goto("/iframe.html?id=ui-checkbox--required-consent&globals=theme:light;a11y.manual:!true");
   const control = page.getByRole("checkbox", { name: "I agree to the terms" });
   await page.getByRole("button", { name: "Confirm consent" }).click();
   await expect(control).toHaveAttribute("aria-invalid", "true"); await expect(control).toBeFocused();
@@ -297,7 +309,7 @@ test("Required Checkbox consumer error/focus and pending recovery", async ({ pag
 });
 
 test("Modal and nonmodal menu preserve refs/handlers and previously inert background", async ({ page }, info) => {
-  await page.goto("/iframe.html?id=ui-dropdownmenu--overlay-resilience&globals=theme:light;a11y:(manual:!true)");
+  await page.goto("/iframe.html?id=ui-dropdownmenu--overlay-resilience&globals=theme:light;a11y.manual:!true");
   const background = page.getByRole("button", { name: "Background action", includeHidden: true }), trigger = page.getByRole("button", { name: "Resilience actions" });
   await trigger.focus(); await trigger.press("Enter");
   await expect(page.getByTestId("overlay-ref")).toHaveText("Consumer ref: dropdown-menu-content");
@@ -317,7 +329,7 @@ test("Modal and nonmodal menu preserve refs/handlers and previously inert backgr
 });
 
 test("Nested Dialog/Select restores each focus layer and cleans inert on forced unmount", async ({ page }, info) => {
-  await page.goto("/iframe.html?id=ui-dropdownmenu--overlay-resilience&globals=theme:light;a11y:(manual:!true)");
+  await page.goto("/iframe.html?id=ui-dropdownmenu--overlay-resilience&globals=theme:light;a11y.manual:!true");
   const dialogTrigger = page.getByRole("button", { name: "Open nested dialog" });
   await dialogTrigger.click(); const dialog = page.locator('[role="dialog"]');
   const select = page.getByRole("combobox", { name: "Nested language" });

@@ -37,6 +37,7 @@ jobs:
       - run: pnpm build:pkg
       - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm check:package
+      - run: node --test scripts/consumer-font-notices.test.mjs
       - name: Separate website compatibility build
         run: pnpm build
         env:

@@ -218,7 +218,8 @@
     "docs/design/public-ui-support.md",
     "docs/design/public-ui-stage3-verification.md",
     "docs/design/component-demand.md",
-    "docs/design/public-ui-stage4-verification.md"
+    "docs/design/public-ui-stage4-verification.md",
+    "docs/design/public-ui-final-verification.md"
   ],
   "pnpm": {
     "onlyBuiltDependencies": [

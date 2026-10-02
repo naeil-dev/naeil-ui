@@ -2,6 +2,8 @@
 
 Prepared `@naeil/ui@0.3.0` remains unpublished. Current documentation covers 13 families. This matrix describes the current examples/checks, not every consumer or every allowed dependency version. [Dated Stage 3 results](public-ui-stage3-verification.md) identify commands, source hashes and local limitations. [Stage 4 extension results](public-ui-stage4-verification.md) separately cover Tabs/Textarea and native field/choice composition.
 
+Linux CI at `bcf99fca3467ae2b1cd29d54fa24f2569fb6001c` passed package-and-site in both the [push run](https://github.com/naeil-dev/naeil-ui/actions/runs/36945564443) and [PR run](https://github.com/naeil-dev/naeil-ui/actions/runs/36945943651). Their browser jobs failed: respectively 207 passed/4 skipped/2 failed (axe scan collision and Avatar Docs ambiguity), and 208 passed/4 skipped/1 failed (Avatar Docs ambiguity). Firefox application tests passed in both Linux runs. The [final correction follow-up](public-ui-final-verification.md) records the scoped local verification; corrected Linux CI acceptance is pending.
+
 | Environment / capability | Contract and evidence |
 | --- | --- |
 | React / ReactDOM | Host React 19; clean packed fixture uses 19.2.3 with library type checks enabled. |
@@ -9,7 +11,7 @@ Prepared `@naeil/ui@0.3.0` remains unpublished. Current documentation covers 13 
 | Next compatibility | Optional Next 15/16 and next-intl 4 peers; separate clean fixture checks Next 16.1.7/next-intl 4.8.3. This is not every peer-version combination. |
 | Chromium | Actual local Playwright Chromium application checks; see exact build in dated evidence. |
 | Playwright WebKit | Actual local engine checks. It is not installed Apple Safari certification. |
-| Firefox | Configured CI project. Local installed Firefox fails before the application with `Could not find profile folder`; local application checks are blocked. CI configuration is not a remote passing result. |
+| Firefox | Linux application tests passed in both baseline CI runs linked above; those full runs failed elsewhere. Local installed Firefox fails before the application with `Could not find profile folder`; local application checks remain blocked. Corrected Linux acceptance is pending. |
 | Mobile | 320/390 CSS-pixel viewports, responsive controls/content and screenshots. Emulation is not physical iOS/Android device testing. |
 | Scaling / zoom | Separate 320px viewport, 200% CSS root text scaling and 200% CSS zoom probes; native desktop browser zoom remains manual. No CDP pinch claim. |
 | Forced colors | Chromium media emulation with control/focus/state checks. Actual Windows high contrast, Firefox forced colors and WebKit forced colors remain manual/unrun. |

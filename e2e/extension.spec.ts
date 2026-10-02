@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 async function usage(page: Page, family: string, theme = "light", density = "comfortable") {
-  await page.goto(`/iframe.html?id=ui-${family}--usage&viewMode=story&globals=theme:${theme};density:${density};a11y:(manual:!true)`);
+  await page.goto(`/iframe.html?id=ui-${family}--usage&viewMode=story&globals=theme:${theme};density:${density};a11y.manual:!true`);
   await expect(page.locator("#storybook-root")).not.toBeEmpty();
   await expect(page.locator("html")).toHaveClass(new RegExp(theme));
   await page.evaluate(async () => {

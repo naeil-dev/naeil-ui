@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/iframe.html?id=ui-v2--workspace&viewMode=story");
+  // Controlled AxeBuilder scans own this page; normal Storybook scans stay on.
+  await page.goto("/iframe.html?id=ui-v2--workspace&viewMode=story&globals=a11y.manual:!true");
   await expect(page.getByRole("heading", { name: "공통 UI v2" })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 });
