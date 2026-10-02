@@ -1,6 +1,6 @@
 # Package verification and release policy
 
-The prepared package is `@naeil/ui@0.3.0`, unreleased. npm latest was `0.2.0` on 2026-10-02. UI v2 names a design generation, not an npm major. A 0.x minor increment communicates this dependency/export boundary change; future breaking changes must receive an explicit migration and version decision.
+This policy covers `@naeil/ui@0.3.0`. UI v2 names a design generation, not an npm major. A 0.x minor increment communicates this dependency/export boundary change; future breaking changes must receive an explicit migration and version decision. The historical registry baseline on 2026-10-02 was npm latest at `0.2.0`; release completion requires separate registry, GitHub Release and hosted Docs evidence. Version-scoped installation is in the [README](../README.md#use-the-ui).
 
 ## Architecture
 
@@ -39,9 +39,19 @@ The explicit font-notice regression gate copies the real React fixture config in
 
 ## Publication and deployment
 
-Before a future release, pin maintained repository navigation and source-authority links, including the Storybook guide URL base, to the exact tested source commit. Verify every target exists in that commit and check the rebuilt Docs and intended tarball; do not rely on `blob/main`, a temporary branch or a future merge. Keep canonical repository/homepage URLs and original upstream/historical source records unchanged. This prepared version uses tested implementation revision `81fd395031dc5b20074c4d915a8585360ce2d28a`; any later documentation-only link correction must retain the original runtime evidence and record its own scoped verification.
+Maintained source-authority links and the Storybook guide URL base use tested component snapshot `81fd395031dc5b20074c4d915a8585360ce2d28a`. Those pins identify the reviewed component/source contract and remain valid; documentation-only release preparation does not require repinning every historical or component guide. Verify each target exists at its pinned revision and preserve original upstream sources, dated approval scope and runtime evidence. Freeze later documentation changes and the intended archive separately.
 
-Before any release, review changelog, migration, all verification results and actual rendered Storybook output; inspect `npm pack --dry-run --json` and test the intended archive. Check registry availability again. Obtain explicit publication authorization before `npm publish`, a release tag or GitHub Release. The automatic verification workflow does not publish or deploy. The separately prepared manual-only Pages workflow below remains unexecuted and requires a future authorized publication decision. npm publication, GitHub Releases and website deployment are separate actions.
+The authorized 0.3.0 release scope includes main merge, npm 0.3.0, a GitHub Release and hosted Docs. The release maintainer performs external authentication and publication; documentation preparation does not itself execute those operations. The automatic verification workflow does not publish or deploy. Record native/manual observations with their actual scope and carry unrun checks as limitations; do not substitute automated WebKit/axe checks or publication authorization for human certification.
+
+For the authorized release, use the exact frozen source and archive:
+
+1. Review the changelog, migration, dated verification and the [2026-10-02 native environment report](design/public-ui-release-validation.md). Its capability blockers leave all native/manual acceptance rows open and add no native component pass. Confirm maintained links, actual Storybook Docs/Usage and legal notices for the intended source. Record unresolved manual coverage without inventing passes.
+2. Build and inspect a fresh archive with `npm pack --ignore-scripts --json --pack-destination /path/to/candidate`; preserve its SHA-256, file list and source revision outside the archive. Run boundary/relative-link checks and clean packed consumers on that candidate.
+3. Check registry availability for `@naeil/ui@0.3.0` immediately before publication. Publish the verified candidate archive, then verify the registry version, integrity and dist-tag; a changelog or install command alone proves none of these.
+4. Create the release tag/GitHub Release for the recorded source and retain version, artifact identity, validation scope and support limitations.
+5. Publish the reviewed Storybook artifact through the manual Pages workflow below. Verify the actual hosted URL, subpath Docs-to-Usage navigation, fonts and notices over HTTP before reporting it live.
+
+npm publication, GitHub Releases, main merge and hosted Docs are distinct operations. Production deployment of the brand website remains a separate scope; shared-package checks do not clear unknown site-art or fetched-site-font provenance.
 
 `vercel.json` disables Git deployments only for `feat/public-ui-readiness`. Other branches retain Vercel's default behavior, so merging or pushing another branch requires a separate deployment decision. The automatic GitHub Actions checks are verification-only; enabling repository workflows is not evidence of a hosted site or approved release.
 
@@ -59,18 +69,20 @@ pnpm preview:storybook
 
 Run the command from this checkout after installing its dependencies. It serves the built or downloaded static artifact with persistent HTTP connections; a conventional static host works as well. Do not open iframe.html directly as a file; use HTTP. Preserve LICENSE, THIRD_PARTY_NOTICES.md and licenses/ with the artifact. The static preview needs no backend, credentials or external font server. Third-party dependency code also retains its own bundled/license notices.
 
-To optionally publish documentation later, first review this exact artifact and manual acceptance results, select a static host/path, retain notices and obtain deployment authorization. Upload only the reviewed Storybook directory through that host's documented static-file workflow. A dispatch-only Pages recipe is prepared below; no automatic Pages/Vercel release is introduced here. Main merge can still trigger the separate brand site's existing Vercel Git integration.
+### Authorized GitHub Pages publication
 
-### Manual GitHub Pages preparation (not run)
+The public Docs destination is [https://naeil-dev.github.io/naeil-ui/](https://naeil-dev.github.io/naeil-ui/), configured with Pages `build_type=workflow` and a **github-pages** main-only deployment branch policy. See [Docs deployment status](https://github.com/naeil-dev/naeil-ui/actions/workflows/publish-docs-manual.yml). Live availability is confirmed separately in [release evidence](https://github.com/naeil-dev/naeil-ui/releases) with the deployed source, deployment result and hosted HTTP/navigation checks; preview artifact checks above establish local artifact behavior only.
 
-`.github/workflows/publish-docs-manual.yml` is an explicit `workflow_dispatch` recipe. It has no PR/push trigger. After a separate authorized merge of the reviewed workflow, an authorized maintainer must enable Pages with **GitHub Actions** as its source and configure the **github-pages** environment with appropriate reviewers/branch restrictions. Pages is currently disabled; this file does not enable it. Any default-branch merge can separately invoke the existing brand-site Vercel integration.
+`.github/workflows/publish-docs-manual.yml` is an explicit `workflow_dispatch` recipe with no PR/push trigger. Pages is configured to use **GitHub Actions**; the **github-pages** environment permits deployment from main only. Run the authorized workflow from main with the exact reviewed source SHA; configuration alone does not establish a successful deployment. The workflow file does not enable Pages itself. A default-branch merge can separately invoke the brand site's existing Vercel integration; that production deployment and its asset/font provenance require separate handling.
 
-Only after explicit docs publication authorization and recorded manual acceptance, select **Publish reviewed UI docs (manual only)** in Actions (or use the command below), supply the exact full approved commit SHA and type `PUBLISH_REVIEWED_DOCS`. The job checks out that SHA, rebuilds/verifies its actual preview/notices, runs the configured three-engine browser suite, and deploys only the Pages artifact through the protected environment. Failed checks do not reach deploy. Do not invoke this during implementation/review.
+Select **Publish reviewed UI docs (manual only)** in Actions (or use the command below), supply the exact full reviewed source SHA and type `PUBLISH_REVIEWED_DOCS`. The job checks out that SHA, rebuilds/verifies its actual preview/notices, runs the configured three-engine browser suite, and deploys only the Pages artifact through its environment. Failed checks do not reach deploy. Native observations and remaining manual limitations belong in the release evidence; the workflow does not certify them.
 
 ```sh
-# Future authorized publication only; replace the full SHA with the reviewed commit.
+# Release maintainer: replace with the exact frozen source commit.
 gh workflow run publish-docs-manual.yml -f reviewed_sha=FULL_REVIEWED_COMMIT_SHA -f confirmation=PUBLISH_REVIEWED_DOCS
 ```
+
+After deployment, verify the manager and iframe under `/naeil-ui/`, all 13 Docs/Usage entries, Docs links, local fonts and exact LICENSE/THIRD_PARTY_NOTICES/font notices. Retain the deployment URL, source SHA and observed HTTP/navigation results. Hosted Storybook uses simulated data and requires no Supabase project, design API key or external font server. Only the reviewed Storybook directory is uploaded; website public assets stay excluded.
 
 Normal builds are network-independent after dependency installation. Vite collects notices for actual preview modules; checked-in manager notices conservatively cover named embedded packages and versions from Storybook 10.4.6's original source lock. `check-storybook` fails if a named embedded module lacks a full notice. Four vendored tiny modules have no embedded version in that lock/comments; their original npm notice source is explicitly marked, without an exact-version claim. The exact use-composed-ref@1.4.0 tarball/repository provides MIT metadata but no standalone notice; its metadata plus full declared terms are retained without inventing a year/holder. The client-only@0.0.1 React marker retains its exact metadata and the original React MIT notice. Other missing notices fail the build; no generic MIT fallback passes arbitrary packages.
 

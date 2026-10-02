@@ -13,17 +13,19 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 
 ## Use the UI
 
-The prepared source version is **0.3.0, unreleased**. npm latest was **0.2.0** on 2026-10-02. UI v2 is a design generation, not npm 2.0. The v2 CSS/APIs and package boundary described here require the local 0.3.0 tarball below or a later authorized release; installing npm latest currently installs the older package.
+This guide targets **@naeil/ui 0.3.0** with React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation, independently of npm versioning. Install the exact version in your app:
 
 ```sh
-# In your app, after building the local tarball as described below:
-pnpm add /tmp/naeil-ui-0.3.0.tgz
+pnpm add --save-exact @naeil/ui@0.3.0
+# npm install --save-exact @naeil/ui@0.3.0
 ```
+
+The command requires that version to be available in your registry. For source checkout validation before publication, use the local package workflow below. The [changelog](CHANGELOG.md) describes this version's changes; this guide does not assert the registry's current `latest` tag.
 
 Import primitives from the dedicated entrypoint:
 
 ```tsx
-import { Button, Input } from '@naeil/ui/ui';
+import { Input } from '@naeil/ui/ui';
 
 export function NameField() {
   return <label>Name <Input name="name" /></label>;
@@ -36,6 +38,26 @@ In a Tailwind 4 app, load the styles once and register the package's classes (ad
 @import "@naeil/ui/globals.css";
 @source "../node_modules/@naeil/ui/dist";
 ```
+
+If your app already owns its Tailwind/base styles, import both `@naeil/ui/theme.css` and `@naeil/ui/components.css` instead of globals, and keep the same `@source` registration.
+
+Fonts are consumer-owned. One locally bundled option is:
+
+```sh
+pnpm add --save-exact pretendard@1.3.9 @fontsource/noto-sans-jp@5.3.0
+```
+
+```tsx
+// In the app entrypoint; choose the faces your content needs.
+import 'pretendard/dist/web/static/pretendard.css';
+import '@fontsource/noto-sans-jp/400.css';
+import '@fontsource/noto-sans-jp/500.css';
+import '@fontsource/noto-sans-jp/600.css';
+```
+
+Mark Japanese content with `lang="ja"`. Keep font OFL notices with redistributed builds; shared CSS uses system fallbacks when fonts fail. The package adds no font runtime dependency.
+
+Shared CSS follows the OS theme unless the document root has `class="light"` or `class="dark"`. For compact spacing, set `data-ui-density="compact"` on that root; omit it for comfortable spacing. Density changes spacing while retaining 16px control text and minimum mobile touch sizes. React apps can also use `ThemeProvider` from `@naeil/ui/components/theme-provider` with `attribute="class"`.
 
 The [13 component guides](docs/components/README.md) cover exact APIs, state composition and accessibility responsibilities. Each has a built Storybook Docs page and runnable Usage example. The [consumer guide](docs/design/v2-migration.md) covers peer dependencies, fonts, themes, density, Select versus DropdownMenu, overrides, and layout ownership. Fonts are delivered by the consumer; shared CSS does not fetch them automatically. `/ui` and `/utils` work without Next.js. The legacy root remains a framework compatibility entry with static Next/next-intl imports; install those optional peers when using it, Nav, Footer or i18n/routing. ThemeProvider/controls and Toaster retain the React library next-themes. Shared deep imports use the exact [allowlist and migration](docs/design/v2-migration.md#03-package-boundary); website-only paths belong in your application.
 
@@ -66,7 +88,7 @@ pnpm pack --pack-destination /tmp
 | `pnpm build:pkg` / `pnpm check:package` | Build package / inspect package boundary and independently install/build packed React + Next consumers |
 | `pnpm dev` / `pnpm build` | Brand/example website development / build |
 
-A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts, with no hosted deployment; see [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md).
+A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts. The hosted Docs destination is [naeil-dev.github.io/naeil-ui](https://naeil-dev.github.io/naeil-ui/), configured for workflow builds and main-only deployment. See [Docs deployment status](https://github.com/naeil-dev/naeil-ui/actions/workflows/publish-docs-manual.yml); live availability is confirmed separately in [release evidence](https://github.com/naeil-dev/naeil-ui/releases) with deployment and hosted HTTP/navigation results. See [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md).
 
 Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
 

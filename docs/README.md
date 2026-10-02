@@ -10,7 +10,11 @@
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.
 - [Contributing](../CONTRIBUTING.md), [security](../SECURITY.md), [licenses and provenance](../THIRD_PARTY_NOTICES.md).
 
+The hosted Docs destination is [naeil-dev.github.io/naeil-ui](https://naeil-dev.github.io/naeil-ui/), configured for Pages workflow builds and main-only deployment. See [Docs deployment status](https://github.com/naeil-dev/naeil-ui/actions/workflows/publish-docs-manual.yml); live availability is confirmed separately in [release evidence](https://github.com/naeil-dev/naeil-ui/releases) with deployment and hosted HTTP/navigation results. The downloadable Storybook artifact can also be served locally.
+
 ## Dated specifications and evidence
+
+[Native environment and remaining manual validation — 2026-10-02](design/public-ui-release-validation.md) records actual SafariDriver, AppleEvents/Accessibility and local Firefox blockers at source `79d9382f62166e99eeb26c785e690bf90cbb5379`. No native component pass was obtained; all native/manual acceptance rows remain open. These capability probes are separate from automated Playwright WebKit evidence and human certification.
 
 [Shared UI v2 specification](superpowers/specs/2026-09-29-shared-ui-v2-design.md) records the implementation scope. [UI v2 verification](design/v2-verification.md) records the 2026-09-29 checks. [Frontend sources](design/frontend-sources.md) records actual reference/tool usage by date.
 

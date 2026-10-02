@@ -1,16 +1,23 @@
 # 공통 UI v2 사용 및 이전 안내
 
-이 변경은 `@naeil/ui`의 기본 모양과 재사용 규칙을 개선한다. 패키지를 게시하거나 소비 사이트에 자동 배포하지 않는다.
+이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-준비 중인 npm 버전은 **0.3.0 (미게시)**이며, UI v2는 디자인 세대 이름이다. 2026-10-02에 확인한 npm latest는 0.2.0이다. 아래 v2 CSS/신규 API/패키지 경계는 로컬 0.3.0 tarball 또는 이후 승인된 게시 버전을 대상으로 한다. 기존 npm 0.2.0에 전부 구현됐다고 가정하지 않는다.
+이 안내는 **@naeil/ui 0.3.0**의 CSS·API·패키지 경계를 대상으로 한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 기존 npm 0.2.0에 이 기능이 모두 구현됐다고 가정하지 않는다. Registry의 게시 여부와 latest 태그는 별도로 확인한다.
 
 ## 시작하기
 
-React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용한다. API 키와 Next.js는 필요 없다. 아직 게시하지 않은 버전을 확인하려면 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.3.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용한다. API 키와 Next.js는 필요 없다. 소비 앱에서 정확한 버전을 지정한다.
+
+```sh
+pnpm add --save-exact @naeil/ui@0.3.0
+# npm install --save-exact @naeil/ui@0.3.0
+```
+
+이 명령은 해당 버전이 registry에 있을 때 사용할 수 있다. 게시 전 소스 검증은 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.3.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
-`pnpm add @naeil/ui`는 현재 게시된 구버전을 설치한다. 이 안내의 0.3.0을 확인할 때는 위의 로컬 tarball을 사용한다. 게시 승인 후에도 실제 registry 버전과 변경 기록을 확인한다.
+버전을 생략한 설치는 registry의 latest 태그를 따른다. 이 안내와 동일한 경계를 사용하려면 0.3.0을 지정하고 [변경 기록](../../CHANGELOG.md)을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -91,6 +98,21 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 
 공통 CSS는 외부 서버에서 폰트를 자동 다운로드하지 않는다. 소비 앱이 Pretendard를 직접 호스팅하거나 자신의 로더로 전달한다. 일본어에는 Noto Sans JP를 제공하고 필요한 글자/굵기만 로드한다. 로딩 실패 시 시스템 글꼴로 표시된다.
 
+소비 앱에서 로컬 번들 폰트를 사용하려면 다음과 같이 설치하고 앱 진입점에서 필요한 굵기를 불러올 수 있다.
+
+```sh
+pnpm add --save-exact pretendard@1.3.9 @fontsource/noto-sans-jp@5.3.0
+```
+
+```tsx
+import 'pretendard/dist/web/static/pretendard.css';
+import '@fontsource/noto-sans-jp/400.css';
+import '@fontsource/noto-sans-jp/500.css';
+import '@fontsource/noto-sans-jp/600.css';
+```
+
+일본어 영역에 `lang="ja"`를 지정하면 globals의 일본어 font-family 규칙이 적용된다. 재배포 빌드에는 [폰트 OFL 고지](../../THIRD_PARTY_NOTICES.md#fonts)를 유지한다. 패키지 자체에는 폰트 런타임 의존성을 추가하지 않았다.
+
 Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 굵기·언어 폰트를 복사할 필요는 없다. 폰트를 바꾸면 줄바꿈과 밀도를 다시 확인한다. 코드용 폰트는 기존 fallback 체계를 유지한다.
 
 ## 바뀌는 점과 호환성
@@ -103,7 +125,7 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 ## 개별 컴포넌트 안내
 
-[11개 사용 안내](../components/README.md)는 실제 wrapper API·기본값, 키보드, 상태, 레이블·오류 연결, 재정의 책임을 설명한다. Storybook의 각 `UI / 컴포넌트 / Docs`와 `Usage`에서 같은 안내와 실행 예시를 확인한다. [지원 범위와 수동 점검](public-ui-support.md)은 자동 검사와 실제 보조 기술·운영체제 검증의 차이를 기록한다.
+[13개 사용 안내](../components/README.md)는 실제 wrapper API·기본값, 키보드, 상태, 레이블·오류 연결, 재정의 책임을 설명한다. Storybook의 각 `UI / 컴포넌트 / Docs`와 `Usage`에서 같은 안내와 실행 예시를 확인한다. [지원 범위와 수동 점검](public-ui-support.md)은 자동 검사와 실제 보조 기술·운영체제 검증의 차이를 기록한다.
 
 ## 확인 방법
 
@@ -174,4 +196,4 @@ The reachable Next consumer's observed deep imports (Nav, Footer, ThemeProvider,
 
 ## Demand-led extension
 
-Prepared 0.3.0 also adds `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` and `Textarea` to `/ui`, plus exact `components/ui/tabs` and `components/ui/textarea` deep entries. Existing root stays the brand/framework barrel. No new dependency or existing default is changed. See the [13-family index](../components/README.md), [Tabs defaults/mount responsibilities](../components/tabs.md), [native Textarea contract](../components/textarea.md), [field/native-radio composition](../components/composition.md), and [demand decision](component-demand.md). Publishing does not update consumers that use locally copied primitives.
+Version 0.3.0 also adds `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` and `Textarea` to `/ui`, plus exact `components/ui/tabs` and `components/ui/textarea` deep entries. Existing root stays the brand/framework barrel. No new dependency or existing default is changed. See the [13-family index](../components/README.md), [Tabs defaults/mount responsibilities](../components/tabs.md), [native Textarea contract](../components/textarea.md), [field/native-radio composition](../components/composition.md), and [demand decision](component-demand.md). Publishing does not update consumers that use locally copied primitives.
