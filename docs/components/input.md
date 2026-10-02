@@ -1,6 +1,6 @@
 # Input
 
-Use Input for native single-line text/value entry. Use a native textarea for multiline text, Select for a small known option set, and Checkbox/Switch for booleans.
+Use Input for native single-line text/value entry. Use [Textarea](textarea.md) for multiline text, Select for a small known option set, and Checkbox/Switch for booleans.
 
 ## API and wrapper defaults
 

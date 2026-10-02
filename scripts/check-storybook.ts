@@ -7,12 +7,12 @@ for (const path of ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/Pretendard-OF
 for (const path of ["images", "svg", "coral-concepts.html", "next.svg", "vercel.svg"])
   assert(!existsSync(`${root}/${path}`), `Website asset copied into preview: ${path}`);
 const index = JSON.parse(readFileSync(`${root}/index.json`, "utf8"));
-for (const family of ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox"]) {
+for (const family of ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea"]) {
   assert.equal(index.entries[`ui-${family}--docs`]?.type, "docs", `Missing actual Docs page for ${family}`);
   assert.equal(index.entries[`ui-${family}--usage`]?.type, "story", `Missing runnable example for ${family}`);
 }
 assert(readdirSync(`${root}/assets`).some(file => file.endsWith(".woff2")), "Bundled docs fonts missing");
-console.log("Storybook artifact: PASS (11 built Docs pages + Usage stories, exact notices, fonts, no website public assets)");
+console.log("Storybook artifact: PASS (13 built Docs pages + Usage stories, exact notices, fonts, no website public assets)");
 
 const previewNotices = JSON.parse(readFileSync(`${root}/licenses/bundled-preview-code.json`, "utf8"));
 const managerNotices = JSON.parse(readFileSync(`${root}/licenses/manager-dependency-notices.json`, "utf8"));

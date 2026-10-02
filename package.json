@@ -117,6 +117,14 @@
     "./i18n/routing": {
       "types": "./dist/source/i18n/routing.d.ts",
       "import": "./dist/source/i18n/routing.js"
+    },
+    "./components/ui/tabs": {
+      "types": "./dist/source/components/ui/tabs.d.ts",
+      "import": "./dist/source/components/ui/tabs.js"
+    },
+    "./components/ui/textarea": {
+      "types": "./dist/source/components/ui/textarea.d.ts",
+      "import": "./dist/source/components/ui/textarea.js"
     }
   },
   "scripts": {
@@ -208,7 +216,9 @@
     "licenses/",
     "docs/components/",
     "docs/design/public-ui-support.md",
-    "docs/design/public-ui-stage3-verification.md"
+    "docs/design/public-ui-stage3-verification.md",
+    "docs/design/component-demand.md",
+    "docs/design/public-ui-stage4-verification.md"
   ],
   "pnpm": {
     "onlyBuiltDependencies": [

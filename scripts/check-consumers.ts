@@ -76,6 +76,8 @@ try {
     "select",
     "sonner",
     "switch",
+    "tabs",
+    "textarea",
   ].map((name) => `components/ui/${name}`);
   corePaths.push(
     "components/ui/index",
@@ -99,7 +101,7 @@ import { cn } from '@naeil/ui/utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
-export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox;
+export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
 `,
   );
   run(core, "npm", ["run", "build"]);
@@ -146,6 +148,8 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(html, /Packed Next compatibility/);
   assert.match(html, /Consumer-owned messages/);
   assert.match(html, /Consumer action/);
+  assert.match(html, /Packed multiline value/);
+  assert.match(html, /role="tablist"/);
   console.log(
     "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",
   );

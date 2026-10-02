@@ -142,7 +142,7 @@ try {
     "docs/design/v2-migration.md",
     "docs/components/README.md",
     "docs/components/common.md",
-    ...["button", "input", "card", "dialog", "dropdown-menu", "badge", "avatar", "sonner", "select", "switch", "checkbox"].map(name => `docs/components/${name}.md`),
+    ...["button", "input", "card", "dialog", "dropdown-menu", "badge", "avatar", "sonner", "select", "switch", "checkbox", "tabs", "textarea", "composition"].map(name => `docs/components/${name}.md`),
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
     "licenses/Pretendard-OFL.txt",

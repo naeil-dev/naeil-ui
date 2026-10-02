@@ -136,6 +136,8 @@ components/ui/input
 components/ui/select
 components/ui/sonner
 components/ui/switch
+components/ui/tabs
+components/ui/textarea
 components/nav
 components/footer
 components/logo
@@ -169,3 +171,7 @@ Every excluded source path stays in this repository for the brand/example websit
 npm 0.2.0 declared wildcard source paths but its actual tarball omitted those targets. Repository source aliases and unpublished local builds could nevertheless use them. This explicit migration documents both cases rather than silently treating the broad declaration as a stable working API. Unknown paths now fail at package exports instead of reaching website internals.
 
 The reachable Next consumer's observed deep imports (Nav, Footer, ThemeProvider, ThemeToggleIcon, LocaleSwitcher) remain supported. Its old Tailwind `@source` paths scan `src/components`/`src/lib`; update them to `node_modules/@naeil/ui/dist` relative to the consumer CSS file and import shared component CSS. Site assets/messages and authentication are supplied by the application. This repository does not automatically modify or upgrade that consumer. The copied-UI consumer currently uses locally copied primitives, so publishing a new package will not update those copies.
+
+## Demand-led extension
+
+Prepared 0.3.0 also adds `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` and `Textarea` to `/ui`, plus exact `components/ui/tabs` and `components/ui/textarea` deep entries. Existing root stays the brand/framework barrel. No new dependency or existing default is changed. See the [13-family index](../components/README.md), [Tabs defaults/mount responsibilities](../components/tabs.md), [native Textarea contract](../components/textarea.md), [field/native-radio composition](../components/composition.md), and [demand decision](component-demand.md). Publishing does not update consumers that use locally copied primitives.

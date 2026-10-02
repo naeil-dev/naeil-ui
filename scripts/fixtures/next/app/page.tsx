@@ -7,7 +7,7 @@ import { Footer } from "@naeil/ui/components/footer";
 import { ThemeToggleIcon } from "@naeil/ui/components/theme-toggle-icon";
 import { LocaleSwitcher } from "@naeil/ui/components/locale-switcher";
 import { Logo, PageTitle, ThemeToggle } from "@naeil/ui";
-import { Button } from "@naeil/ui/ui";
+import { Button, Tabs, TabsList, TabsTrigger, TabsContent, Textarea } from "@naeil/ui/ui";
 import { locales } from "@naeil/ui/i18n/config";
 import { routing } from "@naeil/ui/i18n/routing";
 
@@ -34,6 +34,10 @@ export default function Page() {
       <main>
         <PageTitle>Packed Next compatibility</PageTitle>
         <Button>Consumer action</Button>
+        <Tabs defaultValue="notes">
+          <TabsList aria-label="Compatibility sections"><TabsTrigger value="notes">Notes</TabsTrigger></TabsList>
+          <TabsContent value="notes"><label>Compatibility notes<Textarea name="notes" defaultValue="Packed multiline value" /></label></TabsContent>
+        </Tabs>
         <ThemeToggle />
         <p>
           {locales.join(", ")} / {routing.defaultLocale}

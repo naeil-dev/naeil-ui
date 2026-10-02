@@ -14,3 +14,5 @@ npm run dev
 ```
 
 The checked-in dependency points to the local `naeil-ui-0.3.0.tgz`; version 0.3.0 is unpublished. `pnpm check:consumers` copies this example to a temporary directory, installs the tarball independently and builds it without repository symlinks. This example saves only local UI state and does not contact a backend.
+
+The form uses a native Textarea through its exact shared deep entry. Related preference panels exercise core Tabs, object refs and a class override; a second deep Tabs specimen uses RTL. The independent browser checker runs those extension contracts in Chromium and Playwright WebKit. Native form values/required rejection and disabled-tab keyboard navigation are checked alongside the existing mixed-import overlay/StrictMode regressions. These are local engine checks, not Safari or screen-reader certification. [Field and choice composition](../../docs/components/composition.md) explains consumer-owned labels, errors, native radios and Select.

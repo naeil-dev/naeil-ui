@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium, expect } from "@playwright/test";
+import { chromium, webkit, expect, type Browser } from "@playwright/test";
 
 export async function checkConsumerBrowser(root: string) {
   const output = resolve("test-results/packed-consumer");
@@ -121,6 +121,42 @@ export async function checkConsumerBrowser(root: string) {
     await page.screenshot({ path: join(output, "consumer-font-fallback.png"), fullPage: true });
     console.log("Packed React font fallback: PASS (font requests blocked, face unavailable, visible operable form)");
     await page.close();
+    const checkExtensions = async (engine: Browser, name: string) => {
+      const page = await engine.newPage({ viewport: { width: 390, height: 844 } });
+      try {
+        await page.goto(`http://127.0.0.1:${address.port}`);
+        const notes = page.getByLabel("Profile notes", { exact: true });
+        assert.equal(await notes.evaluate(element => (element as HTMLTextAreaElement).rows), 2);
+        await expect(notes).toHaveCSS("font-size", "16px");
+        await expect(notes).toHaveCSS("resize", "vertical");
+        await notes.fill(""); await page.getByRole("button", { name: "Save preferences", exact: true }).click();
+        await expect(notes).toBeFocused();
+        await notes.fill("한글 / English / 日本語\nMultiline notes");
+        const form = await notes.evaluate(element => Object.fromEntries(new FormData((element as HTMLTextAreaElement).form!)));
+        assert.equal(form.notes, "한글 / English / 日本語\nMultiline notes");
+        await page.getByRole("button", { name: "Save preferences", exact: true }).click();
+        await expect(page.getByRole("status")).toHaveText("Preferences saved for this example.");
+        const details = page.getByRole("tab", { name: "Details", exact: true });
+        await expect(details).toHaveCSS("padding-left", "24px");
+        await page.getByRole("button", { name: "Inspect extension refs", exact: true }).click();
+        await expect(page.getByTestId("extension-refs")).toHaveText("tabs/tabs-list/tabs-trigger/tabs-content");
+        await details.focus(); await details.press("ArrowRight");
+        const history = page.getByRole("tab", { name: "History", exact: true });
+        await expect(history).toBeFocused(); await expect(history).toHaveAttribute("aria-selected", "true");
+        await expect(page.getByText("Current preferences.", { exact: true })).toHaveCount(0);
+        await history.press("ArrowRight"); await expect(details).toBeFocused();
+        const start = page.getByRole("tab", { name: "Start", exact: true });
+        await start.focus(); await start.press("ArrowLeft");
+        await expect(page.getByRole("tab", { name: "Next", exact: true })).toBeFocused();
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Packed extension page overflow");
+        await page.screenshot({ path: join(output, `extensions-${name}-390.png`), fullPage: true });
+        console.log(`Packed extensions: PASS (${name}, deep Textarea/Tabs + core Tabs, refs, class override, RTL/disabled keyboard, native rows/form/newline/required, 390px)`);
+      } finally { await page.close(); }
+    };
+    await checkExtensions(browser, "chromium");
+    const webkitBrowser = await webkit.launch();
+    try { await checkExtensions(webkitBrowser, "webkit"); }
+    finally { await webkitBrowser.close(); }
   } finally {
     await browser?.close();
     await development?.close();

@@ -24,6 +24,8 @@ Examples include Korean, English and Japanese. Set `lang` on translated content 
 
 Run each affected composition under matching light/dark, comfortable/compact, mobile and long-content conditions. Check 320 CSS-pixel reflow, text scaling, CSS zoom and actual native browser zoom separately. Axe and keyboard automation do not replace assistive-technology use. Follow the [manual acceptance and support matrix](../design/public-ui-support.md) and [dated verification](../design/public-ui-stage3-verification.md).
 
+[Field/choice composition](composition.md) gives complete label/error and native-radio guidance. [Tabs](tabs.md) and [Textarea](textarea.md) extend the same shared contract; current extension results are in [Stage 4 verification](../design/public-ui-stage4-verification.md).
+
 ## Exact inherited contracts
 
 Native wrappers use React 19 element props: inspect your installed `@types/react/index.d.ts`, or infer `React.ComponentProps<typeof Component>`. Radix wrappers use `React.ComponentProps<typeof Primitive.Part>`; inspect the installed declarations reached through `radix-ui/dist/index.d.ts`. Per-family guides link pinned declarations inspected locally during this work. Those links describe the inherited contract, not a promise that all primitive configurations have been tested. Wrapper defaults below are separate from primitive defaults; omitted primitive defaults are not invented here. Consumer examples and browser checks demonstrate only their recorded configuration.

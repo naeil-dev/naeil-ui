@@ -30,7 +30,7 @@ pnpm test:browser
 
 `check:package:boundary` inspects an actual `npm pack --ignore-scripts` archive for every declared export, runtime dependencies, source aliases, relative imports, required CSS/tokens/documents/notices and forbidden website payload. `check:consumers` separately installs that tarball with npm into two temporary directories. It builds the reusable React example with Vite/Tailwind, type-checks with library checks enabled, imports shared deep modules, checks SSR and CSS, and asserts Next/Supabase/Three are absent. A separate Next production build exercises root exports and the deep paths observed in the reachable Next consumer, with consumer-owned messages and no auth backend. Neither fixture uses repository dependency symlinks. Network access is needed for uncached npm dependencies; temporary installs are removed on completion or failure.
 
-CI runs these checks and a separate actual Storybook/browser job. Configured browser projects run Chromium, Firefox and WebKit in CI. Local Chromium/WebKit results and the Firefox environment launch block are distinguished in the [current support matrix](design/public-ui-support.md) and [dated verification](design/public-ui-stage3-verification.md); configured CI is not a recorded remote pass. Automated axe/keyboard checks are not manual screen-reader or native Safari certification. The website build checks compatibility independently from package consumption; fonts fetched through next/font may require network access. Supabase OAuth and deployed behavior remain separate checks.
+CI runs these checks and a separate actual Storybook/browser job. Configured browser projects run Chromium, Firefox and WebKit in CI. Local Chromium/WebKit results and the Firefox environment launch block are distinguished in the [current support matrix](design/public-ui-support.md) and [dated Stage 3 verification](design/public-ui-stage3-verification.md) and [Stage 4 extension verification](design/public-ui-stage4-verification.md); configured CI is not a recorded remote pass. Automated axe/keyboard checks are not manual screen-reader or native Safari certification. The website build checks compatibility independently from package consumption; fonts fetched through next/font may require network access. Supabase OAuth and deployed behavior remain separate checks.
 
 ## Publication and deployment
 
@@ -40,7 +40,7 @@ Before any release, review changelog, migration, all verification results and ac
 
 ## Storybook preview artifact
 
-`pnpm build:storybook` builds actual Docs pages and interactive Usage examples for all 11 families. It copies only generated documentation notices, bundles locally installed Pretendard/Noto Sans JP and disables Vite publicDir. The artifact check verifies real Docs/story entries, exact MIT/shadcn/font notices and absence of website public images/SVGs/HTML. It does not claim those excluded site assets have cleared rights.
+`pnpm build:storybook` builds actual Docs pages and interactive Usage examples for all 13 families. It copies only generated documentation notices, bundles locally installed Pretendard/Noto Sans JP and disables Vite publicDir. The artifact check verifies real Docs/story entries, exact MIT/shadcn/font notices and absence of website public images/SVGs/HTML. It does not claim those excluded site assets have cleared rights.
 
 CI uploads `storybook-preview` after a successful build; it is a downloadable static artifact, not a hosted deployment. Download/unzip it and serve the extracted directory (containing index.html):
 

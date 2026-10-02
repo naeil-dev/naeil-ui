@@ -2,6 +2,8 @@
 
 ## 0.3.0 — unreleased
 
+- Demand-led Radix Tabs and native Textarea with exact shared deep entries, standalone guides/Docs/Usage and packed behavior checks. Native field/radio composition remains consumer-owned; no FormField/RadioGroup API or dependency added.
+
 - Shared UI v2: approved neutral light/dark tokens, typography, density, content widths, restrained motion, and Radix Select/Switch/Checkbox. The design generation name “v2” is independent of npm versioning.
 - `/ui` is the React core entry. React and ReactDOM come from the host; Next.js and next-intl are optional compatibility peers. Next themes remains a React runtime dependency.
 - Preserve root brand/theme/heading names and documented shared deep imports. Replace open-ended deep exports with an explicit allowlist and compiled JavaScript/types.

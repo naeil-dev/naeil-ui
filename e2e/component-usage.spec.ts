@@ -1,7 +1,7 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const families = ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox"];
+const families = ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea"];
 async function usage(page: Page, family: string, theme = "light", density = "comfortable") {
   await page.goto(`/iframe.html?id=ui-${family}--usage&viewMode=story&globals=theme:${theme};density:${density};a11y:(manual:!true)`);
   await expect(page.locator("#storybook-root")).not.toBeEmpty();

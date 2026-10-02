@@ -17,6 +17,8 @@ export default defineConfig({
     "src/components/ui/select.tsx",
     "src/components/ui/sonner.tsx",
     "src/components/ui/switch.tsx",
+    "src/components/ui/tabs.tsx",
+    "src/components/ui/textarea.tsx",
     "src/components/nav.tsx",
     "src/components/footer.tsx",
     "src/components/logo.tsx",

@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Input, Switch, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
+import { Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
+import { Textarea } from "@naeil/ui/components/ui/textarea";
+import * as DeepTabs from "@naeil/ui/components/ui/tabs";
 import * as DeepMenu from "@naeil/ui/components/ui/dropdown-menu";
 import { PageTitle } from "@naeil/ui/components/typography";
 import { ThemeProvider } from "@naeil/ui/components/theme-provider";
 
 export function App() {
   const [saved, setSaved] = useState(false);
+  const notes = useRef<HTMLTextAreaElement>(null);
   return (
     <ThemeProvider attribute="class">
       <main className="mx-auto p-6" data-ui-layout="settings">
@@ -29,6 +32,10 @@ export function App() {
               required
             />
           </div>
+          <div className="grid gap-2">
+            <label htmlFor="profile-notes">Profile notes</label>
+            <Textarea ref={notes} id="profile-notes" name="notes" defaultValue="Initial notes" required />
+          </div>
           <div className="ui-choice-label">
             <Switch id="notifications" name="notifications" defaultChecked />
             <label htmlFor="notifications">Email notifications</label>
@@ -40,10 +47,38 @@ export function App() {
             {saved ? "Preferences saved for this example." : ""}
           </p>
         </form>
+        <ExtensionSpecimen />
         <MixedImportOverlays />
       </main>
     </ThemeProvider>
   );
+}
+
+function ExtensionSpecimen() {
+  const rootRef = useRef<HTMLDivElement>(null), listRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null), panelRef = useRef<HTMLDivElement>(null);
+  const [refs, setRefs] = useState("");
+  return <section className="mt-8 grid gap-3" aria-label="Related preferences">
+    <Tabs ref={rootRef} defaultValue="details">
+      <TabsList ref={listRef} aria-label="Preference sections">
+        <TabsTrigger ref={triggerRef} value="details" className="px-6">Details</TabsTrigger>
+        <TabsTrigger value="disabled" disabled>Unavailable</TabsTrigger>
+        <TabsTrigger value="history">History</TabsTrigger>
+      </TabsList>
+      <TabsContent ref={panelRef} value="details"><p>Current preferences.</p></TabsContent>
+      <TabsContent value="history"><p>No earlier preferences.</p></TabsContent>
+    </Tabs>
+    <Button type="button" variant="outline" onClick={() => setRefs([rootRef.current, listRef.current, triggerRef.current, panelRef.current].map(element => element?.dataset.slot || "null").join("/"))}>Inspect extension refs</Button>
+    <p data-testid="extension-refs">{refs}</p>
+    <DeepTabs.Tabs dir="rtl" defaultValue="start">
+      <DeepTabs.TabsList aria-label="RTL sections">
+        <DeepTabs.TabsTrigger value="start">Start</DeepTabs.TabsTrigger>
+        <DeepTabs.TabsTrigger value="next">Next</DeepTabs.TabsTrigger>
+      </DeepTabs.TabsList>
+      <DeepTabs.TabsContent value="start"><p>First section.</p></DeepTabs.TabsContent>
+      <DeepTabs.TabsContent value="next"><p>Second section.</p></DeepTabs.TabsContent>
+    </DeepTabs.Tabs>
+  </section>;
 }
 
 // Consumer regression specimen: bundled and deep import modules coexist under

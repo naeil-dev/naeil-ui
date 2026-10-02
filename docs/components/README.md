@@ -15,3 +15,7 @@ Prepared `@naeil/ui@0.3.0` (unpublished). [Setup, themes, fonts and shared respo
 | Select | [Select](select.md) | UI / Select / Usage |
 | Switch | [Switch](switch.md) | UI / Switch / Usage |
 | Checkbox | [Checkbox](checkbox.md) | UI / Checkbox / Usage |
+| Tabs | [Tabs](tabs.md) | UI / Tabs / Usage |
+| Textarea | [Textarea](textarea.md) | UI / Textarea / Usage |
+
+[Field, native radio, Select and action composition](composition.md) explains consumer state and semantic choices. [Demand decision](../design/component-demand.md) records why these two families were added.
