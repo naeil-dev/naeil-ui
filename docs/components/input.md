@@ -1,12 +1,12 @@
 # Input
 
-Use Input for native single-line text/value entry. Use [Textarea](textarea.md) for multiline text, Select for a small known option set, and Checkbox/Switch for booleans.
+Use Input for native single-line text/value entry. Use [Textarea](./textarea.md) for multiline text, Select for a small known option set, and Checkbox/Switch for booleans.
 
 ## API and wrapper defaults
 
 Export: `Input`. Accepts `React.ComponentProps<"input">`; no wrapper default for `type`, value, disabled or validation. Native omitted type resolves to text. Important props: `value` + `onChange` or `defaultValue`, `name`, `type`, `required`, `readOnly`, `disabled`, `autoComplete`, `inputMode`, `min`/`max`, `minLength`/`maxLength`, `pattern`, form and ARIA props. No built-in label, error text or async validation API.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/input.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/input.tsx) is the API authority.
 
 ## Composition
 

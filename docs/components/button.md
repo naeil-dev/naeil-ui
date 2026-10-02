@@ -15,7 +15,7 @@ Exports: `Button`, `buttonVariants`.
 
 `size` names are preserved; shared CSS controls actual height (40/36px; lg adds 4px; mobile minimum 44px). `xs` does not imply an extra-small touch target. `loading` is not an API.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/button.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/button.tsx) is the API authority.
 
 ## Composition
 

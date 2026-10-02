@@ -10,7 +10,7 @@ The wrappers set only slots/classes. Installed [Radix Tabs 1.1.13 declarations](
 
 `forceMount` retains children and makes inactive panels present too. Consumers must explicitly hide inactive content, for example `hidden={value !== 'draft'}`, so it cannot receive focus or appear as a second visible panel. Root has no group-wide `disabled` prop; disable individual triggers. Keep matching values, generated IDs/roles and focus handlers intact.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/tabs.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/tabs.tsx) is the API authority.
 
 ## Composition
 
@@ -37,4 +37,4 @@ Name the tablist with `aria-label` or `aria-labelledby`. Radix supplies tab/tabp
 
 Selection uses a neutral surface and a visible bottom border; focus has a separate outline. The list scrolls locally on one keyboard axis; each trigger is capped to available list width and long labels wrap without shrinking 16px text. Triggers grow above the density minimum to fit enlarged/multiline text. Do not wrap the list itself into ambiguous keyboard rows or truncate every label to fit. Vertical lists need a consumer-chosen width suitable for their labels; use horizontal orientation on narrow screens when needed. Panels wrap long words; check their contents separately from the list.
 
-Theme, root density, 40/36px trigger minimum heights and the mobile/coarse 44px minimum follow the existing system; wrapped or enlarged text increases height. Reduced motion removes color transitions. `className`/style and inherited props remain overrides; test state/focus/overflow after changes. Empty/error/loading panels are consumer content, not Tabs props. See [composition guidance](composition.md) and the [current support matrix](../design/public-ui-support.md) for manual limits.
+Theme, root density, 40/36px trigger minimum heights and the mobile/coarse 44px minimum follow the existing system; wrapped or enlarged text increases height. Reduced motion removes color transitions. `className`/style and inherited props remain overrides; test state/focus/overflow after changes. Empty/error/loading panels are consumer content, not Tabs props. See [composition guidance](./composition.md) and the [current support matrix](../design/public-ui-support.md) for manual limits.

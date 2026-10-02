@@ -6,7 +6,7 @@ Use Badge for concise status/category text. Prefer readable body/helper text for
 
 Exports: `Badge`, `badgeVariants`. Native span props plus `variant` and `asChild`. Defaults: **variant="default", asChild=false**. Variants: `default`, `secondary`, `outline`, `destructive`, `success`, `warning`, `error`, `info`. asChild uses Slot.Root; no disabled/loading or announcement API. Default text is intentionally small and single-line.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/badge.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/badge.tsx) is the API authority.
 
 ## Composition
 

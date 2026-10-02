@@ -34,6 +34,8 @@ CI runs these checks and a separate actual Storybook/browser job. Configured bro
 
 ## Publication and deployment
 
+Before a future release, pin maintained repository navigation and source-authority links, including the Storybook guide URL base, to the exact tested source commit. Verify every target exists in that commit and check the rebuilt Docs and intended tarball; do not rely on `blob/main`, a temporary branch or a future merge. Keep canonical repository/homepage URLs and original upstream/historical source records unchanged. This prepared version uses tested implementation revision `81fd395031dc5b20074c4d915a8585360ce2d28a`; any later documentation-only link correction must retain the original runtime evidence and record its own scoped verification.
+
 Before any release, review changelog, migration, all verification results and actual rendered Storybook output; inspect `npm pack --dry-run --json` and test the intended archive. Check registry availability again. Obtain explicit publication authorization before `npm publish`, a release tag or GitHub Release. The automatic verification workflow does not publish or deploy. The separately prepared manual-only Pages workflow below remains unexecuted and requires a future authorized publication decision. npm publication, GitHub Releases and website deployment are separate actions.
 
 `vercel.json` disables Git deployments only for `feat/public-ui-readiness`. Other branches retain Vercel's default behavior, so merging or pushing another branch requires a separate deployment decision. The automatic GitHub Actions checks are verification-only; enabling repository workflows is not evidence of a hosted site or approved release.

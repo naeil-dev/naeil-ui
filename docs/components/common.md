@@ -24,7 +24,7 @@ Examples include Korean, English and Japanese. Set `lang` on translated content 
 
 Run each affected composition under matching light/dark, comfortable/compact, mobile and long-content conditions. Check 320 CSS-pixel reflow, text scaling, CSS zoom and actual native browser zoom separately. Axe and keyboard automation do not replace assistive-technology use. Follow the [manual acceptance and support matrix](../design/public-ui-support.md) and [dated verification](../design/public-ui-stage3-verification.md).
 
-[Field/choice composition](composition.md) gives complete label/error and native-radio guidance. [Tabs](tabs.md) and [Textarea](textarea.md) extend the same shared contract; current extension results are in [Stage 4 verification](../design/public-ui-stage4-verification.md).
+[Field/choice composition](./composition.md) gives complete label/error and native-radio guidance. [Tabs](./tabs.md) and [Textarea](./textarea.md) extend the same shared contract; current extension results are in [Stage 4 verification](../design/public-ui-stage4-verification.md).
 
 ## Exact inherited contracts
 

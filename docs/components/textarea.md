@@ -8,7 +8,7 @@ Export: `Textarea`. Accepts `React.ComponentProps<"textarea">`, including React 
 
 The wrapper sets only slot/classes; **omitted `rows` retains the native two-row default**. It defaults to vertical resizing, full available width, 16px text, 25px line height and 8px vertical padding. Root density supplies the existing 40/36px minimum, raised to at least 44px on mobile/coarse pointers; rows and text determine the actual multiline height. It has no fixed control height or content autosizing. Consumer `rows`, resizing classes, padding and styles remain available. No label, error, value, validation or disabled default is invented.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/textarea.tsx) is the API authority. Native props are defined by the installed React 19 declarations and HTML textarea behavior.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/textarea.tsx) is the API authority. Native props are defined by the installed React 19 declarations and HTML textarea behavior.
 
 ## Composition
 
@@ -22,7 +22,7 @@ import { Textarea } from '@naeil/ui/ui';
 <p id="notes-error" role="alert">{invalid ? 'Enter workspace notes.' : ''}</p>
 ```
 
-The screen owns `invalid` and submission. Run **UI / Textarea / Usage** and its Docs page for native row/ref/form behavior, invalid recovery, disabled/read-only controls, localization and field/radio/Select/action composition. See the complete [field composition guide](composition.md).
+The screen owns `invalid` and submission. Run **UI / Textarea / Usage** and its Docs page for native row/ref/form behavior, invalid recovery, disabled/read-only controls, localization and field/radio/Select/action composition. See the complete [field composition guide](./composition.md).
 
 ## Keyboard, focus and accessible content
 

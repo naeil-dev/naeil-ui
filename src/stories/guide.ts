@@ -4,5 +4,5 @@ import sharedGuide from "../../docs/components/common.md?raw";
 // page, so downloaded previews remain useful without visiting GitHub.
 export function guide(text: string) {
   return `${text}\n\n---\n\n${sharedGuide}`.replace(/\]\((\.\.?\/[^)]+|common\.md[^)]*)\)/g, (_, path: string) =>
-    `](${new URL(path, 'https://github.com/naeil-dev/naeil-ui/blob/main/docs/components/').href})`);
+    `](${new URL(path, 'https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/components/').href})`);
 }

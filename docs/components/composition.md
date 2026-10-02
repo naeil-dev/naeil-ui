@@ -35,7 +35,7 @@ function NotesForm() {
 }
 ```
 
-Use the same label/help/error relationship with [Input](input.md); put it on [SelectTrigger](select.md) for Select. Keep existing description IDs when appending an error ID. Do not use placeholder as a name or nest multiple controls inside one label. `useId` avoids collisions when a composition repeats. Announce persistent errors once and preserve drafts; disable repeated submission with meaningful busy text when necessary. Disabled fields are omitted from FormData; read-only values remain included. HTML client validation is not server validation.
+Use the same label/help/error relationship with [Input](./input.md); put it on [SelectTrigger](./select.md) for Select. Keep existing description IDs when appending an error ID. Do not use placeholder as a name or nest multiple controls inside one label. `useId` avoids collisions when a composition repeats. Announce persistent errors once and preserve drafts; disable repeated submission with meaningful busy text when necessary. Disabled fields are omitted from FormData; read-only values remain included. HTML client validation is not server validation.
 
 ## Choose values with native radios or Select
 
@@ -59,7 +59,7 @@ For a small visible set of mutually exclusive values, use a `fieldset`/`legend` 
 
 Use a unique group name for separate forms/groups, or controlled `checked`/`onChange` when the product owns state. Connect group help/errors through `aria-describedby` and associate field-level errors where needed. A card selection still needs a value-input contract; visual selection or `aria-pressed` alone does not create radio semantics.
 
-Use [Select](select.md) for a compact finite value input, for example a language, and preserve its `name` for form submission. Checkbox means independent boolean choices; Switch means an on/off preference. Do not use DropdownMenu action-radio items as the form's ordinary value input.
+Use [Select](./select.md) for a compact finite value input, for example a language, and preserve its `name` for form submission. Checkbox means independent boolean choices; Switch means an on/off preference. Do not use DropdownMenu action-radio items as the form's ordinary value input.
 
 ## Actions, toggle actions and panels
 

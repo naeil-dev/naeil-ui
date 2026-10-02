@@ -7,9 +7,9 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 | Path | Start here | Tools / keys |
 | --- | --- | --- |
 | Use the UI in an app | [Consumer guide](docs/design/v2-migration.md) | React 19, Tailwind 4; **no Next.js or API keys** for `/ui` |
-| Develop the shared UI | Commands below and [contributing](https://github.com/naeil-dev/naeil-ui/blob/main/CONTRIBUTING.md) | Node.js 22+, pnpm; no Supabase or 21st key |
-| Use frontend references with an agent | [Optional workflow setup](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/frontend-tooling.md) | Supported agent; Python for bundled helpers; your own 21st key only for optional MCP |
-| Develop the brand/example website | [Site setup](https://github.com/naeil-dev/naeil-ui/blob/main/docs/site-development.md) | Next.js and a separate Supabase project for site authentication |
+| Develop the shared UI | Commands below and [contributing](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/CONTRIBUTING.md) | Node.js 22+, pnpm; no Supabase or 21st key |
+| Use frontend references with an agent | [Optional workflow setup](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/design/frontend-tooling.md) | Supported agent; Python for bundled helpers; your own 21st key only for optional MCP |
+| Develop the brand/example website | [Site setup](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/site-development.md) | Next.js and a separate Supabase project for site authentication |
 
 ## Use the UI
 
@@ -66,12 +66,12 @@ pnpm pack --pack-destination /tmp
 | `pnpm build:pkg` / `pnpm check:package` | Build package / inspect package boundary and independently install/build packed React + Next consumers |
 | `pnpm dev` / `pnpm build` | Brand/example website development / build |
 
-A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/main/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts, with no hosted deployment; see [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md).
+A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts, with no hosted deployment; see [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md).
 
 Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
 
-[Documentation index](https://github.com/naeil-dev/naeil-ui/blob/main/docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
+[Documentation index](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
 
 ## Project and license
 
-Maintained in [naeil-dev/naeil-ui](https://github.com/naeil-dev/naeil-ui). See [contributing](https://github.com/naeil-dev/naeil-ui/blob/main/CONTRIBUTING.md), [security reporting](https://github.com/naeil-dev/naeil-ui/blob/main/SECURITY.md), [MIT license](LICENSE), and [third-party notices](THIRD_PARTY_NOTICES.md). Third-party code, fonts, and brand assets have their own attribution and scope limits.
+Maintained in [naeil-dev/naeil-ui](https://github.com/naeil-dev/naeil-ui). See [contributing](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/CONTRIBUTING.md), [security reporting](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/SECURITY.md), [MIT license](LICENSE), and [third-party notices](THIRD_PARTY_NOTICES.md). Third-party code, fonts, and brand assets have their own attribution and scope limits.

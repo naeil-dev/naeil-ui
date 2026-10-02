@@ -6,7 +6,7 @@
 
 ## 시작하기
 
-React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용한다. API 키와 Next.js는 필요 없다. 아직 게시하지 않은 버전을 확인하려면 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.3.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/main/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용한다. API 키와 Next.js는 필요 없다. 아직 게시하지 않은 버전을 확인하려면 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.3.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 

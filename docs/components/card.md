@@ -6,7 +6,7 @@ Use Card to group related information or a form. Use plain sections/headings for
 
 Exports: `Card`, `CardElevated`, `CardHeader`, `CardFooter`, `CardTitle`, `CardAction`, `CardDescription`, `CardContent`. All accept `React.ComponentProps<"div">`; no variant/size/asChild/loading API. Card and CardElevated use `data-slot="card"`, default panel spacing and consumer className; CardElevated adds shadow/elevated dark surface. CardTitle is a **div**, not a semantic heading. CardAction occupies the second header column.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/card.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/card.tsx) is the API authority.
 
 ## Composition
 

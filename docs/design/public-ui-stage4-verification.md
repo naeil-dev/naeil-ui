@@ -2,7 +2,7 @@
 
 The approved minimal Tabs/Textarea extension and field/native-radio composition guidance are implemented and locally verified. Prepared `@naeil/ui@0.3.0` remains unpublished. This separate record extends reviewed Stage 3 `7d67fbde2370477fc164312106515a354b1a335a`; implementation began on checkout `f1d6a79799c329b09e861123f6da4d1aecb0a3a4`. Stage 3's original/follow-up hashes, 11-family results and limitations remain historical. Its two artifact-location paragraphs received prose-only hygiene edits.
 
-[Demand decision](component-demand.md), [13-family component index](../components/README.md), [composition guide](../components/composition.md), [support/manual acceptance](public-ui-support.md) and [actual source/tool usage](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/frontend-sources.md) define the scope. No RadioGroup/FormField API, new dependency, token value, business feature or consumer-repository edit was added. Existing public imports, consumer overrides, neutral visual contracts and mixed-entry inert behavior are retained.
+[Demand decision](component-demand.md), [13-family component index](../components/README.md), [composition guide](../components/composition.md), [support/manual acceptance](public-ui-support.md) and [actual source/tool usage](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/design/frontend-sources.md) define the scope. No RadioGroup/FormField API, new dependency, token value, business feature or consumer-repository edit was added. Existing public imports, consumer overrides, neutral visual contracts and mixed-entry inert behavior are retained.
 
 ## Reproduce from the tested checkout
 
@@ -98,3 +98,32 @@ Installed Radix Tabs 1.1.13 `dist/index.js` SHA-256: `07fc8818ac9e6968155e50eec2
 ## Remaining limits
 
 Local Firefox's inherited `Could not find profile folder` launch block was not freshly rerun for Stage 4; no Firefox application pass is claimed. CI retains all three configured engines, which is not evidence of a remote passing run. Actual Safari, NVDA/VoiceOver or other assistive technology, physical iOS/Android, actual Windows high contrast and native desktop 200%/400% zoom remain manual. 320px/390px viewports, 200% CSS root-text scaling, CSS zoom and Chromium forced-colors media emulation are bounded substitutes, not those manual acceptances. No physical IME session, every locale/glyph/peer version or consumer-specific route/draft behavior is certified. Site-art rights findings carried forward in existing notices remain unresolved; excluding website assets does not clear their rights.
+
+## Documentation-only link follow-up — 2026-10-02
+
+The full-runtime results and source hashes above belong to the tested implementation frozen at **`81fd395031dc5b20074c4d915a8585360ce2d28a`**. This later destination-only pass pins maintained repository navigation/source-authority links and the Storybook guide URL base to that exact commit. Original upstream/historical URLs, canonical repository/homepage links, Stage 3 evidence and all component runtime/style/API/dependency/export contracts remain unchanged. The original demand SHA-256 `0b36339d49f3cea5e613681f8a3272feae4872440508e81d67608ec315ed13f1` and composition hash in the original table still identify their **81fd** bodies; they are not replacement hashes for this follow-up.
+
+Rendered inspection initially found 84 unresolved sibling Markdown link instances across 26 Docs pages: the existing formatter handles `./`, `../` and `common.md`, while bare names such as `composition.md` remained relative to the preview server. Affected sibling destinations now use explicit `./` paths; the formatter's behavior is unchanged. Future release policy requires versioned navigation/source links to the tested revision and rebuilt Docs/tarball target verification.
+
+Scoped final checks: rebuilt Storybook passed **13 Docs + 13 Usage** and the existing notices/fonts/site-asset boundary; **26 rendered Docs tests passed** in Chromium/WebKit. Separate actual DOM inspection checked 288 pinned repository link instances (22 distinct destinations) across those 26 pages, with zero unresolved local Markdown or wrong-revision targets. Static inspection checked 26 maintained commit destinations and 129 relative destinations; every pinned target exists in the exact local Git tree. This establishes source identities, not remote HTTP availability before the commit is pushed. Actual new Tabs Docs/Chromium and Textarea Docs/WebKit captures were opened and inspected. Types passed; lint had zero errors and the inherited blog warning; whitespace and unchanged-runtime checks passed. A fresh packed-guide boundary check passed after this record was completed. Original broad browser, units/contrast and clean-consumer results were not rerun or relabeled for link destinations; their prior source binding and manual/environment limits remain in force.
+
+Reproduce the affected rendered/packed checks from the follow-up source:
+
+```sh
+pnpm build:storybook
+pnpm exec playwright test e2e/component-usage.spec.ts --grep 'actual built Docs guide' --project=chromium --project=webkit
+pnpm check:types
+pnpm lint
+pnpm check:package:boundary
+git cat-file -e 81fd395031dc5b20074c4d915a8585360ce2d28a:src/components/ui/tabs.tsx
+git cat-file -e 81fd395031dc5b20074c4d915a8585360ce2d28a:CONTRIBUTING.md
+git diff --check
+```
+
+For each maintained destination, inspect its Docs anchor `href` and use `git cat-file -e COMMIT:PATH` as illustrated above to check that exact target; relative repository/tarball links must resolve within their respective payload. Full per-file replacement hashes, DOM target inventories, check logs, packed artifact and captures were retained privately in a separate follow-up inventory. Key replacement source identities are below; the report does not hash itself. No publication, deployment, remote CI, Firefox or new manual acceptance pass is claimed.
+
+| Follow-up source | Replacement SHA-256 |
+| --- | --- |
+| `docs/design/component-demand.md` | `e91aa9fa452620a1bb50e37bf24bf9856454b2bd46bf2440ee4374c5b338b0fc` |
+| `docs/components/composition.md` | `6e034cb2f47d0dcdc360cac326114cd61fc443504aea2757a041eb8c465c40da` |
+| `src/stories/guide.ts` | `74f093522a08c7059f464f47d9bf053b0e571c5864efb325637a190723668409` |

@@ -10,7 +10,7 @@ Accepts Sonner `ToasterProps`. Wrapper defaults: theme from next-themes (falls b
 
 Inherited [Sonner 2.0.7 declarations](https://unpkg.com/sonner@2.0.7/dist/index.d.ts). Installed Sonner implements polite notifications and Alt+T as its default focus hotkey; these are primitive behaviors, not new wrapper defaults.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/sonner.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/sonner.tsx) is the API authority.
 
 ## Composition
 

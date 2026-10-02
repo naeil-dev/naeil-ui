@@ -8,7 +8,7 @@ Export: `Switch`. Forwards Radix Root props: `checked`/`defaultChecked`/`onCheck
 
 Inherited [Switch 1.2.6 declaration](https://unpkg.com/@radix-ui/react-switch@1.2.6/dist/index.d.ts).
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/switch.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/switch.tsx) is the API authority.
 
 ## Composition
 

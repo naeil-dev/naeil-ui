@@ -15,7 +15,7 @@ A read-only audit inspected reachable application manifests and UI source, trace
 
 ## Contract and cost
 
-[Tabs](../components/tabs.md) keeps installed Radix defaults: horizontal, automatic activation, looping focus, no invented initial value or forced mounting. [Textarea](../components/textarea.md) keeps native two-row and vertical-resize defaults and all native handlers/constraints. Existing semantic palette, Pretendard/Japanese companion, 16px text, density/touch minima, purpose-specific widths, short/reduced motion and class overrides remain the authority in [DESIGN.md](https://github.com/naeil-dev/naeil-ui/blob/main/DESIGN.md). No new numeric token is needed.
+[Tabs](../components/tabs.md) keeps installed Radix defaults: horizontal, automatic activation, looping focus, no invented initial value or forced mounting. [Textarea](../components/textarea.md) keeps native two-row and vertical-resize defaults and all native handlers/constraints. Existing semantic palette, Pretendard/Japanese companion, 16px text, density/touch minima, purpose-specific widths, short/reduced motion and class overrides remain the authority in [DESIGN.md](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/DESIGN.md). No new numeric token is needed.
 
 The runtime cost is thin wrappers and existing shared CSS; Radix Tabs already comes through the installed radix-ui dependency. Maintenance includes two exact deep entries, docs/stories, state/keyboard/form/override regressions and packed type/runtime checks. There is no new dependency, unused visual variant, form context or cross-product business contract. Revisit deferred candidates when repeated real usage needs more than native composition.
 
