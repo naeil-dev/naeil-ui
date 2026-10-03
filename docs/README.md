@@ -10,7 +10,9 @@
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.
 - [Contributing](../CONTRIBUTING.md), [security](../SECURITY.md), [licenses and provenance](../THIRD_PARTY_NOTICES.md).
 
-The hosted Docs destination is [naeil-dev.github.io/naeil-ui](https://naeil-dev.github.io/naeil-ui/), configured for Pages workflow builds and main-only deployment. See [Docs deployment status](https://github.com/naeil-dev/naeil-ui/actions/workflows/publish-docs-manual.yml); live availability is confirmed separately in [release evidence](https://github.com/naeil-dev/naeil-ui/releases) with deployment and hosted HTTP/navigation results. The downloadable Storybook artifact can also be served locally.
+[Hosted Docs](https://naeil-dev.github.io/naeil-ui/) are live following the [2026-10-02 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/36963256014); the [0.3.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) records hosted HTTP/navigation/font checks. npm 0.3.0 was published on 2026-10-03; [machine-readable evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.3.0/npm-publication-verification.json) records registry identity and fresh clean-cache React/Next consumption. The downloadable Storybook artifact can also be served locally. Native/manual acceptance and real-product adoption remain open.
+
+Guides bundled in the immutable npm 0.3.0 archive are the release-preparation snapshot. Maintained GitHub guides record subsequent publication status; source documentation updates do not alter that archive, tag or release asset. Hosted Docs reflect their deployed source, recorded in the Pages run.
 
 ## Dated specifications and evidence
 

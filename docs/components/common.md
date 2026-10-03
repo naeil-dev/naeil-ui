@@ -1,6 +1,6 @@
 # Shared usage contract
 
-These guides describe the prepared **0.3.0, unpublished** package. Start with the [consumer setup and migration](../design/v2-migration.md). All listed exports are available from `@naeil/ui/ui`; the legacy root needs the optional Next/next-intl peers. Examples import real wrappers; product state, validation and network requests belong to consumers.
+These guides describe **@naeil/ui 0.3.0, published 2026-10-03** ([release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0)); [live Docs and Usage examples](https://naeil-dev.github.io/naeil-ui/) are available. Start with the [consumer setup and migration](../design/v2-migration.md). All listed exports are available from `@naeil/ui/ui`; the legacy root needs the optional Next/next-intl peers. Examples import real wrappers; product state, validation and network requests belong to consumers.
 
 ## Styling, themes and overrides
 
