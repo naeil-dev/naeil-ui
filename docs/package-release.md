@@ -52,7 +52,7 @@ The immutable npm archive's bundled guides are the release-preparation snapshot.
 
 ### Release procedure
 
-Maintained source-authority links and the Storybook guide URL base use tested component snapshot `81fd395031dc5b20074c4d915a8585360ce2d28a`. Those pins identify the reviewed component/source contract and remain valid; documentation-only release preparation does not require repinning every historical or component guide. Verify each target exists at its pinned revision and preserve original upstream sources, dated approval scope and runtime evidence. Freeze later documentation changes and the intended archive separately.
+The Storybook guide URL base and README documentation index use publication-status documentation snapshot `04c5b8cce145a4c387763db6f28d29e62f7664c7`. Runtime/API source-authority links retain tested component snapshot `81fd395031dc5b20074c4d915a8585360ce2d28a`; that original evidence remains valid and is not replaced by this documentation-only snapshot. Verify targets at their respective pinned revisions and preserve original upstream sources, dated approval scope and runtime evidence. Freeze subsequent documentation changes separately from the immutable 0.3.0 archive.
 
 The authorized 0.3.0 release completed main merge, npm 0.3.0, a GitHub Release and hosted Docs as recorded above. The release maintainer performs external authentication and publication; documentation preparation does not itself execute those operations. The automatic verification workflow does not publish or deploy. Record native/manual observations with their actual scope and carry unrun checks as limitations; do not substitute automated WebKit/axe checks or publication authorization for human certification.
 

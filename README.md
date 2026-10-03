@@ -92,7 +92,7 @@ A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/8
 
 Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
 
-[Documentation index](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
+[Documentation index](https://github.com/naeil-dev/naeil-ui/blob/04c5b8cce145a4c387763db6f28d29e62f7664c7/docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
 
 ## Project and license
 
