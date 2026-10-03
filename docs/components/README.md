@@ -1,6 +1,6 @@
 # Component usage guides
 
-Prepared `@naeil/ui@0.3.0` (unpublished). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` and choose each family’s Docs or Usage entry. Select chooses a value; DropdownMenu chooses an action.
+Published `@naeil/ui@0.3.0` (2026-10-03; [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0)). [Setup, themes, fonts and shared responsibilities](common.md). Open the [live Storybook](https://naeil-dev.github.io/naeil-ui/) or run `pnpm storybook` and choose each family’s Docs or Usage entry. Select chooses a value; DropdownMenu chooses an action.
 
 | Family | Guide | Runnable story |
 | --- | --- | --- |

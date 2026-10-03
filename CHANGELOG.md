@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.3.0 — 2026-10-02
+## 0.3.0 — scope frozen 2026-10-02; published 2026-10-03
+
+Published to npm at `2026-10-03T04:14:17.028Z`; `latest` was verified as `0.3.0` that day. The [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0), [registry/clean-consumer evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.3.0/npm-publication-verification.json) and [Pages deployment](https://github.com/naeil-dev/naeil-ui/actions/runs/36963256014) record publication and live Docs separately from the earlier scope freeze.
 
 - Demand-led Radix Tabs and native Textarea with exact shared deep entries, standalone guides/Docs/Usage and packed behavior checks. Native field/radio composition remains consumer-owned; no FormField/RadioGroup API or dependency added.
 
@@ -11,7 +13,7 @@
 - Include CSS side-effect metadata, migration/design guidance and third-party notices/licenses. Verify isolated tarball consumers and add package/site/Storybook/browser CI.
 - Version-scoped installation and consumer font/theme/density guidance, plus a dispatch-only hosted Docs workflow. Hosted Docs and the brand website have separate deployment scopes; native/manual coverage is recorded separately from automated browser checks.
 
-This entry describes the 0.3.0 release scope; registry availability and tags are verified separately during publication. The historical registry baseline on 2026-10-02 was npm `latest` at `0.2.0`. Changes to the 0.x API boundary use a minor increment; there is no npm 2.0 release implied by UI v2.
+This entry describes the 0.3.0 release scope frozen on 2026-10-02; publication on 2026-10-03 is recorded above without redating earlier implementation evidence. The historical registry baseline on 2026-10-02 was npm `latest` at `0.2.0`. Changes to the 0.x API boundary use a minor increment; there is no npm 2.0 release implied by UI v2.
 
 ## 0.2.0 — published 2026-03-22
 
