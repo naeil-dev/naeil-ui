@@ -1,0 +1,202 @@
+[
+  {
+    "file": "assets/naeil-color-64.png",
+    "pixels": 64,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-128.png",
+    "pixels": 128,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-512.png",
+    "pixels": 512,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-1024.png",
+    "pixels": 1024,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-2048.png",
+    "pixels": 2048,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-4096.png",
+    "pixels": 4096,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-small-16.png",
+    "pixels": 16,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-small-24.png",
+    "pixels": 24,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-small-32.png",
+    "pixels": 32,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-small-48.png",
+    "pixels": 48,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-64.png",
+    "pixels": 64,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-128.png",
+    "pixels": 128,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-512.png",
+    "pixels": 512,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-1024.png",
+    "pixels": 1024,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-2048.png",
+    "pixels": 2048,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-4096.png",
+    "pixels": 4096,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-small-16.png",
+    "pixels": 16,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-small-24.png",
+    "pixels": 24,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-small-32.png",
+    "pixels": 32,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-small-48.png",
+    "pixels": 48,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-dark-64.png",
+    "pixels": 64,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-dark-128.png",
+    "pixels": 128,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-dark-512.png",
+    "pixels": 512,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-dark-1024.png",
+    "pixels": 1024,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-dark-2048.png",
+    "pixels": 2048,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-dark-4096.png",
+    "pixels": 4096,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-color-dark-small-16.png",
+    "pixels": 16,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-dark-small-24.png",
+    "pixels": 24,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-dark-small-32.png",
+    "pixels": 32,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-color-dark-small-48.png",
+    "pixels": 48,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-dark-64.png",
+    "pixels": 64,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-dark-128.png",
+    "pixels": 128,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-dark-512.png",
+    "pixels": 512,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-dark-1024.png",
+    "pixels": 1024,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-dark-2048.png",
+    "pixels": 2048,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-dark-4096.png",
+    "pixels": 4096,
+    "small_geometry": false
+  },
+  {
+    "file": "assets/naeil-gray-dark-small-16.png",
+    "pixels": 16,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-dark-small-24.png",
+    "pixels": 24,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-dark-small-32.png",
+    "pixels": 32,
+    "small_geometry": true
+  },
+  {
+    "file": "assets/naeil-gray-dark-small-48.png",
+    "pixels": 48,
+    "small_geometry": true
+  }
+]

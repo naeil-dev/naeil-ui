@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64" color="#f1f1f1" role="img" aria-label="naeil">
+  <title>naeil — a-next-frame</title>
+  <desc>Original mark with font-independent lowercase naeil lettering.</desc>
+  <g fill="currentColor">
+    <path d="M9 8H21V37Q21 43 27 43H55V55H25C15 55 9 49 9 39Z" />
+    <path d="M34 8H49L55 14V29H43V20H34Z" />
+  </g>
+  <g fill="currentColor" fill-rule="evenodd" transform="translate(76 0)">
+    <path d="M8 54V18H15V24C18 19 23 17 28 17C37 17 42 23 42 32V54H35V33C35 27 32 24 27 24C20 24 15 29 15 36V54Z" />
+    <path d="M84 18H77V22C74 18 70 17 65 17C54 17 48 25 48 36C48 47 54 55 65 55C70 55 74 53 77 49V54H84Z M77 36C77 29 73 24 66 24C59 24 55 29 55 36C55 43 59 48 66 48C73 48 77 43 77 36Z" />
+    <path d="M128 38H101C102 45 106 49 112 49C117 49 121 47 124 44L128 49C123 53 118 55 112 55C100 55 94 47 94 36C94 25 101 17 112 17C123 17 129 25 129 35Z M101 32H122C121 26 118 23 112 23C106 23 102 26 101 32Z" />
+    <path d="M138 18H145V54H138Z M138 6H145V13H138Z" />
+    <path d="M158 6H165V43Q165 47 169 47H173V54H169Q158 54 158 43Z" />
+  </g>
+</svg>

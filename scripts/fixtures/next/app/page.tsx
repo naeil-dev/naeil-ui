@@ -19,7 +19,6 @@ export default function Page() {
         usePathname={usePathname}
         showProjects={false}
         showBlog={false}
-        brandSlot={<Logo />}
         toolbarSlot={
           <>
             <ThemeToggleIcon />
@@ -32,6 +31,7 @@ export default function Page() {
         }
       />
       <main>
+        <Logo variant="horizontal" size={28} />
         <PageTitle>Packed Next compatibility</PageTitle>
         <Button>Consumer action</Button>
         <Tabs defaultValue="notes">

@@ -13,14 +13,14 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 
 ## Use the UI
 
-This guide targets **@naeil/ui 0.3.0** with React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation, independently of npm versioning. Install the exact version in your app:
+This guide targets **@naeil/ui 0.4.0** with React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation, independently of npm versioning. Install the exact version in your app:
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.3.0
-# npm install --save-exact @naeil/ui@0.3.0
+pnpm add --save-exact @naeil/ui@0.4.0
+# npm install --save-exact @naeil/ui@0.4.0
 ```
 
-**0.3.0 was published to npm on 2026-10-03** and verified as `latest` that day. See the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) and [registry/clean-consumer evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.3.0/npm-publication-verification.json). The [changelog](CHANGELOG.md) describes this version's changes; use the local package workflow below for source-checkout validation.
+This source targets 0.4.0, which adds the approved `.naeil` brand 1.1.1. Registry availability and release evidence are recorded separately in the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0). See the [changelog](CHANGELOG.md) and [brand usage](docs/design/v2-migration.md#brand-logo-integration-040); the local package workflow below works before publication.
 
 Import primitives from the dedicated entrypoint:
 
@@ -76,7 +76,7 @@ Storybook uses the actual public components with simulated example data. It need
 ```sh
 pnpm build:pkg
 pnpm pack --pack-destination /tmp
-# In your consumer app: pnpm add /tmp/naeil-ui-0.3.0.tgz
+# In your consumer app: pnpm add /tmp/naeil-ui-0.4.0.tgz
 ```
 
 | Command | Purpose |

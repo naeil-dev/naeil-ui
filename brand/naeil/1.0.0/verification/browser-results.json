@@ -1,0 +1,1794 @@
+{
+  "testedAt": "2026-10-11T00:05:28.741Z",
+  "method": "Standalone copied kit + temporary DOM substitution in fresh public-site contexts; no server writes or production deployment",
+  "engines": {
+    "chromium": "153.0.8010.12",
+    "webkit": "26.6"
+  },
+  "local": [
+    {
+      "key": "chromium-390-light",
+      "dpr": 2,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "chromium-390-dark",
+      "dpr": 2,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color-dark.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-dark-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color-dark.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "chromium-1440-light",
+      "dpr": 1,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "chromium-1440-dark",
+      "dpr": 1,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color-dark.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-dark-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color-dark.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-390-light",
+      "dpr": 2,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-390-dark",
+      "dpr": 2,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color-dark.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-dark-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color-dark.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-1440-light",
+      "dpr": 1,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-1440-dark",
+      "dpr": 1,
+      "overflow": false,
+      "broken": 0,
+      "visibleBrands": [
+        {
+          "src": "../svg/naeil-horizontal-color-dark.svg",
+          "height": 28
+        },
+        {
+          "src": "../svg/naeil-symbol-color-dark-small.svg",
+          "height": 40
+        },
+        {
+          "src": "../svg/naeil-footer-color-dark.svg",
+          "height": 20
+        }
+      ],
+      "externalRequests": 0
+    }
+  ],
+  "live": [
+    {
+      "key": "chromium-ko-390-light",
+      "locale": "ko",
+      "width": 390,
+      "theme": "light",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-ko-390-dark",
+      "locale": "ko",
+      "width": 390,
+      "theme": "dark",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-ko-1440-light",
+      "locale": "ko",
+      "width": 1440,
+      "theme": "light",
+      "before": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 190.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to dark mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 194.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to dark mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "프로젝트",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "블로그",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Switch to dark mode",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Change language — current: KO",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "로그인",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": false,
+      "login": {
+        "x": 700,
+        "y": 326,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "webkit-ko-390-light",
+      "locale": "ko",
+      "width": 390,
+      "theme": "light",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-ko-1440-dark",
+      "locale": "ko",
+      "width": 1440,
+      "theme": "dark",
+      "before": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 190.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to light mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 194.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to light mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "프로젝트",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "블로그",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Switch to light mode",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Change language — current: KO",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "로그인",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": false,
+      "login": {
+        "x": 700,
+        "y": 326,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "webkit-ko-390-dark",
+      "locale": "ko",
+      "width": 390,
+      "theme": "dark",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-en-390-light",
+      "locale": "en",
+      "width": 390,
+      "theme": "light",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "webkit-ko-1440-light",
+      "locale": "ko",
+      "width": 1440,
+      "theme": "light",
+      "before": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 190.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.71875,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.71875
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to dark mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 194.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.71875,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.71875
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to dark mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "프로젝트",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "블로그",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Switch to dark mode",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Change language — current: KO",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "로그인",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": false,
+      "login": {
+        "x": 700,
+        "y": 326,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-en-390-dark",
+      "locale": "en",
+      "width": 390,
+      "theme": "dark",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "webkit-ko-1440-dark",
+      "locale": "ko",
+      "width": 1440,
+      "theme": "dark",
+      "before": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 190.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.71875,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.71875
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to light mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 194.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "프로젝트",
+            "x": 304,
+            "y": 19.71875,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.71875
+          },
+          {
+            "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "name": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "name": "Switch to light mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "name": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "name": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "프로젝트",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "블로그",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Switch to light mode",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "Change language — current: KO",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "name": "로그인",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": false,
+      "login": {
+        "x": 700,
+        "y": 326,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-ja-390-light",
+      "locale": "ja",
+      "width": 390,
+      "theme": "light",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "key": "chromium-ja-390-dark",
+      "locale": "ja",
+      "width": 390,
+      "theme": "dark",
+      "before": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "after": {
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 90.09375,
+          "height": 28,
+          "right": 114.09375,
+          "bottom": 43
+        },
+        "controls": [
+          {
+            "name": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "overflow": false
+      },
+      "shifts": [
+        {
+          "name": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": 0,
+      "mobileMenuChecked": true,
+      "login": {
+        "x": 175,
+        "y": 294,
+        "width": 40,
+        "height": 40
+      }
+    }
+  ],
+  "errors": [
+    {
+      "engine": "firefox",
+      "error": "Error: browserType.launch: Failed to launch the browser process.\nBrowser logs:\n\n<launching> /Users/jaymini/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/playwright_firefoxdev_profile-7mVOnM -juggler-pipe -silent\n<launched> pid=98199\n[pid=98199][err] *** You are running in headless mode.\n[pid=98199][err] Could not find profile folder.\n[pid=98199] <process did exit: exitCode=1, signal=null>\n[pid=98199] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /Users/jaymini/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/playwright_firefoxdev_profile-7mVOnM -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=98199\u001b[22m\n\u001b[2m  - [pid=98199][err] *** You are running in headless mode.\u001b[22m\n\u001b[2m  - [pid=98199][err] Could not find profile folder.\u001b[22m\n\u001b[2m  - [pid=98199] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=98199] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=98199] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=98199] <kill>\u001b[22m\n\u001b[2m  - [pid=98199] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=98199] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=98199] <gracefully close end>\u001b[22m\n"
+    }
+  ]
+}

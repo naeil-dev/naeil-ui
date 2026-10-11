@@ -1,6 +1,6 @@
 # Package verification and release policy
 
-This policy covers `@naeil/ui@0.3.0`. UI v2 names a design generation, not an npm major. A 0.x minor increment communicates this dependency/export boundary change; future breaking changes must receive an explicit migration and version decision. The historical registry baseline on 2026-10-02 was npm latest at `0.2.0`; the 2026-10-03 publication evidence below records npm 0.3.0, its GitHub Release and live hosted Docs separately. Version-scoped installation is in the [README](../README.md#use-the-ui).
+This policy covers `@naeil/ui@0.4.0`; the 0.3.0 publication evidence below is retained as history. UI v2 names a design generation, not an npm major. A 0.x minor increment communicates this dependency/export boundary change; future breaking changes must receive an explicit migration and version decision. The historical registry baseline on 2026-10-02 was npm latest at `0.2.0`; the 2026-10-03 publication evidence below records npm 0.3.0, its GitHub Release and live hosted Docs separately. Version-scoped installation is in the [README](../README.md#use-the-ui).
 
 ## Architecture
 
@@ -38,6 +38,12 @@ At baseline `bcf99fca3467ae2b1cd29d54fa24f2569fb6001c`, both [push CI](https://g
 The explicit font-notice regression gate copies the real React fixture config into scratch and installs only its existing Vite/Tailwind-plugin/font dependencies, with scripts disabled. It loads the installed fixture Vite and checks output ownership and exact OFL bytes. Like clean-consumer checks, it requires network for uncached npm dependencies and cleans scratch on failure.
 
 ## Publication and deployment
+
+### 0.4.0 release scope — 2026-10-11
+
+The user authorized repository integration, npm publication, hosted Docs and naeil.dev deployment for the approved `.naeil` logo. Brand 1.1.1 is independent of npm 0.4.0. Existing imports/props/slots remain supported; new Logo variants, grayscale and theme controls justify a minor package increment. New consumers should use the 0.4.0 instructions above the historical records.
+
+Follow the release procedure below with version 0.4.0, freeze and publish the inspected archive, and record actual registry/tag/site/Docs outcomes in the v0.4.0 GitHub Release. Authorization is not itself evidence of publication. The previous Supabase-local-runtime and manual-device limitations remain documented; verify production behavior at its actual URL after Vercel deployment.
 
 ### Verified 0.3.0 publication — 2026-10-03
 

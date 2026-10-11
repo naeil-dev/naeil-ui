@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 
 const root = "storybook-static";
-for (const path of ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/Pretendard-OFL.txt", "licenses/Noto-Sans-JP-OFL.txt", "licenses/Nunito-Sans-OFL.txt"])
+for (const path of ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/Pretendard-OFL.txt", "licenses/Noto-Sans-JP-OFL.txt", "licenses/Nunito-Sans-OFL.txt", "licenses/Lato-OFL.txt"])
   assert.equal(readFileSync(`${root}/${path}`, "utf8"), readFileSync(path, "utf8"), `Preview notice drift: ${path}`);
 for (const path of ["images", "svg", "coral-concepts.html", "next.svg", "vercel.svg"])
   assert(!existsSync(`${root}/${path}`), `Website asset copied into preview: ${path}`);
@@ -33,3 +33,8 @@ for (const file of files(root).filter(file => file.endsWith(".js") && !file.incl
 for (const path of ["licenses/bundled-preview-code.json", "licenses/manager-dependency-notices.json"])
   assert(!readFileSync(`${root}/${path}`, "utf8").includes(process.cwd()), `Private build path shipped: ${path}`);
 console.log(`Bundled notice coverage: PASS (${previewNotices.packages.length} actual preview packages, ${managerNotices.packages.length} conservative manager version notices)`);
+
+assert.equal(index.entries["brand-logo--docs"]?.type, "docs", "Missing Brand Logo Docs");
+assert.equal(index.entries["brand-logo--usage"]?.type, "story", "Missing Brand Logo usage");
+const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
+assert.equal(readFileSync(`${root}/brand/naeil-horizontal-color.svg`, "utf8"), readFileSync(`brand/naeil/${brandVersion}/svg/naeil-horizontal-color.svg`, "utf8"));

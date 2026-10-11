@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" color="#191919" role="img" aria-label="naeil A">
+  <title>naeil — 다음 칸</title>
+  <desc>A broad Korean nieun and a detached upper-right corner, with an open diagonal space between them.</desc>
+  <g fill="currentColor">
+    <path d="M9 8H21V37Q21 43 27 43H55V55H25C15 55 9 49 9 39Z"/>
+    <path d="M34 8H49L55 14V29H43V20H34Z"/>
+  </g>
+</svg>

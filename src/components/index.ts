@@ -8,7 +8,7 @@ export { LocaleSwitcher } from "./locale-switcher";
 export { ThemeToggle } from "./theme-toggle";
 export { ThemeProvider } from "./theme-provider";
 export { ThemeToggleIcon } from "./theme-toggle-icon";
-export { Logo } from "./logo";
+export { Logo, type LogoProps } from "./logo";
 export {
   PageTitle,
   SectionTitle,

@@ -1,0 +1,44 @@
+[
+  {
+    "key": "manrope",
+    "title": "01 · Manrope",
+    "file": "Manrope[wght].ttf",
+    "weight": 500,
+    "gaps": [
+      -0.012,
+      -0.018,
+      -0.006,
+      -0.012
+    ],
+    "mood": "정돈된 곡선, 차분한 제품 브랜드",
+    "tradeoff": "현대적이고 안정적 · 개성은 심볼이 담당"
+  },
+  {
+    "key": "lato",
+    "title": "02 · Lato",
+    "file": "Lato-Regular.ttf",
+    "weight": 400,
+    "gaps": [
+      -0.008,
+      -0.01,
+      -0.002,
+      0.006
+    ],
+    "mood": "부드러운 획, 편안하고 친근한 인상",
+    "tradeoff": "따뜻한 일상에 가까움 · 비교적 익숙한 표정"
+  },
+  {
+    "key": "lora",
+    "title": "03 · Lora",
+    "file": "Lora[wght].ttf",
+    "weight": 400,
+    "gaps": [
+      -0.004,
+      -0.013,
+      0.006,
+      0.008
+    ],
+    "mood": "잔잔한 여운, 책처럼 차분한 인상",
+    "tradeoff": "감성적인 개성 · 출판·숙박 브랜드로도 읽힘"
+  }
+]

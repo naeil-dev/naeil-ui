@@ -1,0 +1,1133 @@
+{
+  "svg_count": 28,
+  "transparent_png_count": 84,
+  "external_image_or_font_dependencies": 0,
+  "missing_or_duplicate_svg_ids": 0,
+  "clipped_pngs": 0,
+  "grayscale_rgb_channels_equal": true,
+  "ico_sizes": [
+    16,
+    32,
+    48
+  ],
+  "ico_matches_dedicated_size_rasters": true,
+  "maskable_foreground_max_radius": 161.69260960229445,
+  "maskable_safe_radius": 204.8,
+  "font_license_hashes_match": true,
+  "wordmark_contrast": [
+    {
+      "foreground": "#263C4B",
+      "background": "#F5F6F8",
+      "ratio": 10.61
+    },
+    {
+      "foreground": "#F3F0E9",
+      "background": "#090B0C",
+      "ratio": 17.33
+    },
+    {
+      "foreground": "#303030",
+      "background": "#F5F6F8",
+      "ratio": 12.21
+    },
+    {
+      "foreground": "#F0F0F0",
+      "background": "#090B0C",
+      "ratio": 17.31
+    }
+  ],
+  "pngs": [
+    {
+      "file": "png/naeil-footer-gray-dark-1x.png",
+      "size": [
+        65,
+        20
+      ],
+      "ink_bounds": [
+        2,
+        2,
+        64,
+        18
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-512.png",
+      "size": [
+        512,
+        512
+      ],
+      "ink_bounds": [
+        39,
+        78,
+        473,
+        431
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-4096.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "ink_bounds": [
+        315,
+        630,
+        3781,
+        3444
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-small-48.png",
+      "size": [
+        48,
+        48
+      ],
+      "ink_bounds": [
+        3,
+        7,
+        45,
+        44
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-2x.png",
+      "size": [
+        180,
+        56
+      ],
+      "ink_bounds": [
+        6,
+        7,
+        178,
+        51
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-dark-4x.png",
+      "size": [
+        360,
+        112
+      ],
+      "ink_bounds": [
+        12,
+        15,
+        356,
+        102
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-128.png",
+      "size": [
+        128,
+        128
+      ],
+      "ink_bounds": [
+        9,
+        19,
+        119,
+        108
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-1440.png",
+      "size": [
+        1440,
+        448
+      ],
+      "ink_bounds": [
+        50,
+        61,
+        1424,
+        406
+      ]
+    },
+    {
+      "file": "png/naeil-footer-color-dark-1x.png",
+      "size": [
+        65,
+        20
+      ],
+      "ink_bounds": [
+        2,
+        2,
+        64,
+        18
+      ]
+    },
+    {
+      "file": "png/naeil-footer-gray-2x.png",
+      "size": [
+        130,
+        40
+      ],
+      "ink_bounds": [
+        5,
+        5,
+        128,
+        37
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-small-48.png",
+      "size": [
+        48,
+        48
+      ],
+      "ink_bounds": [
+        3,
+        7,
+        45,
+        44
+      ]
+    },
+    {
+      "file": "png/naeil-footer-color-1x.png",
+      "size": [
+        65,
+        20
+      ],
+      "ink_bounds": [
+        2,
+        2,
+        64,
+        18
+      ]
+    },
+    {
+      "file": "png/naeil-wordmark-gray-dark-1600.png",
+      "size": [
+        1600,
+        667
+      ],
+      "ink_bounds": [
+        36,
+        36,
+        1564,
+        631
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-2x.png",
+      "size": [
+        180,
+        56
+      ],
+      "ink_bounds": [
+        6,
+        7,
+        178,
+        51
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-gray-dark-1024.png",
+      "size": [
+        1024,
+        896
+      ],
+      "ink_bounds": [
+        187,
+        118,
+        837,
+        816
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-64.png",
+      "size": [
+        64,
+        64
+      ],
+      "ink_bounds": [
+        4,
+        9,
+        60,
+        54
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-small-24.png",
+      "size": [
+        24,
+        24
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        23,
+        22
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-small-28.png",
+      "size": [
+        28,
+        28
+      ],
+      "ink_bounds": [
+        2,
+        4,
+        26,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-wordmark-color-dark-1600.png",
+      "size": [
+        1600,
+        667
+      ],
+      "ink_bounds": [
+        36,
+        36,
+        1564,
+        631
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-4x.png",
+      "size": [
+        360,
+        112
+      ],
+      "ink_bounds": [
+        12,
+        15,
+        356,
+        102
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-128.png",
+      "size": [
+        128,
+        128
+      ],
+      "ink_bounds": [
+        9,
+        19,
+        119,
+        108
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-dark-2x.png",
+      "size": [
+        180,
+        56
+      ],
+      "ink_bounds": [
+        6,
+        7,
+        178,
+        51
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-small-20.png",
+      "size": [
+        20,
+        20
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        19,
+        19
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-4096.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "ink_bounds": [
+        315,
+        630,
+        3781,
+        3444
+      ]
+    },
+    {
+      "file": "png/naeil-wordmark-gray-1600.png",
+      "size": [
+        1600,
+        667
+      ],
+      "ink_bounds": [
+        36,
+        36,
+        1564,
+        631
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-2048.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "ink_bounds": [
+        157,
+        315,
+        1891,
+        1722
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-512.png",
+      "size": [
+        512,
+        512
+      ],
+      "ink_bounds": [
+        39,
+        78,
+        473,
+        431
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-small-16.png",
+      "size": [
+        16,
+        16
+      ],
+      "ink_bounds": [
+        1,
+        2,
+        15,
+        15
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-small-32.png",
+      "size": [
+        32,
+        32
+      ],
+      "ink_bounds": [
+        2,
+        5,
+        30,
+        29
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-color-1024.png",
+      "size": [
+        1024,
+        896
+      ],
+      "ink_bounds": [
+        187,
+        118,
+        837,
+        816
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-4x.png",
+      "size": [
+        360,
+        112
+      ],
+      "ink_bounds": [
+        12,
+        15,
+        356,
+        102
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-2048.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "ink_bounds": [
+        157,
+        315,
+        1891,
+        1722
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-small-16.png",
+      "size": [
+        16,
+        16
+      ],
+      "ink_bounds": [
+        1,
+        2,
+        15,
+        15
+      ]
+    },
+    {
+      "file": "png/naeil-wordmark-color-1600.png",
+      "size": [
+        1600,
+        667
+      ],
+      "ink_bounds": [
+        36,
+        36,
+        1564,
+        631
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-small-32.png",
+      "size": [
+        32,
+        32
+      ],
+      "ink_bounds": [
+        2,
+        5,
+        30,
+        29
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-small-24.png",
+      "size": [
+        24,
+        24
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        23,
+        22
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-dark-1x.png",
+      "size": [
+        90,
+        28
+      ],
+      "ink_bounds": [
+        3,
+        3,
+        89,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-footer-gray-4x.png",
+      "size": [
+        261,
+        81
+      ],
+      "ink_bounds": [
+        10,
+        11,
+        257,
+        73
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-64.png",
+      "size": [
+        64,
+        64
+      ],
+      "ink_bounds": [
+        4,
+        9,
+        60,
+        54
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-small-28.png",
+      "size": [
+        28,
+        28
+      ],
+      "ink_bounds": [
+        2,
+        4,
+        26,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-color-dark-1024.png",
+      "size": [
+        1024,
+        896
+      ],
+      "ink_bounds": [
+        187,
+        118,
+        837,
+        816
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-gray-4096.png",
+      "size": [
+        4096,
+        3584
+      ],
+      "ink_bounds": [
+        748,
+        472,
+        3348,
+        3264
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-small-20.png",
+      "size": [
+        20,
+        20
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        19,
+        19
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-small-28.png",
+      "size": [
+        28,
+        28
+      ],
+      "ink_bounds": [
+        2,
+        4,
+        26,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-footer-color-dark-4x.png",
+      "size": [
+        261,
+        81
+      ],
+      "ink_bounds": [
+        10,
+        11,
+        257,
+        73
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-dark-2x.png",
+      "size": [
+        180,
+        56
+      ],
+      "ink_bounds": [
+        6,
+        7,
+        178,
+        51
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-2048.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "ink_bounds": [
+        157,
+        315,
+        1891,
+        1722
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-small-24.png",
+      "size": [
+        24,
+        24
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        23,
+        22
+      ]
+    },
+    {
+      "file": "png/naeil-footer-color-4x.png",
+      "size": [
+        261,
+        81
+      ],
+      "ink_bounds": [
+        10,
+        11,
+        257,
+        73
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-small-20.png",
+      "size": [
+        20,
+        20
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        19,
+        19
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-64.png",
+      "size": [
+        64,
+        64
+      ],
+      "ink_bounds": [
+        4,
+        9,
+        60,
+        54
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-64.png",
+      "size": [
+        64,
+        64
+      ],
+      "ink_bounds": [
+        4,
+        9,
+        60,
+        54
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-small-32.png",
+      "size": [
+        32,
+        32
+      ],
+      "ink_bounds": [
+        2,
+        5,
+        30,
+        29
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-small-16.png",
+      "size": [
+        16,
+        16
+      ],
+      "ink_bounds": [
+        1,
+        2,
+        15,
+        15
+      ]
+    },
+    {
+      "file": "png/naeil-footer-gray-dark-4x.png",
+      "size": [
+        261,
+        81
+      ],
+      "ink_bounds": [
+        10,
+        11,
+        257,
+        73
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-gray-dark-4096.png",
+      "size": [
+        4096,
+        3584
+      ],
+      "ink_bounds": [
+        748,
+        472,
+        3348,
+        3264
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-small-32.png",
+      "size": [
+        32,
+        32
+      ],
+      "ink_bounds": [
+        2,
+        5,
+        30,
+        29
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-small-16.png",
+      "size": [
+        16,
+        16
+      ],
+      "ink_bounds": [
+        1,
+        2,
+        15,
+        15
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-small-28.png",
+      "size": [
+        28,
+        28
+      ],
+      "ink_bounds": [
+        2,
+        4,
+        26,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-small-24.png",
+      "size": [
+        24,
+        24
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        23,
+        22
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-small-20.png",
+      "size": [
+        20,
+        20
+      ],
+      "ink_bounds": [
+        1,
+        3,
+        19,
+        19
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-dark-1x.png",
+      "size": [
+        90,
+        28
+      ],
+      "ink_bounds": [
+        3,
+        3,
+        89,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-dark-1440.png",
+      "size": [
+        1440,
+        448
+      ],
+      "ink_bounds": [
+        50,
+        61,
+        1424,
+        406
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-1x.png",
+      "size": [
+        90,
+        28
+      ],
+      "ink_bounds": [
+        3,
+        3,
+        89,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-128.png",
+      "size": [
+        128,
+        128
+      ],
+      "ink_bounds": [
+        9,
+        19,
+        119,
+        108
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-2048.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "ink_bounds": [
+        157,
+        315,
+        1891,
+        1722
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-4096.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "ink_bounds": [
+        315,
+        630,
+        3781,
+        3444
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-color-dark-1440.png",
+      "size": [
+        1440,
+        448
+      ],
+      "ink_bounds": [
+        50,
+        61,
+        1424,
+        406
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-small-48.png",
+      "size": [
+        48,
+        48
+      ],
+      "ink_bounds": [
+        3,
+        7,
+        45,
+        44
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-512.png",
+      "size": [
+        512,
+        512
+      ],
+      "ink_bounds": [
+        39,
+        78,
+        473,
+        431
+      ]
+    },
+    {
+      "file": "png/naeil-footer-color-dark-2x.png",
+      "size": [
+        130,
+        40
+      ],
+      "ink_bounds": [
+        5,
+        5,
+        128,
+        37
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-dark-4x.png",
+      "size": [
+        360,
+        112
+      ],
+      "ink_bounds": [
+        12,
+        15,
+        356,
+        102
+      ]
+    },
+    {
+      "file": "png/naeil-footer-gray-1x.png",
+      "size": [
+        65,
+        20
+      ],
+      "ink_bounds": [
+        2,
+        2,
+        64,
+        18
+      ]
+    },
+    {
+      "file": "png/naeil-footer-color-2x.png",
+      "size": [
+        130,
+        40
+      ],
+      "ink_bounds": [
+        5,
+        5,
+        128,
+        37
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-small-48.png",
+      "size": [
+        48,
+        48
+      ],
+      "ink_bounds": [
+        3,
+        7,
+        45,
+        44
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-1x.png",
+      "size": [
+        90,
+        28
+      ],
+      "ink_bounds": [
+        3,
+        3,
+        89,
+        26
+      ]
+    },
+    {
+      "file": "png/naeil-horizontal-gray-1440.png",
+      "size": [
+        1440,
+        448
+      ],
+      "ink_bounds": [
+        50,
+        61,
+        1424,
+        406
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-gray-1024.png",
+      "size": [
+        1024,
+        896
+      ],
+      "ink_bounds": [
+        187,
+        118,
+        837,
+        816
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-color-dark-4096.png",
+      "size": [
+        4096,
+        3584
+      ],
+      "ink_bounds": [
+        748,
+        472,
+        3348,
+        3264
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-128.png",
+      "size": [
+        128,
+        128
+      ],
+      "ink_bounds": [
+        9,
+        19,
+        119,
+        108
+      ]
+    },
+    {
+      "file": "png/naeil-footer-gray-dark-2x.png",
+      "size": [
+        130,
+        40
+      ],
+      "ink_bounds": [
+        5,
+        5,
+        128,
+        37
+      ]
+    },
+    {
+      "file": "png/naeil-stacked-color-4096.png",
+      "size": [
+        4096,
+        3584
+      ],
+      "ink_bounds": [
+        748,
+        472,
+        3348,
+        3264
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-color-dark-512.png",
+      "size": [
+        512,
+        512
+      ],
+      "ink_bounds": [
+        39,
+        78,
+        473,
+        431
+      ]
+    },
+    {
+      "file": "png/naeil-symbol-gray-dark-4096.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "ink_bounds": [
+        315,
+        630,
+        3781,
+        3444
+      ]
+    }
+  ]
+}

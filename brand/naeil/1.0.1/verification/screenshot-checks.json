@@ -1,0 +1,48 @@
+{
+  "adaptive_favicon": [
+    {
+      "engine": "chromium",
+      "width": 390,
+      "theme_changed_pixels": 1428,
+      "bounds": [
+        4,
+        11,
+        59,
+        60
+      ]
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "theme_changed_pixels": 394,
+      "bounds": [
+        2,
+        5,
+        30,
+        29
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "theme_changed_pixels": 1419,
+      "bounds": [
+        4,
+        10,
+        60,
+        59
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 1440,
+      "theme_changed_pixels": 397,
+      "bounds": [
+        2,
+        4,
+        30,
+        29
+      ]
+    }
+  ]
+}

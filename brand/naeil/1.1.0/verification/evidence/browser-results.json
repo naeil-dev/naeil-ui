@@ -1,0 +1,185 @@
+{
+  "method": "Fresh copied standalone kit; no production access",
+  "engines": {
+    "chromium": "153.0.8010.12",
+    "webkit": "26.6"
+  },
+  "cases": [
+    {
+      "key": "chromium-390-light",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "chromium-390-dark",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color-dark.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-dark-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color-dark.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "chromium-1440-light",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "chromium-1440-dark",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color-dark.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-dark-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color-dark.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-390-light",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-390-dark",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color-dark.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-dark-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color-dark.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-1440-light",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color.svg"
+        }
+      ],
+      "externalRequests": 0
+    },
+    {
+      "key": "webkit-1440-dark",
+      "overflow": false,
+      "images": [
+        {
+          "width": 96.9375,
+          "height": 28,
+          "src": "../svg/naeil-horizontal-color-dark.svg"
+        },
+        {
+          "width": 40,
+          "height": 40,
+          "src": "../svg/naeil-symbol-color-dark-small.svg"
+        },
+        {
+          "width": 70.09375,
+          "height": 20,
+          "src": "../svg/naeil-footer-color-dark.svg"
+        }
+      ],
+      "externalRequests": 0
+    }
+  ]
+}

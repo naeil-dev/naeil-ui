@@ -22,6 +22,7 @@ export default defineConfig({
     "src/components/nav.tsx",
     "src/components/footer.tsx",
     "src/components/logo.tsx",
+    "src/components/brand-artwork.generated.tsx", // Internal generated source; no public export.
     "src/components/locale-switcher.tsx",
     "src/components/theme-provider.tsx",
     "src/components/theme-toggle.tsx",

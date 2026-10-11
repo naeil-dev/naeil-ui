@@ -2,22 +2,22 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-이 안내는 **@naeil/ui 0.3.0**의 CSS·API·패키지 경계를 대상으로 한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 기존 npm 0.2.0에 이 기능이 모두 구현됐다고 가정하지 않는다. Registry의 게시 여부와 latest 태그는 별도로 확인한다.
+이 안내는 **@naeil/ui 0.4.0**의 CSS·API·패키지 경계를 대상으로 한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 기존 npm 0.2.0에 이 기능이 모두 구현됐다고 가정하지 않는다. Registry의 게시 여부와 latest 태그는 별도로 확인한다.
 
 ## 시작하기
 
 React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용한다. API 키와 Next.js는 필요 없다. 소비 앱에서 정확한 버전을 지정한다.
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.3.0
-# npm install --save-exact @naeil/ui@0.3.0
+pnpm add --save-exact @naeil/ui@0.4.0
+# npm install --save-exact @naeil/ui@0.4.0
 ```
 
-이 명령은 해당 버전이 registry에 있을 때 사용할 수 있다. 게시 전 소스 검증은 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.3.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+이 명령은 해당 버전이 registry에 있을 때 사용할 수 있다. 게시 전 소스 검증은 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.4.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
-버전을 생략한 설치는 registry의 latest 태그를 따른다. 이 안내와 동일한 경계를 사용하려면 0.3.0을 지정하고 [변경 기록](../../CHANGELOG.md)을 확인한다.
+버전을 생략한 설치는 registry의 latest 태그를 따른다. 이 안내와 동일한 경계를 사용하려면 0.4.0을 지정하고 [변경 기록](../../CHANGELOG.md)을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -197,3 +197,33 @@ The reachable Next consumer's observed deep imports (Nav, Footer, ThemeProvider,
 ## Demand-led extension
 
 Version 0.3.0 also adds `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` and `Textarea` to `/ui`, plus exact `components/ui/tabs` and `components/ui/textarea` deep entries. Existing root stays the brand/framework barrel. No new dependency or existing default is changed. See the [13-family index](../components/README.md), [Tabs defaults/mount responsibilities](../components/tabs.md), [native Textarea contract](../components/textarea.md), [field/native-radio composition](../components/composition.md), and [demand decision](component-demand.md). Publishing does not update consumers that use locally copied primitives.
+
+
+## Brand Logo integration (0.4.0)
+
+Version 0.4.0 connects the approved **brand 1.1.1** to the shared components. It is not a claim that npm 0.3.0 already contains the new logo. Package publication and consumer upgrades remain separate.
+
+```tsx
+// React-only, no Next.js peer required for this deep import:
+import { Logo, type LogoProps } from '@naeil/ui/components/logo';
+
+<Logo size={32} />
+<Logo variant="horizontal" size={28} />
+<Logo variant="footer" size={20} />
+<Logo tone="gray" size={40} />
+<Logo variant="horizontal" size={28} theme="dark" />
+<a href="/" aria-label="naeil 홈"><Logo size={28} label={null} /></a>
+```
+
+Root and `components/index` continue to export Logo; root still has the existing Next/next-intl compatibility peers. `LogoProps` is also exported. No brand export is added to `/ui`.
+
+- `size` remains the rendered height, default 20px. Default `variant="symbol"` remains square. The 16–48px symbol uses the reviewed small artwork; larger symbols use the detailed source. `horizontal`, `footer`, `stacked` and `wordmark` preserve their aspect ratio. Header height 28px and footer height 20px are recommended. For stacked use a minimum height of 140px (160px width).
+- `className`, standard SVG props and consumer style overrides are retained. Avoid stretching width and height independently. Artwork contains paths, not text or external images; Lato installation is unnecessary.
+- `theme="auto"` follows the nearest `.light`, `.dark`, `data-theme="light"` or `data-theme="dark"` ancestor, with OS preference as fallback. It uses embedded SVG CSS and React useId, so SSR markup does not branch on browser state. For strict CSP or manual control, provide `theme="light"` or `theme="dark"`; that form emits no theme style element. Multiple independently hydrated React roots should use distinct React identifierPrefix values as usual.
+- `tone="color"` is default. `tone="gray"` uses the selected grayscale A, including islands. Existing `mono` remains a **single currentColor silhouette** for compatibility; its one-ink shape loses the internal sun/island distinction. It is not the preferred grayscale version or a separately approved print master. `mono` takes precedence over tone/theme colors.
+- Default accessible name is naeil with role=img. Use `label={null}` for decorative use and name the enclosing link/button. `aria-label` and other standard SVG attributes remain consumer overrides.
+- Nav now uses the horizontal wordmark at 28px; Footer uses the footer lockup at 20px. Their official visible spelling remains `.naeil`: the period marks an ending, followed by tomorrow. Nav's `brandSlot`, brandHref, external/internal links, layout frame and other slots are preserved. Check custom layouts on upgrade because the new artwork has a different width.
+
+The independent kit lives in the repository's `brand/naeil/1.1.1/` directory with its own usage guide, SVG/PNG/icons, OFL and checksums. Copy it for non-React uses without installing @naeil/ui. It is intentionally not copied into the npm tarball. The package carries only generated React artwork and the [Lato notice](../../licenses/Lato-OFL.txt). A favicon is application-owned: Next file conventions can use the kit's favicon.ico, favicon.svg and apple-touch-icon.png; each consumer chooses its own app manifest and deployment.
+
+Maintainers run `pnpm build:brand` after explicitly selecting a reviewed version in `brand/current.json`, then `pnpm check:brand`. Package/Storybook builds check that generated artwork, notices and this site's icon files match that version. Shared color tokens and Pretendard do not change. In Storybook, **Brand / Logo / Docs, Usage, Application** demonstrates the actual adapter, canonical SVG comparisons and Nav/Footer composition.

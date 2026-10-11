@@ -1,0 +1,23 @@
+
+=== k1.svg  (443 bytes)
+viewBox 0 0 256 256 · aspect 1.0 (square)
+colours 1: #171717 · gradients 0 · anchors 16
+margins L25.0 R27.0 T54.0 B59.0 · bbox fill 0.445
+✔ no issues found
+production-readiness score: 100/100 (heuristic)
+
+=== k2.svg  (303 bytes)
+viewBox 0 0 256 256 · aspect 1.0 (square)
+colours 1: #171717 · gradients 0 · anchors 8
+margins L36.0 R49.0 T81.0 B47.4 · bbox fill 0.333
+· INFO [off-centre-x] Horizontal margins differ (left 36.0, right 49.0). Intentional optical centring? Otherwise centre it.
+· INFO [off-centre-y] Vertical margins differ (top 81.0, bottom 47.4). Remember the optical centre sits slightly above the geometric centre.
+· INFO [small-in-canvas] The mark occupies little of its square canvas; tighten the viewBox or scale up.
+production-readiness score: 97/100 (heuristic)
+
+=== k3.svg  (366 bytes)
+viewBox 0 0 256 256 · aspect 1.0 (square)
+colours 1: #171717 · gradients 0 · anchors 12
+margins L62.0 R49.0 T44.0 B44.0 · bbox fill 0.372
+· INFO [off-centre-x] Horizontal margins differ (left 62.0, right 49.0). Intentional optical centring? Otherwise centre it.
+production-readiness score: 99/100 (heuristic)

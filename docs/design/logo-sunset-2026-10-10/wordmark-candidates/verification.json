@@ -1,0 +1,13 @@
+{
+  "font_sources_hashes": "pass",
+  "ofl_license_files": 3,
+  "svg_assets": 21,
+  "png_assets": 21,
+  "external_dependencies_in_logo_assets": false,
+  "transparency_and_bounds": "pass",
+  "visual_sheets_reviewed": [
+    "comparison.png",
+    "letterforms.png",
+    "proof.png"
+  ]
+}

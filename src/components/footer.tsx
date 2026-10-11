@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Logo } from "./logo";
 
 interface FooterProps {
   /** Link component from consumer */
@@ -60,12 +61,7 @@ export function Footer({ Link, linksExternal = false }: FooterProps) {
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-16 sm:flex-row sm:justify-between">
         {/* Left: Brand */}
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <Logo size={20} />
-            <span className="text-foreground text-sm font-semibold tracking-tight">
-              .naeil
-            </span>
-          </div>
+          <Logo variant="footer" size={20} className="block" />
           <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
             {t("tagline")}
           </p>
@@ -130,44 +126,6 @@ export function Footer({ Link, linksExternal = false }: FooterProps) {
         </div>
       </div>
     </footer>
-  );
-}
-
-/* ── Inline Logo (pure SVG) ── */
-function Logo({ size = 20 }: { size?: number }) {
-  const id = `naeil-footer-logo-${size}`;
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-label="naeil"
-    >
-      <path
-        d="M6 4 L6 16 L20 16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="square"
-        strokeLinejoin="miter"
-      />
-      <circle
-        cx="15"
-        cy="16"
-        r="3.5"
-        fill={`url(#${id}-grad)`}
-        mask={`url(#${id})`}
-      />
-      <defs>
-        <linearGradient id={`${id}-grad`} x1="15" y1="12.5" x2="15" y2="16">
-          <stop stopColor="#eab308" />
-          <stop offset="1" stopColor="#dc2626" />
-        </linearGradient>
-        <mask id={id}>
-          <rect x="0" y="0" width="24" height="16" fill="white" />
-        </mask>
-      </defs>
-    </svg>
   );
 }
 

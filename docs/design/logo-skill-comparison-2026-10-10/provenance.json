@@ -1,0 +1,14 @@
+{
+  "kaan": {
+    "checkout": "/tmp/naeil-compare-kaan",
+    "commit": "0ecf52e9a4b3ac92b714f7cc6e3148ab8c774134"
+  },
+  "neon": {
+    "checkout": "/tmp/naeil-compare-neon",
+    "commit": "8f97c6fa61ea3ee775bdeb97384885875fa7108f"
+  },
+  "brandkit": {
+    "checkout": "/tmp/naeil-compare-taste",
+    "commit": "717446e07a78d4e6d7918b1fde1a263378eebac9"
+  }
+}

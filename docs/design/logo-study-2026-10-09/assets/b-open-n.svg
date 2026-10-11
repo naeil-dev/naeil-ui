@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" color="#191919" role="img" aria-label="naeil B">
+  <title>naeil — 열린 n</title>
+  <desc>An original lowercase n with a slanted opening through its curved shoulder.</desc>
+  <g fill="currentColor">
+    <path d="M8 55V10H21V17C26 11 32 8 39 8H40L35 21C27 21 21 29 21 39V55Z"/>
+    <path d="M46 9C53 13 57 21 57 30V55H44V31C44 27 42 23 39 22Z"/>
+  </g>
+</svg>

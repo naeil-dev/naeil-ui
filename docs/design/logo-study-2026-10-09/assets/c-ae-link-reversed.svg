@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" color="#f1f1f1" role="img" aria-label="naeil C">
+  <title>naeil — 이름의 이음</title>
+  <desc>A compact, original ae ligature taken from the middle of the name naeil.</desc>
+  <g fill="currentColor" fill-rule="evenodd">
+    <path d="M34 15H27V19C25 16 22 14 18 14C10 14 6 21 6 32C6 43 10 50 18 50C22 50 25 48 27 45V50H34Z M27 32C27 24 24 21 19 21C14 21 13 26 13 32C13 38 14 43 19 43C24 43 27 40 27 32Z" />
+    <path d="M58 34H35C36 41 40 44 45 44C49 44 52 42 54 39L59 44C56 48 51 50 45 50C34 50 28 43 28 32C28 21 35 14 45 14C55 14 59 22 59 31Z M35 28H52C51 23 49 21 45 21C40 21 36 24 35 28Z" />
+  </g>
+</svg>

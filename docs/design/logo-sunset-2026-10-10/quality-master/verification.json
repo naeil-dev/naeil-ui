@@ -1,0 +1,74 @@
+{
+  "svg_assets": 12,
+  "png_exports": 52,
+  "svg_checks": [
+    {
+      "svg": "naeil-gray-lockup.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-gray-small.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-color.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-gray.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-color-small.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-color-lockup.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-gray-dark.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-gray-dark-lockup.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-color-dark-lockup.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-color-dark.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-color-dark-small.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    },
+    {
+      "svg": "naeil-gray-dark-small.svg",
+      "parse_and_references": "pass",
+      "external_dependencies": false
+    }
+  ],
+  "png_dimensions_transparency_bounds": "pass",
+  "neutral_gray_channels": "pass",
+  "visual_evidence": [
+    "preview.png",
+    "evidence/before-after.png",
+    "evidence/size-proof.png",
+    "evidence/pixel-proof.png"
+  ]
+}

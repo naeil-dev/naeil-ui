@@ -1,0 +1,21 @@
+/* Scope to the brand only; do not replace the application's UI font. */
+.naeil-brand {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  vertical-align: middle;
+}
+.naeil-brand img {
+  display: block;
+  width: auto;
+  height: var(--naeil-brand-height, 28px);
+  max-width: none;
+}
+.naeil-brand .naeil-on-dark { display: none; }
+:is(.dark, [data-theme="dark"]) .naeil-brand .naeil-on-light { display: none; }
+:is(.dark, [data-theme="dark"]) .naeil-brand .naeil-on-dark { display: block; }
+/* Explicit app theme wins. OS auto-switch is used only by an opt-in container. */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .naeil-brand .naeil-on-light { display: none; }
+  [data-theme="auto"] .naeil-brand .naeil-on-dark { display: block; }
+}
