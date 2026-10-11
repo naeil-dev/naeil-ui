@@ -1,0 +1,781 @@
+{
+  "testedAt": "2026-10-10T23:50:41.600Z",
+  "method": "Chromium clean contexts; public /ko page; temporary DOM image substitution; no product integration",
+  "browser": "153.0.8010.12",
+  "cases": [
+    {
+      "key": "1440-light",
+      "before": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "theme": "light",
+        "bodyWidth": 1440,
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 190.234375,
+          "bottom": 43
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 59,
+          "right": 1440,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "text": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "text": "Switch to dark mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "text": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "text": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "after": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "theme": "light",
+        "bodyWidth": 1440,
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 88.09375,
+          "height": 27.984375,
+          "right": 192.09375,
+          "bottom": 42.984375
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 59,
+          "right": 1440,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "text": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "text": "Switch to dark mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "text": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "text": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "shifts": [
+        {
+          "text": "프로젝트",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "블로그",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Switch to dark mode",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Change language — current: KO",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "로그인",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": [],
+      "pageOverflowBefore": false,
+      "pageOverflowAfter": false,
+      "restoredBrandText": ".naeil"
+    },
+    {
+      "key": "1440-dark",
+      "before": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "theme": "dark",
+        "bodyWidth": 1440,
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 190.234375,
+          "bottom": 43
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 59,
+          "right": 1440,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "text": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "text": "Switch to light mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "text": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "text": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "after": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "theme": "dark",
+        "bodyWidth": 1440,
+        "brand": {
+          "x": 104,
+          "y": 15,
+          "width": 88.09375,
+          "height": 27.984375,
+          "right": 192.09375,
+          "bottom": 42.984375
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 59,
+          "right": 1440,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "프로젝트",
+            "x": 304,
+            "y": 19.5,
+            "width": 62.40625,
+            "height": 20,
+            "right": 366.40625,
+            "bottom": 39.5
+          },
+          {
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+            "x": 321,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 154.25
+          },
+          {
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+            "x": 566,
+            "y": 70.5,
+            "width": 241,
+            "height": 83.75,
+            "right": 807,
+            "bottom": 154.25
+          },
+          {
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "x": 321,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 562,
+            "bottom": 259.875
+          },
+          {
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+            "x": 566,
+            "y": 158.25,
+            "width": 241,
+            "height": 101.625,
+            "right": 807,
+            "bottom": 259.875
+          },
+          {
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+            "x": 321,
+            "y": 263.875,
+            "width": 241,
+            "height": 83.75,
+            "right": 562,
+            "bottom": 347.625
+          },
+          {
+            "text": "블로그",
+            "x": 390.40625,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 426.71875,
+            "bottom": 39
+          },
+          {
+            "text": "Switch to light mode",
+            "x": 1168.28125,
+            "y": 9,
+            "width": 44,
+            "height": 40,
+            "right": 1212.28125,
+            "bottom": 49
+          },
+          {
+            "text": "Change language — current: KO",
+            "x": 1228.28125,
+            "y": 19,
+            "width": 38.40625,
+            "height": 20,
+            "right": 1266.6875,
+            "bottom": 39
+          },
+          {
+            "text": "로그인",
+            "x": 1299.6875,
+            "y": 19,
+            "width": 36.3125,
+            "height": 20,
+            "right": 1336,
+            "bottom": 39
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "shifts": [
+        {
+          "text": "프로젝트",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "블로그",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Switch to light mode",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "Change language — current: KO",
+          "dx": 0,
+          "dy": 0
+        },
+        {
+          "text": "로그인",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": [],
+      "pageOverflowBefore": false,
+      "pageOverflowAfter": false,
+      "restoredBrandText": ".naeil"
+    },
+    {
+      "key": "390-light",
+      "before": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "theme": "light",
+        "bodyWidth": 390,
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 59,
+          "right": 390,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "after": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "theme": "light",
+        "bodyWidth": 390,
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 88.09375,
+          "height": 27.984375,
+          "right": 112.09375,
+          "bottom": 42.984375
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 59,
+          "right": 390,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "shifts": [
+        {
+          "text": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": [],
+      "pageOverflowBefore": false,
+      "pageOverflowAfter": false,
+      "restoredBrandText": ".naeil"
+    },
+    {
+      "key": "390-dark",
+      "before": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "theme": "dark",
+        "bodyWidth": 390,
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 86.234375,
+          "height": 28,
+          "right": 110.234375,
+          "bottom": 43
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 59,
+          "right": 390,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "after": {
+        "url": "https://naeil.dev/ko",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "theme": "dark",
+        "bodyWidth": 390,
+        "brand": {
+          "x": 24,
+          "y": 15,
+          "width": 88.09375,
+          "height": 27.984375,
+          "right": 112.09375,
+          "bottom": 42.984375
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 59,
+          "right": 390,
+          "bottom": 59
+        },
+        "controls": [
+          {
+            "text": "Menu",
+            "x": 344,
+            "y": 18,
+            "width": 22,
+            "height": 22,
+            "right": 366,
+            "bottom": 40
+          }
+        ],
+        "font": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+      },
+      "shifts": [
+        {
+          "text": "Menu",
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "collisions": [],
+      "pageOverflowBefore": false,
+      "pageOverflowAfter": false,
+      "restoredBrandText": ".naeil"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "question": "Did the logo skill cover wordmarks, and was research-router best-practice research performed before the font choice?",
+  "audited_at": "2026-10-10",
+  "before_this_turn": {
+    "logo_skill_read": true,
+    "research_router_used_for_wordmark_selection": false,
+    "font_licenses_read": true,
+    "three_families_rendered": true,
+    "manual_pair_spacing": true,
+    "small_size_light_dark_proofs": true,
+    "actual_product_integration": false
+  },
+  "skill_scope": "Licensed lettering, optical spacing, terminal shapes, small-size and background proof are explicit. Automatic research-router invocation, a detailed typeface-selection rubric and a weight-comparison gate are not explicit.",
+  "gaps": [
+    "Shortlist rationale was subjective and insufficiently documented against the brief.",
+    "Each font was shown at only one weight.",
+    "Builder uses glyph advance widths plus manual pair gaps; it does not apply OpenType GPOS shaping or compare a default-kerned baseline. This is a process gap, not proof of a visible defect.",
+    "User tentative acceptance was treated too much like final approval.",
+    "Actual product usage has not been verified."
+  ],
+  "research_run": "/tmp/research-router-naeil-wordmark.hlz1Ga",
+  "current_research": {
+    "date_scope": "Foundational professional practice, not recent popularity",
+    "read_bodies": 5,
+    "asserted_origin_groups": 3,
+    "publication_dates": "Not recovered; no claim of recent-90-day evidence",
+    "discovery": "Two queries returned off-topic/general results; known original URLs used as allowed fallback",
+    "failed_url": "https://practicaltypography.com/about.html returned HTTP 404 in provider attempts; not retried"
+  },
+  "sources": [
+    {
+      "id": "C1",
+      "finding": "Practical Typography treats fonts as only one part of typography and emphasizes composition; this is author guidance, not a paid-font requirement for naeil.",
+      "records": [
+        "9058f77c7ec4721c65e6748e"
+      ]
+    },
+    {
+      "id": "C2",
+      "finding": "Practical Typography distinguishes pair kerning from overall letterspacing; its InDesign-specific metrics advice supports comparing the font-defined baseline before our manual adjustments, not prohibiting visual hand-tuning.",
+      "records": [
+        "d36ba6293d488d1fbd663c21",
+        "a16b9e4cb1ca2d346c2e0c47"
+      ]
+    },
+    {
+      "id": "C3",
+      "finding": "Google Design reports defining brand challenges, testing sizes and weights and preparing spacing, clearance and product-lockup specifications for its own identity. This is a case study, not proof Lato is best.",
+      "records": [
+        "c05ba7784e265591ef718128"
+      ]
+    },
+    {
+      "id": "C4",
+      "finding": "The Lato introduction describes warmth, friendliness and semi-rounded details; this supports a plausible fit to naeil but is self-description, not independent comparative validation.",
+      "records": [
+        "b977e1d8c40de7d86e3137da"
+      ]
+    }
+  ],
+  "recommendation": "Keep Lato as the leading provisional choice. Next: write explicit criteria, compare a font-defined spacing baseline with hand adjustments and a small weight range, then inspect real placements before final designation. No font or product assets changed during this audit."
+}

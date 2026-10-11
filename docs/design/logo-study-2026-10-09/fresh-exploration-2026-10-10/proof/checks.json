@@ -1,0 +1,884 @@
+[
+  {
+    "source": "/Users/jaymini/.paseo/worktrees/28nele6j/human-ape/docs/design/logo-study-2026-10-09/fresh-exploration-2026-10-10/sketches/a-comma.svg",
+    "sha256": "e4b03c8632a1ddd6a195586abeb829804151e2e7bc88a4ff2374edce86fecee6",
+    "viewBox": [
+      0.0,
+      0.0,
+      64.0,
+      64.0
+    ],
+    "font_dependent_text": false,
+    "filter_present": false,
+    "rasters": [
+      {
+        "mode": "original",
+        "size": 16,
+        "bounds": [
+          4,
+          3,
+          11,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 24,
+        "bounds": [
+          6,
+          4,
+          17,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 32,
+        "bounds": [
+          8,
+          6,
+          22,
+          28
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 64,
+        "bounds": [
+          17,
+          12,
+          43,
+          56
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 16,
+        "bounds": [
+          4,
+          3,
+          11,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 24,
+        "bounds": [
+          6,
+          4,
+          17,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 32,
+        "bounds": [
+          8,
+          6,
+          22,
+          28
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 64,
+        "bounds": [
+          17,
+          12,
+          43,
+          56
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 16,
+        "bounds": [
+          4,
+          3,
+          11,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 24,
+        "bounds": [
+          6,
+          4,
+          17,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 32,
+        "bounds": [
+          8,
+          6,
+          22,
+          28
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 64,
+        "bounds": [
+          17,
+          12,
+          43,
+          56
+        ],
+        "touches_edge": false
+      }
+    ],
+    "name": "01-a-comma"
+  },
+  {
+    "source": "/Users/jaymini/.paseo/worktrees/28nele6j/human-ape/docs/design/logo-study-2026-10-09/fresh-exploration-2026-10-10/sketches/b-waking-eye.svg",
+    "sha256": "72132568703c5690b5823aa58d3fa07ca32102d643749a0f74b4aa2422504495",
+    "viewBox": [
+      0.0,
+      0.0,
+      64.0,
+      64.0
+    ],
+    "font_dependent_text": false,
+    "filter_present": false,
+    "rasters": [
+      {
+        "mode": "original",
+        "size": 16,
+        "bounds": [
+          1,
+          5,
+          15,
+          12
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 24,
+        "bounds": [
+          2,
+          7,
+          22,
+          17
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 32,
+        "bounds": [
+          2,
+          10,
+          30,
+          23
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 64,
+        "bounds": [
+          5,
+          20,
+          59,
+          45
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 16,
+        "bounds": [
+          1,
+          5,
+          15,
+          12
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 24,
+        "bounds": [
+          2,
+          7,
+          22,
+          17
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 32,
+        "bounds": [
+          2,
+          10,
+          30,
+          23
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 64,
+        "bounds": [
+          5,
+          20,
+          59,
+          45
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 16,
+        "bounds": [
+          1,
+          5,
+          15,
+          12
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 24,
+        "bounds": [
+          2,
+          7,
+          22,
+          17
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 32,
+        "bounds": [
+          2,
+          10,
+          30,
+          23
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 64,
+        "bounds": [
+          5,
+          20,
+          59,
+          45
+        ],
+        "touches_edge": false
+      }
+    ],
+    "name": "02-b-waking-eye"
+  },
+  {
+    "source": "/Users/jaymini/.paseo/worktrees/28nele6j/human-ape/docs/design/logo-study-2026-10-09/fresh-exploration-2026-10-10/sketches/c-ember.svg",
+    "sha256": "c38c8d4bfb505e44147aad09b7f38a29be71a6fb6bcfc061c2c4354ec2ffe318",
+    "viewBox": [
+      0.0,
+      0.0,
+      64.0,
+      64.0
+    ],
+    "font_dependent_text": false,
+    "filter_present": false,
+    "rasters": [
+      {
+        "mode": "original",
+        "size": 16,
+        "bounds": [
+          2,
+          3,
+          14,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 24,
+        "bounds": [
+          3,
+          4,
+          21,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 32,
+        "bounds": [
+          4,
+          6,
+          28,
+          27
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 64,
+        "bounds": [
+          8,
+          13,
+          56,
+          54
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 16,
+        "bounds": [
+          2,
+          3,
+          14,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 24,
+        "bounds": [
+          3,
+          4,
+          21,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 32,
+        "bounds": [
+          4,
+          6,
+          28,
+          27
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 64,
+        "bounds": [
+          8,
+          13,
+          56,
+          54
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 16,
+        "bounds": [
+          2,
+          3,
+          14,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 24,
+        "bounds": [
+          3,
+          4,
+          21,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 32,
+        "bounds": [
+          4,
+          6,
+          28,
+          27
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 64,
+        "bounds": [
+          8,
+          13,
+          56,
+          54
+        ],
+        "touches_edge": false
+      }
+    ],
+    "name": "03-c-ember"
+  },
+  {
+    "source": "/Users/jaymini/.paseo/worktrees/28nele6j/human-ape/docs/design/logo-study-2026-10-09/fresh-exploration-2026-10-10/sketches/d-night-cradle.svg",
+    "sha256": "b319272bd1e3be918f11ec50a38d910b918a4af05e4d8a4f47438bcc72dd1cc8",
+    "viewBox": [
+      0.0,
+      0.0,
+      64.0,
+      64.0
+    ],
+    "font_dependent_text": false,
+    "filter_present": false,
+    "rasters": [
+      {
+        "mode": "original",
+        "size": 16,
+        "bounds": [
+          2,
+          5,
+          14,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 24,
+        "bounds": [
+          3,
+          7,
+          21,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 32,
+        "bounds": [
+          5,
+          10,
+          27,
+          28
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 64,
+        "bounds": [
+          10,
+          20,
+          54,
+          56
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 16,
+        "bounds": [
+          2,
+          5,
+          14,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 24,
+        "bounds": [
+          3,
+          7,
+          21,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 32,
+        "bounds": [
+          5,
+          10,
+          27,
+          28
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 64,
+        "bounds": [
+          10,
+          20,
+          54,
+          56
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 16,
+        "bounds": [
+          2,
+          5,
+          14,
+          14
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 24,
+        "bounds": [
+          3,
+          7,
+          21,
+          21
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 32,
+        "bounds": [
+          5,
+          10,
+          27,
+          28
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 64,
+        "bounds": [
+          10,
+          20,
+          54,
+          56
+        ],
+        "touches_edge": false
+      }
+    ],
+    "name": "04-d-night-cradle"
+  },
+  {
+    "source": "/Users/jaymini/.paseo/worktrees/28nele6j/human-ape/docs/design/logo-study-2026-10-09/fresh-exploration-2026-10-10/sketches/e-next-page.svg",
+    "sha256": "a8dc530d947723d03549fc13fed1c5ac23a94d38dc80d6e67d71a98e92ad7d7e",
+    "viewBox": [
+      0.0,
+      0.0,
+      64.0,
+      64.0
+    ],
+    "font_dependent_text": false,
+    "filter_present": false,
+    "rasters": [
+      {
+        "mode": "original",
+        "size": 16,
+        "bounds": [
+          2,
+          1,
+          14,
+          15
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 24,
+        "bounds": [
+          3,
+          2,
+          21,
+          22
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 32,
+        "bounds": [
+          4,
+          3,
+          28,
+          29
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 64,
+        "bounds": [
+          9,
+          7,
+          55,
+          57
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 16,
+        "bounds": [
+          2,
+          1,
+          14,
+          15
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 24,
+        "bounds": [
+          3,
+          2,
+          21,
+          22
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 32,
+        "bounds": [
+          4,
+          3,
+          28,
+          29
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 64,
+        "bounds": [
+          9,
+          7,
+          55,
+          57
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 16,
+        "bounds": [
+          2,
+          1,
+          14,
+          15
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 24,
+        "bounds": [
+          3,
+          2,
+          21,
+          22
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 32,
+        "bounds": [
+          4,
+          3,
+          28,
+          29
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 64,
+        "bounds": [
+          9,
+          7,
+          55,
+          57
+        ],
+        "touches_edge": false
+      }
+    ],
+    "name": "05-e-next-page"
+  },
+  {
+    "source": "/Users/jaymini/.paseo/worktrees/28nele6j/human-ape/docs/design/logo-study-2026-10-09/fresh-exploration-2026-10-10/sketches/f-door-light.svg",
+    "sha256": "054a6b1f13b979b5a979e1c24d47ab626601e1d0d59653b2e8e557eb56699d10",
+    "viewBox": [
+      0.0,
+      0.0,
+      64.0,
+      64.0
+    ],
+    "font_dependent_text": false,
+    "filter_present": false,
+    "rasters": [
+      {
+        "mode": "original",
+        "size": 16,
+        "bounds": [
+          3,
+          2,
+          14,
+          15
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 24,
+        "bounds": [
+          5,
+          3,
+          21,
+          23
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 32,
+        "bounds": [
+          7,
+          4,
+          28,
+          30
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "original",
+        "size": 64,
+        "bounds": [
+          14,
+          8,
+          56,
+          60
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 16,
+        "bounds": [
+          3,
+          2,
+          14,
+          15
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 24,
+        "bounds": [
+          5,
+          3,
+          21,
+          23
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 32,
+        "bounds": [
+          7,
+          4,
+          28,
+          30
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "mono",
+        "size": 64,
+        "bounds": [
+          14,
+          8,
+          56,
+          60
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 16,
+        "bounds": [
+          3,
+          2,
+          14,
+          15
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 24,
+        "bounds": [
+          5,
+          3,
+          21,
+          23
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 32,
+        "bounds": [
+          7,
+          4,
+          28,
+          30
+        ],
+        "touches_edge": false
+      },
+      {
+        "mode": "reversed",
+        "size": 64,
+        "bounds": [
+          14,
+          8,
+          56,
+          60
+        ],
+        "touches_edge": false
+      }
+    ],
+    "name": "06-f-door-light"
+  }
+]

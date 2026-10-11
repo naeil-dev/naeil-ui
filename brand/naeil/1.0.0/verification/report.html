@@ -1,0 +1,25 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>naeil 1.0.0 최종 검수</title><style>body{font:16px/1.75 system-ui,sans-serif;max-width:1060px;padding:24px;margin:auto;color:#263c4b;background:#fafafa}h1{font-size:30px}h2{font-size:22px;margin-top:36px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:10px;text-align:left}img{max-width:100%;height:auto}a{color:#24567a}code{overflow-wrap:anywhere}.pair{display:flex;gap:20px;flex-wrap:wrap}.pair img{max-width:calc(50% - 10px)}</style>
+<h1>naeil 브랜드 패키지 1.0.0 — 최종 검수</h1><p>2026-10-11 · 웹·디지털 재사용용 파일 검수</p>
+<p><strong>Lato Regular 400·기본 글자 간격으로 최종 파일을 통일했다.</strong> 다른 프로젝트가 폰트나 UI 라이브러리를 설치하지 않고 쓸 수 있도록 독립 SVG·PNG·파비콘·가이드를 묶었다. 아래 통과 범위에서 파일 사용을 권장한다. 제품 소스·공유 패키지·운영 배포는 변경하지 않았다.</p>
+<h2>파일 및 크기 검수</h2><table><tr><th>항목</th><th>결과</th></tr>
+<tr><td>완성 SVG</td><td>로고 24개 + 파비콘/앱 아이콘 원본 4개. 외부 이미지·폰트·스크립트 의존성 없음. ID 중복·잘못된 그라데이션 참조 없음.</td></tr>
+<tr><td>PNG</td><td>투명 로고 PNG 84개. 실제 알파 픽셀을 검사하여 잘림과 빈 이미지 없음. 대표 심볼·세로 로고 최대 4096px.</td></tr>
+<tr><td>그레이스케일</td><td>선택한 회색 A 유지. 심볼·워드마크의 회색 RGB 채널이 동일함을 확인. 밝은 배경과 어두운 배경에서 섬의 명도 구분을 시각적으로 확인.</td></tr>
+<tr><td>작은 크기</td><td>16/20/24/28/32/40/48/64px 및 세로 로고 최소 폭 160px를 렌더하고 확인. 16px는 최근접 확대도 확인. 해·물결의 구분은 남고, 섬은 작은 실루엣으로 단순해진다. 16–48px는 small 파일을 사용한다.</td></tr>
+<tr><td>파비콘</td><td>SVG의 밝음·어두움 자동 전환을 Chromium/WebKit에서 확인. ICO 16/32/48px 각 프레임을 디코딩하여 전용 PNG와 픽셀 일치 확인. ICO에는 양쪽 도구막대에서 보이는 따뜻한 단색 배경 적용.</td></tr>
+<tr><td>앱 아이콘</td><td>180/192/512px 파일 제공. maskable 아이콘의 전경 최대 반경 161.69px가 512px 캔버스의 안전 반경 204.8px 이내임을 확인. 실제 iOS/Android 설치 검증을 뜻하지 않는다.</td></tr>
+<tr><td>글자 대비</td><td>검증한 밝음·어두움 배경에서 워드마크 대비 10.61:1–17.33:1. 이는 단색 글자 색과 배경의 계산값이며 장식적 심볼의 모든 그라데이션 구간에 대한 접근성 적합 판정은 아니다.</td></tr>
+<tr><td>폰트</td><td>고정된 Google Fonts 커밋의 Lato 원본·OFL 해시 대조 완료. 글자는 SVG 경로로 배포. 원본 폰트와 라이선스는 재생성을 위해 함께 보존.</td></tr></table>
+<p>헤더는 심볼 28px / 간격 8px / 소문자 몸통 14px. 양끝 잘림 방지용 1px 여백을 포함해 전체 90.11×28px. 푸터는 심볼 20px / 간격 6px / 몸통 10px, 전체 65.22×20px다. 앞선 검증과 글자 간격은 같고, 좌우에 투명 여백만 추가했다.</p>
+<h2>브라우저 검수</h2><table><tr><th>엔진</th><th>버전</th><th>독립 재사용 예제</th><th>실제 사이트 조건</th><th>결과</th></tr><tr><td>chromium</td><td>153.0.8010.12</td><td>4</td><td>8</td><td>통과</td></tr><tr><td>webkit</td><td>26.6</td><td>4</td><td>4</td><td>통과</td></tr><tr><td>Firefox</td><td>155 / Playwright 1543</td><td>미실행</td><td>미실행</td><td>브라우저 시작 실패</td></tr></table>
+<p>독립 예제는 새 임시 폴더에 패키지를 복사하여 별도 HTTP 서버에서 로드했다. 390px·DPR 2와 1440px·DPR 1, 밝음·어두움으로 8조건을 확인했다. 외부 네트워크 요청, 깨진 이미지, 가로 넘침이 없었고, 헤더 28px·로그인 심볼 40px·푸터 20px가 유지됐다. 앱 테마 전환도 확인했다.</p>
+<p>실제 사이트는 https://naeil.dev 의 홈페이지와 로그인 페이지를 새 브라우저 컨텍스트에서 열고 로고만 임시 DOM 교체했다. 한국어는 양쪽 엔진의 모바일·데스크톱·양쪽 테마를 확인했고, 영어·일본어는 Chromium 모바일·양쪽 테마를 추가 확인했다. 총 12조건에서 헤더 메뉴 이동·로고 겹침·가로 넘침이 없었다. 모바일 메뉴 열림 상태에서도 로고 위치가 유지됐다. 로그인 심볼은 40×40px로 표시됐다. 서버에 저장하거나 운영 사이트를 교체한 결과는 아니다.</p>
+<p>Firefox는 기본 임시 경로, /tmp 경로, 사용자 홈의 새 영구 프로필 모두 “Could not find profile folder”로 시작에 실패했다. 파일 렌더 실패와 구분하며, 검증한 브라우저 목록에 포함하지 않는다. WebKit 자동화 결과는 실제 Safari 앱·iPhone 실기기 전체 검증과 동일하지 않다.</p>
+<h2>직접 확인한 화면</h2><p><a href="proof.html">원본 SVG 크기별 증거판</a> · <a href="evidence/proof-chromium-light.png">Chromium 렌더</a> · <a href="evidence/proof-webkit-light.png">WebKit 렌더</a></p>
+<img src="evidence/16px-pixels.png" alt="16px 네 버전과 픽셀 확대">
+<div class="pair"><img src="evidence/live-chromium-ko-390-light-login.png" alt="실제 로그인 밝은 배경"><img src="evidence/live-webkit-ko-390-dark-login.png" alt="실제 로그인 어두운 배경"></div>
+<p><a href="evidence/live-chromium-ja-390-light-menu.png">일본어 모바일 메뉴</a> · <a href="evidence/live-webkit-ko-1440-dark-header.png">데스크톱 헤더</a> · <a href="evidence/live-chromium-ko-390-light-footer.png">모바일 푸터</a> · <a href="evidence/consumer-webkit-390-dark.png">독립 소비자 예제</a></p>
+<h2>완료 범위</h2><p>이 버전은 웹·디지털용 재사용 패키지로 정리한 최종본이다. 본문 UI 글꼴이나 @naeil/ui의 API를 변경하지 않았다. 실제 서비스마다 위 가이드의 파일을 가져다 적용하면 된다. 이전 탐색 폴더와 selected-lato ZIP은 과거 비교본이며 새 프로젝트에는 이 1.0.0 패키지를 사용한다.</p>
+<p>회색 A는 연속 명도를 쓰므로 엄격한 1도 도장·각인용 파일은 아니다. 인쇄소 CMYK 교정, 사진 배경 위 모든 조합, 상표 유사성 조사, 실제 앱스토어 제출은 완료 범위에 포함하지 않는다.</p>
+<h2>기계 검증 근거</h2><p><a href="structural-results.json">파일·픽셀·폰트 감사</a> · <a href="browser-results.json">브라우저 원시 결과와 Firefox 오류</a> · <a href="package-results.json">ZIP 추출·무결성·링크 검사</a> · <a href="../asset-manifest.json">치수·조판 명세</a> · <a href="../START-HERE.html">사용 가이드</a></p>
+<p>도구: logo-icon-design 지침, HarfBuzz, fontTools, librsvg, Pillow(픽셀 검사·ICO 디코딩·증거 확대), Playwright Chromium/WebKit. Firefox 설치 및 실행 시도. 이 단계에서는 새 research-router 검색이나 이미지 생성 서비스를 실행하지 않았다.</p></html>

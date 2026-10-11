@@ -1,0 +1,38 @@
+[
+  {
+    "file": "kaan/k1.svg",
+    "xml": "parsed",
+    "external_references": [],
+    "font_image_script_elements": []
+  },
+  {
+    "file": "kaan/k2.svg",
+    "xml": "parsed",
+    "external_references": [],
+    "font_image_script_elements": []
+  },
+  {
+    "file": "kaan/k3.svg",
+    "xml": "parsed",
+    "external_references": [],
+    "font_image_script_elements": []
+  },
+  {
+    "file": "neon/concepts/n1.svg",
+    "xml": "parsed",
+    "external_references": [],
+    "font_image_script_elements": []
+  },
+  {
+    "file": "neon/concepts/n2.svg",
+    "xml": "parsed",
+    "external_references": [],
+    "font_image_script_elements": []
+  },
+  {
+    "file": "neon/concepts/n3.svg",
+    "xml": "parsed",
+    "external_references": [],
+    "font_image_script_elements": []
+  }
+]

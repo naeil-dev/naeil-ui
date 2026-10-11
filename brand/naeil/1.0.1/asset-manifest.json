@@ -1,0 +1,230 @@
+{
+  "version": "1.0.1",
+  "date": "2026-10-11",
+  "wordmark": {
+    "family": "Lato",
+    "weight": 400,
+    "spacing": "HarfBuzz font-defined positioning; no manual pair offsets",
+    "text": "naeil",
+    "font_sha256": "d636e4683231f931eda222d588e944d082bfd3bdba02f928bee461c0f185b251",
+    "glyph_positions": [
+      {
+        "g": "gid109",
+        "cl": 0,
+        "dx": 0,
+        "dy": 0,
+        "ax": 1116,
+        "ay": 0
+      },
+      {
+        "g": "gid45",
+        "cl": 1,
+        "dx": 0,
+        "dy": 0,
+        "ax": 994,
+        "ay": 0
+      },
+      {
+        "g": "gid59",
+        "cl": 2,
+        "dx": 0,
+        "dy": 0,
+        "ax": 1056,
+        "ay": 0
+      },
+      {
+        "g": "gid98",
+        "cl": 3,
+        "dx": 0,
+        "dy": 0,
+        "ax": 480,
+        "ay": 0
+      },
+      {
+        "g": "gid1140",
+        "cl": 4,
+        "dx": 0,
+        "dy": 0,
+        "ax": 472,
+        "ay": 0
+      }
+    ]
+  },
+  "assets": [
+    {
+      "file": "svg/naeil-symbol-color.svg",
+      "use": "symbol",
+      "small": false
+    },
+    {
+      "file": "svg/naeil-symbol-color-small.svg",
+      "use": "symbol",
+      "small": true
+    },
+    {
+      "file": "svg/naeil-horizontal-color.svg",
+      "use": "horizontal",
+      "width": 90.108844,
+      "height": 28,
+      "symbol_box": 28,
+      "symbol_word_gap": 8,
+      "lowercase_body_height": 14
+    },
+    {
+      "file": "svg/naeil-footer-color.svg",
+      "use": "footer",
+      "width": 65.220603,
+      "height": 20,
+      "symbol_box": 20,
+      "symbol_word_gap": 6,
+      "lowercase_body_height": 10
+    },
+    {
+      "file": "svg/naeil-stacked-color.svg",
+      "use": "stacked",
+      "width": 512,
+      "height": 448
+    },
+    {
+      "file": "svg/naeil-wordmark-color.svg",
+      "use": "wordmark",
+      "width": 350.985423,
+      "height": 146.233236
+    },
+    {
+      "file": "svg/naeil-symbol-color-dark.svg",
+      "use": "symbol",
+      "small": false
+    },
+    {
+      "file": "svg/naeil-symbol-color-dark-small.svg",
+      "use": "symbol",
+      "small": true
+    },
+    {
+      "file": "svg/naeil-horizontal-color-dark.svg",
+      "use": "horizontal",
+      "width": 90.108844,
+      "height": 28,
+      "symbol_box": 28,
+      "symbol_word_gap": 8,
+      "lowercase_body_height": 14
+    },
+    {
+      "file": "svg/naeil-footer-color-dark.svg",
+      "use": "footer",
+      "width": 65.220603,
+      "height": 20,
+      "symbol_box": 20,
+      "symbol_word_gap": 6,
+      "lowercase_body_height": 10
+    },
+    {
+      "file": "svg/naeil-stacked-color-dark.svg",
+      "use": "stacked",
+      "width": 512,
+      "height": 448
+    },
+    {
+      "file": "svg/naeil-wordmark-color-dark.svg",
+      "use": "wordmark",
+      "width": 350.985423,
+      "height": 146.233236
+    },
+    {
+      "file": "svg/naeil-symbol-gray.svg",
+      "use": "symbol",
+      "small": false
+    },
+    {
+      "file": "svg/naeil-symbol-gray-small.svg",
+      "use": "symbol",
+      "small": true
+    },
+    {
+      "file": "svg/naeil-horizontal-gray.svg",
+      "use": "horizontal",
+      "width": 90.108844,
+      "height": 28,
+      "symbol_box": 28,
+      "symbol_word_gap": 8,
+      "lowercase_body_height": 14
+    },
+    {
+      "file": "svg/naeil-footer-gray.svg",
+      "use": "footer",
+      "width": 65.220603,
+      "height": 20,
+      "symbol_box": 20,
+      "symbol_word_gap": 6,
+      "lowercase_body_height": 10
+    },
+    {
+      "file": "svg/naeil-stacked-gray.svg",
+      "use": "stacked",
+      "width": 512,
+      "height": 448
+    },
+    {
+      "file": "svg/naeil-wordmark-gray.svg",
+      "use": "wordmark",
+      "width": 350.985423,
+      "height": 146.233236
+    },
+    {
+      "file": "svg/naeil-symbol-gray-dark.svg",
+      "use": "symbol",
+      "small": false
+    },
+    {
+      "file": "svg/naeil-symbol-gray-dark-small.svg",
+      "use": "symbol",
+      "small": true
+    },
+    {
+      "file": "svg/naeil-horizontal-gray-dark.svg",
+      "use": "horizontal",
+      "width": 90.108844,
+      "height": 28,
+      "symbol_box": 28,
+      "symbol_word_gap": 8,
+      "lowercase_body_height": 14
+    },
+    {
+      "file": "svg/naeil-footer-gray-dark.svg",
+      "use": "footer",
+      "width": 65.220603,
+      "height": 20,
+      "symbol_box": 20,
+      "symbol_word_gap": 6,
+      "lowercase_body_height": 10
+    },
+    {
+      "file": "svg/naeil-stacked-gray-dark.svg",
+      "use": "stacked",
+      "width": 512,
+      "height": 448
+    },
+    {
+      "file": "svg/naeil-wordmark-gray-dark.svg",
+      "use": "wordmark",
+      "width": 350.985423,
+      "height": 146.233236
+    }
+  ],
+  "color_modes": [
+    "color",
+    "color-dark",
+    "gray",
+    "gray-dark"
+  ],
+  "minimum_sizes": {
+    "symbol-small": 16,
+    "symbol-standard": 48,
+    "horizontal_height": 24,
+    "footer_height": 20,
+    "stacked_width": 160
+  },
+  "clear_space": "At least 25% of the symbol box on each side; header: 7px, footer: 5px.",
+  "gray": "Continuous-tone grayscale A; not a binary one-ink stamp."
+}

@@ -134,6 +134,14 @@ For application layout changes, compare affected routes side by side under the s
 
 The visual comparisons and implementation scope are accepted. Token generation, component behavior, packed consumption, and actual browser examples have been implemented and checked; see the verification report for results and limits.
 
+## Brand assets and shared components
+
+The approved naeil sunset/island identity is managed independently under `brand/naeil/1.1.0/`. The standalone SVG/PNG/favicon kit is usable without React or this UI package. Its version is separate from the npm version; released brand directories are immutable. New artwork requires a new reviewed brand version. The official wordmark is `.naeil`; its leading period means an ending followed by tomorrow (historical decision: commit 2efb1b0, reaffirmed by the user on 2026-10-11). Keep the period in outlined lettering; standalone symbols need no extra dot.
+
+The shared `Logo` is the React adapter for that source. `brand/current.json` selects the active release for generation, Storybook and consumer checks. `pnpm build:brand` generates `src/components/brand-artwork.generated.tsx`, the Lato notice and app-owned site icons from checksum-verified release files; do not hand-edit the generated artwork. `pnpm check:brand` checks drift and runs before package/Storybook builds. Nav, Footer and the website login use the shared Logo instead of maintaining inline copies. Consumer brand slots remain supported.
+
+Lato Regular 400 is outlined lettering inside the logo only. It does not replace Pretendard, add a webfont dependency or turn the sunset palette into shared action tokens. Logo sizes and placement remain brand guidance, not numeric UI foundation tokens. See the [brand component contract](docs/design/v2-migration.md#brand-logo-integration-040) for themes, sizing, legacy mono behavior and accessibility. The standalone kit, research artifacts and high-resolution PNGs stay out of the npm package; generated artwork and the [Lato notice](licenses/Lato-OFL.txt) ship with the component. Brand names/marks are not relicensed by the repository MIT license.
+
 ## Historical design studies
 
 The sections below record prototype-stage decisions and checks as they occurred. Their references to pending production work describe that earlier stage; current implementation status is above.

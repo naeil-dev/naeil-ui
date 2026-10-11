@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — brand 1.1.0 integration (2026-10-11)
+
+- Connect Logo, default Nav/Footer and site login to the checksum-verified sunset/island brand kit; remove duplicated old marks.
+- Preserve Logo size/className/mono and Nav brandSlot contracts. Add outlined lockup variants, grayscale tone, explicit/automatic themes and decorative accessibility support. Preserve the leading period in the official .naeil wordmark: an ending followed by tomorrow.
+- Generate React artwork and site icons with build:brand; package/Storybook builds reject drift. Keep standalone SVG/PNG/icons separate from UI runtime and retain the Lato notice.
+- Shared Pretendard typography, neutral tokens and existing public import paths remain unchanged. No npm publication or site deployment is implied.
+
+
 ## 0.3.0 — scope frozen 2026-10-02; published 2026-10-03
 
 Published to npm at `2026-10-03T04:14:17.028Z`; `latest` was verified as `0.3.0` that day. The [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0), [registry/clean-consumer evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.3.0/npm-publication-verification.json) and [Pages deployment](https://github.com/naeil-dev/naeil-ui/actions/runs/36963256014) record publication and live Docs separately from the earlier scope freeze.

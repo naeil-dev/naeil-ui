@@ -145,6 +145,10 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     );
   run(next, "npm", ["run", "build"]);
   const html = readFileSync(join(next, ".next/server/app/index.html"), "utf8");
+  const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
+  assert(html.includes(`data-naeil-brand="${brandVersion}"`));
+  assert.match(html, /data-naeil-variant="horizontal"/);
+  assert.match(html, /data-naeil-variant="footer"/);
   assert.match(html, /Packed Next compatibility/);
   assert.match(html, /Consumer-owned messages/);
   assert.match(html, /Consumer action/);

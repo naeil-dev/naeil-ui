@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>.naeil 워드마크 복원 및 공유 UI 검수</title>
+<style>body{font:16px/1.75 system-ui,sans-serif;max-width:1000px;margin:40px auto;padding:0 24px;color:#263c4b;background:#f5f6f8}img{max-width:100%;height:auto}a{color:#24567a}h2{margin-top:36px}</style>
+<h1>.naeil — 끝. 내일.</h1>
+<p>2026-10-11 · 브랜드 1.1.0 · 공용 UI 변경은 unreleased</p>
+<p>기존 Git 기록에서 앞의 마침표에 담긴 의미를 확인한 뒤, 사용자가 이를 유지하기로 결정했다. Lato Regular 400의 실제 마침표와 기본 조판 간격으로 모든 워드마크를 .naeil로 갱신했다. 심볼 단독·아이콘·색상은 1.0.1과 동일하다.</p>
+<p>brand/current.json은 1.1.0을 선택한다. 앞선 1.0.0·1.0.1은 변경하지 않았다. 새로 전달할 파일은 <a href="../../../brand/naeil/naeil-brand-1.1.0.zip">브랜드 1.1.0 ZIP</a>이며, <a href="../../../brand/naeil/1.1.0/START-HERE.html">사용 가이드</a>와 <a href="../../../brand/naeil/1.1.0/verification/report.html">독립 파일 검수</a>를 포함한다.</p>
+<h2>통합 검증</h2>
+<ul>
+<li>공용 Logo 그래픽을 새 원본에서 생성했다. Nav·Footer는 자동으로 .naeil을 표시한다. 접근성 이름은 naeil이며 외부 import·props 계약은 동일하다.</li>
+<li>브랜드 원본·생성 결과 일치, TypeScript, 변경 TS/TSX ESLint, UI 토큰 대비 검사 통과.</li>
+<li>단위 테스트 9개 파일·46개 통과. 패키지·Storybook production build 통과.</li>
+<li>Chromium·WebKit 공용 컴포넌트 16개 테스트 통과. 밝음/어두움, 390/1440px, 메뉴·콘텐츠 폭 전환, 원본 비교, 중첩 테마와 OS 자동 전환, SVG 참조·ID, axe, 실제 Docs 확인.</li>
+<li>새 폴더에 복사한 독립 브랜드 예제 8조건 통과. 외부 요청·잘림·가로 넘침 없음.</li>
+<li>pnpm check:package 통과. tarball 경계·Next 없는 React 소비자의 타입·SSR·Vite 및 실제 브라우저 테마, 독립 Next 소비자의 production build와 기본 Nav/Footer 확인.</li>
+<li>전달 ZIP을 재추출해 158개 파일 해시와 92개 상대 링크, CRC를 확인.</li>
+</ul>
+<p>검수한 헤더와 푸터에서 마침표가 글자와 구분되며 메뉴·콘텐츠와 겹치지 않았다. 헤더 폭은 96.94px, 푸터는 70.10px다. 로고 원본과 공용 컴포넌트는 같은 그래픽이며, 렌더 경로의 소수점 크기 차이 때문에 픽셀 단위 캡처의 완전 일치를 주장하지 않는다.</p>
+<h2>실제 Storybook 화면</h2>
+<img src="chromium-usage-light.png" alt=".naeil 공식 원본과 공용 컴포넌트의 컬러·회색 비교">
+<p>모바일 어두운 테마의 공용 Nav·Footer:</p>
+<img src="webkit-application-390-dark.png" width="390" alt="앞의 점이 복원된 모바일 Nav와 Footer">
+<h2>범위와 상태</h2>
+<p>이번 검수는 로고 파일, 실제 Storybook 컴포넌트와 독립 소비 프로젝트에 대한 결과다. 실제 사이트 동적 홈페이지·로그인의 Supabase 설정 누락은 <a href="../brand-integration-2026-10-11/report.html">이전 통합 검수</a>에서 확인한 미해결 환경 제한이며, 이번에 해소했다는 뜻이 아니다. Firefox·실제 Safari/iPhone·인쇄·새 상표 검토는 포함하지 않는다.</p>
+<p>이번에는 로컬 Git, logo-icon-design, HarfBuzz/fontTools/librsvg/Pillow, Playwright Chromium/WebKit, 빌드·타입·패키지 검사만 사용했다. 외부 디자인 도구나 새 연구를 실행하지 않았다. naeil.dev 배포와 npm 게시는 수행하지 않았다.</p>
+</html>

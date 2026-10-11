@@ -40,6 +40,8 @@ Storybook 10.4.6 also bundles Nunito Sans for its manager interface. The origina
 
 The site's `src/app/layout.tsx` separately requests JetBrains Mono via `next/font/google`; no copied font binary is tracked here. Before redistributing fetched site-build fonts, retain the original license/notice supplied with that font (https://github.com/JetBrains/JetBrainsMono). This audit did not inspect the fetched Google font binary/license and does not certify a deployed site's font-notice bundle. Prototype HTML uses external CDNs separately from packed UI styles.
 
+The naeil brand wordmark uses outlined Lato Regular 400 from Google Fonts commit `bd8f81ddb5c74d5c8897b36ad88b440266245103`, `ofl/lato/Lato-Regular.ttf`. The exact [Lato OFL 1.1 notice](licenses/Lato-OFL.txt) accompanies generated artwork in the package and Storybook. The independent brand kit retains the original font and source hashes; the UI package does not redistribute a runtime Lato font. Logo graphics do not become OFL-licensed font software, and naeil brand rights are separate from repository code licensing.
+
 ## Dependencies and references
 
 Radix, Sonner, Lucide, React, Next.js and other npm dependencies carry licenses in their own distributions. They are not newly attributed as copied sources here; preserve their notices if bundling their code. DESIGN.md's Linear analysis is design reference material, not an official Linear specification or a component license. The optional workflow grants no blanket license to 21st catalog code; inspect each retrieved original before adoption.

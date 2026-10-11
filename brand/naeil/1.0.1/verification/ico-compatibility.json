@@ -1,0 +1,22 @@
+{
+  "version": "1.0.1",
+  "fix": "RGB to RGBA ICO PNG encoding for Next.js",
+  "frames": [
+    {
+      "size": 16,
+      "png_color_type": 6,
+      "decoded_pixels_unchanged": true
+    },
+    {
+      "size": 32,
+      "png_color_type": 6,
+      "decoded_pixels_unchanged": true
+    },
+    {
+      "size": 48,
+      "png_color_type": 6,
+      "decoded_pixels_unchanged": true
+    }
+  ],
+  "unchanged_svg_count": 24
+}

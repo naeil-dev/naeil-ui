@@ -59,7 +59,7 @@ try {
   ) as string[];
   for (const path of paths) {
     assert(
-      !/(?:^|\/)(?:app|supabase|auth|blog|__tests__|messages|public|skills|superpowers)(?:\/|$)/.test(
+      !/(?:^|\/)(?:app|brand|supabase|auth|blog|__tests__|messages|public|skills|superpowers)(?:\/|$)/.test(
         path,
       ),
       `Website/test payload shipped: ${path}`,
@@ -147,6 +147,7 @@ try {
     "THIRD_PARTY_NOTICES.md",
     "licenses/Pretendard-OFL.txt",
     "licenses/Noto-Sans-JP-OFL.txt",
+    "licenses/Lato-OFL.txt",
   ])
     assert(existsSync(join(root, path)), `Required artifact missing: ${path}`);
   for (const path of paths.filter((path) => path.endsWith(".md"))) {

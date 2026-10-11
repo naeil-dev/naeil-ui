@@ -1,0 +1,38 @@
+[
+  {
+    "engine": "chromium",
+    "theme": "light",
+    "width": 320,
+    "fromExtractedZip": true,
+    "guideOverflow": false,
+    "overflow": false,
+    "broken": 0
+  },
+  {
+    "engine": "chromium",
+    "theme": "dark",
+    "width": 320,
+    "fromExtractedZip": true,
+    "guideOverflow": false,
+    "overflow": false,
+    "broken": 0
+  },
+  {
+    "engine": "webkit",
+    "theme": "light",
+    "width": 320,
+    "fromExtractedZip": true,
+    "guideOverflow": false,
+    "overflow": false,
+    "broken": 0
+  },
+  {
+    "engine": "webkit",
+    "theme": "dark",
+    "width": 320,
+    "fromExtractedZip": true,
+    "guideOverflow": false,
+    "overflow": false,
+    "broken": 0
+  }
+]

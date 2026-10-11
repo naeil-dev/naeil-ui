@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="16" height="16" color="#191919" role="img" aria-label="naeil B small">
+  <title>naeil — 열린 n, small-size drawing</title>
+  <desc>The same n silhouette with a wider shoulder opening for 16-pixel use.</desc>
+  <g fill="currentColor">
+    <path d="M8 55V10H21V17C26 11 32 8 38 8H39L33 21C26 21 21 29 21 39V55Z"/>
+    <path d="M47 10C54 14 57 21 57 30V55H44V31C44 27 43 24 41 22Z"/>
+  </g>
+</svg>

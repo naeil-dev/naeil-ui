@@ -55,6 +55,13 @@ export async function checkConsumerBrowser(root: string) {
       await page.getByRole("button", { name: "Save preferences" }).click();
       assert.equal(await page.getByRole("status").textContent(), "Preferences saved for this example.");
       assert.equal(await page.getByLabel("Display name").inputValue(), "한글 / English / 日本語");
+      const brand = page.getByTestId("packed-brand");
+      const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
+      await expect(brand).toHaveAttribute("data-naeil-brand", brandVersion);
+      const palette = await brand.locator(`[data-naeil-palette="${theme}"]`).evaluate(el => getComputedStyle(el).display);
+      assert.notEqual(palette, "none", "Packed brand did not follow consumer theme");
+      const hiddenPalette = await brand.locator(`[data-naeil-palette="${theme === "light" ? "dark" : "light"}"]`).evaluate(el => getComputedStyle(el).display);
+      assert.equal(hiddenPalette, "none", "Both brand palettes displayed");
       await page.screenshot({ path: join(output, `consumer-${theme}.png`), fullPage: true });
       console.log(`Packed React browser: PASS (${theme}, 390px, local Pretendard/Noto faces, real form recovery/state, no overflow)`);
       await page.close();

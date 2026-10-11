@@ -1,0 +1,297 @@
+{
+  "html_sha256": "50e2085ba12254b4ba79840c0576e5a9bc50cf6f574705693f4b6329724f26e7",
+  "cases": [
+    {
+      "name": "desktop-light",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "theme": "light",
+      "bodyFontSize": "16px",
+      "buttons": [
+        {
+          "height": 44,
+          "width": 107.421875
+        },
+        {
+          "height": 44,
+          "width": 121.203125
+        },
+        {
+          "height": 44,
+          "width": 120.90625
+        },
+        {
+          "height": 44,
+          "width": 120.578125
+        }
+      ],
+      "brokenImages": [],
+      "links": [
+        "assets/a-next-frame.svg",
+        "assets/a-next-frame-logo.svg",
+        "assets/b-open-n.svg",
+        "assets/b-open-n-logo.svg",
+        "assets/b-open-n-micro.svg",
+        "assets/c-ae-link.svg",
+        "assets/c-ae-link-logo.svg",
+        "overview.png",
+        "pixel-proof.png",
+        "brief.md",
+        "verification.md"
+      ],
+      "actualHeadingFonts": [
+        {
+          "familyName": "Apple SD Gothic Neo",
+          "postScriptName": "AppleSDGothicNeo-SemiBold",
+          "isCustomFont": false,
+          "glyphCount": 16
+        }
+      ],
+      "interactions": [
+        {
+          "selected": [
+            "a-next-frame"
+          ],
+          "header": "a-next-frame-logo",
+          "favicon": "a-next-frame"
+        },
+        {
+          "selected": [
+            "c-ae-link"
+          ],
+          "header": "c-ae-link-logo",
+          "favicon": "c-ae-link"
+        },
+        {
+          "selected": [
+            "b-open-n"
+          ],
+          "header": "b-open-n-logo",
+          "favicon": "b-open-n-micro"
+        }
+      ],
+      "screenshot": "browser-desktop-light.png"
+    },
+    {
+      "name": "desktop-dark",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "theme": "dark",
+      "bodyFontSize": "16px",
+      "buttons": [
+        {
+          "height": 44,
+          "width": 93.578125
+        },
+        {
+          "height": 44,
+          "width": 121.203125
+        },
+        {
+          "height": 44,
+          "width": 120.90625
+        },
+        {
+          "height": 44,
+          "width": 120.578125
+        }
+      ],
+      "brokenImages": [],
+      "links": [
+        "assets/a-next-frame.svg",
+        "assets/a-next-frame-logo.svg",
+        "assets/b-open-n.svg",
+        "assets/b-open-n-logo.svg",
+        "assets/b-open-n-micro.svg",
+        "assets/c-ae-link.svg",
+        "assets/c-ae-link-logo.svg",
+        "overview.png",
+        "pixel-proof.png",
+        "brief.md",
+        "verification.md"
+      ],
+      "actualHeadingFonts": [
+        {
+          "familyName": "Apple SD Gothic Neo",
+          "postScriptName": "AppleSDGothicNeo-SemiBold",
+          "isCustomFont": false,
+          "glyphCount": 16
+        }
+      ],
+      "interactions": [
+        {
+          "selected": [
+            "a-next-frame"
+          ],
+          "header": "a-next-frame-logo",
+          "favicon": "a-next-frame"
+        },
+        {
+          "selected": [
+            "c-ae-link"
+          ],
+          "header": "c-ae-link-logo",
+          "favicon": "c-ae-link"
+        },
+        {
+          "selected": [
+            "b-open-n"
+          ],
+          "header": "b-open-n-logo",
+          "favicon": "b-open-n-micro"
+        }
+      ],
+      "screenshot": "browser-desktop-dark.png"
+    },
+    {
+      "name": "mobile-light",
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "light",
+      "bodyFontSize": "16px",
+      "buttons": [
+        {
+          "height": 44,
+          "width": 107.421875
+        },
+        {
+          "height": 44,
+          "width": 121.203125
+        },
+        {
+          "height": 44,
+          "width": 120.90625
+        },
+        {
+          "height": 44,
+          "width": 120.578125
+        }
+      ],
+      "brokenImages": [],
+      "links": [
+        "assets/a-next-frame.svg",
+        "assets/a-next-frame-logo.svg",
+        "assets/b-open-n.svg",
+        "assets/b-open-n-logo.svg",
+        "assets/b-open-n-micro.svg",
+        "assets/c-ae-link.svg",
+        "assets/c-ae-link-logo.svg",
+        "overview.png",
+        "pixel-proof.png",
+        "brief.md",
+        "verification.md"
+      ],
+      "actualHeadingFonts": [
+        {
+          "familyName": "Apple SD Gothic Neo",
+          "postScriptName": "AppleSDGothicNeo-SemiBold",
+          "isCustomFont": false,
+          "glyphCount": 16
+        }
+      ],
+      "interactions": [
+        {
+          "selected": [
+            "a-next-frame"
+          ],
+          "header": "a-next-frame-logo",
+          "favicon": "a-next-frame"
+        },
+        {
+          "selected": [
+            "c-ae-link"
+          ],
+          "header": "c-ae-link-logo",
+          "favicon": "c-ae-link"
+        },
+        {
+          "selected": [
+            "b-open-n"
+          ],
+          "header": "b-open-n-logo",
+          "favicon": "b-open-n-micro"
+        }
+      ],
+      "screenshot": "browser-mobile-light.png"
+    },
+    {
+      "name": "mobile-dark",
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "bodyFontSize": "16px",
+      "buttons": [
+        {
+          "height": 44,
+          "width": 93.578125
+        },
+        {
+          "height": 44,
+          "width": 121.203125
+        },
+        {
+          "height": 44,
+          "width": 120.90625
+        },
+        {
+          "height": 44,
+          "width": 120.578125
+        }
+      ],
+      "brokenImages": [],
+      "links": [
+        "assets/a-next-frame.svg",
+        "assets/a-next-frame-logo.svg",
+        "assets/b-open-n.svg",
+        "assets/b-open-n-logo.svg",
+        "assets/b-open-n-micro.svg",
+        "assets/c-ae-link.svg",
+        "assets/c-ae-link-logo.svg",
+        "overview.png",
+        "pixel-proof.png",
+        "brief.md",
+        "verification.md"
+      ],
+      "actualHeadingFonts": [
+        {
+          "familyName": "Apple SD Gothic Neo",
+          "postScriptName": "AppleSDGothicNeo-SemiBold",
+          "isCustomFont": false,
+          "glyphCount": 16
+        }
+      ],
+      "interactions": [
+        {
+          "selected": [
+            "a-next-frame"
+          ],
+          "header": "a-next-frame-logo",
+          "favicon": "a-next-frame"
+        },
+        {
+          "selected": [
+            "c-ae-link"
+          ],
+          "header": "c-ae-link-logo",
+          "favicon": "c-ae-link"
+        },
+        {
+          "selected": [
+            "b-open-n"
+          ],
+          "header": "b-open-n-logo",
+          "favicon": "b-open-n-micro"
+        }
+      ],
+      "screenshot": "browser-mobile-dark.png"
+    }
+  ],
+  "browser": "Chrome/154.0.8037.98",
+  "keyboard": {
+    "focused": "theme",
+    "theme": "light",
+    "outline": "solid",
+    "outlineWidth": "2px"
+  },
+  "status": "passed scoped local review checks"
+}
