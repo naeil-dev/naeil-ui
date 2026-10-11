@@ -167,3 +167,8 @@ The [dated Stage 4 verification](public-ui-stage4-verification.md) supplies repr
 Git 커밋 `2efb1b001706d6f4eec57c90a0d3ae256940733f`(2026-03-02)의 “끝. 내일 — the period marks an ending, naeil means tomorrow.” 기록을 확인했다. 사용자가 앞의 점 유지를 명시하여 Lato Regular 400 원본의 period 글리프와 기본 조판으로 가로형·푸터형·세로형·글자 단독을 `.naeil`로 갱신했다. 1.0.0·1.0.1은 보존하고 `brand/current.json`은 1.1.0으로 변경했다. 심볼·색·아이콘은 1.0.1과 동일하다.
 
 실제 사용: logo-icon-design 지침, 로컬 Git 기록, HarfBuzz/fontTools/librsvg/Pillow, SVG·PNG·글리프·폰트 해시 검사, Playwright Chromium/WebKit 독립 복사 예제 8조건, 실제 Storybook·공유 Logo 및 packed 소비자 검증. 새 외부 조사나 디자인 서비스·이미지 생성은 사용하지 않았다. 과거 점 없는 로고 캡처를 새 버전 증거로 재사용하지 않았다. [1.1.0 검수](../../brand/naeil/1.1.0/verification/report.html)와 [공유 컴포넌트 확인](brand-wordmark-dot-2026-10-11/report.html)을 참조한다. 게시·배포는 수행하지 않았다.
+
+
+## 2026-10-11 — 배포 전 대표 미리보기 정정
+
+릴리스 파일 최종 확인에서 1.1.0의 PREVIEW.png가 점 없는 이전 버전임을 발견했다. 기존 버전을 덮어쓰지 않고 1.1.1로 분리했으며, 새 START-HERE.html의 gallery를 실제 Chromium에서 캡처하여 교체했다. SVG·PNG 폴더·아이콘은 1.1.0과 바이트 동일함을 확인했다. 1.1.1 ZIP 추출 후 158개 해시·93개 상대 링크를 확인했으며 공식 원본 선택을 1.1.1로 갱신했다. 이 수정과 npm 0.4.0 게시 준비는 실제 외부 배포 결과와 구분한다.

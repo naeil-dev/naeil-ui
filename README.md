@@ -20,7 +20,7 @@ pnpm add --save-exact @naeil/ui@0.4.0
 # npm install --save-exact @naeil/ui@0.4.0
 ```
 
-This source targets 0.4.0, which adds the approved `.naeil` brand 1.1.0. Registry availability and release evidence are recorded separately in the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0). See the [changelog](CHANGELOG.md) and [brand usage](docs/design/v2-migration.md#brand-logo-integration-040); the local package workflow below works before publication.
+This source targets 0.4.0, which adds the approved `.naeil` brand 1.1.1. Registry availability and release evidence are recorded separately in the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0). See the [changelog](CHANGELOG.md) and [brand usage](docs/design/v2-migration.md#brand-logo-integration-040); the local package workflow below works before publication.
 
 Import primitives from the dedicated entrypoint:
 

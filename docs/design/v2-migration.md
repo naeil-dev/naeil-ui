@@ -201,7 +201,7 @@ Version 0.3.0 also adds `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` and `Te
 
 ## Brand Logo integration (0.4.0)
 
-Version 0.4.0 connects the approved **brand 1.1.0** to the shared components. It is not a claim that npm 0.3.0 already contains the new logo. Package publication and consumer upgrades remain separate.
+Version 0.4.0 connects the approved **brand 1.1.1** to the shared components. It is not a claim that npm 0.3.0 already contains the new logo. Package publication and consumer upgrades remain separate.
 
 ```tsx
 // React-only, no Next.js peer required for this deep import:
@@ -224,6 +224,6 @@ Root and `components/index` continue to export Logo; root still has the existing
 - Default accessible name is naeil with role=img. Use `label={null}` for decorative use and name the enclosing link/button. `aria-label` and other standard SVG attributes remain consumer overrides.
 - Nav now uses the horizontal wordmark at 28px; Footer uses the footer lockup at 20px. Their official visible spelling remains `.naeil`: the period marks an ending, followed by tomorrow. Nav's `brandSlot`, brandHref, external/internal links, layout frame and other slots are preserved. Check custom layouts on upgrade because the new artwork has a different width.
 
-The independent kit lives in the repository's `brand/naeil/1.1.0/` directory with its own usage guide, SVG/PNG/icons, OFL and checksums. Copy it for non-React uses without installing @naeil/ui. It is intentionally not copied into the npm tarball. The package carries only generated React artwork and the [Lato notice](../../licenses/Lato-OFL.txt). A favicon is application-owned: Next file conventions can use the kit's favicon.ico, favicon.svg and apple-touch-icon.png; each consumer chooses its own app manifest and deployment.
+The independent kit lives in the repository's `brand/naeil/1.1.1/` directory with its own usage guide, SVG/PNG/icons, OFL and checksums. Copy it for non-React uses without installing @naeil/ui. It is intentionally not copied into the npm tarball. The package carries only generated React artwork and the [Lato notice](../../licenses/Lato-OFL.txt). A favicon is application-owned: Next file conventions can use the kit's favicon.ico, favicon.svg and apple-touch-icon.png; each consumer chooses its own app manifest and deployment.
 
 Maintainers run `pnpm build:brand` after explicitly selecting a reviewed version in `brand/current.json`, then `pnpm check:brand`. Package/Storybook builds check that generated artwork, notices and this site's icon files match that version. Shared color tokens and Pretendard do not change. In Storybook, **Brand / Logo / Docs, Usage, Application** demonstrates the actual adapter, canonical SVG comparisons and Nav/Footer composition.

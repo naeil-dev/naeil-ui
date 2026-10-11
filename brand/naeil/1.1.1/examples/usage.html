@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>naeil 브랜드 적용 예제</title>
+<link rel="icon" href="../icons/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css">
+<style>
+  *{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,sans-serif;background:#f5f6f8;color:#263c4b}
+  html[data-theme=dark] body{background:#090b0c;color:#f3f0e9}
+  header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid #85858555;gap:24px}
+  a{color:inherit}button{font:inherit;background:transparent;color:inherit;border:1px solid currentColor;border-radius:6px;padding:6px 12px;min-height:44px;cursor:pointer}
+  main{max-width:640px;margin:64px auto;padding:0 24px}h1{font-size:26px}footer{padding:40px 24px;border-top:1px solid #85858555}
+  .login{margin:40px 0;padding:32px 24px;border:1px solid #85858555;text-align:center}
+  .login .naeil-brand{--naeil-brand-height:40px}.footer-brand{--naeil-brand-height:20px}
+</style>
+<header>
+  <a class="naeil-brand" href="#main" aria-label="naeil 홈">
+    <img class="naeil-on-light" src="../svg/naeil-horizontal-color.svg" height="28" width="96.938776" alt="">
+    <img class="naeil-on-dark" src="../svg/naeil-horizontal-color-dark.svg" height="28" width="96.938776" alt="">
+  </a>
+  <button type="button" id="theme" aria-pressed="false">어두운 배경</button>
+</header>
+<main id="main">
+  <h1>폰트 설치 없이 사용하는 .naeil</h1>
+  <p>심볼과 글자 모두 SVG입니다. 이 문장의 서체는 프로젝트의 UI 서체를 그대로 사용합니다.</p>
+  <div class="login">
+    <span class="naeil-brand" role="img" aria-label="naeil">
+      <img class="naeil-on-light" src="../svg/naeil-symbol-color-small.svg" height="40" width="40" alt="">
+      <img class="naeil-on-dark" src="../svg/naeil-symbol-color-dark-small.svg" height="40" width="40" alt="">
+    </span>
+    <h2>다시 만나 반가워요</h2>
+    <p>로그인 화면의 40px 심볼 배치 예시</p>
+  </div>
+</main>
+<footer>
+  <span class="naeil-brand footer-brand" role="img" aria-label="naeil">
+    <img class="naeil-on-light" src="../svg/naeil-footer-color.svg" height="20" width="70.099125" alt="">
+    <img class="naeil-on-dark" src="../svg/naeil-footer-color-dark.svg" height="20" width="70.099125" alt="">
+  </span>
+  <p>Tomorrow starts here.</p>
+</footer>
+<script>
+  document.querySelector('#theme').addEventListener('click', e => {
+    const dark = document.documentElement.dataset.theme !== 'dark';
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    e.currentTarget.setAttribute('aria-pressed', String(dark));
+    e.currentTarget.textContent = dark ? '밝은 배경' : '어두운 배경';
+  });
+</script>
+</html>

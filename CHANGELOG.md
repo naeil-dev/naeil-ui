@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 — brand 1.1.0 integration (2026-10-11)
+## 0.4.0 — brand 1.1.1 integration (2026-10-11)
 
 - Connect Logo, default Nav/Footer and site login to the checksum-verified sunset/island brand kit; remove duplicated old marks.
 - Preserve Logo size/className/mono and Nav brandSlot contracts. Add outlined lockup variants, grayscale tone, explicit/automatic themes and decorative accessibility support. Preserve the leading period in the official .naeil wordmark: an ending followed by tomorrow.

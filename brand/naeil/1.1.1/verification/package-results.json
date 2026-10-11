@@ -1,0 +1,8 @@
+{
+  "relative_links_checked": 93,
+  "broken_links": 0,
+  "external_relative_dependencies": 0,
+  "package_asset_audit": "structural-results.json",
+  "portable_browser_cases": 8,
+  "archive_verification": "SHA256SUMS.txt covers every file except itself; final ZIP extracted and checked after assembly"
+}

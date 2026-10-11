@@ -1,7 +1,7 @@
 naeil 브랜드 원본 관리
 
-현재 승인 버전 선택: current.json (현재 naeil/1.1.0/)
-독립 전달 파일: naeil/naeil-brand-1.1.0.zip
+현재 승인 버전 선택: current.json (현재 naeil/1.1.1/)
+독립 전달 파일: naeil/naeil-brand-1.1.1.zip
 
 소유권과 경계
 - brand/naeil/<version>/source: 심볼·폰트 원본과 재생성 도구.
@@ -29,7 +29,7 @@ mono=true는 과거 currentColor 단색 계약을 유지하는 실루엣 대체 
 
 브랜드 원본·연구 증거·PNG·ZIP 전체를 @naeil/ui npm에 넣지 않는다.
 npm에는 필요한 생성 코드와 Lato 고지만 포함한다.
-React 외 프로젝트는 1.1.0 ZIP을 독립적으로 사용한다.
+React 외 프로젝트는 1.1.1 ZIP을 독립적으로 사용한다.
 
 공식 워드마크 표기: .naeil. 앞의 마침표를 생략하지 않는다.
 의미: 끝. 내일 — 마침표는 하루의 끝, naeil은 이어지는 내일.

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>.naeil 1.1.0 워드마크 검수</title>
+<style>body{font:16px/1.75 system-ui,sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;color:#263c4b;background:#f5f6f8}img{max-width:100%;height:auto}a{color:#24567a}h2{margin-top:36px}code{overflow-wrap:anywhere}</style>
+<h1>.naeil 1.1.1 — 앞의 마침표 유지</h1>
+<p>2026-10-11 · 사용자가 .naeil 표기 유지를 선택하여 워드마크를 갱신했다.</p>
+<h2>1.1.1 미리보기 수정</h2><p>1.1.0의 PREVIEW.png에 이전 점 없는 로고가 남아 있어 수정했다. SVG·PNG 폴더·아이콘은 1.1.0과 동일하다. 아래 파일·브라우저 증거는 동일한 1.1.0 에셋의 검수를 승계하며, 새 PREVIEW는 이 버전 START-HERE.html의 실제 gallery를 Chromium에서 캡처했다.</p><p><a href="../PREVIEW.png">수정된 대표 미리보기</a></p><h2>의미와 형태</h2>
+<p><strong>끝. 내일.</strong> 앞의 마침표는 하루를 마친다는 뜻이며, 뒤의 naeil은 그 다음의 내일을 뜻한다. 기존 리브랜딩 커밋 <a href="https://github.com/naeil-dev/naeil-ui/commit/2efb1b001706d6f4eec57c90a0d3ae256940733f">2efb1b0</a>의 의도를 보존한다. 이 의미는 작은 점만으로 누구에게나 자동 전달된다는 주장이 아니라 브랜드가 유지하는 이야기다.</p>
+<p>Lato Regular 400의 실제 period 글리프를 사용하고 HarfBuzz의 기본 조판 간격을 유지했다. 가로형·푸터형·세로형·글자 단독에 모두 점이 포함된다. 별도 점을 덧붙이거나 제공된 점을 생략하지 않는다. 심볼 단독과 파비콘에는 별도의 점을 추가하지 않는다.</p>
+<p>헤더는 96.94×28px, 푸터는 70.10×20px다. 점 없는 1.0.1에 비해 각각 약 6.83px, 4.88px 넓어졌다. 점의 실제 경로 폭은 헤더 3.40px, 푸터 2.43px다. 글자 크기·색·심볼과의 간격은 유지했다.</p>
+<h2>실행한 검수</h2>
+<ul>
+<li>28개 SVG: 외부 이미지·폰트 의존성, 중복 ID, 누락된 그라데이션 참조 없음.</li>
+<li>84개 투명 PNG: 알파 경계 기준 빈 이미지·잘림 없음. 회색 에셋 RGB 채널 일치.</li>
+<li>워드마크 6개 글리프, 첫 글리프가 원본 Lato 마침표임을 확인.</li>
+<li>심볼 SVG 8개 및 icons 폴더 전체는 1.0.1과 바이트 동일. ICO RGBA 호환 수정 유지.</li>
+<li>폰트·OFL 해시 일치. 글자와 검증 배경의 대비는 10.61:1–17.33:1.</li>
+<li>새 임시 폴더에 복사한 독립 예제: Chromium·WebKit × 390/1440px × 밝음/어두움 총 8조건 통과. 외부 요청·깨진 이미지·가로 넘침 없음. 헤더 28px·로그인 심볼 40px·푸터 20px 유지.</li>
+<li>실제 브라우저 캡처에서 헤더 최소 높이 24px, 권장 28px, 푸터 20px, 세로형 최소 폭 160px의 마침표와 글자 구분을 확인.</li>
+</ul>
+<p><a href="structural-results.json">파일·픽셀·대비 결과</a> · <a href="wordmark-results.json">마침표·심볼 동일성 결과</a> · <a href="evidence/browser-results.json">독립 브라우저 결과</a> · <a href="package-results.json">패키지 링크·무결성 검사</a> · <a href="../asset-manifest.json">조판 명세</a></p>
+<h2>직접 확인한 화면</h2>
+<p><a href="proof.html">실제 SVG 크기별 증거판</a></p>
+<img src="evidence/proof-chromium-light.png" alt="점이 포함된 컬러·회색 워드마크의 밝음·어두움·크기별 렌더">
+<p>WebKit 모바일 어두운 배경의 독립 사용 예제:</p>
+<img src="evidence/webkit-390-dark.png" width="390" alt="앞의 마침표를 유지한 헤더와 푸터">
+<h2>범위</h2>
+<p>이번 결과는 1.1.0 파일과 복사한 독립 예제에 대한 새 검수다. 과거 점 없는 로고의 운영 사이트 임시 DOM 캡처를 이 버전의 증거로 재사용하지 않았다. 공유 React 컴포넌트 통합 검수는 저장소의 별도 기록으로 관리한다. Firefox, 실제 Safari/iPhone, 인쇄 교정, 새 상표 조사는 수행하지 않았다. 접근성 이름은 읽기 쉬운 naeil을 유지한다.</p>
+<p>이 패키지를 사용해도 npm·naeil.dev는 자동 변경되지 않는다. 게시·배포는 수행하지 않았다. 도구: logo-icon-design, HarfBuzz, fontTools, librsvg, Pillow, Playwright Chromium/WebKit. 새 외부 디자인 도구나 이미지 생성은 사용하지 않았다.</p>
+<p><a href="../START-HERE.html">사용 가이드</a> · <a href="../SHA256SUMS.txt">체크섬</a></p>
+</html>

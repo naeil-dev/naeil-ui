@@ -41,7 +41,7 @@ The explicit font-notice regression gate copies the real React fixture config in
 
 ### 0.4.0 release scope — 2026-10-11
 
-The user authorized repository integration, npm publication, hosted Docs and naeil.dev deployment for the approved `.naeil` logo. Brand 1.1.0 is independent of npm 0.4.0. Existing imports/props/slots remain supported; new Logo variants, grayscale and theme controls justify a minor package increment. New consumers should use the 0.4.0 instructions above the historical records.
+The user authorized repository integration, npm publication, hosted Docs and naeil.dev deployment for the approved `.naeil` logo. Brand 1.1.1 is independent of npm 0.4.0. Existing imports/props/slots remain supported; new Logo variants, grayscale and theme controls justify a minor package increment. New consumers should use the 0.4.0 instructions above the historical records.
 
 Follow the release procedure below with version 0.4.0, freeze and publish the inspected archive, and record actual registry/tag/site/Docs outcomes in the v0.4.0 GitHub Release. Authorization is not itself evidence of publication. The previous Supabase-local-runtime and manual-device limitations remain documented; verify production behavior at its actual URL after Vercel deployment.
 
