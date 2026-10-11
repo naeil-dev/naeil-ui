@@ -1,6 +1,6 @@
 # Package verification and release policy
 
-This policy covers `@naeil/ui@0.4.0`; the 0.3.0 publication evidence below is retained as history. UI v2 names a design generation, not an npm major. A 0.x minor increment communicates this dependency/export boundary change; future breaking changes must receive an explicit migration and version decision. The historical registry baseline on 2026-10-02 was npm latest at `0.2.0`; the 2026-10-03 publication evidence below records npm 0.3.0, its GitHub Release and live hosted Docs separately. Version-scoped installation is in the [README](../README.md#use-the-ui).
+This policy covers published `@naeil/ui@0.4.0` (2026-10-11); the 0.3.0 publication evidence below is retained as history. UI v2 names a design generation, not an npm major. Future breaking changes require an explicit migration and version decision. Version-scoped installation is in the [README](../README.md#use-the-ui).
 
 ## Architecture
 
@@ -39,11 +39,20 @@ The explicit font-notice regression gate copies the real React fixture config in
 
 ## Publication and deployment
 
-### 0.4.0 release scope — 2026-10-11
+### Verified 0.4.0 publication — 2026-10-11
 
-The user authorized repository integration, npm publication, hosted Docs and naeil.dev deployment for the approved `.naeil` logo. Brand 1.1.1 is independent of npm 0.4.0. Existing imports/props/slots remain supported; new Logo variants, grayscale and theme controls justify a minor package increment. New consumers should use the 0.4.0 instructions above the historical records.
+Brand 1.1.1 is independent of npm 0.4.0. Existing imports/props/slots remain supported; Logo variants, grayscale and theme controls accompany the approved `.naeil` identity. Publication, Docs and production results are recorded in the [publication report](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md).
 
-Follow the release procedure below with version 0.4.0, freeze and publish the inspected archive, and record actual registry/tag/site/Docs outcomes in the v0.4.0 GitHub Release. Authorization is not itself evidence of publication. The previous Supabase-local-runtime and manual-device limitations remain documented; verify production behavior at its actual URL after Vercel deployment.
+- npm published `@naeil/ui@0.4.0` at `2026-10-11T05:36:58.047Z`; `latest` was verified as `0.4.0`. [Registry/consumer evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/npm-publication-verification.json) records independent empty-cache React/Next installs, types, production builds and browser contracts.
+- [PR #3](https://github.com/naeil-dev/naeil-ui/pull/3) merged as `e8fe5afc13788a0cac0244b72e78975812f4a2ee`; `v0.4.0` points to that source. The [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) was published at `2026-10-11T05:45:55Z` with 9 publicly downloadable, byte-verified assets.
+- Frozen candidate, merged-source rebuild and registry download are byte-identical: **108 files**, **131,414 compressed bytes**, **772,862 unpacked bytes**, SHA-256 `77fe024ceb631ea76100fdc687f04ee1ae90bfcbb306629cb9dac854226c724f`.
+- The independent [brand 1.1.1 ZIP](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip) contains 159 files and passes CRC; SHA-256 `a922a7375b5c3be412c759c0f54b532155f260801ea2bdd9cff43eca66848144`. [Brand evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/brand-publication-verification.json) retains the approved extraction checks.
+- [Pages run 38114879574](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574) deployed that exact source. Actual [hosted checks](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/hosted-docs-verification.json) passed 28 Docs visits, 28 Docs-to-Usage transitions, 4 brand theme checks, 6 exact notices, 4 canonical SVGs, local fonts and pinned links in Chromium/WebKit.
+- Vercel production deployment `6991225824` succeeded for the same source. [Production checks](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/production-verification.json) passed 24 homepage/login conditions on [naeil.dev](https://naeil.dev/) across Korean/English/Japanese, desktop/mobile and light/dark, plus 3 exact deployed icons.
+
+Local unit tests passed 46 tests. [Merged-source CI](https://github.com/naeil-dev/naeil-ui/actions/runs/38113742370) passed package/site checks; both that run and the Docs workflow passed 233 browser tests with 4 expected forced-colors skips. Production page checks do not certify full OAuth authentication. Native/manual platform coverage, print/trademark certification and real-consumer adoption retain their documented limits.
+
+The npm archive and release tag retain the reviewed source. These maintained documentation updates record the later publication outcome and do not replace the immutable archive or redeploy the unchanged Storybook runtime. The earlier local Supabase environment failure remains dated evidence; actual production homepage/login rendering was verified separately above.
 
 ### Verified 0.3.0 publication — 2026-10-03
 
@@ -58,15 +67,15 @@ The immutable npm archive's bundled guides are the release-preparation snapshot.
 
 ### Release procedure
 
-The Storybook guide URL base and README documentation index use publication-status documentation snapshot `04c5b8cce145a4c387763db6f28d29e62f7664c7`. Runtime/API source-authority links retain tested component snapshot `81fd395031dc5b20074c4d915a8585360ce2d28a`; that original evidence remains valid and is not replaced by this documentation-only snapshot. Verify targets at their respective pinned revisions and preserve original upstream sources, dated approval scope and runtime evidence. Freeze subsequent documentation changes separately from the immutable 0.3.0 archive.
+The deployed Storybook's component guide URL base uses the 0.3.0 publication-status documentation snapshot `04c5b8cce145a4c387763db6f28d29e62f7664c7`. Runtime/API source-authority links retain tested component snapshot `81fd395031dc5b20074c4d915a8585360ce2d28a`; those foundation links remain valid and were rechecked during 0.4.0 hosted verification. The README documentation index points to the maintained main-branch index. Verify targets at their respective revisions and preserve original sources, dated approval scope and runtime evidence. Freeze subsequent documentation changes separately from immutable release archives.
 
 The authorized 0.3.0 release completed main merge, npm 0.3.0, a GitHub Release and hosted Docs as recorded above. The release maintainer performs external authentication and publication; documentation preparation does not itself execute those operations. The automatic verification workflow does not publish or deploy. Record native/manual observations with their actual scope and carry unrun checks as limitations; do not substitute automated WebKit/axe checks or publication authorization for human certification.
 
-The 0.3.0 publication procedure below preserves the distinction between preparation and external verification; future releases require their own version, authorization and frozen source/archive:
+The procedure preserves the distinction between preparation and external verification. Use the intended version in place of `VERSION`; future releases require their own authorization and frozen source/archive:
 
 1. Review the changelog, migration, dated verification and the [2026-10-02 native environment report](design/public-ui-release-validation.md). Its capability blockers leave all native/manual acceptance rows open and add no native component pass. Confirm maintained links, actual Storybook Docs/Usage and legal notices for the intended source. Record unresolved manual coverage without inventing passes.
 2. Build and inspect a fresh archive with `npm pack --ignore-scripts --json --pack-destination /path/to/candidate`; preserve its SHA-256, file list and source revision outside the archive. Run boundary/relative-link checks and clean packed consumers on that candidate.
-3. Check registry availability for `@naeil/ui@0.3.0` immediately before publication. Publish the verified candidate archive, then verify the registry version, integrity and dist-tag; a changelog or install command alone proves none of these.
+3. Check registry availability for `@naeil/ui@VERSION` immediately before publication. Publish the verified candidate archive, then verify the registry version, integrity and dist-tag; a changelog or install command alone proves none of these.
 4. Create the release tag/GitHub Release for the recorded source and retain version, artifact identity, validation scope and support limitations.
 5. Publish the reviewed Storybook artifact through the manual Pages workflow below. Verify the actual hosted URL, subpath Docs-to-Usage navigation, fonts and notices over HTTP before reporting it live.
 
@@ -76,7 +85,7 @@ npm publication, GitHub Releases, main merge and hosted Docs are distinct operat
 
 ## Storybook preview artifact
 
-`pnpm build:storybook` builds actual Docs pages and interactive Usage examples for all 13 families. It copies only generated documentation notices, bundles locally installed Pretendard/Noto Sans JP and disables Vite publicDir. The artifact check verifies real Docs/story entries, exact MIT/shadcn/font notices and absence of website public images/SVGs/HTML. It does not claim those excluded site assets have cleared rights.
+`pnpm build:storybook` builds actual Docs pages and interactive Usage examples for all 13 component families plus Brand / Logo. It copies generated documentation notices and approved canonical brand SVGs, bundles locally installed Pretendard/Noto Sans JP and disables Vite publicDir. The artifact check verifies real Docs/story entries, exact MIT/shadcn/font notices, brand references and absence of website public images/SVGs/HTML. It does not claim those excluded site assets have cleared rights.
 
 CI uploads `storybook-preview` after a successful build; it is a downloadable static artifact, not a hosted deployment. Download/unzip it and serve the extracted directory (containing index.html):
 
@@ -90,7 +99,7 @@ Run the command from this checkout after installing its dependencies. It serves 
 
 ### Authorized GitHub Pages publication
 
-The public Docs destination [https://naeil-dev.github.io/naeil-ui/](https://naeil-dev.github.io/naeil-ui/) is live following the 2026-10-02 [Pages run 36963256014](https://github.com/naeil-dev/naeil-ui/actions/runs/36963256014). The [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) records deployed source and hosted HTTP/navigation checks. Pages uses `build_type=workflow` and a **github-pages** main-only deployment branch policy. See [Docs workflow status](https://github.com/naeil-dev/naeil-ui/actions/workflows/publish-docs-manual.yml) for subsequent deployments; preview artifact checks above establish local artifact behavior only.
+The public Docs destination [https://naeil-dev.github.io/naeil-ui/](https://naeil-dev.github.io/naeil-ui/) serves source `e8fe5afc13788a0cac0244b72e78975812f4a2ee` following the 2026-10-11 [Pages run 38114879574](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574). The [0.4.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) records deployed source and hosted HTTP/navigation checks; the 0.3.0 deployment above remains history. Pages uses `build_type=workflow` and a **github-pages** main-only deployment branch policy. See [Docs workflow status](https://github.com/naeil-dev/naeil-ui/actions/workflows/publish-docs-manual.yml) for subsequent deployments; preview artifact checks above establish local artifact behavior only.
 
 `.github/workflows/publish-docs-manual.yml` is an explicit `workflow_dispatch` recipe with no PR/push trigger. Pages is configured to use **GitHub Actions**; the **github-pages** environment permits deployment from main only. Run the authorized workflow from main with the exact reviewed source SHA; configuration alone does not establish a successful deployment. The workflow file does not enable Pages itself. A default-branch merge can separately invoke the brand site's existing Vercel integration; that production deployment and its asset/font provenance require separate handling.
 
@@ -101,7 +110,7 @@ Select **Publish reviewed UI docs (manual only)** in Actions (or use the command
 gh workflow run publish-docs-manual.yml -f reviewed_sha=FULL_REVIEWED_COMMIT_SHA -f confirmation=PUBLISH_REVIEWED_DOCS
 ```
 
-After deployment, verify the manager and iframe under `/naeil-ui/`, all 13 Docs/Usage entries, Docs links, local fonts and exact LICENSE/THIRD_PARTY_NOTICES/font notices. Retain the deployment URL, source SHA and observed HTTP/navigation results. Hosted Storybook uses simulated data and requires no Supabase project, design API key or external font server. Only the reviewed Storybook directory is uploaded; website public assets stay excluded.
+After deployment, verify the manager and iframe under `/naeil-ui/`, all 13 component Docs/Usage entries plus Brand / Logo, canonical artwork, Docs links, local fonts and exact LICENSE/THIRD_PARTY_NOTICES/font notices. Retain the deployment URL, source SHA and observed HTTP/navigation results. Hosted Storybook uses simulated data and requires no Supabase project, design API key or external font server. Only the reviewed Storybook directory is uploaded; website public assets stay excluded.
 
 Normal builds are network-independent after dependency installation. Vite collects notices for actual preview modules; checked-in manager notices conservatively cover named embedded packages and versions from Storybook 10.4.6's original source lock. `check-storybook` fails if a named embedded module lacks a full notice. Four vendored tiny modules have no embedded version in that lock/comments; their original npm notice source is explicitly marked, without an exact-version claim. The exact use-composed-ref@1.4.0 tarball/repository provides MIT metadata but no standalone notice; its metadata plus full declared terms are retained without inventing a year/holder. The client-only@0.0.1 React marker retains its exact metadata and the original React MIT notice. Other missing notices fail the build; no generic MIT fallback passes arbitrary packages.
 

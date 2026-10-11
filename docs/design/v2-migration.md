@@ -2,7 +2,7 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-이 안내는 **@naeil/ui 0.4.0**의 CSS·API·패키지 경계를 대상으로 한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 기존 npm 0.2.0에 이 기능이 모두 구현됐다고 가정하지 않는다. Registry의 게시 여부와 latest 태그는 별도로 확인한다.
+이 안내는 **@naeil/ui 0.4.0**의 CSS·API·패키지 경계를 대상으로 한다. 2026-10-11 npm 게시와 latest 0.4.0을 확인했으며, [게시 결과](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md)에 실제 registry·소비 앱·Docs·운영 사이트 증거를 기록했다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다.
 
 ## 시작하기
 
@@ -13,7 +13,7 @@ pnpm add --save-exact @naeil/ui@0.4.0
 # npm install --save-exact @naeil/ui@0.4.0
 ```
 
-이 명령은 해당 버전이 registry에 있을 때 사용할 수 있다. 게시 전 소스 검증은 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.4.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+위 명령으로 게시된 0.4.0을 설치할 수 있다. 로컬 소스 검증은 저장소에서 `pnpm build:pkg` 후 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고, 소비 앱에 `/tmp/naeil-ui-0.4.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
@@ -224,6 +224,6 @@ Root and `components/index` continue to export Logo; root still has the existing
 - Default accessible name is naeil with role=img. Use `label={null}` for decorative use and name the enclosing link/button. `aria-label` and other standard SVG attributes remain consumer overrides.
 - Nav now uses the horizontal wordmark at 28px; Footer uses the footer lockup at 20px. Their official visible spelling remains `.naeil`: the period marks an ending, followed by tomorrow. Nav's `brandSlot`, brandHref, external/internal links, layout frame and other slots are preserved. Check custom layouts on upgrade because the new artwork has a different width.
 
-The independent kit lives in the repository's `brand/naeil/1.1.1/` directory with its own usage guide, SVG/PNG/icons, OFL and checksums. Copy it for non-React uses without installing @naeil/ui. It is intentionally not copied into the npm tarball. The package carries only generated React artwork and the [Lato notice](../../licenses/Lato-OFL.txt). A favicon is application-owned: Next file conventions can use the kit's favicon.ico, favicon.svg and apple-touch-icon.png; each consumer chooses its own app manifest and deployment.
+The independent kit lives in the repository's `brand/naeil/1.1.1/` directory with its own usage guide, SVG/PNG/icons, OFL and checksums, and is available as a [verified release ZIP](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip). Copy it for non-React uses without installing @naeil/ui. It is intentionally not copied into the npm tarball. The package carries only generated React artwork and the [Lato notice](../../licenses/Lato-OFL.txt). A favicon is application-owned: Next file conventions can use the kit's favicon.ico, favicon.svg and apple-touch-icon.png; each consumer chooses its own app manifest and deployment.
 
 Maintainers run `pnpm build:brand` after explicitly selecting a reviewed version in `brand/current.json`, then `pnpm check:brand`. Package/Storybook builds check that generated artwork, notices and this site's icon files match that version. Shared color tokens and Pretendard do not change. In Storybook, **Brand / Logo / Docs, Usage, Application** demonstrates the actual adapter, canonical SVG comparisons and Nav/Footer composition.

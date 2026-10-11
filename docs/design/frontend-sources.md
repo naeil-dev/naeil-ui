@@ -172,3 +172,11 @@ Git 커밋 `2efb1b001706d6f4eec57c90a0d3ae256940733f`(2026-03-02)의 “끝. 내
 ## 2026-10-11 — 배포 전 대표 미리보기 정정
 
 릴리스 파일 최종 확인에서 1.1.0의 PREVIEW.png가 점 없는 이전 버전임을 발견했다. 기존 버전을 덮어쓰지 않고 1.1.1로 분리했으며, 새 START-HERE.html의 gallery를 실제 Chromium에서 캡처하여 교체했다. SVG·PNG 폴더·아이콘은 1.1.0과 바이트 동일함을 확인했다. 1.1.1 ZIP 추출 후 158개 해시·93개 상대 링크를 확인했으며 공식 원본 선택을 1.1.1로 갱신했다. 이 수정과 npm 0.4.0 게시 준비는 실제 외부 배포 결과와 구분한다.
+
+## 2026-10-11 — npm 0.4.0, 브랜드 1.1.1 및 실제 배포 확인
+
+병합 소스 `e8fe5afc13788a0cac0244b72e78975812f4a2ee`에서 다시 빌드한 패키지, 동결한 검수 후보와 공개 npm tarball의 바이트가 동일함을 확인했다. 사용자의 게시용 보안 키 인증 뒤 `@naeil/ui@0.4.0` 게시와 latest 0.4.0을 확인하고, 서로 다른 빈 npm 캐시를 사용하는 독립 React/Next 앱에서 실제 registry 설치·타입·production build·SSR/deep import·폰트/차단 fallback·고지·mixed-import/StrictMode·Chromium/WebKit Tabs/Textarea 계약을 검증했다. [게시 보고서](naeil-brand-0.4.0-publication.md)와 공개 GitHub Release에 원본·npm·브랜드·운영 사이트·hosted Docs 증거를 보존했다.
+
+실제 도구: Git/GitHub CLI, pnpm/npm, Python 해시·ZIP CRC 검사, Playwright Chromium 153.0.8010.12와 WebKit 26.6, Aside를 통한 실제 naeil.dev·배포된 Brand Docs 탐색·캡처 및 이미지 관찰. 단위 테스트 46개와 병합 CI 브라우저 233개(예상 forced-colors skip 4개)가 통과했다. Pages workflow가 같은 소스로 Storybook을 배포했으며, 실제 URL에서 Docs 28회·Docs→Usage 28회·브랜드 테마 4조건·정확한 고지 6개·공식 SVG 4개·로컬 폰트·고정 링크를 확인했다. 운영 사이트 홈페이지/로그인 24조건과 아이콘 3개의 원본 일치도 확인했다. GitHub Release의 9개 첨부 파일을 인증 없는 공개 다운로드로 다시 대조했다.
+
+새 외부 디자인 소스·research-router 조사·Figma/Recraft·이미지 생성은 실행하지 않았다. 앞선 고정 Lato/OFL과 승인 브랜드를 그대로 사용했다. 이 기록은 이전 준비 단계의 미게시·미배포 기록을 당시 증거로 보존하면서 실제 게시 결과를 추가한다. 실제 Safari/VoiceOver 청취, 물리 기기, 인쇄·상표 검토, 실제 소비 제품 채택과 전체 OAuth 인증의 미검증 범위는 유지한다.

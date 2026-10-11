@@ -6,13 +6,14 @@
 - [13 component usage guides](components/README.md): exact wrapper APIs, states, keyboard and consumer responsibilities; matching Storybook Docs and runnable Usage examples.
 - [Current support and manual acceptance](design/public-ui-support.md), [Stage 3 verification](design/public-ui-stage3-verification.md), [Stage 4 extension verification](design/public-ui-stage4-verification.md) and [demand decision](design/component-demand.md) and [preview artifact instructions](package-release.md#storybook-preview-artifact).
 - [UI consumer and migration guide](design/v2-migration.md): imports, styles, fonts, density, layout, compatibility.
+- [0.4.0 publication and brand 1.1.1](design/naeil-brand-0.4.0-publication.md): exact source/archive, npm, GitHub Release, hosted Docs and production results.
 - [Optional frontend-reference workflow setup](design/frontend-tooling.md): tools, keys, no-key fallback, and helper checks.
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.
 - [Contributing](../CONTRIBUTING.md), [security](../SECURITY.md), [licenses and provenance](../THIRD_PARTY_NOTICES.md).
 
-[Hosted Docs](https://naeil-dev.github.io/naeil-ui/) are live following the [2026-10-02 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/36963256014); the [0.3.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) records hosted HTTP/navigation/font checks. npm 0.3.0 was published on 2026-10-03; [machine-readable evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.3.0/npm-publication-verification.json) records registry identity and fresh clean-cache React/Next consumption. The downloadable Storybook artifact can also be served locally. Native/manual acceptance and real-product adoption remain open.
+[Hosted Docs](https://naeil-dev.github.io/naeil-ui/) include the 13 component families and Brand / Logo following the [2026-10-11 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574). npm 0.4.0 was published on 2026-10-11; the [0.4.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) retains registry/consumer, hosted Docs and production receipts, the npm archive and [independent brand kit](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip). The approved brand is live on [naeil.dev](https://naeil.dev/). The downloadable Storybook artifact can also be served locally. Native/manual acceptance and real-product adoption remain open.
 
-Guides bundled in the immutable npm 0.3.0 archive are the release-preparation snapshot. Maintained GitHub guides record subsequent publication status; source documentation updates do not alter that archive, tag or release asset. Hosted Docs reflect their deployed source, recorded in the Pages run.
+Guides bundled in each immutable npm archive are its release-preparation snapshot. Maintained GitHub guides record subsequent publication status; source documentation updates do not alter the archive, tag or release asset. Hosted Docs reflect their separately deployed source, recorded in the Pages run. The [0.3.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) and earlier verification reports remain dated history.
 
 ## Dated specifications and evidence
 

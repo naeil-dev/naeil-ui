@@ -2,10 +2,13 @@
 
 ## 0.4.0 — brand 1.1.1 integration (2026-10-11)
 
+Published to npm at `2026-10-11T05:36:58.047Z`; `latest` was verified as `0.4.0`. The [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) and tag retain merged source `e8fe5afc13788a0cac0244b72e78975812f4a2ee`, the exact npm archive and the independent brand 1.1.1 ZIP. [Registry/clean-consumer evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/npm-publication-verification.json), [hosted Docs evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/hosted-docs-verification.json) and [production evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/production-verification.json) record the completed external checks.
+
 - Connect Logo, default Nav/Footer and site login to the checksum-verified sunset/island brand kit; remove duplicated old marks.
 - Preserve Logo size/className/mono and Nav brandSlot contracts. Add outlined lockup variants, grayscale tone, explicit/automatic themes and decorative accessibility support. Preserve the leading period in the official .naeil wordmark: an ending followed by tomorrow.
 - Generate React artwork and site icons with build:brand; package/Storybook builds reject drift. Keep standalone SVG/PNG/icons separate from UI runtime and retain the Lato notice.
-- Shared Pretendard typography, neutral tokens and existing public import paths remain unchanged. No npm publication or site deployment is implied.
+- Shared Pretendard typography, neutral tokens and existing public import paths remain unchanged.
+- Publish the byte-verified npm archive; fresh registry installs in independent React/Next apps pass types, production builds and browser contracts. Deploy the same source to [hosted Docs](https://naeil-dev.github.io/naeil-ui/) in [Pages run 38114879574](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574), and verify the deployed brand on [naeil.dev](https://naeil.dev/) across 24 homepage/login conditions in Chromium/WebKit. Existing native/manual support limits remain open.
 
 
 ## 0.3.0 — scope frozen 2026-10-02; published 2026-10-03

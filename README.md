@@ -20,7 +20,7 @@ pnpm add --save-exact @naeil/ui@0.4.0
 # npm install --save-exact @naeil/ui@0.4.0
 ```
 
-This source targets 0.4.0, which adds the approved `.naeil` brand 1.1.1. Registry availability and release evidence are recorded separately in the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0). See the [changelog](CHANGELOG.md) and [brand usage](docs/design/v2-migration.md#brand-logo-integration-040); the local package workflow below works before publication.
+Version 0.4.0 was published to npm on 2026-10-11 and verified as `latest`; it adds the approved `.naeil` brand 1.1.1. The [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) retains the byte-verified archive and fresh registry-consumer evidence. Download the [independent brand kit](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip) for SVG/PNG/icons and non-React usage. See the [changelog](CHANGELOG.md), [brand usage](docs/design/v2-migration.md#brand-logo-integration-040) and [publication report](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md).
 
 Import primitives from the dedicated entrypoint:
 
@@ -88,11 +88,11 @@ pnpm pack --pack-destination /tmp
 | `pnpm build:pkg` / `pnpm check:package` | Build package / inspect package boundary and independently install/build packed React + Next consumers |
 | `pnpm dev` / `pnpm build` | Brand/example website development / build |
 
-A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts. [Hosted Docs](https://naeil-dev.github.io/naeil-ui/) are live: the [2026-10-02 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/36963256014) and [release evidence](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) record deployment and hosted HTTP/navigation/font checks. See [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md). Native/manual platform acceptance and adoption in a real consumer product remain open.
+A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts. [Hosted Docs](https://naeil-dev.github.io/naeil-ui/) now include Brand / Logo alongside the 13 component families: the [2026-10-11 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574) deployed source `e8fe5af`, and [hosted verification](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/hosted-docs-verification.json) records actual Docs/Usage navigation, fonts, artwork and notice checks. The same approved brand is live on [naeil.dev](https://naeil.dev/). See [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md). Native/manual platform acceptance and adoption in a real consumer product remain open.
 
 Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
 
-[Documentation index](https://github.com/naeil-dev/naeil-ui/blob/04c5b8cce145a4c387763db6f28d29e62f7664c7/docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
+[Documentation index](https://github.com/naeil-dev/naeil-ui/blob/main/docs/README.md) separates maintained guides from dated implementation/review evidence. Historical checks describe their recorded revision and scope; publishing, merging, and site deployment are separate actions.
 
 ## Project and license
 
