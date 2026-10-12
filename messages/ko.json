@@ -13,7 +13,11 @@
   },
   "hero": {
     "title": ".naeil",
-    "subtitle": "Build · Ship · Iterate"
+    "subtitle": "Build · Ship · Iterate",
+    "sceneLabel": "고요한 바다 위로 지는 노을",
+    "viewProjects": "프로젝트 보기",
+    "pauseMotion": "수면 움직임 멈추기",
+    "resumeMotion": "수면 움직임 재생"
   },
   "projects": {
     "title": "프로젝트",

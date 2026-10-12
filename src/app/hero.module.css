@@ -1,0 +1,101 @@
+/* Site artwork: shared UI tokens remain the authority for the surrounding UI. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--background);
+}
+
+.scene {
+  /* Follow the site's explicit theme, including overrides of the OS setting. */
+  --hero-image: url("/images/hero/sunset-a-light.webp");
+  position: absolute;
+  pointer-events: none;
+  inset: 0 0 auto;
+  height: 88svh;
+  overflow: hidden;
+  /* Only the vertical axis fades. Eased stops soften the start/end of each
+     transition; the viewport, never a vignette, defines the lateral edges. */
+  mask-image: linear-gradient(to bottom,
+    transparent 0%, rgb(0 0 0 / 0.04) 8%, rgb(0 0 0 / 0.15) 16%,
+    rgb(0 0 0 / 0.35) 24%, rgb(0 0 0 / 0.65) 32%,
+    rgb(0 0 0 / 0.85) 40%, rgb(0 0 0 / 0.96) 48%, black 56%,
+    black 82%, rgb(0 0 0 / 0.96) 85%, rgb(0 0 0 / 0.85) 88%,
+    rgb(0 0 0 / 0.65) 91%, rgb(0 0 0 / 0.35) 94%,
+    rgb(0 0 0 / 0.15) 96%, rgb(0 0 0 / 0.04) 98%, transparent 100%);
+}
+
+:global(.dark) .scene {
+  --hero-image: url("/images/hero/sunset-a.webp");
+}
+
+.photograph {
+  position: absolute;
+  left: 50%;
+  /* Keep the shoreline near 72svh on wide displays by cropping more water,
+     rather than pushing the sky and horizon upward as the image widens. */
+  bottom: min(0px, calc(15.84svh - 10.1304vw));
+  /* 88svh × 1672/941: fill the scene without vertically cropping the source.
+     The horizon and water mask stay in the same image coordinate system. */
+  width: max(100%, 156.3635svh);
+  aspect-ratio: 1672 / 941;
+  transform: translateX(-50%);
+  background: var(--hero-image) center / 100% 100% no-repeat;
+}
+
+:global(.dark) .photograph {
+  filter: saturate(0.76) brightness(0.83);
+}
+
+.water {
+  position: absolute;
+  left: 0;
+  top: calc(772 / 941 * 100%);
+  width: 100%;
+  height: calc(169 / 941 * 100%);
+  object-fit: fill;
+  /* Fade in just below the shoreline. Never decode the sky or move the island. */
+  mask-image: linear-gradient(to bottom, transparent, black 15.4%);
+  opacity: 0;
+  transition: opacity 180ms linear;
+}
+
+.water[data-ready="true"] {
+  opacity: 1;
+}
+
+.scrollHint,
+.motionControl {
+  position: absolute;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  width: 44px;
+  height: 44px;
+  color: var(--muted-foreground);
+  /* Short landscape viewports can place controls over the fading water. */
+  background: var(--background);
+}
+
+.scrollHint {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scrollHint:focus-visible,
+.motionControl:focus-visible {
+  /* Keep the focus indicator on the opaque control surface too. */
+  outline-offset: -4px;
+}
+
+.motionControl {
+  right: max(24px, calc((100% - 1280px) / 2 + 24px));
+}
+
+.motionControl[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water { display: none; transition: none; }
+  .motionControl { display: none; }
+}

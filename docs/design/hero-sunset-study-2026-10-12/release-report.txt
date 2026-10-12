@@ -1,0 +1,73 @@
+Sunset hero release candidate — 2026-10-12
+
+Scope
+ApprovedA composition, theme-specific still artwork and a3.2-second real-footage
+water loop. Site-only: shared UI tokens/API and the1.1.1brand release unchanged.
+User authorized fixes from the Opus5.5 review and production deployment.
+The original MOV remains private; generation prompts/sourceSHA and reproducible
+scripts are retained. Full-size local exploration artifacts are excluded from Git.
+
+Review corrections
+1. Source frames48..56, which contain the duplicate and additional movement, are excluded. Candidate overlaps
+   are selected by high-pass similarity within the first48frames; selected[3,48).
+2. Sigma8 low/high-frequency separation and measured variance preservation prevent
+   ripples becoming flat in the overlap. Applied to overlap and time interpolation.
+3. Only NotAllowedError marks autoplay as blocked. Media/decode failure does not
+   become a persistent user-pause for the other theme.
+4. CRF18 with consistent I/P/B weighting and no AQ/mbtree: dark883,370bytes,
+   light1,012,025bytes. About28% and33% smaller than the first production candidate.
+5. Encoder/Python/dependency versions and requirements are now recorded. Production
+   WebPs supply colors, so PNG study files are not required for a rebuild.
+
+Encoded measurements (not a claim that a viewer cannot detect repetition)
+verify-encoded.py now compares with ordinary first60frame median, not the maximum
+jump. It rejects near-stalls, large jumps, seam outliers and texture loss/increase.
+Dark: min adjacent0.862, median1.283, max1.788, seam1.979; texture95.7..105.4%.
+Light: min adjacent1.115, median1.624, max2.226, seam2.338; texture95.5..105.3%.
+Both96frames/30fps/3.2s, video-only H.264/yuv420p/faststart. The seam is still about
+1.4–1.5times ordinary median; it is not described as identical cadence or invisible.
+Metrics are evidence of reduced defects, not a substitute for subjective viewing.
+
+Verification
+Current-source Next production build including TypeScript passed.
+Current-source Vitest9files/46tests passed. Full ESLint passed with0errors and2
+pre-existing warnings (older logo-study helper; blog locale variable).
+Final browser matrix passed: Chromium390/600/1440/2560px × both themes,
+correct theme asset and no overflow, pause/keyboard resume, offscreen pause,
+reduced-motion removal/no initial media fetch, two loop wraps, sky/land fixed,
+paused theme/remount fallback, synthetic visibility, media-failure fallback,
+failed-dark→healthy-light recovery, autoplay rejection→user replay recovery.
+Playwright WebKit390px autoplay passed. See cinemagraph/browser-results.json.
+Full-source checks above were run after the error handling correction.
+
+Known limits carried forward
+Root html lang omission,14low-contrast light project tags, local English redirect
+loop are outside this hero correction and remain open pending fresh evidence.
+Physical iPhone low-power mode, Firefox, real OS tab suspension and human continuous
+video assessment remain unverified. Simulated browser events do not establish them.
+No package publish or Storybook deployment is intended for this site-only release.
+
+Deployment
+Final review and browser verification passed. The authorized path is the existing
+GitHub main→Vercel production integration. Publication will be confirmed against
+the production page and asset hashes, not inferred merely from a successful push.
+
+Final runtime SHA-256
+src/components/hero-section.tsx: ed7a134ca42c37685a636652a02624bf4a1e4f90a17ab862816802c17e173a12
+src/app/hero.module.css: d2243a5879891f3ac6745ce7fc1951249aeba691c81ef03d4b2d1f189477734d
+public/images/hero/sunset-a.webp: d65d7fe86facea831a7601ea55c8de2d0793c3f89143082352f92d0ae810d48a
+public/images/hero/sunset-a-light.webp: d3a1f0f1dc9e99c43f7a106caeef335d605de6d4f0e1a09020455ee2be46e963
+public/images/hero/sunset-water-dark.mp4: 607efbea8d8f5291588fc6abcf0e6aa06ffad7d0de7f6ed97b047ab8e21b6331
+public/images/hero/sunset-water-light.mp4: cd184f2411af5b199d7d7f32d6d4858db6ea4bdfbd176e7586c369694baa943f
+
+Independent final review — Opus5.5
+All three confirmed findings resolved; no remaining deployment blocker. Reviewer
+independently decoded both assets and verified error recovery, user replay, loop
+wraps, landscape Chromium and mobile WebKit. Production playback remains pending.
+The selected39-frame cycle is spread over96output frames (approximately0.41x
+source speed, previously0.5x), so motion is a little slower/smoother while preserving
+the3.2-second duration. Encoding still makes the boundary the largest small change;
+further noise reduction is an optional quality iteration, not declared solved.
+Source camera motion exists inside the retained window too; stabilization handles
+it. No claim is made that the original retained camera view was stationary.
+PR: https://github.com/naeil-dev/naeil-ui/pull/4

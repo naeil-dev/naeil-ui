@@ -73,7 +73,7 @@ function HubContent() {
       <HeroSection />
 
       {/* Projects — Bento Grid */}
-      <section className="mx-auto max-w-4xl px-6 py-24">
+      <section id="projects" className="mx-auto max-w-4xl scroll-mt-20 px-6 py-24">
         <h2 className="text-foreground mb-2 text-2xl font-bold tracking-tight">
           {t("projects.title")}
         </h2>

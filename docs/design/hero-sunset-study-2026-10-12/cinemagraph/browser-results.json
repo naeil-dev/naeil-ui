@@ -1,0 +1,234 @@
+[
+  {
+    "name": "390-dark",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "390-light",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "600-dark",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "600-light",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "1440-dark",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "1440-light",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "2560-dark",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-dark.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "2560-light",
+    "measure": {
+      "source": "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4",
+      "duration": 3.2,
+      "width": 1280,
+      "height": 130,
+      "muted": true,
+      "loop": true,
+      "inline": true,
+      "overflow": false,
+      "requests": [
+        "http://127.0.0.1:3107/images/hero/sunset-water-light.mp4"
+      ],
+      "quality": {
+        "total": 4,
+        "dropped": 0
+      }
+    },
+    "errors": [],
+    "pauseResume": true,
+    "offscreenPause": true,
+    "reducedMotionRemovesVideo": true
+  },
+  {
+    "name": "failed-theme-recovery",
+    "healthyThemePlays": true
+  },
+  {
+    "name": "autoplay-retry",
+    "playsAfterUserClick": true
+  },
+  {
+    "name": "loop-and-stillness",
+    "loop": {
+      "wraps": 2,
+      "quality": {
+        "total": 209,
+        "dropped": 4
+      }
+    },
+    "landDiff": 0,
+    "waterDiff": 124018,
+    "themeSwitch": true,
+    "pausedRemountFallback": true,
+    "simulatedVisibilityPause": true
+  },
+  {
+    "name": "reduced",
+    "staticFallbackAndNavigation": true
+  },
+  {
+    "name": "error",
+    "staticFallbackAndNavigation": true
+  },
+  {
+    "name": "blocked",
+    "staticFallbackAndNavigation": true
+  },
+  {
+    "name": "webkit-mobile",
+    "duration": 3.2,
+    "playing": true
+  }
+]

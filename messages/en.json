@@ -13,7 +13,11 @@
   },
   "hero": {
     "title": ".naeil",
-    "subtitle": "Build · Ship · Iterate"
+    "subtitle": "Build · Ship · Iterate",
+    "sceneLabel": "Sunset over a quiet sea",
+    "viewProjects": "View projects",
+    "pauseMotion": "Pause water motion",
+    "resumeMotion": "Resume water motion"
   },
   "projects": {
     "title": "Projects",
