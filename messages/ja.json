@@ -13,7 +13,11 @@
   },
   "hero": {
     "title": ".naeil",
-    "subtitle": "Build · Ship · Iterate"
+    "subtitle": "Build · Ship · Iterate",
+    "sceneLabel": "静かな海に沈む夕日",
+    "viewProjects": "プロジェクトを見る",
+    "pauseMotion": "水面の動きを止める",
+    "resumeMotion": "水面の動きを再生"
   },
   "projects": {
     "title": "プロジェクト",

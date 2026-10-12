@@ -180,3 +180,66 @@ Git 커밋 `2efb1b001706d6f4eec57c90a0d3ae256940733f`(2026-03-02)의 “끝. 내
 실제 도구: Git/GitHub CLI, pnpm/npm, Python 해시·ZIP CRC 검사, Playwright Chromium 153.0.8010.12와 WebKit 26.6, Aside를 통한 실제 naeil.dev·배포된 Brand Docs 탐색·캡처 및 이미지 관찰. 단위 테스트 46개와 병합 CI 브라우저 233개(예상 forced-colors skip 4개)가 통과했다. Pages workflow가 같은 소스로 Storybook을 배포했으며, 실제 URL에서 Docs 28회·Docs→Usage 28회·브랜드 테마 4조건·정확한 고지 6개·공식 SVG 4개·로컬 폰트·고정 링크를 확인했다. 운영 사이트 홈페이지/로그인 24조건과 아이콘 3개의 원본 일치도 확인했다. GitHub Release의 9개 첨부 파일을 인증 없는 공개 다운로드로 다시 대조했다.
 
 새 외부 디자인 소스·research-router 조사·Figma/Recraft·이미지 생성은 실행하지 않았다. 앞선 고정 Lato/OFL과 승인 브랜드를 그대로 사용했다. 이 기록은 이전 준비 단계의 미게시·미배포 기록을 당시 증거로 보존하면서 실제 게시 결과를 추가한다. 실제 Safari/VoiceOver 청취, 물리 기기, 인쇄·상표 검토, 실제 소비 제품 채택과 전체 OAuth 인증의 미검증 범위는 유지한다.
+
+
+## 2026-10-12 — 메인 석양 장면 모션 스타일 조사
+
+범위: 사용자가 선호하는 어두운 바다·석양·섬 컨셉을 유지하는 스타일 종류와 제작 경로 탐색. 첨부 캡처와 DESIGN.md를 기준으로 시네마그래프, 영화적 루프, 일러스트/2.5D, 스타일화 3D, 추상 광원, 레트로 표현을 비교했다. 사이트 장면에 대한 제안이며 공유 UI나 브랜드 릴리스 변경은 아니다. 방향 채택은 미결정이다.
+
+읽은 원문: [Runway 공식 프롬프팅 가이드](https://academy.runwayml.com/guides/prompting-guide) 전체(발행일 미상), [Adobe 시네마그래프 설명](https://www.adobe.com/creativecloud/video/discover/how-to-make-a-cinemagraph.html) 관련 부분(발행일 미상), [Thalles Lopes의 물 표현 제작기](https://tympanus.net/codrops/2025/03/04/creating-stylized-water-effects-with-react-three-fiber/) 관련 부분(2025-03-04), [The Sleepers 제작기](https://tympanus.net/codrops/2026/07/10/the-sleepers-creating-an-atmospheric-webgl-experience-with-lightweight-techniques/) 전체(2026-07-10). Kinetics의 초기 UI 스프링·버튼 예제 코드는 읽었지만 이번 풍경 스타일 추천에는 채택하지 않았다. 원문 설명과 제작자의 경험을 참고한 적합성 제안이며 AI 도구 품질 순위나 최근 유행 측정이 아니다.
+
+실제 도구: research-router의 SearXNG discovery 1회(무관 결과), native web search 6쿼리로 원문 발견, fetch.py/local-extract 5 URL 및 오프라인 본문 읽기. 검색 결과 요약은 본문 근거와 구분했다. 브라우저 데모 재생, 영상·이미지 생성, Refero/21st/Impeccable 실행, 성능 검증은 수행하지 않았다. 연구 캡처는 /tmp/naeil-motion-research.iwBpQb에 보관. 적용 파일은 이 출처 기록뿐이며 제품 구현은 변경하지 않았다.
+
+워크플로: `skills/frontend-reference-workflow/SKILL.md`, revision 2026-10-02.1, SHA-256 `ecada9f24d5ebbce5ac207d5225200ca2d76d08ea9f9f1d3b46d4e956a17d7b8`.
+
+
+## 2026-10-12 — 기존 모션 스타일 샘플 링크 확인
+
+새 샘플 제작 없이 기존 사이트를 선정했다: [Flixel Nature](https://flixel.com/cinemagraphs/nature/), [Firewatch](https://www.firewatchgame.com/), [Elysium](https://elysium.thebenezer.com/), [Amanpuri](https://www.aman.com/resorts/amanpuri), [Codrops Aurora](https://tympanus.net/Development/AmbientCanvasBackgrounds/), [Canvas Cycle](https://www.effectgames.com/demos/canvascycle/). 실제 native web search 10쿼리, local-extract, Aside REPL의 데스크톱 snapshot·스크린샷을 확인했다. Canvas Cycle의 Seascape - Sunset을 직접 선택해 렌더를 확인했다. Elysium은 진입 화면까지 확인했으며 탐색 전체 검증은 하지 않았다. Aman의 쿠키 안내는 그대로 유지했다. 생성 도구나 제품 구현 변경은 없고 스타일 채택은 미결정이다.
+
+Cinemagraphs.com은 Website Expired, Coastal World는 coastalbank.com으로 리다이렉트되어 추천에서 제외했다. 해당 상태는 브라우저에서 실제 확인했다. 캡처·본문·관찰 기록은 /tmp/naeil-style-links.Aidpe6 및 Aside 세션 2026-10-12_SWMmSjQx0AZXzzs5/tmp에 보관했다. 브라우저 증거를 research-router ledger에 import할 때 blogs/public-browser 조합이 거부되어 원본 receipt를 별도로 보존했다. 이는 브라우저 관찰 증거가 ledger import로 검증되었다는 뜻이 아니다. 자체 생성 탭과 팝업은 모두 닫았다.
+
+
+## 2026-10-12 — 노을 히어로 가로 시안 A/B
+
+사용자가 제공한 MOV의 추출 프레임을 원본으로 사용했다. 사용자 요청에 따라 Paseo 스킬과 MCP로 기본 `codex/gpt-6.1-sol` 에이전트를 실행했다. 기본 Codex의 ChatGPT 로그인과 공식 제공자 설정을 확인한 에이전트가 내장 image_gen 편집으로 A: 하늘 중심 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))과 B: 수면 비중 증가 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))를 생성했다. 별도 API 키/CLI 과금 경로는 사용하지 않았다. 이전 pooled 중계기의 이미지 편집 405 오류는 기본 Codex 경로의 생성 실패로 일반화하지 않는다.
+
+두 출력은 1672×941px이며 주 에이전트도 이미지를 직접 확인했다. A 수면 경계는 약82%, B는 약74%로 B의 목표70%에 미달한다. 방파제는 제거됐으나 원본의 섬·구름 세부가 재구성되고 주황빛이 강해졌다. 정확한 원본 픽셀 보존이나 목표 구도 완전 충족을 주장하지 않는다. [실제 프롬프트와 생성 기록](hero-sunset-study-2026-10-12/generation-method.txt)에 재시도와 한계를 기록했다. 새 외부 시각 자료 채택, 제품 코드 변경, 배포는 수행하지 않았다.
+
+
+## 2026-10-12 — 승인 A의 사이트 히어로 통합
+
+사용자의 첨부 메인 화면과 승인 A를 시각적 기준으로 채택했다. DESIGN.md의 중립 캔버스·Pretendard·Nav 틀을 유지하고, 사이트 전용 `src/app/hero.module.css`에서 사진 가장자리를 테마 배경으로 연결했다. 기존 Button과 테마 제공자를 그대로 소비한다. 수면의 제한된 CSS 움직임은 사용자 승인된 사이트 장식이며 공유 토큰 규칙으로 승격하지 않는다. 새 외부 시각 자료 검색이나 영상 생성 API는 사용하지 않았다.
+
+실제 도구: frontend-reference-workflow revision2026-10-02.1, Impeccable context/craft-floor/detect, 기존 Next 의존성 sharp(WebP 변환), Playwright Chromium 및 axe, Paseo 로컬 미리보기, 코드 리뷰. ffmpeg의 libwebp 인코더는 없어 sharp로 변환했다. 당시 계약·검증 보고서·라이트/다크 캡처는 로컬 기록으로 보존하며, 공개할 최종 상태는 [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt)에 정리했다.
+
+빌드·타입 검사·변경 파일 lint·46개 테스트 통과. 390/1440/2560px 다크/라이트와 추가600px 가로 모바일 확인. 코드 리뷰의 수면 마스크 좌표 문제를 수정하고 재측정했다. 기존 html lang 누락, 라이트 프로젝트 태그14개 대비 부족, 로컬 영어 경로 리디렉션 문제는 미해결로 유지한다. 사이트 전체 접근성·모든 언어·실기기 검증 완료를 주장하지 않는다. 공유 패키지 변경/게시와 사이트 배포는 하지 않았다.
+
+## 2026-10-12 — 히어로 사각 경계 제거 및 라이트 테마 재구성
+
+사용자가 첫 통합의 흐릿한 사각 경계, 특히 라이트를 지적하고 조사·구현을 승인했다. 좌우 마스크와 폭 상한을 제거하여 풍경을 뷰포트 끝까지 채웠다. 위아래만 다중 스톱 alpha 마스크로 연결하고, 수평선은 약72svh에 유지해 와이드에서 바다보다 하늘을 우선한다. 이미지 평면의 원본 비율과 수면 마스크 좌표를 일치시킨다. 공유 중립 토큰·Pretendard·Nav·Logo와 프로젝트 구성은 그대로 소비한다.
+
+구체적인 gap → 원문 → 채택:
+- 테마와 사진의 부조화 → [web.dev Learn Design: Theming](https://web.dev/learn/design/theming), Google 공식 교육 본문 전체 → 라이트/다크 전용 이미지 선택. 예제의 OS 미디어쿼리는 사이트의 사용자 선택 `.dark`에 맞춰 CSS 변수로 조정. 첫 로드에는 해당 테마의 WebP 한 장만 요청됨을 실제 네트워크 항목으로 확인했다.
+- 선형 페이드 시작/끝 경계 → [Andreas Larsen, Easing Linear Gradients](https://css-tricks.com/easing-linear-gradients/), 제작자의 설명·데모가 있는 본문 관련 부분 → 완만한 양끝 alpha 스톱을 직접 CSS로 작성. 라이브러리/플러그인 코드는 도입하지 않았다.
+- 테마별 배경 연결 → [Ahmad Shadeed, CSS Masking](https://ishadeed.com/article/css-masking/), 제작자 본문 hero fade 예제 → 색상 고정 오버레이 대신 배경 자체를 드러내는 mask 채택. 2023 문서의 과거 지원 범위는 현재 근거로 사용하지 않았다.
+- 마스크 동작/지원 → [MDN mask-image](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-image), 본문 관련 부분 → alpha visibility 및 최신 baseline 설명 확인. 좌우×상하 intersect 대신 단일 세로 마스크로 수정.
+
+4개 원문 본문을 research-router fetch.py/local-extract로 수집하고 inspect-extract로 읽었다. 발견은 native web search 4쿼리. 공식 지침2개와 직접 제작기2개이며 유행/인기도 측정은 아니다. 원문 접근일2026-10-12. CSS-Tricks/공식 문서의 발행·갱신일은 읽은 본문에서 확인하지 못해 미상으로 둔다. Shadeed 검색 메타데이터는2023-03-30이나 본문에 날짜가 없어 발행일 확정 근거로 사용하지 않는다. 원본 캡처: /tmp/naeil-hero-seamless.JzWDQY/result.json 및 /tmp/naeil-hero-mask-reference.FXQpSk/result.json. 선택한4건 모두 수집 성공(wrapper exit0); 첫8,000자씩 관련 본문을 읽었으며 theming은 전체를 읽었다. 다른 플랫폼은 이 구체적인 CSS/테마 결정에 불필요하여 검색하지 않았다.
+
+라이트 이미지는 이전과 같은 Paseo 기본 Codex 에이전트가 ChatGPT 로그인·내장 imagegen으로1회 편집했다. 별도 유료 API/영상 생성은 사용하지 않았다. [생성 기록](hero-sunset-study-2026-10-12/light-generation-method.txt) 및 라이트 원본 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))을 보존한다. 섬 내부 질감 일부가 재구성되어 픽셀 동일성은 보장하지 않는다. 기존 Next의 sharp로 WebP변환(라이트141,470bytes, 다크106,588bytes).
+
+실제 도구: frontend-reference-workflow revision2026-10-02.1, Impeccable polish 절차의 화면/흐름/상태 검토와 국소 수정, Playwright Chromium/axe, Paseo 미리보기, 독립 코드 리뷰, Next 빌드·ESLint·46개 테스트. 기존 detect 기록은 첫 통합 결과이며 이번 실행으로 재표기하지 않는다. 2차 검증 보고서 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))에 새 증거·해시·기존 미해결 사항을 구분했다. 외부 디자인 서비스/공유 패키지 변경/사이트 배포는 수행하지 않았다.
+
+## 2026-10-12 — 실제 수면 영상으로3.2초 시네마그래프 구현
+
+사용자가 Flixel 같은 실제 물결의 반복 영상을 최종 목표로 재확인하고, 현재1.9초 원본으로 제작을 승인했다. 기존 CSS 사진 이동을 제거하고 사용자 원본의 실제 수면을 카메라 보정·색 맞춤·앞방향 겹침·감속으로3.2초 루프로 편집했다. 승인A의 하늘/섬/태양과 양 테마 레이아웃은 정지 이미지로 유지한다. MP4는 수면1280×130만 포함하며 dark약1.23MB/light약1.50MB 중 해당 테마 하나를 요청한다.
+
+실제 사용: 로컬 FFmpeg, 격리된Python/OpenCV/NumPy, frontend-reference-workflow 및 Impeccable animate/craft-floor 절차, Chromium/WebKit, Paseo 재생 상태 확인, 독립 코드 리뷰, Next build/ESLint/기존46테스트(당시 keyed 준비상태 리팩터 이전 실행; 리팩터 후 브라우저·빌드·lint 재확인). 새 외부 자료 조사, Flixel 서비스/API, AI영상 생성, 유료API, 외부 업로드는 사용하지 않았다. 원본 영상의 물결을 활용한 로컬 합성이다. [최신 제작·배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt), [재현 스크립트](hero-sunset-study-2026-10-12/cinemagraph/build-loop.py), [브라우저 결과](hero-sunset-study-2026-10-12/cinemagraph/browser-results.json)에 증거와 남은 한계를 기록했다. 정지 상태에서 테마를 왕복할 때 준비 상태가 재사용되던 리뷰 지적을 고치고 회귀 시나리오를 검증했다. 공유UI 변경/게시/사이트 배포는 수행하지 않았다.
+
+
+## 2026-10-12 — Opus5.5 리뷰 후 루프 보정·배포 준비
+
+독립 Opus5.5 리뷰에서 확인한 중복 프레임 끊김, crossfade 질감 감소, 실패한 테마가 정상 테마를 일시정지시키는 문제를 수정했다. 원본 앞48프레임 안에서 유사한 겹침 구간을 선택하고 고주파 분산을 보존하여 합성한다.3.2초 길이와 승인된 구도·색은 유지하며 CRF18 재평가로 dark883,370bytes/light1,012,025bytes로 줄였다. 검증은 최대 인접차를 정상값으로 간주하지 않고 일반 구간 중앙값, 최저 프레임 변화량과 프레임별 질감에 기반한다.
+
+큰 로컬PNG/MP4시안은 지우지 않고 Git에서 제외했다. 생성 프롬프트·원본SHA·제작script·의존성버전·최종JSON과 생산에셋은 보존한다. 원본MOV는 사용자제공 사유파일로 별도 확보가 필요하며 공개하지 않는다. [재현 방법](hero-sunset-study-2026-10-12/cinemagraph/README.txt), [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt)에 최종결과와 미확인 범위를 기록한다. 이 수정은 사용자에게 공개사이트배포까지 승인받았다. 실제 배포 여부는 해당 최종 기록을 따른다.

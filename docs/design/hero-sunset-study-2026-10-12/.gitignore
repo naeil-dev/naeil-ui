@@ -1,0 +1,13 @@
+# Local design explorations and full-resolution captures are retained on disk.
+# Production imagery lives in public/images/hero; commit only focused receipts.
+*.png
+*.jpg
+*.mp4
+verification/
+verification-v2/
+cinemagraph/*-output.txt
+cinemagraph/build.txt
+cinemagraph/tests.txt
+cinemagraph/report.txt
+cinemagraph/*-results.json
+!cinemagraph/browser-results.json

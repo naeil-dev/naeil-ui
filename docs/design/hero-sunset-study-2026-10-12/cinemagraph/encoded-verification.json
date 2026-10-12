@@ -1,0 +1,46 @@
+[
+  {
+    "theme": "dark",
+    "bytes": 883370,
+    "frames": 96,
+    "seamMAE": 1.978549838066101,
+    "baselineMedianMAE": 1.2834975719451904,
+    "minAdjacentMAE": 0.862083375453949,
+    "maxAdjacentMAE": 1.7875800132751465,
+    "minTextureRatio": 0.9573277831077576,
+    "maxTextureRatio": 1.0539761781692505,
+    "duration": "3.200000",
+    "encoderVersion": "Lavc62.28.101 libx264",
+    "checks": {
+      "noStall": true,
+      "noJump": true,
+      "seamContinuity": true,
+      "textureRetained": true,
+      "textureStable": true,
+      "videoOnly": true,
+      "frameCount": true
+    }
+  },
+  {
+    "theme": "light",
+    "bytes": 1012025,
+    "frames": 96,
+    "seamMAE": 2.338038682937622,
+    "baselineMedianMAE": 1.6236698627471924,
+    "minAdjacentMAE": 1.1146154403686523,
+    "maxAdjacentMAE": 2.2262139320373535,
+    "minTextureRatio": 0.9547250270843506,
+    "maxTextureRatio": 1.0531444549560547,
+    "duration": "3.200000",
+    "encoderVersion": "Lavc62.28.101 libx264",
+    "checks": {
+      "noStall": true,
+      "noJump": true,
+      "seamContinuity": true,
+      "textureRetained": true,
+      "textureStable": true,
+      "videoOnly": true,
+      "frameCount": true
+    }
+  }
+]
