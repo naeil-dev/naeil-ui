@@ -19,8 +19,8 @@ OUT=ROOT/'public/images/hero'
 raw=subprocess.check_output(['ffmpeg','-v','error','-i',str(SOURCE),'-an','-vf','scale=1308:1744','-pix_fmt','rgb24','-f','rawvideo','-'])
 frames=np.frombuffer(raw,np.uint8).reshape(-1,1744,1308,3)
 original_count=len(frames)
-# The source's last nine frames contain a duplicate and a larger camera move.
-# Keep the stable first48frames; recorded indices48..56 never enter the loop.
+# Exclude the duplicate and additional movement in the last nine source frames.
+# The retained first48frames also contain camera motion, corrected below.
 frames=frames[:48]
 ref=cv2.cvtColor(cv2.resize(frames[0],(654,872)),cv2.COLOR_RGB2GRAY)
 mask=np.zeros_like(ref);mask[450:600,25:629]=255

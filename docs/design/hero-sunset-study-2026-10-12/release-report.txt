@@ -8,7 +8,7 @@ The original MOV remains private; generation prompts/sourceSHA and reproducible
 scripts are retained. Full-size local exploration artifacts are excluded from Git.
 
 Review corrections
-1. Duplicated and fast-moving source frames48..56 are excluded. Candidate overlaps
+1. Source frames48..56, which contain the duplicate and additional movement, are excluded. Candidate overlaps
    are selected by high-pass similarity within the first48frames; selected[3,48).
 2. Sigma8 low/high-frequency separation and measured variance preservation prevent
    ripples becoming flat in the overlap. Applied to overlap and time interpolation.
@@ -48,7 +48,7 @@ video assessment remain unverified. Simulated browser events do not establish th
 No package publish or Storybook deployment is intended for this site-only release.
 
 Deployment
-Pending final review and browser verification. The authorized path is the existing
+Final review and browser verification passed. The authorized path is the existing
 GitHub main→Vercel production integration. Publication will be confirmed against
 the production page and asset hashes, not inferred merely from a successful push.
 
@@ -59,3 +59,15 @@ public/images/hero/sunset-a.webp: d65d7fe86facea831a7601ea55c8de2d0793c3f8914308
 public/images/hero/sunset-a-light.webp: d3a1f0f1dc9e99c43f7a106caeef335d605de6d4f0e1a09020455ee2be46e963
 public/images/hero/sunset-water-dark.mp4: 607efbea8d8f5291588fc6abcf0e6aa06ffad7d0de7f6ed97b047ab8e21b6331
 public/images/hero/sunset-water-light.mp4: cd184f2411af5b199d7d7f32d6d4858db6ea4bdfbd176e7586c369694baa943f
+
+Independent final review — Opus5.5
+All three confirmed findings resolved; no remaining deployment blocker. Reviewer
+independently decoded both assets and verified error recovery, user replay, loop
+wraps, landscape Chromium and mobile WebKit. Production playback remains pending.
+The selected39-frame cycle is spread over96output frames (approximately0.41x
+source speed, previously0.5x), so motion is a little slower/smoother while preserving
+the3.2-second duration. Encoding still makes the boundary the largest small change;
+further noise reduction is an optional quality iteration, not declared solved.
+Source camera motion exists inside the retained window too; stabilization handles
+it. No claim is made that the original retained camera view was stationary.
+PR: https://github.com/naeil-dev/naeil-ui/pull/4
