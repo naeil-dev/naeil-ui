@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { defaultLocale, locales, type Locale } from "@/i18n/config";
 import { getPathname } from "@/i18n/routing";
 
-export const SITE_NAME = "naeil";
+export const SITE_NAME = ".naeil";
 const SITE_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://naeil.dev";
 
 /** Match next-intl's public paths, including the unprefixed default locale. */
