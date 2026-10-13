@@ -29,7 +29,7 @@ for(const [engineName,engine] of Object.entries({chromium,webkit})) {
     });
     expect(state.overflow).toBe(false);expect(state.lang).toBe(locale);expect(state.nested).toBe(0);
     expect(state.canonical).toBe('https://naeil.dev'+pathFor(locale,route).replace(/\/$/, '')+(locale==='en'&&!route?'/':''));
-    if(route)expect(state.title).toMatch(/ — naeil$/);else expect(state.title).toBe('naeil');
+    if(route)expect(state.title).toMatch(/ — \.naeil$/);else expect(state.title).toBe('.naeil');
     if(anchor)expect(Math.abs(state.brand.x-anchor.x)).toBeLessThanOrEqual(1);else anchor=state.brand;
     if(route!='/cc')expect(state.smallText).toEqual([]);
     expect(errors.slice(errorStart)).toEqual([]);

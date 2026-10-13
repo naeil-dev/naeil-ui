@@ -10,11 +10,11 @@ for(const [name,engine] of Object.entries({chromium,webkit})) {
  const openControls=async()=>{if(width===390)await page.locator('.ui-navigation-toggle').click();};
  await openControls();const root=()=>page.locator(width===390?'.ui-navigation-sheet':'.ui-navigation-toolbar');
  await root().getByRole('combobox').click();await page.getByRole('option',{name:'English',exact:true}).click();
- await expect(page).toHaveURL(/\/blog\?review=1#top$/);await expect(page.locator('html')).toHaveAttribute('lang','en');await expect(page).toHaveTitle('Blog — naeil');
+ await expect(page).toHaveURL(/\/blog\?review=1#top$/);await expect(page.locator('html')).toHaveAttribute('lang','en');await expect(page).toHaveTitle('Blog — .naeil');
  if(width===390){await page.keyboard.press('Escape');await openControls();}
  const themeBefore=await page.locator('html').getAttribute('class');await root().getByRole('button',{name:/Switch to .* theme/}).click();const themeAfter=await page.locator('html').getAttribute('class');expect(themeAfter).not.toBe(themeBefore);
  if(width===390)await page.keyboard.press('Escape');
- await page.locator('main article a').first().click();await expect(page).toHaveURL(/\/blog\/2026-03-30$/);await expect(page).toHaveTitle(/ — naeil$/);await page.goBack();await expect(page).toHaveTitle('Blog — naeil');
+ await page.locator('main article a').first().click();await expect(page).toHaveURL(/\/blog\/2026-03-30$/);await expect(page).toHaveTitle(/ — \.naeil$/);await page.goBack();await expect(page).toHaveTitle('Blog — .naeil');
  const fonts=await page.evaluate(async()=>{
   await document.fonts.ready; const latin=await document.fonts.load('400 16px "Pretendard Variable"','한글 Latin');return {latin:latin.length,body:getComputedStyle(document.body).fontFamily};
  });expect(fonts.latin).toBeGreaterThan(0);

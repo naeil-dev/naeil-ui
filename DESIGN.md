@@ -146,16 +146,16 @@ Lato Regular 400 is outlined lettering inside the logo only. It does not replace
 
 ## Browser identity — tab title and favicon
 
-Accepted on 2026-10-13. Browser identity is part of the shared brand/content contract. The browser owns tab typography and sizing; this is a metadata rule, not a visual component or numeric token.
+Accepted on 2026-10-13; naeil.dev spelling revised to `.naeil` by the user on 2026-10-14. Browser identity is part of the shared brand/content contract. The browser owns tab typography and sizing; this is a metadata rule, not a visual component or numeric token.
 
 - Use `Page name — Service name` for named pages, with one space on each side of the em dash. Put the page first so tabs remain distinguishable when titles are truncated.
 - A service home/landing page may use the service name alone. A named task screen such as a dashboard keeps its page name, even when it is the application's entry route.
-- Keep one canonical service spelling: `naeil` for naeil.dev and `Naeil Home` for Home. The `.naeil` graphical wordmark retains its leading period; tab metadata uses the service spelling listed here. Other products define their canonical service name in their application configuration.
+- Keep one canonical service spelling: `.naeil` for naeil.dev and `Naeil Home` for Home. The leading period is part of the official brand spelling in both the graphical wordmark and browser metadata. Other products define their canonical service name in their application configuration.
 - Localize the page name with the active UI language; keep the canonical service name unchanged. Use the visible page name or content title, and append the service suffix exactly once.
 - Keep the same service favicon across its routes. Use an approved brand asset; each service owns its icon files, metadata/manifest configuration and deployment.
 - Each application implements the title through its framework metadata or router and updates it on client-side navigation and language changes. Shared Navigation/Logo components do not set document metadata implicitly.
 
-Examples: `Naeil Home`, `대시보드 — Naeil Home`, `API 키 — Naeil Home`, `프로젝트 — naeil`, `Dashboard — Naeil Home`. See [consumer implementation and verification guidance](docs/design/v2-migration.md#브라우저-탭-제목과-파비콘).
+Examples: `Naeil Home`, `대시보드 — Naeil Home`, `API 키 — Naeil Home`, `프로젝트 — .naeil`, `Dashboard — Naeil Home`. See [consumer implementation and verification guidance](docs/design/v2-migration.md#브라우저-탭-제목과-파비콘).
 
 This records the approved rule; it does not assert that existing service metadata has been migrated or deployed.
 

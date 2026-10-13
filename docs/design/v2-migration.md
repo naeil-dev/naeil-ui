@@ -57,20 +57,20 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 
 ## 브라우저 탭 제목과 파비콘
 
-2026-10-13 승인한 공통 브랜드·콘텐츠 규칙이다. 기준은 [DESIGN.md의 Browser identity](../../DESIGN.md#browser-identity--tab-title-and-favicon)이며, 브라우저 탭의 글꼴·크기는 브라우저가 결정한다.
+2026-10-13 승인한 공통 브랜드·콘텐츠 규칙이며, 2026-10-14 사용자 요청으로 naeil.dev의 서비스명을 `.naeil`로 통일했다. 기준은 [DESIGN.md의 Browser identity](../../DESIGN.md#browser-identity--tab-title-and-favicon)이며, 브라우저 탭의 글꼴·크기는 브라우저가 결정한다.
 
 | 화면 | 탭 제목 예시 |
 | --- | --- |
-| naeil.dev 홈 | `naeil` |
+| naeil.dev 홈 | `.naeil` |
 | Home 홈/소개 화면 | `Naeil Home` |
 | Home 대시보드 | `대시보드 — Naeil Home` |
 | Home API 키 관리 | `API 키 — Naeil Home` |
-| naeil.dev 프로젝트 목록 | `프로젝트 — naeil` |
+| naeil.dev 프로젝트 목록 | `프로젝트 — .naeil` |
 | Home 영문 대시보드 | `Dashboard — Naeil Home` |
 
 - 이름이 있는 페이지는 `페이지 이름 — 서비스 이름`으로 작성한다. 구분자는 양옆 공백이 있는 em dash(` — `)이며, 서비스 이름은 한 번만 붙인다.
 - 서비스 홈/소개 화면은 서비스 이름만 사용할 수 있다. 대시보드처럼 이름이 있는 업무 화면은 첫 진입 경로이더라도 페이지 이름을 포함한다.
-- 서비스 이름은 naeil.dev의 경우 `naeil`, Home의 경우 `Naeil Home`으로 고정한다. 로고 도안의 `.naeil` 표기는 유지하며, 탭 제목에는 위 서비스 이름을 쓴다. 다른 서비스는 앱 설정에 공식 표기를 한 번 정의해 재사용한다.
+- 서비스 이름은 naeil.dev의 경우 `.naeil`, Home의 경우 `Naeil Home`으로 고정한다. 앞의 마침표까지 공식 이름에 포함하며 로고와 탭 제목·공유 메타데이터에 같은 표기를 쓴다. 다른 서비스는 앱 설정에 공식 표기를 한 번 정의해 재사용한다.
 - 페이지 이름은 현재 UI 언어에 맞춰 번역하고, 서비스 이름의 대소문자·띄어쓰기는 언어가 바뀌어도 유지한다. 본문 제목이나 글 제목을 사용해 현재 화면을 식별할 수 있게 한다.
 - 같은 서비스의 페이지를 이동할 때 파비콘은 유지한다. 승인된 브랜드 자산을 사용하며 파일·메타데이터·앱 manifest와 배포는 소비 서비스가 관리한다.
 
