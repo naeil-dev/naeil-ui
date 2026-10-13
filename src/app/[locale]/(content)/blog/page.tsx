@@ -1,13 +1,13 @@
-import { setRequestLocale } from "next-intl/server";
-import { useTranslations } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageTitle } from "@/components/typography";
+import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { getAllPosts } from "@/lib/blog";
+import { siteMetadata } from "@/lib/site-metadata";
 import type { Locale } from "@/i18n/config";
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://naeil.dev";
+import styles from "@/app/home-blog.module.css";
 
 export async function generateMetadata({
   params,
@@ -15,42 +15,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const currentUrl = `${APP_URL}/${locale}/blog`;
-  const canonicalUrl = `${APP_URL}/en/blog`;
-
-  const title = locale === "ko" ? "블로그 - naeil.dev" : 
-                locale === "ja" ? "ブログ - naeil.dev" : "Blog - naeil.dev";
-  const description = locale === "ko" ? "AI 개발 도구와 기술 트렌드에 대한 빌드 노트, 연구, 반복 로그" :
-                     locale === "ja" ? "AI開発ツールと技術トレンドに関するビルドノート、研究、反復ログ" :
-                     "Build notes, research, and iteration logs on AI development tools and tech trends";
-
-  const languages: Record<string, string> = {
-    en: `${APP_URL}/en/blog`,
-    ko: `${APP_URL}/ko/blog`,
-    ja: `${APP_URL}/ja/blog`,
-    "x-default": canonicalUrl,
-  };
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: currentUrl,
-      siteName: "naeil.dev",
-      type: "website",
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
-    alternates: {
-      canonical: canonicalUrl,
-      languages,
-    },
-  };
+  const t = await getTranslations({ locale, namespace: "blogPage" });
+  return siteMetadata({
+    locale,
+    path: "/blog",
+    title: t("title"),
+    description: t("subtitle"),
+  });
 }
 
 export default async function BlogPage({
@@ -60,134 +31,67 @@ export default async function BlogPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-
+  const t = await getTranslations("blogPage");
+  const postT = await getTranslations("blogPost");
   const posts = getAllPosts(locale as Locale);
 
   return (
     <>
-      <section className="mx-auto max-w-4xl px-6 pb-16">
-        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-start md:justify-between">
-          <div className="flex-1">
-            <PageTitle className="mb-3">
-              <BlogContent />
-            </PageTitle>
-            <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">
-              <BlogSubtitle />
-            </p>
-            <div className="mb-6 flex flex-wrap gap-2">
-              {[
-                "headlines",
-                "research", 
-                "tools",
-                "quick"
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-border-subtle px-2.5 py-1 text-[11px] text-zinc-400 capitalize"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-shrink-0">
-            <Image
-              src="/images/diver.png"
-              alt=""
-              width={220}
-              height={220}
-              className="animate-float object-contain"
-              style={{
-                filter:
-                  "drop-shadow(0 4px 12px color-mix(in oklch, var(--project-naeilUi) 15%, transparent))",
-              }}
-            />
+      <div className={styles.blogIntro}>
+        <div className={styles.blogIntroCopy}>
+          <PageTitle id="blog-title" className={styles.pageTitle}>{t("title")}</PageTitle>
+          <p className={styles.blogSubtitle}>{t("subtitle")}</p>
+          <div className={styles.badges}>
+            {["headlines", "research", "tools", "quick"].map((tag) => (
+              <Badge key={tag} variant="outline">{tag}</Badge>
+            ))}
           </div>
         </div>
-      </section>
+        <Image
+          src="/images/diver.png"
+          alt=""
+          width={160}
+          height={160}
+          className={styles.blogIllustration}
+        />
+      </div>
 
-      <section className="mx-auto max-w-4xl px-6 pb-24">
+      <section className={styles.blogList} aria-labelledby="blog-title">
         {posts.length > 0 ? (
-          <div className="space-y-8">
+          <div className={styles.postList}>
             {posts.map((post) => (
-              <article key={post.slug} className="group min-w-0">
-                <Link href={`/${locale}/blog/${post.slug}`} className="block min-w-0">
-                  <div className="min-w-0 rounded-2xl border border-border-subtle p-6 transition-colors hover:bg-muted/50">
-                    <div className="flex min-w-0 flex-col gap-3">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <time className="text-sm text-muted-foreground">
-                          {new Date(post.date).toLocaleDateString(locale, {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </time>
-                        <span className="text-sm text-muted-foreground">
-                          {post.readingTime.text}
-                        </span>
-                        {post.myStack && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
-                            ⭐ My Stack
-                          </span>
-                        )}
-                      </div>
-                      
-                      <h2 className="break-words text-xl font-semibold group-hover:text-foreground">
-                        {post.title}
-                      </h2>
-                      
-                      <p className="break-words text-muted-foreground leading-relaxed">
-                        {post.summary}
-                      </p>
-                      
-                      <div className="flex min-w-0 flex-wrap gap-2">
-                        {post.categories.map((category) => (
-                          <span
-                            key={category}
-                            className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
-                          >
-                            {category}
-                          </span>
-                        ))}
-                        {post.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+              <article key={post.slug}>
+                <Link href={`/blog/${post.slug}`} className={styles.postLink}>
+                  <div className={styles.metadata}>
+                    <time dateTime={post.date}>
+                      {new Date(post.date).toLocaleDateString(locale, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        timeZone: "UTC",
+                      })}
+                    </time>
+                    <span>{postT("readingTime", { minutes: Math.max(1, Math.ceil(post.readingTime.minutes)) })}</span>
+                    {post.myStack && <Badge variant="secondary">{postT("myStack")}</Badge>}
+                  </div>
+                  <h2 className={styles.postTitle}>{post.title}</h2>
+                  <p className={styles.postSummary}>{post.summary}</p>
+                  <div className={styles.badges}>
+                    {post.categories.map((category) => (
+                      <Badge key={category} variant="outline">{category}</Badge>
+                    ))}
+                    {post.tags.slice(0, 3).map((tag) => (
+                      <Badge key={tag} variant="secondary">#{tag}</Badge>
+                    ))}
                   </div>
                 </Link>
               </article>
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-border-subtle p-12 text-center">
-            <p className="text-muted-foreground text-sm">
-              <NoPostsMessage />
-            </p>
-          </div>
+          <div className={styles.emptyState}><p>{t("noPosts")}</p></div>
         )}
       </section>
     </>
   );
-}
-
-function BlogContent() {
-  const t = useTranslations("blogPage");
-  return t("title");
-}
-
-function BlogSubtitle() {
-  const t = useTranslations("blogPage");
-  return t("subtitle");
-}
-
-function NoPostsMessage() {
-  const t = useTranslations("blogPage");
-  return t("noPosts");
 }

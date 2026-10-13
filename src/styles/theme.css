@@ -156,6 +156,10 @@
   --ui-width-short-form: 480px;
   --ui-motion-fast: 120ms;
   --ui-motion-standard: 180ms;
+  --ui-navigation-height: 64px;
+  --ui-navigation-brand-width: 160px;
+  --ui-navigation-menu-width: 320px;
+  --ui-navigation-menu-wide-width: 640px;
   --project-cc: oklch(0.704 0.140 181);
   --project-sa: oklch(0.723 0.219 149);
   --project-pkm: oklch(0.627 0.265 303);

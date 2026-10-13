@@ -1,0 +1,84 @@
+# naeil.dev shared UI integration — 2026-10-13
+
+## Contract and execution plan
+
+User approved implementation across naeil.dev except project-specific page bodies. Explicit follow-up includes `/design`. Existing handoff is the approved direction; no new visual-direction approval is needed.
+
+Authority: `DESIGN.md`, shared UI v2 spec, `docs/design/v2-migration.md`, Navigation contract. Neutral light/dark tokens; Pretendard and Japanese coverage; body/control 16px, supporting 14px, metadata 13px; 44px hit areas; 120/180ms/reduced motion. Numeric foundations remain token-owned. Site composition uses local `Navigation`/`SiteFooter` through existing adapters in @naeil/ui 0.4.0 source, with unpublished additions; published npm 0.4.0 does not contain those additions.
+
+Frame: retain the site's existing 1280px frame and gutters independently of reading (640px), list (1200px) and short login form widths. Compare home, blog, article, login, design and excluded project route headers at identical viewport/theme/locale. Menu brand reservation 160px + 16px gap; desktop project group two columns, mobile one.
+
+Reuse/preservation: sunset hero/photos/videos, animal icons, existing project names/links/statuses, full footer content and OAuth providers. Routing, metadata, authentication and translated messages remain consumer concerns. No new external reference gap: approved system and rendered incumbent supply the decisions.
+
+- [x] A — frame_metadata: Nav two-column opt-in; shared frame/offset, locale/theme/auth controls; localized title template/canonical/alternates; Japanese delivery. Own layouts, Nav/Auth wrapper, globals, messages and metadata helper. Excluded route layouts may add metadata only.
+- [x] B — home_blog: home project typography/badges/interaction; blog list/article/Markdown reading composition. Own landing page, blog pages, Markdown and dedicated site module. Delegate message requests to A. Hero source unchanged.
+- [x] C — login_design: login pending/error/retry states and layout; design introduction/examples synchronized with current tokens. Own login page/OAuth, design page and dedicated module. Delegate messages to A.
+- [x] Main — integration and fresh verification: source review, site production build/types/lint/unit; Next preview browser matrix; independent review; actual screenshots and evidence; documentation.
+
+Explicit exclusions: project page bodies `/projects`, `/cc`, `/sa`, `/pkm`, `/baby-agent`, `project-layout.tsx`; live Naeil Home; new assets/features/auth architecture; production deploy/npm publish/Storybook public deployment. Work stays in existing dirty worktree without reset/clean/commit so prior uncommitted shared work survives.
+
+## Acceptance and carry-forward
+
+Fresh Next preview (not Storybook) coverage: ko/en/ja, light/dark, 320/390/1440/2560px; home/blog/article/login/design and excluded-route frame; overflow, navigation geometry, desktop columns/mobile sheet, keyboard/Escape/focus return/trap, actual font loads, title/canonical/language/direct/client/back navigation, OAuth failure/pending recovery. Test auth UI with mocked provider responses; no claim of full provider authentication.
+
+Shared adapter behavior changes additionally require actual Storybook, token contrast, packed React/Next consumption and relevant Chromium/WebKit tests. Run package build before typecheck. Existing Firefox profile-launch failure remains a limitation; real devices and VoiceOver unverified.
+
+Prior findings retained: missing html lang; light home tag contrast; English locale redirects; nested controls/touch findings in prior products. Close only with fresh scoped evidence. Excluded project body styling remains deferred; Home historical findings remain open.
+
+Evidence: `docs/design/site-integration-evidence/`. Production before screenshots/metadata are read-only references; final local screenshots and hashes distinguish new source from prior shared sample checks. Installed workflow 2026-10-05.1 and repository workflow 2026-10-02.1 read. Impeccable context executed once; polish/craft-floor read and used within DESIGN authority. Aside guide/repl read, but no Aside interaction claimed unless actually used. Browser automation uses repository Playwright.
+
+## Execution ledger
+
+2026-10-13: cwd/branch/HEAD and dirty inventory exactly match handoff. Node v22.23.2 / pnpm 10.30.3; existing :6007/:6008 servers alive. Production ko home/blog/login/design in both themes reread/captured: inherited login/design title and wrong English blog canonical confirmed. Same-repository ignored `.env.local` copied from `/Users/jaymini/projects/design-system` without emitting values after missing configuration caused local 500; ko preview then returned 200. Existing English route redirect loop reproduced on both localhost and 127.0.0.1, assigned to A for diagnosis. No operational settings or remote data changed.
+
+Work partition: A owns shared message catalogs and metadata helper; B/C send key requirements to A. B owns blog metadata calls in its page files, A supplies helper; C's login/design route metadata stays in A-owned layouts. All shared-token/core edits require coordination. No file owner conflict found. Main retains whole-site checks, independent review and evidence. This plan uses user-authorized parallel workers in the existing dirty isolated worktree; commit-based skill review artifacts are adapted to uncommitted source diffs and file hashes.
+
+## Integration findings and corrections
+
+- Production builds replace the failed watcher-based dev preview. Binding to `localhost` fixes the original English rewrite loop; the independent Next production server serves unprefixed English, `/ko` and `/ja` normally. No locale-routing configuration change was necessary.
+- First production check exposed the article's empty `generateStaticParams()` forcing incompatible static generation with request-owned auth/locale state. Removed that declaration; direct article requests now render. The blog reading-time call now uses its existing `blogPost` namespace.
+- Existing Markdown sanitization discarded MyStack author text. Conversion to ordinary localized Markdown blockquotes before the same sanitizer preserves content and rejects unsafe HTML/links; two regression tests cover both. This is an in-scope content-preservation fix.
+- Independent review requested the specified 640px **outer** article cap, 16px back/language controls and token-backed foundations. All three are applied. The sparse home/index retain their incumbent 896px composition cap, separate from the 1280px app frame; the design specimen gallery uses the 1200px list token.
+- Actual axe identified two identically named blog region landmarks. Intro now uses a neutral div, leaving one labeled article-list region.
+- Client locale switching changes a nested layout while the root persists. Added application-owned DocumentLocale to synchronize html lang on client changes, while SSR still owns the initial lang.
+- Stored dark preference exposed a SiteThemeControl hydration mismatch: icon selection used client resolvedTheme before its mounted snapshot. Gated theme rendering with the existing mounted signal. These findings require the final source browser rerun; initial JSON/logs retain failures.
+- Independent reviews were performed across implementers (A reviewed B; B reviewed A/C). An attempted fresh reviewer thread was unavailable due the environment's agent thread limit; no claim of a fourth reviewer/model. Main inspected source and actual captured pages. Final scoped review and browser evidence are recorded below when complete.
+
+Current checks: package/contrast/clean React+Next consumption/Storybook pass; shared Navigation/brand Chromium+WebKit 30 tests pass; integrated unit suite51 tests pass. The mechanical Impeccable detector returned an empty findings array on the implemented site UI; later scoped source corrections remain covered by lint/review/browser. No extra external reference retrieval or image generation.
+
+Review preview: `pnpm start --hostname localhost --port 3010`, proxied tailnet-only at https://jay-macmini-2.tail165003.ts.net:6448/ . Existing ports443/2455/6447 unchanged. This is a review deployment only. Stop this proxy with `tailscale serve --https=6448 off`. Auth provider round-trip is not certified by localhost/mock tests.
+
+
+## Final verification and review result
+
+- Functional: Next production build and typecheck pass; scoped ESLint (38 files) and final changed-file lint pass; unit (51 tests / 11 files) pass. `site-matrix.json` records288 route conditions with zero failures (2 browsers ×3 languages ×2 themes ×4 viewports ×6 routes). Viewports: 320×568,390×844,1440×1000,2560×1000. Routes home/blog/article/login/design/cc; all served200 with expected localized title/canonical/lang, one main h1, no nested controls or page overflow. Menu keyboard/Escape/focus return and mobile trap/one-column/desktop two-column checks pass.
+- Shared rules: token contrast, packed React-only and Next consumer builds, actual Storybook15 families and 30 Chromium/WebKit Navigation/brand tests pass. `site-axe.json`20 English desktop/mobile light/dark full-page audits have zero violations. Incomplete findings are only lazy Radix aria-controls on closed Navigation/Dialog triggers; opening actual menu/dialog resolves the target ID and Escape restores focus. No blanket suppression. Menu-specific axe, rendered touch targets and actual font availability have separate detail/flow records.
+- Composition: main inspected matching production-before and local-after home/blog/login/design screenshots, then article light/dark, project cards/mobile, actual two-column dark menu,320px sheet and typography specimen. Header/footer share the retained 1280px frame; home/index 896px composition, article 640px outer cap, login 480px short form and design 1200px gallery remain independent. Footer logo/tagline/GitHub/X/project/blog/social destinations remain. Existing hero source/assets and excluded project bodies are unchanged.
+- `site-flows.json`: four Chromium/WebKit desktop/touch flows pass language/query/hash retention, html lang/title update, theme changes, client article navigation/back, loaded Pretendard and Japanese faces, login callback error/accessible alert and intercepted Google authorization request. OAuth 3 unit tests cover pending/double-submit/returned/thrown-error/retry states. The immediate external navigation prevented a stable browser assertion of the pending DOM; do not promote unit-state coverage to a live provider sign-in claim.
+- `site-details.json`:20 detail cases pass after the final site-only xs specimen minimum-width correction: actual 44px touch areas, images loaded,640px article cap, preserved MyStack copy, Select/Dialog linkage and focus, menu axe. This one-line design specimen change follows the 288-condition run; final production rebuild/types/scoped lint and these detail checks cover it. The full 288matrix was not rerun after that isolated width increase.
+- `metadata.json` separately covers excluded project metadata, one service favicon, sitemap and cross-route brand/menu anchors. Snapshot hashes in `source-hashes.json` identify final files and deployment build ID; earlier reports retain their own historical hashes.
+
+Remaining limits: Firefox's previously documented profile-folder launch failure was not repeatedly retried; no real-device/VoiceOver certification. Full provider authentication, signed-in account menu/session/logout behavior and cross-origin preferences were not exercised. The existing public AccentPicker remains a legacy hue-only mutator; its unsafe demonstration was removed from `/design` without changing the API. Prior Home and excluded project-body findings remain outside this result. No in-scope failure remains in the executed final checks.
+
+Delivery: current branch remains uncommitted, preserving the previous shared-UI work. Review preview is on port 6448; production naeil.dev was not deployed, npm was not published, Storybook was rebuilt locally but not publicly deployed. Next priority is user review and any explicitly approved production application; Naeil Home adoption remains the following separate task, followed by project-body redesign only when requested.
+
+
+## Desktop hover follow-up — 2026-10-13
+
+User noticed the project trigger no longer opened on hover. The shared conversion had only click/keyboard handlers; the initial hover regression tests failed against that build (`hover-red.log`). Desktop mouse hover now opens immediately without stealing focus. The standard 180ms token supplies pointer-travel tolerance across the portal gap. The user further clarified that clicking must not pin the menu: mouse click also closes on leaving the trigger/panel. Keyboard activation keeps the menu usable independent of pointer position and retains Escape/focus return; mobile tap/Dialog behavior remains.
+
+Independent review by the existing frame_metadata agent reproduced a multiple-group replacement issue in an actual Navigation fixture: returning focus from the old keyboard menu dismissed the newly hovered group. Replacement now suppresses old-menu autofocus, and group close updates are guarded by group id. A multiple-group Storybook story/regression covers that case. Main inspected the actual project dropdown screenshot and live preview.
+
+Implementation notes: the initial direct JSON token import failed packed-deep-import validation; the final implementation reads the generated CSS token, preserving package boundaries and consumer overrides. Initial click takeover exposed Radix outside-interaction focus bookkeeping; the trigger is now explicitly part of its own interaction region. The original multiple-group test assumed Radix autofocus selects links; it now establishes focused-link state explicitly, testing group replacement rather than that assumption. One concurrent build/test wave hit existing token-test and brand-screenshot timeouts under machine load; final verification results below distinguish the reruns. No production, npm or public Storybook release is authorized or performed.
+
+Evidence for this follow-up uses `site-integration-evidence/hover-*` and `check-hover.mjs`; the earlier 288-route matrix remains historical. The final source/build snapshot is separate in `hover-source-hashes.json`.
+
+Final shared checks: production site/package/Storybook builds, types, scoped lint, token contrast and packed React/Next consumers pass. Unit suite51/11 passes on the serial rerun. Final Navigation/brand Chromium+WebKit run:35 pass, one unchanged brand screenshot timed out during concurrent load; that exact test passes on a standalone rerun (`hover-brand-recheck.log`). All hover, mouse-click-leave, keyboard/touch and multiple-group regressions pass in both engines. This is35+1 successful checks across the run/recheck, not an assertion of a single36-pass run on final source. Existing Vite font allow-list warnings remain in the passing packed consumer log.
+
+Final actual-site verification: `hover-site.json` records48 successful conditions on the final build (Chromium/WebKit ×ko/en/ja ×light/dark ×320/390/1440/2560). Includes hover without focus theft, panel travel, click-then-leave dismissal, keyboard Escape/focus return, mobile tap/focus trap, two desktop columns, overflow and page-error checks. Both actual tailnet endpoints6448/6447 pass hover and click-then-leave smoke checks (`hover-live-preview.json`). Main visually inspected actual dropdown captures; no new visual design was introduced. Excluded page/hero sources remain identical to HEAD, recorded in `hover-source-hashes.json`. No real-device/VoiceOver or Firefox claim; production/npm/public Storybook unchanged.
+
+
+Release preparation follow-up: user requested continuation after hover review. Read-only GitHub checks confirm main and successful Vercel Production deployment7009831199 both match515fa26; current branch has no open PR. Final source reconciliation reports no drift across50 previously validated implementation/test files;56 source/config hashes are frozen in `site-integration-evidence/release-source-manifest.json`. Full lint passes with one pre-existing logo-study warning after removing this task's unused evidence variable. Review-ready application/rollback sequence and PR text are prepared in `naeil-site-release-ready-2026-10-13.md` and `site-integration-evidence/release-pr-body.md`. No commit/push/merge/production/npm/public Storybook action was executed. The handoff explicitly reserves production approval for the final step, now ready for that decision.
+
+
+2026-10-14: User explicitly approved the prepared commit, PR, merge and naeil.dev production application. npm publication, public Storybook deployment and Naeil Home changes remain excluded. Deployment outcome will be recorded separately after CI and live verification.

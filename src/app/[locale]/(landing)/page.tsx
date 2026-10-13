@@ -4,6 +4,9 @@ import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
 import { HeroSection } from "@/components/hero-section";
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
+import { SectionTitle } from "@/components/typography";
+import styles from "@/app/home-blog.module.css";
 
 export default async function HubPage({
   params,
@@ -21,7 +24,7 @@ const PROJECTS = [
     key: "cc" as const,
     href: "/cc" as const,
     icon: "/images/coral.png",
-    accent: "oklch(0.704 0.140 181)",
+    accent: "var(--project-cc)",
     tags: ["Python", "RSS", "AI"],
     status: "active" as const,
     featured: true,
@@ -30,7 +33,7 @@ const PROJECTS = [
     key: "pkm" as const,
     href: "/pkm" as const,
     icon: "/images/jellyfish.png",
-    accent: "oklch(0.702 0.183 293)",
+    accent: "var(--project-pkm)",
     tags: ["Python", "Embeddings", "Search"],
     status: "coming" as const,
     featured: false,
@@ -39,7 +42,7 @@ const PROJECTS = [
     key: "naeilUi" as const,
     href: "/design" as const,
     icon: "/images/whale.png",
-    accent: "oklch(0.623 0.214 259)",
+    accent: "var(--project-naeilUi)",
     tags: ["React", "Tailwind", "OKLCH"],
     status: "active" as const,
     featured: false,
@@ -48,7 +51,7 @@ const PROJECTS = [
     key: "sa" as const,
     href: "/sa" as const,
     icon: "/images/fish.png",
-    accent: "oklch(0.723 0.219 149)",
+    accent: "var(--project-sa)",
     tags: ["Python", "pgvector", "Claude"],
     status: "active" as const,
     featured: false,
@@ -57,7 +60,7 @@ const PROJECTS = [
     key: "babyAgent" as const,
     href: "/baby-agent" as const,
     icon: "/images/turtle.png",
-    accent: "oklch(0.769 0.188 70.08)",
+    accent: "var(--project-baby)",
     tags: ["LINE", "AI"],
     status: "coming" as const,
     featured: false,
@@ -69,38 +72,28 @@ function HubContent() {
 
   return (
     <>
+      <h1 className="sr-only">naeil</h1>
       {/* Hero */}
       <HeroSection />
 
-      {/* Projects — Bento Grid */}
-      <section id="projects" className="mx-auto max-w-4xl scroll-mt-20 px-6 py-24">
-        <h2 className="text-foreground mb-2 text-2xl font-bold tracking-tight">
+      <section id="projects" className={styles.projects} aria-labelledby="projects-title">
+        <SectionTitle id="projects-title" className="mb-2">
           {t("projects.title")}
-        </h2>
-        <p className="text-muted-foreground mb-10 text-sm">
+        </SectionTitle>
+        <p className={styles.sectionDescription}>
           {t("projects.subtitle")}
         </p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className={styles.projectGrid}>
           {PROJECTS.map((project) => (
             <Link
               key={project.key}
               href={project.href}
-              className={[
-                "group relative rounded-2xl border border-border-subtle bg-surface-subtle p-7 transition-all duration-250",
-                "hover:-translate-y-0.5 hover:border-border-subtle-hover hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
-                project.featured ? "sm:col-span-2 sm:flex sm:items-center sm:gap-8" : "",
-              ].join(" ")}
-              style={{ "--accent": project.accent } as React.CSSProperties}
+              className={`${styles.projectLink} ${project.featured ? styles.featuredProject : ""}`}
             >
               {/* Icon */}
               <div
-                className={[
-                  "flex shrink-0 items-center justify-center rounded-[14px]",
-                  project.featured
-                    ? "mb-5 h-14 w-14 sm:mb-0 sm:h-20 sm:w-20"
-                    : "mb-5 h-14 w-14",
-                ].join(" ")}
+                className={styles.projectIcon}
                 style={{
                   background: `color-mix(in oklch, ${project.accent} 8%, transparent)`,
                   border: `1px solid color-mix(in oklch, ${project.accent} 20%, transparent)`,
@@ -116,37 +109,33 @@ function HubContent() {
               </div>
 
               {/* Text */}
-              <div className={project.featured ? "flex-1" : ""}>
-                <div className="text-foreground mb-1.5 text-[15px] font-semibold">
+              <div className={styles.projectCopy}>
+                <div className={styles.projectHeading}>
+                  <h3>
                   {t(`projects.${project.key}.name`)}
+                  </h3>
                   {project.status === "coming" && (
                     <Badge
                       variant="outline"
-                      className="text-muted-foreground ml-2 px-1.5 py-0 text-[9px] align-middle"
                     >
                       {t("projects.status.coming")}
                     </Badge>
                   )}
                 </div>
-                <p className="text-muted-foreground mb-3 text-[13px] leading-relaxed">
+                <p className={styles.projectDescription}>
                   {t(`projects.${project.key}.description`)}
                 </p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className={styles.badges}>
                   {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] text-zinc-400"
-                    >
+                    <Badge key={tag} variant="secondary">
                       {tag}
-                    </span>
+                    </Badge>
                   ))}
                 </div>
               </div>
 
               {/* Arrow */}
-              <span className="text-muted-foreground/40 group-hover:text-foreground absolute right-6 top-6 text-sm transition-colors">
-                ↗
-              </span>
+              <ArrowUpRight className={styles.projectArrow} size={16} aria-hidden="true" />
             </Link>
           ))}
         </div>

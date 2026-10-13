@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import {
   Card,
   CardElevated,
@@ -41,7 +50,6 @@ import {
   AvatarGroup,
   AvatarGroupCount,
 } from "@/components/ui/avatar";
-import { AccentPicker } from "@/components/accent-picker";
 import {
   PageTitle,
   SectionTitle,
@@ -49,709 +57,575 @@ import {
   sectionTitleClass,
 } from "@/components/typography";
 import { toast } from "sonner";
+import colorTokens from "@/tokens/color.json";
+import radiusTokens from "@/tokens/radius.json";
+import spacingTokens from "@/tokens/spacing.json";
+import typeTokens from "@/tokens/typography.json";
 
-/* ─── Token Data (for showcase display) ─── */
-
-const GRAY_SCALE = [
-  { step: "50", oklch: "oklch(0.985 0 0)" },
-  { step: "100", oklch: "oklch(0.970 0 0)" },
-  { step: "200", oklch: "oklch(0.922 0 0)" },
-  { step: "300", oklch: "oklch(0.870 0 0)" },
-  { step: "400", oklch: "oklch(0.708 0 0)" },
-  { step: "500", oklch: "oklch(0.556 0 0)" },
-  { step: "600", oklch: "oklch(0.439 0 0)" },
-  { step: "700", oklch: "oklch(0.371 0 0)" },
-  { step: "800", oklch: "oklch(0.269 0 0)" },
-  { step: "900", oklch: "oklch(0.205 0 0)" },
-  { step: "950", oklch: "oklch(0.145 0 0)" },
-];
-
-const ACCENT_SCALE = [
-  { step: "50", oklch: "oklch(0.970 0.014 254)" },
-  { step: "100", oklch: "oklch(0.932 0.032 255)" },
-  { step: "200", oklch: "oklch(0.882 0.059 254)" },
-  { step: "300", oklch: "oklch(0.809 0.105 254)" },
-  { step: "400", oklch: "oklch(0.707 0.165 254)" },
-  { step: "500", oklch: "oklch(0.623 0.214 259)" },
-  { step: "600", oklch: "oklch(0.546 0.245 263)" },
-  { step: "700", oklch: "oklch(0.488 0.243 264.376)" },
-  { step: "800", oklch: "oklch(0.424 0.199 265)" },
-  { step: "900", oklch: "oklch(0.379 0.146 265)" },
-  { step: "950", oklch: "oklch(0.282 0.091 267)" },
-];
-
-const DESTRUCTIVE_SCALE = [
-  { step: "50", oklch: "oklch(0.971 0.013 17)" },
-  { step: "100", oklch: "oklch(0.936 0.032 17)" },
-  { step: "200", oklch: "oklch(0.885 0.062 18)" },
-  { step: "300", oklch: "oklch(0.808 0.114 19)" },
-  { step: "400", oklch: "oklch(0.704 0.191 22.216)" },
-  { step: "500", oklch: "oklch(0.637 0.237 25)" },
-  { step: "600", oklch: "oklch(0.577 0.245 27.325)" },
-  { step: "700", oklch: "oklch(0.505 0.213 27)" },
-  { step: "800", oklch: "oklch(0.444 0.177 26)" },
-  { step: "900", oklch: "oklch(0.396 0.141 25)" },
-  { step: "950", oklch: "oklch(0.258 0.092 26)" },
-];
-
+// The token source owns numeric values; the website only supplies presentation.
+function valuesFrom(tokens: Record<string, unknown>) {
+  return Object.entries(tokens).flatMap(([name, value]) =>
+    typeof value === "object" &&
+    value !== null &&
+    "$value" in value &&
+    typeof value.$value === "string"
+      ? [{ name, value: value.$value }]
+      : [],
+  );
+}
 const SEMANTIC_TOKENS = [
   "background",
   "foreground",
   "card",
   "card-foreground",
+  "popover",
+  "popover-foreground",
   "primary",
   "primary-foreground",
+  "primary-hover",
+  "surface-selected",
   "secondary",
   "secondary-foreground",
   "muted",
   "muted-foreground",
   "accent",
   "accent-foreground",
-  "destructive",
-  "destructive-foreground",
   "border",
-  "border-subtle",
-  "border-subtle-hover",
-  "surface-subtle",
+  "border-strong",
   "input",
   "ring",
+  "success",
+  "success-bg",
+  "warning",
+  "warning-bg",
+  "error",
+  "error-bg",
+  "info",
+  "info-bg",
 ];
-
-const PROJECT_COLORS = [
-  { name: "CC", token: "--project-cc", oklch: "oklch(0.704 0.140 181)" },
-  { name: "SA", token: "--project-sa", oklch: "oklch(0.723 0.219 149)" },
-  { name: "PKM", token: "--project-pkm", oklch: "oklch(0.627 0.265 303)" },
-  { name: "naeil-ui", token: "--project-naeilUi", oklch: "oklch(0.623 0.214 259)" },
-  { name: "Baby Agent", token: "--project-baby", oklch: "oklch(0.769 0.188 70.08)" },
-];
-
-const TYPE_SIZES = [
-  { name: "xs", class: "text-xs" },
-  { name: "sm", class: "text-sm" },
-  { name: "base", class: "text-base" },
-  { name: "lg", class: "text-lg" },
-  { name: "xl", class: "text-xl" },
-  { name: "2xl", class: "text-2xl" },
-  { name: "3xl", class: "text-3xl" },
-  { name: "4xl", class: "text-4xl" },
-];
-
-const SPACING_STEPS = [
-  { name: "0", px: "0" },
-  { name: "1", px: "4" },
-  { name: "2", px: "8" },
-  { name: "3", px: "12" },
-  { name: "4", px: "16" },
-  { name: "5", px: "20" },
-  { name: "6", px: "24" },
-  { name: "8", px: "32" },
-  { name: "10", px: "40" },
-  { name: "12", px: "48" },
-  { name: "16", px: "64" },
-];
-
-/* ─── Helper Components ─── */
-
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <SectionTitle>{children}</SectionTitle>;
-}
+const BUTTON_VARIANTS = [
+  "default",
+  "secondary",
+  "outline",
+  "destructive",
+  "ghost",
+  "link",
+] as const;
+const BUTTON_SIZES = ["xs", "sm", "default", "lg"] as const;
 
 function SubHeading({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-base font-semibold">{children}</h3>;
+}
+function Description({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+    <p className="max-w-(--ui-width-reading) text-base text-muted-foreground">
       {children}
-    </h3>
+    </p>
   );
 }
-
+function Swatch({ name, value }: { name: string; value: string }) {
+  return (
+    <div className="min-w-0 space-y-2">
+      <div
+        className="aspect-square w-full rounded-sm border border-border"
+        style={{ backgroundColor: value }}
+      />
+      <p className="break-all text-xs text-muted-foreground font-mono">
+        {name}
+      </p>
+    </div>
+  );
+}
 function ColorScale({
   name,
   colors,
 }: {
   name: string;
-  colors: { step: string; oklch: string }[];
+  colors: Record<string, unknown>;
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="space-y-3">
       <SubHeading>{name}</SubHeading>
-      <div className="flex gap-1">
-        {colors.map((c) => (
-          <div key={c.step} className="flex flex-col items-center gap-1 flex-1">
-            <div
-              className="w-full aspect-square rounded-md border border-border"
-              style={{ backgroundColor: c.oklch }}
-            />
-            <span className="text-[10px] text-muted-foreground font-mono">
-              {c.step}
-            </span>
-          </div>
+      <div className="grid grid-cols-6 gap-3 sm:grid-cols-11">
+        {valuesFrom(colors).map((color) => (
+          <Swatch key={color.name} name={color.name} value={color.value} />
         ))}
       </div>
     </div>
   );
 }
-
-function SemanticTokenGrid() {
-  return (
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
-      {SEMANTIC_TOKENS.map((token) => (
-        <div key={token} className="flex flex-col items-center gap-1">
-          <div
-            className="w-full aspect-square rounded-md border border-border"
-            style={{ backgroundColor: `var(--${token})` }}
-          />
-          <span className="text-[10px] text-muted-foreground font-mono text-center leading-tight">
-            {token}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Interactive Controls ─── */
-
-const BUTTON_VARIANTS = ["default", "secondary", "outline", "destructive", "ghost", "link"] as const;
-const BUTTON_SIZES = ["xs", "sm", "default", "lg"] as const;
-
 function InteractiveButton() {
-  const [variant, setVariant] = useState<(typeof BUTTON_VARIANTS)[number]>("default");
+  const t = useTranslations("design");
+  const [variant, setVariant] =
+    useState<(typeof BUTTON_VARIANTS)[number]>("default");
   const [size, setSize] = useState<(typeof BUTTON_SIZES)[number]>("default");
   const [disabled, setDisabled] = useState(false);
 
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5 flex flex-col gap-4">
-      <SubHeading>Interactive</SubHeading>
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-4 text-sm">
-        <label className="flex items-center gap-2 text-muted-foreground">
-          <span className="font-mono text-xs">variant</span>
-          <select
+    <div className="space-y-6 rounded-lg border border-border bg-card p-6">
+      <SubHeading>{t("interactive")}</SubHeading>
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="w-48 space-y-2">
+          <label htmlFor="button-variant" className="text-base font-medium">
+            variant
+          </label>
+          <Select
             value={variant}
-            onChange={(e) => setVariant(e.target.value as typeof variant)}
-            className="rounded-md border border-border-subtle bg-background px-2 py-1 text-xs font-mono outline-none focus-visible:border-accent focus-visible:ring-accent/25 focus-visible:ring-[2px]"
+            onValueChange={(value) => setVariant(value as typeof variant)}
           >
-            {BUTTON_VARIANTS.map((v) => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex items-center gap-2 text-muted-foreground">
-          <span className="font-mono text-xs">size</span>
-          <select
+            <SelectTrigger id="button-variant">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BUTTON_VARIANTS.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-40 space-y-2">
+          <label htmlFor="button-size" className="text-base font-medium">
+            size
+          </label>
+          <Select
             value={size}
-            onChange={(e) => setSize(e.target.value as typeof size)}
-            className="rounded-md border border-border-subtle bg-background px-2 py-1 text-xs font-mono outline-none focus-visible:border-accent focus-visible:ring-accent/25 focus-visible:ring-[2px]"
+            onValueChange={(value) => setSize(value as typeof size)}
           >
-            {BUTTON_SIZES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
-          <input
-            type="checkbox"
+            <SelectTrigger id="button-size">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BUTTON_SIZES.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <label className="inline-flex min-h-(--ui-touch-target) cursor-pointer items-center gap-3">
+          <Checkbox
             checked={disabled}
-            onChange={(e) => setDisabled(e.target.checked)}
-            className="accent-primary"
+            onCheckedChange={(checked) => setDisabled(checked === true)}
           />
-          <span className="font-mono text-xs">disabled</span>
+          <span>{t("disabled")}</span>
         </label>
       </div>
-
-      {/* Live Preview */}
-      <div className="flex items-center gap-3 rounded-md border border-border bg-background p-4">
+      <div className="flex flex-wrap items-center gap-4 border-t border-border pt-6">
         <Button variant={variant} size={size} disabled={disabled}>
-          Preview
+          {t("preview")}
         </Button>
-        <span className="text-xs font-mono text-muted-foreground">
-          variant=&quot;{variant}&quot; size=&quot;{size}&quot;{disabled ? " disabled" : ""}
-        </span>
+        <code className="break-all text-sm text-muted-foreground">
+          variant=&quot;{variant}&quot; size=&quot;{size}&quot;
+          {disabled ? " disabled" : ""}
+        </code>
       </div>
     </div>
   );
 }
-
 function InteractiveInput() {
+  const t = useTranslations("design");
   const [disabled, setDisabled] = useState(false);
   const [invalid, setInvalid] = useState(false);
-
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5 flex flex-col gap-4">
-      <SubHeading>Interactive</SubHeading>
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-4 text-sm">
-        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
-          <input
-            type="checkbox"
+    <div className="space-y-6 rounded-lg border border-border bg-card p-6">
+      <SubHeading>{t("interactive")}</SubHeading>
+      <div className="flex flex-wrap gap-4">
+        <label className="inline-flex min-h-(--ui-touch-target) cursor-pointer items-center gap-3">
+          <Checkbox
             checked={disabled}
-            onChange={(e) => setDisabled(e.target.checked)}
-            className="accent-primary"
+            onCheckedChange={(checked) => setDisabled(checked === true)}
           />
-          <span className="font-mono text-xs">disabled</span>
+          <span>{t("disabled")}</span>
         </label>
-
-        <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
-          <input
-            type="checkbox"
+        <label className="inline-flex min-h-(--ui-touch-target) cursor-pointer items-center gap-3">
+          <Checkbox
             checked={invalid}
-            onChange={(e) => setInvalid(e.target.checked)}
-            className="accent-primary"
+            onCheckedChange={(checked) => setInvalid(checked === true)}
           />
-          <span className="font-mono text-xs">aria-invalid</span>
+          <span>{t("invalid")}</span>
         </label>
       </div>
-
-      {/* Live Preview */}
-      <div className="rounded-md border border-border bg-background p-4">
+      <div className="max-w-(--ui-width-short-form) space-y-2">
+        <label htmlFor="preview-input" className="font-medium">
+          {t("inputLabel")}
+        </label>
         <Input
-          placeholder="인터랙티브 입력 프리뷰"
+          id="preview-input"
           disabled={disabled}
           aria-invalid={invalid || undefined}
+          aria-describedby="preview-input-help"
         />
+        <p
+          id="preview-input-help"
+          className={`text-sm ${invalid ? "text-error" : "text-muted-foreground"}`}
+          aria-live="polite"
+        >
+          {t(invalid ? "inputError" : "inputHelp")}
+        </p>
       </div>
     </div>
   );
 }
 
-/* ─── Main Page ─── */
-
-export default function Home() {
+export default function DesignPage() {
   const t = useTranslations("design");
-
-  // Dev-only: axe-core a11y audit
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      import("@/lib/axe").then(({ initAxe }) => initAxe());
-    }
-  }, []);
-
   return (
-    <>
-      {/* Hero — matches ProjectLayout */}
-      <section className="mx-auto max-w-4xl px-6 pb-16">
-        <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-start md:justify-between">
-          <div className="flex-1">
-            <PageTitle className="mb-3">{t("title")}</PageTitle>
-            <p className="text-muted-foreground mb-5 max-w-lg text-lg leading-relaxed">
-              {t("subtitle")}
-            </p>
-            <div className="mb-6 flex flex-wrap gap-2">
-              {["React", "Tailwind v4", "OKLCH", "shadcn/ui"].map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-black/[0.08] px-2.5 py-1 text-[11px] text-zinc-400 dark:border-white/[0.08]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
+    <div className="mx-auto w-full max-w-(--ui-width-list) space-y-16 px-6 pb-24">
+      <section className="flex flex-col-reverse items-start gap-8 pb-4 sm:flex-row sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <PageTitle className="mb-3">{t("title")}</PageTitle>
+          <Description>{t("subtitle")}</Description>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {["React", "Tailwind v4", "OKLCH", "shadcn/ui"].map((tag) => (
+              <Badge key={tag} variant="outline">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild className="min-h-(--ui-touch-target)">
               <a
                 href="https://github.com/naeil-dev/naeil-ui"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
-                style={{
-                  background: "oklch(0.623 0.214 259)",
-                  color: "var(--background)",
-                }}
               >
-                GitHub →
+                GitHub
+                <ArrowUpRight aria-hidden="true" />
               </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="min-h-(--ui-touch-target)"
+            >
               <a
                 href="https://www.npmjs.com/package/@naeil/ui"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
               >
-                npm →
+                npm
+                <ArrowUpRight aria-hidden="true" />
               </a>
-            </div>
+            </Button>
           </div>
-          <div className="flex-shrink-0">
-            <Image
-              src="/images/whale.png"
-              alt=""
-              width={220}
-              height={220}
-              className="animate-float object-contain"
-              style={{
-                filter: "drop-shadow(0 4px 12px color-mix(in oklch, oklch(0.623 0.214 259) 15%, transparent))",
-              }}
-            />
+        </div>
+        <Image
+          src="/images/whale.png"
+          alt=""
+          width={220}
+          height={220}
+          sizes="(max-width: 640px) 160px, 220px"
+          className="w-40 shrink-0 object-contain sm:w-56"
+        />
+      </section>
+
+      <section className="space-y-6">
+        <SectionTitle>{t("foundations")}</SectionTitle>
+        <Description>{t("neutralDescription")}</Description>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-3">
+            <SubHeading>{t("neutralAction")}</SubHeading>
+            <Button>{t("preview")}</Button>
+            <code className="block text-sm text-muted-foreground">
+              primary / primary-foreground
+            </code>
+          </div>
+          <div className="space-y-3">
+            <SubHeading>{t("selectedSurface")}</SubHeading>
+            <div className="rounded-md bg-surface-selected px-4 py-2 text-foreground">
+              {t("preview")}
+            </div>
+            <code className="block text-sm text-muted-foreground">
+              surface-selected / foreground
+            </code>
+          </div>
+          <div className="space-y-3">
+            <SubHeading>{t("focusIndicator")}</SubHeading>
+            <div className="rounded-md border-2 border-ring px-4 py-2">
+              {t("preview")}
+            </div>
+            <code className="block text-sm text-muted-foreground">ring</code>
           </div>
         </div>
       </section>
 
-      <div className="flex flex-col gap-16 pb-24 max-w-4xl mx-auto px-6">
-
-      {/* ════════════════════════════════════════════
-          T45: Accent Demo
-          ════════════════════════════════════════════ */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Accent</SectionHeading>
-        <p className="text-sm text-muted-foreground">
-          프로젝트별 악센트 색상 주입. 아래 프리셋을 선택하면 모든 accent 토큰이 즉시 변경됩니다.
-        </p>
-        <AccentPicker />
+      <section className="space-y-6">
+        <SectionTitle>Colors — Semantic</SectionTitle>
+        <Description>{t("semanticDescription")}</Description>
+        <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+          {SEMANTIC_TOKENS.map((token) => (
+            <Swatch key={token} name={token} value={`var(--${token})`} />
+          ))}
+        </div>
       </section>
-
-      {/* ════════════════════════════════════════════
-          T43: Token Showcase
-          ════════════════════════════════════════════ */}
-
-      {/* Colors — Primitive */}
-      <section className="flex flex-col gap-6">
-        <SectionHeading>Colors — Primitive</SectionHeading>
-        <ColorScale name="Gray" colors={GRAY_SCALE} />
-        <ColorScale name="Accent (Blue default)" colors={ACCENT_SCALE} />
-        <ColorScale name="Destructive" colors={DESTRUCTIVE_SCALE} />
+      <section className="space-y-6">
+        <SectionTitle>Colors — Primitive</SectionTitle>
+        <Description>{t("primitiveDescription")}</Description>
+        <ColorScale name="Gray" colors={colorTokens.color.gray} />
+        <ColorScale name={t("legacyBlue")} colors={colorTokens.color.accent} />
+        <ColorScale name="Destructive" colors={colorTokens.color.destructive} />
       </section>
-
-      {/* Colors — Semantic */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Colors — Semantic</SectionHeading>
-        <p className="text-sm text-muted-foreground">
-          현재 테마(다크/라이트)에 따라 매핑이 변경됩니다.
-        </p>
-        <SemanticTokenGrid />
-      </section>
-
-      {/* Colors — Project Accents */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Colors — Project</SectionHeading>
-        <p className="text-sm text-muted-foreground">
-          프로젝트별 악센트 색상. 라이트/다크 동일.
-        </p>
-        <div className="flex gap-4">
-          {PROJECT_COLORS.map((c) => (
-            <div key={c.name} className="flex flex-col items-center gap-2 flex-1">
-              <div
-                className="w-full aspect-square rounded-md border border-border"
-                style={{ backgroundColor: c.oklch }}
-              />
-              <span className="text-[11px] text-muted-foreground font-mono text-center leading-tight">
-                {c.name}
-              </span>
-            </div>
+      <section className="space-y-6">
+        <SectionTitle>Colors — Project</SectionTitle>
+        <Description>{t("projectDescription")}</Description>
+        <div className="grid grid-cols-3 gap-4 sm:grid-cols-5">
+          {valuesFrom(colorTokens.color.project).map((color) => (
+            <Swatch key={color.name} name={color.name} value={color.value} />
           ))}
         </div>
       </section>
 
-      {/* Heading Primitives */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Heading Primitives</SectionHeading>
-        <p className="text-sm text-muted-foreground">
-          공통 헤딩 컴포넌트로 모든 페이지의 제목 스케일을 통합 관리.
-        </p>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5">
-            <p className="mb-2 text-xs font-mono text-muted-foreground">PageTitle</p>
-            <p className={pageTitleClass}>System-level page heading</p>
-            <p className="mt-2 text-xs text-muted-foreground">text-4xl → lg:text-5xl</p>
-          </div>
-
-          <div className="rounded-xl border border-border-subtle bg-surface-subtle p-5">
-            <p className="mb-2 text-xs font-mono text-muted-foreground">SectionTitle</p>
-            <p className={sectionTitleClass}>Section heading baseline</p>
-            <p className="mt-2 text-xs text-muted-foreground">text-lg</p>
-          </div>
+      <section className="space-y-6">
+        <SectionTitle>Typography</SectionTitle>
+        <Description>{t("typeDescription")}</Description>
+        <div className="space-y-4 border-y border-border py-6">
+          <p className={pageTitleClass}>{t("pageTitleSample")}</p>
+          <p className="text-sm text-muted-foreground font-mono">
+            PageTitle · {typeTokens.font.size["3xl"].$value} ·{" "}
+            {typeTokens.font.weight.semibold.$value}
+          </p>
+          <p className={sectionTitleClass}>{t("sectionTitleSample")}</p>
+          <p className="text-sm text-muted-foreground font-mono">
+            SectionTitle · {typeTokens.font.size.xl.$value} ·{" "}
+            {typeTokens.font.weight.semibold.$value}
+          </p>
         </div>
-      </section>
-
-      {/* Typography */}
-      <section className="flex flex-col gap-6">
-        <SectionHeading>Typography</SectionHeading>
-
-        <div className="flex flex-col gap-1">
-          <SubHeading>Sans (Pretendard)</SubHeading>
-          <div className="flex flex-col gap-2">
-            {TYPE_SIZES.map((t) => (
-              <div key={t.name} className="flex items-baseline gap-4">
-                <span className="text-xs text-muted-foreground font-mono w-10 shrink-0 text-right">
-                  {t.name}
-                </span>
-                <span className={`${t.class} font-normal`}>
-                  가나다라 ABCabc 012
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <SubHeading>Mono (JetBrains Mono)</SubHeading>
-          <div className="flex flex-col gap-2">
-            {TYPE_SIZES.slice(0, 5).map((t) => (
-              <div key={t.name} className="flex items-baseline gap-4">
-                <span className="text-xs text-muted-foreground font-mono w-10 shrink-0 text-right">
-                  {t.name}
-                </span>
-                <span className={`${t.class} font-mono`}>
-                  const x = 42; // →
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <SubHeading>Weights</SubHeading>
-          <div className="flex flex-col gap-2">
-            <span className="text-lg font-normal">
-              400 Regular — 기본 텍스트 본문
-            </span>
-            <span className="text-lg font-medium">
-              500 Medium — 강조 라벨
-            </span>
-            <span className="text-lg font-bold">
-              700 Bold — 제목 헤딩
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* Spacing */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Spacing</SectionHeading>
-        <div className="flex flex-col gap-2">
-          {SPACING_STEPS.map((s) => (
-            <div key={s.name} className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground font-mono w-8 text-right shrink-0">
-                {s.name}
+        <div className="space-y-4">
+          {valuesFrom(typeTokens.font.size).map((size) => (
+            <div
+              key={size.name}
+              className="flex flex-wrap items-baseline gap-x-6 gap-y-2"
+            >
+              <code className="w-36 shrink-0 text-sm text-muted-foreground">
+                {size.name} · {size.value}
+              </code>
+              <span
+                className="min-w-0 break-words"
+                style={{
+                  fontSize: size.value,
+                  lineHeight: typeTokens.font.lineHeight.normal.$value,
+                }}
+              >
+                {t("typeSample")}
               </span>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-3">
+          <SubHeading>{t("monoStack")}</SubHeading>
+          <p className="break-words text-sm text-muted-foreground">
+            {typeTokens.font.family.mono.$value.join(", ")}
+          </p>
+          <p className="font-mono text-base">const x = 42;</p>
+        </div>
+        <div className="space-y-2">
+          <p className="font-normal">400 Regular — {t("regularRole")}</p>
+          <p className="font-medium">500 Medium — {t("mediumRole")}</p>
+          <p className="font-semibold">600 Semibold — {t("semiboldRole")}</p>
+        </div>
+      </section>
+      <section className="space-y-6">
+        <SectionTitle>Spacing</SectionTitle>
+        <div className="space-y-3">
+          {valuesFrom(spacingTokens.spacing).map((spacing) => (
+            <div key={spacing.name} className="flex items-center gap-4">
+              <code className="w-6 shrink-0 text-sm text-muted-foreground">
+                {spacing.name}
+              </code>
               <div
                 className="h-3 rounded-sm bg-primary"
-                style={{ width: `${s.px}px` }}
+                style={{ width: spacing.value }}
               />
-              <span className="text-xs text-muted-foreground font-mono">
-                {s.px}px
-              </span>
+              <code className="text-sm text-muted-foreground">
+                {spacing.value}
+              </code>
             </div>
           ))}
         </div>
       </section>
-
-      {/* Radius */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Radius</SectionHeading>
-        <div className="flex gap-6">
-          {[
-            { name: "none", class: "rounded-none", px: "0px" },
-            { name: "sm", class: "rounded-sm", px: "2px" },
-            { name: "md", class: "rounded-md", px: "4px" },
-            { name: "lg", class: "rounded-lg", px: "8px" },
-          ].map((r) => (
-            <div key={r.name} className="flex flex-col items-center gap-2">
+      <section className="space-y-6">
+        <SectionTitle>Radius</SectionTitle>
+        <Description>{t("radiusDescription")}</Description>
+        <div className="flex flex-wrap gap-6">
+          {valuesFrom(radiusTokens.radius).map((radius) => (
+            <div key={radius.name} className="space-y-2">
               <div
-                className={`size-16 bg-primary ${r.class}`}
+                className="size-16 bg-primary"
+                style={{ borderRadius: radius.value }}
               />
-              <span className="text-xs text-muted-foreground font-mono">
-                {r.name} ({r.px})
-              </span>
+              <code className="text-sm text-muted-foreground">
+                {radius.name} · {radius.value}
+              </code>
             </div>
           ))}
         </div>
       </section>
-
-      {/* Shadow */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Shadow</SectionHeading>
-        <div className="flex gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <div className="size-24 rounded-md bg-card border border-border shadow-sm" />
-            <span className="text-xs text-muted-foreground font-mono">
-              shadow-sm
-            </span>
+      <section className="space-y-6">
+        <SectionTitle>Shadow</SectionTitle>
+        <div className="flex flex-wrap gap-6">
+          <div className="space-y-3">
+            <div className="size-24 rounded-lg bg-card shadow-sm" />
+            <code className="text-sm text-muted-foreground">shadow-sm</code>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <div className="size-24 rounded-md bg-card border border-border shadow-md" />
-            <span className="text-xs text-muted-foreground font-mono">
-              shadow-md
-            </span>
+          <div className="space-y-3">
+            <div className="size-24 rounded-lg bg-card shadow-md" />
+            <code className="text-sm text-muted-foreground">shadow-md</code>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════
-          T44: Component Showcase
-          ════════════════════════════════════════════ */}
-
-      {/* Button */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Button</SectionHeading>
+      <section className="space-y-6">
+        <SectionTitle>Button</SectionTitle>
         <InteractiveButton />
-        <SubHeading>Variants</SubHeading>
+        <SubHeading>{t("variants")}</SubHeading>
         <div className="flex flex-wrap gap-3">
-          <Button>Default</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="outline">Outline</Button>
-          <Button variant="destructive">Destructive</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button variant="link">Link</Button>
+          {BUTTON_VARIANTS.map((variant) => (
+            <Button key={variant} variant={variant}>
+              {variant}
+            </Button>
+          ))}
         </div>
-        <SubHeading>Sizes</SubHeading>
+        <SubHeading>{t("sizes")}</SubHeading>
         <div className="flex flex-wrap items-center gap-3">
-          <Button size="xs">XS</Button>
-          <Button size="sm">SM</Button>
-          <Button size="default">Default</Button>
-          <Button size="lg">LG</Button>
+          {BUTTON_SIZES.map((size) => (
+            <Button key={size} size={size} className="min-w-(--ui-touch-target)">
+              {size}
+            </Button>
+          ))}
         </div>
-        <SubHeading>States</SubHeading>
+        <SubHeading>{t("states")}</SubHeading>
         <div className="flex flex-wrap gap-3">
-          <Button disabled>Disabled</Button>
+          <Button disabled>{t("disabled")}</Button>
           <Button variant="outline" disabled>
-            Outline Disabled
+            {t("disabled")}
+          </Button>
+          <Button disabled aria-busy="true">
+            {t("loading")}
           </Button>
         </div>
       </section>
-
-      {/* Input */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Input</SectionHeading>
+      <section className="space-y-6">
+        <SectionTitle>Input</SectionTitle>
         <InteractiveInput />
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Input placeholder="기본 입력" />
-          <Input type="email" placeholder="이메일" />
-          <Input disabled placeholder="비활성화" />
-          <Input aria-invalid="true" placeholder="에러 상태" />
+        <div className="max-w-(--ui-width-short-form) space-y-2">
+          <label htmlFor="email-example" className="font-medium">
+            {t("emailLabel")}
+          </label>
+          <Input
+            id="email-example"
+            type="email"
+            placeholder={t("emailPlaceholder")}
+          />
         </div>
       </section>
-
-      {/* Card */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Card</SectionHeading>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <section className="space-y-6">
+        <SectionTitle>Card</SectionTitle>
+        <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>시스템 상태</CardTitle>
-              <CardDescription>현재 시스템 운영 정보</CardDescription>
+              <CardTitle>{t("systemTitle")}</CardTitle>
+              <CardDescription>{t("systemDescription")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm">모든 서비스가 정상 운영 중입니다.</p>
+              <p>{t("systemBody")}</p>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" size="sm">
-                상세 보기
-              </Button>
+              <Button variant="outline">{t("details")}</Button>
             </CardFooter>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>배포 로그</CardTitle>
-              <CardDescription>최근 배포 히스토리</CardDescription>
+              <CardTitle>{t("deploymentTitle")}</CardTitle>
+              <CardDescription>{t("deploymentDescription")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-mono text-muted-foreground">
-                  v0.6.0 — Phase 6 Demo
-                </p>
-                <p className="text-sm font-mono text-muted-foreground">
-                  v0.5.0 — Core Components
-                </p>
+              <div className="space-y-2 text-sm text-muted-foreground font-mono">
+                <p>v0.6.0 — Phase 6 Demo</p>
+                <p>v0.5.0 — Core Components</p>
               </div>
             </CardContent>
           </Card>
         </div>
-        <SubHeading>Elevated</SubHeading>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <CardElevated>
-            <CardHeader>
-              <CardTitle>Elevated Card</CardTitle>
-              <CardDescription>다크 모드에서 밝기 차이로 elevation 표현</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">shadow-sm + 다크 배경 밝기 상승</p>
-            </CardContent>
-          </CardElevated>
-        </div>
+        <SubHeading>CardElevated</SubHeading>
+        <CardElevated className="max-w-(--ui-width-settings)">
+          <CardHeader>
+            <CardTitle>CardElevated</CardTitle>
+            <CardDescription>{t("raisedDescription")}</CardDescription>
+          </CardHeader>
+        </CardElevated>
       </section>
-
-      {/* Dialog */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Dialog</SectionHeading>
+      <section className="space-y-6">
+        <SectionTitle>Dialog</SectionTitle>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">다이얼로그 열기</Button>
+            <Button variant="outline">{t("openDialog")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>확인</DialogTitle>
-              <DialogDescription>
-                이 작업을 계속 진행하시겠습니까?
-              </DialogDescription>
+              <DialogTitle>{t("confirmTitle")}</DialogTitle>
+              <DialogDescription>{t("confirmDescription")}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">취소</Button>
+                <Button variant="outline">{t("cancel")}</Button>
               </DialogClose>
-              <Button>확인</Button>
+              <DialogClose asChild>
+                <Button>{t("confirm")}</Button>
+              </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </section>
-
-      {/* Dropdown Menu */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Dropdown Menu</SectionHeading>
+      <section className="space-y-6">
+        <SectionTitle>DropdownMenu</SectionTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">메뉴 열기</Button>
+            <Button variant="outline">{t("openMenu")}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>작업</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>프로필</DropdownMenuItem>
-            <DropdownMenuItem>설정</DropdownMenuItem>
-            <DropdownMenuItem>팀 관리</DropdownMenuItem>
+            <DropdownMenuItem>{t("profile")}</DropdownMenuItem>
+            <DropdownMenuItem>{t("settings")}</DropdownMenuItem>
+            <DropdownMenuItem>{t("team")}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive">
-              로그아웃
+              {t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </section>
-
-      {/* Sonner */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Sonner (Toast)</SectionHeading>
+      <section className="space-y-6">
+        <SectionTitle>Sonner (Toast)</SectionTitle>
         <div className="flex flex-wrap gap-3">
           <Button
             variant="outline"
-            onClick={() => toast.success("배포가 완료되었습니다.")}
+            onClick={() => toast.success(t("toastSuccess"))}
           >
             Success
           </Button>
           <Button
             variant="outline"
-            onClick={() => toast.error("배포에 실패했습니다.")}
+            onClick={() => toast.error(t("toastError"))}
           >
             Error
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => toast.info("새로운 업데이트가 있습니다.")}
-          >
+          <Button variant="outline" onClick={() => toast.info(t("toastInfo"))}>
             Info
           </Button>
           <Button
             variant="outline"
-            onClick={() => toast.warning("디스크 용량이 부족합니다.")}
+            onClick={() => toast.warning(t("toastWarning"))}
           >
             Warning
           </Button>
         </div>
       </section>
-
-      {/* Badge */}
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Badge</SectionHeading>
+      <section className="space-y-6">
+        <SectionTitle>Badge</SectionTitle>
         <div className="flex flex-wrap gap-3">
           <Badge>Default</Badge>
           <Badge variant="secondary">Secondary</Badge>
@@ -759,72 +633,46 @@ export default function Home() {
           <Badge variant="destructive">Destructive</Badge>
         </div>
       </section>
-
-      {/* Avatar */}
-      <section className="flex flex-col gap-6">
-        <SectionHeading>Avatar</SectionHeading>
-
-        <div>
-          <SubHeading>Sizes</SubHeading>
-          <div className="flex items-center gap-4 mt-2">
-            <Avatar size="sm">
-              <AvatarFallback>S</AvatarFallback>
-            </Avatar>
-            <Avatar>
-              <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="shadcn"
-              />
-              <AvatarFallback>SC</AvatarFallback>
-            </Avatar>
-            <Avatar size="lg">
-              <AvatarFallback>LG</AvatarFallback>
-            </Avatar>
-          </div>
+      <section className="space-y-6">
+        <SectionTitle>Avatar</SectionTitle>
+        <SubHeading>{t("sizes")}</SubHeading>
+        <div className="flex items-center gap-4">
+          <Avatar size="sm">
+            <AvatarFallback>S</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
+            <AvatarFallback>SC</AvatarFallback>
+          </Avatar>
+          <Avatar size="lg">
+            <AvatarFallback>LG</AvatarFallback>
+          </Avatar>
         </div>
-
-        <div>
-          <SubHeading>With Badge</SubHeading>
-          <div className="flex items-center gap-4 mt-2">
-            <Avatar>
-              <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="shadcn"
-              />
-              <AvatarFallback>SC</AvatarFallback>
-              <AvatarBadge />
-            </Avatar>
-            <Avatar size="lg">
-              <AvatarFallback>JM</AvatarFallback>
-              <AvatarBadge />
-            </Avatar>
-          </div>
+        <SubHeading>AvatarBadge</SubHeading>
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarFallback>SC</AvatarFallback>
+            <AvatarBadge />
+          </Avatar>
+          <Avatar size="lg">
+            <AvatarFallback>JM</AvatarFallback>
+            <AvatarBadge />
+          </Avatar>
         </div>
-
-        <div>
-          <SubHeading>Group</SubHeading>
-          <div className="mt-2">
-            <AvatarGroup>
-              <Avatar>
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="1"
-                />
-                <AvatarFallback>A</AvatarFallback>
-              </Avatar>
-              <Avatar>
-                <AvatarFallback>B</AvatarFallback>
-              </Avatar>
-              <Avatar>
-                <AvatarFallback>C</AvatarFallback>
-              </Avatar>
-              <AvatarGroupCount>+5</AvatarGroupCount>
-            </AvatarGroup>
-          </div>
-        </div>
+        <SubHeading>AvatarGroup</SubHeading>
+        <AvatarGroup>
+          <Avatar>
+            <AvatarFallback>A</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarFallback>B</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarFallback>C</AvatarFallback>
+          </Avatar>
+          <AvatarGroupCount>+5</AvatarGroupCount>
+        </AvatarGroup>
       </section>
-
-      </div>
-    </>
+    </div>
   );
 }

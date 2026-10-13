@@ -1,0 +1,616 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "language": "en",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">Automated collection from RSS, YouTube, Reddit + AI summaries</span>",
+            "target": [
+              "a[href$=\"dashboard\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">Personal knowledge — document parsing, embeddings, semantic search</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ],
+    "descriptionContrast": [
+      {
+        "text": "Automated collection from RSS, YouTube, Reddit + AI summaries",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          235,
+          235,
+          235,
+          255
+        ],
+        "backgroundSource": "ui-navigation-link ui-focus ui-navigation-entry",
+        "ratio": 5.09290693277215
+      },
+      {
+        "text": "Personal knowledge — document parsing, embeddings, semantic search",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 6.071452283306156
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 6.071452283306156
+      },
+      {
+        "text": "AI-powered ESG analysis — PDF parsing, assessment and comparison",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 6.071452283306156
+      },
+      {
+        "text": "Parenting AI agent — LINE Q&A, records and reminders",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 6.071452283306156
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "language": "en",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">Automated collection from RSS, YouTube, Reddit + AI summaries</span>",
+            "target": [
+              "a[href$=\"dashboard\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">Personal knowledge — document parsing, embeddings, semantic search</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ],
+    "descriptionContrast": [
+      {
+        "text": "Automated collection from RSS, YouTube, Reddit + AI summaries",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          38,
+          38,
+          38,
+          255
+        ],
+        "backgroundSource": "ui-navigation-link ui-focus ui-navigation-entry",
+        "ratio": 6.2407127806722835
+      },
+      {
+        "text": "Personal knowledge — document parsing, embeddings, semantic search",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          25,
+          26,
+          31,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 7.163589884748553
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          25,
+          26,
+          31,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 7.163589884748553
+      },
+      {
+        "text": "AI-powered ESG analysis — PDF parsing, assessment and comparison",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          25,
+          26,
+          31,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 7.163589884748553
+      },
+      {
+        "text": "Parenting AI agent — LINE Q&A, records and reminders",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          25,
+          26,
+          31,
+          255
+        ],
+        "backgroundSource": "ui-navigation-popover ui-popup",
+        "ratio": 7.163589884748553
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "language": "en",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">AI-powered ESG analysis — PDF parsing, assessment and comparison</span>",
+            "target": [
+              "a[href=\"/sa\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ],
+    "descriptionContrast": [
+      {
+        "text": "Automated collection from RSS, YouTube, Reddit + AI summaries",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          235,
+          235,
+          235,
+          255
+        ],
+        "backgroundSource": "ui-navigation-link ui-focus ui-navigation-entry",
+        "ratio": 5.09290693277215
+      },
+      {
+        "text": "Personal knowledge — document parsing, embeddings, semantic search",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          247,
+          248,
+          250,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 5.713588613231527
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          247,
+          248,
+          250,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 5.713588613231527
+      },
+      {
+        "text": "AI-powered ESG analysis — PDF parsing, assessment and comparison",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          247,
+          248,
+          250,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 5.713588613231527
+      },
+      {
+        "text": "Parenting AI agent — LINE Q&A, records and reminders",
+        "foreground": [
+          95,
+          98,
+          110,
+          255
+        ],
+        "background": [
+          247,
+          248,
+          250,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 5.713588613231527
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "language": "en",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">AI-powered ESG analysis — PDF parsing, assessment and comparison</span>",
+            "target": [
+              "a[href=\"/sa\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ],
+    "descriptionContrast": [
+      {
+        "text": "Automated collection from RSS, YouTube, Reddit + AI summaries",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          38,
+          38,
+          38,
+          255
+        ],
+        "backgroundSource": "ui-navigation-link ui-focus ui-navigation-entry",
+        "ratio": 6.2407127806722835
+      },
+      {
+        "text": "Personal knowledge — document parsing, embeddings, semantic search",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          11,
+          12,
+          14,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 8.069544137982655
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          11,
+          12,
+          14,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 8.069544137982655
+      },
+      {
+        "text": "AI-powered ESG analysis — PDF parsing, assessment and comparison",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          11,
+          12,
+          14,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 8.069544137982655
+      },
+      {
+        "text": "Parenting AI agent — LINE Q&A, records and reminders",
+        "foreground": [
+          164,
+          166,
+          176,
+          255
+        ],
+        "background": [
+          11,
+          12,
+          14,
+          255
+        ],
+        "backgroundSource": "ui-navigation-sheet ui-popup",
+        "ratio": 8.069544137982655
+      }
+    ]
+  }
+]

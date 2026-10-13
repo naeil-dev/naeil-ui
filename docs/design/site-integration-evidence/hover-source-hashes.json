@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-10-13T10:11:51.965570+00:00",
+  "buildId": "K6eYPWQxnNnM0_4G3F8Y9",
+  "scope": "Desktop mouse-hover + click-leave follow-up; prior 288-route matrix historical.",
+  "files": {
+    "src/components/ui/navigation.tsx": "f2e72af37478127bb22f539af49da06c897dbdfab6836a6251b69185875e2c0f",
+    "src/components/ui/navigation.stories.tsx": "e21c3381f266e016f7f868d50a7c7efd582e524a6c9dae3bbae3d5a44944338b",
+    "e2e/navigation.spec.ts": "22229709416f1533d9e583963f6b995784770fc6e1567b965b28bd4b89aabee0",
+    "docs/components/navigation.md": "3924acb2b05ec5606a9783fb0b43f47a119ef5659e41c7c263696e01a06bb6a2",
+    "docs/design/navigation-footer-sample.html": "28d85f07d36b4fadd4f2e7ad22a85540f242804df6f7c3632cb67470cafb70f7",
+    "docs/design/site-integration-evidence/check-hover.mjs": "4a6d1c0fb5ed26269ebf71dac8b54332ac8116b9673a31c38d6375d08746148a"
+  },
+  "unchangedFromHead": {
+    "src/components/project-layout.tsx": true,
+    "src/components/hero-section.tsx": true,
+    "src/app/hero.module.css": true,
+    "src/app/[locale]/(content)/projects/page.tsx": true,
+    "src/app/[locale]/(content)/cc/page.tsx": true,
+    "src/app/[locale]/(content)/sa/page.tsx": true,
+    "src/app/[locale]/(content)/pkm/page.tsx": true,
+    "src/app/[locale]/(content)/baby-agent/page.tsx": true
+  }
+}

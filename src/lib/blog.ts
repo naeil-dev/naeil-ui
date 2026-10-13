@@ -102,8 +102,13 @@ export async function getPost(locale: Locale, slug: string): Promise<BlogPost | 
   const { data, content } = matter(fileContents);
   const readingTimeResult = readingTime(content);
 
-  // Convert markdown to HTML
-  const processedContent = await remark().use(html).process(content);
+  // Convert the application callout into ordinary Markdown before sanitizing.
+  // Raw custom HTML would otherwise discard both the element and its content.
+  const myStackLabel = { en: "My Stack", ko: "사용 중인 도구", ja: "使用中のツール" }[locale];
+  const markdown = content.replace(/<MyStack>([\s\S]*?)<\/MyStack>/gi, (_, text: string) => (
+    `\n\n> **${myStackLabel}**\n>\n${text.trim().split("\n").map((line) => `> ${line}`).join("\n")}\n\n`
+  ));
+  const processedContent = await remark().use(html).process(markdown);
   const contentHtml = processedContent.toString();
 
   return {

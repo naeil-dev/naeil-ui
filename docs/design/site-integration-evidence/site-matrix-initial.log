@@ -1,0 +1,150 @@
+FAIL chromium ko light 320 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko light 320: done
+FAIL chromium ko light 390 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko light 390: done
+FAIL chromium ko light 1440 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko light 1440: done
+FAIL chromium ko light 2560 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko light 2560: done
+FAIL chromium ko dark 320 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko dark 320: done
+FAIL chromium ko dark 390 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko dark 390: done
+FAIL chromium ko dark 1440 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+chromium ko dark 1440: done
+FAIL chromium ko dark 2560 /blog/2026-03-30 expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+FAIL chromium ko dark 2560 /login page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "http://localhost:3010/ko/login", waiting until "networkidle"[22m
+
+FAIL chromium ko dark 2560 /design page.goto: Target page, context or browser has been closed
+FAIL chromium ko dark 2560 /cc page.goto: Target page, context or browser has been closed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+browserContext.close: Target page, context or browser has been closed
+Browser logs:
+
+<launching> /Users/jaymini/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/57/hmrv_4ls1llb7bvs8999r78c0000gn/T/playwright_chromiumdev_profile-u7vjgz --remote-debugging-pipe --no-startup-window
+<launched> pid=85509
+[pid=85509][err] [1013/173713.052450:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173713.073782:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173713.108044:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173713.800252:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173714.487743:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173715.018649:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173715.628722:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173716.703867:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173717.282959:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173718.008228:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173718.039254:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173718.054193:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173718.823172:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173719.481986:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173719.998209:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173720.630147:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173721.304673:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173722.214229:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173723.161010:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173723.203785:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173723.220733:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173724.093031:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173724.770563:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173725.284334:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173725.898251:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173726.564493:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173727.218406:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173727.849668:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173727.887483:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173727.901233:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173728.578537:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173729.213660:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173729.729359:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173730.323493:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173730.981474:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173731.562811:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173732.204641:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173732.251144:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173732.263307:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173732.352038:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173732.909693:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173732.935429:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173733.542577:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173734.054855:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173734.085305:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173734.648485:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173734.693583:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173735.309832:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173735.347715:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173735.893225:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173735.918345:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173736.588645:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173736.618778:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173736.629796:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173736.712044:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173737.420986:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173737.448254:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173738.073940:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173738.591848:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173738.625495:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173739.189644:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173739.233175:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173739.860649:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173739.898377:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173740.449188:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173740.474675:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173741.158612:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173741.199665:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173741.212025:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173741.298803:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173742.078852:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173742.107352:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173742.759077:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173743.269759:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173743.297628:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173743.871222:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173743.914694:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173744.538063:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173744.575890:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173745.160686:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173745.193015:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173745.804009:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173745.838546:INFO:CONSOLE:2] "Uncaught SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", source:  (2)
+[pid=85509][err] [1013/173745.850463:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173745.937522:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173746.509135:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173746.535631:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509][err] [1013/173747.139720:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173747.668748:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[pid=85509][err] [1013/173747.697554:INFO:CONSOLE:1] "Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.", source: http://localhost:3010/_next/static/chunks/54dc4e5c21bc5c8c.js (1)
+[pid=85509] <gracefully close start>
+    at async file:///Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/docs/design/site-integration-evidence/check-site.mjs:62:3 {
+  log: []
+}
+
+Node.js v22.23.2

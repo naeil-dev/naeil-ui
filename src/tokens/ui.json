@@ -59,6 +59,22 @@
     "motion-standard": {
       "$type": "duration",
       "$value": "180ms"
+    },
+    "navigation-height": {
+      "$type": "dimension",
+      "$value": "64px"
+    },
+    "navigation-brand-width": {
+      "$type": "dimension",
+      "$value": "160px"
+    },
+    "navigation-menu-width": {
+      "$type": "dimension",
+      "$value": "320px"
+    },
+    "navigation-menu-wide-width": {
+      "$type": "dimension",
+      "$value": "640px"
     }
   }
 }

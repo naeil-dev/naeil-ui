@@ -4,12 +4,17 @@
     "home": "Home",
     "projects": "Projects",
     "design": "Design System",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "description": "Projects and build notes by Jay",
+    "skipToContent": "Skip to content"
   },
   "nav": {
     "home": "Home",
     "projects": "Projects",
-    "blog": "Blog"
+    "blog": "Blog",
+    "navigation": "Main navigation",
+    "menu": "Menu",
+    "closeMenu": "Close menu"
   },
   "hero": {
     "title": ".naeil",
@@ -133,7 +138,61 @@
   },
   "design": {
     "title": "naeil-ui",
-    "subtitle": "Design System Showcase — Tokens · Components · Themes"
+    "subtitle": "Design System Showcase — Tokens · Components · Themes",
+    "foundations": "Foundations",
+    "components": "Components",
+    "neutralDescription": "Actions and selection use neutral semantic colors in both themes. Focus and feedback have separate roles.",
+    "primitiveDescription": "Primitive palettes remain available for compatibility. The blue scale is a legacy primitive, not the default action color.",
+    "semanticDescription": "These roles follow the active light or dark theme. Colors below are read from the shared CSS variables.",
+    "projectDescription": "Project colors identify individual products. They do not replace shared action, focus, or selection roles.",
+    "typeDescription": "Pretendard for Korean and Latin UI, Noto Sans JP for Japanese. Monospace samples use the configured fallback stack.",
+    "radiusDescription": "Tags use 4px corners, controls 8px, and panels 12px.",
+    "preview": "Preview",
+    "interactive": "Interactive",
+    "variants": "Variants",
+    "sizes": "Sizes",
+    "states": "States",
+    "disabled": "Disabled",
+    "invalid": "Invalid input",
+    "inputLabel": "Example input",
+    "inputHelp": "Change the controls to compare input states.",
+    "inputError": "Check this value and try again.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "systemTitle": "System status",
+    "systemDescription": "Example service information",
+    "systemBody": "All services are operating normally.",
+    "details": "View details",
+    "deploymentTitle": "Deployment log",
+    "deploymentDescription": "Example release history",
+    "raisedDescription": "Raised surfaces use the card-elevated role and a subtle shadow.",
+    "openDialog": "Open dialog",
+    "confirmTitle": "Confirm",
+    "confirmDescription": "Would you like to continue?",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "openMenu": "Open menu",
+    "actions": "Actions",
+    "profile": "Profile",
+    "settings": "Settings",
+    "team": "Team",
+    "signOut": "Sign out",
+    "toastSuccess": "Deployment completed.",
+    "toastError": "Deployment failed.",
+    "toastInfo": "A new update is available.",
+    "toastWarning": "Disk space is low.",
+    "legacyBlue": "Legacy blue primitive",
+    "neutralAction": "Neutral action",
+    "selectedSurface": "Selection",
+    "focusIndicator": "Focus",
+    "regularRole": "Body text",
+    "mediumRole": "Labels and controls",
+    "semiboldRole": "Page and section titles",
+    "pageTitleSample": "Page title",
+    "sectionTitleSample": "Section title",
+    "typeSample": "Tomorrow begins here.",
+    "monoStack": "Monospace fallback",
+    "loading": "Loading"
   },
   "blogPage": {
     "title": "Blog",
@@ -143,10 +202,21 @@
   },
   "blogPost": {
     "backToBlog": "Back to Blog",
-    "languages": "Languages",
+    "languages": {
+      "ko": "한국어",
+      "en": "English",
+      "ja": "日本語"
+    },
     "sources": "Sources",
     "previousPost": "Previous Post",
-    "nextPost": "Next Post"
+    "nextPost": "Next Post",
+    "readingTime": "{minutes} min read",
+    "otherLanguages": "Read in another language",
+    "myStack": "My Stack",
+    "codeBlock": "Code block",
+    "dataTable": "Data table",
+    "postNavigation": "Post navigation",
+    "languageLabel": "Languages"
   },
   "footer": {
     "tagline": "Tomorrow starts here.",
@@ -162,7 +232,11 @@
     "loginDescription": "Sign in to access all features",
     "redirecting": "Redirecting...",
     "logout": "Sign out",
-    "profile": "Profile"
+    "profile": "Profile",
+    "accountMenu": "Account menu for {name}",
+    "pendingGoogle": "Opening Google sign-in…",
+    "pendingGithub": "Opening GitHub sign-in…",
+    "loginError": "Could not start sign-in. Choose a sign-in method below to try again."
   },
   "locale": {
     "switchLabel": "Language"
@@ -229,5 +303,9 @@
         "meta": "Sector filter"
       }
     }
+  },
+  "theme": {
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme"
   }
 }

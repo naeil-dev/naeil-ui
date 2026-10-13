@@ -78,6 +78,8 @@ try {
     "switch",
     "tabs",
     "textarea",
+    "navigation",
+    "site-footer",
   ].map((name) => `components/ui/${name}`);
   corePaths.push(
     "components/ui/index",

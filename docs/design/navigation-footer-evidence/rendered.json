@@ -1,0 +1,218 @@
+{
+  "status": "needs-review",
+  "checker": {
+    "revision": "2026-10-01.1",
+    "sha256": "d5b9accc3f0836689d4e18a75baf042bfe3002b991c276f684dcbd50912a0706"
+  },
+  "checkedAt": "2026-10-13T02:37:57.927Z",
+  "authority": "DESIGN.md typography, controls, application frame; src/tokens/ui.json",
+  "results": [
+    {
+      "name": "home mobile light",
+      "path": "/iframe.html?id=ui-navigation--home&viewMode=story&globals=theme:light;a11y.manual:!true",
+      "colorScheme": "light",
+      "locale": "en-US",
+      "touch": true,
+      "viewportConfig": {
+        "width": 390,
+        "height": 900
+      },
+      "finalURL": "http://127.0.0.1:6007/iframe.html",
+      "documentMode": "CSS1Compat",
+      "documentLanguage": "en",
+      "viewport": {
+        "width": 390,
+        "height": 900,
+        "coarse": true
+      },
+      "scrollbarWidth": 0,
+      "scrollWidth": 390,
+      "overflow": false,
+      "touchStatus": "measured",
+      "touchReview": [],
+      "expectations": [],
+      "viewportMismatch": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "impact": "critical",
+          "help": "ARIA attributes must conform to valid values",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".ui-navigation-toggle"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_4_\""
+            }
+          ]
+        }
+      ],
+      "fonts": [
+        {
+          "font": "400 16px Pretendard",
+          "status": "pass",
+          "faces": [
+            {
+              "family": "Pretendard",
+              "status": "loaded"
+            }
+          ],
+          "reason": null
+        }
+      ],
+      "fontReview": [],
+      "status": "needs-review",
+      "limits": [
+        "Only the current rendered state was measured; axe contrast covers text in that state.",
+        "Control boundaries, focus and selected/state indicators need separate non-text contrast checks against the project standard.",
+        "Page scroll overflow only; clipped/ellipsized content and inner-region overflow require visual review.",
+        "Small visual boxes need effective-hit-area review.",
+        "Font probes establish web font availability for configured samples, not every rendered glyph or system font. Computed font-family alone is not loading evidence.",
+        "Scrollbar width is environment-dependent; project API callers must verify their browser launch settings.",
+        "Keyboard behavior, visual hierarchy, reduced motion and other states require separate checks."
+      ],
+      "landmarks": []
+    },
+    {
+      "name": "home desktop dark",
+      "path": "/iframe.html?id=ui-navigation--home&viewMode=story&globals=theme:dark;a11y.manual:!true",
+      "colorScheme": "dark",
+      "locale": "en-US",
+      "touch": false,
+      "viewportConfig": {
+        "width": 1440,
+        "height": 900
+      },
+      "finalURL": "http://127.0.0.1:6007/iframe.html",
+      "documentMode": "CSS1Compat",
+      "documentLanguage": "en",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "coarse": false
+      },
+      "scrollbarWidth": 0,
+      "scrollWidth": 1440,
+      "overflow": false,
+      "touchStatus": "not-applicable-fine-pointer",
+      "touchReview": [],
+      "expectations": [],
+      "viewportMismatch": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "impact": "critical",
+          "help": "ARIA attributes must conform to valid values",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "button[aria-controls=\"radix-_r_1_\"]"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+            }
+          ]
+        }
+      ],
+      "fonts": [
+        {
+          "font": "400 16px Pretendard",
+          "status": "pass",
+          "faces": [
+            {
+              "family": "Pretendard",
+              "status": "loaded"
+            }
+          ],
+          "reason": null
+        }
+      ],
+      "fontReview": [],
+      "status": "needs-review",
+      "limits": [
+        "Only the current rendered state was measured; axe contrast covers text in that state.",
+        "Control boundaries, focus and selected/state indicators need separate non-text contrast checks against the project standard.",
+        "Page scroll overflow only; clipped/ellipsized content and inner-region overflow require visual review.",
+        "Small visual boxes need effective-hit-area review.",
+        "Font probes establish web font availability for configured samples, not every rendered glyph or system font. Computed font-family alone is not loading evidence.",
+        "Scrollbar width is environment-dependent; project API callers must verify their browser launch settings.",
+        "Keyboard behavior, visual hierarchy, reduced motion and other states require separate checks."
+      ],
+      "landmarks": []
+    },
+    {
+      "name": "website desktop dark",
+      "path": "/iframe.html?id=ui-navigation--usage&viewMode=story&globals=theme:dark;a11y.manual:!true",
+      "colorScheme": "dark",
+      "locale": "en-US",
+      "touch": false,
+      "viewportConfig": {
+        "width": 1440,
+        "height": 900
+      },
+      "finalURL": "http://127.0.0.1:6007/iframe.html",
+      "documentMode": "CSS1Compat",
+      "documentLanguage": "en",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "coarse": false
+      },
+      "scrollbarWidth": 0,
+      "scrollWidth": 1440,
+      "overflow": false,
+      "touchStatus": "not-applicable-fine-pointer",
+      "touchReview": [],
+      "expectations": [],
+      "viewportMismatch": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "impact": "critical",
+          "help": "ARIA attributes must conform to valid values",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "button[aria-controls=\"radix-_r_1_\"]"
+              ],
+              "summary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+            }
+          ]
+        }
+      ],
+      "fonts": [
+        {
+          "font": "400 16px Pretendard",
+          "status": "pass",
+          "faces": [
+            {
+              "family": "Pretendard",
+              "status": "loaded"
+            }
+          ],
+          "reason": null
+        }
+      ],
+      "fontReview": [],
+      "status": "needs-review",
+      "limits": [
+        "Only the current rendered state was measured; axe contrast covers text in that state.",
+        "Control boundaries, focus and selected/state indicators need separate non-text contrast checks against the project standard.",
+        "Page scroll overflow only; clipped/ellipsized content and inner-region overflow require visual review.",
+        "Small visual boxes need effective-hit-area review.",
+        "Font probes establish web font availability for configured samples, not every rendered glyph or system font. Computed font-family alone is not loading evidence.",
+        "Scrollbar width is environment-dependent; project API callers must verify their browser launch settings.",
+        "Keyboard behavior, visual hierarchy, reduced motion and other states require separate checks."
+      ],
+      "landmarks": []
+    }
+  ],
+  "layoutComparisons": [],
+  "scrollbarMode": "native; Playwright hide-scrollbars argument removed",
+  "scope": "Isolated browser; only configured initial states, reduced motion enabled; no mutation flows run."
+}

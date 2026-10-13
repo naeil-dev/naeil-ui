@@ -1,0 +1,86 @@
+
+Running 36 tests using 1 worker
+
+(node:52650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) (38.2s)
+(node:53508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 390) (12.2s)
+  ✓   3 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 1440) (3.8s)
+  ✓   4 [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (dark) (5.2s)
+  ✓   5 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 390) (814ms)
+  ✓   6 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 1440) (660ms)
+  ✓   7 [chromium] › e2e/brand.spec.ts:68:1 › built Storybook Docs is reachable (1.1s)
+  ✓   8 [chromium] › e2e/brand.spec.ts:76:1 › automatic logo follows OS preference and live changes without theme ancestors (428ms)
+  ✓   9 [chromium] › e2e/navigation.spec.ts:5:1 › hover can replace a keyboard-opened group without focus dismissing the new group (1.3s)
+  ✓  10 [chromium] › e2e/navigation.spec.ts:26:1 › desktop hover preserves focus and the path into the menu (2.6s)
+  ✓  11 [chromium] › e2e/navigation.spec.ts:54:1 › mouse click still closes on leave while keyboard keeps the menu open (3.1s)
+  ✓  12 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 390 (3.9s)
+  ✓  13 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 1440 (1.8s)
+  ✓  14 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 2560 (1.7s)
+  ✓  15 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 390 (1.9s)
+  ✓  16 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 1440 (1.8s)
+  ✓  17 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 2560 (1.8s)
+  ✓  18 [chromium] › e2e/navigation.spec.ts:137:1 › long labels, English and reduced motion (2.4s)
+(node:54209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [webkit] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) (3.4s)
+  ✓  20 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 390) (833ms)
+  ✓  21 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 1440) (741ms)
+  ✓  22 [webkit] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (dark) (2.1s)
+  ✓  23 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 390) (813ms)
+  ✓  24 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 1440) (2.8s)
+  ✓  25 [webkit] › e2e/brand.spec.ts:68:1 › built Storybook Docs is reachable (1.7s)
+  ✓  26 [webkit] › e2e/brand.spec.ts:76:1 › automatic logo follows OS preference and live changes without theme ancestors (630ms)
+  ✓  27 [webkit] › e2e/navigation.spec.ts:5:1 › hover can replace a keyboard-opened group without focus dismissing the new group (1.3s)
+  ✓  28 [webkit] › e2e/navigation.spec.ts:26:1 › desktop hover preserves focus and the path into the menu (2.6s)
+  ✓  29 [webkit] › e2e/navigation.spec.ts:54:1 › mouse click still closes on leave while keyboard keeps the menu open (2.7s)
+  ✓  30 [webkit] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 390 (3.0s)
+  ✓  31 [webkit] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 1440 (2.5s)
+  ✓  32 [webkit] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 2560 (2.6s)
+  ✓  33 [webkit] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 390 (2.5s)
+  ✓  34 [webkit] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 1440 (2.3s)
+  ✓  35 [webkit] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 2560 (2.0s)
+  ✓  36 [webkit] › e2e/navigation.spec.ts:137:1 › long labels, English and reduced motion (1.1s)
+
+
+  1) [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) ────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.screenshot: Node is either not visible or not an HTMLElement
+    Call log:
+      - taking element screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+      - attempting scroll into view action
+        - waiting for element to be stable
+
+
+      25 |       const c = await component.boundingBox(), r = await reference.boundingBox();
+      26 |       expect(c!.width).toBeCloseTo(r!.width, 1); expect(c!.height).toBe(28);
+    > 27 |       await component.screenshot({ path: `${output}/${browserName}-${theme}-${palette}-${tone}-component.png` });
+         |                       ^
+      28 |       await reference.screenshot({ path: `${output}/${browserName}-${theme}-${palette}-${tone}-reference.png` });
+      29 |     }
+      30 |     await expect(page.getByTestId('nested-light').locator('[data-naeil-palette="light"]')).toBeVisible();
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/brand.spec.ts:27:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/brand-canonical-artwork-nested-themes-and-SVG-ids-light--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/brand-canonical-artwork-nested-themes-and-SVG-ids-light--chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/brand-canonical-artwork-nested-themes-and-SVG-ids-light--chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/brand-canonical-artwork-nested-themes-and-SVG-ids-light--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) ─────
+  35 passed (2.5m)

@@ -19,3 +19,5 @@ Published `@naeil/ui@0.3.0` (2026-10-03; [release](https://github.com/naeil-dev/
 | Textarea | [Textarea](./textarea.md) | UI / Textarea / Usage |
 
 [Field, native radio, Select and action composition](./composition.md) explains consumer state and semantic choices. [Demand decision](../design/component-demand.md) records why these two families were added.
+
+Navigation and footer: [React-only Navigation / SiteFooter and compatibility adapters](navigation.md).

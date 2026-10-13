@@ -125,6 +125,14 @@
     "./components/ui/textarea": {
       "types": "./dist/source/components/ui/textarea.d.ts",
       "import": "./dist/source/components/ui/textarea.js"
+    },
+    "./components/ui/navigation": {
+      "types": "./dist/source/components/ui/navigation.d.ts",
+      "import": "./dist/source/components/ui/navigation.js"
+    },
+    "./components/ui/site-footer": {
+      "types": "./dist/source/components/ui/site-footer.d.ts",
+      "import": "./dist/source/components/ui/site-footer.js"
     }
   },
   "scripts": {

@@ -1,0 +1,109 @@
+
+> @naeil/ui@0.4.0 build:pkg /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+> pnpm check:brand && tsup && tsup --config tsup.deep.config.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens
+
+
+> @naeil/ui@0.4.0 check:brand /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+> tsx scripts/build-brand.ts --check
+
+Brand 1.1.1: verified React artwork, font notice and site icons
+CLI Building entry: src/components/index.ts, src/lib/utils.ts, src/components/ui/index.ts
+CLI Using tsconfig: tsconfig.build.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/tsup.config.ts
+CLI Target: es2017
+CLI Cleaning output folder
+ESM Build start
+ESM dist/chunk-JBTDRVZ7.js      1.47 KB
+ESM dist/lib/utils.js           76.00 B
+ESM dist/components/ui/index.js 21.93 KB
+ESM dist/chunk-WH66FPJN.js      24.58 KB
+ESM dist/components/index.js    162.43 KB
+ESM ⚡️ Build success in 95ms
+DTS Build start
+DTS ⚡️ Build success in 4483ms
+DTS dist/components/index.d.ts     5.02 KB
+DTS dist/lib/utils.d.ts            106.00 B
+DTS dist/components/ui/index.d.ts  10.18 KB
+DTS dist/site-footer-DUT8mbIz.d.ts 2.51 KB
+CLI Building entry: src/components/brand-artwork.generated.tsx, src/components/footer.tsx, src/components/index.ts, src/components/locale-switcher.tsx, src/components/logo.tsx, src/components/nav.tsx, src/components/theme-provider.tsx, src/components/theme-toggle-icon.tsx, src/components/theme-toggle.tsx, src/components/typography.tsx, src/i18n/config.ts, src/i18n/routing.ts, src/lib/utils.ts, src/components/ui/avatar.tsx, src/components/ui/badge.tsx, src/components/ui/button.tsx, src/components/ui/card.tsx, src/components/ui/checkbox.tsx, src/components/ui/dialog.tsx, src/components/ui/dropdown-menu.tsx, src/components/ui/index.ts, src/components/ui/input.tsx, src/components/ui/navigation.tsx, src/components/ui/select.tsx, src/components/ui/site-footer.tsx, src/components/ui/sonner.tsx, src/components/ui/switch.tsx, src/components/ui/tabs.tsx, src/components/ui/textarea.tsx, src/lib/design/modal-inert.ts
+CLI Using tsconfig: tsconfig.build.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/tsup.deep.config.ts
+CLI Target: es2017
+ESM Build start
+ESM dist/source/components/footer.js                  4.62 KB
+ESM dist/source/components/locale-switcher.js         2.10 KB
+ESM dist/source/components/brand-artwork.generated.js 146.17 KB
+ESM dist/source/components/logo.js                    3.54 KB
+ESM dist/source/components/theme-provider.js          1.61 KB
+ESM dist/source/components/nav.js                     4.91 KB
+ESM dist/source/components/theme-toggle-icon.js       1.87 KB
+ESM dist/source/components/typography.js              2.04 KB
+ESM dist/source/i18n/config.js                        215.00 B
+ESM dist/source/components/theme-toggle.js            907.00 B
+ESM dist/source/i18n/routing.js                       427.00 B
+ESM dist/source/components/ui/badge.js                2.73 KB
+ESM dist/source/components/ui/avatar.js               4.25 KB
+ESM dist/source/components/ui/button.js               3.13 KB
+ESM dist/source/components/ui/index.js                2.48 KB
+ESM dist/source/components/ui/card.js                 4.03 KB
+ESM dist/source/components/ui/dropdown-menu.js        9.50 KB
+ESM dist/source/components/ui/navigation.js           9.38 KB
+ESM dist/source/components/ui/input.js                1.93 KB
+ESM dist/source/components/ui/dialog.js               5.62 KB
+ESM dist/source/components/ui/site-footer.js          3.10 KB
+ESM dist/source/components/ui/select.js               5.78 KB
+ESM dist/source/components/ui/switch.js               1.79 KB
+ESM dist/source/components/ui/textarea.js             1.73 KB
+ESM dist/source/lib/design/modal-inert.js             2.50 KB
+ESM dist/source/components/ui/sonner.js               2.78 KB
+ESM dist/source/components/ui/tabs.js                 2.49 KB
+ESM dist/source/components/index.js                   570.00 B
+ESM dist/source/lib/utils.js                          147.00 B
+ESM dist/source/components/ui/checkbox.js             2.14 KB
+ESM ⚡️ Build success in 45ms
+DTS Build start
+DTS ⚡️ Build success in 5077ms
+DTS dist/source/components/index.d.ts                   572.00 B
+DTS dist/source/components/ui/index.d.ts                1.65 KB
+DTS dist/source/components/brand-artwork.generated.d.ts 4.77 KB
+DTS dist/source/components/footer.d.ts                  830.00 B
+DTS dist/source/components/locale-switcher.d.ts         522.00 B
+DTS dist/source/components/logo.d.ts                    911.00 B
+DTS dist/source/components/nav.d.ts                     2.15 KB
+DTS dist/source/components/theme-provider.d.ts          281.00 B
+DTS dist/source/components/theme-toggle-icon.d.ts       153.00 B
+DTS dist/source/components/theme-toggle.d.ts            145.00 B
+DTS dist/source/components/typography.d.ts              641.00 B
+DTS dist/source/i18n/config.d.ts                        242.00 B
+DTS dist/source/i18n/routing.d.ts                       22.80 KB
+DTS dist/source/lib/utils.d.ts                          106.00 B
+DTS dist/source/components/ui/avatar.d.ts               1021.00 B
+DTS dist/source/components/ui/badge.d.ts                696.00 B
+DTS dist/source/components/ui/button.d.ts               792.00 B
+DTS dist/source/components/ui/card.d.ts                 1.08 KB
+DTS dist/source/components/ui/checkbox.d.ts             291.00 B
+DTS dist/source/components/ui/dialog.d.ts               1.63 KB
+DTS dist/source/components/ui/dropdown-menu.d.ts        2.74 KB
+DTS dist/source/components/ui/input.d.ts                225.00 B
+DTS dist/source/components/ui/select.d.ts               1.59 KB
+DTS dist/source/components/ui/site-footer.d.ts          856.00 B
+DTS dist/source/components/ui/navigation.d.ts           1.80 KB
+DTS dist/source/components/ui/sonner.d.ts               203.00 B
+DTS dist/source/components/ui/switch.d.ts               281.00 B
+DTS dist/source/components/ui/tabs.d.ts                 694.00 B
+DTS dist/source/components/ui/textarea.d.ts             228.00 B
+DTS dist/source/lib/design/modal-inert.d.ts             293.00 B
+
+> @naeil/ui@0.4.0 build:tokens /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+> tsx scripts/build-tokens.ts
+
+
+ts
+✔︎ dist/tokens.ts
+
+css
+✔︎ src/styles/theme.css
+
+🎨 Token build complete!

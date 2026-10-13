@@ -1,0 +1,10 @@
+
+> @naeil/ui@0.4.0 lint /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+> eslint
+
+
+/Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/docs/design/logo-study-2026-10-09/verify_browser.mjs
+  34:70  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+✖ 1 problem (0 errors, 1 warning)
+

@@ -1,0 +1,49 @@
+
+Running 1 test using 1 worker
+
+(node:43202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/navigation.spec.ts:5:1 › hover can replace a keyboard-opened group without focus dismissing the new group (5.8s)
+
+
+  1) [chromium] › e2e/navigation.spec.ts:5:1 › hover can replace a keyboard-opened group without focus dismissing the new group 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('link', { name: 'Project overview' })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('link', { name: 'Project overview' }) with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Project overview' })
+        14 × locator resolved to <a href="#project" class="ui-navigation-link ui-focus ui-navigation-entry">…</a>
+           - unexpected value "inactive"
+
+
+       9 |   await projects.focus();
+      10 |   await page.keyboard.press("Enter");
+    > 11 |   await expect(page.getByRole("link", { name: "Project overview" })).toBeFocused();
+         |                                                                      ^
+      12 |   await resources.hover();
+      13 |   await page.waitForTimeout(350);
+      14 |   await expect(resources).toHaveAttribute("aria-expanded", "true");
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:11:70
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-hover-can-repla-8d15d-us-dismissing-the-new-group-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-hover-can-repla-8d15d-us-dismissing-the-new-group-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-hover-can-repla-8d15d-us-dismissing-the-new-group-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-hover-can-repla-8d15d-us-dismissing-the-new-group-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/navigation.spec.ts:5:1 › hover can replace a keyboard-opened group without focus dismissing the new group 

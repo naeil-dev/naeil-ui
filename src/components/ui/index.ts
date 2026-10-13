@@ -73,3 +73,6 @@ export { Switch } from "./switch";
 export { Checkbox } from "./checkbox";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export { Textarea } from "./textarea";
+
+export { Navigation, type NavigationProps, type NavigationItem, type NavigationGroup, type NavigationLink, type NavigationLinkProps, type NavigationLinkComponent } from "./navigation";
+export { SiteFooter, type SiteFooterProps } from "./site-footer";

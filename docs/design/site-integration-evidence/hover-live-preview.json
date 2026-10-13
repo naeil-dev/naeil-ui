@@ -1,0 +1,15 @@
+{
+  "results": [
+    {
+      "port": 6448,
+      "hover": true,
+      "clickThenLeave": true
+    },
+    {
+      "port": 6447,
+      "hover": true,
+      "clickThenLeave": true
+    }
+  ],
+  "timestamp": "2026-10-13T10:11:27.817Z"
+}
