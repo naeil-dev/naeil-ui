@@ -90,3 +90,14 @@ User feedback restores mouse-hover opening in the shared Navigation. Mouse click
 
 
 Release preparation follow-up: user requested continuation after hover review. Read-only GitHub checks confirm main and successful Vercel Production deployment7009831199 both match515fa26; current branch has no open PR. Final source reconciliation reports no drift across50 previously validated implementation/test files;56 source/config hashes are frozen in `site-integration-evidence/release-source-manifest.json`. Full lint passes with one pre-existing logo-study warning after removing this task's unused evidence variable. Review-ready application/rollback sequence and PR text are prepared in `naeil-site-release-ready-2026-10-13.md` and `site-integration-evidence/release-pr-body.md`. No commit/push/merge/production/npm/public Storybook action was executed. The handoff explicitly reserves production approval for the final step, now ready for that decision.
+
+
+### Production application completed — 2026-10-14
+
+User authorized commit/PR/merge/deployment. PR #5 merged as `00a17a81264dba43266f5670453f6585669f7384`; Vercel Production deployment7049743975 succeeded for that SHA. PR and main CI both pass (51 unit tests;263 browser tests pass,4 conditional forced-colors cases skipped). Linux CI includes Firefox navigation coverage; actual-site coverage is Chromium/WebKit. On https://naeil.dev,288 route conditions,48 hover/touch/keyboard conditions,20 axe audits,4 interaction flows and21 route metadata checks pass. Existing project bodies and hero source are unchanged. Full provider login, physical devices and VoiceOver remain unverified. No npm publication, public Storybook deployment or Naeil Home change. New production evidence is retained separately in `docs/design/site-production-2026-10-14/README.md`; post-deploy records are included in the user-requested workspace closeout.
+
+
+2026-10-14 title follow-up: user changed the official naeil.dev metadata spelling to `.naeil`, including the leading period. Rules in DESIGN/AGENTS/v2-migration and actual Next/social metadata are synchronized. PR #6 / production `a111e90` deployed successfully;60 actual production title/social/canonical cases and client/back/locale flows pass. See `docs/design/dotted-site-title-2026-10-14/README.md`. Earlier `naeil` validation records remain dated history.
+
+
+2026-10-14 workspace closeout: user requested preserving all remaining production verification records in the repository and stopping the local review service. Port3010 Next preview stopped; only its Tailscale HTTPS6448 proxy was removed. Home2455, default443 and the separately approved sample6447 proxy were left unchanged. Start the next login task from updated main in a new workspace; actual provider sign-in/session/logout remains the first unverified flow. Closeout changes documentation/evidence only, with no runtime/package changes.

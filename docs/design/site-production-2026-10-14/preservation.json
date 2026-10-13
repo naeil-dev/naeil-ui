@@ -1,0 +1,14 @@
+{
+  "base": "515fa2699a0bb182bc4d99e7bf0b41fb326185df",
+  "production": "00a17a81264dba43266f5670453f6585669f7384",
+  "unchanged": {
+    "src/components/project-layout.tsx": true,
+    "src/components/hero-section.tsx": true,
+    "src/app/hero.module.css": true,
+    "src/app/[locale]/(content)/projects/page.tsx": true,
+    "src/app/[locale]/(content)/cc/page.tsx": true,
+    "src/app/[locale]/(content)/sa/page.tsx": true,
+    "src/app/[locale]/(content)/pkm/page.tsx": true,
+    "src/app/[locale]/(content)/baby-agent/page.tsx": true
+  }
+}

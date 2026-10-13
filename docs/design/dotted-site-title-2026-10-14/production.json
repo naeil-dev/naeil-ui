@@ -1,0 +1,366 @@
+{
+  "base": "https://naeil.dev",
+  "results": [
+    {
+      "engine": "chromium",
+      "path": "/",
+      "title": ".naeil",
+      "canonical": "https://naeil.dev/"
+    },
+    {
+      "engine": "chromium",
+      "path": "/blog",
+      "title": "Blog — .naeil",
+      "canonical": "https://naeil.dev/blog"
+    },
+    {
+      "engine": "chromium",
+      "path": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — .naeil",
+      "canonical": "https://naeil.dev/blog/2026-03-30"
+    },
+    {
+      "engine": "chromium",
+      "path": "/login",
+      "title": "Sign in — .naeil",
+      "canonical": "https://naeil.dev/login"
+    },
+    {
+      "engine": "chromium",
+      "path": "/design",
+      "title": "Design System — .naeil",
+      "canonical": "https://naeil.dev/design"
+    },
+    {
+      "engine": "chromium",
+      "path": "/projects",
+      "title": "Projects — .naeil",
+      "canonical": "https://naeil.dev/projects"
+    },
+    {
+      "engine": "chromium",
+      "path": "/cc",
+      "title": "Content Collector — .naeil",
+      "canonical": "https://naeil.dev/cc"
+    },
+    {
+      "engine": "chromium",
+      "path": "/sa",
+      "title": "Sustainability Analyzer — .naeil",
+      "canonical": "https://naeil.dev/sa"
+    },
+    {
+      "engine": "chromium",
+      "path": "/pkm",
+      "title": "PKM — .naeil",
+      "canonical": "https://naeil.dev/pkm"
+    },
+    {
+      "engine": "chromium",
+      "path": "/baby-agent",
+      "title": "Baby Agent — .naeil",
+      "canonical": "https://naeil.dev/baby-agent"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/",
+      "title": ".naeil",
+      "canonical": "https://naeil.dev/ko"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/blog",
+      "title": "블로그 — .naeil",
+      "canonical": "https://naeil.dev/ko/blog"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — .naeil",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/login",
+      "title": "로그인 — .naeil",
+      "canonical": "https://naeil.dev/ko/login"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/design",
+      "title": "디자인 시스템 — .naeil",
+      "canonical": "https://naeil.dev/ko/design"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/projects",
+      "title": "프로젝트 — .naeil",
+      "canonical": "https://naeil.dev/ko/projects"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/cc",
+      "title": "Content Collector — .naeil",
+      "canonical": "https://naeil.dev/ko/cc"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/sa",
+      "title": "Sustainability Analyzer — .naeil",
+      "canonical": "https://naeil.dev/ko/sa"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/pkm",
+      "title": "PKM — .naeil",
+      "canonical": "https://naeil.dev/ko/pkm"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ko/baby-agent",
+      "title": "Baby Agent — .naeil",
+      "canonical": "https://naeil.dev/ko/baby-agent"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/",
+      "title": ".naeil",
+      "canonical": "https://naeil.dev/ja"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/blog",
+      "title": "ブログ — .naeil",
+      "canonical": "https://naeil.dev/ja/blog"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — .naeil",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/login",
+      "title": "ログイン — .naeil",
+      "canonical": "https://naeil.dev/ja/login"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/design",
+      "title": "デザインシステム — .naeil",
+      "canonical": "https://naeil.dev/ja/design"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/projects",
+      "title": "プロジェクト — .naeil",
+      "canonical": "https://naeil.dev/ja/projects"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/cc",
+      "title": "Content Collector — .naeil",
+      "canonical": "https://naeil.dev/ja/cc"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/sa",
+      "title": "Sustainability Analyzer — .naeil",
+      "canonical": "https://naeil.dev/ja/sa"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/pkm",
+      "title": "PKM — .naeil",
+      "canonical": "https://naeil.dev/ja/pkm"
+    },
+    {
+      "engine": "chromium",
+      "path": "/ja/baby-agent",
+      "title": "Baby Agent — .naeil",
+      "canonical": "https://naeil.dev/ja/baby-agent"
+    },
+    {
+      "engine": "webkit",
+      "path": "/",
+      "title": ".naeil",
+      "canonical": "https://naeil.dev/"
+    },
+    {
+      "engine": "webkit",
+      "path": "/blog",
+      "title": "Blog — .naeil",
+      "canonical": "https://naeil.dev/blog"
+    },
+    {
+      "engine": "webkit",
+      "path": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — .naeil",
+      "canonical": "https://naeil.dev/blog/2026-03-30"
+    },
+    {
+      "engine": "webkit",
+      "path": "/login",
+      "title": "Sign in — .naeil",
+      "canonical": "https://naeil.dev/login"
+    },
+    {
+      "engine": "webkit",
+      "path": "/design",
+      "title": "Design System — .naeil",
+      "canonical": "https://naeil.dev/design"
+    },
+    {
+      "engine": "webkit",
+      "path": "/projects",
+      "title": "Projects — .naeil",
+      "canonical": "https://naeil.dev/projects"
+    },
+    {
+      "engine": "webkit",
+      "path": "/cc",
+      "title": "Content Collector — .naeil",
+      "canonical": "https://naeil.dev/cc"
+    },
+    {
+      "engine": "webkit",
+      "path": "/sa",
+      "title": "Sustainability Analyzer — .naeil",
+      "canonical": "https://naeil.dev/sa"
+    },
+    {
+      "engine": "webkit",
+      "path": "/pkm",
+      "title": "PKM — .naeil",
+      "canonical": "https://naeil.dev/pkm"
+    },
+    {
+      "engine": "webkit",
+      "path": "/baby-agent",
+      "title": "Baby Agent — .naeil",
+      "canonical": "https://naeil.dev/baby-agent"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/",
+      "title": ".naeil",
+      "canonical": "https://naeil.dev/ko"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/blog",
+      "title": "블로그 — .naeil",
+      "canonical": "https://naeil.dev/ko/blog"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — .naeil",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/login",
+      "title": "로그인 — .naeil",
+      "canonical": "https://naeil.dev/ko/login"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/design",
+      "title": "디자인 시스템 — .naeil",
+      "canonical": "https://naeil.dev/ko/design"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/projects",
+      "title": "프로젝트 — .naeil",
+      "canonical": "https://naeil.dev/ko/projects"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/cc",
+      "title": "Content Collector — .naeil",
+      "canonical": "https://naeil.dev/ko/cc"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/sa",
+      "title": "Sustainability Analyzer — .naeil",
+      "canonical": "https://naeil.dev/ko/sa"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/pkm",
+      "title": "PKM — .naeil",
+      "canonical": "https://naeil.dev/ko/pkm"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ko/baby-agent",
+      "title": "Baby Agent — .naeil",
+      "canonical": "https://naeil.dev/ko/baby-agent"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/",
+      "title": ".naeil",
+      "canonical": "https://naeil.dev/ja"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/blog",
+      "title": "ブログ — .naeil",
+      "canonical": "https://naeil.dev/ja/blog"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — .naeil",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/login",
+      "title": "ログイン — .naeil",
+      "canonical": "https://naeil.dev/ja/login"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/design",
+      "title": "デザインシステム — .naeil",
+      "canonical": "https://naeil.dev/ja/design"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/projects",
+      "title": "プロジェクト — .naeil",
+      "canonical": "https://naeil.dev/ja/projects"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/cc",
+      "title": "Content Collector — .naeil",
+      "canonical": "https://naeil.dev/ja/cc"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/sa",
+      "title": "Sustainability Analyzer — .naeil",
+      "canonical": "https://naeil.dev/ja/sa"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/pkm",
+      "title": "PKM — .naeil",
+      "canonical": "https://naeil.dev/ja/pkm"
+    },
+    {
+      "engine": "webkit",
+      "path": "/ja/baby-agent",
+      "title": "Baby Agent — .naeil",
+      "canonical": "https://naeil.dev/ja/baby-agent"
+    }
+  ],
+  "clientNavigationBackLocale": "passed in both browsers"
+}
