@@ -1,74 +1,59 @@
 import type { MetadataRoute } from "next";
-import { locales } from "@/i18n/config";
+import { defaultLocale, locales, type Locale } from "@/i18n/config";
 import { getAllPosts } from "@/lib/blog";
+import { siteUrl } from "@/lib/site-metadata";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://naeil.dev";
-const staticPages = ["", "/projects", "/design", "/cc", "/pkm", "/blog"];
+const staticPages = [
+  "/",
+  "/projects",
+  "/design",
+  "/cc",
+  "/sa",
+  "/pkm",
+  "/baby-agent",
+  "/blog",
+];
+
+function languageAlternates(path: string, availableLocales: readonly Locale[]) {
+  const languages: Record<string, string> = Object.fromEntries(
+    availableLocales.map((locale) => [locale, siteUrl(locale, path)]),
+  );
+  const fallbackLocale = availableLocales.includes(defaultLocale)
+    ? defaultLocale
+    : availableLocales[0];
+  if (fallbackLocale) languages["x-default"] = siteUrl(fallbackLocale, path);
+  return languages;
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
+  for (const path of staticPages) {
+    const languages = languageAlternates(path, locales);
+    for (const locale of locales) {
+      entries.push({ url: siteUrl(locale, path), alternates: { languages } });
+    }
+  }
 
-  // Add static pages
-  for (const locale of locales) {
-    for (const page of staticPages) {
-      const languages: Record<string, string> = {};
-      for (const alt of locales) {
-        languages[alt] = `${APP_URL}/${alt}${page}`;
-      }
-      languages["x-default"] = `${APP_URL}/en${page}`;
-
+  const postsByLocale = Object.fromEntries(
+    locales.map((locale) => [locale, getAllPosts(locale)]),
+  );
+  const slugs = new Set(
+    locales.flatMap((locale) => postsByLocale[locale].map((post) => post.slug)),
+  );
+  for (const slug of slugs) {
+    const path = `/blog/${slug}`;
+    const availableLocales = locales.filter((locale) =>
+      postsByLocale[locale].some((post) => post.slug === slug),
+    );
+    const languages = languageAlternates(path, availableLocales);
+    for (const locale of availableLocales) {
+      const post = postsByLocale[locale].find((post) => post.slug === slug)!;
       entries.push({
-        url: `${APP_URL}/${locale}${page}`,
-        lastModified: new Date(),
+        url: siteUrl(locale, path),
+        lastModified: new Date(post.date),
         alternates: { languages },
       });
     }
   }
-
-  // Add blog posts
-  const blogPostsSlugs = new Set<string>();
-  
-  // Collect all unique slugs from all locales
-  for (const locale of locales) {
-    const posts = getAllPosts(locale);
-    posts.forEach(post => blogPostsSlugs.add(post.slug));
-  }
-
-  // Generate sitemap entries for each slug
-  for (const slug of blogPostsSlugs) {
-    for (const locale of locales) {
-      const languages: Record<string, string> = {};
-      
-      // Check which languages this post exists in
-      for (const alt of locales) {
-        try {
-          const altPosts = getAllPosts(alt);
-          if (altPosts.some(post => post.slug === slug)) {
-            languages[alt] = `${APP_URL}/${alt}/blog/${slug}`;
-          }
-        } catch {
-          // Skip if posts don't exist for this locale
-        }
-      }
-      
-      languages["x-default"] = `${APP_URL}/en/blog/${slug}`;
-
-      // Only add if the post exists in this locale
-      try {
-        const posts = getAllPosts(locale);
-        const post = posts.find(p => p.slug === slug);
-        if (post) {
-          entries.push({
-            url: `${APP_URL}/${locale}/blog/${slug}`,
-            lastModified: new Date(post.date),
-            alternates: { languages },
-          });
-        }
-      } catch {
-        // Skip if posts don't exist for this locale
-      }
-    }
-  }
-
   return entries;
 }

@@ -3,49 +3,91 @@
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
+import { createOAuthFlow, type OAuthState } from "./oauth-flow";
 
-// next prop is reserved for future use (redirect is handled via middleware cookie)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function OAuthButtons({ next }: { next?: string }) {
+export function OAuthButtons({
+  initialError = false,
+}: {
+  initialError?: boolean;
+}) {
   const t = useTranslations("auth");
-
-  const handleOAuth = async (provider: "google" | "github") => {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
+  const [state, setState] = useState<OAuthState>({
+    status: initialError ? "error" : "idle",
+  });
+  const [handleOAuth] = useState(() =>
+    createOAuthFlow(async (provider) => {
+      const supabase = createClient();
+      return supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+    }, setState),
+  );
+  const pending = state.status === "pending";
+  const pendingText = pending
+    ? t(state.provider === "google" ? "pendingGoogle" : "pendingGithub")
+    : "";
 
   return (
     <div className="flex flex-col gap-3">
+      <p
+        role="alert"
+        className={
+          state.status === "error"
+            ? "rounded-md bg-error-bg p-4 text-sm text-error"
+            : "sr-only"
+        }
+      >
+        {state.status === "error" ? t("loginError") : ""}
+      </p>
       <Button
         variant="outline"
         size="lg"
-        className="w-full"
+        className="h-auto min-h-(--ui-touch-target) w-full whitespace-normal py-2"
+        disabled={pending}
+        aria-busy={pending && state.provider === "google"}
         onClick={() => handleOAuth("google")}
       >
         <GoogleIcon />
-        {t("loginWithGoogle")}
+        {pending && state.provider === "google"
+          ? pendingText
+          : t("loginWithGoogle")}
       </Button>
       <Button
         variant="outline"
         size="lg"
-        className="w-full"
+        className="h-auto min-h-(--ui-touch-target) w-full whitespace-normal py-2"
+        disabled={pending}
+        aria-busy={pending && state.provider === "github"}
         onClick={() => handleOAuth("github")}
       >
         <GitHubIcon />
-        {t("loginWithGithub")}
+        {pending && state.provider === "github"
+          ? pendingText
+          : t("loginWithGithub")}
       </Button>
+      <p
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="min-h-6 text-center text-sm text-muted-foreground"
+      >
+        {pendingText}
+      </p>
     </div>
   );
 }
 
 function GoogleIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <svg
+      aria-hidden="true"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
         fill="#4285F4"
@@ -69,6 +111,7 @@ function GoogleIcon() {
 function GitHubIcon() {
   return (
     <svg
+      aria-hidden="true"
       width="16"
       height="16"
       viewBox="0 0 24 24"

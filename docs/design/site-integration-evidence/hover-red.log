@@ -1,0 +1,88 @@
+
+Running 2 tests using 1 worker
+
+(node:30394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/navigation.spec.ts:5:1 › desktop hover preserves focus and the path into the menu (5.8s)
+(node:30435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu (5.5s)
+
+
+  1) [chromium] › e2e/navigation.spec.ts:5:1 › desktop hover preserves focus and the path into the menu 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-slot="navigation-popover"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-slot="navigation-popover"]') with timeout 5000ms
+      - waiting for locator('[data-slot="navigation-popover"]')
+
+
+      10 |   await brand.focus();
+      11 |   await trigger.hover();
+    > 12 |   await expect(panel).toBeVisible();
+         |                       ^
+      13 |   await expect(brand).toBeFocused();
+      14 |   const buttonBox = (await trigger.boundingBox())!;
+      15 |   const panelBox = (await panel.boundingBox())!;
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:12:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-desktop-hover-p-24bff--and-the-path-into-the-menu-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-desktop-hover-p-24bff--and-the-path-into-the-menu-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-desktop-hover-p-24bff--and-the-path-into-the-menu-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-desktop-hover-p-24bff--and-the-path-into-the-menu-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-slot="navigation-popover"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-slot="navigation-popover"]') with timeout 5000ms
+      - waiting for locator('[data-slot="navigation-popover"]')
+
+
+      36 |   const panel = page.locator('[data-slot="navigation-popover"]');
+      37 |   await trigger.hover();
+    > 38 |   await expect(panel).toBeVisible();
+         |                       ^
+      39 |   await trigger.click();
+      40 |   await expect(panel).toBeVisible();
+      41 |   await page.mouse.move(1200, 700);
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:38:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › e2e/navigation.spec.ts:5:1 › desktop hover preserves focus and the path into the menu 
+    [chromium] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu ─

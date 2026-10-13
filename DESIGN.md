@@ -110,6 +110,8 @@ Demonstrate the system in three neutral compositions: a settings form, a selecta
 
 ### Application frame and content widths
 
+Navigation and footer composition share the React-only `Navigation` and `SiteFooter` core. Existing `Nav`/`Footer` preserve Next compatibility while using that core. Services own menu data, route guards, locale/theme providers, authentication and frame widths; they should not fork the header/footer implementation. A compact dashboard/footer composition and a full website footer share behavior and visual rules without requiring identical product links. See [the component contract](docs/components/navigation.md).
+
 The application frame owns navigation placement and outer gutters; each content region owns its purpose-specific width. A narrow settings form inside that frame must not move the shared navigation. For routes using the same frame, keep navigation anchors stable at the same viewport, language and theme, including loading and changing summary counts. A shared Header import alone does not establish this consistency.
 
 Choose a product's frame width from its tasks, information density and representative content. A dashboard name or a wide monitor alone does not justify filling all available space. Inspect sparse as well as dense content before selecting a cap or fluid layout. The shared reading/settings/list defaults remain content rules, not a universal application maximum; RelayDock's 1600px decision is not a shared token.
@@ -141,6 +143,21 @@ The approved naeil sunset/island identity is managed independently under `brand/
 The shared `Logo` is the React adapter for that source. `brand/current.json` selects the active release for generation, Storybook and consumer checks. `pnpm build:brand` generates `src/components/brand-artwork.generated.tsx`, the Lato notice and app-owned site icons from checksum-verified release files; do not hand-edit the generated artwork. `pnpm check:brand` checks drift and runs before package/Storybook builds. Nav, Footer and the website login use the shared Logo instead of maintaining inline copies. Consumer brand slots remain supported.
 
 Lato Regular 400 is outlined lettering inside the logo only. It does not replace Pretendard, add a webfont dependency or turn the sunset palette into shared action tokens. Logo sizes and placement remain brand guidance, not numeric UI foundation tokens. See the [brand component contract](docs/design/v2-migration.md#brand-logo-integration-040) for themes, sizing, legacy mono behavior and accessibility. The standalone kit, research artifacts and high-resolution PNGs stay out of the npm package; generated artwork and the [Lato notice](licenses/Lato-OFL.txt) ship with the component. Brand names/marks are not relicensed by the repository MIT license.
+
+## Browser identity — tab title and favicon
+
+Accepted on 2026-10-13. Browser identity is part of the shared brand/content contract. The browser owns tab typography and sizing; this is a metadata rule, not a visual component or numeric token.
+
+- Use `Page name — Service name` for named pages, with one space on each side of the em dash. Put the page first so tabs remain distinguishable when titles are truncated.
+- A service home/landing page may use the service name alone. A named task screen such as a dashboard keeps its page name, even when it is the application's entry route.
+- Keep one canonical service spelling: `naeil` for naeil.dev and `Naeil Home` for Home. The `.naeil` graphical wordmark retains its leading period; tab metadata uses the service spelling listed here. Other products define their canonical service name in their application configuration.
+- Localize the page name with the active UI language; keep the canonical service name unchanged. Use the visible page name or content title, and append the service suffix exactly once.
+- Keep the same service favicon across its routes. Use an approved brand asset; each service owns its icon files, metadata/manifest configuration and deployment.
+- Each application implements the title through its framework metadata or router and updates it on client-side navigation and language changes. Shared Navigation/Logo components do not set document metadata implicitly.
+
+Examples: `Naeil Home`, `대시보드 — Naeil Home`, `API 키 — Naeil Home`, `프로젝트 — naeil`, `Dashboard — Naeil Home`. See [consumer implementation and verification guidance](docs/design/v2-migration.md#브라우저-탭-제목과-파비콘).
+
+This records the approved rule; it does not assert that existing service metadata has been migrated or deployed.
 
 ## Historical design studies
 

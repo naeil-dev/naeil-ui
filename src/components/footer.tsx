@@ -2,130 +2,105 @@
 
 import { useTranslations } from "next-intl";
 import { Logo } from "./logo";
+import { SiteFooter, type SiteFooterProps } from "./ui/site-footer";
+import { cn } from "../lib/utils";
 
-interface FooterProps {
-  /** Link component from consumer */
+export interface FooterProps {
   Link?: React.ComponentType<{
     href: string;
     children: React.ReactNode;
     className?: string;
   }>;
-  /** Whether links go to naeil.dev (external) or are internal. Default: false */
   linksExternal?: boolean;
-}
-
-function NavLink({
-  href,
-  children,
-  className,
-  linksExternal,
-  Link,
-}: {
-  href: string;
-  children: React.ReactNode;
+  brandSlot?: React.ReactNode;
+  description?: React.ReactNode;
+  groups?: SiteFooterProps["groups"];
+  socialSlot?: React.ReactNode;
+  meta?: React.ReactNode;
+  variant?: SiteFooterProps["variant"];
   className?: string;
-  linksExternal: boolean;
-  Link?: FooterProps["Link"];
-}) {
-  if (linksExternal) {
-    return (
-      <a
-        href={`https://naeil.dev${href}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
-      >
-        {children}
-      </a>
-    );
-  }
-  if (Link) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  );
+  containerClassName?: string;
 }
 
-export function Footer({ Link, linksExternal = false }: FooterProps) {
+export function Footer({
+  Link,
+  linksExternal = false,
+  brandSlot,
+  description,
+  groups,
+  socialSlot,
+  meta,
+  variant,
+  className,
+  containerClassName,
+}: FooterProps) {
   const t = useTranslations("footer");
-
+  const destinations = [
+    { id: "projects", label: t("projects"), href: "/projects" },
+    { id: "blog", label: t("blog"), href: "/blog" },
+  ];
   return (
-    <footer className="border-border/40 border-t">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-16 sm:flex-row sm:justify-between">
-        {/* Left: Brand */}
-        <div className="flex flex-col gap-4">
-          <Logo variant="footer" size={20} className="block" />
-          <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
-            {t("tagline")}
-          </p>
-          <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/naeil-dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="GitHub"
-            >
-              <GitHubIcon />
-            </a>
-            <a
-              href="https://x.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="X"
-            >
-              <XIcon />
-            </a>
-          </div>
+    <SiteFooter
+      Link={Link as SiteFooterProps["Link"]}
+      className={className}
+      containerClassName={cn("max-w-7xl", containerClassName)}
+      variant={variant}
+      brand={brandSlot ?? <Logo variant="footer" size={20} className="block" />}
+      description={description === undefined ? t("tagline") : description}
+      groups={
+        groups ?? [
+          {
+            id: "navigation",
+            label: t("navigation"),
+            links: destinations.map((item) => ({
+              ...item,
+              href: linksExternal ? `https://naeil.dev${item.href}` : item.href,
+              external: linksExternal,
+              target: linksExternal ? "_blank" : undefined,
+            })),
+          },
+          {
+            id: "social",
+            label: t("social"),
+            links: [
+              {
+                id: "github",
+                label: "GitHub",
+                href: "https://github.com/naeil-dev",
+                external: true,
+                target: "_blank",
+              },
+            ],
+          },
+        ]
+      }
+      meta={meta}
+    >
+      {socialSlot === undefined ? (
+        <div className="flex items-center gap-3">
+          <a
+            href="https://github.com/naeil-dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ui-navigation-link ui-focus"
+            aria-label="GitHub"
+          >
+            <GitHubIcon />
+          </a>
+          <a
+            href="https://x.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ui-navigation-link ui-focus"
+            aria-label="X"
+          >
+            <XIcon />
+          </a>
         </div>
-
-        {/* Right: Links */}
-        <div className="flex gap-10 sm:gap-16">
-          <div className="flex flex-col gap-3">
-            <span className="text-foreground text-xs font-medium uppercase tracking-wider">
-              {t("navigation")}
-            </span>
-            <NavLink
-              href="/projects"
-              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-              linksExternal={linksExternal}
-              Link={Link}
-            >
-              {t("projects")}
-            </NavLink>
-            <NavLink
-              href="/blog"
-              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-              linksExternal={linksExternal}
-              Link={Link}
-            >
-              {t("blog")}
-            </NavLink>
-          </div>
-          <div className="flex flex-col gap-3">
-            <span className="text-foreground text-xs font-medium uppercase tracking-wider">
-              {t("social")}
-            </span>
-            <a
-              href="https://github.com/naeil-dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-            >
-              GitHub ↗
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
+      ) : (
+        socialSlot
+      )}
+    </SiteFooter>
   );
 }
 

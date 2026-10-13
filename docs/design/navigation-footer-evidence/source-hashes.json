@@ -1,0 +1,52 @@
+{
+  "implementation": {
+    "src/components/ui/navigation.tsx": "624bd479aa10a360ddd8cb7f132e50992d3df7c166ec08397150aa6bee20777b",
+    "src/components/ui/site-footer.tsx": "575ab2ec6a5af516dcfd55031e5b4098b96e6f6a9a2607f7d8311a0fe0dbeec0",
+    "src/components/nav.tsx": "95817c5e705bca9badc38b7cbfeaeaa2cf98cd2f3e503a1baa4440b4bfd5e240",
+    "src/components/footer.tsx": "2a643f7712bafbe93b78332b62ebdd1c2c03c134238ff9caf1402ac9bb1ba662",
+    "src/components/locale-switcher.tsx": "3baa3d1aedfa96f1189ee52887d7502f970d52bfc0f098942a91f1f3c48fa312",
+    "src/styles/components.css": "a219ce57cd8a71523f21d76cbc4645c063da9328a133075baccce69131f94f29",
+    "src/styles/theme.css": "2590a3dc34a8ecab94c3b51306aa24529094b1d83131da9f578aebe7f38d614a",
+    "src/tokens/ui.json": "42645f0d3d77f2b8b5cd16abd6f802d5bab47132d977e3c0f5bb12c69f9c2339",
+    "e2e/navigation.spec.ts": "a1b007b3e66044547935ef21786f302fa456b26be6d8dc2d2b3d63bd5e0b35d8",
+    "e2e/brand.spec.ts": "4a568263258dd180b68acec442fb6094506fda1a86921d863f8ced8aa50bede1",
+    "src/components/ui/navigation.stories.tsx": "b6f46b37f69b532388e6b42296db6fc6988924de0ce43ce66aac74a0d6e99d16",
+    "src/components/ui/site-footer.stories.tsx": "798094b607b8d9e38dd31443f61e607c1bcf253076eb3673a31c94ccf830fe28",
+    "package.json": "02b3826693a792df4772e22a3f762202770f39d09857e049ce13d02e4566c497",
+    "tsup.deep.config.ts": "b73a52d7b930843eb67c549d45111570a2c5796cfc07d77e361b86509862733b",
+    "scripts/check-consumers.ts": "8db36232973eeedf877864b43ef34c456af24ebd98dcdb6944a7b1b7fc689271",
+    "examples/react/src/App.tsx": "2f0edf367e6c1a33f7aeece3aad982b799b8e77fe66fa0cf9f80041c4ee9db92"
+  },
+  "instructions": {
+    "repository-frontend-workflow": "ecada9f24d5ebbce5ac207d5225200ca2d76d08ea9f9f1d3b46d4e956a17d7b8",
+    "installed-frontend-workflow": "0fff5fb30befa108e21e04ecad045fa8524f34692454a96445bfe32690ddc1b5",
+    "layout": "40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a",
+    "verification": "b504804320724354584885782fe5522ca002028e647b3e146743649cb0a50efe",
+    "impeccable": "6eeec6ef2028388a17de9f17a56c9cb7dbc7c8e7e1a8c15b831b0ba3e42168ac",
+    "extract": "31b90048c0b540daec46762a10c2b6b6434737a89af005054d8b848d829d003b",
+    "craft-floor": "e802e4f7bdc89050a9c0f2ca506e1d493a2316e6e810c0336c57aa073717ef3e"
+  },
+  "alignmentImplementation": {
+    "src/tokens/ui.json": "10d8c7e56ec2af0630eb42cd48a1659ffd0c78bce2bb5e5cf90d76c9d32639e9",
+    "src/styles/theme.css": "af0068ae66d792e8976d8196e36b31f52db4163026b53d4e00880a30bcb043ad",
+    "src/styles/components.css": "9496534ea2aa961962805639e73171c5c26158f951c0d106c3ebfd20f3b8dfca",
+    "scripts/build-navigation-sample.ts": "34192cc19bb269e16c39873320a071c7c6908b87f719781ad9838950b041cd54",
+    "docs/design/navigation-footer-sample.html": "732a65365db3b4a4b9717ed2cbcb5df0ac3030c64ffd09762d067052d824ce77"
+  },
+  "menuCandidateImplementation": {
+    "src/components/ui/navigation.tsx": "74cef791112ea4b977af0ee8edb2aacee223912c729420ce0a65a713fb38bfc2",
+    "src/components/ui/navigation.stories.tsx": "c480eee1154473e0936d07279a5a49d4e7847db60ed926a3d7d89f450ab0ca85",
+    "src/styles/components.css": "3cc63f382fa23052803196ca6c03c74c1677f9d51f8fa3f62579f0bb16fb3f04",
+    "src/styles/theme.css": "c0cf15f69be0fc4082c005d7f962e31ae71a6c25e205b49dc4c5c2af38112f7d",
+    "src/tokens/ui.json": "46ed280d3eae59182989fdce52c9f81bd12bd1ef6113ff1a64ae3a1f6b667311",
+    "scripts/build-navigation-sample.ts": "405adf38d22e285f56a54d46322f431c0929f8e115fb9d7da3025431695d338b",
+    "docs/design/navigation-footer-sample.html": "cc59a9cfc6e59aa9c89ed4e0fa424d05ea9453cd75fabc505413b03337a7e7f1"
+  },
+  "menuCandidateInstructions": {
+    "skills/frontend-reference-workflow/SKILL.md": "ecada9f24d5ebbce5ac207d5225200ca2d76d08ea9f9f1d3b46d4e956a17d7b8",
+    "/Users/jaymini/.agents/skills/frontend-reference-workflow/SKILL.md": "0fff5fb30befa108e21e04ecad045fa8524f34692454a96445bfe32690ddc1b5",
+    "/Users/jaymini/.agents/skills/frontend-reference-workflow/references/layout.md": "40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a",
+    "/Users/jaymini/.agents/skills/frontend-reference-workflow/references/verification.md": "b504804320724354584885782fe5522ca002028e647b3e146743649cb0a50efe",
+    "/Users/jaymini/.agents/skills/impeccable/reference/craft-floor.md": "e802e4f7bdc89050a9c0f2ca506e1d493a2316e6e810c0336c57aa073717ef3e"
+  }
+}

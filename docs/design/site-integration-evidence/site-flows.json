@@ -1,0 +1,78 @@
+[
+  {
+    "engine": "chromium",
+    "width": 390,
+    "localeQueryHash": "pass",
+    "theme": "pass",
+    "clientAndBackNavigation": "pass",
+    "fonts": {
+      "latin": 3,
+      "body": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+    },
+    "japanese": {
+      "count": 3,
+      "family": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+    },
+    "callbackError": "pass",
+    "oauthAuthorizeRequest": "pass",
+    "oauthPendingUI": "covered by OAuth unit tests; immediate document navigation prevents stable browser DOM assertion",
+    "errorViolations": []
+  },
+  {
+    "engine": "chromium",
+    "width": 1440,
+    "localeQueryHash": "pass",
+    "theme": "pass",
+    "clientAndBackNavigation": "pass",
+    "fonts": {
+      "latin": 3,
+      "body": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+    },
+    "japanese": {
+      "count": 3,
+      "family": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif"
+    },
+    "callbackError": "pass",
+    "oauthAuthorizeRequest": "pass",
+    "oauthPendingUI": "covered by OAuth unit tests; immediate document navigation prevents stable browser DOM assertion",
+    "errorViolations": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "localeQueryHash": "pass",
+    "theme": "pass",
+    "clientAndBackNavigation": "pass",
+    "fonts": {
+      "latin": 3,
+      "body": "Pretendard Variable, Pretendard, Noto Sans JP, -apple-system, system-ui, sans-serif"
+    },
+    "japanese": {
+      "count": 3,
+      "family": "Noto Sans JP, Pretendard Variable, Pretendard, Noto Sans JP, -apple-system, system-ui, sans-serif"
+    },
+    "callbackError": "pass",
+    "oauthAuthorizeRequest": "pass",
+    "oauthPendingUI": "covered by OAuth unit tests; immediate document navigation prevents stable browser DOM assertion",
+    "errorViolations": []
+  },
+  {
+    "engine": "webkit",
+    "width": 1440,
+    "localeQueryHash": "pass",
+    "theme": "pass",
+    "clientAndBackNavigation": "pass",
+    "fonts": {
+      "latin": 3,
+      "body": "Pretendard Variable, Pretendard, Noto Sans JP, -apple-system, system-ui, sans-serif"
+    },
+    "japanese": {
+      "count": 3,
+      "family": "Noto Sans JP, Pretendard Variable, Pretendard, Noto Sans JP, -apple-system, system-ui, sans-serif"
+    },
+    "callbackError": "pass",
+    "oauthAuthorizeRequest": "pass",
+    "oauthPendingUI": "covered by OAuth unit tests; immediate document navigation prevents stable browser DOM assertion",
+    "errorViolations": []
+  }
+]

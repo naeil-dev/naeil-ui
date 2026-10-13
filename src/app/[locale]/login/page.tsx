@@ -3,16 +3,17 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/server";
 import { OAuthButtons } from "./oauth-buttons";
+import { PageTitle } from "@/components/typography";
 
 export default async function LoginPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const { locale } = await params;
-  const { next } = await searchParams;
+  const { next, error } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -26,23 +27,21 @@ export default async function LoginPage({
   const t = await getTranslations("auth");
 
   return (
-    <div className="flex min-h-svh items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-8">
+    <div className="flex min-h-[calc(100svh-var(--ui-navigation-height))] items-center justify-center px-6 py-16">
+      <div className="w-full max-w-(--ui-width-short-form) space-y-8">
         {/* Branding */}
         <div className="text-center">
           <div className="mb-4 flex justify-center">
             <Logo size={40} />
           </div>
-          <h1 className="text-foreground text-2xl font-semibold tracking-tight">
-            {t("login")}
-          </h1>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <PageTitle>{t("login")}</PageTitle>
+          <p className="text-muted-foreground mt-3 text-base">
             {t("loginDescription")}
           </p>
         </div>
 
         {/* OAuth buttons */}
-        <OAuthButtons next={next} />
+        <OAuthButtons initialError={error === "auth"} />
       </div>
     </div>
   );

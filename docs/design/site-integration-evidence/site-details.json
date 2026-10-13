@@ -1,0 +1,6186 @@
+[
+  {
+    "theme": "light",
+    "width": 320,
+    "path": "/",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "View projects",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Content CollectorAutomated content collection from",
+        "width": 272,
+        "height": 267.953125
+      },
+      {
+        "tag": "A",
+        "text": "PKMComing SoonPersonal knowledge management — docu",
+        "width": 272,
+        "height": 299.28125
+      },
+      {
+        "tag": "A",
+        "text": "naeil-uiMinimal design system — OKLCH tokens, Tail",
+        "width": 272,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "Sustainability AnalyzerAI-powered ESG report analy",
+        "width": 272,
+        "height": 267.953125
+      },
+      {
+        "tag": "A",
+        "text": "Baby AgentComing SoonParenting AI agent — LINE-bas",
+        "width": 272,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Projects",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Personal tools built for real use — not demos.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Content Collector",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Automated content collection from RSS, YouTube, Re",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "PKM",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Personal knowledge management — document parsing, ",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "naeil-ui",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4,",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Sustainability Analyzer",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "AI-powered ESG report analysis — PDF parsing, qual",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Baby Agent",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Parenting AI agent — LINE-based Q&A, records, remi",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "path": "/blog",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "March 30, 20262 min readMy StackAI Development Too",
+        "width": 272,
+        "height": 387.296875
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Blog",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Build notes, research, and iteration logs.",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "25px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "path": "/blog/2026-03-30",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Back to Blog",
+        "width": 113.40625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "English",
+        "width": 77.84375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "한국어",
+        "width": 65.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "日本語",
+        "width": 72,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://anthropic.com/claude-update",
+        "width": 231.640625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://github.blog/copilot-x",
+        "width": 175.828125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "The AI development landscape is evolving rapidly, ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Claude's Enhanced Coding Capabilities",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Anthropic announced major improvements to Claude's",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "My Stack",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "This is particularly exciting for our development ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "GitHub Copilot X Updates",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "GitHub released Copilot X with several game-changi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Enhanced Context Understanding",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Copilot X now maintains context across multiple fi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Voice Programming",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "The new voice-to-code feature allows developers to",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Local AI Inference Breakthrough",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "A new optimization technique has reduced local AI ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Key Benefits:",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Looking Ahead",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "These developments signal a shift toward more inte",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "What trends are you most excited about? The integr",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources: Anthropic Blog, GitHub Blog",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources",
+        "size": "20px",
+        "lineHeight": "29px"
+      }
+    ],
+    "article": {
+      "width": 320,
+      "padding": "24px"
+    },
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "path": "/login",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with Google",
+        "width": 272,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with GitHub",
+        "width": 272,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Sign in",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Sign in to access all features",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "",
+        "size": "14px",
+        "lineHeight": "20px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "path": "/design",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 99.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "npm",
+        "width": 82.140625,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 192,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 160,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "secondary",
+        "width": 109.0625,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "outline",
+        "width": 83.53125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "destructive",
+        "width": 114.4375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "ghost",
+        "width": 73.59375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "link",
+        "width": 57,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "xs",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "sm",
+        "width": 45.75,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "lg",
+        "width": 61.125,
+        "height": 48
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 115.640625,
+        "height": 44
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "width": 222,
+        "height": 44
+      },
+      {
+        "tag": "INPUT",
+        "text": "you@example.com",
+        "width": 272,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "View details",
+        "width": 122.28125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open dialog",
+        "width": 121.4375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open menu",
+        "width": 117.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Success",
+        "width": 95.5,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Error",
+        "width": 69.546875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Info",
+        "width": 61.578125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Warning",
+        "width": 94.109375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil-ui",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Design System Showcase — Tokens · Components · The",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Foundations",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Actions and selection use neutral semantic colors ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Neutral action",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Selection",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Focus",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Colors — Semantic",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "These roles follow the active light or dark theme.",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "background",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-hover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "surface-selected",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border-strong",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "input",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "ring",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Primitive",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Primitive palettes remain available for compatibil",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Gray",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Legacy blue primitive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Destructive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Project",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Project colors identify individual products. They ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "cc",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "sa",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "pkm",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "naeilUi",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "baby",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Typography",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Pretendard for Korean and Latin UI, Noto Sans JP f",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Page title",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "PageTitle · 2rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Section title",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "SectionTitle · 1.25rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Monospace fallback",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "JetBrains Mono, Geist Mono, ui-monospace, monospac",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "const x = 42;",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "400 Regular — Body text",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "500 Medium — Labels and controls",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "600 Semibold — Page and section titles",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Spacing",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Radius",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Tags use 4px corners, controls 8px, and panels 12p",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Shadow",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Button",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Variants",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "States",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Input",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Change the controls to compare input states.",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Card",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "All services are operating normally.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "v0.6.0 — Phase 6 Demo",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "v0.5.0 — Core Components",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "CardElevated",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Dialog",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "DropdownMenu",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sonner (Toast)",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Badge",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Avatar",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarBadge",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarGroup",
+        "size": "16px",
+        "lineHeight": "24px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "https://github.com/shadcn.png",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "path": "/",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to dark theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "View projects",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Content CollectorAutomated content collection from",
+        "width": 848,
+        "height": 144.203125
+      },
+      {
+        "tag": "A",
+        "text": "PKMComing SoonPersonal knowledge management — docu",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "naeil-uiMinimal design system — OKLCH tokens, Tail",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "Sustainability AnalyzerAI-powered ESG report analy",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "Baby AgentComing SoonParenting AI agent — LINE-bas",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Projects",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Personal tools built for real use — not demos.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Content Collector",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Automated content collection from RSS, YouTube, Re",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "PKM",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Personal knowledge management — document parsing, ",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "naeil-ui",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4,",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Sustainability Analyzer",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "AI-powered ESG report analysis — PDF parsing, qual",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Baby Agent",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Parenting AI agent — LINE-based Q&A, records, remi",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "path": "/blog",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to dark theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "March 30, 20262 min readMy StackAI Development Too",
+        "width": 848,
+        "height": 223.65625
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Blog",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Build notes, research, and iteration logs.",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "25px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "path": "/blog/2026-03-30",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to dark theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Back to Blog",
+        "width": 113.40625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "English",
+        "width": 77.84375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "한국어",
+        "width": 65.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "日本語",
+        "width": 72,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://anthropic.com/claude-update",
+        "width": 231.640625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://github.blog/copilot-x",
+        "width": 175.828125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "The AI development landscape is evolving rapidly, ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Claude's Enhanced Coding Capabilities",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Anthropic announced major improvements to Claude's",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "My Stack",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "This is particularly exciting for our development ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "GitHub Copilot X Updates",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "GitHub released Copilot X with several game-changi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Enhanced Context Understanding",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Copilot X now maintains context across multiple fi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Voice Programming",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "The new voice-to-code feature allows developers to",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Local AI Inference Breakthrough",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "A new optimization technique has reduced local AI ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Key Benefits:",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Looking Ahead",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "These developments signal a shift toward more inte",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "What trends are you most excited about? The integr",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources: Anthropic Blog, GitHub Blog",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources",
+        "size": "20px",
+        "lineHeight": "29px"
+      }
+    ],
+    "article": {
+      "width": 640,
+      "padding": "24px"
+    },
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "path": "/login",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to dark theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with Google",
+        "width": 480,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with GitHub",
+        "width": 480,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Sign in",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Sign in to access all features",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "",
+        "size": "14px",
+        "lineHeight": "20px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "path": "/design",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to dark theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 99.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "npm",
+        "width": 82.140625,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 192,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 160,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "secondary",
+        "width": 109.0625,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "outline",
+        "width": 83.53125,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "destructive",
+        "width": 114.4375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "ghost",
+        "width": 73.59375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "link",
+        "width": 57,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "xs",
+        "width": 44,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "sm",
+        "width": 45.75,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "lg",
+        "width": 61.125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 115.640625,
+        "height": 44
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "width": 480,
+        "height": 40
+      },
+      {
+        "tag": "INPUT",
+        "text": "you@example.com",
+        "width": 480,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "View details",
+        "width": 122.28125,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open dialog",
+        "width": 121.4375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open menu",
+        "width": 117.9375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Success",
+        "width": 95.5,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Error",
+        "width": 69.546875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Info",
+        "width": 61.578125,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Warning",
+        "width": 94.109375,
+        "height": 40
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil-ui",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Design System Showcase — Tokens · Components · The",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Foundations",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Actions and selection use neutral semantic colors ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Neutral action",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Selection",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Focus",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Colors — Semantic",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "These roles follow the active light or dark theme.",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "background",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-hover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "surface-selected",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border-strong",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "input",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "ring",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Primitive",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Primitive palettes remain available for compatibil",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Gray",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Legacy blue primitive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Destructive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Project",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Project colors identify individual products. They ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "cc",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "sa",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "pkm",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "naeilUi",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "baby",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Typography",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Pretendard for Korean and Latin UI, Noto Sans JP f",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Page title",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "PageTitle · 2rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Section title",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "SectionTitle · 1.25rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Monospace fallback",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "JetBrains Mono, Geist Mono, ui-monospace, monospac",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "const x = 42;",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "400 Regular — Body text",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "500 Medium — Labels and controls",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "600 Semibold — Page and section titles",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Spacing",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Radius",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Tags use 4px corners, controls 8px, and panels 12p",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Shadow",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Button",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Variants",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "States",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Input",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Change the controls to compare input states.",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Card",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "All services are operating normally.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "v0.6.0 — Phase 6 Demo",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "v0.5.0 — Core Components",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "CardElevated",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Dialog",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "DropdownMenu",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sonner (Toast)",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Badge",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Avatar",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarBadge",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarGroup",
+        "size": "16px",
+        "lineHeight": "24px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "https://github.com/shadcn.png",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "path": "/",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "View projects",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Content CollectorAutomated content collection from",
+        "width": 272,
+        "height": 267.953125
+      },
+      {
+        "tag": "A",
+        "text": "PKMComing SoonPersonal knowledge management — docu",
+        "width": 272,
+        "height": 299.28125
+      },
+      {
+        "tag": "A",
+        "text": "naeil-uiMinimal design system — OKLCH tokens, Tail",
+        "width": 272,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "Sustainability AnalyzerAI-powered ESG report analy",
+        "width": 272,
+        "height": 267.953125
+      },
+      {
+        "tag": "A",
+        "text": "Baby AgentComing SoonParenting AI agent — LINE-bas",
+        "width": 272,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Projects",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Personal tools built for real use — not demos.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Content Collector",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Automated content collection from RSS, YouTube, Re",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "PKM",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Personal knowledge management — document parsing, ",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "naeil-ui",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4,",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Sustainability Analyzer",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "AI-powered ESG report analysis — PDF parsing, qual",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Baby Agent",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Parenting AI agent — LINE-based Q&A, records, remi",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "path": "/blog",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "March 30, 20262 min readMy StackAI Development Too",
+        "width": 272,
+        "height": 387.296875
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Blog",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Build notes, research, and iteration logs.",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "25px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "path": "/blog/2026-03-30",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Back to Blog",
+        "width": 113.40625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "English",
+        "width": 77.84375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "한국어",
+        "width": 65.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "日本語",
+        "width": 72,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://anthropic.com/claude-update",
+        "width": 231.640625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://github.blog/copilot-x",
+        "width": 175.828125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "The AI development landscape is evolving rapidly, ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Claude's Enhanced Coding Capabilities",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Anthropic announced major improvements to Claude's",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "My Stack",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "This is particularly exciting for our development ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "GitHub Copilot X Updates",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "GitHub released Copilot X with several game-changi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Enhanced Context Understanding",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Copilot X now maintains context across multiple fi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Voice Programming",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "The new voice-to-code feature allows developers to",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Local AI Inference Breakthrough",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "A new optimization technique has reduced local AI ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Key Benefits:",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Looking Ahead",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "These developments signal a shift toward more inte",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "What trends are you most excited about? The integr",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources: Anthropic Blog, GitHub Blog",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources",
+        "size": "20px",
+        "lineHeight": "29px"
+      }
+    ],
+    "article": {
+      "width": 320,
+      "padding": "24px"
+    },
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "path": "/login",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with Google",
+        "width": 272,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with GitHub",
+        "width": 272,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Sign in",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Sign in to access all features",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "",
+        "size": "14px",
+        "lineHeight": "20px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "dark",
+    "width": 320,
+    "path": "/design",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Menu",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 99.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "npm",
+        "width": 82.140625,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 192,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 160,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "secondary",
+        "width": 109.0625,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "outline",
+        "width": 83.53125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "destructive",
+        "width": 114.4375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "ghost",
+        "width": 73.59375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "link",
+        "width": 57,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "xs",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "sm",
+        "width": 45.75,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "lg",
+        "width": 61.125,
+        "height": 48
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 115.640625,
+        "height": 44
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "width": 222,
+        "height": 44
+      },
+      {
+        "tag": "INPUT",
+        "text": "you@example.com",
+        "width": 272,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "View details",
+        "width": 122.28125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open dialog",
+        "width": 121.4375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open menu",
+        "width": 117.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Success",
+        "width": 95.5,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Error",
+        "width": 69.546875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Info",
+        "width": 61.578125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Warning",
+        "width": 94.109375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil-ui",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Design System Showcase — Tokens · Components · The",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Foundations",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Actions and selection use neutral semantic colors ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Neutral action",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Selection",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Focus",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Colors — Semantic",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "These roles follow the active light or dark theme.",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "background",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-hover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "surface-selected",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border-strong",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "input",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "ring",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Primitive",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Primitive palettes remain available for compatibil",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Gray",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Legacy blue primitive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Destructive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Project",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Project colors identify individual products. They ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "cc",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "sa",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "pkm",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "naeilUi",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "baby",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Typography",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Pretendard for Korean and Latin UI, Noto Sans JP f",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Page title",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "PageTitle · 2rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Section title",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "SectionTitle · 1.25rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Monospace fallback",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "JetBrains Mono, Geist Mono, ui-monospace, monospac",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "const x = 42;",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "400 Regular — Body text",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "500 Medium — Labels and controls",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "600 Semibold — Page and section titles",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Spacing",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Radius",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Tags use 4px corners, controls 8px, and panels 12p",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Shadow",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Button",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Variants",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "States",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Input",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Change the controls to compare input states.",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Card",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "All services are operating normally.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "v0.6.0 — Phase 6 Demo",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "v0.5.0 — Core Components",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "CardElevated",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Dialog",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "DropdownMenu",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sonner (Toast)",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Badge",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Avatar",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarBadge",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarGroup",
+        "size": "16px",
+        "lineHeight": "24px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "https://github.com/shadcn.png",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "path": "/",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to light theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "View projects",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Content CollectorAutomated content collection from",
+        "width": 848,
+        "height": 144.203125
+      },
+      {
+        "tag": "A",
+        "text": "PKMComing SoonPersonal knowledge management — docu",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "naeil-uiMinimal design system — OKLCH tokens, Tail",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "Sustainability AnalyzerAI-powered ESG report analy",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "Baby AgentComing SoonParenting AI agent — LINE-bas",
+        "width": 416,
+        "height": 246.078125
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Projects",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Personal tools built for real use — not demos.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Content Collector",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Automated content collection from RSS, YouTube, Re",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "PKM",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Personal knowledge management — document parsing, ",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "naeil-ui",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Minimal design system — OKLCH tokens, Tailwind v4,",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Sustainability Analyzer",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "AI-powered ESG report analysis — PDF parsing, qual",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      },
+      {
+        "text": "Baby Agent",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Parenting AI agent — LINE-based Q&A, records, remi",
+        "size": "14px",
+        "lineHeight": "21.875px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "path": "/blog",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to light theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "March 30, 20262 min readMy StackAI Development Too",
+        "width": 848,
+        "height": 223.65625
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Blog",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Build notes, research, and iteration logs.",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "25px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "path": "/blog/2026-03-30",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to light theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Back to Blog",
+        "width": 113.40625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "English",
+        "width": 77.84375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "한국어",
+        "width": 65.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "日本語",
+        "width": 72,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://anthropic.com/claude-update",
+        "width": 231.640625,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "https://github.blog/copilot-x",
+        "width": 175.828125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "March 30, 2026",
+        "size": "13px",
+        "lineHeight": "20.3125px"
+      },
+      {
+        "text": "AI Development Tools Roundup: March 2026",
+        "size": "32px",
+        "lineHeight": "42px"
+      },
+      {
+        "text": "Today's highlights: Claude's new coding capabiliti",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "The AI development landscape is evolving rapidly, ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Claude's Enhanced Coding Capabilities",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "Anthropic announced major improvements to Claude's",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "My Stack",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "This is particularly exciting for our development ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "GitHub Copilot X Updates",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "GitHub released Copilot X with several game-changi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Enhanced Context Understanding",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Copilot X now maintains context across multiple fi",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Voice Programming",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "The new voice-to-code feature allows developers to",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Local AI Inference Breakthrough",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "A new optimization technique has reduced local AI ",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Key Benefits:",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Looking Ahead",
+        "size": "20px",
+        "lineHeight": "29px"
+      },
+      {
+        "text": "These developments signal a shift toward more inte",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "What trends are you most excited about? The integr",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources: Anthropic Blog, GitHub Blog",
+        "size": "16px",
+        "lineHeight": "30px"
+      },
+      {
+        "text": "Sources",
+        "size": "20px",
+        "lineHeight": "29px"
+      }
+    ],
+    "article": {
+      "width": 640,
+      "padding": "24px"
+    },
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "path": "/login",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to light theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with Google",
+        "width": 480,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sign in with GitHub",
+        "width": 480,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "Sign in",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Sign in to access all features",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "",
+        "size": "14px",
+        "lineHeight": "20px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": []
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "path": "/design",
+    "targets": [
+      {
+        "tag": "A",
+        "text": "\n:where(.light,[data-theme=\"light\"]){--naeil-logo-",
+        "width": 96.9375,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Projects",
+        "width": 106.09375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 56.3125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Switch to light theme",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Language",
+        "width": 80,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Sign in",
+        "width": 72.8125,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 99.484375,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "npm",
+        "width": 82.140625,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 192,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 160,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Preview",
+        "width": 89.96875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "secondary",
+        "width": 109.0625,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "outline",
+        "width": 83.53125,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "destructive",
+        "width": 114.4375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "ghost",
+        "width": 73.59375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "link",
+        "width": 57,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "xs",
+        "width": 44,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "sm",
+        "width": 45.75,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "default",
+        "width": 82.875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "lg",
+        "width": 61.125,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 92.1875,
+        "height": 44
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "width": 115.640625,
+        "height": 44
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "width": 480,
+        "height": 40
+      },
+      {
+        "tag": "INPUT",
+        "text": "you@example.com",
+        "width": 480,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "View details",
+        "width": 122.28125,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open dialog",
+        "width": 121.4375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Open menu",
+        "width": 117.9375,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Success",
+        "width": 95.5,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Error",
+        "width": 69.546875,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Info",
+        "width": 61.578125,
+        "height": 40
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Warning",
+        "width": 94.109375,
+        "height": 40
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "X",
+        "width": 44,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Projects",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "width": 69.421875,
+        "height": 44
+      },
+      {
+        "tag": "A",
+        "text": "GitHub",
+        "width": 44.25,
+        "height": 44
+      }
+    ],
+    "samples": [
+      {
+        "text": "naeil-ui",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "Design System Showcase — Tokens · Components · The",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Foundations",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Actions and selection use neutral semantic colors ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Neutral action",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Selection",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Focus",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Colors — Semantic",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "These roles follow the active light or dark theme.",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "background",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "card-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "popover-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "primary-hover",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "surface-selected",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "secondary-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "muted-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "accent-foreground",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "border-strong",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "input",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "ring",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "success-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "warning-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "error-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "info-bg",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Primitive",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Primitive palettes remain available for compatibil",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Gray",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Legacy blue primitive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Destructive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "50",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "100",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "200",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "300",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "400",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "500",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "600",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "700",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "800",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "900",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "950",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Colors — Project",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Project colors identify individual products. They ",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "cc",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "sa",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "pkm",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "naeilUi",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "baby",
+        "size": "13px",
+        "lineHeight": "17.3333px"
+      },
+      {
+        "text": "Typography",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Pretendard for Korean and Latin UI, Noto Sans JP f",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Page title",
+        "size": "32px",
+        "lineHeight": "40px"
+      },
+      {
+        "text": "PageTitle · 2rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Section title",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "SectionTitle · 1.25rem · 600",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Monospace fallback",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "JetBrains Mono, Geist Mono, ui-monospace, monospac",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "const x = 42;",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "400 Regular — Body text",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "500 Medium — Labels and controls",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "600 Semibold — Page and section titles",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "Spacing",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Radius",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Tags use 4px corners, controls 8px, and panels 12p",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Shadow",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Button",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Variants",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "States",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Input",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Interactive",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Change the controls to compare input states.",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "Card",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "All services are operating normally.",
+        "size": "16px",
+        "lineHeight": "25px"
+      },
+      {
+        "text": "v0.6.0 — Phase 6 Demo",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "v0.5.0 — Core Components",
+        "size": "14px",
+        "lineHeight": "20px"
+      },
+      {
+        "text": "CardElevated",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "Dialog",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "DropdownMenu",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sonner (Toast)",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Badge",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Avatar",
+        "size": "20px",
+        "lineHeight": "28px"
+      },
+      {
+        "text": "Sizes",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarBadge",
+        "size": "16px",
+        "lineHeight": "24px"
+      },
+      {
+        "text": "AvatarGroup",
+        "size": "16px",
+        "lineHeight": "24px"
+      }
+    ],
+    "article": null,
+    "footer": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/naeil-dev"
+      }
+    ],
+    "images": [
+      {
+        "src": "/_next/image",
+        "loaded": true
+      },
+      {
+        "src": "https://github.com/shadcn.png",
+        "loaded": true
+      }
+    ]
+  }
+]

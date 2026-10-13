@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
+import { Navigation, SiteFooter, Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
 import { Textarea } from "@naeil/ui/components/ui/textarea";
 import * as DeepTabs from "@naeil/ui/components/ui/tabs";
 import * as DeepMenu from "@naeil/ui/components/ui/dropdown-menu";
@@ -12,7 +12,8 @@ export function App() {
   const notes = useRef<HTMLTextAreaElement>(null);
   return (
     <ThemeProvider attribute="class">
-      <main className="mx-auto p-6" data-ui-layout="settings">
+      <Navigation brand={<Logo variant="horizontal" size={28} />} items={[{ id: "preferences", label: "Preferences", href: "#preferences" }]} labels={{ navigation: "Main navigation", menu: "Menu", close: "Close menu" }} containerClassName="max-w-7xl" />
+      <main id="preferences" className="mx-auto p-6" data-ui-layout="settings">
         <Logo variant="horizontal" size={28} data-testid="packed-brand" className="mb-6" />
         <PageTitle>Profile preferences</PageTitle>
         <p lang="ko">내 프로필과 알림 환경을 설정합니다.</p>
@@ -52,6 +53,7 @@ export function App() {
         <ExtensionSpecimen />
         <MixedImportOverlays />
       </main>
+      <SiteFooter brand={<Logo variant="footer" size={20} />} variant="compact" meta="React-only consumer" containerClassName="max-w-7xl" />
     </ThemeProvider>
   );
 }

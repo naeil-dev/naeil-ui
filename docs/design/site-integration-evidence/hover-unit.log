@@ -1,0 +1,13 @@
+
+> @naeil/ui@0.4.0 test /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+> vitest run
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+
+
+ Test Files  11 passed (11)
+      Tests  51 passed (51)
+   Start at  19:10:40
+   Duration  5.65s (transform 2.55s, setup 0ms, import 5.56s, tests 5.57s, environment 1ms)
+

@@ -3,5 +3,9 @@ export default function ContentLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="pt-28">{children}</div>;
+  return (
+    <div className="pt-[calc(var(--ui-navigation-height)+var(--spacing-12-value))]">
+      {children}
+    </div>
+  );
 }

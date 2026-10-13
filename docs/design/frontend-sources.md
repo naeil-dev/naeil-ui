@@ -243,3 +243,32 @@ Cinemagraphs.com은 Website Expired, Coastal World는 coastalbank.com으로 리�
 독립 Opus5.5 리뷰에서 확인한 중복 프레임 끊김, crossfade 질감 감소, 실패한 테마가 정상 테마를 일시정지시키는 문제를 수정했다. 원본 앞48프레임 안에서 유사한 겹침 구간을 선택하고 고주파 분산을 보존하여 합성한다.3.2초 길이와 승인된 구도·색은 유지하며 CRF18 재평가로 dark883,370bytes/light1,012,025bytes로 줄였다. 검증은 최대 인접차를 정상값으로 간주하지 않고 일반 구간 중앙값, 최저 프레임 변화량과 프레임별 질감에 기반한다.
 
 큰 로컬PNG/MP4시안은 지우지 않고 Git에서 제외했다. 생성 프롬프트·원본SHA·제작script·의존성버전·최종JSON과 생산에셋은 보존한다. 원본MOV는 사용자제공 사유파일로 별도 확보가 필요하며 공개하지 않는다. [재현 방법](hero-sunset-study-2026-10-12/cinemagraph/README.txt), [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt)에 최종결과와 미확인 범위를 기록한다. 이 수정은 사용자에게 공개사이트배포까지 승인받았다. 실제 배포 여부는 해당 최종 기록을 따른다.
+# Navigation/footer convergence — 2026-10-13
+
+- Gap: independent website and Naeil Home headers; existing shared Nav required Next/next-intl while Home uses React/react-i18next.
+- Inspected: authenticated live Home header and AI dropdown through Aside REPL snapshots + screenshot, existing shared Nav/Footer source, and preserved Home Header source. Existing DESIGN.md remains the visual authority.
+- Adopted/adapted: one configurable React-only Navigation/SiteFooter core, native navigation links in Radix Popover, Radix mobile Dialog, product-owned route/auth/i18n adapters and frame widths. Home's product routes appear only as synthetic Storybook data. Its 1600px cap and operating data are not shared defaults.
+- Executed: Impeccable context and extract workflow; local core extraction + compatibility adapter migration + docs. No Refero, 21st, Component Gallery or Kinetics retrieval was executed; no new visual direction or missing external pattern required it.
+- Files: src/components/ui/navigation.tsx, site-footer.tsx, compatibility nav.tsx/footer.tsx, shared styles, Storybook and docs/components/navigation.md. Live Home migration remains separate until the deployment source revision is established; see navigation-footer-integration.md.
+
+## Navigation menu sample refinement — 2026-10-13
+
+- Gap: Home and website menu entries had inconsistent icon presence, tight spacing and description underlines. User supplied three screenshots, selected the current naeil.dev project menu feel, then requested a working sample.
+- Inspected source: user-attached naeil.dev menu screenshot; local Navigation/Nav, existing project icons in public/images, messages/ko.json and messages/en.json. No fresh live-site browser inspection or external design service was performed for this refinement.
+- Adopted: icon/title/description hierarchy, title-adjacent status badge, product-colored icon tiles, roomy project catalog with two columns. Adapted to approved Pretendard 16/14px, neutral selected surfaces, 40px icon area, 44px minimum targets, one-column mobile and existing Radix keyboard behavior. Home keeps neutral functional icons and one desktop column. Shared tokens remain authoritative; screenshot dimensions and colors were not copied into shared foundations.
+- Implemented with actual Navigation source and Storybook compositions. Standalone sample supplies existing project PNGs as embedded data URLs; Storybook uses Lucide substitutes, and product artwork stays outside the package. No generated image or external component retrieval.
+- Instructions applied: repository frontend-reference-workflow 2026-10-02.1, installed workflow 2026-10-05.1, layout/verification references, previously loaded Impeccable context and current craft-floor. No full Impeccable critique/detector run claimed.
+- Preview scope: port 6447 sample only; npm, naeil.dev and live Home remain unchanged. Evidence and checks in navigation-footer-integration.md.
+
+## 2026-10-13 — naeil.dev actual site integration
+
+- Scope: approved shared Navigation/SiteFooter applied to actual site source; home project area, blog list/article, login and explicitly included `/design`. Dedicated project bodies and live Naeil Home excluded. Existing hero/animal assets/full footer preserved.
+- Gap → source → decision: actual consumer pages still had tiny type/custom badges, old blue design examples, missing route metadata and inconsistent control behavior → approved DESIGN.md, v2 spec/migration, Navigation contract plus directly captured naeil.dev before screens → shared primitives/tokens and site-owned purpose widths; no new external visual direction or component retrieval needed.
+- Read repository frontend-reference-workflow 2026-10-02.1 and installed 2026-10-05.1, layout/verification references; instruction identities in `site-integration-evidence/instruction-hashes.json`. Executed Impeccable context once, polish procedure (source/actual screenshot review, bounded corrections) and one mechanical detector pass (empty findings); later focused fixes were linted/reviewed/browser-checked. Existing design authority overrides generic playbook aesthetics. Aside guide/REPL guide read, but this task used repository Playwright rather than an Aside session.
+- Actual tools: gpt-6.1-sol implementation workers and cross-worker reviews; local Next production preview, Chromium/WebKit, axe, pnpm build/types/scoped ESLint/unit/package/consumer/Storybook/contrast. A fresh fourth review thread was unavailable; no other review model execution claimed. No Refero/21st/Component Gallery/Kinetics fetch or image generation was performed.
+- Main inspected production-before/local-after desktop/mobile themes and real menu/article/type screenshots. Fresh checked scopes, fixes, hashes, remaining limits and private preview 6448 are in [the integration report](naeil-site-integration-2026-10-13.md). Production site/npm/public Storybook/Home were not deployed. Previous sample evidence is not relabeled as actual-site validation.
+
+
+### Desktop hover follow-up (2026-10-13)
+
+User feedback restores mouse-hover opening in the shared Navigation. Mouse click does not pin the menu; leaving the trigger/panel dismisses it after pointer-travel tolerance. Keyboard and touch remain supported. Internal DESIGN/token/Radix implementation and actual Playwright browser results are the sources; no new external design lookup, Aside session or imagery generation. Existing implementation agent independently reviewed multiple-group focus behavior. See `docs/design/naeil-site-integration-2026-10-13.md` and the separate `site-integration-evidence/hover-*` evidence for final validation and source hashes. Site review port6448 and standalone sample6447 are updated; production/npm/public Storybook remain unchanged.

@@ -44,21 +44,21 @@ for (const theme of ["light", "dark"]) {
     mkdirSync(output, { recursive: true });
     await page.setViewportSize({ width, height: 900 });
     await open(page, "application", theme);
-    const brand = page.locator('nav [data-naeil-variant="horizontal"]');
+    const brand = page.locator('[data-slot="navigation"] [data-naeil-variant="horizontal"]');
     const before = await brand.boundingBox();
-    const anchors = await page.locator('nav').evaluate(nav => [...nav.querySelectorAll('a,button')].map(el => {const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}}));
+    const anchors = await page.locator('[data-slot="navigation"]').evaluate(nav => [...nav.querySelectorAll('a,button')].map(el => {const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}}));
     await page.getByRole('button', { name: '화면 전환' }).click();
     await expect(page.getByRole('heading', { name: '로그인' })).toBeVisible();
     expect(await brand.boundingBox()).toEqual(before);
-    const after = await page.locator('nav').evaluate(nav => [...nav.querySelectorAll('a,button')].map(el => {const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}}));
+    const after = await page.locator('[data-slot="navigation"]').evaluate(nav => [...nav.querySelectorAll('a,button')].map(el => {const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}}));
     expect(after).toEqual(anchors);
     await expect(page.locator('footer [data-naeil-variant="footer"]')).toBeVisible();
     await expect(page.locator('main [data-naeil-variant="symbol"]')).toHaveAttribute('height', '40');
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
     await page.screenshot({ path: `${output}/${browserName}-application-${width}-${theme}.png`, fullPage: true });
     if (width === 390) {
-      await page.getByRole('button', { name: 'Menu', exact: true }).click();
-      await expect(page.locator('nav button[aria-label="Menu"] path')).toHaveAttribute('d', 'M18 6L6 18M6 6l12 12');
+      await page.getByRole('button', { name: '메뉴', exact: true }).click();
+      await expect(page.getByRole('dialog', { name: '메뉴' })).toBeVisible();
       expect(await brand.boundingBox()).toEqual(before);
       await page.screenshot({ path: `${output}/${browserName}-menu-${theme}.png` });
     }

@@ -1,0 +1,30 @@
+[
+  {
+    "width": 390,
+    "closed": {
+      "expanded": "false",
+      "controls": "radix-_r_4_",
+      "targetExists": false
+    },
+    "opened": {
+      "expanded": "true",
+      "controls": "radix-_r_4_",
+      "targetExists": true
+    },
+    "disposition": "Radix lazy mounted content resolves aria-controls when expanded; closed-state axe incomplete reviewed."
+  },
+  {
+    "width": 1440,
+    "closed": {
+      "expanded": "false",
+      "controls": "radix-_r_1_",
+      "targetExists": false
+    },
+    "opened": {
+      "expanded": "true",
+      "controls": "radix-_r_1_",
+      "targetExists": true
+    },
+    "disposition": "Radix lazy mounted content resolves aria-controls when expanded; closed-state axe incomplete reviewed."
+  }
+]

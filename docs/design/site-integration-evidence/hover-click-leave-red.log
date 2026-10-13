@@ -1,0 +1,49 @@
+
+Running 1 test using 1 worker
+
+(node:51807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/navigation.spec.ts:54:1 › mouse click still closes on leave while keyboard keeps the menu open (6.9s)
+
+
+  1) [chromium] › e2e/navigation.spec.ts:54:1 › mouse click still closes on leave while keyboard keeps the menu open 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  locator('[data-slot="navigation-popover"]')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" locator('[data-slot="navigation-popover"]') with timeout 5000ms
+      - waiting for locator('[data-slot="navigation-popover"]')
+        14 × locator resolved to <div role="dialog" tabindex="-1" aria-label="AI" id="radix-_r_1_" data-columns="1" data-state="open" data-side="bottom" data-align="start" data-slot="navigation-popover" class="ui-navigation-popover ui-popup">…</div>
+           - unexpected value "visible"
+
+
+      61 |   await expect(panel).toBeVisible();
+      62 |   await page.mouse.move(1200, 700);
+    > 63 |   await expect(panel).toBeHidden();
+         |                       ^
+      64 |   await trigger.focus();
+      65 |   await trigger.hover();
+      66 |   await expect(panel).toBeVisible();
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:63:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-mouse-click-sti-45322-eyboard-keeps-the-menu-open-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-mouse-click-sti-45322-eyboard-keeps-the-menu-open-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-mouse-click-sti-45322-eyboard-keeps-the-menu-open-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-mouse-click-sti-45322-eyboard-keeps-the-menu-open-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/navigation.spec.ts:54:1 › mouse click still closes on leave while keyboard keeps the menu open 

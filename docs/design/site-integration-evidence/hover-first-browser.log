@@ -1,0 +1,171 @@
+
+Running 34 tests using 1 worker
+
+(node:31851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) (1.7s)
+  ✓   2 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 390) (499ms)
+  ✓   3 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 1440) (407ms)
+  ✓   4 [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (dark) (1.5s)
+  ✓   5 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 390) (613ms)
+  ✓   6 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 1440) (407ms)
+  ✓   7 [chromium] › e2e/brand.spec.ts:68:1 › built Storybook Docs is reachable (760ms)
+  ✓   8 [chromium] › e2e/brand.spec.ts:76:1 › automatic logo follows OS preference and live changes without theme ancestors (290ms)
+  ✓   9 [chromium] › e2e/navigation.spec.ts:5:1 › desktop hover preserves focus and the path into the menu (2.2s)
+  ✘  10 [chromium] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu (6.1s)
+(node:32364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [chromium] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 390 (1.9s)
+  ✓  12 [chromium] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 1440 (1.4s)
+  ✓  13 [chromium] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 2560 (1.6s)
+  ✓  14 [chromium] › e2e/navigation.spec.ts:59:3 › shared navigation/footer dark 390 (1.9s)
+  ✓  15 [chromium] › e2e/navigation.spec.ts:59:3 › shared navigation/footer dark 1440 (1.9s)
+  ✓  16 [chromium] › e2e/navigation.spec.ts:59:3 › shared navigation/footer dark 2560 (1.9s)
+  ✓  17 [chromium] › e2e/navigation.spec.ts:110:1 › long labels, English and reduced motion (920ms)
+(node:32685) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 [webkit] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) (3.7s)
+  ✓  19 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 390) (718ms)
+  ✓  20 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 1440) (541ms)
+  ✓  21 [webkit] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (dark) (1.7s)
+  ✓  22 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 390) (643ms)
+  ✓  23 [webkit] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 1440) (584ms)
+  ✓  24 [webkit] › e2e/brand.spec.ts:68:1 › built Storybook Docs is reachable (1.0s)
+  ✓  25 [webkit] › e2e/brand.spec.ts:76:1 › automatic logo follows OS preference and live changes without theme ancestors (454ms)
+  ✓  26 [webkit] › e2e/navigation.spec.ts:5:1 › desktop hover preserves focus and the path into the menu (2.6s)
+  ✘  27 [webkit] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu (6.2s)
+(node:33194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  28 [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 390 (5.5s)
+(node:33312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 1440 (2.1s)
+  ✓  30 [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 2560 (1.9s)
+  ✓  31 [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer dark 390 (2.2s)
+  ✓  32 [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer dark 1440 (1.8s)
+  ✓  33 [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer dark 2560 (2.1s)
+  ✓  34 [webkit] › e2e/navigation.spec.ts:110:1 › long labels, English and reduced motion (613ms)
+
+
+  1) [chromium] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'AI', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'AI', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'AI', exact: true })
+        14 × locator resolved to <button type="button" data-active="true" data-state="closed" aria-expanded="false" aria-haspopup="dialog" aria-controls="radix-_r_1_" class="ui-navigation-link ui-focus">…</button>
+           - unexpected value "inactive"
+
+
+      44 |   await page.keyboard.press("Escape");
+      45 |   await expect(panel).toBeHidden();
+    > 46 |   await expect(trigger).toBeFocused();
+         |                         ^
+      47 |   await trigger.hover();
+      48 |   await expect(panel).toBeVisible();
+      49 |   await page.keyboard.press("Enter");
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:46:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [webkit] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu ──
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'AI', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'AI', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'AI', exact: true })
+        14 × locator resolved to <button type="button" data-active="true" data-state="closed" aria-expanded="false" aria-haspopup="dialog" aria-controls="radix-_r_1_" class="ui-navigation-link ui-focus">…</button>
+           - unexpected value "inactive"
+
+
+      44 |   await page.keyboard.press("Escape");
+      45 |   await expect(panel).toBeHidden();
+    > 46 |   await expect(trigger).toBeFocused();
+         |                         ^
+      47 |   await trigger.hover();
+      48 |   await expect(panel).toBeVisible();
+      49 |   await page.keyboard.press("Enter");
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:46:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-webkit/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-click-and-keybo-27a8b-over-a-hovered-desktop-menu-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 390 ───────────────────
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('html')
+    Expected pattern: /light/
+    Received string:  ""
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('html') with timeout 5000ms
+      - waiting for locator('html')
+        14 × locator resolved to <html>…</html>
+           - unexpected value ""
+
+
+      60 |     await page.setViewportSize({ width, height: 900 });
+      61 |     await page.goto(`/iframe.html?id=ui-navigation--home&viewMode=story&globals=theme:${theme};a11y.manual:!true`);
+    > 62 |     await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+         |                                        ^
+      63 |     const header = page.locator('[data-slot="navigation"]');
+      64 |     await expect(header).toBeVisible();
+      65 |     await page.evaluate(() => document.fonts.ready);
+        at /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth/e2e/navigation.spec.ts:62:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/navigation-shared-navigation-footer-light-390-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/navigation-shared-navigation-footer-light-390-webkit/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-shared-navigation-footer-light-390-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/navigation-shared-navigation-footer-light-390-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu ─
+    [webkit] › e2e/navigation.spec.ts:33:1 › click and keyboard take over a hovered desktop menu ───
+    [webkit] › e2e/navigation.spec.ts:59:3 › shared navigation/footer light 390 ────────────────────
+  31 passed (1.1m)

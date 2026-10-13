@@ -2,8 +2,8 @@
 // Site-specific components (hero-scene, hero-section, workflow-diagram,
 // paraglider-cursor, accent-picker, project-layout) are excluded.
 
-export { Nav } from "./nav";
-export { Footer } from "./footer";
+export { Nav, type NavProps } from "./nav";
+export { Footer, type FooterProps } from "./footer";
 export { LocaleSwitcher } from "./locale-switcher";
 export { ThemeToggle } from "./theme-toggle";
 export { ThemeProvider } from "./theme-provider";

@@ -1,0 +1,32 @@
+
+> @naeil/ui@0.4.0 test /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+> vitest run
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/rebel-sloth
+
+ ❯ src/lib/design/__tests__/tokens.test.ts (8 tests | 1 failed) 41502ms
+     × fails contrast verification when required colors are missing 10943ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/design/__tests__/tokens.test.ts > the CSS consumed by the public package > fails contrast verification when required colors are missing
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/lib/design/__tests__/tokens.test.ts:59:3
+     57|     expect(readFileSync(cssPath, "utf8")).toBe(first);
+     58|   }, 30000);
+     59|   it("fails contrast verification when required colors are missing", (…
+       |   ^
+     60|     const dir = mkdtempSync(join(tmpdir(), "naeil-contrast-"));
+     61|     try {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 10 passed (11)
+      Tests  1 failed | 50 passed (51)
+   Start at  19:08:29
+   Duration  52.53s (transform 121.97s, setup 0ms, import 137.80s, tests 42.06s, environment 1ms)
+
+ ELIFECYCLE  Test failed. See above for more details.
