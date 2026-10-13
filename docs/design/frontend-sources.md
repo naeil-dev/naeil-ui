@@ -272,3 +272,14 @@ Cinemagraphs.com은 Website Expired, Coastal World는 coastalbank.com으로 리�
 ### Desktop hover follow-up (2026-10-13)
 
 User feedback restores mouse-hover opening in the shared Navigation. Mouse click does not pin the menu; leaving the trigger/panel dismisses it after pointer-travel tolerance. Keyboard and touch remain supported. Internal DESIGN/token/Radix implementation and actual Playwright browser results are the sources; no new external design lookup, Aside session or imagery generation. Existing implementation agent independently reviewed multiple-group focus behavior. See `docs/design/naeil-site-integration-2026-10-13.md` and the separate `site-integration-evidence/hover-*` evidence for final validation and source hashes. Site review port6448 and standalone sample6447 are updated; production/npm/public Storybook remain unchanged.
+
+
+### Production application completed — 2026-10-14
+
+User authorized commit/PR/merge/deployment. PR #5 merged as `00a17a81264dba43266f5670453f6585669f7384`; Vercel Production deployment7049743975 succeeded for that SHA. PR and main CI both pass (51 unit tests;263 browser tests pass,4 conditional forced-colors cases skipped). Linux CI includes Firefox navigation coverage; actual-site coverage is Chromium/WebKit. On https://naeil.dev,288 route conditions,48 hover/touch/keyboard conditions,20 axe audits,4 interaction flows and21 route metadata checks pass. Existing project bodies and hero source are unchanged. Full provider login, physical devices and VoiceOver remain unverified. No npm publication, public Storybook deployment or Naeil Home change. New production evidence is retained separately in `docs/design/site-production-2026-10-14/README.md`; post-deploy records are included in the user-requested workspace closeout.
+
+
+2026-10-14 title follow-up: user changed the official naeil.dev metadata spelling to `.naeil`, including the leading period. Rules in DESIGN/AGENTS/v2-migration and actual Next/social metadata are synchronized. PR #6 / production `a111e90` deployed successfully;60 actual production title/social/canonical cases and client/back/locale flows pass. See `docs/design/dotted-site-title-2026-10-14/README.md`. Earlier `naeil` validation records remain dated history.
+
+
+2026-10-14 workspace closeout: user requested preserving all remaining production verification records in the repository and stopping the local review service. Port3010 Next preview stopped; only its Tailscale HTTPS6448 proxy was removed. Home2455, default443 and the separately approved sample6447 proxy were left unchanged. Start the next login task from updated main in a new workspace; actual provider sign-in/session/logout remains the first unverified flow. Closeout changes documentation/evidence only, with no runtime/package changes.

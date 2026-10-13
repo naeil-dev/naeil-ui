@@ -1,0 +1,7926 @@
+{
+  "base": "https://naeil.dev",
+  "results": [
+    {
+      "label": "chromium ko light 320 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 320 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 320 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 320 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 320 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 320 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko light 390 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 390 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 390 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 390 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 390 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 390 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko light 1440 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 1440 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 1440 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 1440 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 1440 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 1440 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko light 2560 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 2560 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 2560 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 2560 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 2560 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko light 2560 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko dark 320 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 320 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 320 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 320 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 320 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 320 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko dark 390 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 390 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 390 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 390 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 390 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 390 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko dark 1440 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 1440 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 1440 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 1440 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 1440 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 1440 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ko dark 2560 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 2560 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 2560 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 2560 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 2560 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ko dark 2560 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en light 320 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 320 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 320 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 320 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 320 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 320 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en light 390 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 390 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 390 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 390 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 390 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 390 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en light 1440 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 1440 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 1440 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 1440 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 1440 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 1440 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en light 2560 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 2560 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 2560 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 2560 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 2560 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en light 2560 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en dark 320 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 320 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 320 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 320 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 320 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 320 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en dark 390 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 390 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 390 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 390 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 390 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 390 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en dark 1440 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 1440 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 1440 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 1440 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 1440 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 1440 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium en dark 2560 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 2560 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 2560 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 2560 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 2560 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium en dark 2560 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja light 320 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 320 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 320 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 320 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 320 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 320 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja light 390 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 390 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 390 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 390 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 390 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 390 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja light 1440 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 1440 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 1440 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 1440 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 1440 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 1440 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja light 2560 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 2560 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 2560 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 2560 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 2560 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja light 2560 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja dark 320 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 320 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 320 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 320 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 320 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 320 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja dark 390 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 390 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 390 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 390 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 390 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 390 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja dark 1440 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 1440 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 1440 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 1440 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 1440 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 1440 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "chromium ja dark 2560 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 2560 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 2560 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 2560 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 2560 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "chromium ja dark 2560 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko light 320 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 320 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 320 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 320 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 320 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 320 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko light 390 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 390 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 390 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 390 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 390 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 390 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko light 1440 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 1440 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 1440 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 1440 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 1440 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 1440 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko light 2560 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 2560 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 2560 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 2560 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 2560 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko light 2560 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko dark 320 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 320 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 320 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 320 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 320 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 320 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko dark 390 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 390 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 390 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 390 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 390 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 390 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko dark 1440 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 1440 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 1440 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 1440 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 1440 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 1440 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ko dark 2560 home",
+      "url": "/ko",
+      "title": "naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 2560 /blog",
+      "url": "/ko/blog",
+      "title": "블로그 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 2560 /blog/2026-03-30",
+      "url": "/ko/blog/2026-03-30",
+      "title": "AI 개발 도구 라운드업: 2026년 3월 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 2560 /login",
+      "url": "/ko/login",
+      "title": "로그인 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 2560 /design",
+      "url": "/ko/design",
+      "title": "디자인 시스템 — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ko dark 2560 /cc",
+      "url": "/ko/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ko",
+      "canonical": "https://naeil.dev/ko/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en light 320 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 320 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 320 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 320 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 320 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 320 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en light 390 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 390 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 390 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 390 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 390 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 390 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en light 1440 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 1440 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 1440 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 1440 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 1440 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 1440 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en light 2560 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 2560 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 2560 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 2560 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 2560 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en light 2560 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en dark 320 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 320 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 320 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 320 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 320 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 320 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en dark 390 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 390 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 390 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 390 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 390 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 390 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en dark 1440 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 1440 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 1440 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 1440 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 1440 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 1440 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit en dark 2560 home",
+      "url": "/",
+      "title": "naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 2560 /blog",
+      "url": "/blog",
+      "title": "Blog — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 2560 /blog/2026-03-30",
+      "url": "/blog/2026-03-30",
+      "title": "AI Development Tools Roundup: March 2026 — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 2560 /login",
+      "url": "/login",
+      "title": "Sign in — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 2560 /design",
+      "url": "/design",
+      "title": "Design System — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit en dark 2560 /cc",
+      "url": "/cc",
+      "title": "Content Collector — naeil",
+      "lang": "en",
+      "canonical": "https://naeil.dev/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja light 320 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 320 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 320 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 320 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 320 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 320 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja light 390 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 390 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 390 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 390 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 390 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 390 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja light 1440 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 1440 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 1440 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 1440 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 1440 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 1440 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja light 2560 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 2560 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 2560 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 2560 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 2560 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja light 2560 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja dark 320 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 320 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 320 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 320 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 320 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 320 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja dark 390 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 390 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 390 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 390 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 390 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 390 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "brand": {
+        "x": 24,
+        "y": 10,
+        "width": 96.9375
+      },
+      "menu": {
+        "x": 0,
+        "y": 0
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja dark 1440 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 1440 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 1440 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 1440 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 1440 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 1440 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 104,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 280,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    },
+    {
+      "label": "webkit ja dark 2560 home",
+      "url": "/ja",
+      "title": "naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 2560 /blog",
+      "url": "/ja/blog",
+      "title": "ブログ — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 2560 /blog/2026-03-30",
+      "url": "/ja/blog/2026-03-30",
+      "title": "AI開発ツールラウンドアップ：2026年3月 — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/blog/2026-03-30",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 2560 /login",
+      "url": "/ja/login",
+      "title": "ログイン — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/login",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 2560 /design",
+      "url": "/ja/design",
+      "title": "デザインシステム — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/design",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": []
+    },
+    {
+      "label": "webkit ja dark 2560 /cc",
+      "url": "/ja/cc",
+      "title": "Content Collector — naeil",
+      "lang": "ja",
+      "canonical": "https://naeil.dev/ja/cc",
+      "icon": "/favicon.ico?favicon.d6c82a65.ico",
+      "viewport": {
+        "width": 2560,
+        "height": 1000
+      },
+      "overflow": false,
+      "brand": {
+        "x": 664,
+        "y": 10,
+        "width": 160
+      },
+      "menu": {
+        "x": 840,
+        "y": 10
+      },
+      "nested": 0,
+      "smallText": [
+        {
+          "text": "Python",
+          "size": "11px"
+        },
+        {
+          "text": "PostgreSQL",
+          "size": "11px"
+        },
+        {
+          "text": "Ollama",
+          "size": "11px"
+        },
+        {
+          "text": "Gemini",
+          "size": "11px"
+        },
+        {
+          "text": "LINE",
+          "size": "11px"
+        }
+      ]
+    }
+  ],
+  "failures": []
+}

@@ -82,3 +82,11 @@ Release preparation follow-up: user requested continuation after hover review. R
 
 
 2026-10-14: User explicitly approved the prepared commit, PR, merge and naeil.dev production application. npm publication, public Storybook deployment and Naeil Home changes remain excluded. Deployment outcome will be recorded separately after CI and live verification.
+
+
+### Production application completed — 2026-10-14
+
+User authorized commit/PR/merge/deployment. PR #5 merged as `00a17a81264dba43266f5670453f6585669f7384`; Vercel Production deployment7049743975 succeeded for that SHA. PR and main CI both pass (51 unit tests;263 browser tests pass,4 conditional forced-colors cases skipped). Linux CI includes Firefox navigation coverage; actual-site coverage is Chromium/WebKit. On https://naeil.dev,288 route conditions,48 hover/touch/keyboard conditions,20 axe audits,4 interaction flows and21 route metadata checks pass. Existing project bodies and hero source are unchanged. Full provider login, physical devices and VoiceOver remain unverified. No npm publication, public Storybook deployment or Naeil Home change. New production evidence is retained separately in `docs/design/site-production-2026-10-14/README.md`; post-deploy records are included in the user-requested workspace closeout.
+
+
+2026-10-14 workspace closeout: user requested preserving all remaining production verification records in the repository and stopping the local review service. Port3010 Next preview stopped; only its Tailscale HTTPS6448 proxy was removed. Home2455, default443 and the separately approved sample6447 proxy were left unchanged. Start the next login task from updated main in a new workspace; actual provider sign-in/session/logout remains the first unverified flow. Closeout changes documentation/evidence only, with no runtime/package changes.
