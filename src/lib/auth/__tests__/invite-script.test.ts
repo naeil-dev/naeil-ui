@@ -64,7 +64,10 @@ async function page(fragment: string, failStageOnce = false) {
   const calls: Record<string, unknown>[] = [];
   const fetch = vi.fn(async (_url: string, init: RequestInit) => {
     events.push("fetch");
-    const body = JSON.parse(String(init.body));
+    const body =
+      init.method === "GET"
+        ? { action: "status" }
+        : JSON.parse(String(init.body));
     calls.push(body);
     if (failStageOnce && calls.length === 1)
       return Response.json(
@@ -72,7 +75,12 @@ async function page(fragment: string, failStageOnce = false) {
         { status: 503 },
       );
     return Response.json({
-      status: body.action === "stage" ? "staged" : "complete",
+      status:
+        body.action === "status"
+          ? "empty"
+          : body.action === "stage"
+            ? "staged"
+            : "complete",
       csrf: "rotated",
       ...(body.action === "confirm"
         ? { links: [{ label: "JEV", href: "https://jev.naeil.dev/" }] }
@@ -137,13 +145,20 @@ describe("executed inert fragment script", () => {
   );
 });
 
-it("explicitly retries the same staged envelope after first stage503 without confirming automatically", async () => {
+it("recovers status before explicitly restaging the same envelope after stage503", async () => {
   const t = await page("#" + new URLSearchParams(proof), true);
   expect(t.calls).toHaveLength(1);
   expect(t.nodes.get("confirm")?.hidden).toBe(false);
   await t.clicks.get("confirm:click")!();
-  expect(t.calls.map((c) => c.action)).toEqual(["stage", "stage"]);
-  expect(t.calls[1]).toMatchObject({ ...proof, version: 1 });
+  expect(t.calls.map((c) => c.action)).toEqual(["stage", "status"]);
   await t.clicks.get("confirm:click")!();
-  expect(t.calls.map((c) => c.action)).toEqual(["stage", "stage", "confirm"]);
+  expect(t.calls.map((c) => c.action)).toEqual(["stage", "status", "stage"]);
+  expect(t.calls[2]).toMatchObject({ ...proof, version: 1, csrf: "rotated" });
+  await t.clicks.get("confirm:click")!();
+  expect(t.calls.map((c) => c.action)).toEqual([
+    "stage",
+    "status",
+    "stage",
+    "confirm",
+  ]);
 });

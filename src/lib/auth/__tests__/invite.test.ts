@@ -449,7 +449,7 @@ describe("verified-proof retry and fail-closed transport", () => {
     },
   );
   it.each([400, 401, 403, 404, 409, 422])(
-    "turns denied proof/expired OTP upstream %i into generic invalid with no fallback",
+    "treats unknown upstream %i as dependency failure without exposing its body",
     async (status) => {
       const t = harness({
         reply: () =>
@@ -458,7 +458,8 @@ describe("verified-proof retry and fail-closed transport", () => {
       await t.get();
       await t.post({ action: "stage", ...proof });
       const { r, b } = await t.post({ action: "confirm" });
-      expect(r.status).toBe(409);
+      expect(r.status).toBe(503);
+      expect((await t.get()).b.status).toBe("staged");
       expect(JSON.stringify(b)).not.toContain("private");
       expect(t.calls).toHaveLength(1);
     },
@@ -575,4 +576,215 @@ describe("bounded stream deadline", () => {
       vi.useRealTimers();
     }
   });
+});
+
+describe("authoritative denial versus retained consumed-OTP recovery", () => {
+  const rpcError = (code: string, message: string) => ({
+    code,
+    message,
+    details: null,
+    hint: null,
+  });
+  const cases = [
+    ...[
+      ["session_not_found"],
+      ["user_not_found"],
+      [["session_not_found"]],
+      [["user_not_found"]],
+    ].map((error_code) => ({
+      path: "/auth/v1/user",
+      status: 403,
+      raw: JSON.stringify({ code: 403, error_code, msg: "private upstream failure" }),
+    })),
+    ...[
+      "/auth/v1/user",
+      "/rest/v1/rpc/console_invite_record_verification",
+      "/rest/v1/rpc/accept_console_invite",
+    ].flatMap((path) =>
+      [401, 403, 404].map((status) => ({
+        path,
+        status,
+        raw: JSON.stringify({ message: "private infrastructure failure" }),
+      })),
+    ),
+    {
+      path: "/rest/v1/rpc/console_invite_record_verification",
+      status: 403,
+      raw: JSON.stringify(rpcError("PT403", "trusted service required")),
+    },
+    {
+      path: "/rest/v1/rpc/accept_console_invite",
+      status: 404,
+      raw: JSON.stringify(rpcError("PGRST202", "schema cache unavailable")),
+    },
+    {
+      path: "/auth/v1/user",
+      status: 401,
+      raw: "<html>private gateway failure</html>",
+    },
+    {
+      path: "/rest/v1/rpc/console_invite_record_verification",
+      status: 409,
+      raw: "{broken",
+    },
+    {
+      path: "/rest/v1/rpc/accept_console_invite",
+      status: 409,
+      raw: JSON.stringify(rpcError("PT404", "invitation not found")),
+    },
+    {
+      path: "/rest/v1/rpc/accept_console_invite",
+      status: 409,
+      raw: JSON.stringify(rpcError("PT409", "unknown private denial")),
+    },
+    {
+      path: "/rest/v1/rpc/accept_console_invite",
+      status: 409,
+      raw: '{"code":"PT404","code":"PT409","message":"recipient proof conflict","details":null,"hint":null}',
+    },
+    {
+      path: "/rest/v1/rpc/console_invite_record_verification",
+      status: 404,
+      raw: "x".repeat(65537),
+    },
+    {
+      path: "/auth/v1/user",
+      status: 403,
+      raw: JSON.stringify({
+        code: 401,
+        error_code: "session_not_found",
+        msg: "private",
+      }),
+    },
+    {
+      path: "/rest/v1/rpc/accept_console_invite",
+      status: 409,
+      raw: JSON.stringify({
+        ...rpcError("PT409", "recipient proof conflict"),
+        error_code: "unexpected_failure",
+      }),
+    },
+  ];
+  it.each(cases)(
+    "retains identity after $path HTTP$status ambiguous error %#",
+    async ({ path: broken, status, raw }) => {
+      let failed = false;
+      const t = harness({
+        reply: (path) => {
+          if (path === broken && !failed) {
+            failed = true;
+            return new Response(raw, { status });
+          }
+          if (path.endsWith("preflight"))
+            return Response.json({ userId, email, verificationType: "invite" });
+          if (path.endsWith("/verify"))
+            return Response.json({ access_token: jwt(), user });
+          if (path.endsWith("/user")) return Response.json(user);
+          if (path.endsWith("record_verification"))
+            return Response.json({
+              verified: true,
+              expiresAt: "2099-01-01T00:00:00Z",
+            });
+          return Response.json(receipt);
+        },
+      });
+      await t.get();
+      await t.post({ action: "stage", ...proof });
+      const failure = await t.post({ action: "confirm" });
+      expect(failure.r.status).toBe(503);
+      expect(JSON.stringify(failure.b)).not.toContain("private");
+      const before = t.calls.length;
+      expect((await t.get()).b.status).toBe("retry");
+      expect((await t.post({ action: "status" })).b.status).toBe("retry");
+      expect(t.calls).toHaveLength(before);
+      expect((await t.post({ action: "confirm" })).b.status).toBe("complete");
+      expect(t.calls.filter((c) => c.path.endsWith("/verify"))).toHaveLength(1);
+      const userCalls = t.calls.filter((c) => c.path.endsWith("/user"));
+      const accepts = t.calls.filter((c) =>
+        c.path.endsWith("accept_console_invite"),
+      );
+      for (const call of [...userCalls, ...accepts])
+        expect(call.init.headers).toMatchObject({
+          Authorization: `Bearer ${jwt()}`,
+        });
+      expect(
+        t.calls.filter((c) => c.path.endsWith("record_verification")),
+      ).toHaveLength(broken.endsWith("record_verification") ? 2 : 1);
+    },
+  );
+  it.each([
+    {
+      path: "preflight",
+      status: 404,
+      body: rpcError("PT404", "invitation not found"),
+    },
+    {
+      path: "preflight",
+      status: 409,
+      body: rpcError("PT409", "invitation proof conflict"),
+    },
+    {
+      path: "record_verification",
+      status: 409,
+      body: rpcError("PT409", "verified subject conflict"),
+    },
+    {
+      path: "accept_console_invite",
+      status: 409,
+      body: rpcError("PT409", "invitation expired or closed"),
+    },
+    {
+      path: "accept_console_invite",
+      status: 422,
+      body: rpcError("PT422", "services must be active and verified"),
+    },
+    {
+      path: "accept_console_invite",
+      status: 401,
+      body: rpcError("PT401", "authenticated session required"),
+    },
+    {
+      path: "/verify",
+      status: 403,
+      body: {
+        code: 403,
+        error_code: "otp_expired",
+        msg: "Token has expired or is invalid",
+      },
+    },
+    {
+      path: "/user",
+      status: 403,
+      body: {
+        code: 403,
+        error_code: "session_not_found",
+        msg: "Session does not exist",
+      },
+    },
+  ])(
+    "keeps recognized $path denial terminal",
+    async ({ path: broken, status, body }) => {
+      const t = harness({
+        reply: (path) => {
+          if (path.endsWith(broken)) return Response.json(body, { status });
+          if (path.endsWith("preflight"))
+            return Response.json({ userId, email, verificationType: "invite" });
+          if (path.endsWith("/verify"))
+            return Response.json({ access_token: jwt(), user });
+          if (path.endsWith("/user")) return Response.json(user);
+          return Response.json({
+            verified: true,
+            expiresAt: "2099-01-01T00:00:00Z",
+          });
+        },
+      });
+      await t.get();
+      await t.post({ action: "stage", ...proof });
+      expect((await t.post({ action: "confirm" })).r.status).toBe(409);
+      expect((await t.get()).b.status).toBe("invalid");
+      const count = t.calls.length;
+      expect((await t.post({ action: "confirm" })).r.status).toBe(409);
+      expect(t.calls).toHaveLength(count);
+    },
+  );
 });

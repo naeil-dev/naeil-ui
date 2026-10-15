@@ -141,6 +141,76 @@ async function body(request: Request) {
   if (new Set(keys).size !== keys.length) throw new Failure(400);
   return value;
 }
+// Only these fixed endpoint denials establish a closed proof/session. Gateway,
+// service credentials, ACL/schema errors and unfamiliar envelopes remain retryable.
+function terminalDenial(path: string, status: number, text: string): boolean {
+  const value: unknown = JSON.parse(text);
+  if (!object(value)) return false;
+  // These provider envelopes are flat. Reject duplicate/escaped duplicate keys
+  // rather than accepting whichever conflicting value JSON.parse kept last.
+  const keys = [...text.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  if (keys.length !== new Set(keys).size) return false;
+  if (path === "/auth/v1/verify" || path === "/auth/v1/user") {
+    return (
+      exactKeys(value, ["code", "error_code", "msg"]) &&
+      value.code === status &&
+      status === 403 &&
+      typeof value.error_code === "string" &&
+      typeof value.msg === "string" &&
+      value.msg.length > 0 &&
+      (path === "/auth/v1/verify"
+        ? value.error_code === "otp_expired"
+        : ["session_not_found", "user_not_found"].includes(
+            value.error_code,
+          ))
+    );
+  }
+  if (
+    !exactKeys(value, ["code", "message", "details", "hint"]) ||
+    value.details !== null ||
+    value.hint !== null ||
+    typeof value.message !== "string" ||
+    value.code !== `PT${status}`
+  )
+    return false;
+  const proof = [
+    "invitation not found",
+    "invitation proof conflict",
+    "prepared proof conflict",
+  ];
+  const denials: Record<string, Record<number, string[]>> = {
+    "/rest/v1/rpc/console_invite_preflight": {
+      404: [proof[0]],
+      409: proof.slice(1),
+    },
+    "/rest/v1/rpc/console_invite_record_verification": {
+      404: [proof[0]],
+      409: [
+        ...proof.slice(1),
+        "verified subject conflict",
+        "verified Auth session required",
+        "verification receipt conflict",
+      ],
+    },
+    "/rest/v1/rpc/accept_console_invite": {
+      401: ["authenticated subject required", "authenticated session required"],
+      404: [proof[0]],
+      409: [
+        "recipient proof conflict",
+        "invitation expired or closed",
+        "member conflict",
+      ],
+      422: [
+        "bounded invitation proof required",
+        "services must be active and verified",
+      ],
+    },
+  };
+  return denials[path]?.[status]?.includes(value.message) === true;
+}
+
 export function inviteResponseHeaders(nonce?: string) {
   return new Headers({
     "Cache-Control": "no-store, max-age=0",
@@ -266,10 +336,17 @@ export function createInviteHandler(deps: Dependencies = {}) {
       throw new Failure(503);
     }
     if (!r.ok) {
-      await r.body?.cancel();
-      throw new Failure(
-        [400, 401, 403, 404, 409, 410, 422].includes(r.status) ? 409 : 503,
-      );
+      let terminal = false;
+      try {
+        terminal = terminalDenial(
+          path,
+          r.status,
+          await boundedText(r.body, 65536),
+        );
+      } catch {
+        // Never expose private upstream bodies, including malformed/oversized errors.
+      }
+      throw new Failure(terminal ? 409 : 503);
     }
     try {
       const v: unknown = JSON.parse(await boundedText(r.body, 65536));

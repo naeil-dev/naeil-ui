@@ -18,7 +18,7 @@ const user = {
 const token = `${Buffer.from('{"alg":"HS256"}').toString("base64url")}.${Buffer.from(JSON.stringify({ sub: userId, session_id: sessionId, exp: 9999999999 })).toString("base64url")}.fixture`;
 async function recoveryPage(
   lostAction: "stage" | "confirm",
-  kind: "network" | "json",
+  kind: "network" | "json" | "null502" | 500 | 502 | 504,
 ) {
   const upstream: string[] = [];
   const browser: string[] = [];
@@ -126,6 +126,9 @@ async function recoveryPage(
     if (!lost && action === lostAction && r.ok) {
       lost = true;
       if (kind === "network") throw new TypeError("Response lost");
+      if (kind === "null502") return Response.json(null, { status: 502 });
+      if (typeof kind === "number")
+        return Response.json({ status: "invalid" }, { status: kind });
       return new Response("{broken-json", { status: 200 });
     }
     return r;
@@ -172,7 +175,7 @@ async function recoveryPage(
   };
 }
 describe("real-handler recovery after successful response loss", () => {
-  it.each(["network", "json"] as const)(
+  it.each(["network", "json", "null502", 500, 502, 504] as const)(
     "lost stage %s: explicit GET resync then a separate deliberate confirm",
     async (kind) => {
       const t = await recoveryPage("stage", kind);
@@ -189,7 +192,7 @@ describe("real-handler recovery after successful response loss", () => {
       expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
     },
   );
-  it.each(["network", "json"] as const)(
+  it.each(["network", "json", "null502", 500, 502, 504] as const)(
     "lost acceptance %s: explicit GET shows known completion without repeat authority calls",
     async (kind) => {
       const t = await recoveryPage("confirm", kind);

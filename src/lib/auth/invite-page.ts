@@ -19,11 +19,12 @@ async function send(payload){
   try{
     response=await fetch(location.pathname+location.search,{method:'POST',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({csrf,...payload})});
     result=await response.json();
+    if(!result||typeof result!=='object'||Array.isArray(result))throw new Error('Unavailable');
   }catch{needsRecovery=true;throw new Error('Unavailable');}
-  if(result.csrf)csrf=result.csrf;
+  if(typeof result.csrf==='string')csrf=result.csrf;
   if(!response.ok){
-    if(response.status===403){needsRecovery=true;}
-    else if(response.status!==503){current={status:'invalid'};malformed=true;pendingStage=null;}
+    if(response.status===403||response.status===408||response.status>=500){needsRecovery=true;}
+    else{current={status:'invalid'};malformed=true;pendingStage=null;}
     throw new Error('Unavailable');
   }
   return result;
