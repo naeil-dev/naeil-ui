@@ -6,6 +6,40 @@
     background: var(--background);
     border-bottom: 1px solid var(--border);
   }
+  /* Branded website chrome is an opt-in composition, independent of app content widths. */
+  .naeil-header {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    width: 100%;
+  }
+  .naeil-header-frame {
+    max-width: 80rem;
+  }
+  .naeil-header-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2-value);
+  }
+  .ui-navigation-mobile-toolbar > .naeil-header-controls {
+    flex-wrap: wrap;
+    gap: var(--spacing-4-value);
+  }
+  .naeil-header-separator {
+    flex: none;
+    width: 1px;
+    height: var(--spacing-4-value);
+    background: var(--border);
+  }
+  .naeil-header-project-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--ui-control-height);
+    height: var(--ui-control-height);
+    border: 1px solid;
+    border-radius: var(--radius-lg-value);
+  }
   .ui-navigation-frame,
   .ui-site-footer-frame {
     width: 100%;

@@ -1,0 +1,18 @@
+{
+  "units-freeze.log": {
+    "sha256": "766f66692003247a9a1068468f9a24062ce3aea6a083e6c5bdb7642d370b1e10",
+    "bytes": 347
+  },
+  "types-freeze.log": {
+    "sha256": "b3bc18ff4ad9b2d8c1219c15377b32114862db6aa2705090b23ca309a61cde2d",
+    "bytes": 108
+  },
+  "lint-freeze.log": {
+    "sha256": "3d8ff848c8babcdb83e9d598191f75d0a78ff8ff90d97fb9897f7e84bf7349a9",
+    "bytes": 378
+  },
+  "package-build-freeze.log": {
+    "sha256": "65f84a1d004820f340b2f204d28c137f6f89bbb14d5a8090dce779ec89808693",
+    "bytes": 7012
+  }
+}

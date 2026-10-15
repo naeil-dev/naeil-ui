@@ -1,6 +1,7 @@
 import { checkConsumerBrowser } from "./check-consumer-browser";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
@@ -49,6 +50,13 @@ try {
     ),
   )[0];
   const tarball = join(dir, packed.filename);
+  const archiveSha256 = createHash("sha256").update(readFileSync(tarball)).digest("hex");
+  console.log(`Packed archive SHA-256: ${archiveSha256}`);
+  const expectedArchiveSha256 = process.env.NAEIL_UI_EXPECTED_ARCHIVE_SHA256;
+  if (expectedArchiveSha256 !== undefined) {
+    assert.match(expectedArchiveSha256, /^[0-9a-f]{64}$/, "NAEIL_UI_EXPECTED_ARCHIVE_SHA256 must be a full lowercase SHA-256 digest");
+    assert.equal(archiveSha256, expectedArchiveSha256, "Packed archive SHA-256 does not match the expected candidate");
+  }
   const core = fixture("react", resolve("examples/react"), tarball);
   for (const name of [
     "next",
@@ -82,6 +90,7 @@ try {
     "site-footer",
   ].map((name) => `components/ui/${name}`);
   corePaths.push(
+    "naeil-header",
     "components/ui/index",
     "components/typography",
     "components/logo",
@@ -99,9 +108,11 @@ try {
     join(core, "src/packed-contract.tsx"),
     `${imports}
 import * as ui from '@naeil/ui/ui';
+import { NaeilHeader } from '@naeil/ui/naeil-header';
 import { cn } from '@naeil/ui/utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: 'Password session' }));
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
 export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
 `,
@@ -117,6 +128,10 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   ]);
   const result = await import(pathToFileURL(join(core, "contract.mjs")).href);
   assert(result.valid, "Packed React exports failed");
+  assert.match(result.header, /data-naeil-header/);
+  assert.match(result.header, /https:\/\/naeil.dev\/ja\/blog/);
+  assert.match(result.header, /プロジェクト/);
+  assert.match(result.header, /Password session/);
   assert.match(result.html, /Consumer action/);
   assert.match(result.html, /aria-busy="true"/);
   assert.match(result.html, /h-8/);
@@ -151,6 +166,9 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert(html.includes(`data-naeil-brand="${brandVersion}"`));
   assert.match(html, /data-naeil-variant="horizontal"/);
   assert.match(html, /data-naeil-variant="footer"/);
+  const headerHtml = readFileSync(join(next, ".next/server/app/header.html"), "utf8");
+  assert.match(headerHtml, /data-naeil-header/);
+  assert.match(headerHtml, /https:\/\/naeil.dev\/ja\/blog/);
   assert.match(html, /Packed Next compatibility/);
   assert.match(html, /Consumer-owned messages/);
   assert.match(html, /Consumer action/);

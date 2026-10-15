@@ -1,0 +1,130 @@
+
+> @naeil/ui@0.4.0 test /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> vitest run src/lib/design/__tests__/naeil-header.test.ts
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+
+ ❯ src/lib/design/__tests__/naeil-header.test.ts (8 tests | 8 failed) 6ms
+     × owns the localized ja catalog and official destinations 3ms
+     × owns the localized ko catalog and official destinations 0ms
+     × owns the localized en catalog and official destinations 0ms
+     × routes absolute blog and brand destinations through the consumer link 0ms
+     × keeps external project overrides on the consumer guard path 0ms
+     × forwards brand interception with its actual destination 0ms
+     × renders SSR-safe theme and auth without claiming unsupported locales 0ms
+     × preserves explicit destinations, visibility, current project, labels and frame overrides 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > owns the localized ja catalog and official destinations
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > owns the localized ko catalog and official destinations
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > owns the localized en catalog and official destinations
+AssertionError: the complete React-only header is exported: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ header src/lib/design/__tests__/naeil-header.test.ts:9:76
+      7| const entry = await import("../../../components/naeil-header").catch((…
+      8| function header(props: NaeilHeaderProps) {
+      9|   expect(entry?.NaeilHeader, "the complete React-only header is export…
+       |                                                                            ^
+     10|   return entry!.NaeilHeader(props);
+     11| }
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:21:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > routes absolute blog and brand destinations through the consumer link
+AssertionError: the complete React-only header is exported: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ header src/lib/design/__tests__/naeil-header.test.ts:9:76
+      7| const entry = await import("../../../components/naeil-header").catch((…
+      8| function header(props: NaeilHeaderProps) {
+      9|   expect(entry?.NaeilHeader, "the complete React-only header is export…
+       |                                                                            ^
+     10|   return entry!.NaeilHeader(props);
+     11| }
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:36:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > keeps external project overrides on the consumer guard path
+AssertionError: the complete React-only header is exported: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ header src/lib/design/__tests__/naeil-header.test.ts:9:76
+      7| const entry = await import("../../../components/naeil-header").catch((…
+      8| function header(props: NaeilHeaderProps) {
+      9|   expect(entry?.NaeilHeader, "the complete React-only header is export…
+       |                                                                            ^
+     10|   return entry!.NaeilHeader(props);
+     11| }
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:47:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > forwards brand interception with its actual destination
+AssertionError: the complete React-only header is exported: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ header src/lib/design/__tests__/naeil-header.test.ts:9:76
+      7| const entry = await import("../../../components/naeil-header").catch((…
+      8| function header(props: NaeilHeaderProps) {
+      9|   expect(entry?.NaeilHeader, "the complete React-only header is export…
+       |                                                                            ^
+     10|   return entry!.NaeilHeader(props);
+     11| }
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:54:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > renders SSR-safe theme and auth without claiming unsupported locales
+AssertionError: the complete React-only header is exported: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ header src/lib/design/__tests__/naeil-header.test.ts:9:76
+      7| const entry = await import("../../../components/naeil-header").catch((…
+      8| function header(props: NaeilHeaderProps) {
+      9|   expect(entry?.NaeilHeader, "the complete React-only header is export…
+       |                                                                            ^
+     10|   return entry!.NaeilHeader(props);
+     11| }
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:63:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > preserves explicit destinations, visibility, current project, labels and frame overrides
+AssertionError: the complete React-only header is exported: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ header src/lib/design/__tests__/naeil-header.test.ts:9:76
+      7| const entry = await import("../../../components/naeil-header").catch((…
+      8| function header(props: NaeilHeaderProps) {
+      9|   expect(entry?.NaeilHeader, "the complete React-only header is export…
+       |                                                                            ^
+     10|   return entry!.NaeilHeader(props);
+     11| }
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:74:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  20:27:12
+   Duration  135ms (transform 18ms, setup 0ms, import 43ms, tests 6ms, environment 0ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

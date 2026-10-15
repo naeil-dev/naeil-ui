@@ -1,6 +1,6 @@
 # Shared usage contract
 
-These guides describe **@naeil/ui 0.3.0, published 2026-10-03** ([release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0)); [live Docs and Usage examples](https://naeil-dev.github.io/naeil-ui/) are available. Start with the [consumer setup and migration](../design/v2-migration.md). All listed exports are available from `@naeil/ui/ui`; the legacy root needs the optional Next/next-intl peers. Examples import real wrappers; product state, validation and network requests belong to consumers.
+These guides target the **@naeil/ui 0.5.0 release candidate**; final archive verification and registry publication are pending. The [hosted Docs](https://naeil-dev.github.io/naeil-ui/) were last verified for [0.4.0 on 2026-10-11](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0), while `pnpm storybook` shows the current candidate. Start with the [consumer setup and migration](../design/v2-migration.md). Primitives and generic Navigation/SiteFooter are exported from `@naeil/ui/ui`; the actual branded whole header uses the opt-in [NaeilHeader](naeil-header.md) entry `@naeil/ui/naeil-header`. Both are React-only. The legacy root needs the optional Next/next-intl peers. Examples import real wrappers; product state, validation and network requests belong to consumers.
 
 ## Styling, themes and overrides
 

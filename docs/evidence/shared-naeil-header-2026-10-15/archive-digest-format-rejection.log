@@ -1,0 +1,24 @@
+
+> @naeil/ui@0.5.0 check:package:boundary /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> tsx scripts/check-package.ts
+
+Packed archive SHA-256: 4e1482eb0e5ba942384f917aded3e2db6c4ef865e579e185b2273cb026b85e0e
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: NAEIL_UI_EXPECTED_ARCHIVE_SHA256 must be a full lowercase SHA-256 digest
+    at <anonymous> (/Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header/scripts/check-package.ts:29:12)
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'INVALID',
+  expected: /^[0-9a-f]{64}$/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.23.2
+ ELIFECYCLE  Command failed with exit code 1.

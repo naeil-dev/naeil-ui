@@ -1,0 +1,49 @@
+
+Running 1 test using 1 worker
+
+(node:9736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/naeil-header.spec.ts:128:1 › theme control changes the document theme and Japanese application omits unsupported locale UI (5.7s)
+
+
+  1) [chromium] › e2e/naeil-header.spec.ts:128:1 › theme control changes the document theme and Japanese application omits unsupported locale UI 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('html')
+    Expected pattern: /dark/
+    Received string:  "light"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('html') with timeout 5000ms
+      - waiting for locator('html')
+        14 × locator resolved to <html lang="en" class="light" data-ui-density="comfortable">…</html>
+           - unexpected value "light"
+
+
+      138 |   // Provider synchronization must not reset the user's selection after its own effect runs.
+      139 |   await page.waitForTimeout(250);
+    > 140 |   await expect(page.locator("html")).toHaveClass(/dark/);
+          |                                      ^
+      141 | });
+      142 |
+      143 | test("blocked decorative images preserve visible catalog links and descriptions", async ({ page }) => {
+        at /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header/e2e/naeil-header.spec.ts:140:38
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/evidence/shared-naeil-header-2026-10-15/storybook/recheck1/stability-results/naeil-header-theme-control-24c96-omits-unsupported-locale-UI-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/evidence/shared-naeil-header-2026-10-15/storybook/recheck1/stability-results/naeil-header-theme-control-24c96-omits-unsupported-locale-UI-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/evidence/shared-naeil-header-2026-10-15/storybook/recheck1/stability-results/naeil-header-theme-control-24c96-omits-unsupported-locale-UI-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/evidence/shared-naeil-header-2026-10-15/storybook/recheck1/stability-results/naeil-header-theme-control-24c96-omits-unsupported-locale-UI-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/naeil-header.spec.ts:128:1 › theme control changes the document theme and Japanese application omits unsupported locale UI 

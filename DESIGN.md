@@ -110,6 +110,8 @@ Demonstrate the system in three neutral compositions: a settings form, a selecta
 
 ### Application frame and content widths
 
+The owner approved extracting the actual naeil.dev whole header on2026-10-15. The optional `@naeil/ui/naeil-header` composition centralizes its brand/catalog/control/toolbar/responsive implementation. Its1280px branded frame is the existing website composition, separate from generic Navigation and from each product's content width. Official decorative image URLs are references; no new artwork rights or redistribution is implied. See [NaeilHeader](docs/components/naeil-header.md).
+
 Navigation and footer composition share the React-only `Navigation` and `SiteFooter` core. Existing `Nav`/`Footer` preserve Next compatibility while using that core. Services own menu data, route guards, locale/theme providers, authentication and frame widths; they should not fork the header/footer implementation. A compact dashboard/footer composition and a full website footer share behavior and visual rules without requiring identical product links. See [the component contract](docs/components/navigation.md).
 
 The application frame owns navigation placement and outer gutters; each content region owns its purpose-specific width. A narrow settings form inside that frame must not move the shared navigation. For routes using the same frame, keep navigation anchors stable at the same viewport, language and theme, including loading and changing summary counts. A shared Header import alone does not establish this consistency.

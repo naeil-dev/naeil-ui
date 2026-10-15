@@ -1,11 +1,22 @@
 import type { Preview } from "@storybook/nextjs-vite";
-import { useEffect } from "react";
-import { ThemeProvider } from "next-themes";
+import { useEffect, useRef, type ReactNode } from "react";
+import { ThemeProvider, useTheme } from "next-themes";
 import "../src/styles/globals.css";
 import "pretendard/dist/web/static/pretendard.css";
 import "@fontsource/noto-sans-jp/400.css";
 import "@fontsource/noto-sans-jp/500.css";
 import "@fontsource/noto-sans-jp/600.css";
+
+function HeaderTheme({ theme, children }: { theme: string; children: ReactNode }) {
+  const { setTheme } = useTheme();
+  const previousGlobal = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (previousGlobal.current === theme) return;
+    previousGlobal.current = theme;
+    setTheme(theme);
+  }, [theme, setTheme]);
+  return children;
+}
 
 const preview: Preview = {
   initialGlobals: { theme: "light", density: "comfortable" },
@@ -22,7 +33,11 @@ const preview: Preview = {
       return () => { delete document.documentElement.dataset.uiDensity; };
     }, [density, workspace]);
     // Workspace keeps its explicit theme/density controls for composition checks.
-    return workspace ? <Story /> : <ThemeProvider attribute="class" forcedTheme={context.globals.theme}><Story /></ThemeProvider>;
+    if (workspace) return <Story />;
+    if (context.title === "Brand/NaeilHeader") return <ThemeProvider attribute="class" defaultTheme={context.globals.theme} enableSystem={false} storageKey="storybook-naeil-header">
+      <HeaderTheme theme={context.globals.theme}><Story /></HeaderTheme>
+    </ThemeProvider>;
+    return <ThemeProvider attribute="class" forcedTheme={context.globals.theme}><Story /></ThemeProvider>;
   }],
   parameters: {
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },

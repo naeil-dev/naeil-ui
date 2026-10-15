@@ -1,3 +1,11 @@
+# Status — 2026-10-15 shared whole header verified locally
+
+The actual website header now has one optional React-only package composition, used directly by the site adapter and the estimate package consumer. Generic Navigation and old Next Nav APIs remain supported; no generated token changes. Shared units65/65, types, contrast, package/site builds, provisional clean packed React/Next and actual Storybook62/62 pass; full lint has0errors/1historical warning after excluding retained generated trace viewers. Sixteen matching JA/KO viewport/theme comparisons retain actual captures and no measured anchor differences over1px. [Verification and limits](docs/evidence/shared-naeil-header-2026-10-15/verification.md), [independent source/image review](docs/evidence/shared-naeil-header-2026-10-15/independent-review.md).
+
+Owner explicitly authorized package publication, reviewed main integration and naeil.dev deployment. Final frozen archive/CI/registry/site/estimate runtime checks are still pending here; no external completion is claimed. [Contract](docs/superpowers/specs/2026-10-15-shared-naeil-header.md), [plan](docs/superpowers/plans/2026-10-15-shared-naeil-header.md).
+
+## Historical status
+
 # naeil-ui (Design System) — Status
 
 > Status: Complete ✅

@@ -1,0 +1,59 @@
+
+> @naeil/ui@0.5.0 check:contrast /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> tsx scripts/check-contrast.ts
+
+🎨 WCAG Contrast Check — naeil-ui design tokens
+==================================================
+
+📋 LIGHT mode:
+  ✅ text on background: 15.11:1 
+  ✅ primary-foreground on primary: 14.55:1 
+  ✅ secondary-fg on secondary: 13.46:1 
+  ✅ muted-foreground on background: 5.71:1 
+  ✅ accent-fg on accent: 13.46:1 
+  ✅ destructive-fg on destructive: 5.67:1 
+  ✅ card-fg on card: 16.05:1 
+  ✅ popover-fg on popover: 16.05:1 
+  ✅ action hover: 10.21:1 
+  ✅ selected text: 13.46:1 
+  ✅ tab hover text: 14.22:1 
+  ✅ selected tab indicator on selection: 12.20:1 
+  ✅ selected tab indicator on canvas: 13.69:1 
+  ✅ secondary text on card: 6.07:1 
+  ✅ focus on canvas: 5.83:1 
+  ✅ focus on raised surface: 6.19:1 
+  ✅ input boundary: 3.03:1 
+  ✅ control boundary: 3.22:1 
+  ✅ inline error: 5.33:1 
+  ✅ error badge: 5.13:1 
+  ✅ success badge: 5.80:1 
+  ✅ warning badge: 5.31:1 
+  ✅ info badge: 5.39:1 
+
+📋 DARK mode:
+  ✅ text on background: 17.17:1 
+  ✅ primary-foreground on primary: 14.23:1 
+  ✅ secondary-fg on secondary: 13.28:1 
+  ✅ muted-foreground on background: 8.07:1 
+  ✅ accent-fg on accent: 13.28:1 
+  ✅ destructive-fg on destructive: 5.67:1 
+  ✅ card-fg on card: 16.44:1 
+  ✅ popover-fg on popover: 15.24:1 
+  ✅ action hover: 11.16:1 
+  ✅ selected text: 13.28:1 
+  ✅ tab hover text: 14.09:1 
+  ✅ selected tab indicator on selection: 12.01:1 
+  ✅ selected tab indicator on canvas: 15.53:1 
+  ✅ secondary text on card: 7.72:1 
+  ✅ focus on canvas: 9.54:1 
+  ✅ focus on raised surface: 8.47:1 
+  ✅ input boundary: 3.48:1 
+  ✅ control boundary: 3.33:1 
+  ✅ inline error: 9.54:1 
+  ✅ error badge: 7.45:1 
+  ✅ success badge: 7.76:1 
+  ✅ warning badge: 8.33:1 
+  ✅ info badge: 8.43:1 
+
+==================================================
+✅ All contrast checks passed!

@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     "storybook-static/**",
     "playwright-report/**",
     "test-results/**",
+    // Playwright's generated third-party trace viewer, preserved with evidence reports.
+    "docs/evidence/**/trace/**",
     ".storybook/.generated/**",
   ]),
   // These Node helpers are deliberately CommonJS; require is their module API.

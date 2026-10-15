@@ -1,21 +1,31 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigation, SiteFooter, Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
+import { SiteFooter, Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
 import { Textarea } from "@naeil/ui/components/ui/textarea";
 import * as DeepTabs from "@naeil/ui/components/ui/tabs";
 import * as DeepMenu from "@naeil/ui/components/ui/dropdown-menu";
 import { PageTitle } from "@naeil/ui/components/typography";
 import { Logo } from "@naeil/ui/components/logo";
 import { ThemeProvider } from "@naeil/ui/components/theme-provider";
+import { NaeilHeader, type NaeilHeaderLocale } from "@naeil/ui/naeil-header";
 
 export function App() {
   const [saved, setSaved] = useState(false);
+  const [headerLocale, setHeaderLocale] = useState<NaeilHeaderLocale>("en");
+  const [headerRoute, setHeaderRoute] = useState("");
   const notes = useRef<HTMLTextAreaElement>(null);
   return (
     <ThemeProvider attribute="class">
-      <Navigation brand={<Logo variant="horizontal" size={28} />} items={[{ id: "preferences", label: "Preferences", href: "#preferences" }]} labels={{ navigation: "Main navigation", menu: "Menu", close: "Close menu" }} containerClassName="max-w-7xl" />
-      <main id="preferences" className="mx-auto p-6" data-ui-layout="settings">
+      <NaeilHeader locale={headerLocale} onLocaleChange={setHeaderLocale}
+        authSlot={<Button className="min-h-11" variant="ghost">Consumer account</Button>}
+        onNavigate={(event, item) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          setHeaderRoute(item.href);
+        }} />
+      <main id="preferences" className="mx-auto p-6" style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }} data-ui-layout="settings">
         <Logo variant="horizontal" size={28} data-testid="packed-brand" className="mb-6" />
         <PageTitle>Profile preferences</PageTitle>
+        <p data-testid="packed-header-route" aria-live="polite">{headerRoute}</p>
         <p lang="ko">내 프로필과 알림 환경을 설정합니다.</p>
         <p lang="ja">プロフィールと通知設定を確認します。</p>
         <form

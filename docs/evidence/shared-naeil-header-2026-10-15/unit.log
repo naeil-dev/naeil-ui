@@ -1,0 +1,13 @@
+
+> @naeil/ui@0.5.0 test /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> vitest run
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+
+
+ Test Files  12 passed (12)
+      Tests  65 passed (65)
+   Start at  20:33:34
+   Duration  5.18s (transform 952ms, setup 0ms, import 3.42s, tests 5.59s, environment 1ms)
+

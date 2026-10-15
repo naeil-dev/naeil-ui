@@ -1,0 +1,25 @@
+
+Running 18 tests using 1 worker
+
+(node:98674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (light) (1.4s)
+  ✓   2 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 390) (486ms)
+  ✓   3 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (light, 1440) (436ms)
+  ✓   4 [chromium] › e2e/brand.spec.ts:15:3 › canonical artwork, nested themes and SVG ids (dark) (1.3s)
+  ✓   5 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 390) (433ms)
+  ✓   6 [chromium] › e2e/brand.spec.ts:43:36 › shared Nav/Footer frame and mobile menu (dark, 1440) (412ms)
+  ✓   7 [chromium] › e2e/brand.spec.ts:68:1 › built Storybook Docs is reachable (628ms)
+  ✓   8 [chromium] › e2e/brand.spec.ts:76:1 › automatic logo follows OS preference and live changes without theme ancestors (251ms)
+  ✓   9 [chromium] › e2e/navigation.spec.ts:5:1 › hover can replace a keyboard-opened group without focus dismissing the new group (1.0s)
+  ✓  10 [chromium] › e2e/navigation.spec.ts:26:1 › desktop hover preserves focus and the path into the menu (2.1s)
+  ✓  11 [chromium] › e2e/navigation.spec.ts:54:1 › mouse click still closes on leave while keyboard keeps the menu open (2.9s)
+  ✓  12 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 390 (1.7s)
+  ✓  13 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 1440 (1.5s)
+  ✓  14 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer light 2560 (1.4s)
+  ✓  15 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 390 (1.8s)
+  ✓  16 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 1440 (1.5s)
+  ✓  17 [chromium] › e2e/navigation.spec.ts:86:3 › shared navigation/footer dark 2560 (1.7s)
+  ✓  18 [chromium] › e2e/navigation.spec.ts:137:1 › long labels, English and reduced motion (534ms)
+
+  18 passed (21.9s)
