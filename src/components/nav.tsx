@@ -1,54 +1,11 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
-import Image from "next/image";
-import { Logo } from "./logo";
-import { Badge } from "./ui/badge";
-import {
-  Navigation,
-  type NavigationItem,
-  type NavigationLink,
-  type NavigationProps,
-} from "./ui/navigation";
-import { cn } from "../lib/utils";
+import { useLocale, useTranslations } from "next-intl";
+import { NaeilHeader } from "./naeil-header";
+import { headerLocales } from "./naeil-header-content";
+import { type NavigationLink, type NavigationLinkComponent, type NavigationProps } from "./ui/navigation";
 
-const PROJECTS = [
-  {
-    key: "cc",
-    href: "/cc",
-    accent: "oklch(0.704 0.140 181)",
-    icon: "/images/coral.png",
-    status: "active" as const,
-  },
-  {
-    key: "pkm",
-    href: "/pkm",
-    accent: "oklch(0.702 0.183 293)",
-    icon: "/images/jellyfish.png",
-    status: "coming" as const,
-  },
-  {
-    key: "naeilUi",
-    href: "/design",
-    accent: "oklch(0.623 0.214 259)",
-    icon: "/images/whale.png",
-    status: "active" as const,
-  },
-  {
-    key: "sa",
-    href: "/sa",
-    accent: "oklch(0.723 0.219 149)",
-    icon: "/images/fish.png",
-    status: "active" as const,
-  },
-  {
-    key: "babyAgent",
-    href: "/baby-agent",
-    accent: "oklch(0.769 0.188 70.08)",
-    icon: "/images/turtle.png",
-    status: "coming" as const,
-  },
-];
+const NativeBrandLink: NavigationLinkComponent = (props) => <a {...props} />;
 
 export interface NavProps {
   /** Internal Link component (from consumer's next-intl routing) */
@@ -87,122 +44,31 @@ export interface NavProps {
   labels?: NavigationProps["labels"];
 }
 
+/** Legacy Next/next-intl adapter; the complete branded composition lives in NaeilHeader. */
 export function Nav({
-  Link,
-  usePathname,
-  brandHref = "/",
-  brandExternal = false,
-  brandSlot,
-  projectsExternal = false,
-  externalBaseUrl = "https://naeil.dev",
-  currentProjectKey,
-  currentProjectHref,
-  subNav,
-  authSlot,
-  showProjects = true,
-  showBlog = true,
-  toolbarSlot,
-  projects,
-  className,
-  containerClassName,
-  labels,
+  Link, usePathname, brandHref = "/", brandExternal = false, brandSlot,
+  projectsExternal = false, externalBaseUrl = "https://naeil.dev",
+  currentProjectKey, currentProjectHref, subNav, authSlot,
+  showProjects = true, showBlog = true, toolbarSlot, projects,
+  className, containerClassName, labels,
 }: NavProps) {
+  const consumerLocale = useLocale();
+  const locale = headerLocales.find(value => value === consumerLocale) ?? "en";
   const t = useTranslations("nav");
   const pt = useTranslations("projects");
-  const locale = useLocale();
   const pathname = usePathname();
-  const BrandLink = brandExternal ? "a" : Link;
-  const projectLinks: NavigationLink[] =
-    projects ??
-    (showProjects
-      ? PROJECTS.map((project) => {
-          const current = project.key === currentProjectKey;
-          return {
-            id: project.key,
-            label: pt(`${project.key}.name`),
-            description: pt(`${project.key}.description`),
-            href: current
-              ? currentProjectHref || "/"
-              : projectsExternal
-                ? `${externalBaseUrl}${project.href}`
-                : project.href,
-            external: !current && projectsExternal,
-            active:
-              current ||
-              pathname === project.href ||
-              pathname.startsWith(`${project.href}/`),
-            icon: (
-              <span
-                className="flex size-10 items-center justify-center rounded-lg border"
-                style={{
-                  borderColor: `color-mix(in oklch, ${project.accent} 30%, transparent)`,
-                  backgroundColor: `color-mix(in oklch, ${project.accent} 8%, transparent)`,
-                }}
-              >
-                <Image src={project.icon} alt="" width={24} height={24} />
-              </span>
-            ),
-            badge:
-              project.status === "coming" ? (
-                <Badge variant="outline">{pt("status.coming")}</Badge>
-              ) : undefined,
-          };
-        })
-      : []);
-  const items: NavigationItem[] = [
-    ...(showProjects
-      ? [
-          {
-            id: "projects",
-            label: t("projects"),
-            items: projectLinks,
-            columns: 2 as const,
-          },
-        ]
-      : []),
-    ...(showBlog
-      ? [
-          {
-            id: "blog",
-            label: t("blog"),
-            href: projectsExternal ? `${externalBaseUrl}/blog` : "/blog",
-            external: projectsExternal,
-          },
-        ]
-      : []),
-    ...(subNav ?? []).map((item) => ({ ...item, id: item.href })),
-  ];
-  const defaultLabels =
-    locale === "ko"
-      ? { navigation: "주요 메뉴", menu: "메뉴", close: "메뉴 닫기" }
-      : locale === "ja"
-        ? {
-            navigation: "メインナビゲーション",
-            menu: "メニュー",
-            close: "メニューを閉じる",
-          }
-        : { navigation: "Main navigation", menu: "Menu", close: "Close menu" };
   return (
-    <Navigation
-      Link={Link}
-      items={items}
-      currentHref={pathname}
-      brand={
-        <BrandLink href={brandHref}>
-          {brandSlot ?? (
-            <Logo variant="horizontal" size={28} className="block" />
-          )}
-        </BrandLink>
-      }
-      labels={labels ?? defaultLabels}
-      toolbar={
-        <>
-          {authSlot}
-          {toolbarSlot}
-        </>
-      }
-      className={cn("fixed top-0 w-full", className)}
-      containerClassName={cn("max-w-7xl", containerClassName)}
+    <NaeilHeader
+      locale={locale} Link={Link} currentHref={pathname}
+      resolveHref={path => projectsExternal ? `${externalBaseUrl}${path}` : path}
+      projectsExternal={projectsExternal}
+      translations={{ projects: showProjects ? t("projects") : "", blog: showBlog ? t("blog") : "", project: pt }}
+      brandHref={brandHref} brandSlot={brandSlot}
+      brandLinkComponent={brandExternal ? NativeBrandLink : Link}
+      currentProjectKey={currentProjectKey} currentProjectHref={currentProjectHref}
+      subNav={subNav} projects={projects} showProjects={showProjects} showBlog={showBlog}
+      toolbarSlot={<>{authSlot}{toolbarSlot}</>}
+      className={className} containerClassName={containerClassName} labels={labels}
     />
   );
 }

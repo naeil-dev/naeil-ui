@@ -1,0 +1,38 @@
+
+> @naeil/ui@0.5.0 test /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> vitest run src/lib/design/__tests__/naeil-header.test.ts
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+
+ ❯ src/lib/design/__tests__/naeil-header.test.ts (14 tests | 1 failed) 60ms
+     × does not require project dictionaries when the project menu is hidden 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > does not require project dictionaries when the project menu is hidden
+AssertionError: expected [Function] to not throw an error but 'Error: No project dictionary in this …' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: No project dictionary in this consumer"
+
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:70:15
+     68|     expect(() => header({ locale: "en", showProjects: false, translati…
+     69|       projects: "", blog: "Journal", project: () => { throw new Error(…
+     70|     } })).not.toThrow();
+       |               ^
+     71|   });
+     72|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  20:32:25
+   Duration  606ms (transform 187ms, setup 0ms, import 456ms, tests 60ms, environment 0ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

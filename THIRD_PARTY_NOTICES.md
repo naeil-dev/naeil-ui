@@ -49,3 +49,7 @@ Radix, Sonner, Lucide, React, Next.js and other npm dependencies carry licenses 
 ## Website-only assets: unresolved provenance
 
 `public/images/`, `public/svg/`, and `public/coral-concepts.html` contain brand/hero art. History records additions and normalization (`8252a3e`, `9a15ff0`, `e57c21c`) but does not establish each original artist, generation service, source license or redistribution permission. No such provenance is invented here. `public/next.svg`, `public/vercel.svg` and other starter SVGs entered during Next.js setup; logos remain the respective owners' marks. These assets are outside shared UI requirements and the current npm file allowlist. Establish their rights or replace them before a separate public asset/site redistribution claim. This unresolved site-art audit is not package release approval.
+
+### Optional branded header candidate
+
+The0.5.0candidate header refers to the five decorative project images at their official https://naeil.dev/images/ URLs. It does not embed or redistribute those public/images bytes; their unresolved provenance above remains open. Site-adapter extraction does not establish artwork rights or clear unrelated website assets.

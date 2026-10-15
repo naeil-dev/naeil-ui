@@ -283,3 +283,9 @@ User authorized commit/PR/merge/deployment. PR #5 merged as `00a17a81264dba43266
 
 
 2026-10-14 workspace closeout: user requested preserving all remaining production verification records in the repository and stopping the local review service. Port3010 Next preview stopped; only its Tailscale HTTPS6448 proxy was removed. Home2455, default443 and the separately approved sample6447 proxy were left unchanged. Start the next login task from updated main in a new workspace; actual provider sign-in/session/logout remains the first unverified flow. Closeout changes documentation/evidence only, with no runtime/package changes.
+
+## 2026-10-15 — actual whole-header extraction
+
+User instruction: “공통화로 해.” Incumbent sources actually read: live naeil.dev/ko and /ja, current remote-main Nav/NavWrapper/SiteControls/Navigation/public CSS, DESIGN and package exports. The older default worktree/main checkout were excluded as source authority. New independent worktree starts fromb667a848. Adopted the actual full composition as optional NaeilHeader; keep generic Navigation and body widths distinct. Public images remain official URL references because THIRD_PARTY_NOTICES does not clear redistribution. No external design catalog, AI image generation or new palette/motion direction was used.
+
+Applied frontend-reference-workflow installed2026-10-05.1 plus project2026-10-02.1 layout/verification guidance; Impeccable context/extract/craft-floor within DESIGN. Actual CLI/browser/test results and hash inventory are in docs/evidence/shared-naeil-header-2026-10-15. Context found no PRODUCT.md, permitted narrow incumbent extraction; no init/redesign was performed. Package imports/Storybook/rendered comparisons are separate checks.

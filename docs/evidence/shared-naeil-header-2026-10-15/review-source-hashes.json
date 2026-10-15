@@ -1,0 +1,24 @@
+{
+  "shared": {
+    "src/components/naeil-header.tsx": "e66bcda95edea9064d504325512027a134bd3e160fd20002352e5868871d128f",
+    "src/components/naeil-header-content.ts": "0ca6d2c52375eca7c33aabe225818c9c706cae50aae71ccecec81203d9db6093",
+    "src/components/nav.tsx": "8ed823a8820e971f1451662acd0963f18299c6779c9acd9f66e2e83528f738cb",
+    "src/components/nav-wrapper.tsx": "f76ef9b8a41b697899d5b84f1308509b3aaace17bda6f78b2aa3b4e2a2082881",
+    "src/components/site-controls.tsx": "13c5a9535114db683346cc4f64e642a5f76f225e18a3f415dd87680a24c56244",
+    "src/styles/components.css": "3ab63be0b863d9ed113a574b5e711d391fbbf891518351b4f3205f4753f68cfb",
+    ".storybook/preview.tsx": "27e1b133de0c9e4ef3d0f2556fd1075b07b2ffffc920240c0e21de2ac9d03581",
+    "src/components/naeil-header.stories.tsx": "16874d9151c991d1d03c45f5f9b1d953e4bea8e3c02f4d779c8f51e101e6ffc2",
+    "package.json": "4b3997c649a3056b9066731ceec8bf32150966ebb6e7e0d2bc98370a81e119f8",
+    "tsup.config.ts": "be511c8e08098b30a2c24fbd01ea53cdd3ab77f8a9cad04d080df25bddc0ae14",
+    "tsup.deep.config.ts": "dcdce5845b875f3cf41ed4a2e92d3f1e64985cd87372b4f59301c1f362267dd1",
+    "tsconfig.build.json": "4fe5da9e98500b391f2cf87b7669db0d69bf5ce4782491dee24e9de760ed7baa"
+  },
+  "estimate": {
+    "src/components/app-frame.tsx": "8833d78a90f21192f459e6b79d4261575cee7aaceb5db3636eccc55e43c9a641",
+    "src/app/globals.css": "fa3d5bef274beb94aa578b1957f6439e0dbed75c37842c6cbd56a107f8db7c6f",
+    "src/features/estimates/estimates.css": "d3fe7a916551ea68b4bf303f1c9f939b6560b74ef847401253876eee603829ba",
+    "src/features/estimates/editor-navigation.css": "5d4b2f4b96ae5f859d7b417e49662ce26c31a6afabc0bca03e57d243b834624f",
+    "src/features/settings/settings.css": "04f87d7257c9899eaa22c69d09f500be7418922a05c5effd2536c88c5b0b36e6",
+    "scripts/package-standalone.mts": "914ddf1a008d25a1611777d9996c9684fda2eca47e5d1350cbc93de0d5792efb"
+  }
+}

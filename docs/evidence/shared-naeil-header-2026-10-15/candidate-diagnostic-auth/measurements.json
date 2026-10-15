@@ -1,0 +1,30 @@
+{
+  "base": "http://127.0.0.1:2480",
+  "capturedAt": "2026-10-15T11:41:53.253Z",
+  "records": [
+    {
+      "name": "ja-390-light",
+      "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-slot=\"navigation\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "name": "ja-390-dark",
+      "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-slot=\"navigation\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "name": "ja-768-light",
+      "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-slot=\"navigation\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "name": "ja-768-dark",
+      "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-slot=\"navigation\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "name": "ja-1440-light",
+      "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-slot=\"navigation\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "name": "ja-1440-dark",
+      "error": "Error: locator.waitFor: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-slot=\"navigation\"]') to be visible\u001b[22m\n"
+    }
+  ]
+}

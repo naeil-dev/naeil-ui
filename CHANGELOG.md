@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 — shared whole header (2026-10-15)
+
+- Add optional React-only NaeilHeader with the actual site catalog, controls, toolbar, fixed frame and responsive behavior. Site adapters consume the same module; preserve existing public compatibility imports/props.
+- Include previously unpublished shared Navigation/SiteFooter and their styles. Generic /ui remains separate from the branded catalog. Official artwork remains URL-referenced, with no new redistribution claim.
+- Packed React/Next, actual Storybook, site and estimate integration evidence is recorded separately; registry/site/Docs execution and exact release identities are recorded in the dated release evidence.
+
+
 ## 0.4.0 — brand 1.1.1 integration (2026-10-11)
 
 Published to npm at `2026-10-11T05:36:58.047Z`; `latest` was verified as `0.4.0`. The [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) and tag retain merged source `e8fe5afc13788a0cac0244b72e78975812f4a2ee`, the exact npm archive and the independent brand 1.1.1 ZIP. [Registry/clean-consumer evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/npm-publication-verification.json), [hosted Docs evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/hosted-docs-verification.json) and [production evidence](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/production-verification.json) record the completed external checks.

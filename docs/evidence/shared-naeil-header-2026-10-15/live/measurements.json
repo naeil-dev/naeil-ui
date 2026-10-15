@@ -1,0 +1,2038 @@
+{
+  "base": "https://naeil.dev",
+  "capturedAt": "2026-10-15T11:33:26.106Z",
+  "records": [
+    {
+      "name": "ja-390-light",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 900,
+          "clientWidth": 375
+        },
+        "lang": "ja",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "メニュープロジェクトContent CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダーブログJAログイン",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          },
+          {
+            "href": "/ja/blog",
+            "text": "ブログ"
+          },
+          {
+            "href": "/ja/login?next=%2F",
+            "text": "ログイン"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-390-dark",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 900,
+          "clientWidth": 375
+        },
+        "lang": "ja",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "メニュープロジェクトContent CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダーブログJAログイン",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          },
+          {
+            "href": "/ja/blog",
+            "text": "ブログ"
+          },
+          {
+            "href": "/ja/login?next=%2F",
+            "text": "ログイン"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-768-light",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 768,
+          "height": 900,
+          "clientWidth": 753
+        },
+        "lang": "ja",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "メニュープロジェクトContent CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダーブログJAログイン",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          },
+          {
+            "href": "/ja/blog",
+            "text": "ブログ"
+          },
+          {
+            "href": "/ja/login?next=%2F",
+            "text": "ログイン"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-768-dark",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 768,
+          "height": 900,
+          "clientWidth": 753
+        },
+        "lang": "ja",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "メニュープロジェクトContent CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダーブログJAログイン",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          },
+          {
+            "href": "/ja/blog",
+            "text": "ブログ"
+          },
+          {
+            "href": "/ja/login?next=%2F",
+            "text": "ログイン"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-1440-light",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "clientWidth": 1425
+        },
+        "lang": "ja",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1425,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 72.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 96.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 272.5,
+          "y": 10,
+          "width": 224,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1091.5,
+          "y": 10,
+          "width": 237,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-1440-dark",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "clientWidth": 1425
+        },
+        "lang": "ja",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1425,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 72.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 96.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 272.5,
+          "y": 10,
+          "width": 224,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1091.5,
+          "y": 10,
+          "width": 237,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-2560-light",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 2560,
+          "height": 900,
+          "clientWidth": 2545
+        },
+        "lang": "ja",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 2545,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 632.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 656.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 832.5,
+          "y": 10,
+          "width": 224,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1651.5,
+          "y": 10,
+          "width": 237,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ja-2560-dark",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 2560,
+          "height": 900,
+          "clientWidth": 2545
+        },
+        "lang": "ja",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 2545,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 632.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 656.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 832.5,
+          "y": 10,
+          "width": 224,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1651.5,
+          "y": 10,
+          "width": 237,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcnSustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ja/cc",
+            "text": "Content CollectorRSS、YouTube、Redditの自動収集 + AI要約"
+          },
+          {
+            "href": "/ja/pkm",
+            "text": "PKM準備中個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+          },
+          {
+            "href": "/ja/design",
+            "text": "naeil-uiミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+          },
+          {
+            "href": "/ja/sa",
+            "text": "Sustainability AnalyzerESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+          },
+          {
+            "href": "/ja/baby-agent",
+            "text": "Baby Agent準備中育児AIエージェント — LINE Q&A、記録、リマインダー"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-390-light",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 900,
+          "clientWidth": 375
+        },
+        "lang": "ko",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "메뉴프로젝트Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더블로그KO로그인",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          },
+          {
+            "href": "/ko/blog",
+            "text": "블로그"
+          },
+          {
+            "href": "/ko/login?next=%2F",
+            "text": "로그인"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-390-dark",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 900,
+          "clientWidth": 375
+        },
+        "lang": "ko",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "메뉴프로젝트Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더블로그KO로그인",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          },
+          {
+            "href": "/ko/blog",
+            "text": "블로그"
+          },
+          {
+            "href": "/ko/login?next=%2F",
+            "text": "로그인"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-768-light",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 768,
+          "height": 900,
+          "clientWidth": 753
+        },
+        "lang": "ko",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "메뉴프로젝트Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더블로그KO로그인",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          },
+          {
+            "href": "/ko/blog",
+            "text": "블로그"
+          },
+          {
+            "href": "/ko/login?next=%2F",
+            "text": "로그인"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-768-dark",
+      "mobile": true,
+      "geometry": {
+        "viewport": {
+          "width": 768,
+          "height": 900,
+          "clientWidth": 753
+        },
+        "lang": "ko",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "width": 753,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 24,
+          "y": 10,
+          "width": 96.9375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "메뉴프로젝트Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더블로그KO로그인",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          },
+          {
+            "href": "/ko/blog",
+            "text": "블로그"
+          },
+          {
+            "href": "/ko/login?next=%2F",
+            "text": "로그인"
+          }
+        ],
+        "columns": "none"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-1440-light",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "clientWidth": 1425
+        },
+        "lang": "ko",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1425,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 72.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 96.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 272.5,
+          "y": 10,
+          "width": 176.796875,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1114.015625,
+          "y": 10,
+          "width": 214.484375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-1440-dark",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "clientWidth": 1425
+        },
+        "lang": "ko",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1425,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 72.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 96.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 272.5,
+          "y": 10,
+          "width": 176.796875,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1114.015625,
+          "y": 10,
+          "width": 214.484375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-2560-light",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 2560,
+          "height": 900,
+          "clientWidth": 2545
+        },
+        "lang": "ko",
+        "theme": "light",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 2545,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgb(247, 248, 250)"
+        },
+        "frame": {
+          "x": 632.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 656.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 832.5,
+          "y": 10,
+          "width": 176.796875,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1674.015625,
+          "y": 10,
+          "width": 214.484375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(32, 33, 39)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    },
+    {
+      "name": "ko-2560-dark",
+      "mobile": false,
+      "geometry": {
+        "viewport": {
+          "width": 2560,
+          "height": 900,
+          "clientWidth": 2545
+        },
+        "lang": "ko",
+        "theme": "dark",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 2545,
+          "height": 65,
+          "position": "fixed",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgb(11, 12, 14)"
+        },
+        "frame": {
+          "x": 632.5,
+          "y": 0,
+          "width": 1280,
+          "height": 64,
+          "position": "static",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "brand": {
+          "x": 656.5,
+          "y": 10,
+          "width": 160,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "normal",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "nav": {
+          "x": 832.5,
+          "y": 10,
+          "width": 176.796875,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "toolbar": {
+          "x": 1674.015625,
+          "y": 10,
+          "width": 214.484375,
+          "height": 44,
+          "position": "static",
+          "padding": "0px",
+          "gap": "8px",
+          "font": "16px / 25px \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+          "color": "rgb(239, 240, 243)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "overflow": false
+      },
+      "menu": {
+        "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcnSustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+        "images": [
+          {
+            "src": "/_next/image?url=%2Fimages%2Fcoral.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fjellyfish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fwhale.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Ffish.png&w=48&q=75",
+            "loaded": true
+          },
+          {
+            "src": "/_next/image?url=%2Fimages%2Fturtle.png&w=48&q=75",
+            "loaded": true
+          }
+        ],
+        "links": [
+          {
+            "href": "/ko/cc",
+            "text": "Content CollectorRSS, YouTube, Reddit 자동 수집 + AI 요약"
+          },
+          {
+            "href": "/ko/pkm",
+            "text": "PKM준비 중개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+          },
+          {
+            "href": "/ko/design",
+            "text": "naeil-ui미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+          },
+          {
+            "href": "/ko/sa",
+            "text": "Sustainability AnalyzerESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+          },
+          {
+            "href": "/ko/baby-agent",
+            "text": "Baby Agent준비 중육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+          }
+        ],
+        "columns": "299px 299px"
+      },
+      "escapeFocus": true
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "installedRevision": "2026-10-05.1",
+  "projectRevision": "2026-10-02.1",
+  "files": [
+    {
+      "path": "/Users/jaymini/.agents/skills/frontend-reference-workflow/SKILL.md",
+      "sha256": "0fff5fb30befa108e21e04ecad045fa8524f34692454a96445bfe32690ddc1b5"
+    },
+    {
+      "path": "/Users/jaymini/.agents/skills/frontend-reference-workflow/references/layout.md",
+      "sha256": "40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a"
+    },
+    {
+      "path": "/Users/jaymini/.agents/skills/frontend-reference-workflow/references/verification.md",
+      "sha256": "b504804320724354584885782fe5522ca002028e647b3e146743649cb0a50efe"
+    },
+    {
+      "path": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header/skills/frontend-reference-workflow/SKILL.md",
+      "sha256": "ecada9f24d5ebbce5ac207d5225200ca2d76d08ea9f9f1d3b46d4e956a17d7b8"
+    },
+    {
+      "path": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header/skills/frontend-reference-workflow/references/layout.md",
+      "sha256": "40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a"
+    },
+    {
+      "path": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header/skills/frontend-reference-workflow/references/verification.md",
+      "sha256": "b504804320724354584885782fe5522ca002028e647b3e146743649cb0a50efe"
+    },
+    {
+      "path": "/Users/jaymini/.agents/skills/impeccable/SKILL.md",
+      "sha256": "6eeec6ef2028388a17de9f17a56c9cb7dbc7c8e7e1a8c15b831b0ba3e42168ac"
+    },
+    {
+      "path": "/Users/jaymini/.agents/skills/impeccable/reference/extract.md",
+      "sha256": "31b90048c0b540daec46762a10c2b6b6434737a89af005054d8b848d829d003b"
+    },
+    {
+      "path": "/Users/jaymini/.agents/skills/impeccable/reference/craft-floor.md",
+      "sha256": "e802e4f7bdc89050a9c0f2ca506e1d493a2316e6e810c0336c57aa073717ef3e"
+    }
+  ]
+}

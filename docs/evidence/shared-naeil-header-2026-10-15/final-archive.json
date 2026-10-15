@@ -1,0 +1,770 @@
+{
+  "name": "@naeil/ui",
+  "version": "0.5.0",
+  "sourceCommit": "bb0b842be6c6699bbb11a4c97898501c43cb90dd",
+  "archive": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header/.superpowers/header-release-0.5.0/naeil-ui-0.5.0.tgz",
+  "sha256": "8c9203192d967dc4fae65cc00ae80743244e0ae2363fee8c2c0edd9541d07cf9",
+  "integrity": "sha512-RpJA8orbw77tw40TjPRdMqGmgvFnWNUPp/SWkadj1zGIPTp6IsqNHXNA72FsdkKEbyJd5qEYWazMt2kx/Hd99g==",
+  "bytes": 156918,
+  "files": {
+    "LICENSE": "b385757bc1f099d7527ffdbf1973566c4b71f449a121044b7a3f6aaf25aa7689",
+    "src/styles/components.css": "3ab63be0b863d9ed113a574b5e711d391fbbf891518351b4f3205f4753f68cfb",
+    "src/styles/globals.css": "c559c0a69feb7293bec643d7978e5ad58a9309cdbb96ed87e780d96598bd7f34",
+    "src/styles/theme.css": "c0cf15f69be0fc4082c005d7f962e31ae71a6c25e205b49dc4c5c2af38112f7d",
+    "dist/source/components/ui/avatar.js": "4bbf6925198262eaf17f49132469bd6241d74cddaa510a082d2aab1235b47520",
+    "dist/source/components/ui/badge.js": "a7f3c25bc73332d011ab1f1e8b5b0ddee20257658c48845d44a347fd270789b8",
+    "dist/source/components/brand-artwork.generated.js": "1dc49a4b2da10efa69ff586dc0c55821ea8d8e4be9e52baf8f3042150122fb87",
+    "dist/source/components/ui/button.js": "8b8497fc84a8e0839f8b8e66f1cc3a4bb3eb2ca8f6bf29584ececb3291ed5b36",
+    "dist/source/components/ui/card.js": "30ebdfab9a1fae470202f50bbce427c3406a216f27adeffa5fab6e7d32928a61",
+    "dist/source/components/ui/checkbox.js": "1ce4ba067ded1dab0e7873f66b7496b9cd74abbdce626e8d6a3c032193d5a772",
+    "dist/chunk-CE73AEJZ.js": "ad20f9d45c523d37d5cf7125afd0115aa5287fcbb239576518a42e8cbc2a320d",
+    "dist/chunk-JBTDRVZ7.js": "00bec6f74d6c92ffec885b0f8f495ce5d4973db63baedc6edbdec0ffd1e04f8c",
+    "dist/chunk-QSTGUEEI.js": "f149cd0f3251d86533d18dc1aedbc085b4e1a1241546ffad5c65759380443816",
+    "dist/chunk-S64H3OYQ.js": "94d55dd4011d7222a62d13e289651940afdf847700c6883d5d1cf0b47680d8d8",
+    "dist/source/i18n/config.js": "5ef29dd87e058f500f9cd140fd747419502127c1e858a14deae961ba58a362cc",
+    "dist/source/components/ui/dialog.js": "47d7d4cfd001dbd0350b2ecce6475d35cc0231eacadb7449a1609e9160f82df4",
+    "dist/source/components/ui/dropdown-menu.js": "e287d02deedede09c86f415985bb3d5d584f41a258789d00d1a65ac651a6095d",
+    "dist/source/components/footer.js": "c9ef053f355596a7476fbdb512aa8ff4fd025c1b8de560eee8526607204a2e37",
+    "dist/components/index.js": "c59bd8f62323f0a87003397ccf27f6df1ee0a3603fadefd0d58f04865410ea72",
+    "dist/components/ui/index.js": "652346a2b38143383d71d239405b4c8b5da2aebd6c0772fc7c72e0dd6fadd549",
+    "dist/source/components/index.js": "8b015fd7b4773ae85d5de01bd9ffae1608fdc549ae4d7685efa7c2442fb678b9",
+    "dist/source/components/ui/index.js": "d185c35761e8c654ca531a388dd9d802934ea9582623737b2172643425b74c10",
+    "dist/source/components/ui/input.js": "4833542723d42a88685ef60eccce3d144d26dda2358af7ea009050794f74e16b",
+    "dist/source/components/locale-switcher.js": "6042a79f824d01e8d23e94a6244e8893d380f330637219fb57d149fc81bf8bb8",
+    "dist/source/components/logo.js": "a955f7ed367077855f4f0ed7207e661ca0f614df037fd3f0e5fd61c2e20e96b2",
+    "dist/source/lib/design/modal-inert.js": "45490c5fc960fdd7134370975158dfe059f695554fb18dc16fcd2491fc784dab",
+    "dist/source/components/naeil-header-content.js": "ea4ad7cd6839bdc5c482b78b8572b2bbf7ebfa89ffec0e4d922ecc82625d86bc",
+    "dist/components/naeil-header.js": "da3bbcdbecf865e37e8b2f16c19083ea84c879d1b05855c45e175516d962c9c0",
+    "dist/source/components/naeil-header.js": "404f177e3e4857b719c460adc3c5510ff8b6d811e3e2e72cc0b437840f619606",
+    "dist/source/components/nav.js": "556250b500ee8f423d549a6cfb71529d8c1120fedaffe19d2df471cb9c4b51ba",
+    "dist/source/components/ui/navigation.js": "905482a1fe650438b05e9b987f3629d65981407490f44b4f74941dc69bcc5d94",
+    "dist/source/i18n/routing.js": "c0f4388b50e245aeffe42e22c476bd8a02c44a991566df674c4e2ccecc7459f2",
+    "dist/source/components/ui/select.js": "078ac85813a0c2c089a79d353e04c0bfb1333e8b66df196feb48ee38e349b145",
+    "dist/source/components/ui/site-footer.js": "49d2ea793bff0b323d27f42b52d97f54c4643ce5647faa75bd2fd116b23ae707",
+    "dist/source/components/ui/sonner.js": "cfca6c2d3effc7c58a17963ee99891f214ddfdbec5a14bb60000becf3d1aaa07",
+    "dist/source/components/ui/switch.js": "79fa0da70d677ef3c3b517222845fe50fb1f98dd13a27325b7a51b178eb78258",
+    "dist/source/components/ui/tabs.js": "94b4f26889c5d21f98afb55916699e2b9a40abc1522695853e6a21c5f5088ac7",
+    "dist/source/components/ui/textarea.js": "ab9c44802494964d7eb8a1483b0c00ad110ff2a1440648c9a9e4db01ef1aaaac",
+    "dist/source/components/theme-provider.js": "54ba14a85a6e2fd47aab53aab433bcd9cf0f924a4efa2ccca73bef10b31b0d87",
+    "dist/source/components/theme-toggle-icon.js": "3f4131be04a4770a1f5285e3c076d09d97c286eac9919a8f576b22b8d162d26e",
+    "dist/source/components/theme-toggle.js": "6e81e35d51ee1244b8773e883bf6a1da4d520d8c43647243459dc50895779cfc",
+    "dist/source/components/typography.js": "9d218dee93ec3b47bd6312d186c0dabec0d0287b9b3f69bba0636f7bb522d99e",
+    "dist/lib/utils.js": "4e2a1109e5d28925059d0466ecab88a19f0f16559b2f19517e1394942d331043",
+    "dist/source/lib/utils.js": "1bb7859aef526c12563f4b0af67c70a010f2627b1d1f3e675f23a614e76f71ae",
+    "package.json": "4b3997c649a3056b9066731ceec8bf32150966ebb6e7e0d2bc98370a81e119f8",
+    "docs/components/avatar.md": "08af7eecb337c521fedbf126ad34435cc37e7e3568b9600bdb5a859791a53ba4",
+    "docs/components/badge.md": "77cfe04b1c3f32120e1092ca8b212c7755174308bbf52a94bb6d6a1ad3cb7b8d",
+    "docs/components/button.md": "c3e8d18dbcb404b12b0cf3ee36326473d08a48466bb54d0d22ffa9f1a38ea8a4",
+    "docs/components/card.md": "c8c7c36ad997d97a8d9986d5b4d6f4664a2ab7cf9eec6be13d84451e030f0b4d",
+    "CHANGELOG.md": "a488cb1283be06d337412f6f1fa19908d8508f6a0f74d044a334776d629c2f70",
+    "docs/components/checkbox.md": "9291c6510e2aa07406c7f7d685c86400107232793aa748fe92b23709fb8126eb",
+    "docs/components/common.md": "14079c4f9d7e90460a06d00b550597772764a3d327958779d9d572bc63ac99e0",
+    "docs/design/component-demand.md": "e91aa9fa452620a1bb50e37bf24bf9856454b2bd46bf2440ee4374c5b338b0fc",
+    "docs/components/composition.md": "6e034cb2f47d0dcdc360cac326114cd61fc443504aea2757a041eb8c465c40da",
+    "DESIGN.md": "bfb5e2dbbd161bda3e93d8cc860abf2405f3828310160f02bdc42714b886ee5f",
+    "docs/components/dialog.md": "a31b8fc35ba4a090f842c407f58b3a5f4a3441146a9aa03d9a91c73d1788bc10",
+    "docs/components/dropdown-menu.md": "ddca34d84fa71f8493036cfe9f04ef24fa5a6d52fd5ac039f25a952ebb5ef136",
+    "docs/components/input.md": "7a88a76f3f9ea4635f768efc687c079d1b76cf696387d59ba7e1c4dca243bcfa",
+    "docs/components/naeil-header.md": "b2a0a75e30143546070923caa7feabbc7dcd074931390671865317fa452a6246",
+    "docs/components/navigation.md": "f8bafa4fc18788ee78ef3b075cc97074c4396a9cce1417507298c24552971706",
+    "docs/package-release.md": "c9928a76ab6f241e0af59b47c85170f63ef304effd923434ab2b22369c347dc5",
+    "docs/design/public-ui-final-verification.md": "918e4b7cff7b919127044d61c190d72d77de9712a270449e44a89a20561506b8",
+    "docs/design/public-ui-release-validation.md": "b515ff5587a38483a69505b1abdb056cd6c2020532787a5305accfa504de71e0",
+    "docs/design/public-ui-stage3-verification.md": "b03af9992c28ce6f995e78220093e13a886edd78931facab429720970b8910f8",
+    "docs/design/public-ui-stage4-verification.md": "494bd1fdac730d9b4329a0f23d475d507f82b38b43f08e9fd193968845e82181",
+    "docs/design/public-ui-support.md": "1553b0a5fc39e2c4375fb2e34060a12fc4eb11d02887a1528894c1f76ce196ee",
+    "docs/components/README.md": "15a00c55aba2fe9e565aae91fed4f9ba8b53a79bc708939a6d36d6b1472a1937",
+    "README.md": "62703f1c440412898a794511090e05a2a1ce33c61310fde6774b6ab118f96fa6",
+    "docs/components/select.md": "dd07eb7cbc4dc2446308df561445e083d92bd2f065bafabdc082ee800fc7f778",
+    "docs/components/sonner.md": "33e15cf040da7fb4f8342c5877d1040c3fdab7a46bcf39fa507296e1635f5bca",
+    "docs/components/switch.md": "942a8485da9115a0be8b7227d1893f63b1f02a2690cd74f3ac0c8fe062fcccda",
+    "docs/components/tabs.md": "bab27fc89644e5969af1d465e0507b27640f13118efa30fd3d49c70c36e83280",
+    "docs/components/textarea.md": "7d597ce9140b6ca368d556c3480802ff350dd89a457e02956a4d71d0d98d8a30",
+    "THIRD_PARTY_NOTICES.md": "06ab6e968b95c286e71ec061d5e4437f9f2b98178fce50a81a53f2e5f570ae22",
+    "docs/design/v2-migration.md": "3f17193705362f5ed36f4c3604280adcc9d3e5ba7d1988b71496c17704f7cc5f",
+    "dist/source/components/ui/avatar.d.ts": "21c7580be55ec81e16ba25b43a5ddc1a888711c6795ab762447b282caaaab1e5",
+    "dist/source/components/ui/badge.d.ts": "377bb30c4297e8d5d08030b4425f0235eeeb1a2c80127fbb114ed3e2a80fb594",
+    "dist/source/components/brand-artwork.generated.d.ts": "9b22914e7a81300820f7c7fd92ba92bf6107592ff90034301d94913c5f8415f2",
+    "dist/source/components/ui/button.d.ts": "a0cf2a02907454f236e68e10912be3e5d6ad993564f850dd03009d28e784231b",
+    "dist/source/components/ui/card.d.ts": "33aedf00c40edf85489d020f07b5b2723a08a9e40aa84a93941ac84d9843c5e0",
+    "dist/source/components/ui/checkbox.d.ts": "8f41b10708f9e0b7e234f689f6286c18b073fa08d7bcab9c3dc51627f17d8af0",
+    "dist/source/i18n/config.d.ts": "106fac62c6f31279502f2f88e010f1aa1123eb69f63bb177c106b231d3fd96b0",
+    "dist/source/components/ui/dialog.d.ts": "31ea96f9cf12671492d5c361c3b07c5459116cb7c8a5a4df526c3ab68bae28b2",
+    "dist/source/components/ui/dropdown-menu.d.ts": "f59146556bd7c3f177584c16a410ffef2308dcb549642327e20d4247700c13ad",
+    "dist/source/components/footer.d.ts": "1c82a94fdc5b69f3d5f5783b9251e5b3e150a4a284c24bed7be264c0eb5b6e45",
+    "dist/components/index.d.ts": "e920278081d8f6effa6cc60e8e60aa824c2b0e0ab2872fc342dd714b6fde6da7",
+    "dist/components/ui/index.d.ts": "a60685bcbbf9a94f40ec55fc2d01f5d9daf7323f7ee799edb6be63157ee356d3",
+    "dist/source/components/index.d.ts": "db414d159948981dffe827735990eb595d569c437022ede59e3a3d37a40bd790",
+    "dist/source/components/ui/index.d.ts": "7477bcb0f118b13988e5064ef56996612e3d1119b145a691ea67acfaff735868",
+    "dist/source/components/ui/input.d.ts": "033fe8e9223d577b14adc6ea72e635b2e53238120fd569161b533fe72502593c",
+    "dist/source/components/locale-switcher.d.ts": "2bcc34fbde6cfbfe3530fc8e7b0696a202a58f7da15620773b98bacc57767509",
+    "dist/source/components/logo.d.ts": "6647966eb8fbbff05070fc3b40c17da5c4aae3e4c99869e4bb65a48562d1892a",
+    "dist/source/lib/design/modal-inert.d.ts": "aa22cdc381b6eab54c4c15de6f9026d61e3306acfb647843e3bd10ef10f87009",
+    "dist/source/components/naeil-header-content.d.ts": "eaee85bc17ceb027a1b7a4a406a349b96d61993955212148025768b10b1f9eb3",
+    "dist/components/naeil-header.d.ts": "b4d607c587350c4257ec170a81d14181ea6bfaa214dcf2d3a66f395b9b57e7cc",
+    "dist/source/components/naeil-header.d.ts": "a4f7caa3fc62b517f0d850212c35463834d5ca72caa1eba7df74926614fef6d0",
+    "dist/source/components/nav.d.ts": "33eaf55f7209db07cf49a9626c1f72126caf684639bb00374201ee4e375e9836",
+    "dist/navigation-CL10a6Eb.d.ts": "e170e08a608bcd09ee57bcab7304396d496cd70501fbae82a15707dc1851f535",
+    "dist/source/components/ui/navigation.d.ts": "5f30ed459e9cf35a82dccdff35827b0278c27252e84ba768dbd1f6725fe5b0d6",
+    "dist/source/i18n/routing.d.ts": "8e637c0d48b44f1a3ed68f94cd94ca6a1aa5850f139ca14b6a104d9b119c39b2",
+    "dist/source/components/ui/select.d.ts": "1aa26068703cd5f413f41b926a5093e939cbae3109574aa122a7b53be876da53",
+    "dist/site-footer-B67meCDv.d.ts": "f56b3c163d77272f296340af622128fcc822bc8a9ec5cc1fdd8cd2efdc1badd7",
+    "dist/source/components/ui/site-footer.d.ts": "9790c6bc11ece30c0cd12065258644204719dede802e0daa4c9b45ea99f4c6c5",
+    "dist/source/components/ui/sonner.d.ts": "9c38a79c620db4c8ae43ca6bed50ab2fa1dba833c51780af3c3a16bb66de1900",
+    "dist/source/components/ui/switch.d.ts": "622b8c0f283075b1eeb6412570cf6fa68f3cd28dea10c0fac28470e5a3afdd9c",
+    "dist/source/components/ui/tabs.d.ts": "0effd5bf1787572d0297d9defe51ae2826c681257411d81d3098d55bc672dbb1",
+    "dist/source/components/ui/textarea.d.ts": "63b91af059c5dd38606c1da80f707125fd3a6c8bb9b4370660dc67e5266ca43c",
+    "dist/source/components/theme-provider.d.ts": "e7a8c0e1a605b128fffff8abed3aeb8fd36c3a46d7db4d732785ae4b8148b118",
+    "dist/source/components/theme-toggle-icon.d.ts": "e6a4263040bbd4adcaf47fe2d83b0a5b7079ee38bba95d24052806b5896079b6",
+    "dist/source/components/theme-toggle.d.ts": "239c0b63cecc729664db816a3977f5075f89109e91e864cd86f62f092b218ccd",
+    "dist/tokens.ts": "acc251b03dfc7307889019b156c956165068d3cc55a3ea1c293b6a91c02a3600",
+    "dist/source/components/typography.d.ts": "c8dbd9461dca90608da95820c801e939be8df610a7b961e97fabd550c474a8bd",
+    "dist/lib/utils.d.ts": "251b46bc175ab1fd6977041db52f298f82e247a920a4e1ed94e0c2b15b0f2ff0",
+    "dist/source/lib/utils.d.ts": "251b46bc175ab1fd6977041db52f298f82e247a920a4e1ed94e0c2b15b0f2ff0",
+    "licenses/Lato-OFL.txt": "74ba064d03f1f1c4a952da936c3eb71866c34404916734de3cae73b34357e59e",
+    "licenses/Noto-Sans-JP-OFL.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+    "licenses/Nunito-Sans-OFL.txt": "efbb0c9e864cef973982d9a17567e6be5c3d1759695574586f3f18c7ecca064b",
+    "licenses/popper-MIT.txt": "2961310ed05cd9373a08b8191c071425a7fede0ca5d807ca38fa5f5f61c5b834",
+    "licenses/Pretendard-OFL.txt": "85fce85e25260b03777bf10373d3bd9363b9da96d9e0ca86a280dd37ed7667a0",
+    "licenses/React-MIT.txt": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+    "licenses/react-remove-scroll-bar-MIT.txt": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+    "licenses/store2-MIT.txt": "86ba5809b96a10a509a6d2ca5d5bed2ab3d5cb2048c519fd233ffc13733745b9",
+    "licenses/Storybook-MIT.txt": "bc90586179d44dcb313a9a289d687a2f26226303b2066bd21dbefd2378e894e5",
+    "licenses/toggle-selection-MIT.txt": "771e50e27b24269923639e8e0cc650e7187ffeab5726f6a6f47d9ea83865089d"
+  },
+  "fileCount": 124,
+  "npmPack": {
+    "id": "@naeil/ui@0.5.0",
+    "name": "@naeil/ui",
+    "version": "0.5.0",
+    "size": 156918,
+    "unpackedSize": 865048,
+    "shasum": "eb2950879733aafe104d53406034a37baa85ba4d",
+    "integrity": "sha512-RpJA8orbw77tw40TjPRdMqGmgvFnWNUPp/SWkadj1zGIPTp6IsqNHXNA72FsdkKEbyJd5qEYWazMt2kx/Hd99g==",
+    "filename": "naeil-ui-0.5.0.tgz",
+    "files": [
+      {
+        "path": "CHANGELOG.md",
+        "size": 5351,
+        "mode": 420
+      },
+      {
+        "path": "DESIGN.md",
+        "size": 24133,
+        "mode": 420
+      },
+      {
+        "path": "LICENSE",
+        "size": 1079,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 9357,
+        "mode": 420
+      },
+      {
+        "path": "THIRD_PARTY_NOTICES.md",
+        "size": 5456,
+        "mode": 420
+      },
+      {
+        "path": "dist/chunk-CE73AEJZ.js",
+        "size": 22670,
+        "mode": 420
+      },
+      {
+        "path": "dist/chunk-JBTDRVZ7.js",
+        "size": 1506,
+        "mode": 420
+      },
+      {
+        "path": "dist/chunk-QSTGUEEI.js",
+        "size": 10475,
+        "mode": 420
+      },
+      {
+        "path": "dist/chunk-S64H3OYQ.js",
+        "size": 164895,
+        "mode": 420
+      },
+      {
+        "path": "dist/components/index.d.ts",
+        "size": 5277,
+        "mode": 420
+      },
+      {
+        "path": "dist/components/index.js",
+        "size": 11932,
+        "mode": 420
+      },
+      {
+        "path": "dist/components/naeil-header.d.ts",
+        "size": 2932,
+        "mode": 420
+      },
+      {
+        "path": "dist/components/naeil-header.js",
+        "size": 280,
+        "mode": 420
+      },
+      {
+        "path": "dist/components/ui/index.d.ts",
+        "size": 10473,
+        "mode": 420
+      },
+      {
+        "path": "dist/components/ui/index.js",
+        "size": 18223,
+        "mode": 420
+      },
+      {
+        "path": "dist/lib/utils.d.ts",
+        "size": 106,
+        "mode": 420
+      },
+      {
+        "path": "dist/lib/utils.js",
+        "size": 76,
+        "mode": 420
+      },
+      {
+        "path": "dist/navigation-CL10a6Eb.d.ts",
+        "size": 1976,
+        "mode": 420
+      },
+      {
+        "path": "dist/site-footer-B67meCDv.d.ts",
+        "size": 885,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/brand-artwork.generated.d.ts",
+        "size": 4881,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/brand-artwork.generated.js",
+        "size": 149676,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/footer.d.ts",
+        "size": 830,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/footer.js",
+        "size": 4740,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/index.d.ts",
+        "size": 572,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/index.js",
+        "size": 594,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/locale-switcher.d.ts",
+        "size": 522,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/locale-switcher.js",
+        "size": 2155,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/logo.d.ts",
+        "size": 911,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/logo.js",
+        "size": 3629,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/naeil-header-content.d.ts",
+        "size": 6598,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/naeil-header-content.js",
+        "size": 5673,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/naeil-header.d.ts",
+        "size": 2847,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/naeil-header.js",
+        "size": 8590,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/nav.d.ts",
+        "size": 2296,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/nav.js",
+        "size": 2366,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/theme-provider.d.ts",
+        "size": 281,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/theme-provider.js",
+        "size": 1647,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/theme-toggle-icon.d.ts",
+        "size": 153,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/theme-toggle-icon.js",
+        "size": 1911,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/theme-toggle.d.ts",
+        "size": 145,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/theme-toggle.js",
+        "size": 899,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/typography.d.ts",
+        "size": 641,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/typography.js",
+        "size": 2097,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/avatar.d.ts",
+        "size": 1021,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/avatar.js",
+        "size": 4357,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/badge.d.ts",
+        "size": 696,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/badge.js",
+        "size": 2797,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/button.d.ts",
+        "size": 792,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/button.js",
+        "size": 3207,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/card.d.ts",
+        "size": 1111,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/card.js",
+        "size": 4127,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/checkbox.d.ts",
+        "size": 291,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/checkbox.js",
+        "size": 2196,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/dialog.d.ts",
+        "size": 1672,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/dialog.js",
+        "size": 5757,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/dropdown-menu.d.ts",
+        "size": 2802,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/dropdown-menu.js",
+        "size": 9735,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/index.d.ts",
+        "size": 1690,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/index.js",
+        "size": 2583,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/input.d.ts",
+        "size": 225,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/input.js",
+        "size": 1982,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/navigation.d.ts",
+        "size": 1941,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/navigation.js",
+        "size": 12884,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/select.d.ts",
+        "size": 1633,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/select.js",
+        "size": 5921,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/site-footer.d.ts",
+        "size": 856,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/site-footer.js",
+        "size": 3180,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/sonner.d.ts",
+        "size": 203,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/sonner.js",
+        "size": 2849,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/switch.d.ts",
+        "size": 281,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/switch.js",
+        "size": 1833,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/tabs.d.ts",
+        "size": 694,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/tabs.js",
+        "size": 2557,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/textarea.d.ts",
+        "size": 228,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/components/ui/textarea.js",
+        "size": 1775,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/i18n/config.d.ts",
+        "size": 242,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/i18n/config.js",
+        "size": 215,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/i18n/routing.d.ts",
+        "size": 23348,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/i18n/routing.js",
+        "size": 430,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/lib/design/modal-inert.d.ts",
+        "size": 293,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/lib/design/modal-inert.js",
+        "size": 2564,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/lib/utils.d.ts",
+        "size": 106,
+        "mode": 420
+      },
+      {
+        "path": "dist/source/lib/utils.js",
+        "size": 147,
+        "mode": 420
+      },
+      {
+        "path": "dist/tokens.ts",
+        "size": 6033,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/avatar.md",
+        "size": 3207,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/badge.md",
+        "size": 2259,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/button.md",
+        "size": 2630,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/card.md",
+        "size": 2484,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/checkbox.md",
+        "size": 2972,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/common.md",
+        "size": 5180,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/composition.md",
+        "size": 4369,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/dialog.md",
+        "size": 3507,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/dropdown-menu.md",
+        "size": 3604,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/input.md",
+        "size": 2623,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/naeil-header.md",
+        "size": 5708,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/navigation.md",
+        "size": 7312,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/README.md",
+        "size": 2189,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/select.md",
+        "size": 3318,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/sonner.md",
+        "size": 3391,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/switch.md",
+        "size": 2552,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/tabs.md",
+        "size": 4487,
+        "mode": 420
+      },
+      {
+        "path": "docs/components/textarea.md",
+        "size": 3664,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/component-demand.md",
+        "size": 4867,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/public-ui-final-verification.md",
+        "size": 17297,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/public-ui-release-validation.md",
+        "size": 12744,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/public-ui-stage3-verification.md",
+        "size": 15014,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/public-ui-stage4-verification.md",
+        "size": 16377,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/public-ui-support.md",
+        "size": 11149,
+        "mode": 420
+      },
+      {
+        "path": "docs/design/v2-migration.md",
+        "size": 24648,
+        "mode": 420
+      },
+      {
+        "path": "docs/package-release.md",
+        "size": 21252,
+        "mode": 420
+      },
+      {
+        "path": "licenses/Lato-OFL.txt",
+        "size": 4407,
+        "mode": 420
+      },
+      {
+        "path": "licenses/Noto-Sans-JP-OFL.txt",
+        "size": 4314,
+        "mode": 420
+      },
+      {
+        "path": "licenses/Nunito-Sans-OFL.txt",
+        "size": 4393,
+        "mode": 420
+      },
+      {
+        "path": "licenses/popper-MIT.txt",
+        "size": 1128,
+        "mode": 420
+      },
+      {
+        "path": "licenses/Pretendard-OFL.txt",
+        "size": 4418,
+        "mode": 420
+      },
+      {
+        "path": "licenses/React-MIT.txt",
+        "size": 1088,
+        "mode": 420
+      },
+      {
+        "path": "licenses/react-remove-scroll-bar-MIT.txt",
+        "size": 1093,
+        "mode": 420
+      },
+      {
+        "path": "licenses/store2-MIT.txt",
+        "size": 1056,
+        "mode": 420
+      },
+      {
+        "path": "licenses/Storybook-MIT.txt",
+        "size": 1077,
+        "mode": 420
+      },
+      {
+        "path": "licenses/toggle-selection-MIT.txt",
+        "size": 1090,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 9095,
+        "mode": 420
+      },
+      {
+        "path": "src/styles/components.css",
+        "size": 14418,
+        "mode": 420
+      },
+      {
+        "path": "src/styles/globals.css",
+        "size": 363,
+        "mode": 420
+      },
+      {
+        "path": "src/styles/theme.css",
+        "size": 9314,
+        "mode": 420
+      }
+    ],
+    "entryCount": 124,
+    "bundled": []
+  }
+}

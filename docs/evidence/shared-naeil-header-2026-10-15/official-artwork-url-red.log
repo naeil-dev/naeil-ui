@@ -1,0 +1,39 @@
+
+> @naeil/ui@0.5.0 test /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> vitest run src/lib/design/__tests__/naeil-header.test.ts
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+
+ ❯ src/lib/design/__tests__/naeil-header.test.ts (8 tests | 3 failed) 29ms
+     × owns the localized ja catalog and official destinations 10ms
+     × owns the localized ko catalog and official destinations 1ms
+     × owns the localized en catalog and official destinations 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > owns the localized ja catalog and official destinations
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > owns the localized ko catalog and official destinations
+ FAIL  src/lib/design/__tests__/naeil-header.test.ts > complete branded header > owns the localized en catalog and official destinations
+AssertionError: expected 'data:image/png;base64,iVBORw0KGgoAAAA…' to be 'https://naeil.dev/images/coral.png' // Object.is equality
+
+Expected: "https://naeil.dev/images/coral.png"
+Received: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABmJLR0QA/w"
+
+ ❯ src/lib/design/__tests__/naeil-header.test.ts:32:71
+     30|     expect(blogLink).toMatchObject({ label: blog, href });
+     31|     expect(renderToStaticMarkup(group.items[1].badge)).toContain(comin…
+     32|     expect(group.items[0].icon.props.children.props.src.slice(0, 80)).…
+       |                                                                       ^
+     33|   });
+     34|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  20:29:41
+   Duration  336ms (transform 112ms, setup 0ms, import 242ms, tests 29ms, environment 0ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

@@ -1,0 +1,9 @@
+Recheck1: Chromium all31cases pass; WebKit theme switching still fails (document remains light). Source root cause verified in installed next-themes0.4.6: setTheme is useCallback(...,[theme]); its function identity changes each time theme state changes. New HeaderTheme effect depends on [theme,setTheme], so every user theme change retriggers setTheme(globalTheme) and resets it. Chromium's transient assertion can pass before reset. This is still a fixture/provider synchronization issue, not shared header logic.
+
+Required correction in .storybook/preview.tsx: synchronize on actual global theme changes only, e.g. guard with useRef previous global and call current setTheme only when previous global differs; or React useEffectEvent for setTheme with an effect keyed only on global theme. Preserve initial/global theme changes and user selection. Do not weaken tests. Test will also assert stable dark theme after subsequent auth interaction.
+
+Failure trace/error/screenshot retained under recheck1/results/*theme*webkit. I did not edit fixture source.
+
+Final recheck1 combined run:61passed1failed; Chromium31pass, WebKit30pass1theme-fail. Added250ms stable-theme assertion after successful auth interaction and reran Chromium theme only: RED at the new stability assertion, proving Chromium also resets to light after transient dark. Log stability-red.log and stability-results retain diagnostics. This strengthens the test without hiding product/provider behavior.
+
+Inspected fresh Chromium768dark mobile and2560light header plus WebKit768light mobile screenshots. Auth target fix/layout/artworks are correct. All16matrix raw axe results have0violations; incompletes retained (lazy Select aria-controls and overlapping background inference on some descriptions). Build/artifact guard pass. No package/source fixture edits. Owned Playwright webServers exited with runs;6007 is released.

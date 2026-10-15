@@ -1,0 +1,114 @@
+[
+  {
+    "name": "ja-390-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-390-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-768-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-768-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-1440-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-1440-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-2560-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ja-2560-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-390-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-390-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-768-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-768-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-1440-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-1440-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-2560-light",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  },
+  {
+    "name": "ko-2560-dark",
+    "changesOver1px": {},
+    "liveOverflow": false,
+    "candidateOverflow": false,
+    "candidateImagesLoaded": true
+  }
+]

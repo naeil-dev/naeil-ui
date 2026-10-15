@@ -1,0 +1,6 @@
+
+> @naeil/ui@0.5.0 check:package:boundary /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> tsx scripts/check-package.ts
+
+Packed archive SHA-256: 4e1482eb0e5ba942384f917aded3e2db6c4ef865e579e185b2273cb026b85e0e
+Packed boundary: PASS (124 files, 856451 unpacked bytes)

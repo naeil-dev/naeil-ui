@@ -1,0 +1,10 @@
+
+> @naeil/ui@0.5.0 start /Users/jaymini/.paseo/worktrees/28nele6j/shared-naeil-header
+> next start --port 2480 --hostname 127.0.0.1
+
+▲ Next.js 16.1.7
+- Local:         http://127.0.0.1:2480
+- Network:       http://127.0.0.1:2480
+
+✓ Starting...
+✓ Ready in 306ms

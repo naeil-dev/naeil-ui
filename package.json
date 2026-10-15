@@ -1,6 +1,6 @@
 {
   "name": "@naeil/ui",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
@@ -133,6 +133,10 @@
     "./components/ui/site-footer": {
       "types": "./dist/source/components/ui/site-footer.d.ts",
       "import": "./dist/source/components/ui/site-footer.js"
+    },
+    "./naeil-header": {
+      "types": "./dist/components/naeil-header.d.ts",
+      "import": "./dist/components/naeil-header.js"
     }
   },
   "scripts": {

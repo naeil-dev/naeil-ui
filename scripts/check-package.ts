@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdtempSync,
@@ -21,6 +22,13 @@ try {
       { encoding: "utf8" },
     ),
   )[0];
+  const archiveSha256 = createHash("sha256").update(readFileSync(join(dir, packed.filename))).digest("hex");
+  console.log(`Packed archive SHA-256: ${archiveSha256}`);
+  const expectedArchiveSha256 = process.env.NAEIL_UI_EXPECTED_ARCHIVE_SHA256;
+  if (expectedArchiveSha256 !== undefined) {
+    assert.match(expectedArchiveSha256, /^[0-9a-f]{64}$/, "NAEIL_UI_EXPECTED_ARCHIVE_SHA256 must be a full lowercase SHA-256 digest");
+    assert.equal(archiveSha256, expectedArchiveSha256, "Packed archive SHA-256 does not match the expected candidate");
+  }
   execFileSync("tar", ["-xzf", join(dir, packed.filename), "-C", dir]);
   const root = join(dir, "package");
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));

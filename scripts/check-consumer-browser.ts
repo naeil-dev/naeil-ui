@@ -66,6 +66,61 @@ export async function checkConsumerBrowser(root: string) {
       console.log(`Packed React browser: PASS (${theme}, 390px, local Pretendard/Noto faces, real form recovery/state, no overflow)`);
       await page.close();
     }
+    // Exercise the optional whole-header entry from the installed archive.
+    // The fixture has no Next/site backend or consumer-owned artwork directory.
+    for (const width of [390, 1440]) for (const theme of ["light", "dark"] as const) {
+      const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: theme });
+      try {
+        await page.goto(`http://127.0.0.1:${address.port}`);
+        const header = page.locator("[data-naeil-header]");
+        await expect(header).toBeVisible();
+        const mobile = width === 390;
+        const open = async (locale: "en" | "ja") => {
+          if (mobile) {
+            await page.getByRole("button", { name: locale === "en" ? "Menu" : "メニュー", exact: true }).click();
+            return page.getByRole("dialog", { name: locale === "en" ? "Menu" : "メニュー", exact: true });
+          }
+          const projects = header.getByRole("button", { name: locale === "en" ? "Projects" : "プロジェクト", exact: true });
+          await projects.focus(); await projects.press("Enter");
+          return page.getByRole("dialog", { name: locale === "en" ? "Projects" : "プロジェクト", exact: true });
+        };
+        let panel = await open("en");
+        const images = panel.locator("img");
+        await expect(images).toHaveCount(5);
+        for (const image of await images.all()) {
+          await expect.poll(() => image.evaluate(element => (element as HTMLImageElement).complete && (element as HTMLImageElement).naturalWidth > 0)).toBe(true);
+          assert.match((await image.getAttribute("src"))!, /^https:\/\/naeil.dev\/images\/(coral|jellyfish|whale|fish|turtle)\.png$/);
+        }
+        await panel.getByRole("link", { name: /Content Collector/ }).click();
+        await expect(page.getByTestId("packed-header-route")).toHaveText("https://naeil.dev/en/cc");
+        if (mobile) panel = await open("en");
+        const controls = mobile ? panel : header;
+        await controls.getByRole("combobox").click();
+        await page.getByRole("option", { name: "日本語", exact: true }).click();
+        // Locale changes relabel an open mobile sheet in place. Keep its
+        // current dialog locator; Escape during Select restoration may still
+        // belong to that overlay rather than the containing sheet.
+        const localizedControls = mobile ? page.getByRole("dialog", { name: "メニュー", exact: true }) : header;
+        await expect(localizedControls.getByRole("combobox")).toHaveText("JA");
+        panel = mobile ? localizedControls : await open("ja");
+        await expect(panel.getByText("準備中", { exact: true })).toHaveCount(2);
+        await expect(panel.locator('a[href="https://naeil.dev/ja/cc"]')).toBeVisible();
+        if (!mobile) await page.keyboard.press("Escape");
+        const themeScope = mobile ? panel : header;
+        const label = theme === "dark" ? "ライトテーマに切り替える" : "ダークテーマに切り替える";
+        await themeScope.getByRole("button", { name: label, exact: true }).click();
+        await expect(page.locator("html")).toHaveClass(theme === "dark" ? /light/ : /dark/);
+        if (mobile) {
+          await page.keyboard.press("Escape");
+          await expect(panel).toBeHidden();
+          await expect(page.getByRole("button", { name: "メニュー", exact: true })).toBeFocused();
+        }
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Packed whole header overflow");
+        await page.screenshot({ path: join(output, `header-${width}-${theme}.png`) });
+        console.log(`Packed whole header: PASS (${width}px/${theme}, official icons loaded, locales, guarded route, theme, mobile/desktop)`);
+      } finally { await page.close(); }
+    }
+
     // Mixed bundled/deep imports must share inert ownership. Hidden controls
     // are invoked programmatically solely to simulate external app state.
     const checkOverlays = async (baseURL: string, strictReplay: boolean) => {

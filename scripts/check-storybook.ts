@@ -12,7 +12,6 @@ for (const family of ["button", "input", "card", "dialog", "dropdownmenu", "badg
   assert.equal(index.entries[`ui-${family}--usage`]?.type, "story", `Missing runnable example for ${family}`);
 }
 assert(readdirSync(`${root}/assets`).some(file => file.endsWith(".woff2")), "Bundled docs fonts missing");
-console.log("Storybook artifact: PASS (15 built Docs pages + Usage stories, exact notices, fonts, no website public assets)");
 
 const previewNotices = JSON.parse(readFileSync(`${root}/licenses/bundled-preview-code.json`, "utf8"));
 const managerNotices = JSON.parse(readFileSync(`${root}/licenses/manager-dependency-notices.json`, "utf8"));
@@ -36,5 +35,9 @@ console.log(`Bundled notice coverage: PASS (${previewNotices.packages.length} ac
 
 assert.equal(index.entries["brand-logo--docs"]?.type, "docs", "Missing Brand Logo Docs");
 assert.equal(index.entries["brand-logo--usage"]?.type, "story", "Missing Brand Logo usage");
+assert.equal(index.entries["brand-naeilheader--docs"]?.type, "docs", "Missing actual whole-header Docs");
+assert.equal(index.entries["brand-naeilheader--usage"]?.type, "story", "Missing runnable whole-header website example");
+assert.equal(index.entries["brand-naeilheader--japanese-application"]?.type, "story", "Missing Japanese-only application adapter example");
+console.log("Storybook artifact: PASS (15 UI + 2 Brand Docs pages, runnable Usage/application stories, exact notices, fonts, no website public assets)");
 const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
 assert.equal(readFileSync(`${root}/brand/naeil-horizontal-color.svg`, "utf8"), readFileSync(`brand/naeil/${brandVersion}/svg/naeil-horizontal-color.svg`, "utf8"));

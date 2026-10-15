@@ -1,0 +1,50 @@
+# NaeilHeader — branded whole-header composition
+
+This guide targets the **@naeil/ui 0.5.0 release candidate**. Final archive verification and registry publication are pending. Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
+
+```tsx
+import { NaeilHeader } from '@naeil/ui/naeil-header';
+import '@naeil/ui/globals.css';
+
+// Inside the consumer's existing next-themes ThemeProvider:
+<NaeilHeader locale="ja" Link={GuardedLink} currentHref={pathname}
+  authSlot={<LogoutButton />} />
+```
+
+Load shared styles once. Apps that already own their Tailwind/base styles may import both `@naeil/ui/theme.css` and `@naeil/ui/components.css` instead of globals. Tailwind 4 consumers must register the installed `dist` with `@source`; see [setup](../design/v2-migration.md#시작하기).
+
+The module owns the brand, five-project catalog and header-only translations, project artwork references/status, theme/optional locale controls, toolbar order, fixed positioning, branded frame and Radix desktop/mobile behavior. Do not copy menu JSX or styles into a consumer. The website's `NavWrapper` imports this same module and supplies locale/router/auth state; estimate consumes the built package entry. Legacy `Nav` retains its Next/next-intl compatibility API.
+
+## Consumer contract
+
+Consumers provide an existing next-themes provider, routing/dirty-save guard, current locale and real authentication behavior. Default destinations point to `https://naeil.dev/{locale}`; the site's localized Link instead uses `resolveHref={path => path}`. A supplied `Link` handles default official destinations, including cross-origin URLs. `onNavigate` can intercept brand and menu links; honor modified clicks and target behavior. Explicit `external: true` project overrides and `projectsExternal` use native anchors, so intercept them with `onNavigate` when a dirty guard is required.
+
+Only provide `onLocaleChange` when the application's interface supports all three canonical locales (`en`, `ko`, `ja`). Omitting it removes the locale control; the component does not create application translations or shared preferences. `authSlot` contains the consumer's real session action and must retain at least 44px touch targets. It does not integrate site SSO, share credentials or create accounts. Theme preferences remain consumer-origin state. Without a working provider, rendering alone does not establish theme switching.
+
+| Prop | Contract |
+| --- | --- |
+| `locale` | Required `en`, `ko` or `ja`; selects header-only copy. |
+| `resolveHref` | Resolves canonical unlocalized paths; defaults to the official localized site. |
+| `Link`, `currentHref`, `onNavigate` | Routing adapter, active destination and navigation interception inherited from Navigation. |
+| `onLocaleChange` | Optional supported-language callback; omit for a single-language application. |
+| `authSlot` | Consumer-owned authentication action in the default toolbar. |
+| `brandHref`, `brandSlot`, `brandLinkProps`, `brandLinkComponent` | Explicit brand destination/content/anchor overrides; default accessible brand name is `.naeil`. |
+| `projects`, `projectsExternal`, `showProjects`, `showBlog` | Legacy catalog/visibility/native-link overrides; defaults use the complete canonical catalog. |
+| `subNav`, `currentProjectKey`, `currentProjectHref` | Legacy extra links and current-project destination. |
+| `translations`, `labels` | Legacy header/project lookup overrides and navigation/menu/close accessible labels. |
+| `toolbarSlot` | Replaces the complete default theme/locale/auth toolbar. |
+| `mobileFooter`, `className`, `containerClassName` | Inherited mobile slot and style overrides; recheck frame/behavior after changes. |
+
+Standard header attributes and the remaining inherited [Navigation props](navigation.md) remain available. Compatibility overrides preserve existing consumers; new applications normally use the canonical composition.
+
+## Frame and content clearance
+
+The fixed header is 65px: the current 64px navigation token plus a 1px border. Clear it in the application's main, sticky regions and focus/anchor scroll margins with `calc(var(--ui-navigation-height) + 1px)`. The branded header uses the actual site's 1280px cap and 24px gutters; body/footer widths belong to the product. A 1600px workspace body does not change this header cap or create a new shared foundation token.
+
+## Artwork and package boundary
+
+The five decorative images reference `https://naeil.dev/images/{coral,jellyfish,whale,fish,turtle}.png`. Rendering those images requires network access to the official origin. Their bytes are not redistributed in npm; [third-party notices](../../THIRD_PARTY_NOTICES.md) retain unresolved artwork provenance and redistribution limits. Brand marks are not relicensed by the repository MIT license. Captions and links remain usable when images fail.
+
+This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. The local Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication**; the Japanese example omits unsupported locale switching and uses a consumer-owned auth slot. Candidate examples do not establish hosted deployment.
+
+Verify actual packed consumption, Storybook behavior and rendered comparisons at matching viewport/language/theme. Source imports alone do not prove visual parity. Native Safari, devices, assistive technology, full OAuth and unresolved accessibility observations retain the [documented support limits](../design/public-ui-support.md).
