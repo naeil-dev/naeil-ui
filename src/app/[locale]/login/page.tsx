@@ -4,6 +4,7 @@ import { redirect } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/server";
 import { OAuthButtons } from "./oauth-buttons";
 import { PageTitle } from "@/components/typography";
+import { canonicalRedirect } from "@/lib/auth/redirect";
 
 export default async function LoginPage({
   params,
@@ -14,6 +15,7 @@ export default async function LoginPage({
 }) {
   const { locale } = await params;
   const { next, error } = await searchParams;
+  const destination = canonicalRedirect(next) || "/";
 
   const supabase = await createClient();
   const {
@@ -21,7 +23,7 @@ export default async function LoginPage({
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect({ href: next || "/", locale });
+    redirect({ href: destination, locale });
   }
 
   const t = await getTranslations("auth");

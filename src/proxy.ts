@@ -3,10 +3,15 @@ import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
 import { isProtectedReportRoute } from "./lib/auth/routes";
+import { canonicalRedirect } from "./lib/auth/redirect";
+import { invitationProxyResponse } from "./lib/auth/invite-proxy";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
 export default async function proxy(request: NextRequest) {
+  if (["/auth/invite", "/auth/invite/"].includes(request.nextUrl.pathname)) {
+    return invitationProxyResponse(request);
+  }
   // 1. Refresh Supabase session (updates auth cookies)
   const { response: supabaseResponse, user } = await updateSession(request);
 
@@ -19,7 +24,11 @@ export default async function proxy(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.redirect(loginUrl);
+    supabaseResponse.cookies
+      .getAll()
+      .forEach((cookie) => response.cookies.set(cookie));
+    return response;
   }
 
   // 4. Run next-intl middleware for locale routing
@@ -28,19 +37,21 @@ export default async function proxy(request: NextRequest) {
   // 5. If visiting /login with a ?next param, store it in a cookie for post-OAuth redirect
   //    Skip if next points back to /login itself (RSC refetch sends next=/login which overwrites the real value)
   const loginMatch = pathname.match(/^\/(?:(?:en|ko|ja)\/)?login$/);
-  const isLoginSelf = nextParam?.replace(/^\/(?:en|ko|ja)\//, '/') === '/login';
-  if (loginMatch && nextParam && !isLoginSelf) {
-    intlResponse.cookies.set("auth_redirect_to", nextParam, {
+  const isLoginSelf = nextParam?.replace(/^\/(?:en|ko|ja)\//, "/") === "/login";
+  const destination = canonicalRedirect(nextParam);
+  if (loginMatch && destination && !isLoginSelf) {
+    intlResponse.cookies.set("auth_redirect_to", destination, {
       path: "/",
       maxAge: 600,
       httpOnly: true,
       sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
     });
   }
 
   // 6. Copy Supabase auth cookies onto the intl response
   supabaseResponse.cookies.getAll().forEach((cookie) => {
-    intlResponse.cookies.set(cookie.name, cookie.value);
+    intlResponse.cookies.set(cookie);
   });
 
   return intlResponse;
@@ -48,6 +59,8 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/auth/invite",
+    "/auth/invite/",
     /*
      * Match all paths except:
      * - _next (Next.js internals)
