@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { SiteFooter, Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
+import { Button, Input, Switch, Tabs, TabsList, TabsTrigger, TabsContent, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
 import { Textarea } from "@naeil/ui/components/ui/textarea";
 import * as DeepTabs from "@naeil/ui/components/ui/tabs";
 import * as DeepMenu from "@naeil/ui/components/ui/dropdown-menu";
 import { PageTitle } from "@naeil/ui/components/typography";
 import { Logo } from "@naeil/ui/components/logo";
 import { ThemeProvider } from "@naeil/ui/components/theme-provider";
+import { NaeilFooter } from "@naeil/ui/naeil-footer";
 import { NaeilHeader, type NaeilHeaderLocale } from "@naeil/ui/naeil-header";
 
 export function App() {
@@ -65,7 +66,10 @@ export function App() {
           <MixedImportOverlays />
         </section>
       </main>
-      <SiteFooter brand={<Logo variant="footer" size={20} />} variant="compact" meta="React-only consumer" />
+      <NaeilFooter locale={headerLocale} variant="compact" meta="React-only consumer" onNavigate={(event, item) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault(); setHeaderRoute(item.href);
+      }} />
     </ThemeProvider>
   );
 }

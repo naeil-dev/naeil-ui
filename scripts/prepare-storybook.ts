@@ -1,9 +1,16 @@
-import { cpSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { uiRelease } from "../src/lib/ui-release";
 
 // Only documentation assets with explicit notices. Never copy website public/.
 const target = ".storybook/.generated";
 rmSync(target, { recursive: true, force: true });
 mkdirSync(`${target}/licenses`, { recursive: true });
+writeFileSync(`${target}/naeil-release.json`, JSON.stringify({
+  schemaVersion: 1, ui: uiRelease,
+  sourceRevision: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+  frozen: !execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim(),
+}));
 for (const file of ["LICENSE", "THIRD_PARTY_NOTICES.md"])
   cpSync(file, `${target}/${file}`);
 for (const file of ["Pretendard-OFL.txt", "Noto-Sans-JP-OFL.txt", "Nunito-Sans-OFL.txt", "Lato-OFL.txt"])

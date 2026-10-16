@@ -9,7 +9,17 @@ async function open(page: Page, theme = "light", story = "usage") {
   await page.goto(`/iframe.html?id=brand-naeilheader--${story}&viewMode=story&globals=theme:${theme};a11y.manual:!true`);
   await expect(page.locator("[data-naeil-header]")).toBeVisible();
   await expect(page.locator("html")).toHaveClass(new RegExp(theme));
-  await page.evaluate(() => document.fonts.ready);
+  // WebKit can leave FontFaceSet.ready pending after a document language change
+  // even with no loading faces. Verify the actual text/faces instead of that flag.
+  const fonts = await page.evaluate(async () => {
+    const family = document.documentElement.lang === "ja" ? "Noto Sans JP" : "Pretendard";
+    const text = document.querySelector('[data-naeil-header]')!.textContent!;
+    return Promise.all([400, 500, 600].map(async weight => {
+      const font = `${weight} 16px "${family}"`;
+      return (await document.fonts.load(font, text)).length > 0 && document.fonts.check(font, text);
+    }));
+  });
+  expect(fonts).toEqual([true, true, true]);
 }
 
 async function settled(page: Page) {

@@ -1,6 +1,6 @@
 # Application frame and shared navigation/footer
 
-This guide targets the **@naeil/ui 0.6.0**, including the width update approved on 2026-10-16. Use the matching registry release or tested local archive. See [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
+This guide targets the **@naeil/ui 0.7.0 candidate**, including the width update approved on 2026-10-16. Use the matching registry release or tested local archive. See [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
 
 ## Choose the shared composition first
 
@@ -8,7 +8,8 @@ This guide targets the **@naeil/ui 0.6.0**, including the width update approved 
 | --- | --- |
 | The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
 | A product's own menu | `Navigation` from `@naeil/ui/ui` |
-| A full or compact application footer | `SiteFooter` from `@naeil/ui/ui` |
+| Owned naeil service footer | `NaeilFooter` from `@naeil/ui/naeil-footer` |
+| Different product footer or explicit content override | `SiteFooter` from `@naeil/ui/ui` |
 | An existing Next/next-intl consumer | Keep its `Nav` / `Footer` adapters |
 
 Choose one header per application frame. Supply menu data, links, route guards, authentication and supported locale state through props/slots. Local adapters are appropriate; copies of the menu, responsive sheet, controls or footer implementation are not. Extend the shared component when a reusable behavior is missing.
@@ -39,8 +40,7 @@ This keeps a centered frame from shifting when a classic scrollbar appears. The 
 ```tsx
 import type { ReactNode } from "react";
 import { NaeilHeader } from "@naeil/ui/naeil-header";
-import { SiteFooter } from "@naeil/ui/ui";
-import { Logo } from "@naeil/ui/components/logo";
+import { NaeilFooter } from "@naeil/ui/naeil-footer";
 
 // Render inside the existing next-themes ThemeProvider.
 // Connect Link/onNavigate, locale and authSlot to real application state.
@@ -51,8 +51,7 @@ export function ApplicationLayout({ children }: { children: ReactNode }) {
       style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }}>
       {children}
     </main>
-    <SiteFooter variant="compact"
-      brand={<Logo variant="footer" size={20} />} />
+    <NaeilFooter locale="en" variant="compact" />
   </>;
 }
 
@@ -88,7 +87,7 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 ```markdown
 ## Shared application layout
 - Read the installed @naeil/ui/DESIGN.md and docs/components/application-layout.md before UI layout work.
-- Use @naeil/ui/naeil-header for the canonical naeil header; use Navigation from @naeil/ui/ui for a different product menu. Use SiteFooter for application footers. Keep existing Next Nav/Footer compatibility adapters when applicable.
+- Use @naeil/ui/naeil-header for the canonical naeil header; use Navigation from @naeil/ui/ui for a different product menu. Use NaeilFooter from @naeil/ui/naeil-footer for owned service footers; SiteFooter remains the generic primitive. Keep existing Next Nav/Footer compatibility adapters when applicable.
 - Local wrappers supply menu data, routing/guards, locale, auth and slots. Do not copy the menu, mobile sheet, controls or footer implementation. Extend the shared component for reusable missing behavior.
 - Use ui-app-frame on main; navigation/footer own their internal frames. Keep reading/settings/short-form sections inside that frame. Apply frame overrides consistently across routes.
 - Check the installed package version and CSS before creating a replacement for an apparently missing component.
@@ -100,3 +99,5 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 For each consumer, record its installed version, layout adapter, shared imports, CSS entrypoints and intentional exceptions. In that consumer's browser CI, check that expected application routes render `[data-slot="navigation"]` and `[data-slot="site-footer"]`, and that anchors remain stable between wide lists and narrow forms. Include narrow/zoomed screens, localized labels and tall content that introduces a scrollbar. Keep table overflow local.
 
 A blanket ban on `<header>`, `<nav>` or `<footer>` would also reject valid section landmarks and adapters. Review the root composition and its rendered output instead. This repository checks packed React/Next examples; external applications still need their own upgrades, adapter migrations and CI. Publication and deployment are separate work.
+
+See [canonical footer content and save interception](naeil-footer.md). 0.7.0 candidate adds package/contract identity; publication and per-service operational rollout are separate.

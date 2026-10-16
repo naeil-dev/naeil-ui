@@ -1,6 +1,6 @@
 # NaeilHeader — branded whole-header composition
 
-This guide targets the **@naeil/ui 0.6.0**. See the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) for archive and publication evidence. Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
+This guide includes the **@naeil/ui 0.7.0 candidate**, whose unchanged frame comes from published 0.6.0. See the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) for archive and publication evidence. Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
 
 ```tsx
 import { NaeilHeader } from '@naeil/ui/naeil-header';
@@ -48,3 +48,5 @@ The five decorative images reference `https://naeil.dev/images/{coral,jellyfish,
 This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. The local Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication**; the Japanese example omits unsupported locale switching and uses a consumer-owned auth slot. Candidate examples do not establish hosted deployment.
 
 Verify actual packed consumption, Storybook behavior and rendered comparisons at matching viewport/language/theme. Source imports alone do not prove visual parity. Native Safari, devices, assistive technology, full OAuth and unresolved accessibility observations retain the [documented support limits](../design/public-ui-support.md).
+
+Pair owned-service headers with [NaeilFooter](naeil-footer.md). The 0.7.0 candidate emits package/contract identifiers for actual rendered validation.

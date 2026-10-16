@@ -1,0 +1,1139 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-16T09:59:17.483834+00:00",
+  "scope": {
+    "dnsComplete": false,
+    "dnsInventoryStatus": "unconfirmed",
+    "dnsScopeException": null,
+    "discoverySources": [
+      "User-named origins",
+      "Local cloudflared hostname/service rows",
+      "Owned source route files",
+      "Public unauthenticated HTML/status and static asset hashes",
+      "Allowlisted listener, launch agent, image and compose metadata"
+    ],
+    "limitations": [
+      "Remote DNS/Cloudflare control-plane inventory unconfirmed; local ingress is not authoritative remote DNS inventory.",
+      "No credentials, environment values, business/API datasets, family records or application logs were inspected.",
+      "Current registry is a baseline with explicit unresolved states, not a rollout completion claim."
+    ]
+  },
+  "target": {
+    "uiVersion": "0.7.0",
+    "contractVersion": "1",
+    "status": "planned-frozen-candidate-not-published"
+  },
+  "routePolicy": {
+    "canonical": "Owned application UI must use approved shared header/footer, identity and layout contract.",
+    "non-ui": "Explicitly excluded API/JSON/static/health/callback surface, never counted as shared chrome pass.",
+    "third-party-access": "Cloudflare Access-owned UI outside shared implementation scope; underlying application remains unresolved.",
+    "unavailable-ui": "Error/dormant origin with unknown underlying UI; unresolved, not a success or approved exception.",
+    "showcase": "Storybook manager/docs are a documentation tool surface, not application navigation; component stories still must demonstrate shared chrome and the current frozen package contract. No blanket UI exemption."
+  },
+  "excludedSurfaces": [
+    {
+      "paths": [
+        "/api/*",
+        "/api/v1/*",
+        "/webhook",
+        "/auth/callback",
+        "/api/health",
+        "/health",
+        "/health/live",
+        "/health/ready",
+        "/healthz"
+      ],
+      "policy": "non-ui",
+      "reason": "Machine APIs, webhook/callback and health responses are not application chrome. Exclusion never covers an HTML application route merely because login or an error occurs."
+    },
+    {
+      "origins": [
+        "https://jay-mini.cloudflareaccess.com"
+      ],
+      "paths": [
+        "/cdn-cgi/access/*"
+      ],
+      "policy": "third-party-access",
+      "reason": "Third-party Access UI is not owned shared UI; no auth bypass or provider reconfiguration."
+    },
+    {
+      "paths": [
+        "/_next/static/*",
+        "/assets/*",
+        "/dashboard/assets/*",
+        "/images/*"
+      ],
+      "policy": "non-ui",
+      "reason": "Static assets are used for provenance and rendering, not standalone UI routes."
+    }
+  ],
+  "services": [
+    {
+      "id": "naeil",
+      "name": ".naeil",
+      "origin": "https://naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/login",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/design",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/projects",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/blog",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/blog/2026-03-30",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/baby-agent",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/pkm",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/sa",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ko/cc",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/login",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/design",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/projects",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/blog",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/blog/2026-03-30",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/baby-agent",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/pkm",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/sa",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/ja/cc",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/login",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/design",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/projects",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/blog",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/blog/2026-03-30",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/baby-agent",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/pkm",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/sa",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/en/cc",
+          "policy": "canonical",
+          "locale": "en",
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/28nele6j/pure-chicken",
+        "repository": "https://github.com/naeil-dev/naeil-ui",
+        "candidateRevision": "549c501",
+        "productionCorrelation": "last-verified-release-0.6.0-current-identity-absent",
+        "lastDocumentedProductionRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "vercel",
+        "status": "public-up",
+        "artifactId": null,
+        "lastDocumentedDeploymentId": "7110237014",
+        "method": "Last verified 0.6.0 Vercel deployment recorded in release receipt; current build identity endpoint returns404.",
+        "adapterId": "naeil-vercel-v1",
+        "adapterStatus": "prepared-platform-blocked"
+      },
+      "ui": {
+        "version": null,
+        "candidateVersion": "0.7.0",
+        "adoption": "partial",
+        "header": "NaeilHeader last verified for release0.6.0; current exact artifact identity absent",
+        "footer": "Shared Footer / SiteFooter last verified for release0.6.0; canonical NaeilFooter is candidate0.7.0",
+        "requiredHeader": "NaeilHeader",
+        "requiredFooter": "NaeilFooter",
+        "lastVerifiedVersion": "0.6.0"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Current production source/artifact identity has not been independently correlated.",
+        "Route and chrome matrix must be rerun for the frozen rollout candidate."
+      ],
+      "evidence": [
+        {
+          "kind": "public-html",
+          "reference": "https://naeil.dev/",
+          "detail": "2026-10-16: HTTP200, title .naeil; Next hashed assets present."
+        },
+        {
+          "kind": "source-routes",
+          "reference": "src/app; content/blog",
+          "detail": "Three locale route trees and one blog slug2026-03-30 discovered; project page bodies retain their prior scope but their shared chrome is included."
+        },
+        {
+          "kind": "historical-deployment",
+          "reference": "docs/design/site-production-2026-10-14/README.md",
+          "detail": "Documents exact Vercel deployment and previous live verification, not proof of the current release."
+        },
+        {
+          "kind": "last-verified-release",
+          "reference": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.6.0/release-verification.json",
+          "detail": "Re-fetched2026-10-16: release0.6.0 source549c501cee0f6c9374920785b5fce1c235c7bafd, Vercel deployment7110237014,32 routes/16 menus/failures0. This supersedes the older00a17a8 deployment receipt; current identity endpoint still404."
+        }
+      ],
+      "lastVerifiedRelease": {
+        "version": "0.6.0",
+        "sourceRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd",
+        "deploymentId": "7110237014",
+        "checkedAt": "2026-10-16T07:13:02.889530+00:00",
+        "evidence": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.6.0/release-verification.json",
+        "scope": "32 production routes and16 menus; separate from current rollout verification"
+      }
+    },
+    {
+      "id": "home",
+      "name": "Naeil Home",
+      "origin": null,
+      "routes": [
+        {
+          "path": "/",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/keys",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/connections",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/0roff4x2/flaky-bullfrog",
+        "candidateRevision": "d244930f9935657f1cb8dbe8e9dfd49f90fe81fb",
+        "candidateDirty": true,
+        "productionCorrelation": "unverified",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "docker",
+        "status": "loopback-up",
+        "artifactId": "sha256:b0187528b7e23c0242dc4f33510c0285a50608475aee4c584ea136e485871513",
+        "container": "relaydock",
+        "loopbackOrigin": "http://127.0.0.1:2455",
+        "method": "Docker image; source-to-image provenance and actual owned public origin unknown.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "not-adopted",
+        "header": "Candidate owns frontend/src/components/header.tsx",
+        "footer": "Unverified",
+        "requiredHeader": "NaeilHeader",
+        "requiredFooter": "NaeilFooter",
+        "candidateFoundation": "Pinned local naeil-v2 CSS snapshot; no @naeil/ui dependency"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Owned public hostname or intended loopback-only scope must be established.",
+        "Running image has no source/revision OCI label, compose labels, or source bind mount.",
+        "Live JS asset is absent from candidate frontend/dist; do not migrate/deploy from the guessed checkout."
+      ],
+      "evidence": [
+        {
+          "kind": "runtime",
+          "reference": "Docker relaydock / listener2455",
+          "detail": "Running image identified via listener and allowlisted inspect metadata; no application volume read."
+        },
+        {
+          "kind": "public-static",
+          "reference": "http://127.0.0.1:2455/assets/index-jqNt3G6M.js",
+          "detail": "SHA2566f07fb976c2d9904461d33a97e98abb1cadda3f75c52f6794785d07d964dd216; HTML title Naeil Home."
+        },
+        {
+          "kind": "candidate-source",
+          "reference": "frontend/src/lib/route.ts; frontend/vendor/naeil-v2/README.md",
+          "detail": "Candidate routes /,/keys,/connections; vendor CSS is explicitly not a published package adoption claim."
+        },
+        {
+          "kind": "candidate-hostname-search",
+          "reference": "README.md; docs/deployment; frontend/README.md; frontend/index.html",
+          "detail": "No naeil.dev hostname, canonical URL or Tailscale hostname found in targeted deployment/frontend docs. README documents localhost2455 only; origin remains null."
+        }
+      ]
+    },
+    {
+      "id": "estimate",
+      "name": "Estimate",
+      "origin": "https://abestimate.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/login",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/estimates",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/estimates/[id]",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null,
+          "parameterized": true
+        },
+        {
+          "path": "/calendar",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/compare",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/settings",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/calendar-preview",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/calendar-preview/estimates",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/calendar-preview/estimates/[id]",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null,
+          "parameterized": true
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1",
+        "candidateRevision": "0e1bcaf",
+        "candidateDirty": false,
+        "repository": null,
+        "revision": "b305c043242001a5bf4e2204ed7ea68d112071e7",
+        "productionCorrelation": "release-manifest",
+        "checkoutMatchesProduction": false
+      },
+      "deployment": {
+        "kind": "launchd-next-standalone",
+        "status": "public-login-redirect",
+        "artifactId": "b305c0432420-4928a714c529",
+        "runtimePath": "/Users/jaymini/.local/share/estimate-app/releases/b305c0432420-4928a714c529",
+        "currentPath": "/Users/jaymini/.local/share/estimate-app/current/app",
+        "launchAgent": "dev.naeil.estimate",
+        "method": "Versioned standalone releases with current pointer and launchd; exact app-owned deploy script must be verified.",
+        "adapterId": "estimate-standalone-v1",
+        "adapterStatus": "prepared-platform-blocked"
+      },
+      "ui": {
+        "version": "0.5.0",
+        "dependency": "file:vendor/naeil-ui-0.5.0.tgz",
+        "adoption": "partial",
+        "header": "Existing shared package; actual production composition requires verification",
+        "footer": "Existing shared package; actual production composition requires verification",
+        "requiredHeader": "NaeilHeader",
+        "requiredFooter": "NaeilFooter"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Checkout revision differs from production; recover or select the actual production source before migration.",
+        "Authenticated routes and parameterized estimate pages require approved synthetic fixtures; no business records were inspected.",
+        "Calendar preview routes discovered in checkout require production-presence verification."
+      ],
+      "evidence": [
+        {
+          "kind": "runtime-manifest",
+          "reference": "Release manifest metadata rechecked by coordinator",
+          "detail": "Source revision b305c043242001a5bf4e2204ed7ea68d112071e7 and vendored0.5.0 dependency; no env or business data read."
+        },
+        {
+          "kind": "public-html",
+          "reference": "https://abestimate.naeil.dev/estimates",
+          "detail": "HTTP307 to /login; current title 見積."
+        },
+        {
+          "kind": "launch-agent",
+          "reference": "~/Library/LaunchAgents/dev.naeil.estimate.plist",
+          "detail": "Allowlisted working directory and executable identify current/app/server.js."
+        }
+      ],
+      "identity": {
+        "appId": "abestimate"
+      }
+    },
+    {
+      "id": "jev",
+      "name": "Jev",
+      "origin": "https://jev.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/login",
+          "policy": "canonical",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/projects/jev/.worktrees/jev-demo",
+        "candidateRevision": "9a63c166c2664dd4611a66aac09848310822ba20",
+        "candidateDirty": true,
+        "rootDraftPath": "/Users/jaymini/projects/jev",
+        "productionCorrelation": "release-metadata-and-build-id",
+        "productionSourceManifest": "/Users/jaymini/projects/jev/.worktrees/jev-demo/docs/evidence/2026-10-05-release/source-hashes.json",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "launchd-next-standalone",
+        "status": "public-login-redirect",
+        "artifactId": "5c8klC9uqKrC2wNSEzuke",
+        "releaseId": "20261005T000213Z",
+        "runtimePath": "/Users/jaymini/.local/share/jev/app",
+        "loopbackOrigin": "http://127.0.0.1:2466",
+        "launchAgent": "dev.naeil.jev",
+        "method": "Next standalone copied to app; previous app retained per release, launchd restart; no action performed.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": "0.2.0",
+        "adoption": "partial",
+        "header": "Legacy Nav plus application wrappers",
+        "footer": "Legacy Footer",
+        "requiredHeader": "NaeilHeader",
+        "requiredFooter": "NaeilFooter",
+        "patches": "Historical0.2.0 i18n export patch documented"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Production release was built from uncommitted source; no exact git revision identifies its full source.",
+        "Candidate source is dirty and local BUILD_ID differs from installed artifact.",
+        "Authenticated model UI remains unverified; no JEV credentials, login, model calls or session data accessed."
+      ],
+      "evidence": [
+        {
+          "kind": "runtime",
+          "reference": "PID832 cwd; launchd allowlisted metadata",
+          "detail": "Listener2466 cwd ~/.local/share/jev/app; server.js matches launch agent."
+        },
+        {
+          "kind": "artifact",
+          "reference": "Installed package.json; .next/BUILD_ID; .next/server/app-paths-manifest.json",
+          "detail": "Installed dependency @naeil/ui0.2.0; BUILD_ID5c8klC9uqKrC2wNSEzuke; UI routes / and /login."
+        },
+        {
+          "kind": "release-metadata",
+          "reference": "~/.local/share/jev/releases/20261005T000213Z/release.json",
+          "detail": "Allowlisted releaseUTC/source/runtime/buildID match actual artifact and nested source location."
+        },
+        {
+          "kind": "public-html",
+          "reference": "https://jev.naeil.dev/",
+          "detail": "HTTP307 to /login; legacy title Jev · naeil."
+        }
+      ]
+    },
+    {
+      "id": "baby",
+      "name": "Baby Dashboard",
+      "origin": "https://baby.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "non-ui",
+          "locale": null,
+          "status": "unverified",
+          "exception": null,
+          "response": "HTTP404 application/json"
+        },
+        {
+          "path": "/dashboard",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        },
+        {
+          "path": "/dashboard/",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/projects/baby-agent",
+        "candidateRevision": "6c79d1b745fedc7619fae85a307f951ce6cc089b",
+        "candidateDirty": true,
+        "productionCorrelation": "clean-frozen-lock-ui-reproduction-and-compose-source-location",
+        "revision": null,
+        "trackedUiSourceClean": true,
+        "latestUiCommit": "adbc8f7bd062074e4df29b44ef313cd3d16f6b64",
+        "builtUiTracked": false,
+        "uiRevision": "6c79d1b745fedc7619fae85a307f951ce6cc089b",
+        "uiReproductionVerified": true,
+        "migrationWorktree": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby"
+      },
+      "deployment": {
+        "kind": "docker-compose",
+        "status": "public-pin-ui",
+        "artifactId": "sha256:b8e2e447da6dd96f121f0782087809b8afc6461ac956c5f75343beca4b687d03",
+        "container": "baby-agent-api-1",
+        "loopbackOrigin": "http://127.0.0.1:8001",
+        "composeFile": "/Users/jaymini/projects/baby-agent/docker-compose.yml",
+        "method": "Compose api image with Dockerfile COPY dashboard/dist; source revision OCI label is unknown.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "not-adopted",
+        "header": "Application-owned dashboard header / PIN login",
+        "footer": "No shared footer in App.tsx",
+        "requiredHeader": "NaeilHeader",
+        "requiredFooter": "NaeilFooter",
+        "framework": "React19 / Vite8",
+        "candidate": {
+          "version": "0.7.0",
+          "adoption": "local-candidate",
+          "header": "NaeilHeader",
+          "footer": "NaeilFooter compact",
+          "archiveSha256": "13fbed2eab43ebb2e5e357c83672e4c5b552201395340b275f540863c37fbd88",
+          "provisional": true,
+          "supportedLocales": [
+            "ko"
+          ]
+        },
+        "supportedLocales": [
+          "ko"
+        ]
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Backend running image revision remains explicitly unknown; frontend JS was exactly reproduced from clean tracked source at6c79d1b.",
+        "Shared package adoption and PIN/authenticated dashboard chrome migration remain required.",
+        "Family data/API and authenticated tabs were intentionally not accessed."
+      ],
+      "evidence": [
+        {
+          "kind": "runtime",
+          "reference": "Allowlisted Docker compose metadata",
+          "detail": "compose working_dir and config_files point to /Users/jaymini/projects/baby-agent; image labels revision=unknown."
+        },
+        {
+          "kind": "ui-artifact-hash",
+          "reference": "/dashboard/assets/index-DcuW1xzI.js",
+          "detail": "Public and repository dashboard/dist bytes both SHA256b9c81cd3b1712b811f7f8e944981d5e2d6fabd72fd1acfca8a3c4f4fb7f87fb9."
+        },
+        {
+          "kind": "source",
+          "reference": "dashboard/package.json; dashboard/src/App.tsx; Dockerfile; app/main.py static mount only",
+          "detail": "No @naeil/ui dependency. One SPA path with four internal tab states; auth PIN gates family API requests. No API called."
+        },
+        {
+          "kind": "source-status",
+          "reference": "git status; git log -- dashboard; dashboard/dist metadata",
+          "detail": "Only dirty paths .env.example, STATUS.md, scripts/daily-cost-report.py; dashboard tracked sources clean. Ignored dist mtime2026-06-19T03:53:24Z. No source rebuild performed, so full reproducibility is not asserted."
+        },
+        {
+          "kind": "clean-ui-reproduction",
+          "reference": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby",
+          "detail": "Isolated worktree at6c79d1b: npm ci --ignore-scripts --no-audit --no-fund and npm run build pass. Built index-DcuW1xzI.js SHA256 exactly equals public b9c81cd3b1712b811f7f8e944981d5e2d6fabd72fd1acfca8a3c4f4fb7f87fb9. No backend/runtime action."
+        },
+        {
+          "kind": "local-candidate",
+          "reference": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby/docs/rollout/candidate-receipt.json",
+          "detail": "Isolated canonical header/footer migration: npm lint/build and9 synthetic Chromium tests pass. Provisional archive only, uncommitted, not deployed; production ui.adoption remains not-adopted."
+        }
+      ]
+    },
+    {
+      "id": "trip",
+      "name": "Trip",
+      "origin": "https://trip.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "third-party-access",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/projects/abeam-business-trip-agent",
+        "productionCorrelation": "unverified",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "launchd-python",
+        "status": "access-gated-dormant",
+        "artifactId": null,
+        "loopbackOrigin": "http://127.0.0.1:8765",
+        "method": "Unverified; preserve dormant/disabled state.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "unknown",
+        "header": null,
+        "footer": null,
+        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+        "No exception approved; an unavailable or Access-gated route cannot count as rollout success.",
+        "Do not restart dormant trip runtime."
+      ],
+      "evidence": [
+        {
+          "kind": "local-ingress",
+          "reference": "~/.cloudflared/config.yml hostname/service rows only",
+          "detail": "2026-09-05 STATUS documents stopped service; no8765 listener observed. Access gate does not prove application health."
+        },
+        {
+          "kind": "public-status",
+          "reference": "https://trip.naeil.dev/",
+          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+        }
+      ]
+    },
+    {
+      "id": "work",
+      "name": "Work",
+      "origin": "https://work.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "third-party-access",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": null,
+        "productionCorrelation": "unverified",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "http-status",
+        "status": "access-gated",
+        "artifactId": null,
+        "loopbackOrigin": null,
+        "method": "Unverified; preserve dormant/disabled state.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "unknown",
+        "header": null,
+        "footer": null,
+        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+      ],
+      "evidence": [
+        {
+          "kind": "local-ingress",
+          "reference": "~/.cloudflared/config.yml hostname/service rows only",
+          "detail": "Local ingress says http_status:503; public origin redirects to Cloudflare Access; origin UI/source unverified."
+        },
+        {
+          "kind": "public-status",
+          "reference": "https://work.naeil.dev/",
+          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+        }
+      ]
+    },
+    {
+      "id": "digest",
+      "name": "Digest",
+      "origin": "https://digest.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "unavailable-ui",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": null,
+        "productionCorrelation": "unverified",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "unknown",
+        "status": "unavailable",
+        "artifactId": null,
+        "loopbackOrigin": "http://127.0.0.1:7200",
+        "method": "Unverified; preserve dormant/disabled state.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "unknown",
+        "header": null,
+        "footer": null,
+        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+      ],
+      "evidence": [
+        {
+          "kind": "local-ingress",
+          "reference": "~/.cloudflared/config.yml hostname/service rows only",
+          "detail": "Public HTTP502; local ingress localhost7200; source and UI routes unknown."
+        },
+        {
+          "kind": "public-status",
+          "reference": "https://digest.naeil.dev/",
+          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+        }
+      ]
+    },
+    {
+      "id": "line",
+      "name": "Line",
+      "origin": "https://line.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "unavailable-ui",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": null,
+        "productionCorrelation": "unverified",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "http-status",
+        "status": "unavailable",
+        "artifactId": null,
+        "loopbackOrigin": null,
+        "method": "Unverified; preserve dormant/disabled state.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "unknown",
+        "header": null,
+        "footer": null,
+        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+      ],
+      "evidence": [
+        {
+          "kind": "local-ingress",
+          "reference": "~/.cloudflared/config.yml hostname/service rows only",
+          "detail": "Public HTTP503; local ingress http_status:503; UI ownership/type unknown."
+        },
+        {
+          "kind": "public-status",
+          "reference": "https://line.naeil.dev/",
+          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+        }
+      ]
+    },
+    {
+      "id": "esg",
+      "name": "Esg",
+      "origin": "https://esg.naeil.dev",
+      "routes": [
+        {
+          "path": "/",
+          "policy": "unavailable-ui",
+          "locale": null,
+          "status": "unverified",
+          "exception": null
+        }
+      ],
+      "source": {
+        "candidatePath": null,
+        "productionCorrelation": "unverified",
+        "revision": null
+      },
+      "deployment": {
+        "kind": "http-status",
+        "status": "unavailable",
+        "artifactId": null,
+        "loopbackOrigin": null,
+        "method": "Unverified; preserve dormant/disabled state.",
+        "adapterId": null
+      },
+      "ui": {
+        "version": null,
+        "adoption": "unknown",
+        "header": null,
+        "footer": null,
+        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+      ],
+      "evidence": [
+        {
+          "kind": "local-ingress",
+          "reference": "~/.cloudflared/config.yml hostname/service rows only",
+          "detail": "Public HTTP503; local ingress http_status:503; UI source unknown."
+        },
+        {
+          "kind": "public-status",
+          "reference": "https://esg.naeil.dev/",
+          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+        }
+      ]
+    },
+    {
+      "id": "storybook",
+      "name": "Naeil UI Storybook",
+      "origin": "https://naeil-dev.github.io",
+      "routes": [
+        {
+          "path": "/naeil-ui/",
+          "policy": "showcase",
+          "locale": "en",
+          "status": "public-up",
+          "exception": null
+        },
+        {
+          "path": "/naeil-ui/?path=/story/ui-navigation--home",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null,
+          "context": "Component example iframe, not manager toolbar."
+        },
+        {
+          "path": "/naeil-ui/?path=/story/ui-navigation--usage",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null,
+          "context": "Component example iframe, not manager toolbar."
+        },
+        {
+          "path": "/naeil-ui/?path=/story/brand-naeilheader--usage",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null,
+          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+        },
+        {
+          "path": "/naeil-ui/?path=/story/brand-naeilheader--japanese-application",
+          "policy": "canonical",
+          "locale": "ja",
+          "status": "unverified",
+          "exception": null,
+          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+        },
+        {
+          "path": "/naeil-ui/?path=/story/ui-sitefooter--usage",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null,
+          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+        },
+        {
+          "path": "/naeil-ui/?path=/story/ui-sitefooter--compact",
+          "policy": "canonical",
+          "locale": "ko",
+          "status": "unverified",
+          "exception": null,
+          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+        }
+      ],
+      "source": {
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/28nele6j/pure-chicken",
+        "repository": "https://github.com/naeil-dev/naeil-ui",
+        "revision": null,
+        "productionCorrelation": "last-verified-release-0.6.0-and-current-public-story-index; current-build-identity-absent",
+        "lastDocumentedProductionRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd"
+      },
+      "deployment": {
+        "kind": "github-pages",
+        "status": "public-up",
+        "artifactId": null,
+        "adapterId": null,
+        "method": "GitHub Pages release0.6.0 verified by release receipt; current exact build identity endpoint absent.",
+        "lastDocumentedRunId": "38848658247",
+        "lastDocumentedDeploymentId": "7110742787"
+      },
+      "ui": {
+        "version": null,
+        "adoption": "component-showcase-present",
+        "header": "Storybook manager is third-party documentation chrome; owned stories remain subject to shared component contract",
+        "footer": "Public SiteFooter docs/usage/compact stories present; canonical NaeilFooter0.7.0 remains a candidate",
+        "requiredHeader": "NaeilHeader in canonical composition examples; Navigation retained for generic examples",
+        "requiredFooter": "NaeilFooter in canonical composition examples; SiteFooter retained for generic examples",
+        "lastVerifiedVersion": "0.6.0",
+        "candidateVersion": "0.7.0"
+      },
+      "status": "unresolved",
+      "blockers": [
+        "Current exact build identity is absent; correlate release0.7.0 source/package and rerun frozen candidate coverage.",
+        "Showcase policy exempts the Storybook manager from application chrome, not example component obligations; no approved rollout exception recorded."
+      ],
+      "evidence": [
+        {
+          "kind": "public-static",
+          "reference": "https://naeil-dev.github.io/naeil-ui/index.json",
+          "detail": "Re-fetched2026-10-16: HTTP200,51 entries, SHA256f776241c2f6dcf46149f5a5aed814cd5592648a228ba7f80d4b4b09b0908e295. Includes brand-naeilheader--docs/--usage/--japanese-application and ui-sitefooter--docs/--usage/--compact."
+        },
+        {
+          "kind": "last-verified-release",
+          "reference": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.6.0/release-verification.json",
+          "detail": "Release0.6.0 source549c501cee0f6c9374920785b5fce1c235c7bafd, Pages run38848658247/deployment7110742787, hostedStatus verified and failures0. Current naeil-release.json endpoint404; this is last verified release evidence, not candidate0.7.0 adoption."
+        }
+      ],
+      "lastVerifiedRelease": {
+        "version": "0.6.0",
+        "sourceRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd",
+        "runId": "38848658247",
+        "deploymentId": "7110742787",
+        "checkedAt": "2026-10-16T07:13:02.889530+00:00",
+        "evidence": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.6.0/release-verification.json",
+        "scope": "Hosted docs/usage, artwork, guide links and stable frame transitions; separate from candidate0.7.0"
+      }
+    }
+  ]
+}

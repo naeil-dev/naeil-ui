@@ -24,6 +24,8 @@ export default defineConfig({
     "src/components/nav.tsx",
     "src/components/naeil-header.tsx",
     "src/components/naeil-header-content.ts",
+    "src/components/naeil-footer.tsx",
+    "src/lib/ui-release.ts",
     "src/components/footer.tsx",
     "src/components/logo.tsx",
     "src/components/brand-artwork.generated.tsx", // Internal generated source; no public export.

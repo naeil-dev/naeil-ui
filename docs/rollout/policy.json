@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "approvedBy": null,
+  "approvalRef": null,
+  "expiresAt": null,
+  "patchWindow": null,
+  "services": [],
+  "stopFile": "/var/lib/naeil-ui-rollout/STOP",
+  "maxEvidenceAgeSeconds": 3600,
+  "rollbackApproved": false,
+  "rollbackScope": "code-only",
+  "reviewedMigration": null,
+  "exceptions": []
+}

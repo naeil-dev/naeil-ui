@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0 — unpublished candidate
+
+- Add React-only canonical NaeilFooter with full/compact content, localized destinations and save-navigation adapters. Preserve generic and Next Footer overrides.
+- Add SiteFooter onNavigate for every group link including native external anchors.
+- Add package/chrome-contract identity, independent rendered release references and fail-closed service rollout verification.
+- Keep approved 1600px/clamp frame and purpose-specific content widths unchanged.
+
+
 ## 0.6.0 — shared application frame (2026-10-16)
 
 - Align Navigation, SiteFooter, NaeilHeader and preserved Nav/Footer adapters with a shared 1600px maximum outer frame and responsive `clamp(16px, 2.4vw, 40px)` gutters. Add `ui-app-frame` for main composition; retain explicit classes and product token overrides.

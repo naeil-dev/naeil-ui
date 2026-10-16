@@ -1,3 +1,11 @@
+# Status — 2026-10-16 shared UI rollout candidate
+
+Local `feat/shared-ui-rollout` prepares unpublished `@naeil/ui@0.7.0`: canonical footer/guard and build identity contracts, consumer frame migration, explicit service registry, release fan-out and independent browser comparison. Estimate and the proven Baby frontend source have local candidates. Publishing, pushes/merges, production activation and standing automation are not performed or authorized by earlier releases.
+
+The completed 0.6.0 release remains published, with naeil.dev deployment7110237014 and hosted Storybook deployment7110742787 at549c501. Estimate production remainsUI0.5.0. Unknown Home/Jev source mappings, DNS completeness and unavailable/Access services remain visible; the overall rollout is incomplete. [Current verification](docs/rollout/verification.md), [inventory](docs/rollout/inventory.md), [automation/policy](docs/rollout/automation.md), [spec](docs/superpowers/specs/2026-10-16-shared-ui-rollout.md), [plan](docs/superpowers/plans/2026-10-16-shared-ui-rollout.md).
+
+## Earlier preparation checkpoint (superseded by recorded 0.6.0 publication)
+
 # Status — 2026-10-15 shared whole header verified locally
 
 The actual website header now has one optional React-only package composition, used directly by the site adapter and the estimate package consumer. Generic Navigation and old Next Nav APIs remain supported; no generated token changes. Shared units65/65, types, contrast, package/site builds, provisional clean packed React/Next and actual Storybook62/62 pass; full lint has0errors/1historical warning after excluding retained generated trace viewers. Sixteen matching JA/KO viewport/theme comparisons retain actual captures and no measured anchor differences over1px. [Verification and limits](docs/evidence/shared-naeil-header-2026-10-15/verification.md), [independent source/image review](docs/evidence/shared-naeil-header-2026-10-15/independent-review.md).

@@ -29,6 +29,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+      - run: pnpm test:rollout
+      - run: node scripts/build-ui-release.mjs --check
       - run: pnpm check:types
       - run: pnpm lint
       - run: pnpm build:tokens

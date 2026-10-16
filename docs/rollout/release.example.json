@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "ui-0.7.0-CANDIDATE-NOT-FROZEN",
+  "version": "0.7.0",
+  "previousVersion": "0.6.0",
+  "sourceRevision": "REPLACE_WITH_REVIEWED_FULL_40_HEX_SOURCE_REVISION",
+  "archive": {
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.0/naeil-ui-0.7.0.tgz",
+    "downloadOrigins": ["https://release-assets.githubusercontent.com"],
+    "path": "frozen/naeil-ui-0.7.0.tgz",
+    "sha256": "REPLACE_WITH_FULL_64_HEX_SHA256"
+  },
+  "contract": {
+    "version": "1",
+    "path": "frozen/naeil-chrome-0.7.0.json",
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.0/naeil-chrome-0.7.0.json",
+    "downloadOrigins": ["https://release-assets.githubusercontent.com"],
+    "sha256": "REPLACE_WITH_FULL_64_HEX_SHA256"
+  },
+  "changes": ["frame", "dom", "guard", "contract"]
+}

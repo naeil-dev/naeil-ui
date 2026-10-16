@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "contractVersion": "1",
+  "authority": "DESIGN.md: approved 2026-10-16 frame; shared-ui-rollout spec: canonical footer and guard",
+  "frame": { "maxWidth": 1600, "gutterMin": 16, "gutterVw": 2.4, "gutterMax": 40 },
+  "header": { "height": 65, "brandHeight": 28, "desktopBrandReservation": 160 },
+  "footer": { "variants": ["full", "compact"], "brandHeight": 20, "requiredPaths": ["/", "/projects", "/blog"], "github": "https://github.com/naeil-dev" },
+  "viewports": [390, 768, 1440, 1920],
+  "themes": ["light", "dark"],
+  "locales": ["en", "ko", "ja"],
+  "tolerancePx": 1
+}
