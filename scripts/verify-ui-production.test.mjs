@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
-import { assertGeometry, assertRouteDestination, readChrome } from './verify-ui-production.mjs';
+import { assertGeometry, assertRouteDestination, assertRouteState, checkMenu, readChrome } from './verify-ui-production.mjs';
 const contract = JSON.parse(readFileSync(new URL('../contracts/naeil-chrome.v1.json', import.meta.url)));
 const baseline = {
   layoutWidth: 1920, layoutX: 0, headerFrame: { x: 160, width: 1600, padding: 40 }, footerFrame: { x: 160, width: 1600, padding: 40 },
@@ -25,6 +25,25 @@ test('a login redirect cannot certify a protected route', () => {
   assert.doesNotThrow(() => assertRouteDestination('https://example.org/en', { path: '/', expectedPath: '/en' }, 'https://example.org'));
   assert.throws(() => assertRouteDestination('https://outside.org/settings', { path: '/settings' }, 'https://example.org'), /another origin/);
 });
+test('registered application theme labels still require working theme changes and focus restoration', async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage(); page.setDefaultTimeout(1000);
+    await page.route('https://naeil.dev/**', route => route.abort());
+    await page.setContent(`<html class="light"><header data-naeil-header><button id="projects">Projects</button><button id="theme">Theme</button></header><div id="catalog" role="dialog" aria-label="Projects" hidden>${Array.from({length:5}, (_, i) => `<img src="https://naeil.dev/images/fixture-${i}.png">`).join('')}</div><script>
+      const catalog = document.getElementById('catalog'), projects = document.getElementById('projects');
+      projects.onclick = () => { catalog.hidden = false; };
+      document.addEventListener('keydown', e => { if(e.key === 'Escape') { catalog.hidden = true; projects.focus(); } });
+      document.getElementById('theme').onclick = () => { document.documentElement.className = document.documentElement.className === 'light' ? 'dark' : 'light'; };
+    </script></html>`, { waitUntil: 'domcontentloaded' });
+    await checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } });
+    assert.equal(await page.locator('html').getAttribute('class'), 'light');
+    await page.locator('#theme').evaluate(button => { button.onclick = null; });
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }), /Timeout/);
+    await page.locator('#theme').evaluate(button => { button.onclick = () => document.documentElement.classList.add('light', 'dark'); });
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }), /Timeout/);
+  } finally { await browser.close(); }
+});
 test('browser font verification accepts real static/variable faces and rejects fallback-only stacks', async () => {
   const browser = await chromium.launch();
   try {
@@ -42,5 +61,23 @@ test('browser font verification accepts real static/variable faces and rejects f
     }
     await page.setContent('<header data-naeil-header style="font-family:Pretendard,sans-serif"><div class="ui-navigation-frame"><a data-app-brand><svg></svg></a>Missing webfont</div></header><footer data-naeil-footer><div class="ui-site-footer-frame"><a data-footer-brand><svg></svg></a></div></footer>');
     assert.equal((await readChrome(page, 'ko')).fontLoaded, false, 'Missing faces must not certify system fallback');
+  } finally { await browser.close(); }
+});
+
+test('a same-URL SPA login cannot certify an authenticated screen', async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    page.setDefaultTimeout(200);
+    await page.setContent('<main><input type="password"><div data-workspace hidden>Fixture workspace</div></main>');
+    const route = { path: '/', renderState: { access: 'protected', visible: '[data-workspace]', hidden: ['input[type=password]'] } };
+    await assert.rejects(assertRouteState(page, route), /visible|Timeout/);
+    await page.locator('[data-workspace]').evaluate(el => el.hidden = false);
+    await assert.rejects(assertRouteState(page, route), /Unexpected visible state/);
+    await page.locator('input').evaluate(el => el.remove());
+    await assertRouteState(page, route);
+    await assert.rejects(assertRouteState(page, { path: '/' }), /Explicit route access/);
+    await assert.rejects(assertRouteState(page, { renderState: { access: 'protected' } }), /visible state marker/);
+    await assertRouteState(page, { renderState: { access: 'public' } });
   } finally { await browser.close(); }
 });

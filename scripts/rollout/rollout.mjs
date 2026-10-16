@@ -1,3 +1,4 @@
+import { assertRouteConfig, routeKey } from './route-contract.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -159,12 +160,12 @@ async function productionCheck(context, directory) {
   return { ...result, passed: true, identity, checkedAt: new Date().toISOString() };
 }
 
-const routeApproval = (route, service, release, policy) => policy?.exceptions?.find(item => item.releaseId === release.releaseId && item.serviceId === service.id && item.path === route.path && approval(item));
+const routeApproval = (route, service, release, policy) => policy?.exceptions?.find(item => item.releaseId === release.releaseId && item.serviceId === service.id && item.path === route.path && item.routeKey === routeKey(route) && approval(item));
 function canonicalRoutes(service, release, policy) {
   const canonical = [];
   for (const route of service.routes || []) {
     if (routeApproval(route, service, release, policy)) continue;
-    if (['canonical', 'shared'].includes(route.policy)) { canonical.push(route); continue; }
+    if (['canonical', 'shared'].includes(route.policy)) { assertRouteConfig(route); canonical.push(route); continue; }
     if (route.policy === 'non-ui') continue;
     assert.fail(`Unresolved route policy requires recorded approval: ${route.path} (${route.policy})`);
   }
@@ -178,7 +179,7 @@ function productionValid(production, service, artifact, age, release, policy) {
   assertIdentity(production.identity, { appId: publicAppId(service), ...artifact });
   assert(service.routes?.length > 0, 'Service route inventory is empty');
   for (const route of canonicalRoutes(service, release, policy)) {
-    assert(production.routes?.some(result => result.path === route.path && (result.passed === true || result.status === 'production-verified')), `Missing browser route verification: ${route.path}`);
+    assert(production.routes?.some(result => result.path === route.path && result.routeKey === routeKey(route) && (result.passed === true || result.status === 'production-verified')), `Missing browser route verification: ${route.path}`);
   }
 }
 
@@ -272,7 +273,7 @@ export function aggregate(release, registry, receipts, policy) {
   validateRelease(release);
   assert.equal(registry.schemaVersion, 1, 'Unknown inventory schema');
   const results = registry.services.map(service => {
-    const exception = policy.exceptions?.find(item => item.serviceId === service.id && item.releaseId === release.releaseId && approval(item));
+    const exception = policy.exceptions?.find(item => item.serviceId === service.id && item.releaseId === release.releaseId && item.path === undefined && item.routeKey === undefined && item.scope === undefined && approval(item));
     if (exception) return { serviceId: service.id, state: 'approved-exception', approval: exception };
     const matches = receipts.filter(receipt => receipt.serviceId === service.id && receipt.releaseId === release.releaseId);
     if (matches.length !== 1) return { serviceId: service.id, state: service.ui?.adoption === 'not-adopted' ? 'not-adopted' : 'unresolved', reason: 'Exactly one current release receipt required' };

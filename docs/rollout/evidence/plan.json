@@ -1,111 +1,71 @@
 {
   "releaseId": "ui-0.7.0-3b13e95",
-  "liveActionsEnabled": false,
   "services": [
     {
       "serviceId": "naeil",
-      "adapterId": "naeil-vercel-v1",
-      "runner": [
-        "self-hosted",
-        "naeil-ui-rollout"
-      ],
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": true,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "home",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "estimate",
-      "adapterId": "estimate-standalone-v1",
-      "runner": [
-        "self-hosted",
-        "estimate-app-rollout"
-      ],
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": true,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "jev",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "baby",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "trip",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "work",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "digest",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "line",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "esg",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     },
     {
       "serviceId": "storybook",
-      "adapterId": null,
-      "runner": null,
-      "gate": {
-        "state": "review-required",
-        "reason": "Standing rollout policy is disabled"
-      }
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
     }
   ]
 }

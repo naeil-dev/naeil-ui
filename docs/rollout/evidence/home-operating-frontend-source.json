@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-16T11:46:36.083855+00:00",
+  "appId": "home",
+  "scope": "frontend-source-correspondence",
+  "productionUiAdopted": false,
+  "fullBackendSourceVerified": false,
+  "origin": "https://jay-macmini-2.tail165003.ts.net:2455",
+  "originVisibility": "private-tailnet",
+  "publicCanonicalOrigin": null,
+  "loopbackOrigin": "http://127.0.0.1:2455",
+  "runtimeImage": "sha256:b0187528b7e23c0242dc4f33510c0285a50608475aee4c584ea136e485871513",
+  "preservedSourcePath": "/Users/jaymini/projects/cleanup_records/naeil-home-20261010-192436/preserved-worktrees/naeil-ai-status-20261010",
+  "preservedSourceHead": "9c9c55f07cc7816cb1eba1d85875b7727ba9d2cb",
+  "preservedSourceDirty": true,
+  "frozenFrontendRevision": "3cc9d7aa571bf10ef55bc1044572bee45ef5591c",
+  "frozenFrontendWorktree": "/Users/jaymini/.paseo/worktrees/3qtenke4/shared-ui-rollout-home",
+  "sourceManifestSha256": "2fcb95278b91f9bbd2a47f0d2f7c763f70cf22615991e44c72e9462377e3ad0d",
+  "sourceManifestFile": "home-operating-frontend-source-files.json",
+  "build": {
+    "runtime": "bun1.4.2",
+    "commands": [
+      "bun install --frozen-lockfile --ignore-scripts",
+      "bun run build"
+    ],
+    "isolated": true,
+    "environmentFilesCopied": false,
+    "inputFiles": 218,
+    "result": "pass"
+  },
+  "staticChecks": [
+    {
+      "path": "/apple-touch-icon.png",
+      "status": 200,
+      "sha256": "dbb6ce9e5e429f3fa9a06fc9a17a96e68a811baf46d8f58fd0d6c31713192e20",
+      "bytes": 6217,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/assets/index-DBiI30Do.css",
+      "status": 200,
+      "sha256": "f8a4dd20b59a74188d15a8bba027feabb66dd0dd0b9b5b9c29fe28eb659f3a56",
+      "bytes": 81528,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/assets/index-jqNt3G6M.js",
+      "status": 200,
+      "sha256": "6f07fb976c2d9904461d33a97e98abb1cadda3f75c52f6794785d07d964dd216",
+      "bytes": 976951,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/icons/apple-touch-icon.png",
+      "status": 200,
+      "sha256": "dbb6ce9e5e429f3fa9a06fc9a17a96e68a811baf46d8f58fd0d6c31713192e20",
+      "bytes": 6217,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/icons/favicon.ico",
+      "status": 200,
+      "sha256": "ab82d465b34a7996702604dfb16e8e2e1668bdbcef18d083fe95e66e27edd6a1",
+      "bytes": 3529,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/icons/favicon.svg",
+      "status": 200,
+      "sha256": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+      "bytes": 4394,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/licenses/Lato-OFL.txt",
+      "status": 200,
+      "sha256": "74ba064d03f1f1c4a952da936c3eb71866c34404916734de3cae73b34357e59e",
+      "bytes": 4407,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/licenses/sources.json",
+      "status": 200,
+      "sha256": "d0f8ac384ea5a28e66e498b56376f402415029b6e1daf9a30f4f824777c1d2d6",
+      "bytes": 485,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/svg/naeil-footer-gray-dark.svg",
+      "status": 200,
+      "sha256": "ac1dc49f6bb2bd1f5f8f44cd4d441ee9e7323d2b92aa287deab287be6e6fab25",
+      "bytes": 4781,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/svg/naeil-footer-gray.svg",
+      "status": 200,
+      "sha256": "4dd9545ce3c92eb5cd9c7afe2abda4887555ad842c51c679adf4ac6a34f3670f",
+      "bytes": 4731,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/svg/naeil-horizontal-color-dark.svg",
+      "status": 200,
+      "sha256": "8062155f32e09ef4f7c63dbf3cfa6fc46131e1a626e7a8b0e840c868696f9151",
+      "bytes": 4954,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/svg/naeil-horizontal-color.svg",
+      "status": 200,
+      "sha256": "9e03116866d95ae6d43eae8b9d5de9f9833eafeb0759973d8440644164ce905c",
+      "bytes": 4904,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/svg/naeil-symbol-color-dark-small.svg",
+      "status": 200,
+      "sha256": "9ad217fa7413429c4188b457da55c866f27459c2350fd1ab332ec6921c4ab646",
+      "bytes": 2513,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.0.1/svg/naeil-symbol-color-small.svg",
+      "status": 200,
+      "sha256": "b457adee575ce6988d8df8059346d60ff2dbbfc59b37655d38378d30719e5748",
+      "bytes": 2463,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/icons/apple-touch-icon.png",
+      "status": 200,
+      "sha256": "dbb6ce9e5e429f3fa9a06fc9a17a96e68a811baf46d8f58fd0d6c31713192e20",
+      "bytes": 6217,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/icons/favicon-transparent.ico",
+      "status": 200,
+      "sha256": "903932704751ccc06ff8161cc9b08092d173b62fcc1d2d2a07805309a46e4c4f",
+      "bytes": 3623,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/icons/favicon-transparent.svg",
+      "status": 200,
+      "sha256": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+      "bytes": 4394,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/icons/favicon.ico",
+      "status": 200,
+      "sha256": "ab82d465b34a7996702604dfb16e8e2e1668bdbcef18d083fe95e66e27edd6a1",
+      "bytes": 3529,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/icons/favicon.svg",
+      "status": 200,
+      "sha256": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+      "bytes": 4394,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/licenses/Lato-OFL.txt",
+      "status": 200,
+      "sha256": "74ba064d03f1f1c4a952da936c3eb71866c34404916734de3cae73b34357e59e",
+      "bytes": 4407,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/licenses/sources.json",
+      "status": 200,
+      "sha256": "d0f8ac384ea5a28e66e498b56376f402415029b6e1daf9a30f4f824777c1d2d6",
+      "bytes": 485,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/svg/naeil-footer-gray-dark.svg",
+      "status": 200,
+      "sha256": "d6fd2f00425847bbbde23674655090bf260653d12d146d9cf5f3cf123d143b9d",
+      "bytes": 5121,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/svg/naeil-footer-gray.svg",
+      "status": 200,
+      "sha256": "e79723c9c6e0dc3afe436660d79717ea70f39063559ce6fd2f6263939141655e",
+      "bytes": 5071,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/svg/naeil-horizontal-color-dark.svg",
+      "status": 200,
+      "sha256": "4533bef096c9eeba4f4714aebfcceb134a6715228e035ccd816f832708c8b74a",
+      "bytes": 5294,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/svg/naeil-horizontal-color.svg",
+      "status": 200,
+      "sha256": "84ed5011193fc562fc019a4898a2befecabef3b9bec1e14a0794a61bcebfaa32",
+      "bytes": 5244,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/svg/naeil-symbol-color-dark-small.svg",
+      "status": 200,
+      "sha256": "9ad217fa7413429c4188b457da55c866f27459c2350fd1ab332ec6921c4ab646",
+      "bytes": 2513,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/brand/naeil/1.1.1/svg/naeil-symbol-color-small.svg",
+      "status": 200,
+      "sha256": "b457adee575ce6988d8df8059346d60ff2dbbfc59b37655d38378d30719e5748",
+      "bytes": 2463,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/favicon.ico",
+      "status": 200,
+      "sha256": "903932704751ccc06ff8161cc9b08092d173b62fcc1d2d2a07805309a46e4c4f",
+      "bytes": 3623,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/favicon.svg",
+      "status": 200,
+      "sha256": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+      "bytes": 4394,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/fonts/GeistSans-Variable.woff2",
+      "status": 200,
+      "sha256": "e24cec106619c03f0b3519e31b9bc55e0d5e926b6a95b8d798cd8cef215b1505",
+      "bytes": 69436,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/fonts/PretendardVariable.woff2",
+      "status": 200,
+      "sha256": "a1a94c6f267974f13ba8a00d9d3bd585795018183e941defdb208aa9ed66770a",
+      "bytes": 521700,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/fonts/jetbrains-mono-latin-ext.woff2",
+      "status": 200,
+      "sha256": "db5ff4db83e580426280e9337a58dc57d3a83784a1b03ad80914651594441d52",
+      "bytes": 11624,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/fonts/jetbrains-mono-latin.woff2",
+      "status": 200,
+      "sha256": "83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be",
+      "bytes": 31432,
+      "matchesIndependentBuild": true
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "sha256": "486a3087883304dbce2d540c679f8b3f1f8f1d1d3f758c55ddd19a1c5215666c",
+      "bytes": 714,
+      "matchesIndependentBuild": true
+    }
+  ],
+  "allBuildFilesMatch": true,
+  "backendCorrelation": {
+    "selectedCodeFiles": 311,
+    "matchingFiles": 309,
+    "mismatches": [
+      "app/modules/usage/updater.py",
+      "scripts/generate_settings_reference.py"
+    ],
+    "completeRuntimeInventory": false
+  },
+  "limitations": [
+    "Only anonymous static HTTP resources and selected source hashes read; no backend health/auth/provider/data check.",
+    "The current main backend differs from runtime; this frontend snapshot must not be deployed as a whole app.",
+    "Authoritative DNS inventory and public canonical hostname remain unknown."
+  ]
+}

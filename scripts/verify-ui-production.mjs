@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
+import { assertRouteConfig, routeKey } from './rollout/route-contract.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const near = (actual, expected, tolerance, label) => assert(Number.isFinite(actual) && Math.abs(actual - expected) <= tolerance, `${label}: ${actual} expected ${expected} ±${tolerance}`);
@@ -19,6 +20,16 @@ export function assertRouteDestination(actual, route, origin) {
   assert.equal(final.origin, expected.origin, 'Route redirected to another origin');
   assert.equal(final.pathname, expected.pathname, `Requested ${route.path} rendered another route`);
   assert.equal(final.search, expected.search, 'Route redirected to another query');
+}
+
+/** Inspect only registered structural state markers; never read protected content. */
+export async function assertRouteState(page, route) {
+  assertRouteConfig(route);
+  const state = route.renderState;
+  if (state.visible) await page.locator(state.visible).first().waitFor({ state: 'visible' });
+  for (const selector of state.hidden || []) {
+    for (const marker of await page.locator(selector).all()) assert(!await marker.isVisible(), `Unexpected visible state marker: ${selector}`);
+  }
 }
 
 /** No app token supplies an expectation. These values come from the frozen reviewed reference. */
@@ -97,7 +108,11 @@ export function assertLinks(actual, locale, origin, contract) {
   for (const link of actual.footerLinks.filter(link => link.target === '_blank')) assert(link.rel.includes('noopener') && link.rel.includes('noreferrer'), 'External target needs safe rel');
 }
 
-export async function checkMenu(page, locale, theme) {
+export async function checkMenu(page, locale, theme, chrome = {}) {
+  // Consumers may own theme controls (and their accessible labels) while the
+  // canonical menu and actual theme change remain mandatory.
+  const themeLabels = chrome.themeControlLabels ?? labels[locale];
+  for (const value of ['light', 'dark']) assert(typeof themeLabels[value] === 'string' && themeLabels[value].trim(), 'Registered theme control label required');
   const header = page.locator('[data-naeil-header]');
   const menu = header.getByRole('button', { name: labels[locale].menu, exact: true });
   const mobile = await menu.isVisible();
@@ -113,10 +128,10 @@ export async function checkMenu(page, locale, theme) {
   if (!mobile) await dismiss();
   const controls = mobile ? dialog : header;
   const nextTheme = theme === 'dark' ? 'light' : 'dark';
-  await controls.getByRole('button', { name: labels[locale][nextTheme], exact: true }).click();
-  await page.waitForFunction(value => document.documentElement.classList.contains(value), nextTheme);
-  await controls.getByRole('button', { name: labels[locale][theme], exact: true }).click();
-  await page.waitForFunction(value => document.documentElement.classList.contains(value), theme);
+  await controls.getByRole('button', { name: themeLabels[nextTheme], exact: true }).click();
+  await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), nextTheme);
+  await controls.getByRole('button', { name: themeLabels[theme], exact: true }).click();
+  await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), theme);
   if (mobile) await dismiss();
 }
 
@@ -127,6 +142,7 @@ export async function verifyProduction({ release, origin, identity, routes, refe
   assert.equal(reference.ui.version, identity.ui.version, 'Reference release version mismatch');
   assert.equal(reference.ui.contractVersion, identity.ui.contractVersion, 'Reference contract mismatch');
   assert(Array.isArray(routes) && routes.length > 0, 'Nonempty explicit route inventory required');
+  for (const route of routes) assertRouteConfig(route);
   await verifyIdentity(origin, identity);
   const output = resolve(outputDir); mkdirSync(output, { recursive: true });
   const browser = await chromium.launch(); const results = [];
@@ -143,10 +159,11 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           const response = await page.goto(new URL(route.path, origin).href);
           assert(response?.ok(), `Route HTTP failure: ${route.path}`);
           assertRouteDestination(page.url(), route, origin);
+          await assertRouteState(page, route);
           const locale = route.locale || await page.locator('html').getAttribute('lang');
           assert(labels[locale], 'Register the supported locale for this route');
           await page.locator('[data-naeil-header]').waitFor();
-          await page.waitForFunction(value => document.documentElement.classList.contains(value), theme);
+          await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), theme);
           const actual = await readChrome(page, locale);
           for (const key of ['version', 'footerVersion']) assert.equal(actual[key], identity.ui.version, `Rendered ${key} mismatch`);
           for (const key of ['contractVersion', 'footerContract']) assert.equal(actual[key], identity.ui.contractVersion, `Rendered ${key} mismatch`);
@@ -154,15 +171,17 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           assert(baseline, `No independent reference for ${locale}/${theme}/${width}/${actual.footerVariant}`);
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, locale, origin, reference.contract);
-          await checkMenu(page, locale, theme);
+          await checkMenu(page, locale, theme, route.chrome);
           // Capture only shared chrome; never business/family content.
           const name = `${results.length}-${width}-${theme}`;
           await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`) });
           await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
+          assertRouteDestination(page.url(), route, origin);
+          await assertRouteState(page, route);
           cases.push({ width, theme, locale, variant: actual.footerVariant, render: actual, passed: true });
         } finally { await context.close(); }
       }
-      results.push({ path: route.path, status: 'production-verified', cases });
+      results.push({ path: route.path, routeKey: routeKey(route), locale: route.locale || null, state: route.state || null, renderState: route.renderState, status: 'production-verified', cases });
     }
     await verifyIdentity(origin, identity);
     const result = { schemaVersion: 1, referenceSha256: hash(referenceBytes), identity, checkedAt: new Date().toISOString(), routes: results, passed: true };

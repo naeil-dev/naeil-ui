@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from '@playwright/test';
+import { routeKey } from './rollout/route-contract.mjs';
 import { assertReference } from './rollout/rollout.mjs';
-import { assertGeometry, assertLinks, assertRouteDestination, checkMenu, readChrome } from './verify-ui-production.mjs';
+import { assertGeometry, assertLinks, assertRouteDestination, assertRouteState, checkMenu, readChrome } from './verify-ui-production.mjs';
 
 export async function verifyLocalCandidate({ release, origin, identity, identityPath = '/.well-known/naeil-ui.json', routes, referencePath, outputDir, configureContext, preparePage }) {
   const url = new URL(origin);
@@ -35,6 +36,7 @@ export async function verifyLocalCandidate({ release, origin, identity, identity
           assert(response?.ok(), 'Local route HTTP failure');
           if (preparePage) await preparePage(page, route);
           assertRouteDestination(page.url(), route, origin);
+          if (route.renderState) await assertRouteState(page, route);
           await page.waitForFunction(value => document.documentElement.classList.contains(value), theme);
           const actual = await readChrome(page, route.locale);
           assert.equal(actual.version, release.version); assert.equal(actual.footerVersion, release.version);
@@ -43,7 +45,7 @@ export async function verifyLocalCandidate({ release, origin, identity, identity
           assert(baseline, 'Independent matching render missing');
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, route.locale, origin, reference.contract);
-          await checkMenu(page, route.locale, theme);
+          await checkMenu(page, route.locale, theme, route.chrome);
           const name = `${results.length}-${width}-${theme}`;
           await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`) });
           await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
@@ -55,10 +57,12 @@ export async function verifyLocalCandidate({ release, origin, identity, identity
             assert.throws(() => assertGeometry(wrong, reference.contract, baseline.render), /frame width|gutter/, 'Wrong consumer override escaped the independent contract');
             negativeOverrideRejected = true;
           }
+          assertRouteDestination(page.url(), route, origin);
+          if (route.renderState) await assertRouteState(page, route);
           cases.push({ width, theme, locale: route.locale, render: actual, negativeOverrideRejected, passed: true });
         } finally { await context.close(); }
       }
-      results.push({ path: route.path, state: route.state || null, status: 'local-candidate-verified', cases });
+      results.push({ path: route.path, routeKey: routeKey(route), locale: route.locale || null, renderState: route.renderState || null, state: route.state || null, status: 'local-candidate-verified', cases });
     }
     await verifyIdentity();
     const result = { schemaVersion: 1, scope: 'local-synthetic-candidate', productionVerified: false, referenceSha256: release.contract.sha256, identity, checkedAt: new Date().toISOString(), routes: results, passed: true };

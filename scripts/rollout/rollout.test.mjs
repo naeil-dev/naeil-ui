@@ -1,3 +1,4 @@
+import { routeKey } from './route-contract.mjs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
@@ -12,7 +13,7 @@ import { aggregate, assertReference, digest, policyGate, releaseFingerprint, run
 const sha = 'a'.repeat(64);
 const revision = 'b'.repeat(40);
 const release = { schemaVersion: 1, releaseId: 'ui-0.6.1', version: '0.6.1', previousVersion: '0.6.0', sourceRevision: revision, archive: { url: 'https://example.com/naeil-ui-0.6.1.tgz', sha256: sha }, contract: { version: '1', path: 'reference.json', sha256: sha }, changes: [] };
-const service = { id: 'example', origin: 'https://example.com', routes: [{ path: '/', policy: 'shared' }], deployment: { adapterId: 'example' }, ui: { adoption: 'adopted' } };
+const service = { id: 'example', origin: 'https://example.com', routes: [{ path: '/', policy: 'shared', renderState: { access: 'public' } }], deployment: { adapterId: 'example' }, ui: { adoption: 'adopted' } };
 const patchWindow = { minVersion: '0.6.1', maxVersion: '0.6.9', contractVersion: '1', services: ['example'], approvedBy: 'owner', approvalRef: 'patch-window-1', reason: 'Bounded same-contract fixes', startsAt: '2026-01-01', expiresAt: '2099-01-01' };
 const policy = { schemaVersion: 1, enabled: true, approvedBy: 'owner', approvalRef: 'approval-1', patchWindow, expiresAt: '2099-01-01T00:00:00.000Z', services: ['example'], stopFile: '/nonexistent/rollout-stop', maxEvidenceAgeSeconds: 3600, rollbackApproved: true, rollbackScope: 'code-only' };
 const adapter = { runner: ['ubuntu-latest'], cwd: '/tmp', commands: Object.fromEntries(['update', 'test', 'build', 'package', 'deploy', 'activate', 'rollback'].map(step => [step, { file: process.execPath, args: ['adapter.mjs', step] }])) };
@@ -75,7 +76,7 @@ function fixture(t, overrides = {}) {
     if (step === 'rollback') return { activated: true, artifactId: context.previousArtifact.id, artifactSha256: context.previousArtifact.sha256 };
     return { passed: true };
   };
-  const verifyProduction = async () => ({ passed: true, referenceSha256: frozen.contract.sha256, checkedAt: new Date().toISOString(), identity: { schemaVersion: 1, appId: service.id, artifactId: artifact.id, sourceRevision: revision, ui: artifact.ui }, routes: [{ path: '/', passed: true }] });
+  const verifyProduction = async () => ({ passed: true, referenceSha256: frozen.contract.sha256, checkedAt: new Date().toISOString(), identity: { schemaVersion: 1, appId: service.id, artifactId: artifact.id, sourceRevision: revision, ui: artifact.ui }, routes: [{ path: '/', routeKey: routeKey(service.routes[0]), passed: true }] });
   const verifyRollback = async () => ({ schemaVersion: 1, appId: service.id, artifactId: previous.id, sourceRevision: previous.sourceRevision, ui: previous.ui });
   return { dir, calls, options: { release: frozen, service, adapter, policy, stateDir: dir, execute, verifyProduction, verifyRollback } };
 }
@@ -194,7 +195,7 @@ test('non-UI routes are explicit exclusions while unknown UI and unapproved show
   const unknown = fixture(t); unknown.options.service = { ...service, routes: [...service.routes, { path: '/unknown', policy: 'unavailable-ui' }] };
   assert.equal((await runService(unknown.options)).state, 'gate-failed'); assert.deepEqual(unknown.calls, []);
   const approved = fixture(t); approved.options.service = { ...service, routes: [...service.routes, { path: '/protected', policy: 'canonical' }] };
-  approved.options.policy = { ...policy, exceptions: [{ serviceId: service.id, path: '/protected', releaseId: release.releaseId, approvedBy: 'owner', approvalRef: 'route-approval', reason: 'Temporary isolated auth fixture unavailable', expiresAt: '2099-01-01T00:00:00Z' }] };
+  approved.options.policy = { ...policy, exceptions: [{ serviceId: service.id, path: '/protected', routeKey: routeKey(approved.options.service.routes[1]), releaseId: release.releaseId, approvedBy: 'owner', approvalRef: 'route-approval', reason: 'Temporary isolated auth fixture unavailable', expiresAt: '2099-01-01T00:00:00Z' }] };
   const result = await runService(approved.options); assert.equal(result.state, 'production-verified'); assert.equal(result.routePolicies[0].state, 'approved-exception');
 });
 
@@ -224,7 +225,7 @@ test('production identity requires all exact public fields; HTTP 200 is insuffic
   body = { ...body, appId: service.id }; assert.deepEqual(await verifyIdentity(origin, { appId: service.id, ...artifact }), body);
   body = { ...body, internalManifest: '/private/path' }; await assert.rejects(verifyIdentity(origin, { appId: service.id, ...artifact }), /extra fields/); delete body.internalManifest;
   body = { ...body, sourceRevision: 'development' }; await assert.rejects(verifyIdentity(origin, { appId: service.id, ...artifact }), /full reviewed source/); body.sourceRevision = revision;
-  body.ui.contractVersion = '2'; await assert.rejects(verifyIdentity(origin, { appId: service.id, ...artifact, ui: { version: release.version, contractVersion: '1' } }), /contractVersion/);
+  body = { ...body, ui: { ...body.ui, contractVersion: '2' } }; await assert.rejects(verifyIdentity(origin, { appId: service.id, ...artifact, ui: { version: release.version, contractVersion: '1' } }), /contractVersion/);
 });
 
 test('naeil preparation packages runnable standalone bytes and refuses bundled environment files', async t => {
@@ -247,4 +248,36 @@ test('naeil preparation packages runnable standalone bytes and refuses bundled e
   await assert.rejects(packageStandalone(root, join(f.dir, 'changed-artifacts')), /clean/);
   execFileSync('git', ['add', 'public/favicon.svg'], { cwd: root }); execFileSync('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'New source after build'], { cwd: root });
   await assert.rejects(packageStandalone(root, join(f.dir, 'wrong-source-artifacts')), /source revision/);
+});
+
+test('same-URL locale and authenticated state each require their own browser receipt', async t => {
+  const f = fixture(t);
+  f.options.service = { ...service, routes: [
+    { ...service.routes[0], locale: 'ko', state: 'login' },
+    { ...service.routes[0], locale: 'ko', state: 'dashboard', renderState: { access: 'protected', visible: '[data-workspace]' } },
+    { ...service.routes[0], locale: 'en', state: 'login' },
+  ] };
+  const original = f.options.verifyProduction;
+  f.options.verifyProduction = async () => ({ ...await original(), routes: [{ path: '/', routeKey: routeKey(f.options.service.routes[0]), passed: true }] });
+  const result = await runService(f.options);
+  assert.equal(result.state, 'gate-failed');
+  assert.match(result.failure.message, /Missing browser route verification/);
+});
+
+test('route exception is bound to its exact locale and render state', async t => {
+  const f = fixture(t);
+  const protectedRoute = { path: '/', policy: 'canonical', locale: 'ko', state: 'dashboard', renderState: { access: 'protected', visible: '[data-workspace]' } };
+  f.options.service = { ...service, routes: [...service.routes, protectedRoute] };
+  f.options.policy = { ...policy, exceptions: [{ serviceId: service.id, releaseId: release.releaseId, path: '/', routeKey: routeKey({ ...protectedRoute, locale: 'en' }), approvedBy: 'owner', approvalRef: 'specific-state', reason: 'Approved English only', expiresAt: '2099-01-01' }] };
+  const result = await runService(f.options);
+  assert.equal(result.state, 'gate-failed');
+  assert.match(result.failure.message, /Missing browser route verification/);
+});
+
+test('a route exception cannot close the whole service without production evidence', t => {
+  const f = fixture(t);
+  const exception = { serviceId: service.id, releaseId: release.releaseId, path: '/', routeKey: routeKey(service.routes[0]), approvedBy: 'owner', approvalRef: 'one-route', reason: 'One reviewed route', expiresAt: '2099-01-01' };
+  const result = aggregate(f.options.release, { schemaVersion: 1, scope: { dnsComplete: true }, services: [service] }, [], { ...policy, exceptions: [exception] });
+  assert.equal(result.complete, false);
+  assert.equal(result.services[0].state, 'unresolved');
 });

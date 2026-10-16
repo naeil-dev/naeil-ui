@@ -81,147 +81,210 @@
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/login",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/design",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/projects",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/blog",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/blog/2026-03-30",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/baby-agent",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/pkm",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/sa",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ko/cc",
           "policy": "canonical",
           "locale": "ko",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/login",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/design",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/projects",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/blog",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/blog/2026-03-30",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/baby-agent",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/pkm",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/sa",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/ja/cc",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en",
@@ -229,7 +292,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/"
+          "expectedPath": "/",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/login",
@@ -237,7 +303,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/login"
+          "expectedPath": "/login",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/design",
@@ -245,7 +314,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/design"
+          "expectedPath": "/design",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/projects",
@@ -253,7 +325,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/projects"
+          "expectedPath": "/projects",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/blog",
@@ -261,7 +336,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/blog"
+          "expectedPath": "/blog",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/blog/2026-03-30",
@@ -269,7 +347,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/blog/2026-03-30"
+          "expectedPath": "/blog/2026-03-30",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/baby-agent",
@@ -277,7 +358,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/baby-agent"
+          "expectedPath": "/baby-agent",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/pkm",
@@ -285,7 +369,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/pkm"
+          "expectedPath": "/pkm",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/sa",
@@ -293,7 +380,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/sa"
+          "expectedPath": "/sa",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/en/cc",
@@ -301,7 +391,10 @@
           "locale": "en",
           "status": "unverified",
           "exception": null,
-          "expectedPath": "/cc"
+          "expectedPath": "/cc",
+          "renderState": {
+            "access": "public"
+          }
         }
       ],
       "source": {
@@ -393,60 +486,224 @@
     {
       "id": "home",
       "name": "Naeil Home",
-      "origin": null,
+      "origin": "https://jay-macmini-2.tail165003.ts.net:2455",
       "routes": [
         {
           "path": "/",
+          "state": "login",
+          "locale": "ko",
           "policy": "canonical",
-          "locale": null,
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": "input[type=password]",
+            "hidden": []
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "테마",
+              "dark": "테마"
+            }
+          }
+        },
+        {
+          "path": "/",
+          "state": "dashboard",
+          "locale": "ko",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-slot=workspace]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "테마",
+              "dark": "테마"
+            }
+          }
         },
         {
           "path": "/keys",
+          "state": "keys",
+          "locale": "ko",
           "policy": "canonical",
-          "locale": null,
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-slot=workspace]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "테마",
+              "dark": "테마"
+            }
+          }
         },
         {
           "path": "/connections",
+          "state": "connections",
+          "locale": "ko",
           "policy": "canonical",
-          "locale": null,
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-slot=workspace]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "테마",
+              "dark": "테마"
+            }
+          }
+        },
+        {
+          "path": "/",
+          "state": "login",
+          "locale": "en",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": "input[type=password]",
+            "hidden": []
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "Theme",
+              "dark": "Theme"
+            }
+          }
+        },
+        {
+          "path": "/",
+          "state": "dashboard",
+          "locale": "en",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-slot=workspace]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "Theme",
+              "dark": "Theme"
+            }
+          }
+        },
+        {
+          "path": "/keys",
+          "state": "keys",
+          "locale": "en",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-slot=workspace]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "Theme",
+              "dark": "Theme"
+            }
+          }
+        },
+        {
+          "path": "/connections",
+          "state": "connections",
+          "locale": "en",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-slot=workspace]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "chrome": {
+            "themeControlLabels": {
+              "light": "Theme",
+              "dark": "Theme"
+            }
+          }
         }
       ],
       "source": {
-        "candidatePath": "/Users/jaymini/.paseo/worktrees/0roff4x2/flaky-bullfrog",
-        "candidateRevision": "d244930f9935657f1cb8dbe8e9dfd49f90fe81fb",
-        "candidateDirty": true,
-        "productionCorrelation": "unverified",
-        "revision": null
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/3qtenke4/shared-ui-rollout-home",
+        "candidateRevision": "c1bbb924e41630861fcf7fed5ef4faa45dcff03d",
+        "candidateDirty": false,
+        "productionCorrelation": "operating-frontend-independently-reproduced",
+        "revision": null,
+        "frontendRevision": "3cc9d7aa571bf10ef55bc1044572bee45ef5591c",
+        "frontendSourceManifestSha256": "2fcb95278b91f9bbd2a47f0d2f7c763f70cf22615991e44c72e9462377e3ad0d",
+        "operatingSnapshotPath": "/Users/jaymini/projects/cleanup_records/naeil-home-20261010-192436/preserved-worktrees/naeil-ai-status-20261010"
       },
       "deployment": {
         "kind": "docker",
-        "status": "loopback-up",
+        "status": "private-origin-static-up",
         "artifactId": "sha256:b0187528b7e23c0242dc4f33510c0285a50608475aee4c584ea136e485871513",
         "container": "relaydock",
         "loopbackOrigin": "http://127.0.0.1:2455",
-        "method": "Docker image; source-to-image provenance and actual owned public origin unknown.",
+        "method": "Docker image with static frontend layer. Private tailnet origin and all34 independent baseline static build files match; full backend provenance/activation unverified.",
         "adapterId": null
       },
       "ui": {
         "version": null,
         "adoption": "not-adopted",
-        "header": "Candidate owns frontend/src/components/header.tsx",
-        "footer": "Unverified",
+        "header": "Operating application-owned header; local candidate uses canonical NaeilHeader",
+        "footer": "Operating frontend has no canonical NaeilFooter",
         "requiredHeader": "NaeilHeader",
         "requiredFooter": "NaeilFooter",
-        "candidateFoundation": "Pinned local naeil-v2 CSS snapshot; no @naeil/ui dependency"
+        "candidateFoundation": "Exact frozen @naeil/ui archive with app-owned product body styles",
+        "supportedLocales": [
+          "ko",
+          "en"
+        ],
+        "candidate": {
+          "version": "0.7.0",
+          "contractVersion": "1",
+          "adoption": "frozen-local-candidate-not-deployed",
+          "header": "NaeilHeader",
+          "footer": "NaeilFooter compact",
+          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+          "supportedLocales": [
+            "ko",
+            "en"
+          ]
+        }
       },
       "status": "unresolved",
       "blockers": [
-        "Owned public hostname or intended loopback-only scope must be established.",
-        "Running image has no source/revision OCI label, compose labels, or source bind mount.",
-        "Live JS asset is absent from candidate frontend/dist; do not migrate/deploy from the guessed checkout."
+        "Canonical frontend candidate is frozen and synthetically verified; operating UI is still pre-migration.",
+        "Full backend source remains unknown; frontend reproduction does not authorize deploying the entire worktree.",
+        "Private tailnet origin confirmed; public canonical hostname and authoritative DNS coverage remain unknown.",
+        "App-owned deployment/rollback adapter, verified previous image and production-safe authenticated checks are not configured or approved.",
+        "Production-safe context must select the registered codex-lb-language/theme preferences and authenticate isolated route states; no real protected screen was checked."
       ],
       "evidence": [
         {
@@ -465,11 +722,38 @@
           "detail": "Candidate routes /,/keys,/connections; vendor CSS is explicitly not a published package adoption claim."
         },
         {
-          "kind": "candidate-hostname-search",
-          "reference": "README.md; docs/deployment; frontend/README.md; frontend/index.html",
-          "detail": "No naeil.dev hostname, canonical URL or Tailscale hostname found in targeted deployment/frontend docs. README documents localhost2455 only; origin remains null."
+          "kind": "operating-origin",
+          "reference": "https://jay-macmini-2.tail165003.ts.net:2455/",
+          "detail": "Anonymous static HTTP200 title Naeil Home and exact loopback bundle digest; private-tailnet visibility, not a public canonical hostname claim."
+        },
+        {
+          "kind": "reproduced-frontend-source",
+          "reference": "docs/rollout/evidence/home-operating-frontend-source.json",
+          "detail": "Bun1.4.2 frozen isolated production build: all34 emitted static files match current private origin.218 source inputs and frozen frontend commit3cc9d7aa. Full backend not certified."
         }
-      ]
+      ],
+      "originVisibility": "private-tailnet",
+      "publicCanonicalOrigin": null,
+      "candidate": {
+        "status": "frozen-local-static-candidate-not-deployed",
+        "sourceCleanAtBuild": true,
+        "artifact": {
+          "id": "sha256-4e9f3037485ab2d9e7fe87e93200552c7349d84aaccae83fd1aa0774c0f94353",
+          "sha256": "0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156",
+          "immutable": true,
+          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/home/c1bbb924e41630861fcf7fed5ef4faa45dcff03d/0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156.tar.gz",
+          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/home/c1bbb924e41630861fcf7fed5ef4faa45dcff03d/0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156.tar.gz",
+          "sourceRevision": "c1bbb924e41630861fcf7fed5ef4faa45dcff03d",
+          "ui": {
+            "version": "0.7.0",
+            "contractVersion": "1"
+          }
+        },
+        "receipt": "evidence/home-candidate-receipt.json",
+        "renderVerification": "evidence/home-render-verification.json",
+        "integrityVerification": "evidence/home-candidate-integrity.json",
+        "conditions": 64
+      }
     },
     {
       "id": "estimate",
@@ -481,21 +765,41 @@
           "policy": "canonical",
           "locale": null,
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "#content",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/login",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": ".login-form input[type=password]"
+          }
         },
         {
           "path": "/estimates",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".estimates-list",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/estimates/[id]",
@@ -503,42 +807,90 @@
           "locale": "ja",
           "status": "unverified",
           "exception": null,
-          "parameterized": true
+          "parameterized": true,
+          "renderState": {
+            "access": "protected",
+            "visible": "#content",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/calendar",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-master-calendar]",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/compare",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".compare-view",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/settings",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-settings-view]",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/calendar-preview",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".calendar-preview",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/calendar-preview/estimates",
           "policy": "canonical",
           "locale": "ja",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".preview-project-list",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         },
         {
           "path": "/calendar-preview/estimates/[id]",
@@ -546,7 +898,15 @@
           "locale": "ja",
           "status": "unverified",
           "exception": null,
-          "parameterized": true
+          "parameterized": true,
+          "renderState": {
+            "access": "protected",
+            "visible": "#content",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
         }
       ],
       "source": {
@@ -661,28 +1021,100 @@
       "origin": "https://jev.naeil.dev",
       "routes": [
         {
-          "path": "/",
+          "path": "/login?lang=ko",
+          "state": "login",
+          "locale": "ko",
           "policy": "canonical",
-          "locale": null,
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": ".login-content input[type=password]",
+            "hidden": []
+          }
         },
         {
-          "path": "/login",
+          "path": "/?lang=ko",
+          "state": "comparison",
+          "locale": "ko",
           "policy": "canonical",
-          "locale": null,
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".main-content .input-section",
+            "hidden": [
+              "input[type=password]"
+            ]
+          }
+        },
+        {
+          "path": "/login?lang=ja",
+          "state": "login",
+          "locale": "ja",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": ".login-content input[type=password]",
+            "hidden": []
+          }
+        },
+        {
+          "path": "/?lang=ja",
+          "state": "comparison",
+          "locale": "ja",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".main-content .input-section",
+            "hidden": [
+              "input[type=password]"
+            ]
+          }
+        },
+        {
+          "path": "/login?lang=en",
+          "state": "login",
+          "locale": "en",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": ".login-content input[type=password]",
+            "hidden": []
+          }
+        },
+        {
+          "path": "/?lang=en",
+          "state": "comparison",
+          "locale": "en",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": ".main-content .input-section",
+            "hidden": [
+              "input[type=password]"
+            ]
+          }
         }
       ],
       "source": {
-        "candidatePath": "/Users/jaymini/projects/jev/.worktrees/jev-demo",
-        "candidateRevision": "9a63c166c2664dd4611a66aac09848310822ba20",
-        "candidateDirty": true,
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/3tl6a87q/shared-ui-rollout-jev",
+        "candidateRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+        "candidateDirty": false,
         "rootDraftPath": "/Users/jaymini/projects/jev",
-        "productionCorrelation": "release-metadata-and-build-id",
-        "productionSourceManifest": "/Users/jaymini/projects/jev/.worktrees/jev-demo/docs/evidence/2026-10-05-release/source-hashes.json",
-        "revision": null
+        "productionCorrelation": "deployed-source-manifest-exact-archive-match",
+        "productionSourceManifest": "/Users/jaymini/projects/jev-recovery/20261008T112101Z/deployed-20261005T000213Z-source-hashes.json",
+        "revision": null,
+        "productionSourceArchiveSha256": "ca80ef27d0c4b470f608adb2adf8b5e1682d774f77958a845d718f80a6f46e8c",
+        "recoveredBaselineRevision": "04bb1539e82e2e1c07568838d838f941315d8291"
       },
       "deployment": {
         "kind": "launchd-next-standalone",
@@ -702,13 +1134,30 @@
         "footer": "Legacy Footer",
         "requiredHeader": "NaeilHeader",
         "requiredFooter": "NaeilFooter",
-        "patches": "Historical0.2.0 i18n export patch documented"
+        "patches": "Historical0.2.0 i18n export patch documented",
+        "supportedLocales": [
+          "ko",
+          "ja",
+          "en"
+        ],
+        "candidate": {
+          "version": "0.7.0",
+          "contractVersion": "1",
+          "adoption": "frozen-local-candidate-not-deployed",
+          "header": "NaeilHeader",
+          "footer": "NaeilFooter full",
+          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+          "supportedLocales": [
+            "ko",
+            "ja",
+            "en"
+          ]
+        }
       },
       "status": "unresolved",
       "blockers": [
-        "Production release was built from uncommitted source; no exact git revision identifies its full source.",
-        "Candidate source is dirty and local BUILD_ID differs from installed artifact.",
-        "Authenticated model UI remains unverified; no JEV credentials, login, model calls or session data accessed."
+        "App-owned deployment/rollback bridge and a new-contract predecessor bootstrap remain unconfigured.",
+        "Authenticated production model UI remains unverified; no JEV credentials, login, real model calls or session data accessed."
       ],
       "evidence": [
         {
@@ -730,8 +1179,42 @@
           "kind": "public-html",
           "reference": "https://jev.naeil.dev/",
           "detail": "HTTP307 to /login; legacy title Jev · naeil."
+        },
+        {
+          "kind": "deployed-source-recovery",
+          "reference": "docs/rollout/evidence/jev-operating-source.json",
+          "detail": "Recovered immutable before-app archive matches all74 latest deployed source entries; clean isolated source baseline04bb153. Five official artwork PNGs and env/deployment templates were excluded from restoration."
+        },
+        {
+          "kind": "local-candidate",
+          "reference": "docs/rollout/evidence/jev-candidate-receipt.json",
+          "detail": "Clean source7e1eb717,69 units,20 isolated browser cases and48 independent render conditions. Post-browser2113 files/28 internal links match tree/tar. Production unchanged."
         }
-      ]
+      ],
+      "candidate": {
+        "status": "frozen-local-candidate-not-deployed",
+        "sourceCleanAtBuild": true,
+        "artifact": {
+          "id": "jev-ui07-7e1eb717ee56",
+          "sha256": "66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e",
+          "immutable": true,
+          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e.tar.gz",
+          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e.tar.gz",
+          "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+          "ui": {
+            "version": "0.7.0",
+            "contractVersion": "1"
+          }
+        },
+        "artifactScope": "isolated Next standalone; native activation/rollback adapter unconfigured",
+        "buildId": "_Qv6sy-ccIKZ2B0scI4qH",
+        "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+        "receipt": "evidence/jev-candidate-receipt.json",
+        "renderVerification": "evidence/jev-render-verification.json",
+        "integrityVerification": "evidence/jev-candidate-integrity.json",
+        "conditions": 48,
+        "productionVerified": false
+      }
     },
     {
       "id": "baby",
@@ -748,17 +1231,59 @@
         },
         {
           "path": "/dashboard",
-          "policy": "canonical",
+          "state": "pin-login",
           "locale": "ko",
+          "policy": "canonical",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": ".pin-login input[type=password]",
+            "hidden": []
+          }
+        },
+        {
+          "path": "/dashboard",
+          "state": "dashboard",
+          "locale": "ko",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "section.dashboard",
+            "hidden": [
+              ".pin-login"
+            ]
+          }
         },
         {
           "path": "/dashboard/",
-          "policy": "canonical",
+          "state": "pin-login",
           "locale": "ko",
+          "policy": "canonical",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "renderState": {
+            "access": "public",
+            "visible": ".pin-login input[type=password]",
+            "hidden": []
+          }
+        },
+        {
+          "path": "/dashboard/",
+          "state": "dashboard",
+          "locale": "ko",
+          "policy": "canonical",
+          "status": "unverified",
+          "exception": null,
+          "renderState": {
+            "access": "protected",
+            "visible": "section.dashboard",
+            "hidden": [
+              ".pin-login"
+            ]
+          }
         }
       ],
       "source": {
@@ -1168,7 +1693,10 @@
           "locale": "ko",
           "status": "unverified",
           "exception": null,
-          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+          "context": "Owned component showcase; canonical composition and generic component obligations are distinct.",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/naeil-ui/?path=/story/brand-naeilheader--japanese-application",
@@ -1176,7 +1704,10 @@
           "locale": "ja",
           "status": "unverified",
           "exception": null,
-          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+          "context": "Owned component showcase; canonical composition and generic component obligations are distinct.",
+          "renderState": {
+            "access": "public"
+          }
         },
         {
           "path": "/naeil-ui/?path=/story/ui-sitefooter--usage",
