@@ -2,25 +2,21 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-이 안내는 **@naeil/ui 0.5.0 릴리스 후보**의 CSS·API·패키지 경계를 대상으로 한다. 최종 소스·archive 검증과 registry 게시, 새 Docs·운영 사이트 배포는 아직 완료로 기록하지 않는다. 2026-10-11에 확인한 npm 0.4.0 게시·latest와 당시 소비 앱·Docs·운영 사이트 결과는 [0.4.0 게시 기록](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md)으로 유지한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다.
+이 안내는 **@naeil/ui 0.6.0**의 CSS·API·패키지 경계를 대상으로 한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 소스·archive와 실제 게시·배포 결과는 [릴리스 기록](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0)에서 구분한다. 이전 0.5.0은 2026-10-15에 게시되었으며, 이번 버전에서 공통 1600px 프레임과 적용 규칙을 추가한다.
 
 ## 시작하기
 
-React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`를 사용한다. API 키와 Next.js는 필요 없다. 후보 검증 중에는 저장소에서 빌드·pack한 archive를 소비 앱에 설치한다.
+React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`를 사용한다. API 키와 Next.js는 필요 없다.
 
 ```sh
-# 이 저장소에서:
-pnpm build:pkg
-npm pack --ignore-scripts --pack-destination /tmp
-# 소비 앱에서:
-pnpm add --save-exact /tmp/naeil-ui-0.5.0.tgz
+pnpm add --save-exact @naeil/ui@0.6.0
 ```
 
-0.5.0 registry 게시가 실제 확인된 뒤에는 `pnpm add --save-exact @naeil/ui@0.5.0`을 사용한다. 설치 명령을 문서에 쓰는 것만으로 게시가 완료되지는 않는다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+로컬 후보를 검증할 때는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 `/tmp/naeil-ui-0.6.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
-버전을 생략한 설치는 registry의 latest 태그를 따른다. 이 안내와 동일한 경계를 사용하려면 검증된 0.5.0 후보 archive를 사용하고, 게시 확인 후에는 0.5.0을 지정한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
+버전을 생략한 설치는 registry의 latest 태그를 따른다. 이 안내와 동일한 경계를 사용하려면 0.6.0을 명시하거나 같은 버전의 검증된 로컬 archive를 사용한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -54,7 +50,8 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 - 본문·입력·버튼 16px, 보조 14px, 메타정보 13px. 작은 화면에서도 입력 글씨를 줄이지 않는다.
 - 기본 컨트롤 높이 40px. 문서 루트에 `data-ui-density="compact"`를 주면 36px가 된다. 작은 화면과 거친 포인터에서는 최소 44px를 유지한다. 데스크톱에서 `className="h-8"` 같은 높이 재정의는 적용되며, 모바일의 44px 최소 터치 크기는 유지된다.
 - `.light`/`.dark`는 OS 테마보다 우선한다. 기존 ThemeProvider를 사용할 수 있다.
-- `data-ui-layout="reading|settings|list|short-form|fluid"`로 콘텐츠 폭을 적용한다. 각각 최대 640/640/1200/480px 또는 가용 폭이다. 이 속성은 전체 앱의 레이아웃을 강제하지 않는다.
+- 공통 바깥 틀은 최대 1600px, 좌우 여백은 `clamp(16px, 2.4vw, 40px)`다. 본문의 `.ui-app-frame`과 공통 헤더·푸터 내부 프레임이 같은 토큰을 사용한다.
+- `data-ui-layout="reading|settings|list|short-form|fluid"`로 내부 콘텐츠 폭을 적용한다. 각각 최대 640/640/1600/480px 또는 가용 폭이다. 목록은 바깥 틀의 여백을 제외한 공간을 사용하고, 설정·읽기 영역은 그 안에서 좁게 유지한다.
 - 레이블·도움말·오류 문구는 소비 화면이 연결한다. Input의 `aria-invalid`와 `aria-describedby`를 사용하고, 로딩 중에는 Button의 `disabled`와 `aria-busy`를 함께 지정한다.
 - 성공·경고·오류·안내에는 Badge의 `success`, `warning`, `error`, `info` variant를 사용할 수 있다. 색만으로 의미를 전달하지 않는다.
 
@@ -85,37 +82,39 @@ Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지�
 
 실제 naeil.dev 브랜드 헤더를 이어받는 앱은 선택적 React 전용 `@naeil/ui/naeil-header`의 `NaeilHeader`를 사용한다. 전체 프로젝트 메뉴·헤더 번역·테마/선택적 언어 컨트롤·toolbar·반응형 스타일을 한 모듈에서 제공하므로 소비 앱에 다시 복사하지 않는다. 소비 앱은 기존 theme provider, 라우팅·저장 guard, 현재 언어와 실제 인증 슬롯을 연결한다. 언어 변경을 지원하지 않으면 `onLocaleChange`를 생략한다. [전체 헤더 계약](../components/naeil-header.md)을 참조한다.
 
-이 브랜드 헤더는 고정 높이 65px, 최대 폭 1280px, 좌우 여백 24px를 사용한다. 본문·푸터의 제품별 폭과 독립적이다. 소비 앱은 main·sticky 영역과 초점/anchor 이동에 `calc(var(--ui-navigation-height) + 1px)`만큼 여유를 둔다. 다섯 장식 이미지는 공식 `https://naeil.dev/images/*.png` URL을 참조하므로 네트워크가 필요하다. 이미지 바이트는 npm에 포함하지 않으며 재배포 출처·권리 미해결 사항은 [제3자 고지](../../THIRD_PARTY_NOTICES.md)에 유지한다.
+2026-10-16 승인한 기본 프레임은 최대 1600px(여백 포함), 좌우 `clamp(16px, 2.4vw, 40px)`다. 브랜드 헤더·범용 Navigation·SiteFooter·본문 `.ui-app-frame`이 `--ui-width-frame`, `--ui-frame-gutter`를 함께 사용한다. 브랜드 헤더의 고정 높이는 65px이므로 main·sticky 영역과 초점/anchor 이동에 `calc(var(--ui-navigation-height) + 1px)`만큼 여유를 둔다. 다섯 장식 이미지는 공식 `https://naeil.dev/images/*.png` URL을 참조하므로 네트워크가 필요하다. 이미지 바이트는 npm에 포함하지 않으며 재배포 출처·권리 미해결 사항은 [제3자 고지](../../THIRD_PARTY_NOTICES.md)에 유지한다.
 
 다른 제품 메뉴에는 `@naeil/ui/ui`의 범용 `Navigation`과 `SiteFooter`를 조합하고 제품 메뉴 데이터·번역·폭을 소유한다. 기존 `Nav`·`Footer`는 Next/next-intl 호환 API를 유지한다. [범용 API와 마이그레이션 안내](../components/navigation.md)를 참조한다. Naeil Home 운영 적용은 아직 완료되지 않았으며 저장소의 `docs/design/navigation-footer-integration.md`에서 추적한다.
 
 앱의 공통 헤더·메뉴·좌우 여백과 본문의 읽기/설정/목록 폭은 별도로 관리한다. 같은 앱 틀을 사용하는 페이지는 같은 화면 크기·언어·테마에서 메뉴 위치가 유지되어야 한다. 설정 폼을 640px로 제한할 때 헤더까지 그 폭에 종속시키지 않는다. 변동하는 계정 수·상태 요약도 메뉴를 밀어내지 않도록 배치한다.
 
-아래는 소비 앱의 구성 예이며 새 패키지 API가 아니다. `product-frame`과 최대 폭·여백은 제품에서 소유하고 정한다. 공통 숫자 토큰은 `src/tokens/*.json`을 기준으로 한다.
+아래처럼 실제 공통 컴포넌트로 앱 틀을 구성한다. 공통 헤더·푸터는 내부에 프레임이 있으므로 다른 패딩 컨테이너로 다시 감싸지 않는다. `items`, `pathname`, `ProductControls`는 제품이 제공한다. 고정형 브랜드 헤더를 사용하는 완성 예제와 소비 앱에 복사할 `AGENTS.md` 규칙은 [Application layout](../components/application-layout.md)에 있다.
 
 ```tsx
+import { Navigation, SiteFooter } from "@naeil/ui/ui";
+
 <>
-  <header>
-    <div className="product-frame"><ProductNavigation /></div>
-  </header>
-  <main className="product-frame">
+  <Navigation brand={<a href="/">My product</a>}
+    items={items} currentHref={pathname} toolbar={<ProductControls />}
+    labels={{ navigation: "주 메뉴", menu: "메뉴", close: "닫기" }} />
+  <main className="ui-app-frame">
     <section data-ui-layout="settings">{/* 설정 폼 */}</section>
   </main>
+  <SiteFooter variant="compact" meta="Product information" />
 </>
 ```
 
 ```css
-/* 제품이 결정한 --product-frame-max, --product-gutter를 사용한다. */
-.product-frame {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: var(--product-frame-max, 100%);
-  margin-inline: auto;
-  padding-inline: var(--product-gutter, 0);
+/* 의도적인 제품 예외는 세 영역의 공통 조상에서 재정의한다. */
+.product-shell {
+  --ui-width-frame: 1280px;
+  --ui-frame-gutter: 24px;
 }
 ```
 
-대시보드라는 이유만으로 전체 폭을 쓰거나, 다른 제품의 1600px를 공통 기준으로 가져오지 않는다. 실제 과업·정보량·짧은/긴 내용으로 폭을 판단한다. 내부 카드·보고서 열 수는 모니터 폭보다 실제 콘텐츠 영역 폭에 맞춘다. 필요한 경우 container query를 사용한다.
+이번 1600px는 사용자가 Naeil Home의 실제 폭을 비교한 뒤 공통 기본값으로 선택한 결정이다. 1920px 화면에서는 여백을 제외한 영역이 1520px다. 실제 과업·정보량·짧은/긴 내용으로 내부 구성을 판단한다. 내부 카드·보고서 열 수는 모니터 폭보다 실제 콘텐츠 영역 폭에 맞추며, 필요한 경우 container query를 사용한다.
+
+이전 1280px 헤더·24px 여백과 1200px 목록 기본값이 변경된다. 새 기본값을 적용할 때 기존 `max-w-7xl`·`px-6` 프레임 재정의를 제거한다. 기존 레이아웃을 유지해야 하면 위 프레임 토큰 및 `--ui-width-list: 1200px`를 명시한다. 공개 import·props·소비자 className 재정의는 유지된다. 설치된 패키지와 CSS를 먼저 확인하고, 메뉴·모바일 시트·푸터 구현을 복사하는 대신 공통 API와 슬롯으로 연결한다.
 
 레이아웃 수정의 검증 기준:
 
@@ -170,7 +169,7 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 ## 0.3 package boundary
 
-The heading retains the original 0.3 migration anchor; the allowlist below reflects the 0.5.0 candidate additions. `/ui` is the React core. The opt-in `/naeil-header` is the canonical complete branded header, also React-only. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use `/ui`, `/utils` and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
+The heading retains the original 0.3 migration anchor; the allowlist below reflects the 0.6.0 package boundary. `/ui` is the React core. The opt-in `/naeil-header` is the canonical complete branded header, also React-only. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use `/ui`, `/utils` and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
 
 Next.js `^15 || ^16` and next-intl `^4` are optional peers. Install both when using root, Nav, Footer or `i18n/routing`. This is an existing compatibility contract, not a claim that every peer combination has browser validation; the clean Next fixture checks Next 16.1.7. React/ReactDOM `^19` come from the host. Tailwind 4 is the documented styling pipeline. Explicit `className`, Radix props, Toaster options and theme-provider props remain consumer overrides.
 

@@ -16,7 +16,9 @@ describe("the CSS consumed by the public package", () => {
     expect(css).toContain("--ui-control-height: 40px;");
     expect(css).toContain("--ui-control-height: 36px;");
     expect(css).toContain("--ui-width-reading: 640px;");
-    expect(css).toContain("--ui-width-list: 1200px;");
+    expect(css).toContain("--ui-width-list: 1600px;");
+    expect(css).toContain("--ui-width-frame: 1600px;");
+    expect(css).toContain("--ui-frame-gutter: clamp(16px, 2.4vw, 40px);");
     expect(css).toContain("--text-base: 1rem;");
     expect(css).toContain("--ui-motion-standard: 180ms;");
   });

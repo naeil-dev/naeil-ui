@@ -1,0 +1,366 @@
+{
+  "scrollbarMode": "native, --hide-scrollbars removed",
+  "cases": [
+    {
+      "name": "home-light-1920",
+      "fixture": "generic navigation, Korean dashboard, sparse",
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": [
+        {
+          "kind": "list",
+          "width": 1520
+        }
+      ],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "settings-light-1920",
+      "fixture": "same Korean frame, narrow settings route",
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": [
+        {
+          "kind": "settings",
+          "width": 640
+        }
+      ],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "home-dark-1920",
+      "fixture": "generic navigation, Korean dashboard, sparse",
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "dark",
+      "frames": [
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": [
+        {
+          "kind": "list",
+          "width": 1520
+        }
+      ],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "settings-dark-1920",
+      "fixture": "same Korean frame, narrow settings route",
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "dark",
+      "frames": [
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": [
+        {
+          "kind": "settings",
+          "width": 640
+        }
+      ],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "canonical-dark-390",
+      "fixture": "canonical header, Japanese, compact footer",
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "overflow": false,
+      "theme": "dark",
+      "frames": [
+        {
+          "x": 0,
+          "width": 390,
+          "gutter": 16
+        },
+        {
+          "x": 0,
+          "width": 390,
+          "gutter": 16
+        },
+        {
+          "x": 0,
+          "width": 390,
+          "gutter": 16
+        }
+      ],
+      "content": [],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "canonical-light-1920",
+      "fixture": "canonical header, Japanese, compact footer",
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": [],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "workspace-list-light-1920",
+      "fixture": "Korean dense task list, reading/settings remain purpose-specific",
+      "innerWidth": 1920,
+      "clientWidth": 1905,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": [
+        {
+          "kind": "settings",
+          "width": 640
+        },
+        {
+          "kind": "list",
+          "width": 1520
+        },
+        {
+          "kind": "reading",
+          "width": 640
+        }
+      ],
+      "fonts": {
+        "pretendard": true
+      }
+    },
+    {
+      "name": "workspace-list-light-390",
+      "fixture": "same task list, mobile reflow/local overflow",
+      "innerWidth": 390,
+      "clientWidth": 375,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 0,
+          "width": 375,
+          "gutter": 16
+        }
+      ],
+      "content": [
+        {
+          "kind": "settings",
+          "width": 343
+        },
+        {
+          "kind": "list",
+          "width": 343
+        },
+        {
+          "kind": "reading",
+          "width": 343
+        }
+      ],
+      "fonts": {
+        "pretendard": true
+      }
+    }
+  ],
+  "scrollbarPolicy": {
+    "autoShort": {
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 160,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": []
+    },
+    "autoTall": {
+      "innerWidth": 1920,
+      "clientWidth": 1905,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": []
+    },
+    "stableTall": {
+      "innerWidth": 1920,
+      "clientWidth": 1905,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": []
+    },
+    "stableShort": {
+      "innerWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false,
+      "theme": "light",
+      "frames": [
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        },
+        {
+          "x": 152.5,
+          "width": 1600,
+          "gutter": 40
+        }
+      ],
+      "content": []
+    }
+  },
+  "site": {
+    "status": "blocked",
+    "route": "/ko",
+    "httpStatus": 500
+  }
+}

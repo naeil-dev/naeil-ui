@@ -393,7 +393,7 @@ function Workspace() {
   return (
     <main
       id="ui-v2-demo"
-      className="mx-auto w-full max-w-[1272px] space-y-10 px-4 py-8 text-base sm:px-9"
+      className="ui-app-frame space-y-10 py-8 text-base"
     >
       <header className="space-y-5 border-b pb-6">
         <p className="text-sm text-muted-foreground">

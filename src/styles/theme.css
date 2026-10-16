@@ -152,7 +152,9 @@
   --ui-field-gap-compact: 16px;
   --ui-width-reading: 640px;
   --ui-width-settings: 640px;
-  --ui-width-list: 1200px;
+  --ui-width-list: 1600px;
+  --ui-width-frame: 1600px;
+  --ui-frame-gutter: clamp(16px, 2.4vw, 40px);
   --ui-width-short-form: 480px;
   --ui-motion-fast: 120ms;
   --ui-motion-standard: 180ms;

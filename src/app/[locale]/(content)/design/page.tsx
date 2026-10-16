@@ -273,7 +273,7 @@ function InteractiveInput() {
 export default function DesignPage() {
   const t = useTranslations("design");
   return (
-    <div className="mx-auto w-full max-w-(--ui-width-list) space-y-16 px-6 pb-24">
+    <div className="ui-app-frame space-y-16 pb-24">
       <section className="flex flex-col-reverse items-start gap-8 pb-4 sm:flex-row sm:justify-between">
         <div className="min-w-0 flex-1">
           <PageTitle className="mb-3">{t("title")}</PageTitle>

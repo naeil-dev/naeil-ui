@@ -2,6 +2,10 @@
 
 The owner requested “공통화로 해” after rejecting the estimate header against both naeil.dev/ko and /ja. Language was not the cause. Implement one real package composition consumed by both sites; copying the site's source/styles/menu into estimate is superseded.
 
+## 2026-10-16 width amendment
+
+The owner approved a shared 1600px maximum outer frame, including `clamp(16px, 2.4vw, 40px)` gutters, for header, main and footer. This supersedes the original 1280px/24px branded frame and the “no numeric foundation/token changes” restriction below. Lists now use a 1600px cap within available space; reading/settings remain 640px and short forms 480px. Use `ui-app-frame` on main, keep narrow content sections inside it and retain explicit consumer class/root-token overrides. Shared Navigation/SiteFooter and compatibility adapters apply the same internal frame. The original source observations and release evidence below remain historical; they do not validate this amendment or establish external application migration. See the [current application-layout contract and consumer-agent guidance](../../components/application-layout.md).
+
 ## Scope and authority
 
 - Base: remote main b667a8483d711376e23fae881cb90ce123a090df; preserve dirty local main and other worktrees. Shared worktree: feat/shared-naeil-header. Estimate base: 040d8cf653932689a5f8cd78521793cb2a0f73af.

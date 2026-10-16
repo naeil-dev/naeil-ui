@@ -22,48 +22,50 @@ export function App() {
           event.preventDefault();
           setHeaderRoute(item.href);
         }} />
-      <main id="preferences" className="mx-auto p-6" style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }} data-ui-layout="settings">
-        <Logo variant="horizontal" size={28} data-testid="packed-brand" className="mb-6" />
-        <PageTitle>Profile preferences</PageTitle>
-        <p data-testid="packed-header-route" aria-live="polite">{headerRoute}</p>
-        <p lang="ko">내 프로필과 알림 환경을 설정합니다.</p>
-        <p lang="ja">プロフィールと通知設定を確認します。</p>
-        <form
-          className="mt-6 grid gap-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setSaved(true);
-          }}
-          onChange={() => setSaved(false)}
-        >
-          <div className="grid gap-2">
-            <label htmlFor="display-name">Display name</label>
-            <Input
-              id="display-name"
-              name="displayName"
-              defaultValue="Alex"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <label htmlFor="profile-notes">Profile notes</label>
-            <Textarea ref={notes} id="profile-notes" name="notes" defaultValue="Initial notes" required />
-          </div>
-          <div className="ui-choice-label">
-            <Switch id="notifications" name="notifications" defaultChecked />
-            <label htmlFor="notifications">Email notifications</label>
-          </div>
-          <Button type="submit" className="justify-self-start">
-            Save preferences
-          </Button>
-          <p role="status">
-            {saved ? "Preferences saved for this example." : ""}
-          </p>
-        </form>
-        <ExtensionSpecimen />
-        <MixedImportOverlays />
+      <main id="preferences" className="ui-app-frame py-6" style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }}>
+        <section data-ui-layout="settings">
+          <Logo variant="horizontal" size={28} data-testid="packed-brand" className="mb-6" />
+          <PageTitle>Profile preferences</PageTitle>
+          <p data-testid="packed-header-route" aria-live="polite">{headerRoute}</p>
+          <p lang="ko">내 프로필과 알림 환경을 설정합니다.</p>
+          <p lang="ja">プロフィールと通知設定を確認します。</p>
+          <form
+            className="mt-6 grid gap-6"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setSaved(true);
+            }}
+            onChange={() => setSaved(false)}
+          >
+            <div className="grid gap-2">
+              <label htmlFor="display-name">Display name</label>
+              <Input
+                id="display-name"
+                name="displayName"
+                defaultValue="Alex"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="profile-notes">Profile notes</label>
+              <Textarea ref={notes} id="profile-notes" name="notes" defaultValue="Initial notes" required />
+            </div>
+            <div className="ui-choice-label">
+              <Switch id="notifications" name="notifications" defaultChecked />
+              <label htmlFor="notifications">Email notifications</label>
+            </div>
+            <Button type="submit" className="justify-self-start">
+              Save preferences
+            </Button>
+            <p role="status">
+              {saved ? "Preferences saved for this example." : ""}
+            </p>
+          </form>
+          <ExtensionSpecimen />
+          <MixedImportOverlays />
+        </section>
       </main>
-      <SiteFooter brand={<Logo variant="footer" size={20} />} variant="compact" meta="React-only consumer" containerClassName="max-w-7xl" />
+      <SiteFooter brand={<Logo variant="footer" size={20} />} variant="compact" meta="React-only consumer" />
     </ThemeProvider>
   );
 }

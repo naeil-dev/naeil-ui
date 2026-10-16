@@ -265,7 +265,7 @@ for (const theme of ["light", "dark"]) test(`Workspace visual evidence: ${theme}
   await expect(page.getByLabel("워크스페이스 이름")).toHaveCSS("font-size", "16px");
   await expect(page.getByLabel("워크스페이스 이름")).toHaveCSS("height", "40px");
   await expect(page.locator('[data-ui-layout="settings"]')).toHaveCSS("max-width", "640px");
-  await expect(page.locator('[data-ui-layout="list"]')).toHaveCSS("max-width", "1200px");
+  await expect(page.locator('[data-ui-layout="list"]')).toHaveCSS("max-width", "1600px");
   await noOverflow(page);
   await page.screenshot({ path: info.outputPath(`workspace-${theme}-2560-default.png`), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });

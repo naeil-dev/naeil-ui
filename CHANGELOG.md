@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — shared application frame (2026-10-16)
+
+- Align Navigation, SiteFooter, NaeilHeader and preserved Nav/Footer adapters with a shared 1600px maximum outer frame and responsive `clamp(16px, 2.4vw, 40px)` gutters. Add `ui-app-frame` for main composition; retain explicit classes and product token overrides.
+- Increase the list content cap from 1200px to 1600px within available frame space. Reading/settings remain 640px and short forms 480px. Remove prior `max-w-7xl` or `px-6` frame overrides when adopting defaults.
+- Add application-layout and consumer-agent guidance for shared header/footer selection; synchronize the standalone React example with the matching 0.6.0 archive. Existing external consumers require their own upgrades and adapter migrations.
+
+Archive identity, registry publication and hosted deployment outcomes are recorded in the [0.6.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0). External application upgrades remain separate.
+
 ## 0.5.0 — shared whole header (2026-10-15)
 
 - Add optional React-only NaeilHeader with the actual site catalog, controls, toolbar, fixed frame and responsive behavior. Site adapters consume the same module; preserve existing public compatibility imports/props.

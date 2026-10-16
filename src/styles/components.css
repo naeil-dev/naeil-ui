@@ -13,9 +13,6 @@
     inset-inline: 0;
     width: 100%;
   }
-  .naeil-header-frame {
-    max-width: 80rem;
-  }
   .naeil-header-controls {
     display: flex;
     align-items: center;
@@ -40,11 +37,14 @@
     border: 1px solid;
     border-radius: var(--radius-lg-value);
   }
+  .ui-app-frame,
   .ui-navigation-frame,
   .ui-site-footer-frame {
+    box-sizing: border-box;
     width: 100%;
+    max-width: var(--ui-width-frame);
     margin-inline: auto;
-    padding-inline: var(--spacing-6-value);
+    padding-inline: var(--ui-frame-gutter);
   }
   .ui-navigation-frame {
     container-type: inline-size;

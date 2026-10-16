@@ -13,19 +13,28 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 
 ## Use the UI
 
-This guide targets the **@naeil/ui 0.5.0 release candidate** with React 19 / ReactDOM 19 and Tailwind 4. Final archive verification and registry publication are pending; UI v2 names the design generation independently of npm versioning. Build and pack this checkout, then install the reviewed local archive in your app:
+This guide targets **@naeil/ui 0.6.0** with React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. Install the matching release in your app:
 
 ```sh
-# In this repository:
-pnpm build:pkg
-npm pack --ignore-scripts --pack-destination /tmp
-# In the consumer app:
-pnpm add --save-exact /tmp/naeil-ui-0.5.0.tgz
+pnpm add --save-exact @naeil/ui@0.6.0
 ```
 
-After registry publication is verified, use `pnpm add --save-exact @naeil/ui@0.5.0`. An install command is not evidence of publication.
+For a local candidate, run `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp`, then install `/tmp/naeil-ui-0.6.0.tgz`. The [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) tracks archive identity, publication and deployment separately.
+
+The preceding [0.5.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0) was published on 2026-10-15 and introduced the whole shared header. Version 0.6.0 adds the shared 1600px frame; existing applications must upgrade and adopt its layout composition.
 
 Version 0.4.0 was published to npm on 2026-10-11 and verified as `latest`; it adds the approved `.naeil` brand 1.1.1. The [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) retains the byte-verified archive and fresh registry-consumer evidence. Download the [independent brand kit](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip) for SVG/PNG/icons and non-React usage. See the [changelog](CHANGELOG.md), [brand usage](docs/design/v2-migration.md#brand-logo-integration-040) and [publication report](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md).
+
+Choose the shared application composition before building a header or footer:
+
+| Application need | Shared component |
+| --- | --- |
+| Actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
+| A product's own menu | `Navigation` from `@naeil/ui/ui` |
+| Full or compact application footer | `SiteFooter` from `@naeil/ui/ui` |
+| Existing Next/next-intl integration | Preserve `Nav` / `Footer` compatibility adapters |
+
+Supply application routing, guards, authentication and menu data through adapters and slots. Keep the shared menu, mobile sheet, controls and footer implementation in the package. The [application layout guide](docs/components/application-layout.md) provides a starter and consumer-agent instructions. Header, main and footer share a 1600px maximum frame with `clamp(16px, 2.4vw, 40px)` gutters; use `ui-app-frame` on main and keep 640px reading/settings or 480px short-form sections inside it.
 
 Import primitives from the dedicated entrypoint:
 
@@ -66,7 +75,7 @@ Shared CSS follows the OS theme unless the document root has `class="light"` or 
 
 The [component guides](docs/components/README.md) cover exact APIs, state composition and accessibility responsibilities. Each has a built Storybook Docs page and runnable Usage example. The [consumer guide](docs/design/v2-migration.md) covers peer dependencies, fonts, themes, density, Select versus DropdownMenu, overrides, and layout ownership. Fonts are delivered by the consumer; shared CSS does not fetch them automatically. `/ui`, `/utils` and the opt-in `/naeil-header` work without Next.js. The legacy root remains a framework compatibility entry with static Next/next-intl imports; install those optional peers when using it, Nav, Footer or i18n/routing. ThemeProvider/controls and Toaster retain the React library next-themes. Shared deep imports use the exact [allowlist and migration](docs/design/v2-migration.md#03-package-boundary); website-only paths belong in your application.
 
-For the actual naeil.dev branded header, import `NaeilHeader` from `@naeil/ui/naeil-header`; generic `Navigation` from `/ui` remains available for different product menus. The whole header owns its catalog, header translations, controls and responsive styles. Supply routing/dirty guards, an existing next-themes provider and real authentication through its props instead of copying the header. Its five decorative project images reference official `naeil.dev` URLs and require network access; their bytes are excluded and unresolved redistribution provenance remains in [third-party notices](THIRD_PARTY_NOTICES.md). See [NaeilHeader](docs/components/naeil-header.md) for the fixed frame, supported locales and adapter contract.
+For the actual naeil.dev branded header, import `NaeilHeader` from `@naeil/ui/naeil-header`; generic `Navigation` from `/ui` remains available for different product menus. The whole header owns its catalog, header translations, controls and responsive styles. Supply routing/dirty guards, an existing next-themes provider and real authentication through its props instead of copying the header. Its five decorative project images reference official `naeil.dev` URLs and require network access; their bytes are excluded and unresolved redistribution provenance remains in [third-party notices](THIRD_PARTY_NOTICES.md). See [NaeilHeader](docs/components/naeil-header.md) for fixed positioning, the shared frame, supported locales and adapter contract.
 
 ## Develop the shared UI
 
@@ -83,7 +92,7 @@ Storybook uses the actual public components with simulated example data. It need
 ```sh
 pnpm build:pkg
 pnpm pack --pack-destination /tmp
-# In your consumer app: pnpm add /tmp/naeil-ui-0.5.0.tgz
+# In your consumer app: pnpm add /tmp/naeil-ui-0.6.0.tgz
 ```
 
 | Command | Purpose |
@@ -95,7 +104,7 @@ pnpm pack --pack-destination /tmp
 | `pnpm build:pkg` / `pnpm check:package` | Build package / inspect package boundary and independently install/build packed React + Next consumers |
 | `pnpm dev` / `pnpm build` | Brand/example website development / build |
 
-A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/examples/react/README.md) shows a settings form. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts. The current local Storybook build contains 17 Docs pages (15 UI families and Brand / Logo plus NaeilHeader), including the whole-header Usage and JapaneseApplication examples. This does not establish a new hosted deployment. [Hosted Docs](https://naeil-dev.github.io/naeil-ui/) were last verified for 0.4.0 with Brand / Logo alongside the 13 primitive families: the [2026-10-11 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574) deployed source `e8fe5af`, and [hosted verification](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/hosted-docs-verification.json) records actual Docs/Usage navigation, fonts, artwork and notice checks. The same approved brand is live on [naeil.dev](https://naeil.dev/). See [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md). Native/manual platform acceptance and adoption in a real consumer product remain open.
+A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) composes the packaged header, a settings form and footer. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts. The current local Storybook build contains 17 Docs pages (15 UI families and Brand / Logo plus NaeilHeader), including the whole-header Usage and JapaneseApplication examples. This does not establish a new hosted deployment. [Hosted Docs](https://naeil-dev.github.io/naeil-ui/) have recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/download/v0.5.0/hosted-docs-verification.json). The current release record identifies the subsequent deployed source and its fresh checks. The same approved brand is live on [naeil.dev](https://naeil.dev/). See [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md). Native/manual platform acceptance and adoption in a real consumer product remain open.
 
 Read [DESIGN.md](DESIGN.md) before shared UI changes. Numeric values live in `src/tokens/`; generated CSS is not edited by hand. Shared styles live in `src/styles/`, site-only styles in `src/app/`. Hero art, 3D scenes, cursor effects, and site content belong to the example website.
 

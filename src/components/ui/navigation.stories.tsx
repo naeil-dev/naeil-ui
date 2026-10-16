@@ -230,7 +230,6 @@ export function NavigationExample({
         items={items}
         labels={labels}
         currentHref={href}
-        containerClassName="max-w-7xl"
         onNavigate={(event, item) => {
           if (
             event.button !== 0 ||
@@ -278,7 +277,7 @@ export function NavigationExample({
           />
         }
       />
-      <main className="mx-auto min-h-[420px] max-w-7xl px-6 py-12">
+      <main className="ui-app-frame min-h-[420px] py-12">
         <section
           data-ui-layout={
             href === "/settings" || href === "/keys" ? "settings" : "list"
@@ -298,7 +297,6 @@ export function NavigationExample({
       <SiteFooter
         variant={home ? "compact" : "full"}
         brand={<Logo variant="footer" size={20} />}
-        containerClassName="max-w-7xl"
         description={
           home
             ? undefined

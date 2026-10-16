@@ -1,0 +1,1964 @@
+[
+  {
+    "source": "test-results/naeil-header-whole-header--f8f07-nd-accessibility-light-1440-webkit/axe.json",
+    "rawReportSha256": "188d364d49388de9d63de590d47abd857d761a24ab46fe55c940c23474660d1a",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 1440,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:01:59.507Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--00fdf--and-accessibility-dark-390-webkit/axe.json",
+    "rawReportSha256": "8cdae3c3a3f9584eb5c77a8e1f229bae3e625903ff0e9f2580bb6b6741f2f2e8",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 390,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:02:02.020Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--f8f07-nd-accessibility-light-1440-firefox/axe.json",
+    "rawReportSha256": "aef60134a9cbe050adc593d4f6fbf46a8d535789fc77abfbed7a71555771a8d4",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 1440,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:13.654Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--75e6a-and-accessibility-light-390-webkit/axe.json",
+    "rawReportSha256": "c8e76e2e445b8ff1f6af3947c907e182ca6e39de20f5b2fb617426ca4860d077",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 390,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:01:57.037Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--7095d-and-accessibility-light-768-firefox/axe.json",
+    "rawReportSha256": "b4315bbe44ff9954856087fbaa6a96964f1e24338fee960f08fbbecbf65e230c",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 768,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:12.364Z",
+    "violations": [],
+    "incomplete": []
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--f8f07-nd-accessibility-light-1440-chromium/axe.json",
+    "rawReportSha256": "7a04be70a664f6b8d1828328a9cb4a5a6c9f01560aafdcf6ac81fe2d58fbbc2f",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 1440,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:27.175Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--75e6a-and-accessibility-light-390-firefox/axe.json",
+    "rawReportSha256": "a8f401161778740f8466e747a56aad220e6adad1ef742d6c7c245cf831e7ecf0",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 390,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:11.036Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--7035a-nd-accessibility-light-2560-firefox/axe.json",
+    "rawReportSha256": "38bcc5edfdf1a46ae00bccbf83d6087e3fdfb1d24fdec371d27c9bc51cc1a289",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 2560,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:15.006Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--1a337-and-accessibility-dark-2560-webkit/axe.json",
+    "rawReportSha256": "bea7100f68e9b473b510ab624ff669be3fdcafac88f87f622b994eb603985129",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 2560,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:02:05.713Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--75e6a-and-accessibility-light-390-chromium/axe.json",
+    "rawReportSha256": "8806a1e1f3579da4a3f57206877c7cb557e7c4aa307c774b715dc9198d16abf6",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 390,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:24.972Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--1a337-and-accessibility-dark-2560-chromium/axe.json",
+    "rawReportSha256": "75c7513a6c36cfa832fb42921146e3ead2a9b35a185a1ea74c7c6959267cc67b",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 2560,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:32.711Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--1a337-and-accessibility-dark-2560-firefox/axe.json",
+    "rawReportSha256": "7cf866c49ff8a641e8de1e8e1cd11f7c1a83da88659bc95f0ab4748716c45ac9",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 2560,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:21.104Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--ccb25-and-accessibility-dark-1440-chromium/axe.json",
+    "rawReportSha256": "b76990970a37610c03e111a51f3ae38f68dd24e6f3db075af6eea2f2b7427e92",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 1440,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:31.594Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--7035a-nd-accessibility-light-2560-webkit/axe.json",
+    "rawReportSha256": "576f3773d68e989da5da5951d8a386866ace05e465c30ea1ed27fcaf53601f59",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 2560,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:02:00.744Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--ccb25-and-accessibility-dark-1440-firefox/axe.json",
+    "rawReportSha256": "2462c51c0486c27279df2236b86113f549cbb82d5fea184c27438273c1937bbb",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 1440,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:19.807Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--63df9--and-accessibility-dark-768-chromium/axe.json",
+    "rawReportSha256": "23c53d378760dcb7e249c76ffea9cb2fd0322cfc3750912b554bcab3cb06c1b5",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 768,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:30.487Z",
+    "violations": [],
+    "incomplete": []
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--00fdf--and-accessibility-dark-390-chromium/axe.json",
+    "rawReportSha256": "9eb8e105d629d88e5aadc8fb4d3f891bbc2349952517f2f85c74b70b8940ab76",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 390,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:29.404Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--00fdf--and-accessibility-dark-390-firefox/axe.json",
+    "rawReportSha256": "8f4f41957fde63525293a9918f9f485fbf2aa27f50c339920c9e3721114f5557",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 390,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:16.376Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--7095d-and-accessibility-light-768-webkit/axe.json",
+    "rawReportSha256": "068332cdb5c4a258f2e626a334653992b6911e9055af2e27992f84ab8faf58e1",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 768,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:01:58.276Z",
+    "violations": [],
+    "incomplete": []
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--63df9--and-accessibility-dark-768-firefox/axe.json",
+    "rawReportSha256": "f586423cf3fe913bba1c38d7448cd4314f55b7409e9ae829d6c75275c2cfa584",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "windowWidth": 768,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:00:18.407Z",
+    "violations": [],
+    "incomplete": []
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--63df9--and-accessibility-dark-768-webkit/axe.json",
+    "rawReportSha256": "c134eb161564d87ecff460d089676f5bf513e59b3bfa18f154ffc27914de394f",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 768,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:02:03.261Z",
+    "violations": [],
+    "incomplete": []
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--7095d-and-accessibility-light-768-chromium/axe.json",
+    "rawReportSha256": "b2f030e801bc02059a6ec283be4d94d9b4907b9b6a00f6e1060e6cf5bf8fad62",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 768,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:26.065Z",
+    "violations": [],
+    "incomplete": []
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--7035a-nd-accessibility-light-2560-chromium/axe.json",
+    "rawReportSha256": "da9dd179b73821fd2135aeaddbbc138a1c20fef5fd188b551c7cfe03d3405783",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "windowWidth": 2560,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T02:58:28.281Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": "test-results/naeil-header-whole-header--ccb25-and-accessibility-dark-1440-webkit/axe.json",
+    "rawReportSha256": "e46d469995652be55eb747bd4fee0dbc42664c3c12f85c222648014e5a460ecc",
+    "testEnvironment": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "windowWidth": 1440,
+      "windowHeight": 900,
+      "orientationAngle": 0,
+      "orientationType": "landscape-primary"
+    },
+    "timestamp": "2026-10-16T03:02:04.489Z",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "impact": "critical",
+        "tags": [
+          "cat.aria",
+          "wcag2a",
+          "wcag412",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "RGAAv4",
+          "RGAA-7.1.1"
+        ],
+        "description": "Ensure all ARIA attributes have valid values",
+        "help": "ARIA attributes must conform to valid values",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=playwright",
+        "nodes": [
+          {
+            "any": [],
+            "all": [
+              {
+                "id": "aria-valid-attr-value",
+                "data": {
+                  "messageKey": "controlsWithinPopup",
+                  "needsReview": "aria-controls=\"radix-_r_1_\""
+                },
+                "relatedNodes": [],
+                "impact": "critical",
+                "message": "Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+              }
+            ],
+            "none": [],
+            "impact": "critical",
+            "html": "<button type=\"button\" aria-haspopup=\"dialog\" aria-expanded=\"true\" aria-controls=\"radix-_r_1_\" data-state=\"open\" class=\"ui-navigation-link ui-focus\">",
+            "target": [
+              "button[aria-controls=\"radix-_r_1_\"]"
+            ],
+            "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"radix-_r_1_\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">RSS、YouTube、Redditの自動収集 + AI要約</span>",
+            "target": [
+              "a[href=\"/cc\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscuring",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it partially overlaps other elements"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"ui-navigation-description\">個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索</span>",
+            "target": [
+              "a[href$=\"pkm\"] > .ui-navigation-copy > .ui-navigation-description"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+          }
+        ]
+      }
+    ]
+  }
+]
