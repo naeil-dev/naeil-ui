@@ -2,7 +2,7 @@ import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 
-const evidence = process.env.NAEIL_HEADER_EVIDENCE_DIR ?? "docs/evidence/shared-naeil-header-2026-10-15/storybook";
+const evidence = process.env.NAEIL_HEADER_EVIDENCE_DIR ?? "test-results/naeil-header";
 const projects = ["cc", "pkm", "design", "sa", "baby-agent"];
 
 async function open(page: Page, theme = "light", story = "usage") {
@@ -36,11 +36,12 @@ for (const theme of ["light", "dark"]) for (const width of [390, 768, 1440, 2560
       const rect = element.getBoundingClientRect();
       return { x: rect.x, width: rect.width, gutter: getComputedStyle(element).paddingInlineStart };
     });
-    expect(geometry.width).toBe(Math.min(1280, width));
-    expect(geometry.x).toBe((width - Math.min(1280, width)) / 2);
-    expect(geometry.gutter).toBe("24px");
+    expect(geometry.width).toBe(Math.min(1600, width));
+    expect(geometry.x).toBe((width - Math.min(1600, width)) / 2);
+    const gutters: Record<number, number> = { 390: 16, 768: 18.432, 1440: 34.56, 2560: 40 };
+    expect(parseFloat(geometry.gutter)).toBeCloseTo(gutters[width], 1);
     expect(await header.evaluate(element => getComputedStyle(element).position)).toBe("fixed");
-    const mobile = width < 816;
+    const mobile = width <= 768;
     const trigger = page.getByRole("button", { name: mobile ? "メニュー" : "プロジェクト", exact: true });
     await trigger.focus();
     await page.keyboard.press("Enter");

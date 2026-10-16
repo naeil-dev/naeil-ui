@@ -1,0 +1,6 @@
+
+> @naeil/ui@0.5.0 check:package:boundary /Users/jaymini/.paseo/worktrees/28nele6j/colorful-pug
+> tsx scripts/check-package.ts
+
+Packed archive SHA-256: 3fbe618f51183d27d9afe2279aa0f8241bfa647fa9db3e7b5d3227247224ec92
+Packed boundary: PASS (125 files, 877603 unpacked bytes)

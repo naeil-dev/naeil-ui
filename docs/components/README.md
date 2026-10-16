@@ -1,6 +1,8 @@
 # Component usage guides
 
-These guides target the **@naeil/ui 0.5.0 release candidate**; final archive verification and publication are pending. [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 17 Docs pages (15 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) was last verified for [0.4.0 on 2026-10-11](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0); this candidate does not establish a new hosted deployment. Select chooses a value; DropdownMenu chooses an action.
+These guides target the **@naeil/ui 0.6.0**; release identities and publication evidence are recorded in the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 17 Docs pages (15 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) was last verified for [0.5.0 on 2026-10-15](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment is recorded separately. Select chooses a value; DropdownMenu chooses an action.
+
+Start application layouts with the [shared navigation/footer selection and frame guide](application-layout.md). It includes a starter, the 1600px frame contract and instructions to place in consumer repositories so agents reuse the shared implementation.
 
 | Family | Guide | Runnable story |
 | --- | --- | --- |

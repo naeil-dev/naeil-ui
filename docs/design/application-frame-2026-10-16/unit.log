@@ -1,0 +1,13 @@
+
+> @naeil/ui@0.5.0 test /Users/jaymini/.paseo/worktrees/28nele6j/colorful-pug
+> vitest run
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/colorful-pug
+
+
+ Test Files  13 passed (13)
+      Tests  72 passed (72)
+   Start at  12:03:56
+   Duration  3.07s (transform 886ms, setup 0ms, import 2.74s, tests 3.12s, environment 1ms)
+

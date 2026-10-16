@@ -1,5 +1,7 @@
 # Navigation and footer integration — 2026-10-13
 
+> **2026-10-16 amendment:** The owner has now approved a shared 1600px maximum frame with `clamp(16px, 2.4vw, 40px)` gutters. This supersedes the historical product-only width decision below. Reading/settings remain 640px and short forms 480px. Use [Application layout](../components/application-layout.md) for the current composition and adoption rules. Previous verification and unresolved live Home findings below remain dated evidence; this update does not deploy or migrate that product.
+
 ## Contract
 
 User direction: improve the public navigation/footer and converge with Naeil Home rather than maintain independent implementations. Preserve existing imports and consumer configuration. Implementation and deployment are separate.

@@ -68,12 +68,24 @@ export async function checkConsumerBrowser(root: string) {
     }
     // Exercise the optional whole-header entry from the installed archive.
     // The fixture has no Next/site backend or consumer-owned artwork directory.
-    for (const width of [390, 1440]) for (const theme of ["light", "dark"] as const) {
+    for (const width of [390, 1440, 1920]) for (const theme of ["light", "dark"] as const) {
       const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: theme });
       try {
         await page.goto(`http://127.0.0.1:${address.port}`);
         const header = page.locator("[data-naeil-header]");
         await expect(header).toBeVisible();
+        const frames = await page.locator(".ui-navigation-frame, main.ui-app-frame, .ui-site-footer-frame").evaluateAll(elements => elements.map(element => {
+          const rect = element.getBoundingClientRect();
+          return { x: rect.x, width: rect.width, gutter: parseFloat(getComputedStyle(element).paddingInlineStart) };
+        }));
+        assert.equal(frames.length, 3, "Packed application must render the shared header, main frame and footer");
+        const expected = width === 1920 ? { width: 1600, gutter: 40 } : width === 390 ? { width: 390, gutter: 16 } : { width: 1440, gutter: 34.56 };
+        for (const frame of frames) {
+          assert(Math.abs(frame.width - expected.width) < 0.1, "Packed application frame width drift");
+          assert(Math.abs(frame.gutter - expected.gutter) < 0.1, "Packed application gutter drift");
+          assert(Math.abs(frame.x - frames[0].x) < 0.1, "Packed header/main/footer alignment drift");
+        }
+        if (width >= 1440) assert.equal((await page.locator('[data-ui-layout="settings"]').boundingBox())!.width, 640, "A wide frame must preserve the narrow settings form");
         const mobile = width === 390;
         const open = async (locale: "en" | "ja") => {
           if (mobile) {

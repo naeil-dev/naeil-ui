@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { NaeilHeader, type NaeilHeaderLocale } from "./naeil-header";
 import { Button } from "./ui/button";
+import { SiteFooter } from "./ui/site-footer";
+import { Logo } from "./logo";
 
 const meta = {
   title: "Brand/NaeilHeader",
@@ -33,11 +35,12 @@ function HeaderExample({ locale: initialLocale, japaneseOnly = false }: { locale
         setNotice(item.href);
       }}
     />
-    <main className="mx-auto min-h-[420px] max-w-7xl px-6 pb-12 pt-28">
+    <main className="ui-app-frame min-h-[420px] pb-12 pt-28">
       <h1 className="text-3xl font-semibold">.naeil</h1>
       <p className="mt-4 text-muted-foreground">{japaneseOnly ? "Japanese-only application adapter" : "Shared website header"}</p>
       <p role="status" className="mt-4">{notice}</p>
     </main>
+    <SiteFooter variant="compact" brand={<Logo variant="footer" size={20} />} meta="Shared application frame" />
   </>;
 }
 

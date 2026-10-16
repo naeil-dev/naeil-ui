@@ -101,7 +101,7 @@ test("computed sizes, theme override and portaled density", async ({
   );
   await expect(page.locator("[data-ui-layout=list]")).toHaveCSS(
     "max-width",
-    "1200px",
+    "1600px",
   );
 });
 

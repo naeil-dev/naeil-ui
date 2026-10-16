@@ -140,7 +140,7 @@ export function NaeilHeader({
       labels={labels ?? { navigation: content.nav.navigation, menu: content.nav.menu, close: content.nav.closeMenu }}
       toolbar={toolbar} mobileToolbar={toolbar}
       className={cn("naeil-header fixed top-0 w-full", className)}
-      containerClassName={cn("naeil-header-frame max-w-7xl", containerClassName)}
+      containerClassName={cn("naeil-header-frame", containerClassName)}
     />
   );
 }

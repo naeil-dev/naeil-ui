@@ -1,4 +1,5 @@
 import { checkConsumerBrowser } from "./check-consumer-browser";
+import { assertConsumerVersion } from "./consumer-version";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -14,6 +15,11 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+
+const { version } = JSON.parse(readFileSync("package.json", "utf8"));
+for (const source of ["examples/react", "scripts/fixtures/next"]) {
+  assertConsumerVersion(JSON.parse(readFileSync(join(source, "package.json"), "utf8")), version, source);
+}
 
 const dir = mkdtempSync(join(tmpdir(), "naeil-clean-consumers-"));
 const env = { ...process.env, NEXT_TELEMETRY_DISABLED: "1" };

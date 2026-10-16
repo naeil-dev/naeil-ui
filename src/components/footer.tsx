@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { Logo } from "./logo";
 import { SiteFooter, type SiteFooterProps } from "./ui/site-footer";
-import { cn } from "../lib/utils";
 
 export interface FooterProps {
   Link?: React.ComponentType<{
@@ -43,7 +42,7 @@ export function Footer({
     <SiteFooter
       Link={Link as SiteFooterProps["Link"]}
       className={className}
-      containerClassName={cn("max-w-7xl", containerClassName)}
+      containerClassName={containerClassName}
       variant={variant}
       brand={brandSlot ?? <Logo variant="footer" size={20} className="block" />}
       description={description === undefined ? t("tagline") : description}

@@ -211,7 +211,7 @@ Cinemagraphs.com은 Website Expired, Coastal World는 coastalbank.com으로 리�
 
 사용자의 첨부 메인 화면과 승인 A를 시각적 기준으로 채택했다. DESIGN.md의 중립 캔버스·Pretendard·Nav 틀을 유지하고, 사이트 전용 `src/app/hero.module.css`에서 사진 가장자리를 테마 배경으로 연결했다. 기존 Button과 테마 제공자를 그대로 소비한다. 수면의 제한된 CSS 움직임은 사용자 승인된 사이트 장식이며 공유 토큰 규칙으로 승격하지 않는다. 새 외부 시각 자료 검색이나 영상 생성 API는 사용하지 않았다.
 
-실제 도구: frontend-reference-workflow revision2026-10-02.1, Impeccable context/craft-floor/detect, 기존 Next 의존성 sharp(WebP 변환), Playwright Chromium 및 axe, Paseo 로컬 미리보기, 코드 리뷰. ffmpeg의 libwebp 인코더는 없어 sharp로 변환했다. 당시 계약·검증 보고서·라이트/다크 캡처는 로컬 기록으로 보존하며, 공개할 최종 상태는 [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt)에 정리했다.
+실제 도구: frontend-reference-workflow revision 2026-10-02.1, Impeccable context/craft-floor/detect, 기존 Next 의존성 sharp(WebP 변환), Playwright Chromium 및 axe, Paseo 로컬 미리보기, 코드 리뷰. ffmpeg의 libwebp 인코더는 없어 sharp로 변환했다. 당시 계약·검증 보고서·라이트/다크 캡처는 로컬 기록으로 보존하며, 공개할 최종 상태는 [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt)에 정리했다.
 
 빌드·타입 검사·변경 파일 lint·46개 테스트 통과. 390/1440/2560px 다크/라이트와 추가600px 가로 모바일 확인. 코드 리뷰의 수면 마스크 좌표 문제를 수정하고 재측정했다. 기존 html lang 누락, 라이트 프로젝트 태그14개 대비 부족, 로컬 영어 경로 리디렉션 문제는 미해결로 유지한다. 사이트 전체 접근성·모든 언어·실기기 검증 완료를 주장하지 않는다. 공유 패키지 변경/게시와 사이트 배포는 하지 않았다.
 
@@ -229,7 +229,7 @@ Cinemagraphs.com은 Website Expired, Coastal World는 coastalbank.com으로 리�
 
 라이트 이미지는 이전과 같은 Paseo 기본 Codex 에이전트가 ChatGPT 로그인·내장 imagegen으로1회 편집했다. 별도 유료 API/영상 생성은 사용하지 않았다. [생성 기록](hero-sunset-study-2026-10-12/light-generation-method.txt) 및 라이트 원본 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))을 보존한다. 섬 내부 질감 일부가 재구성되어 픽셀 동일성은 보장하지 않는다. 기존 Next의 sharp로 WebP변환(라이트141,470bytes, 다크106,588bytes).
 
-실제 도구: frontend-reference-workflow revision2026-10-02.1, Impeccable polish 절차의 화면/흐름/상태 검토와 국소 수정, Playwright Chromium/axe, Paseo 미리보기, 독립 코드 리뷰, Next 빌드·ESLint·46개 테스트. 기존 detect 기록은 첫 통합 결과이며 이번 실행으로 재표기하지 않는다. 2차 검증 보고서 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))에 새 증거·해시·기존 미해결 사항을 구분했다. 외부 디자인 서비스/공유 패키지 변경/사이트 배포는 수행하지 않았다.
+실제 도구: frontend-reference-workflow revision 2026-10-02.1, Impeccable polish 절차의 화면/흐름/상태 검토와 국소 수정, Playwright Chromium/axe, Paseo 미리보기, 독립 코드 리뷰, Next 빌드·ESLint·46개 테스트. 기존 detect 기록은 첫 통합 결과이며 이번 실행으로 재표기하지 않는다. 2차 검증 보고서 (로컬 시안; [배포 검증 기록](hero-sunset-study-2026-10-12/release-report.txt))에 새 증거·해시·기존 미해결 사항을 구분했다. 외부 디자인 서비스/공유 패키지 변경/사이트 배포는 수행하지 않았다.
 
 ## 2026-10-12 — 실제 수면 영상으로3.2초 시네마그래프 구현
 
@@ -289,3 +289,11 @@ User authorized commit/PR/merge/deployment. PR #5 merged as `00a17a81264dba43266
 User instruction: “공통화로 해.” Incumbent sources actually read: live naeil.dev/ko and /ja, current remote-main Nav/NavWrapper/SiteControls/Navigation/public CSS, DESIGN and package exports. The older default worktree/main checkout were excluded as source authority. New independent worktree starts fromb667a848. Adopted the actual full composition as optional NaeilHeader; keep generic Navigation and body widths distinct. Public images remain official URL references because THIRD_PARTY_NOTICES does not clear redistribution. No external design catalog, AI image generation or new palette/motion direction was used.
 
 Applied frontend-reference-workflow installed2026-10-05.1 plus project2026-10-02.1 layout/verification guidance; Impeccable context/extract/craft-floor within DESIGN. Actual CLI/browser/test results and hash inventory are in docs/evidence/shared-naeil-header-2026-10-15. Context found no PRODUCT.md, permitted narrow incumbent extraction; no init/redesign was performed. Package imports/Storybook/rendered comparisons are separate checks.
+
+## 2026-10-16 — shared 1600px frame and adoption guidance
+
+- Gap → inspected source → decision: the owner preferred Naeil Home's width and asked to update the design system; its actual frame/gutters were inspected with Paseo at mobile/desktop sizes. The approved decision now promotes 1600px plus `clamp(16px, 2.4vw, 40px)` to shared frame defaults, with 640px reading/settings and 480px short forms retained. This supersedes the earlier product-only width decision, without rewriting its dated evidence.
+- Read Carbon's [2x Grid overview](https://www.carbondesignsystem.com/building-blocks/foundations/2x-grid/overview), WCAG [Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) and [Visual Presentation](https://www.w3.org/WAI/WCAG22/Understanding/visual-presentation.html). Adopted task-specific content widths and reflow principles; 1600px is an owner-approved package decision, not a claimed universal standard.
+- Shared reuse: actual Navigation/SiteFooter/NaeilHeader, generated tokens/CSS, new application frame class, Storybook and installed 0.5.0 candidate examples. Fixed stale example-version guidance and added validation before fixture rewriting. Current application-layout documentation includes root composition, consumer AGENTS rules and rollout checks.
+- Actual tools: repository frontend-reference-workflow 2026-10-02.1; Impeccable 4.4.0 context/layout/craft-floor and one scoped detector pass; Paseo reference inspection, Playwright Chromium/Firefox/WebKit, local builds/contrast/packed consumers and independent code review. Aside attach timed out, so it is not claimed as the successful inspection. No external design catalog retrieval or image generation was performed.
+- [Verification, screenshots, scripts and instruction/source hashes](application-frame-2026-10-16/README.md) distinguish shared package success from the website's missing-auth-environment runtime block. Previous live Home accessibility/adoption findings remain open. No registry publication or site deployment.

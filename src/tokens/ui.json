@@ -46,7 +46,15 @@
     },
     "width-list": {
       "$type": "dimension",
-      "$value": "1200px"
+      "$value": "1600px"
+    },
+    "width-frame": {
+      "$type": "dimension",
+      "$value": "1600px"
+    },
+    "frame-gutter": {
+      "$type": "dimension",
+      "$value": "clamp(16px, 2.4vw, 40px)"
     },
     "width-short-form": {
       "$type": "dimension",

@@ -1,0 +1,164 @@
+[
+  {
+    "browser": "chromium",
+    "theme": "light",
+    "target": {
+      "id": "radix-_r_1_",
+      "exists": true,
+      "role": "dialog",
+      "expanded": "true"
+    },
+    "colors": {
+      "background": "rgb(255, 255, 255)",
+      "descriptions": [
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)"
+      ]
+    },
+    "ratios": [
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156
+    ]
+  },
+  {
+    "browser": "chromium",
+    "theme": "dark",
+    "target": {
+      "id": "radix-_r_1_",
+      "exists": true,
+      "role": "dialog",
+      "expanded": "true"
+    },
+    "colors": {
+      "background": "rgb(25, 26, 31)",
+      "descriptions": [
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)"
+      ]
+    },
+    "ratios": [
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551
+    ]
+  },
+  {
+    "browser": "firefox",
+    "theme": "light",
+    "target": {
+      "id": "radix-_r_1_",
+      "exists": true,
+      "role": "dialog",
+      "expanded": "true"
+    },
+    "colors": {
+      "background": "rgb(255, 255, 255)",
+      "descriptions": [
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)"
+      ]
+    },
+    "ratios": [
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156
+    ]
+  },
+  {
+    "browser": "firefox",
+    "theme": "dark",
+    "target": {
+      "id": "radix-_r_1_",
+      "exists": true,
+      "role": "dialog",
+      "expanded": "true"
+    },
+    "colors": {
+      "background": "rgb(25, 26, 31)",
+      "descriptions": [
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)"
+      ]
+    },
+    "ratios": [
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551
+    ]
+  },
+  {
+    "browser": "webkit",
+    "theme": "light",
+    "target": {
+      "id": "radix-_r_1_",
+      "exists": true,
+      "role": "dialog",
+      "expanded": "true"
+    },
+    "colors": {
+      "background": "rgb(255, 255, 255)",
+      "descriptions": [
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)",
+        "rgb(95, 98, 110)"
+      ]
+    },
+    "ratios": [
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156,
+      6.071452283306156
+    ]
+  },
+  {
+    "browser": "webkit",
+    "theme": "dark",
+    "target": {
+      "id": "radix-_r_1_",
+      "exists": true,
+      "role": "dialog",
+      "expanded": "true"
+    },
+    "colors": {
+      "background": "rgb(25, 26, 31)",
+      "descriptions": [
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)",
+        "rgb(164, 166, 176)"
+      ]
+    },
+    "ratios": [
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551,
+      7.163589884748551
+    ]
+  }
+]
