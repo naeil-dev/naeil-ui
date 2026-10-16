@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "ui-0.7.0-3b13e95",
+  "observedAt": "2026-10-16T11:10:53.038Z",
+  "complete": false,
+  "dnsInventory": "unresolved",
+  "services": [
+    {
+      "serviceId": "naeil",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "home",
+      "state": "not-adopted",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "estimate",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "jev",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "baby",
+      "state": "not-adopted",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "trip",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "work",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "digest",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "line",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "esg",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "storybook",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    }
+  ]
+}

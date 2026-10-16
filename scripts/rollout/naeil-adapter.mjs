@@ -51,6 +51,11 @@ export async function main() {
   assert.equal(execFileSync('git', ['status', '--porcelain', '--untracked-files=normal'], { cwd: root, encoding: 'utf8' }).trim(), '', 'App-owned release checkout must be clean');
   assert.equal(read(join(root, 'package.json')).version, input.release.version, 'Naeil source UI version mismatch');
   if (step === 'update') {
+    // A fresh exact-source checkout has no ignored dist/. Materialize the
+    // reviewed package before comparing its packed bytes with the release.
+    run(root, 'pnpm', ['install', '--frozen-lockfile']);
+    run(root, 'pnpm', ['build:pkg']);
+    assert.equal(execFileSync('git', ['status', '--porcelain', '--untracked-files=normal'], { cwd: root, encoding: 'utf8' }).trim(), '', 'Package generation changed reviewed source');
     const scratch = mkdtempSync(join(tmpdir(), 'naeil-site-archive-'));
     try {
       const packed = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', scratch], { cwd: root, encoding: 'utf8' }))[0];

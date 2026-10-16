@@ -25,7 +25,7 @@ try {
       return { serviceId: service.id, adapterConfigured: !!adapter, ...gate };
     });
     mkdirSync(state, { recursive: true }); writeFileSync(join(state, 'plan.json'), JSON.stringify({ releaseId: release.releaseId, services: plan }, null, 2));
-    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include })}\ncount=${include.length}\n`);
+    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include })}\ncount=${include.length}\nsourceRevision=${release.sourceRevision}\n`);
     console.log(JSON.stringify({ include, services: plan }, null, 2));
   } else if (action === 'materialize') {
     // This only downloads frozen public inputs. It never runs app commands.

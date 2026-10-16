@@ -1,0 +1,10 @@
+{
+  "releaseId": "ui-0.7.0-3b13e95",
+  "serviceId": "naeil",
+  "idempotencyKey": "ui-0.7.0-3b13e95:naeil",
+  "uiVersion": "0.7.0",
+  "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+  "dependencyExact": true,
+  "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+  "mode": "same-reviewed-package-source"
+}

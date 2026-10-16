@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-16T10:59:40.437Z",
+  "ok": true,
+  "node": "v24.21.0",
+  "targetReleaseId": "cc4b6dee738e-fbed79a686e1",
+  "sourceCommit": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+  "checks": [
+    "release-path-contained",
+    "manifest-release-and-runtime-contract",
+    "artifact-file-hashes-and-tree-hash",
+    "artifact-symlink-containment",
+    "forbidden-artifact-filenames-absent",
+    "packaged-fonts-static-and-build-id",
+    "traced-alias-repair-files-match-packaged-target",
+    "public-ui-identity-matches-frozen-source-archive-lock-and-build",
+    "source-file-hashes-and-tree-hash",
+    "source-archive-hash",
+    "lockfile-and-package-versions",
+    "source-node-version-and-public-font-notices",
+    "packaged-font-notices-match-source",
+    "static-client-excludes-literal-test-password",
+    "substituted-launchagent-plutil-lint",
+    "parsed-production-loopback-and-path-values",
+    "xml-escaped-spaces-and-ampersand-paths"
+  ],
+  "failedStage": null,
+  "temporaryFixtureRemoved": true,
+  "runtimeFilesRead": false,
+  "buildExecuted": false,
+  "serverStarted": false,
+  "publicDeploymentExecuted": false
+}

@@ -37,6 +37,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       count: ${{ steps.matrix.outputs.count }}
       reviewed_sha: ${{ steps.reviewed.outputs.sha }}
+      ui_source_sha: ${{ steps.matrix.outputs.sourceRevision }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -100,6 +101,13 @@ jobs:
         env:
           CONFIG_DIRECTORY: ${{ inputs.config_directory || 'docs/rollout' }}
         run: node scripts/rollout/workflow.mjs materialize "$CONFIG_DIRECTORY" "$RUNNER_TEMP/naeil-ui-rollout"
+      - name: Check out the exact website/UI source separately from rollout configuration
+        if: matrix.serviceId == 'naeil'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.ui_source_sha }}
+          path: frozen-ui-source
+          persist-credentials: false
       - name: Update, verify, package, deploy, activate, and verify production
         env:
           CONFIG_DIRECTORY: ${{ inputs.config_directory || 'docs/rollout' }}

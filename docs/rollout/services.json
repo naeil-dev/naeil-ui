@@ -21,7 +21,10 @@
   "target": {
     "uiVersion": "0.7.0",
     "contractVersion": "1",
-    "status": "planned-frozen-candidate-not-published"
+    "status": "frozen-local-candidate-not-published",
+    "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+    "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+    "referenceSha256": "6c8511f3fa4770a3a5653a7efdc4689d9afa3e94781d8406fc6b433123dfd771"
   },
   "routePolicy": {
     "canonical": "Owned application UI must use approved shared header/footer, identity and layout contract.",
@@ -76,7 +79,7 @@
         {
           "path": "/",
           "policy": "canonical",
-          "locale": null,
+          "locale": "en",
           "status": "unverified",
           "exception": null
         },
@@ -225,76 +228,86 @@
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/"
         },
         {
           "path": "/en/login",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/login"
         },
         {
           "path": "/en/design",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/design"
         },
         {
           "path": "/en/projects",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/projects"
         },
         {
           "path": "/en/blog",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/blog"
         },
         {
           "path": "/en/blog/2026-03-30",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/blog/2026-03-30"
         },
         {
           "path": "/en/baby-agent",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/baby-agent"
         },
         {
           "path": "/en/pkm",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/pkm"
         },
         {
           "path": "/en/sa",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/sa"
         },
         {
           "path": "/en/cc",
           "policy": "canonical",
           "locale": "en",
           "status": "unverified",
-          "exception": null
+          "exception": null,
+          "expectedPath": "/cc"
         }
       ],
       "source": {
         "candidatePath": "/Users/jaymini/.paseo/worktrees/28nele6j/pure-chicken",
         "repository": "https://github.com/naeil-dev/naeil-ui",
-        "candidateRevision": "549c501",
+        "candidateRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
         "productionCorrelation": "last-verified-release-0.6.0-current-identity-absent",
         "lastDocumentedProductionRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd",
         "revision": null
@@ -320,8 +333,8 @@
       },
       "status": "unresolved",
       "blockers": [
-        "Current production source/artifact identity has not been independently correlated.",
-        "Route and chrome matrix must be rerun for the frozen rollout candidate."
+        "Current production source/artifact identity has not been independently correlated; candidate identity is local only.",
+        "Vercel runner/context and previous verified immutable deployment require bootstrap; standing policy remains disabled."
       ],
       "evidence": [
         {
@@ -352,6 +365,29 @@
         "checkedAt": "2026-10-16T07:13:02.889530+00:00",
         "evidence": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.6.0/release-verification.json",
         "scope": "32 production routes and16 menus; separate from current rollout verification"
+      },
+      "candidate": {
+        "status": "frozen-local-candidate-not-deployed",
+        "sourceCleanAtBuild": true,
+        "artifact": {
+          "id": "naeil-ui07-3b13e95-review",
+          "sha256": "1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579",
+          "immutable": true,
+          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil/1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579.tar.gz",
+          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil/1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579.tar.gz",
+          "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+          "ui": {
+            "version": "0.7.0",
+            "contractVersion": "1"
+          }
+        },
+        "artifactScope": "local standalone compatibility check; Vercel prebuilt payload not created",
+        "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+        "provisional": false,
+        "renderVerification": [
+          "evidence/naeil-render-verification.json",
+          "evidence/naeil-additional-render-verification.json"
+        ]
       }
     },
     {
@@ -515,7 +551,7 @@
       ],
       "source": {
         "candidatePath": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1",
-        "candidateRevision": "0e1bcaf",
+        "candidateRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
         "candidateDirty": false,
         "repository": null,
         "revision": "b305c043242001a5bf4e2204ed7ea68d112071e7",
@@ -527,11 +563,12 @@
         "status": "public-login-redirect",
         "artifactId": "b305c0432420-4928a714c529",
         "runtimePath": "/Users/jaymini/.local/share/estimate-app/releases/b305c0432420-4928a714c529",
-        "currentPath": "/Users/jaymini/.local/share/estimate-app/current/app",
+        "currentPath": "/Users/jaymini/.local/share/estimate-app/current",
         "launchAgent": "dev.naeil.estimate",
-        "method": "Versioned standalone releases with current pointer and launchd; exact app-owned deploy script must be verified.",
+        "method": "Versioned standalone releases, current pointer and launchd. Disabled app-owned rollout bridge implemented; no native activation exercised.",
         "adapterId": "estimate-standalone-v1",
-        "adapterStatus": "prepared-platform-blocked"
+        "adapterStatus": "prepared-platform-blocked",
+        "applicationPath": "/Users/jaymini/.local/share/estimate-app/current/app"
       },
       "ui": {
         "version": "0.5.0",
@@ -540,13 +577,22 @@
         "header": "Existing shared package; actual production composition requires verification",
         "footer": "Existing shared package; actual production composition requires verification",
         "requiredHeader": "NaeilHeader",
-        "requiredFooter": "NaeilFooter"
+        "requiredFooter": "NaeilFooter",
+        "candidate": {
+          "version": "0.7.0",
+          "contractVersion": "1",
+          "header": "NaeilHeader",
+          "footer": "NaeilFooter compact",
+          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+          "adoption": "frozen-local-candidate-not-deployed",
+          "provisional": false
+        }
       },
       "status": "unresolved",
       "blockers": [
-        "Checkout revision differs from production; recover or select the actual production source before migration.",
-        "Authenticated routes and parameterized estimate pages require approved synthetic fixtures; no business records were inspected.",
-        "Calendar preview routes discovered in checkout require production-presence verification."
+        "Production remains legacy UI0.5.0 without new public identity; initial predecessor/bootstrap and native ownership/preservation validation are outstanding.",
+        "Local authenticated synthetic routes are verified; production-safe fixture/access capability is not configured.",
+        "Calendar preview routes require production-presence verification; standing config issuance and previous-artifact pointer maintenance remain disconnected."
       ],
       "evidence": [
         {
@@ -563,10 +609,50 @@
           "kind": "launch-agent",
           "reference": "~/Library/LaunchAgents/dev.naeil.estimate.plist",
           "detail": "Allowlisted working directory and executable identify current/app/server.js."
+        },
+        {
+          "kind": "final-local-candidate",
+          "reference": "evidence/estimate-candidate-receipt.json",
+          "detail": "Clean cc4b6de source; exact final shared archive;616 units,32 E2E,61 smoke,17 integrity and48 independent-render conditions pass. Current production pointer remains b305c043."
         }
       ],
       "identity": {
         "appId": "abestimate"
+      },
+      "candidate": {
+        "schemaVersion": 1,
+        "status": "frozen-local-candidate-not-deployed",
+        "sourceCleanAtBuild": true,
+        "releaseId": "cc4b6dee738e-fbed79a686e1",
+        "identity": {
+          "schemaVersion": 1,
+          "appId": "abestimate",
+          "artifactId": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
+          "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+          "ui": {
+            "version": "0.7.0",
+            "contractVersion": "1"
+          }
+        },
+        "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+        "artifact": {
+          "id": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
+          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/estimate/3dfc71e7b77f3a70efc76fec0e6dcb991e873a82d76382c9655b58e805d71c85.tar.gz",
+          "sha256": "3dfc71e7b77f3a70efc76fec0e6dcb991e873a82d76382c9655b58e805d71c85",
+          "bytes": 143098828,
+          "immutable": true,
+          "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+          "ui": {
+            "version": "0.7.0",
+            "contractVersion": "1"
+          },
+          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/estimate/3dfc71e7b77f3a70efc76fec0e6dcb991e873a82d76382c9655b58e805d71c85.tar.gz"
+        },
+        "manifestSha256": "a5d11ee64200d3bc22cf030c822c76326d92051b0656956cf6b4073d249138cd",
+        "applicationTreeHash": "23470085a2cda6581e1644e2e57875af07c5056a860eb7a070dc9b60d20cc62b",
+        "tarRegularFilesVerified": 3286,
+        "productionVerified": false,
+        "renderVerification": "evidence/estimate-render-verification.json"
       }
     },
     {
@@ -676,9 +762,9 @@
         }
       ],
       "source": {
-        "candidatePath": "/Users/jaymini/projects/baby-agent",
-        "candidateRevision": "6c79d1b745fedc7619fae85a307f951ce6cc089b",
-        "candidateDirty": true,
+        "candidatePath": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby",
+        "candidateRevision": "a516d875a30fe7d4285df0a88c77b4531434f135",
+        "candidateDirty": false,
         "productionCorrelation": "clean-frozen-lock-ui-reproduction-and-compose-source-location",
         "revision": null,
         "trackedUiSourceClean": true,
@@ -686,7 +772,8 @@
         "builtUiTracked": false,
         "uiRevision": "6c79d1b745fedc7619fae85a307f951ce6cc089b",
         "uiReproductionVerified": true,
-        "migrationWorktree": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby"
+        "migrationWorktree": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby",
+        "baselineCheckout": "/Users/jaymini/projects/baby-agent"
       },
       "deployment": {
         "kind": "docker-compose",
@@ -708,14 +795,15 @@
         "framework": "React19 / Vite8",
         "candidate": {
           "version": "0.7.0",
-          "adoption": "local-candidate",
+          "adoption": "frozen-local-candidate-not-deployed",
           "header": "NaeilHeader",
           "footer": "NaeilFooter compact",
-          "archiveSha256": "13fbed2eab43ebb2e5e357c83672e4c5b552201395340b275f540863c37fbd88",
-          "provisional": true,
+          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+          "provisional": false,
           "supportedLocales": [
             "ko"
-          ]
+          ],
+          "contractVersion": "1"
         },
         "supportedLocales": [
           "ko"
@@ -723,9 +811,9 @@
       },
       "status": "unresolved",
       "blockers": [
-        "Backend running image revision remains explicitly unknown; frontend JS was exactly reproduced from clean tracked source at6c79d1b.",
-        "Shared package adoption and PIN/authenticated dashboard chrome migration remain required.",
-        "Family data/API and authenticated tabs were intentionally not accessed."
+        "Backend running image revision remains unknown; frontend source was exactly reproduced from clean tracked source at6c79d1b.",
+        "Canonical frontend candidate is frozen and synthetically verified; full backend image and deployment adapter are not frozen or enabled.",
+        "Family data and production authenticated tabs were not accessed; production-safe verification remains required."
       ],
       "evidence": [
         {
@@ -746,7 +834,7 @@
         {
           "kind": "source-status",
           "reference": "git status; git log -- dashboard; dashboard/dist metadata",
-          "detail": "Only dirty paths .env.example, STATUS.md, scripts/daily-cost-report.py; dashboard tracked sources clean. Ignored dist mtime2026-06-19T03:53:24Z. No source rebuild performed, so full reproducibility is not asserted."
+          "detail": "Original checkout dirty paths exclude tracked dashboard source. Ignored dist has June19 timestamps; the subsequent isolated clean reproduction establishes frontend correspondence only."
         },
         {
           "kind": "clean-ui-reproduction",
@@ -755,10 +843,35 @@
         },
         {
           "kind": "local-candidate",
-          "reference": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-ui-rollout-baby/docs/rollout/candidate-receipt.json",
-          "detail": "Isolated canonical header/footer migration: npm lint/build and9 synthetic Chromium tests pass. Provisional archive only, uncommitted, not deployed; production ui.adoption remains not-adopted."
+          "reference": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/baby/a516d875a30fe7d4285df0a88c77b4531434f135/receipt.json",
+          "detail": "Frozen a516d875 source and final f15f9a archive; lint/build9 synthetic browser cases and isolated ASGI checks pass. Two local PIN/dashboard states pass16 independent-reference conditions. Not deployed."
         }
-      ]
+      ],
+      "candidate": {
+        "status": "frozen-local-static-candidate-not-deployed",
+        "sourceCleanAtBuild": true,
+        "identity": {
+          "schemaVersion": 1,
+          "appId": "baby",
+          "artifactId": "sha256-47960e5718a189076350379dc337076cf6f6b5670afaf8bec54b47cf46b4d287",
+          "sourceRevision": "a516d875a30fe7d4285df0a88c77b4531434f135",
+          "ui": {
+            "version": "0.7.0",
+            "contractVersion": "1"
+          }
+        },
+        "artifact": {
+          "id": "sha256-47960e5718a189076350379dc337076cf6f6b5670afaf8bec54b47cf46b4d287",
+          "directory": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/baby/a516d875a30fe7d4285df0a88c77b4531434f135/dist",
+          "tarball": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/baby/a516d875a30fe7d4285df0a88c77b4531434f135/dashboard-dist.tar.gz",
+          "tarballSha256": "cd15106b3e9b4f282fb1a8f5a4c7479645d72ae5671da14577e009e5b4b27bf3",
+          "files": 750,
+          "unpackedBytes": 22804357,
+          "contentHashRule": "SHA256(sorted relative UTF-8 path + NUL + bytes + NUL), excluding naeil-ui.json; tarball includes public identity"
+        },
+        "receipt": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/baby/a516d875a30fe7d4285df0a88c77b4531434f135/receipt.json",
+        "renderVerification": "evidence/baby-render-verification.json"
+      }
     },
     {
       "id": "trip",
@@ -1035,19 +1148,19 @@
         },
         {
           "path": "/naeil-ui/?path=/story/ui-navigation--home",
-          "policy": "canonical",
+          "policy": "showcase",
           "locale": "ko",
           "status": "unverified",
           "exception": null,
-          "context": "Component example iframe, not manager toolbar."
+          "context": "Generic component example, validated by its actual Storybook component tests. It is not a complete canonical application shell; hosted exact-release component verification remains required."
         },
         {
           "path": "/naeil-ui/?path=/story/ui-navigation--usage",
-          "policy": "canonical",
+          "policy": "showcase",
           "locale": "ko",
           "status": "unverified",
           "exception": null,
-          "context": "Component example iframe, not manager toolbar."
+          "context": "Generic component example, validated by its actual Storybook component tests. It is not a complete canonical application shell; hosted exact-release component verification remains required."
         },
         {
           "path": "/naeil-ui/?path=/story/brand-naeilheader--usage",
@@ -1067,19 +1180,19 @@
         },
         {
           "path": "/naeil-ui/?path=/story/ui-sitefooter--usage",
-          "policy": "canonical",
+          "policy": "showcase",
           "locale": "ko",
           "status": "unverified",
           "exception": null,
-          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+          "context": "Generic component example, validated by its actual Storybook component tests. It is not a complete canonical application shell; hosted exact-release component verification remains required."
         },
         {
           "path": "/naeil-ui/?path=/story/ui-sitefooter--compact",
-          "policy": "canonical",
+          "policy": "showcase",
           "locale": "ko",
           "status": "unverified",
           "exception": null,
-          "context": "Owned component showcase; canonical composition and generic component obligations are distinct."
+          "context": "Generic component example, validated by its actual Storybook component tests. It is not a complete canonical application shell; hosted exact-release component verification remains required."
         }
       ],
       "source": {
@@ -1087,7 +1200,8 @@
         "repository": "https://github.com/naeil-dev/naeil-ui",
         "revision": null,
         "productionCorrelation": "last-verified-release-0.6.0-and-current-public-story-index; current-build-identity-absent",
-        "lastDocumentedProductionRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd"
+        "lastDocumentedProductionRevision": "549c501cee0f6c9374920785b5fce1c235c7bafd",
+        "candidateRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c"
       },
       "deployment": {
         "kind": "github-pages",
@@ -1133,7 +1247,16 @@
         "checkedAt": "2026-10-16T07:13:02.889530+00:00",
         "evidence": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.6.0/release-verification.json",
         "scope": "Hosted docs/usage, artwork, guide links and stable frame transitions; separate from candidate0.7.0"
+      },
+      "candidate": {
+        "status": "frozen-local-reference-not-published",
+        "sourceCleanAtBuild": true,
+        "referenceSha256": "6c8511f3fa4770a3a5653a7efdc4689d9afa3e94781d8406fc6b433123dfd771",
+        "cases": 48,
+        "uiVersion": "0.7.0",
+        "contractVersion": "1"
       }
     }
-  ]
+  ],
+  "candidateRecordedAt": "2026-10-16T11:06:15.154948+00:00"
 }

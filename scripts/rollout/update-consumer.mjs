@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { assertFrozen, digest, policyGate } from './rollout.mjs';
@@ -11,6 +11,14 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
   const config = context.adapterOptions?.update;
   assert.equal(config?.enabled, true, 'Consumer updater is disabled');
   assert(isAbsolute(config.worktree || '') && realpathSync(config.worktree) === realpathSync(root), 'Reviewed dedicated update worktree required');
+  root = realpathSync(root);
+  const regular = (relative, directory = false, optional = false) => {
+    let stat;
+    try { stat = lstatSync(join(root, relative)); } catch (error) { if (optional && error.code === 'ENOENT') return; throw error; }
+    assert(!stat.isSymbolicLink() && (directory ? stat.isDirectory() : stat.isFile() && stat.nlink === 1), `Non-symlink ${directory ? 'directory' : 'single-link file'} required: ${relative}`);
+    assert.equal(realpathSync(join(root, relative)), join(root, relative), `Path escapes reviewed checkout: ${relative}`);
+  };
+  regular('package.json'); regular('pnpm-lock.yaml'); regular('vendor', true); regular('node_modules', true, true);
   assertFrozen(context.release);
   assert.equal(policyGate(context.release, context.service, context.policy).state, 'eligible', 'Current rollout approval required');
   assert(!existsSync(context.policy.stopFile), 'Stop switch is active');
@@ -23,11 +31,13 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
   assert(/^pnpm@\d+\.\d+\.\d+$/.test(config.packageManager), 'This bounded updater supports pinned pnpm consumers');
   const dependency = pkg.dependencies?.['@naeil/ui'];
   assert(/^file:vendor\/naeil-ui-[0-9A-Za-z.+-]+\.tgz$/.test(dependency || ''), 'Exact vendored UI dependency required');
+  regular(dependency.slice(5));
   const archiveMetadata = path => JSON.parse(execFileSync('/usr/bin/tar', ['-xOf', path, 'package/package.json'], { encoding: 'utf8', maxBuffer: 1024 * 1024 }));
   const old = archiveMetadata(join(root, dependency.slice(5))), next = archiveMetadata(context.release.archive.path);
   assert.equal(old.name, '@naeil/ui'); assert.equal(next.name, '@naeil/ui'); assert.equal(next.version, context.release.version);
   assert([context.release.previousVersion, context.release.version].includes(old.version), 'Consumer drifted from the reviewed predecessor; explicit migration required');
   const vendor = `vendor/naeil-ui-${context.release.version}.tgz`;
+  regular(vendor, false, true);
   const nextDependency = `file:${vendor}`;
   const oldMatches = old.version === next.version && digest(readFileSync(join(root, dependency.slice(5)))) === context.release.archive.sha256;
   const integrity = `sha512-${createHash('sha512').update(readFileSync(context.release.archive.path)).digest('base64')}`;
@@ -35,7 +45,7 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
     if (install) return install({ root, integrity, version: next.version });
     const version = execFileSync('pnpm', ['--version'], { cwd: root, encoding: 'utf8' }).trim();
     assert.equal(`pnpm@${version}`, config.packageManager, 'Installed package manager differs from reviewed pin');
-    execFileSync('pnpm', ['install', '--ignore-scripts'], { cwd: root, stdio: 'inherit' });
+    execFileSync('pnpm', ['install', '--no-frozen-lockfile', '--ignore-scripts'], { cwd: root, stdio: 'inherit' });
     execFileSync('pnpm', ['install', '--frozen-lockfile', '--ignore-scripts'], { cwd: root, stdio: 'inherit' });
   };
   if (!oldMatches) {

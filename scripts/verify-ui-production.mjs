@@ -53,22 +53,31 @@ export async function readChrome(page, locale) {
   await page.locator('[data-naeil-footer]').waitFor({ state: 'attached' });
   return page.evaluate(async ({ locale }) => {
     const expectedFont = locale === 'ja' ? 'Noto Sans JP' : 'Pretendard';
-    const faces = await document.fonts.load(`400 16px "${expectedFont}"`, locale === 'ja' ? '日本語' : '한글 Latin');
     const header = document.querySelector('[data-naeil-header]');
     const footer = document.querySelector('[data-naeil-footer]');
+    const css = getComputedStyle(header);
+    // The website ships Pretendard Variable; packed consumers may ship the
+    // static family. Skip only absent approved families, then require actual
+    // faces before any unrelated/system fallback can win the font stack.
+    const stack = css.fontFamily.split(',').map(value => value.trim().replace(/^['"]|['"]$/g, ''));
+    const allowedFonts = locale === 'ja' ? ['Noto Sans JP'] : ['Pretendard', 'Pretendard Variable'];
+    const registered = new Set([...document.fonts].map(face => face.family.replace(/^['"]|['"]$/g, '')));
+    const renderedFont = stack.find(family => !allowedFonts.includes(family) || registered.has(family)) || '';
+    const fontAllowed = allowedFonts.includes(renderedFont);
+    const fontQuery = `400 16px "${fontAllowed ? renderedFont : expectedFont}"`;
+    const faces = await document.fonts.load(fontQuery, locale === 'ja' ? '日本語' : '한글 Latin');
     const headerFrame = header.querySelector('.ui-navigation-frame');
     const footerFrame = footer.querySelector('.ui-site-footer-frame');
     const frame = el => { const box = el.getBoundingClientRect(); return { x: box.x, width: box.width, padding: parseFloat(getComputedStyle(el).paddingInlineStart) }; };
     const brand = (el, container) => { const box = el.getBoundingClientRect(); return { height: box.height, offset: box.x - container.getBoundingClientRect().x }; };
     const root = document.documentElement.getBoundingClientRect();
-    const css = getComputedStyle(header);
     return {
       layoutWidth: root.width, layoutX: root.x, headerFrame: frame(headerFrame), footerFrame: frame(footerFrame),
       headerHeight: header.getBoundingClientRect().height,
       headerBrand: brand(header.querySelector('[data-app-brand] svg'), headerFrame),
       footerBrand: brand(footer.querySelector('[data-footer-brand] svg'), footerFrame),
       overflow: document.documentElement.scrollWidth > innerWidth,
-      expectedFont, fontLoaded: faces.length > 0 && document.fonts.check(`400 16px "${expectedFont}"`),
+      expectedFont, renderedFont, fontLoaded: fontAllowed && faces.length > 0 && document.fonts.check(fontQuery),
       fontFamily: css.fontFamily, background: css.backgroundColor, foreground: css.color,
       version: header.dataset.naeilUiVersion, contractVersion: header.dataset.naeilUiContract,
       footerVersion: footer.dataset.naeilUiVersion, footerContract: footer.dataset.naeilUiContract,

@@ -14,7 +14,7 @@
         "self-hosted",
         "naeil-ui-rollout"
       ],
-      "cwd": "@repo",
+      "cwd": "@repo/frozen-ui-source",
       "stateDirectory": null,
       "options": {
         "artifactDirectory": null,
@@ -94,9 +94,9 @@
       "status": "prepared-platform-blocked",
       "blockers": [
         "Standing rollout/migration approval outstanding",
-        "Reviewed committed app source and final frozen UI archive required",
-        "App-owned ops/rollout-previous-artifact.json absent; no fabricated rollback pointer",
-        "Latest-data preservation/ownership and deployment/activation/rollback bridge not approved or implemented"
+        "Durable dedicated bot worktree/runner and private operational paths are not provisioned",
+        "Legacy UI0.5.0 predecessor identity/bootstrap and verified rollback pointer require review; no fabricated previous artifact",
+        "Preservation/ownership activation bridge is implemented and synthetically tested, but native operation and standing action-config issuance/pointer maintenance are not connected or approved"
       ],
       "runner": [
         "self-hosted",

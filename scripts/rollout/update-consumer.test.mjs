@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, renameSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { digest } from './rollout.mjs';
@@ -41,4 +41,24 @@ test('wrong lock integrity and unexpected install changes cannot produce an upda
  const g=fixture(t),old=g.git(['rev-parse','HEAD']);
  assert.throws(()=>updateConsumer(g.context,{root:g.root,install:args=>{g.install(args);writeFileSync(join(g.root,'unreviewed.js'),'bad')}}),/outside/);
  assert.equal(g.git(['rev-parse','HEAD']),old);
+});
+test('tracked symlinks cannot redirect package, lock or archive mutations outside the checkout',t=>{
+ for(const target of ['package.json','pnpm-lock.yaml','vendor']) {
+  const f=fixture(t),outside=join(f.root,'..',`outside-${target}`);
+  renameSync(join(f.root,target),outside);symlinkSync(outside,join(f.root,target));f.git(['add','-A']);f.git(['commit','-qm','symlink fixture']);
+  const before=f.git(['rev-parse','HEAD']);
+  assert.throws(f.run,/Non-symlink/);assert.equal(f.git(['rev-parse','HEAD']),before);
+  assert.equal(f.git(['status','--porcelain']),'');
+ }
+});
+test('real pinned pnpm updates a fictional archive under CI and then passes frozen verification',t=>{
+ const f=fixture(t);
+ execFileSync('pnpm',['install','--no-frozen-lockfile','--ignore-scripts'],{cwd:f.root,env:{...process.env,CI:'true'},stdio:'pipe'});
+ f.git(['add','pnpm-lock.yaml']);f.git(['commit','-qm','real frozen predecessor']);
+ const previousCI=process.env.CI;process.env.CI='true';
+ try {
+  const result=updateConsumer(f.context,{root:f.root});assert.equal(result.uiVersion,'0.7.1');
+  assert.equal(f.git(['status','--porcelain']),'');
+  assert.equal(updateConsumer(f.context,{root:f.root}).sourceRevision,result.sourceRevision);
+ } finally { if(previousCI===undefined)delete process.env.CI;else process.env.CI=previousCI; }
 });
