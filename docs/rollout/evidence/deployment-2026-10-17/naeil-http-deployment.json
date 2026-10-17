@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-17T03:07:00.974Z",
+  "origin": "https://naeil.dev",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "naeil",
+    "artifactId": "dpl_29L2Bfoz4A6rZzAXgrjN4CbC9F24",
+    "sourceRevision": "b82f12d17cd3b273a92aa3934ea9ad14106581b4",
+    "ui": {
+      "version": "0.7.0",
+      "contractVersion": "1"
+    }
+  },
+  "identityStatus": 200,
+  "cacheControl": "no-store, max-age=0",
+  "githubDeploymentId": 7133974289,
+  "productionStatus": "success",
+  "productionStatusAt": "2026-10-17T03:05:16Z",
+  "immutableOrigin": "https://design-system-ka41slgro-naeils-projects.vercel.app",
+  "providerStatusUrl": "https://vercel.com/naeils-projects/design-system/29L2Bfoz4A6rZzAXgrjN4CbC9F24",
+  "providerDeploymentId": "29L2Bfoz4A6rZzAXgrjN4CbC9F24",
+  "providerIdentityMatched": true,
+  "immutableFetch": {
+    "status": 302,
+    "reason": "Existing Vercel SSO protection; no bypass or configuration change; immutable body not read"
+  },
+  "mergeTreeIdenticalToReviewedHead": "1138e272f3913981be9cb3242e1923714837a293",
+  "rollbackExercised": false
+}

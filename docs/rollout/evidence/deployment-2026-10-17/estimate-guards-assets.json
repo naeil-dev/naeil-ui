@@ -1,0 +1,89 @@
+{
+  "checkedAt": "2026-10-17T02:42:06.511Z",
+  "protectedRoutesChecked": 5,
+  "assetsChecked": 14,
+  "checks": [
+    {
+      "path": "/estimates",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "path": "/settings",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "path": "/calendar",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "path": "/compare",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "path": "/calendar-preview",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "path": "/_next/static/chunks/920fc7ff21c37e6b.css",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/9be5060dc187f981.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/fe46b5ca2f2a2dc1.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/e4579ff276e73aeb.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/e4a644e623ea1dd9.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/turbopack-bad41bcb19a4d921.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/639b7d0d43a5d1da.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/9f0f018747e50270.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/10acfa88ce2e1141.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/72a021e72354ee36.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/672fba485ed5d087.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/275966c5a39d04f7.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/f71401e20d7a62b8.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/a6dad97d9634a72d.js",
+      "status": 200
+    }
+  ],
+  "passed": true
+}

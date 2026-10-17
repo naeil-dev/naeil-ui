@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-17T02:42:34.288Z",
+  "origin": "https://jev.naeil.dev",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "jev",
+    "artifactId": "jev-ui07-7e1eb717ee56",
+    "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+    "ui": {
+      "version": "0.7.0",
+      "contractVersion": "1"
+    }
+  },
+  "identityStatus": 200,
+  "cacheControl": "no-store",
+  "healthStatus": 200,
+  "healthy": true
+}

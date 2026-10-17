@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "scope": "owner-authorized-one-time-three-service-deployment",
+  "completedAt": "2026-10-17T03:15:39.882Z",
+  "deploymentComplete": true,
+  "publicAcceptanceComplete": true,
+  "protectedProductionAcceptanceComplete": false,
+  "broaderRolloutComplete": false,
+  "standingAutomationEnabled": false,
+  "npmPublishedByThisTask": false,
+  "liveRollbackExercised": false,
+  "excludedServices": [
+    "home",
+    "baby"
+  ],
+  "unresolvedServices": [
+    "digest",
+    "line",
+    "esg",
+    "work",
+    "trip"
+  ],
+  "ui": {
+    "version": "0.7.0",
+    "contractVersion": "1"
+  },
+  "uiArchiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+  "referenceSha256": "6c8511f3fa4770a3a5653a7efdc4689d9afa3e94781d8406fc6b433123dfd771",
+  "verifierSourceRevision": "1138e272f3913981be9cb3242e1923714837a293",
+  "verifierSha256": "cbe07e34cea1d37a51c0e00ff01e97bd5ae75daa89583c9d9f692d95c65a2255",
+  "services": [
+    {
+      "serviceId": "naeil",
+      "origin": "https://naeil.dev",
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "naeil",
+        "artifactId": "dpl_29L2Bfoz4A6rZzAXgrjN4CbC9F24",
+        "sourceRevision": "b82f12d17cd3b273a92aa3934ea9ad14106581b4",
+        "ui": {
+          "version": "0.7.0",
+          "contractVersion": "1"
+        }
+      },
+      "publicRoutesVerified": 31,
+      "conditionsVerified": 248,
+      "renderEvidence": "naeil-render.json",
+      "checkedAt": "2026-10-17T03:15:39.882Z"
+    },
+    {
+      "serviceId": "estimate",
+      "origin": "https://abestimate.naeil.dev",
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "abestimate",
+        "artifactId": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
+        "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+        "ui": {
+          "version": "0.7.0",
+          "contractVersion": "1"
+        }
+      },
+      "publicRoutesVerified": 1,
+      "conditionsVerified": 8,
+      "renderEvidence": "estimate-render.json",
+      "checkedAt": "2026-10-17T02:48:27.380Z"
+    },
+    {
+      "serviceId": "jev",
+      "origin": "https://jev.naeil.dev",
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "jev",
+        "artifactId": "jev-ui07-7e1eb717ee56",
+        "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+        "ui": {
+          "version": "0.7.0",
+          "contractVersion": "1"
+        }
+      },
+      "publicRoutesVerified": 3,
+      "conditionsVerified": 24,
+      "renderEvidence": "jev-render.json",
+      "checkedAt": "2026-10-17T02:48:38.276Z"
+    }
+  ],
+  "conditionsVerified": 280,
+  "finalIdentityCheckedAt": "2026-10-17T03:19:17.250Z",
+  "prCi": {
+    "id": 38996345012,
+    "conclusion": "success"
+  },
+  "mergedSourceCi": {
+    "id": 38997364524,
+    "conclusion": "success"
+  }
+}

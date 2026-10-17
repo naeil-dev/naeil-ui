@@ -1,0 +1,17 @@
+{
+  "serviceId": "jev",
+  "helperCommit": "30124e85f87868b2baeccfdb5930fa092e0b46ce",
+  "helperSha256": "e4800628c3e193c7108c7a388fa448093682336bf843267840e6ed1be77ab9c3",
+  "releaseId": "20261017T024200Z-ui07",
+  "candidateSource": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+  "candidateArtifactId": "jev-ui07-7e1eb717ee56",
+  "beforeBuild": "5c8klC9uqKrC2wNSEzuke",
+  "afterBuild": "_Qv6sy-ccIKZ2B0scI4qH",
+  "beforeCodeSha256": "f020a5df72f9c0c74ba11a11a2e481273613e3528bcc8c5a8fd8fdc579b3e09a",
+  "beforeMembers": 1406,
+  "afterMembers": 2141,
+  "recordedAt": "2026-10-17T02:42:16.310964+00:00",
+  "preservation": "code-only swap; current DB/auth/config paths retained; data contents not read",
+  "freshPreviousCodePreserved": true,
+  "liveRollbackExercised": false
+}
