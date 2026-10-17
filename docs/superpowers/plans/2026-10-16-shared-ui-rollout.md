@@ -44,3 +44,7 @@ Full deployment chains and production convergence remain open. No blanket activa
 ## Scope correction — 2026-10-17
 
 - [x] Remove Baby Dashboard from active rollout targets and completion counts following the owner's different-service correction. Preserve its isolated branch/artifacts and prior registry record without further rollout work or deployment. Four in-scope consumers retain400 reference conditions; unknown Digest/LINE/ESG/Work/Trip remain unresolved.
+
+## Deployment steering — 2026-10-17
+
+The owner excludes Naeil Home and authorizes one-time deployment to naeil.dev, Estimate and Jev. This supersedes Home migration/deployment tasks above; prior Home work is preserved only as history. Execute [the concrete three-service deployment plan](../../rollout/deployment-2026-10-17.md). No standing automatic policy is enabled by this approval.

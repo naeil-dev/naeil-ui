@@ -37,6 +37,14 @@
         ],
         "response": "이건 전혀 다른 서비스잖아.",
         "disposition": "Withdraw Baby Dashboard from active rollout targets; preserve historical evidence without counting it as rollout progress. Same-domain hosting is insufficient to establish service scope."
+      },
+      {
+        "date": "2026-10-17",
+        "serviceIds": [
+          "home"
+        ],
+        "response": "Naeil Home도 제외하고 일단 3가지에 배포해줘.",
+        "disposition": "Home excluded. One-time deployment authorized for naeil, estimate and jev only; standing automatic deployment not authorized."
       }
     ]
   },
@@ -503,278 +511,6 @@
           "evidence/naeil-render-verification.json",
           "evidence/naeil-additional-render-verification.json"
         ]
-      }
-    },
-    {
-      "id": "home",
-      "name": "Naeil Home",
-      "origin": "https://jay-macmini-2.tail165003.ts.net:2455",
-      "routes": [
-        {
-          "path": "/",
-          "state": "login",
-          "locale": "ko",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "public",
-            "visible": "input[type=password]",
-            "hidden": []
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "테마",
-              "dark": "테마"
-            }
-          }
-        },
-        {
-          "path": "/",
-          "state": "dashboard",
-          "locale": "ko",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "protected",
-            "visible": "[data-slot=workspace]",
-            "hidden": [
-              "input[type=password]"
-            ]
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "테마",
-              "dark": "테마"
-            }
-          }
-        },
-        {
-          "path": "/keys",
-          "state": "keys",
-          "locale": "ko",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "protected",
-            "visible": "[data-slot=workspace]",
-            "hidden": [
-              "input[type=password]"
-            ]
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "테마",
-              "dark": "테마"
-            }
-          }
-        },
-        {
-          "path": "/connections",
-          "state": "connections",
-          "locale": "ko",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "protected",
-            "visible": "[data-slot=workspace]",
-            "hidden": [
-              "input[type=password]"
-            ]
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "테마",
-              "dark": "테마"
-            }
-          }
-        },
-        {
-          "path": "/",
-          "state": "login",
-          "locale": "en",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "public",
-            "visible": "input[type=password]",
-            "hidden": []
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "Theme",
-              "dark": "Theme"
-            }
-          }
-        },
-        {
-          "path": "/",
-          "state": "dashboard",
-          "locale": "en",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "protected",
-            "visible": "[data-slot=workspace]",
-            "hidden": [
-              "input[type=password]"
-            ]
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "Theme",
-              "dark": "Theme"
-            }
-          }
-        },
-        {
-          "path": "/keys",
-          "state": "keys",
-          "locale": "en",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "protected",
-            "visible": "[data-slot=workspace]",
-            "hidden": [
-              "input[type=password]"
-            ]
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "Theme",
-              "dark": "Theme"
-            }
-          }
-        },
-        {
-          "path": "/connections",
-          "state": "connections",
-          "locale": "en",
-          "policy": "canonical",
-          "status": "unverified",
-          "exception": null,
-          "renderState": {
-            "access": "protected",
-            "visible": "[data-slot=workspace]",
-            "hidden": [
-              "input[type=password]"
-            ]
-          },
-          "chrome": {
-            "themeControlLabels": {
-              "light": "Theme",
-              "dark": "Theme"
-            }
-          }
-        }
-      ],
-      "source": {
-        "candidatePath": "/Users/jaymini/.paseo/worktrees/3qtenke4/shared-ui-rollout-home",
-        "candidateRevision": "c1bbb924e41630861fcf7fed5ef4faa45dcff03d",
-        "candidateDirty": false,
-        "productionCorrelation": "operating-frontend-independently-reproduced",
-        "revision": null,
-        "frontendRevision": "3cc9d7aa571bf10ef55bc1044572bee45ef5591c",
-        "frontendSourceManifestSha256": "2fcb95278b91f9bbd2a47f0d2f7c763f70cf22615991e44c72e9462377e3ad0d",
-        "operatingSnapshotPath": "/Users/jaymini/projects/cleanup_records/naeil-home-20261010-192436/preserved-worktrees/naeil-ai-status-20261010"
-      },
-      "deployment": {
-        "kind": "docker",
-        "status": "private-origin-static-up",
-        "artifactId": "sha256:b0187528b7e23c0242dc4f33510c0285a50608475aee4c584ea136e485871513",
-        "container": "relaydock",
-        "loopbackOrigin": "http://127.0.0.1:2455",
-        "method": "Docker image with static frontend layer. Private tailnet origin and all34 independent baseline static build files match; full backend provenance/activation unverified.",
-        "adapterId": null
-      },
-      "ui": {
-        "version": null,
-        "adoption": "not-adopted",
-        "header": "Operating application-owned header; local candidate uses canonical NaeilHeader",
-        "footer": "Operating frontend has no canonical NaeilFooter",
-        "requiredHeader": "NaeilHeader",
-        "requiredFooter": "NaeilFooter",
-        "candidateFoundation": "Exact frozen @naeil/ui archive with app-owned product body styles",
-        "supportedLocales": [
-          "ko",
-          "en"
-        ],
-        "candidate": {
-          "version": "0.7.0",
-          "contractVersion": "1",
-          "adoption": "frozen-local-candidate-not-deployed",
-          "header": "NaeilHeader",
-          "footer": "NaeilFooter compact",
-          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
-          "supportedLocales": [
-            "ko",
-            "en"
-          ]
-        }
-      },
-      "status": "unresolved",
-      "blockers": [
-        "Canonical frontend candidate is frozen and synthetically verified; operating UI is still pre-migration.",
-        "Full backend source remains unknown; frontend reproduction does not authorize deploying the entire worktree.",
-        "Private tailnet origin confirmed; public canonical hostname and authoritative DNS coverage remain unknown.",
-        "App-owned deployment/rollback adapter, verified previous image and production-safe authenticated checks are not configured or approved.",
-        "Production-safe context must select the registered codex-lb-language/theme preferences and authenticate isolated route states; no real protected screen was checked."
-      ],
-      "evidence": [
-        {
-          "kind": "runtime",
-          "reference": "Docker relaydock / listener2455",
-          "detail": "Running image identified via listener and allowlisted inspect metadata; no application volume read."
-        },
-        {
-          "kind": "public-static",
-          "reference": "http://127.0.0.1:2455/assets/index-jqNt3G6M.js",
-          "detail": "SHA2566f07fb976c2d9904461d33a97e98abb1cadda3f75c52f6794785d07d964dd216; HTML title Naeil Home."
-        },
-        {
-          "kind": "candidate-source",
-          "reference": "frontend/src/lib/route.ts; frontend/vendor/naeil-v2/README.md",
-          "detail": "Candidate routes /,/keys,/connections; vendor CSS is explicitly not a published package adoption claim."
-        },
-        {
-          "kind": "operating-origin",
-          "reference": "https://jay-macmini-2.tail165003.ts.net:2455/",
-          "detail": "Anonymous static HTTP200 title Naeil Home and exact loopback bundle digest; private-tailnet visibility, not a public canonical hostname claim."
-        },
-        {
-          "kind": "reproduced-frontend-source",
-          "reference": "docs/rollout/evidence/home-operating-frontend-source.json",
-          "detail": "Bun1.4.2 frozen isolated production build: all34 emitted static files match current private origin.218 source inputs and frozen frontend commit3cc9d7aa. Full backend not certified."
-        }
-      ],
-      "originVisibility": "private-tailnet",
-      "publicCanonicalOrigin": null,
-      "candidate": {
-        "status": "frozen-local-static-candidate-not-deployed",
-        "sourceCleanAtBuild": true,
-        "artifact": {
-          "id": "sha256-4e9f3037485ab2d9e7fe87e93200552c7349d84aaccae83fd1aa0774c0f94353",
-          "sha256": "0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156",
-          "immutable": true,
-          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/home/c1bbb924e41630861fcf7fed5ef4faa45dcff03d/0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156.tar.gz",
-          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/home/c1bbb924e41630861fcf7fed5ef4faa45dcff03d/0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156.tar.gz",
-          "sourceRevision": "c1bbb924e41630861fcf7fed5ef4faa45dcff03d",
-          "ui": {
-            "version": "0.7.0",
-            "contractVersion": "1"
-          }
-        },
-        "receipt": "evidence/home-candidate-receipt.json",
-        "renderVerification": "evidence/home-render-verification.json",
-        "integrityVerification": "evidence/home-candidate-integrity.json",
-        "conditions": 64
       }
     },
     {
@@ -1826,6 +1562,307 @@
           "renderVerification": "evidence/baby-render-verification.json"
         }
       }
+    },
+    {
+      "id": "home",
+      "name": "Naeil Home",
+      "origin": "https://jay-macmini-2.tail165003.ts.net:2455",
+      "status": "excluded-from-this-rollout",
+      "decision": {
+        "date": "2026-10-17",
+        "source": "owner deployment request",
+        "statement": "Naeil Home도 제외하고 일단 3가지에 배포해줘.",
+        "reason": "Owner explicitly excludes Naeil Home and authorizes one-time deployment of naeil, Estimate and Jev.",
+        "candidateDisposition": "Preserve local candidate and prior evidence without deploying or continuing Home migration in this rollout.",
+        "productionChanged": false
+      },
+      "historicalRecord": {
+        "id": "home",
+        "name": "Naeil Home",
+        "origin": "https://jay-macmini-2.tail165003.ts.net:2455",
+        "routes": [
+          {
+            "path": "/",
+            "state": "login",
+            "locale": "ko",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "public",
+              "visible": "input[type=password]",
+              "hidden": []
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "테마",
+                "dark": "테마"
+              }
+            }
+          },
+          {
+            "path": "/",
+            "state": "dashboard",
+            "locale": "ko",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "protected",
+              "visible": "[data-slot=workspace]",
+              "hidden": [
+                "input[type=password]"
+              ]
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "테마",
+                "dark": "테마"
+              }
+            }
+          },
+          {
+            "path": "/keys",
+            "state": "keys",
+            "locale": "ko",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "protected",
+              "visible": "[data-slot=workspace]",
+              "hidden": [
+                "input[type=password]"
+              ]
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "테마",
+                "dark": "테마"
+              }
+            }
+          },
+          {
+            "path": "/connections",
+            "state": "connections",
+            "locale": "ko",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "protected",
+              "visible": "[data-slot=workspace]",
+              "hidden": [
+                "input[type=password]"
+              ]
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "테마",
+                "dark": "테마"
+              }
+            }
+          },
+          {
+            "path": "/",
+            "state": "login",
+            "locale": "en",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "public",
+              "visible": "input[type=password]",
+              "hidden": []
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "Theme",
+                "dark": "Theme"
+              }
+            }
+          },
+          {
+            "path": "/",
+            "state": "dashboard",
+            "locale": "en",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "protected",
+              "visible": "[data-slot=workspace]",
+              "hidden": [
+                "input[type=password]"
+              ]
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "Theme",
+                "dark": "Theme"
+              }
+            }
+          },
+          {
+            "path": "/keys",
+            "state": "keys",
+            "locale": "en",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "protected",
+              "visible": "[data-slot=workspace]",
+              "hidden": [
+                "input[type=password]"
+              ]
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "Theme",
+                "dark": "Theme"
+              }
+            }
+          },
+          {
+            "path": "/connections",
+            "state": "connections",
+            "locale": "en",
+            "policy": "canonical",
+            "status": "unverified",
+            "exception": null,
+            "renderState": {
+              "access": "protected",
+              "visible": "[data-slot=workspace]",
+              "hidden": [
+                "input[type=password]"
+              ]
+            },
+            "chrome": {
+              "themeControlLabels": {
+                "light": "Theme",
+                "dark": "Theme"
+              }
+            }
+          }
+        ],
+        "source": {
+          "candidatePath": "/Users/jaymini/.paseo/worktrees/3qtenke4/shared-ui-rollout-home",
+          "candidateRevision": "c1bbb924e41630861fcf7fed5ef4faa45dcff03d",
+          "candidateDirty": false,
+          "productionCorrelation": "operating-frontend-independently-reproduced",
+          "revision": null,
+          "frontendRevision": "3cc9d7aa571bf10ef55bc1044572bee45ef5591c",
+          "frontendSourceManifestSha256": "2fcb95278b91f9bbd2a47f0d2f7c763f70cf22615991e44c72e9462377e3ad0d",
+          "operatingSnapshotPath": "/Users/jaymini/projects/cleanup_records/naeil-home-20261010-192436/preserved-worktrees/naeil-ai-status-20261010"
+        },
+        "deployment": {
+          "kind": "docker",
+          "status": "private-origin-static-up",
+          "artifactId": "sha256:b0187528b7e23c0242dc4f33510c0285a50608475aee4c584ea136e485871513",
+          "container": "relaydock",
+          "loopbackOrigin": "http://127.0.0.1:2455",
+          "method": "Docker image with static frontend layer. Private tailnet origin and all34 independent baseline static build files match; full backend provenance/activation unverified.",
+          "adapterId": null
+        },
+        "ui": {
+          "version": null,
+          "adoption": "not-adopted",
+          "header": "Operating application-owned header; local candidate uses canonical NaeilHeader",
+          "footer": "Operating frontend has no canonical NaeilFooter",
+          "requiredHeader": "NaeilHeader",
+          "requiredFooter": "NaeilFooter",
+          "candidateFoundation": "Exact frozen @naeil/ui archive with app-owned product body styles",
+          "supportedLocales": [
+            "ko",
+            "en"
+          ],
+          "candidate": {
+            "version": "0.7.0",
+            "contractVersion": "1",
+            "adoption": "frozen-local-candidate-not-deployed",
+            "header": "NaeilHeader",
+            "footer": "NaeilFooter compact",
+            "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+            "supportedLocales": [
+              "ko",
+              "en"
+            ]
+          }
+        },
+        "status": "unresolved",
+        "blockers": [
+          "Canonical frontend candidate is frozen and synthetically verified; operating UI is still pre-migration.",
+          "Full backend source remains unknown; frontend reproduction does not authorize deploying the entire worktree.",
+          "Private tailnet origin confirmed; public canonical hostname and authoritative DNS coverage remain unknown.",
+          "App-owned deployment/rollback adapter, verified previous image and production-safe authenticated checks are not configured or approved.",
+          "Production-safe context must select the registered codex-lb-language/theme preferences and authenticate isolated route states; no real protected screen was checked."
+        ],
+        "evidence": [
+          {
+            "kind": "runtime",
+            "reference": "Docker relaydock / listener2455",
+            "detail": "Running image identified via listener and allowlisted inspect metadata; no application volume read."
+          },
+          {
+            "kind": "public-static",
+            "reference": "http://127.0.0.1:2455/assets/index-jqNt3G6M.js",
+            "detail": "SHA2566f07fb976c2d9904461d33a97e98abb1cadda3f75c52f6794785d07d964dd216; HTML title Naeil Home."
+          },
+          {
+            "kind": "candidate-source",
+            "reference": "frontend/src/lib/route.ts; frontend/vendor/naeil-v2/README.md",
+            "detail": "Candidate routes /,/keys,/connections; vendor CSS is explicitly not a published package adoption claim."
+          },
+          {
+            "kind": "operating-origin",
+            "reference": "https://jay-macmini-2.tail165003.ts.net:2455/",
+            "detail": "Anonymous static HTTP200 title Naeil Home and exact loopback bundle digest; private-tailnet visibility, not a public canonical hostname claim."
+          },
+          {
+            "kind": "reproduced-frontend-source",
+            "reference": "docs/rollout/evidence/home-operating-frontend-source.json",
+            "detail": "Bun1.4.2 frozen isolated production build: all34 emitted static files match current private origin.218 source inputs and frozen frontend commit3cc9d7aa. Full backend not certified."
+          }
+        ],
+        "originVisibility": "private-tailnet",
+        "publicCanonicalOrigin": null,
+        "candidate": {
+          "status": "frozen-local-static-candidate-not-deployed",
+          "sourceCleanAtBuild": true,
+          "artifact": {
+            "id": "sha256-4e9f3037485ab2d9e7fe87e93200552c7349d84aaccae83fd1aa0774c0f94353",
+            "sha256": "0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156",
+            "immutable": true,
+            "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/home/c1bbb924e41630861fcf7fed5ef4faa45dcff03d/0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156.tar.gz",
+            "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/home/c1bbb924e41630861fcf7fed5ef4faa45dcff03d/0c21ec4b5c44dfa35ce60550470b24dcc8d85f1f8617df1d1c2f25a970aae156.tar.gz",
+            "sourceRevision": "c1bbb924e41630861fcf7fed5ef4faa45dcff03d",
+            "ui": {
+              "version": "0.7.0",
+              "contractVersion": "1"
+            }
+          },
+          "receipt": "evidence/home-candidate-receipt.json",
+          "renderVerification": "evidence/home-render-verification.json",
+          "integrityVerification": "evidence/home-candidate-integrity.json",
+          "conditions": 64
+        }
+      }
     }
-  ]
+  ],
+  "deploymentRequest": {
+    "date": "2026-10-17",
+    "mode": "one-time",
+    "services": [
+      "naeil",
+      "estimate",
+      "jev"
+    ],
+    "approvalSource": "owner conversation",
+    "statement": "Naeil Home도 제외하고 일단 3가지에 배포해줘.",
+    "uiVersion": "0.7.0",
+    "contractVersion": "1",
+    "status": "preparing",
+    "standingRolloutEnabled": false
+  }
 }

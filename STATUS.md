@@ -1,3 +1,9 @@
+# Status — 2026-10-17 three-service deployment in progress
+
+Owner explicitly excludes Home as well as Baby and authorizes one-time deployment of **naeil.dev, Estimate and Jev**. The three verified local candidates cover336 independent render conditions. Standing automation stays disabled; the remaining unknown services are not part of this deployment request. [Deployment plan and outcome](docs/rollout/deployment-2026-10-17.md). No new production completion is claimed until the live receipts below are recorded.
+
+## Earlier four-service preparation checkpoint (scope superseded)
+
 # Status — 2026-10-17 shared UI rollout scope correction
 
 Local `feat/shared-ui-rollout` retains frozen unpublished UI0.7.0 source `3b13e95`, archive `f15f9a…`, reference `6c8511…`. The site, Estimate (`cc4b6de`), Home frontend (`c1bbb924`) and Jev (`7e1eb717`) now consume canonical header/footer in verified local candidates. Home operating frontend was independently reproduced; Jev source was recovered against its deployed manifest. Independent reference comparisons cover400 in-scope consumer conditions, with scopes and exact receipts in [verification](docs/rollout/verification.md).
