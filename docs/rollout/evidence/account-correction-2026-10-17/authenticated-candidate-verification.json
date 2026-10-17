@@ -1,0 +1,37 @@
+{
+  "estimate": {
+    "sourceRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
+    "unitsPassed": 633,
+    "incumbentBrowserPassed": 68,
+    "frozenAccountBrowser": {
+      "startTime": "2026-10-17T04:00:35.634Z",
+      "duration": 10252.86,
+      "expected": 9,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "frozenAccountErrors": [],
+    "smokePassed": 61,
+    "independentJapaneseRenderCases": 4,
+    "syntheticDataOnly": true
+  },
+  "jev": {
+    "sourceRevision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
+    "unitsPassed": 69,
+    "frozenBrowserPassed": 27,
+    "independentJapaneseRenderCases": 4,
+    "syntheticDataOnly": true
+  },
+  "site": {
+    "sourceRevision": "805b7197520b292d126c0194e4d09a2073ade975",
+    "unitsPassed": 85,
+    "siteAdapterBrowserPassed": 2,
+    "sharedAccountBrowserPassed": 12,
+    "siteAdapterSessionCall": "synthetic held promise; real NavWrapper/header/Radix",
+    "realProviderOAuthTested": false,
+    "independentJapaneseRenderCases": 4,
+    "renderScope": "Actual NavWrapper and freshly compiled site CSS/static fonts; session/routing boundaries mocked"
+  },
+  "authenticatedProductionAccess": false
+}

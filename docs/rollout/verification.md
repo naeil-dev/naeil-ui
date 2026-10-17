@@ -1,4 +1,8 @@
-# Shared UI rollout verification — current deployment outcome 2026-10-17
+# Shared UI rollout verification — current account correction 2026-10-17
+
+UI0.7.1 is deployed to the selected naeil.dev, Estimate and Jev services, including canonical account controls. Current evidence is in the [account correction outcome](account-correction-2026-10-17.md) and [receipt](evidence/account-correction-2026-10-17/summary.json):380 CI browser passes/4 expected skips,12 isolated authenticated presentation comparisons and56 anonymous production conditions. Standing rollout and protected production sessions remain unverified. The0.7.0 outcome below is historical.
+
+## Earlier0.7.0 deployment
 
 The owner-authorized one-time deployment to **naeil.dev, Estimate and Jev** is complete. All three public identities serve UI0.7.0/contract1; actual public comparisons pass280 conditions (248 site,8 Estimate,24 Jev). [Deployment/CI/runtime evidence and limits](deployment-2026-10-17.md), [final receipt](evidence/deployment-2026-10-17/summary.json), and [current registry](services.json) supersede the production-state statements in the historical checkpoint below. Home and Baby are excluded; their prior local work remains preserved.
 

@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-17T04:09:16.921Z",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "jev",
+    "artifactId": "jev-ui07-35dd4746e62d",
+    "sourceRevision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "releaseId": "20261017T040900Z-ui071",
+  "archiveSha256": "5b5d322771b57cf507ad756120f644e6cae228baa881af5311f900c2e42df4a9",
+  "buildId": "Qqngj6d8EWQAChlLZsa6x",
+  "previousBuildId": "_Qv6sy-ccIKZ2B0scI4qH",
+  "previousCodeManifestSha256": "78971d6b1e3058c4ae6b395e188e433dec5cfc3ab2e972ef867965aaabdebe8b",
+  "previousCodeEntries": 2141,
+  "helperSha256": "dc1fcea10e6968edee5a622f62fb730176cd25fcf45bba2a95e43625a0b80581",
+  "unchangedPlistSha256": "6ea27a6fc6d43aba0cc00c56a392ab23fadff0779b7115031af4370333c371f4",
+  "status": "activated-local-health-and-identity-passed",
+  "identityStatus": 200,
+  "cacheControl": "no-store",
+  "health": true,
+  "preservation": "No reads or writes of credential/env values, DB, provider data or logs; no DNS/tunnel/config changes",
+  "rollbackExecuted": false
+}

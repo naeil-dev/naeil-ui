@@ -22,8 +22,10 @@
 
 ## Tasks
 
-- [ ] Shared: fail SSR/browser account tests; implement `NaeilHeaderAccountControl` and site adapter; update actual Storybook and packed fixtures; run units/types/lint/package/build/browser checks.
-- [ ] Estimate (separate worker): fail authenticated account regression on0.7.0; consume new archive, preserve logout handler, migrate affected tests; verify synthetic guards, app build and e2e.
-- [ ] Jev (separate worker): fail authenticated account regression on0.7.0; consume new archive and preserve request/navigation; verify failure/busy/locales/mobile, app build and e2e.
-- [ ] Integration: review actual diffs and artifacts; compare shared account rendering with both real consumer adapters under matched synthetic state; record receipts.
-- [ ] Deployment: fresh candidate identities, independent release review, code-only deployment/recovery for selected three; public asset/identity verification; update registry and result limits.
+- [x] Shared: fail SSR/browser account tests; implement `NaeilHeaderAccountControl` and site adapter; update actual Storybook and packed fixtures; run units/types/lint/package/build/browser checks.
+- [x] Estimate (separate worker): fail authenticated account regression on0.7.0; consume new archive, preserve logout handler, migrate affected tests; verify synthetic guards, app build and e2e.
+- [x] Jev (separate worker): fail authenticated account regression on0.7.0; consume new archive and preserve request/navigation; verify failure/busy/locales/mobile, app build and e2e.
+- [x] Integration: review actual diffs and artifacts; compare shared account rendering with both real consumer adapters under matched synthetic state; record receipts.
+- [x] Deployment: fresh candidate identities, independent release review, code-only deployment/recovery for selected three; public asset/identity verification; update registry and result limits.
+
+Completed one-time correction: [outcome](../../rollout/account-correction-2026-10-17.md). Protected production sessions, real-provider OAuth, live rollback and standing automation remain outside the completed acceptance scope.
