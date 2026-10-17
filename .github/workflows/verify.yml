@@ -29,6 +29,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+      # Rollout regression tests launch Chromium; package checks also use WebKit.
+      - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:rollout
       - run: node scripts/build-ui-release.mjs --check
       - run: pnpm check:types
@@ -37,7 +39,6 @@ jobs:
       - run: git diff --exit-code -- src/styles/theme.css
       - run: pnpm check:contrast
       - run: pnpm build:pkg
-      - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm check:package
       - run: node --test scripts/consumer-font-notices.test.mjs
       - name: Separate website compatibility build
