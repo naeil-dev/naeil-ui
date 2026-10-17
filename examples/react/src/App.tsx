@@ -7,17 +7,18 @@ import { PageTitle } from "@naeil/ui/components/typography";
 import { Logo } from "@naeil/ui/components/logo";
 import { ThemeProvider } from "@naeil/ui/components/theme-provider";
 import { NaeilFooter } from "@naeil/ui/naeil-footer";
-import { NaeilHeader, type NaeilHeaderLocale } from "@naeil/ui/naeil-header";
+import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale } from "@naeil/ui/naeil-header";
 
 export function App() {
   const [saved, setSaved] = useState(false);
   const [headerLocale, setHeaderLocale] = useState<NaeilHeaderLocale>("en");
   const [headerRoute, setHeaderRoute] = useState("");
+  const [accountAction, setAccountAction] = useState("");
   const notes = useRef<HTMLTextAreaElement>(null);
   return (
     <ThemeProvider attribute="class">
       <NaeilHeader locale={headerLocale} onLocaleChange={setHeaderLocale}
-        authSlot={<Button className="min-h-11" variant="ghost">Consumer account</Button>}
+        authSlot={<NaeilHeaderAccountControl locale={headerLocale} account={{ status: "signed-in", onLogout: () => setAccountAction("logout requested") }} />}
         onNavigate={(event, item) => {
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           event.preventDefault();
@@ -28,6 +29,7 @@ export function App() {
           <Logo variant="horizontal" size={28} data-testid="packed-brand" className="mb-6" />
           <PageTitle>Profile preferences</PageTitle>
           <p data-testid="packed-header-route" aria-live="polite">{headerRoute}</p>
+          <p data-testid="packed-account-action">{accountAction}</p>
           <p lang="ko">내 프로필과 알림 환경을 설정합니다.</p>
           <p lang="ja">プロフィールと通知設定を確認します。</p>
           <form

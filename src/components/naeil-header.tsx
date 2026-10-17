@@ -13,6 +13,7 @@ import { uiRelease } from "../lib/ui-release";
 import { headerContent, headerLocales, headerLocaleNames, headerProjects, type NaeilHeaderLocale } from "./naeil-header-content";
 
 export type { NaeilHeaderLocale } from "./naeil-header-content";
+export { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderAccountControlProps } from "./naeil-header-account";
 
 export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items" | "toolbar" | "mobileToolbar" | "labels"> {
   locale: NaeilHeaderLocale;
@@ -23,7 +24,7 @@ export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items
   brandLinkProps?: Omit<NavigationLinkProps, "href" | "children">;
   /** Omit when the application does not support changing its UI language. */
   onLocaleChange?: (locale: NaeilHeaderLocale) => void;
-  /** Application-owned authentication; this module has no site session/backend. */
+  /** Use NaeilHeaderAccountControl for canonical UI; the app owns auth state/I/O. */
   authSlot?: ReactNode;
   labels?: NavigationProps["labels"];
   projects?: NavigationLink[];

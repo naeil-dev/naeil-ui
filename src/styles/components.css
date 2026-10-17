@@ -28,6 +28,41 @@
     height: var(--spacing-4-value);
     background: var(--border);
   }
+  .naeil-header-account-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--ui-touch-target);
+    height: var(--ui-touch-target);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md-value);
+    background: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+  }
+  .naeil-header-account-trigger:hover,
+  .naeil-header-account-trigger[data-state="open"] {
+    background: var(--surface-subtle);
+  }
+  .naeil-header-account-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--spacing-8-value);
+    height: var(--spacing-8-value);
+    border-radius: 50%;
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+  }
+  .naeil-header-account-avatar svg {
+    width: var(--spacing-4-value);
+    height: var(--spacing-4-value);
+  }
+  .naeil-header-login {
+    font-weight: var(--font-weight-medium);
+  }
   .naeil-header-project-icon {
     display: flex;
     align-items: center;

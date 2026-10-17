@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 — account presentation correction (candidate)
+
+- Add canonical `NaeilHeaderAccountControl` for shared login/account/logout presentation while consumers retain session and save guards.
+- Preserve existing header slots and imports; include authenticated menu/busy/failure coverage and packed consumer checks.
+
 ## 0.7.0 — unpublished candidate
 
 - Add React-only canonical NaeilFooter with full/compact content, localized destinations and save-navigation adapters. Preserve generic and Next Footer overrides.
