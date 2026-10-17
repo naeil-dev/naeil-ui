@@ -76,7 +76,13 @@ export async function readChrome(page, locale) {
     const renderedFont = stack.find(family => !allowedFonts.includes(family) || registered.has(family)) || '';
     const fontAllowed = allowedFonts.includes(renderedFont);
     const fontQuery = `400 16px "${fontAllowed ? renderedFont : expectedFont}"`;
-    const faces = await document.fonts.load(fontQuery, locale === 'ja' ? '日本語' : '한글 Latin');
+    // Japanese and Latin/space may be separate unicode subsets. Require the
+    // locale script itself, then load/check the complete sample without racing
+    // Latin loading or certifying a Latin-only face with system-script fallback.
+    const scriptSample = locale === 'ja' ? '日本語' : '한글';
+    const fontSample = `${scriptSample} Latin`;
+    const faces = await document.fonts.load(fontQuery, scriptSample);
+    await document.fonts.load(fontQuery, fontSample);
     const headerFrame = header.querySelector('.ui-navigation-frame');
     const footerFrame = footer.querySelector('.ui-site-footer-frame');
     const frame = el => { const box = el.getBoundingClientRect(); return { x: box.x, width: box.width, padding: parseFloat(getComputedStyle(el).paddingInlineStart) }; };
@@ -88,7 +94,7 @@ export async function readChrome(page, locale) {
       headerBrand: brand(header.querySelector('[data-app-brand] svg'), headerFrame),
       footerBrand: brand(footer.querySelector('[data-footer-brand] svg'), footerFrame),
       overflow: document.documentElement.scrollWidth > innerWidth,
-      expectedFont, renderedFont, fontLoaded: fontAllowed && faces.length > 0 && document.fonts.check(fontQuery),
+      expectedFont, renderedFont, fontLoaded: fontAllowed && faces.length > 0 && document.fonts.check(fontQuery, fontSample),
       fontFamily: css.fontFamily, background: css.backgroundColor, foreground: css.color,
       version: header.dataset.naeilUiVersion, contractVersion: header.dataset.naeilUiContract,
       footerVersion: footer.dataset.naeilUiVersion, footerContract: footer.dataset.naeilUiContract,

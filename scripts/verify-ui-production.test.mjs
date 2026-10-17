@@ -64,6 +64,28 @@ test('browser font verification accepts real static/variable faces and rejects f
   } finally { await browser.close(); }
 });
 
+test('Japanese font verification loads both Japanese and Latin unicode subsets', async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    const font = readFileSync(new URL('../node_modules/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2', import.meta.url));
+    const loaded = [];
+    await page.route('https://font.test/**', async route => {
+      loaded.push(new URL(route.request().url()).pathname);
+      await route.fulfill({ status: 200, contentType: 'font/woff2', headers: { 'access-control-allow-origin': '*' }, body: font });
+    });
+    await page.setContent(`<style>
+      @font-face{font-family:'Noto Sans JP';src:url(https://font.test/japanese.woff2);unicode-range:U+3000-9FFF}
+      @font-face{font-family:'Noto Sans JP';src:url(https://font.test/latin.woff2);unicode-range:U+0-FF}
+      header{font-family:'Noto Sans JP',sans-serif}
+      </style><header data-naeil-header><div class="ui-navigation-frame"><a data-app-brand><svg></svg></a>日本語</div></header><footer data-naeil-footer><div class="ui-site-footer-frame"><a data-footer-brand><svg></svg></a></div></footer>`);
+    const result = await readChrome(page, 'ja');
+    assert.equal(result.fontLoaded, true);
+    assert(loaded.includes('/japanese.woff2'));
+    assert(loaded.includes('/latin.woff2'), 'The Latin subset must finish before certifying the font');
+  } finally { await browser.close(); }
+});
+
 test('a same-URL SPA login cannot certify an authenticated screen', async () => {
   const browser = await chromium.launch();
   try {
@@ -79,5 +101,15 @@ test('a same-URL SPA login cannot certify an authenticated screen', async () => 
     await assert.rejects(assertRouteState(page, { path: '/' }), /Explicit route access/);
     await assert.rejects(assertRouteState(page, { renderState: { access: 'protected' } }), /visible state marker/);
     await assertRouteState(page, { renderState: { access: 'public' } });
+  } finally { await browser.close(); }
+});
+
+test('Japanese font verification rejects a Latin-only face with Japanese fallback', async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    const font = readFileSync(new URL('../node_modules/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2', import.meta.url)).toString('base64');
+    await page.setContent(`<style>@font-face{font-family:'Noto Sans JP';src:url(data:font/woff2;base64,${font});unicode-range:U+0-FF}header{font-family:'Noto Sans JP',sans-serif}</style><header data-naeil-header><div class="ui-navigation-frame"><a data-app-brand><svg></svg></a>日本語 Latin</div></header><footer data-naeil-footer><div class="ui-site-footer-frame"><a data-footer-brand><svg></svg></a></div></footer>`);
+    assert.equal((await readChrome(page, 'ja')).fontLoaded, false, 'Latin coverage must not certify missing Japanese faces');
   } finally { await browser.close(); }
 });
