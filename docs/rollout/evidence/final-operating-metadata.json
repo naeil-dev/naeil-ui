@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "scope": "allowlisted-operating-metadata-only",
+  "observedAt": "2026-10-16T12:40:06.047750+00:00",
+  "productionMutations": false,
+  "estimate": {
+    "currentRelease": "b305c0432420-4928a714c529",
+    "sourceCommit": "b305c043242001a5bf4e2204ed7ea68d112071e7",
+    "uiDependency": "file:vendor/naeil-ui-0.5.0.tgz"
+  },
+  "home": {
+    "image": "sha256:b0187528b7e23c0242dc4f33510c0285a50608475aee4c584ea136e485871513"
+  },
+  "baby": {
+    "image": "sha256:b8e2e447da6dd96f121f0782087809b8afc6461ac956c5f75343beca4b687d03"
+  },
+  "jev": {
+    "buildId": "5c8klC9uqKrC2wNSEzuke"
+  },
+  "naeilAndStorybook": {
+    "lastVerifiedUi": "0.6.0",
+    "lastVerifiedSource": "549c501cee0f6c9374920785b5fce1c235c7bafd",
+    "currentIdentityVerified": false
+  }
+}

@@ -97,6 +97,8 @@ try {
   ].map((name) => `components/ui/${name}`);
   corePaths.push(
     "naeil-header",
+    "naeil-footer",
+    "release",
     "components/ui/index",
     "components/typography",
     "components/logo",
@@ -115,9 +117,13 @@ try {
     `${imports}
 import * as ui from '@naeil/ui/ui';
 import { NaeilHeader } from '@naeil/ui/naeil-header';
+import { NaeilFooter } from '@naeil/ui/naeil-footer';
+import { uiRelease } from '@naeil/ui/release';
 import { cn } from '@naeil/ui/utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: 'ja', variant: 'compact'}));
+export const release = uiRelease;
 export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: 'Password session' }));
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
 export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
@@ -133,6 +139,9 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     "--outfile=contract.mjs",
   ]);
   const result = await import(pathToFileURL(join(core, "contract.mjs")).href);
+  assert.equal(result.release.version, version);
+  assert.match(result.footer, /data-naeil-footer/);
+  assert.match(result.footer, /https:\/\/naeil.dev\/ja\/projects/);
   assert(result.valid, "Packed React exports failed");
   assert.match(result.header, /data-naeil-header/);
   assert.match(result.header, /https:\/\/naeil.dev\/ja\/blog/);

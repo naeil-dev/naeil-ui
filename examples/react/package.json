@@ -7,7 +7,7 @@
     "build": "tsc --noEmit && vite build"
   },
   "dependencies": {
-    "@naeil/ui": "file:../../naeil-ui-0.6.0.tgz",
+    "@naeil/ui": "0.7.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "pretendard": "1.3.9",

@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "adapters": {
+    "naeil-vercel-v1": {
+      "enabled": false,
+      "status": "prepared-platform-blocked",
+      "blockers": [
+        "Standing rollout/migration approval outstanding",
+        "Durable authorized runner/artifact store and previous immutable artifact not configured",
+        "Reviewed absolute Vercel CLI executable/version, existing project/team/context and output identity path not configured",
+        "Scoped runner credentials and verified previous immutable Vercel deployment/production alias not configured; no real CLI execution claimed"
+      ],
+      "runner": [
+        "self-hosted",
+        "naeil-ui-rollout"
+      ],
+      "cwd": "@repo/frozen-ui-source",
+      "stateDirectory": null,
+      "options": {
+        "artifactDirectory": null,
+        "previousArtifactPath": null,
+        "vercel": {
+          "enabled": false,
+          "executable": null,
+          "version": null,
+          "projectId": null,
+          "teamId": null,
+          "projectContextSha256": null,
+          "stateDirectory": null,
+          "identityOutputPath": null
+        }
+      },
+      "commands": {
+        "update": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/naeil-adapter.mjs",
+            "update"
+          ],
+          "timeoutMs": 120000
+        },
+        "test": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/naeil-adapter.mjs",
+            "test"
+          ],
+          "timeoutMs": 1200000
+        },
+        "build": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/vercel-adapter.mjs",
+            "build"
+          ],
+          "timeoutMs": 1200000
+        },
+        "package": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/vercel-adapter.mjs",
+            "package"
+          ],
+          "timeoutMs": 120000
+        },
+        "deploy": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/vercel-adapter.mjs",
+            "deploy"
+          ],
+          "timeoutMs": 1200000
+        },
+        "activate": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/vercel-adapter.mjs",
+            "activate"
+          ],
+          "timeoutMs": 1200000
+        },
+        "rollback": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/vercel-adapter.mjs",
+            "rollback"
+          ],
+          "timeoutMs": 1200000
+        }
+      }
+    },
+    "estimate-standalone-v1": {
+      "enabled": false,
+      "status": "prepared-platform-blocked",
+      "blockers": [
+        "Standing rollout/migration approval outstanding",
+        "Durable dedicated bot worktree/runner and private operational paths are not provisioned",
+        "Legacy UI0.5.0 predecessor identity/bootstrap and verified rollback pointer require review; no fabricated previous artifact",
+        "Preservation/ownership activation bridge is implemented and synthetically tested, but native operation and standing action-config issuance/pointer maintenance are not connected or approved"
+      ],
+      "runner": [
+        "self-hosted",
+        "estimate-app-rollout"
+      ],
+      "cwd": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1",
+      "stateDirectory": null,
+      "commands": {
+        "update": {
+          "file": "@node",
+          "args": [
+            "@repo/scripts/rollout/update-consumer.mjs"
+          ],
+          "timeoutMs": 120000
+        },
+        "test": {
+          "file": "/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node",
+          "args": [
+            "--import",
+            "tsx",
+            "ops/rollout-adapter.mts",
+            "test"
+          ],
+          "timeoutMs": 1200000
+        },
+        "build": {
+          "file": "/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node",
+          "args": [
+            "--import",
+            "tsx",
+            "ops/rollout-adapter.mts",
+            "build"
+          ],
+          "timeoutMs": 1200000
+        },
+        "package": {
+          "file": "/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node",
+          "args": [
+            "--import",
+            "tsx",
+            "ops/rollout-adapter.mts",
+            "package"
+          ],
+          "timeoutMs": 120000
+        },
+        "deploy": {
+          "file": "/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node",
+          "args": [
+            "--import",
+            "tsx",
+            "ops/rollout-adapter.mts",
+            "deploy"
+          ],
+          "timeoutMs": 120000
+        },
+        "activate": {
+          "file": "/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node",
+          "args": [
+            "--import",
+            "tsx",
+            "ops/rollout-adapter.mts",
+            "activate"
+          ],
+          "timeoutMs": 120000
+        },
+        "rollback": {
+          "file": "/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node",
+          "args": [
+            "--import",
+            "tsx",
+            "ops/rollout-adapter.mts",
+            "rollback"
+          ],
+          "timeoutMs": 120000
+        }
+      },
+      "options": {
+        "update": {
+          "enabled": false,
+          "worktree": null,
+          "branch": null,
+          "packageManager": "pnpm@10.30.3"
+        },
+        "activationConfigPaths": null,
+        "operationApprovalPaths": null
+      }
+    }
+  }
+}

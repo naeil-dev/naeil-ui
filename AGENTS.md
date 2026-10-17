@@ -1,5 +1,7 @@
 # Shared UI work
 
+- The unpublished 0.7.0 candidate adds `@naeil/ui/naeil-footer`: owned services use `NaeilHeader` with `NaeilFooter` for canonical destinations, preserving consumer routing/save guards. Generic Navigation/SiteFooter and legacy Nav/Footer remain public. See `docs/components/naeil-footer.md` and `docs/rollout/`; local candidate checks do not establish production convergence.
+
 - Read `DESIGN.md` before changing shared UI. The implementation scope is in `docs/superpowers/specs/2026-09-29-shared-ui-v2-design.md` and consumer guidance in `docs/design/v2-migration.md`.
 - This repository contains both the shared `@naeil/ui` package and a website. Do not treat hero illustrations, 3D scenes, cursor effects, or product-specific content as shared design-system requirements.
 - Numeric foundation values live in `src/tokens/*.json`. Generate `src/styles/theme.css` with `pnpm build:tokens`; do not hand-edit generated CSS. Shared globals and component behavior styles live in `src/styles/`; site-only styles stay in `src/app/`.

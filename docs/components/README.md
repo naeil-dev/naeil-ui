@@ -1,6 +1,6 @@
 # Component usage guides
 
-These guides target the **@naeil/ui 0.6.0**; release identities and publication evidence are recorded in the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 17 Docs pages (15 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) was last verified for [0.5.0 on 2026-10-15](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment is recorded separately. Select chooses a value; DropdownMenu chooses an action.
+These guides include the unpublished **@naeil/ui 0.7.0 candidate**; the last published release is 0.6.0. release identities and publication evidence are recorded in the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 17 Docs pages (15 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) was last verified for [0.5.0 on 2026-10-15](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment is recorded separately. Select chooses a value; DropdownMenu chooses an action.
 
 Start application layouts with the [shared navigation/footer selection and frame guide](application-layout.md). It includes a starter, the 1600px frame contract and instructions to place in consumer repositories so agents reuse the shared implementation.
 
@@ -21,6 +21,7 @@ Start application layouts with the [shared navigation/footer selection and frame
 | Textarea | [Textarea](./textarea.md) | UI / Textarea / Usage |
 | Navigation | [Navigation](./navigation.md) | UI / Navigation / Usage |
 | SiteFooter | [SiteFooter](./navigation.md) | UI / SiteFooter / Usage |
+| NaeilFooter | [NaeilFooter](./naeil-footer.md) | Brand / NaeilHeader / ReferenceFull, ReferenceCompact |
 | NaeilHeader | [NaeilHeader](./naeil-header.md) | Brand / NaeilHeader / Usage, JapaneseApplication |
 
 [Field, native radio, Select and action composition](./composition.md) explains consumer state and semantic choices. [Demand decision](../design/component-demand.md) records why these two families were added.

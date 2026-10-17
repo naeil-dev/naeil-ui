@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "scope": "local-synthetic-candidate",
+  "productionVerified": false,
+  "artifact": {
+    "id": "jev-ui07-7e1eb717ee56",
+    "sha256": "66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e",
+    "immutable": true,
+    "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e.tar.gz",
+    "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e.tar.gz",
+    "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+    "ui": {
+      "version": "0.7.0",
+      "contractVersion": "1"
+    }
+  },
+  "receipt": {
+    "schemaVersion": 1,
+    "kind": "next-standalone-candidate",
+    "appId": "jev",
+    "artifactId": "jev-ui07-7e1eb717ee56",
+    "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+    "ui": {
+      "version": "0.7.0",
+      "contractVersion": "1"
+    },
+    "buildId": "_Qv6sy-ccIKZ2B0scI4qH",
+    "contentId": "sha256-3765d900302d6365d1290697bcf1b46d996624d827d3a972cf6719a1dae4c899",
+    "packageSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+    "installedPackage": {
+      "fileCount": 138,
+      "contentSha256": "f09e945b972dd5f90d058c9f91f1ce8957a742f91a8656899f78864f0e325eaf"
+    },
+    "lockSha256": "06022741f4ef22863549a9966043a9311b4f469633e5557b3577ec4b3c08dcab",
+    "sourceArchiveSha256": "05ee4bb465d2903b65dfab7d04074c7f13e8119f68ae197e323ddd28c5958e04",
+    "standaloneArchiveSha256": "66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e",
+    "fileCount": 2113,
+    "linkCount": 28,
+    "manifestEntryCount": 2141,
+    "recoveredBaseline": {
+      "sourceRevision": "04bb1539e82e2e1c07568838d838f941315d8291",
+      "archiveSha256": "ca80ef27d0c4b470f608adb2adf8b5e1682d774f77958a845d718f80a6f46e8c",
+      "deployedSourceMatches": 74
+    },
+    "productionChanged": false
+  },
+  "candidateDirectory": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/7e1eb717ee56814c25ca1402d499f8f1415b1521"
+}

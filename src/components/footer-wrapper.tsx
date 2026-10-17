@@ -1,8 +1,10 @@
 "use client";
 
-import { Footer } from "./footer";
+import { NaeilFooter, type NaeilFooterLocale } from "./naeil-footer";
 import { Link } from "@/i18n/routing";
+import { useLocale } from "next-intl";
 
 export function FooterWrapper() {
-  return <Footer Link={Link} linksExternal={false} />;
+  const locale = useLocale() as NaeilFooterLocale;
+  return <NaeilFooter locale={locale} Link={Link} resolveHref={path => path} />;
 }

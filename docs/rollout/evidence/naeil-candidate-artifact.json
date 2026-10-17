@@ -1,0 +1,12 @@
+{
+  "id": "naeil-ui07-3b13e95-review",
+  "sha256": "1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579",
+  "immutable": true,
+  "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil/1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579.tar.gz",
+  "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil/1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579.tar.gz",
+  "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+  "ui": {
+    "version": "0.7.0",
+    "contractVersion": "1"
+  }
+}

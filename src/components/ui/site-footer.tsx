@@ -1,6 +1,8 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "../../lib/utils";
-import type { NavigationLink, NavigationLinkComponent } from "./navigation";
+import type { NavigationLink, NavigationLinkComponent, NavigationProps } from "./navigation";
 
 export interface SiteFooterProps extends React.ComponentPropsWithoutRef<"footer"> {
   brand?: React.ReactNode;
@@ -10,6 +12,8 @@ export interface SiteFooterProps extends React.ComponentPropsWithoutRef<"footer"
   meta?: React.ReactNode;
   containerClassName?: string;
   variant?: "full" | "compact";
+  /** Called for every group link, including native external anchors. Preserve modified clicks. */
+  onNavigate?: NavigationProps["onNavigate"];
 }
 
 /** Product content and translations belong to the consumer, including legal copy. */
@@ -23,6 +27,7 @@ export function SiteFooter({
   containerClassName,
   className,
   variant = "full",
+  onNavigate,
   ...props
 }: SiteFooterProps) {
   return (
@@ -54,6 +59,7 @@ export function SiteFooter({
                     item.target === "_blank" ? "noopener noreferrer" : undefined
                   }
                   className="ui-site-footer-link ui-focus"
+                  onClick={(event) => onNavigate?.(event, item)}
                 >
                   {item.label}
                 </Component>

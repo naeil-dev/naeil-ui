@@ -7,6 +7,7 @@ export default defineConfig({
     "src/components/ui/index.ts",
     "src/components/index.ts",
     "src/components/naeil-header.tsx",
+    "src/components/naeil-footer.tsx",
     "src/lib/utils.ts",
   ],
   format: ["esm"],

@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Navigation, type NavigationLink, type NavigationLinkComponent, type NavigationLinkProps, type NavigationProps } from "./ui/navigation";
 import { cn } from "../lib/utils";
+import { uiRelease } from "../lib/ui-release";
 import { headerContent, headerLocales, headerLocaleNames, headerProjects, type NaeilHeaderLocale } from "./naeil-header-content";
 
 export type { NaeilHeaderLocale } from "./naeil-header-content";
@@ -124,6 +125,7 @@ export function NaeilHeader({
   </div>;
   return (
     <Navigation {...props} data-global-header data-naeil-header
+      data-naeil-ui-version={uiRelease.version} data-naeil-ui-contract={uiRelease.contractVersion}
       Link={Link} currentHref={currentHref} onNavigate={onNavigate}
       brand={<BrandLink href={brandDestination} data-app-brand aria-label={brandSlot == null ? ".naeil" : undefined} {...brandProps}
         onClick={event => {

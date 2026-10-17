@@ -1,0 +1,16 @@
+{
+  "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+  "artifactId": "jev-ui07-7e1eb717ee56",
+  "contentId": "sha256-3765d900302d6365d1290697bcf1b46d996624d827d3a972cf6719a1dae4c899",
+  "runtimeFilesVerified": 2113,
+  "runtimeLinksVerified": 28,
+  "tarFilesVerified": 2113,
+  "tarLinksVerified": 28,
+  "linksBoundToArtifact": true,
+  "sourceArchiveVerified": true,
+  "sourceArchiveCommitMatched": true,
+  "archiveLockAndPackageMatched": true,
+  "identityMatched": true,
+  "metadataSidecars": 0,
+  "runtimeUnchanged": true
+}

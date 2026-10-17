@@ -1,0 +1,27 @@
+{
+  "scope": "local-synthetic-candidate",
+  "productionVerified": false,
+  "passed": true,
+  "results": [
+    {
+      "saveStatus": 503,
+      "draftPreserved": true,
+      "routePreserved": true
+    },
+    {
+      "saveStatus": 409,
+      "draftPreserved": true,
+      "routePreserved": true
+    },
+    {
+      "saveStatus": 401,
+      "draftPreserved": true,
+      "routePreserved": true
+    },
+    {
+      "clientNavigation": true,
+      "back": true,
+      "forward": true
+    }
+  ]
+}

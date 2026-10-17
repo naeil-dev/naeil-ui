@@ -1,0 +1,151 @@
+name: Prepare or run approved shared UI rollout
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      reviewed_sha:
+        description: Full reviewed automation/config source commit SHA
+        required: true
+        type: string
+      config_directory:
+        description: Reviewed directory containing release.json, services.json, policy.json and adapters.json
+        default: docs/rollout
+        required: true
+        type: string
+      confirmation:
+        description: PLAN_ONLY or RUN_APPROVED_ROLLOUT (standing approval must already exist)
+        default: PLAN_ONLY
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: shared-ui-rollout
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    # Published releases remain inert until standing enablement is approved.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'release' && vars.NAEIL_UI_ROLLOUT_ENABLED == 'true' && !github.event.release.prerelease && !github.event.release.draft)
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      count: ${{ steps.matrix.outputs.count }}
+      reviewed_sha: ${{ steps.reviewed.outputs.sha }}
+      ui_source_sha: ${{ steps.matrix.outputs.sourceRevision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.reviewed_sha || vars.NAEIL_UI_ROLLOUT_CONFIG_SHA }}
+      - name: Require exact reviewed configuration revision
+        id: reviewed
+        env:
+          REVIEWED_SHA: ${{ inputs.reviewed_sha || vars.NAEIL_UI_ROLLOUT_CONFIG_SHA }}
+        run: |
+          [[ "$REVIEWED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$REVIEWED_SHA"
+          echo "sha=$REVIEWED_SHA" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test scripts/rollout/rollout.test.mjs
+      - name: Bind published release event to frozen UI version and source
+        if: github.event_name == 'release'
+        env:
+          CONFIG_DIRECTORY: docs/rollout
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_SOURCE_SHA: ${{ github.sha }}
+        run: node scripts/rollout/workflow.mjs validate-event "$CONFIG_DIRECTORY" rollout-state
+      - id: matrix
+        name: Compute explicit app-owned runner matrix (no deployments)
+        env:
+          CONFIG_DIRECTORY: ${{ inputs.config_directory || 'docs/rollout' }}
+        run: node scripts/rollout/workflow.mjs matrix "$CONFIG_DIRECTORY" rollout-state
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rollout-plan
+          path: rollout-state/plan.json
+          if-no-files-found: error
+
+  service:
+    needs: plan
+    # Additional repository switch stays unset/false until separately approved.
+    if: needs.plan.outputs.count != '0' && (github.event_name == 'release' || inputs.confirmation == 'RUN_APPROVED_ROLLOUT') && vars.NAEIL_UI_ROLLOUT_ENABLED == 'true'
+    strategy:
+      # Serialize complete app pipelines. A failed app cancels pending service
+      # jobs before they can reach activation; retry requires reviewed state.
+      fail-fast: true
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    environment: shared-ui-rollout
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.reviewed_sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Materialize exact frozen package and independent browser reference
+        env:
+          CONFIG_DIRECTORY: ${{ inputs.config_directory || 'docs/rollout' }}
+        run: node scripts/rollout/workflow.mjs materialize "$CONFIG_DIRECTORY" "$RUNNER_TEMP/naeil-ui-rollout"
+      - name: Check out the exact website/UI source separately from rollout configuration
+        if: matrix.serviceId == 'naeil'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.ui_source_sha }}
+          path: frozen-ui-source
+          persist-credentials: false
+      - name: Update, verify, package, deploy, activate, and verify production
+        env:
+          CONFIG_DIRECTORY: ${{ inputs.config_directory || 'docs/rollout' }}
+          SERVICE_ID: ${{ matrix.serviceId }}
+        run: node scripts/rollout/workflow.mjs run-service "$CONFIG_DIRECTORY" "$RUNNER_TEMP/naeil-ui-rollout" "$SERVICE_ID"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rollout-service-${{ matrix.serviceId }}
+          path: ${{ runner.temp }}/naeil-ui-rollout/
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    needs: [plan, service]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.reviewed_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        if: needs.service.result != 'skipped'
+        with:
+          pattern: rollout-service-*
+          path: rollout-state
+          merge-multiple: true
+      - name: Fail closed for missing, partial, stale, unresolved or unverified services/routes
+        env:
+          CONFIG_DIRECTORY: ${{ inputs.config_directory || 'docs/rollout' }}
+        run: node scripts/rollout/workflow.mjs aggregate "$CONFIG_DIRECTORY" rollout-state
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rollout-aggregate
+          path: rollout-state/aggregate.json
+          if-no-files-found: error
+          retention-days: 90

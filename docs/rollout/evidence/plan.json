@@ -1,0 +1,65 @@
+{
+  "releaseId": "ui-0.7.0-3b13e95",
+  "services": [
+    {
+      "serviceId": "naeil",
+      "adapterConfigured": true,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "home",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "estimate",
+      "adapterConfigured": true,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "jev",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "trip",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "work",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "digest",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "line",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "esg",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    },
+    {
+      "serviceId": "storybook",
+      "adapterConfigured": false,
+      "state": "review-required",
+      "reason": "Standing rollout policy is disabled"
+    }
+  ]
+}
