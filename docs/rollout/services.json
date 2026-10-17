@@ -16,6 +16,20 @@
       "Remote DNS/Cloudflare control-plane inventory unconfirmed; local ingress is not authoritative remote DNS inventory.",
       "No credentials, environment values, business/API datasets, family records or application logs were inspected.",
       "Current registry is a baseline with explicit unresolved states, not a rollout completion claim."
+    ],
+    "ownerClarifications": [
+      {
+        "date": "2026-10-17",
+        "serviceIds": [
+          "digest",
+          "line",
+          "esg",
+          "work",
+          "trip"
+        ],
+        "response": "미확인",
+        "disposition": "Keep operating UI/source/adoption unresolved. No service exclusion, rollout exception or production approval was granted."
+      }
     ]
   },
   "target": {
