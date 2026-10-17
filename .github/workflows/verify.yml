@@ -33,6 +33,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:rollout
       - run: node --test scripts/account-render.test.mjs
+      - run: node --test scripts/site-auth-slot.test.mjs
       - run: node scripts/build-ui-release.mjs --check
       - run: pnpm check:types
       - run: pnpm lint
