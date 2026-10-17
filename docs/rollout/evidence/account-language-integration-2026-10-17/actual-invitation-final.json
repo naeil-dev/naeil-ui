@@ -1,0 +1,27 @@
+{
+  "name": "actual-invitation-final",
+  "cwd": "/private/tmp/naeil-account-language-review-20261017/fixture-home",
+  "site": "/Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language",
+  "siteSourceCommit": "2b2835667792bb83af3fa959bdcc774e1ac49471",
+  "siteRuntime": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil-account-language/2b2835667792bb83af3fa959bdcc774e1ac49471/standalone",
+  "siteBuildId": "naeil-account-2b2835667792",
+  "command": [
+    "/Users/jaymini/projects/naeil-home-console-access/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "tests/integration/test_console_invitations_local.py",
+    "-q",
+    "--show-capture=no",
+    "--tb=short"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 55.46,
+  "log": "/private/tmp/naeil-account-language-review-20261017/actual-invitation-final.log",
+  "passed": 20,
+  "pytestSeconds": 53.55,
+  "homeSourceCommit": "cba0f2fb676e3ebd5f497968f9d64c04ac9a8ecb",
+  "freshFixtureProject": "naeil-account-language-20261017",
+  "providerBoundary": "Actual local Auth+OTP/REST/DB and loopback capture-SMTP; Home external PKCE code exchange replaced. No hosted provider or inbox check."
+}

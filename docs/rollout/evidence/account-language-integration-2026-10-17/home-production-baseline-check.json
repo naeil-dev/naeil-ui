@@ -1,0 +1,23 @@
+{
+  "recordedAt": "2026-10-17T08:01:40.139165+00:00",
+  "command": "python3 scripts/console-baseline.py",
+  "worktree": "/Users/jaymini/.paseo/worktrees/3qtenke4/naeil-home-account-language",
+  "identityStable": true,
+  "expectedFiles": 455,
+  "matchingFiles": 455,
+  "missing": [],
+  "unexpected": [],
+  "changed": [],
+  "refusedSymlinks": [],
+  "manifestSha256": "b695075a6df7c4cf29ec5b018525c58543ae55cefe11f3d7b24ded80cd0ef40a",
+  "passed": true,
+  "frozenBackendAndScriptOverlays": {
+    "available": 2,
+    "hashMatched": 2
+  },
+  "frontendSourceManifestFiles": {
+    "available": 10,
+    "hashMatched": 10
+  },
+  "scope": "read-only production-code hash and preserved-source metadata verification; no environment/data/credential reads; source reconciliation remains a separate local release-preparation task"
+}

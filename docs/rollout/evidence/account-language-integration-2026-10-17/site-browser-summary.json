@@ -1,0 +1,388 @@
+{
+  "scope": "actual-built-app-synthetic-auth-transport",
+  "productionVerified": false,
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "naeil",
+    "artifactId": "naeil-account-2b2835667792",
+    "sourceRevision": "2b2835667792bb83af3fa959bdcc774e1ac49471",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "artifact": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil-account-language/2b2835667792bb83af3fa959bdcc774e1ac49471",
+  "checks": [
+    {
+      "locale": "ko",
+      "width": 390,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 390,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 390,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 390,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 768,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 768,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 768,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 768,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1440,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1440,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1440,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1440,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1920,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1920,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1920,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ko",
+      "width": 1920,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 390,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 390,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 390,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 390,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 768,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 768,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 768,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 768,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1440,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1440,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1440,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1440,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1920,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1920,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1920,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "ja",
+      "width": 1920,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 390,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 390,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 390,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 390,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 768,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 768,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 768,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 768,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1920,
+      "theme": "light",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1920,
+      "theme": "light",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1920,
+      "theme": "dark",
+      "authenticated": false,
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1920,
+      "theme": "dark",
+      "authenticated": true,
+      "status": "passed"
+    },
+    {
+      "flow": "locale/reload/query/hash/provider/retry",
+      "status": "passed"
+    },
+    {
+      "flow": "existing session preserves one locale prefix and percent-bearing query/fragment",
+      "status": "passed"
+    },
+    {
+      "flow": "actual server action local logout",
+      "status": "passed"
+    },
+    {
+      "flow": "temporary Auth failure retains site cookie and protects document",
+      "status": "passed"
+    },
+    {
+      "flow": "outage shared menu, truthful failed logout, explicit local clear and fresh login",
+      "status": "passed"
+    },
+    {
+      "flow": "isolated invitation language/reload",
+      "locale": "ko",
+      "status": "passed"
+    },
+    {
+      "flow": "isolated invitation language/reload",
+      "locale": "ja",
+      "status": "passed"
+    },
+    {
+      "flow": "isolated invitation language/reload",
+      "locale": "en",
+      "status": "passed"
+    }
+  ]
+}

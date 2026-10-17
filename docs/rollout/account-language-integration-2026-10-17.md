@@ -1,6 +1,6 @@
 # 계정·언어와 Console 인증 통합 — 2026-10-17
 
-최신 UI0.7.1 위에 중앙 인증을 선택적으로 통합했다. 세 서비스의 공통 헤더·푸터·계정 메뉴 운영 배포는 완료 상태를 유지하며, **이번 인증 전환은 아직 운영에 배포하지 않았다.** 이 문서는 최종 사이트 검증 중 갱신된다.
+최신 UI0.7.1 위에 중앙 인증을 선택적으로 통합했다. 세 서비스의 공통 헤더·푸터·계정 메뉴 운영 배포는 완료 상태를 유지하며, **이번 인증 전환은 아직 운영에 배포하지 않았다.** 사이트·Estimate·Jev 및 필요한 Home 보완을 격리된 작업 위치에서 구현·검증했다. 외부 제공자·운영 초대 런타임·실회원 확인은 아래 운영 경계로 남아 있다.
 
 사용자는 최초 Console 관리자 Jay 1명과 회원별 명시 허용표라는 기존 설계 유지를 확인했다. 실제 UUID 등록, 실회원 grants, hosted 설정, 실메일, push/merge/배포는 수행하지 않았다.
 
@@ -8,7 +8,7 @@
 
 | 대상 | 기존 최신 UI/인증 기준 | 새 통합 작업 위치·브랜치 | 검증 런타임 |
 | --- | --- | --- | --- |
-| naeil.dev | UI `9f83816` / 초대 `ede9f7b`, `bb83a99` | `/Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language` · `integrate/console-account-language-site` | 최종 동결 후 아래 영수증 갱신 |
+| naeil.dev | UI `9f83816` / 초대 `ede9f7b`, `bb83a99` | `/Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language` · `integrate/console-account-language-site` | `2b2835667792bb83af3fa959bdcc774e1ac49471` |
 | AB Estimate | UI `8c3e043` / 인증 `af7d6ea` | `/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-account-language` · `integrate/console-account-language-estimate` | `72e22fc74bcc8db266c8b844fe852b914e4ec36a` |
 | Jev | UI `6b5fd15` / 독립 인증 snapshot `36002aa` | `/Users/jaymini/.paseo/worktrees/3tl6a87q/jev-account-language` · `integrate/console-account-language-jev` | `2b3a31140e12ec88677942a8749b39a55af2503a` |
 | Home Console | 인증 `dd8fa93c` | `/Users/jaymini/.paseo/worktrees/3qtenke4/naeil-home-account-language` · `integrate/console-account-language-home` | 좁은 보완 `51482f6c16cf3fca33648990998378629574fcbb` |
@@ -39,19 +39,22 @@ Estimate 본문 번역, 서비스 간 동기화, 계정별 언어 저장은 합�
 
 | 대상 | 이번 직접 실행 결과 | 증거 |
 | --- | --- | --- |
-| 사이트 | 260 unit/5 opt-in skip, 계정 slot2, types/lint 통과; auth recovery 수정 완료, 최종 동결·built browser·초대 재검증 진행 중 | 최종 영수증 추가 예정 |
-| Estimate |712 unit, 초기 전체365 browser 중355 pass → 원인 수정 후 영향66 case 해결,62 smoke,608 actual local Auth/DB,17 integrity; lint/types/build 통과 | [소비 앱 보고서](/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-account-language/docs/evidence/account-language-2026-10-17/verification.md) |
+| 사이트 | 260 unit, 별도 opt-in built Next5, 계정 slot2, frozen browser56; types/lint/build 통과(기존 lint warning2) | [사이트 영수증](evidence/account-language-integration-2026-10-17/site-artifact-receipt.json), [browser56](evidence/account-language-integration-2026-10-17/site-browser-summary.json) |
+| Estimate |712 unit, 초기 전체365 browser 중355 pass → 수정 후 영향66 case 해결,62 smoke,608 actual local Auth/DB,17 integrity; lint/types/build 통과 | [소비 앱 보고서](/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-account-language/docs/evidence/account-language-2026-10-17/verification.md) |
 | Jev |125 unit,46 Chromium,76 actual local Auth/DB; type/lint/build·2133파일28링크 무결성 통과 | [소비 앱 보고서](/Users/jaymini/.paseo/worktrees/3tl6a87q/jev-account-language/docs/ops/account-language-verification.md) |
 | Home |339 scoped backend,911 full frontend,6 actual Auth/Home,25 recovery browser; scoped static/types/format, OpenSpec 통과 | [Console 보완 보고서](/Users/jaymini/.paseo/worktrees/3qtenke4/naeil-home-account-language/openspec/changes/naeil-console-access/account-integration-verification-2026-10-17.md) |
+| 실제 초대 전체 흐름 | 동결 사이트 standalone + Home + capture SMTP + 실제 Auth/OTP/RLS/DB20/20 통과 | [실행 영수증](evidence/account-language-integration-2026-10-17/actual-invitation-final.json), [로그](evidence/account-language-integration-2026-10-17/actual-invitation-final.log) |
 | 중앙 SQL | 새 fixture migration001–003,270 pgTAP,24 separate-connection race 통과 | Home 보고서의 실행 경계·fixture ownership |
+
+Estimate의 마지막 영향66 실행은65 pass와 test selector 모호성1건이었고 selector 보완 후 해당1건도 통과했다. 전체365를 최종 artifact로 다시 돌렸다고 주장하지 않는다. Home 전체 backend의 기존4 baseline failure, 전체 타입 검사72 diagnostics와 parallel worker 문제는 이번 좁은 보완 범위 밖이며 전체 Home green으로 보고하지 않는다. 중앙 SQL270/race24는 새 fixture 실행의 tool transcript에 기록됐고 raw SQL log를 별도로 보관하지 않았다.
 
 actual local은 실제 GoTrue/PostgREST/RLS/Postgres와 가상 사용자에 대한 검사다. 외부 OAuth code 교환과 모델 응답은 명시적 test seam이다. Google/GitHub 실제 로그인·identity linking, 운영 HTTPS 세션, 실SMTP inbox, 물리 기기/native AT 성공으로 표현하지 않는다.
 
-새 fixture는 `/private/tmp/naeil-account-language-review-20261017/fixture-home`, API55421/DB55422이며 suite를 순서대로 실행했다. 원래55321/55322나 운영 컨테이너를 재시작·초기화하지 않았다. 서비스 field 복구와 가상 사용자/관련 행 cleanup을 각 actual suite가 확인했다. 업무 데이터·backup·운영 환경 값은 fixture로 읽거나 복사하지 않았다.
+새 fixture는 `/private/tmp/naeil-account-language-review-20261017/fixture-home`, API55421/DB55422이며 suite를 순서대로 실행했다. 원래55321/55322나 운영 컨테이너를 재시작·초기화하지 않았다. 서비스 field 복구와 가상 사용자/관련 행 cleanup을 각 actual suite가 확인했다. 최종13개 Auth/Console 테이블이0임을 확인하고 이번 소유 preview와55421/55422만 종료했으며 DB 볼륨은 보존했다. 기존553xx 컨테이너4개는 그대로다. 별도 작업 컨테이너1개는 우리 정리 전에 종료된 변화가 관찰되어 [정리 영수증](evidence/account-language-integration-2026-10-17/fixture-stop-receipt.json)에 따로 기록했다. 업무 데이터·backup·운영 환경 값은 fixture로 읽거나 복사하지 않았다.
 
 [메인 독립 리뷰](evidence/account-language-integration-2026-10-17/independent-review.md)는 source diff, artifact 무결성, 실제 consumer screenshots와 Home39 focused tests를 직접 대조했다. 동일 조건의 익명/로그인,390/768/1440/1920,light/dark,지원 locale,keyboard/Escape/touch는 앱별 browser 보고서를 따른다. shared package 코드/토큰/스타일은 고정했으므로 이번 소비 앱 검증을 새 패키지·Storybook release 검증으로 바꾸어 표현하지 않는다.
 
-Impeccable context/harden/craft-floor와 scoped detector를 실제 실행했다. Aside hosted 설정 탭 attach는 timeout이어서 설정 검증으로 계산하지 않았다. 외부 디자인 카탈로그/생성 도구 사용은 없다. 정확한 범위는 [frontend sources](../design/frontend-sources.md)를 따른다.
+Impeccable context/harden/craft-floor와 scoped detector를 실제 실행했다. Detector 이후 추가한 recovery UI는 source/unit/browser/axe로 검증했으며 detector를 재실행했다고 표현하지 않는다. Aside hosted 설정 탭 attach는 timeout이어서 설정 검증으로 계산하지 않았다. 외부 디자인 카탈로그/생성 도구 사용은 없다. 정확한 범위는 [frontend sources](../design/frontend-sources.md)를 따른다.
 
 ## 고정 산출물
 
@@ -59,12 +62,16 @@ Impeccable context/harden/craft-floor와 scoped detector를 실제 실행했다.
 | --- | --- | --- |
 | Estimate | `estimate-account-language/release/72e22fc74bcc-4ceff0a23fa2` | runtime artifact `45d0c6c51499477e98517f64fc67b6c1c635eafa4677436f1e5db690bd6a16d3`; manifest `3c2f557029a5da2b133556db35e28163ef4e2b757064f8346191ff3f8797447b` |
 | Jev | `~/.local/share/naeil-ui-rollout/consumer-candidates/jev/2b3a31140e12ec88677942a8749b39a55af2503a` · BUILD_ID `Lj7mR-mIgo3sYAZ5l-a7U` | archive SHA256 `61916868ce188b33778036d8a99b859332c5267f8df09e9891d139e576b8a86c` |
-| 사이트 | 최종 local-only synthetic Auth artifact 동결 예정 | 운영 설정 artifact로 사용하지 않음 |
+| 사이트 | `~/.local/share/naeil-ui-rollout/consumer-candidates/naeil-account-language/2b2835667792bb83af3fa959bdcc774e1ac49471` · BUILD_ID `naeil-account-2b2835667792` | archive SHA256 `68c5bfcab08542102f375e0da017726e77c09e3e36fb2d0d496714233555cb3a`;2726 packaged files/29 links 일치 |
 
-후속 결과 문서 커밋과 런타임 source를 구분한다. Estimate source archive는 test transport fixture를 의도적으로 제외하므로 전체 acceptance 재실행은 정확한 Git source를 사용한다. Home의 보완 커밋은 현재 운영 소스를 조정한 배포 artifact가 아니다.
+사이트 후보는 synthetic public Auth를 포함한 **로컬 검증 전용**이며 `productionReady:false`다. 브라우저 실행이 추출 디렉터리에 Next image cache6개를 추가했지만 패키징된2726파일·29링크와 원본 archive는 그대로다. 추가 cache를 archive에 다시 넣거나 동결 영수증을 덮어쓰지 않았다. [실행 후 검사](evidence/account-language-integration-2026-10-17/site-integrity.json)에 최초 전체-tree 비교와 cache 분류를 기록했다.
+
+후속 결과 문서 커밋과 런타임 source를 구분한다. Estimate source archive는 test transport fixture를 의도적으로 제외하므로 전체 acceptance 재실행은 정확한 Git source를 사용한다. Home의 보완 커밋은 현재 운영 소스를 조정한 배포 artifact가 아니다. 메인은 [운영 baseline455파일과 보존 overlay/source hash](evidence/account-language-integration-2026-10-17/home-production-baseline-check.json)를 다시 확인했다. 두 backend/script overlay와 frontend4제품 파일의 조정은 다음 로컬 release 준비 작업으로 남아 있다.
 
 ## 운영 상태와 다음 경계
 
 [최종 공개 identity 관측](evidence/account-language-integration-2026-10-17/production-unchanged.json)에서 세 앱은 인계 당시 source/artifact와 동일한 UI0.7.1이다. 인계 때 미완료였던 중복 사이트 merged-source [CI39002496935](https://github.com/naeil-dev/naeil-ui/actions/runs/39002496935)는 completed/success로 확인했다. 이는 기존 UI 배포의 CI이며 이번 인증 후보 CI/배포가 아니다.
 
 [운영 전환 검토 자료](account-language-transition-2026-10-17.md)에 초기 허용표, callback/signup/provider/SMTP 조건, 실제 writer/data 보존, 순차 활성화와 권한을 유지하는 복구안을 준비했다. 특히 **현재 Vercel의 초대 transaction 지속성/비밀 파일 공급, Home 운영 overlay·소스 조정, 실제 제공자·실수신함**은 아직 완료되지 않았다. 단순 push로 이 경계를 우회하지 않는다.
+
+기계 판독 결과는 [통합 영수증](evidence/account-language-integration-2026-10-17/summary.json), 재실행 범위는 [증거 안내](evidence/account-language-integration-2026-10-17/README.md)를 따른다. 현재 단계의 로컬 구현·검증과 검토 자료 준비는 완료했지만, 전체 운영 전환 준비·배포·실계정 검증 완료를 뜻하지 않는다.

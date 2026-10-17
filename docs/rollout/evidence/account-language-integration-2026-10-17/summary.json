@@ -1,0 +1,100 @@
+{
+  "scope": "isolated local integration; production authentication not activated",
+  "userPolicy": "Jay sole initial Console admin; per-member explicit Jev/Estimate allow table; no actual registrations authorized",
+  "uiVersion": "0.7.1",
+  "uiArchiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+  "homeCorrectionSource": "51482f6c16cf3fca33648990998378629574fcbb",
+  "estimateSource": "72e22fc74bcc8db266c8b844fe852b914e4ec36a",
+  "estimateRelease": "72e22fc74bcc-4ceff0a23fa2",
+  "estimateArtifactHash": "45d0c6c51499477e98517f64fc67b6c1c635eafa4677436f1e5db690bd6a16d3",
+  "jevSource": "2b3a31140e12ec88677942a8749b39a55af2503a",
+  "jevArchiveSha256": "61916868ce188b33778036d8a99b859332c5267f8df09e9891d139e576b8a86c",
+  "status": "implemented-and-locally-verified; not deployed",
+  "siteSource": "2b2835667792bb83af3fa959bdcc774e1ac49471",
+  "siteArtifactId": "naeil-account-2b2835667792",
+  "siteArchiveSha256": "68c5bfcab08542102f375e0da017726e77c09e3e36fb2d0d496714233555cb3a",
+  "siteArtifactScope": "local-synthetic-auth-verification-only",
+  "productionReady": false,
+  "verification": {
+    "site": {
+      "unitPassed": 260,
+      "unitDefaultOptInSkipped": 5,
+      "explicitBuiltNextPassed": 5,
+      "sharedSlotPassed": 2,
+      "frozenBrowserPassed": 56,
+      "lintErrors": 0,
+      "historicalLintWarnings": 2,
+      "types": "passed",
+      "build": "passed",
+      "packagedFilesUnchanged": 2726,
+      "linksUnchanged": 29,
+      "runtimeAddedImageCacheFiles": 6
+    },
+    "estimate": {
+      "unitPassed": 712,
+      "initialFullBrowserPassed": 355,
+      "initialFullBrowserFailed": 10,
+      "finalAffectedRunPassed": 65,
+      "finalAffectedRunSelectorFailure": 1,
+      "selectorCorrectionRerunPassed": 1,
+      "finalFullBrowserRerun": false,
+      "smokePassed": 62,
+      "actualLocalAuthDbPassed": 608,
+      "integrityPassed": 17
+    },
+    "jev": {
+      "unitPassed": 125,
+      "browserPassed": 46,
+      "actualLocalAuthDbPassed": 76,
+      "packagedFiles": 2133,
+      "links": 28
+    },
+    "home": {
+      "scopedBackendPassed": 339,
+      "fullFrontendPassed": 911,
+      "actualLocalAuthDbPassed": 6,
+      "recoveryBrowserPassed": 25,
+      "independentRootRegressionPassed": 39,
+      "fullBackendRerun": false,
+      "knownBaselineFullBackendFailures": 4,
+      "knownFullTypeDiagnostics": 72,
+      "productionBaselineHashesMatched": 455
+    },
+    "centralSql": {
+      "pgTapPassed": 270,
+      "separateConnectionRacePassed": 24,
+      "source": "tool transcript and Home correction verification; raw SQL log not retained"
+    },
+    "actualInvitation": {
+      "passed": 20,
+      "pytestSeconds": 53.55,
+      "wrapperSeconds": 55.46,
+      "runtime": "frozen site standalone",
+      "scope": "actual local Auth/OTP/Home/capture SMTP/site/PostgREST/RLS/DB; external PKCE exchange stubbed",
+      "siteSource": "2b2835667792bb83af3fa959bdcc774e1ac49471",
+      "siteBuildId": "naeil-account-2b2835667792"
+    }
+  },
+  "unverified": [
+    "real Google/GitHub OAuth and identity linking",
+    "hosted signup/callback/provider configuration",
+    "actual SMTP inbox delivery",
+    "production HTTPS personal sessions",
+    "Home current-source/runtime reconciliation",
+    "Vercel invitation transaction continuity and secret provisioning",
+    "actual verified UUIDs and live per-member grants"
+  ],
+  "cleanup": {
+    "fictionalIdentityAndConsoleTablesEmpty": 13,
+    "serviceFieldsRestored": true,
+    "ownedPreviewAnd554xxStopped": true,
+    "databaseVolumePreserved": true,
+    "original553xxFixtureUnchanged": true,
+    "unrelatedContainerStateChangeObserved": "one already stopped before our cleanup; left untouched; detailed timestamps in fixture-stop-receipt.json"
+  },
+  "homeDocumentationHead": "e14229709ffbe7bed791e69eb780b9f7096605c5",
+  "estimateDocumentationHead": "860e79b3f47f9fe33028879adb50fdc75a94b6b8",
+  "jevDocumentationHead": "2fc435a35910bbca758802909ed46f81c3cda874",
+  "productionMutationsPerformed": [],
+  "recordedAt": "2026-10-17T08:01:40.139523+00:00"
+}

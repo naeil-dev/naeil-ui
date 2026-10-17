@@ -1,0 +1,48 @@
+> @naeil/ui@0.7.1 build /Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language
+> next build
+
+▲ Next.js 16.1.7 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.5s
+  Running TypeScript ...
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+        - include was updated to add '.next-console-invite/types/**/*.ts'
+        - include was updated to add '.next-console-invite/dev/types/**/*.ts'
+
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/36) ...
+  Generating static pages using 9 workers (9/36)
+  Generating static pages using 9 workers (18/36)
+  Generating static pages using 9 workers (27/36)
+✓ Generating static pages using 9 workers (36/36) in 123.1ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /_not-found
+├ ○ /.well-known/naeil-ui.json
+├ ƒ /[locale]
+├ ƒ /[locale]/baby-agent
+├ ƒ /[locale]/blog
+├ ƒ /[locale]/blog/[slug]
+├ ƒ /[locale]/cc
+├ ƒ /[locale]/design
+├ ƒ /[locale]/login
+├ ƒ /[locale]/pkm
+├ ƒ /[locale]/projects
+├ ƒ /[locale]/sa
+├ ƒ /api/health
+├ ○ /apple-icon.png
+├ ƒ /auth/callback
+├ ƒ /auth/invite
+├ ○ /icon.svg
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

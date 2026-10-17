@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-17T07:56:38.193824+00:00",
+  "project": "naeil-account-language-20261017",
+  "fixture": "/private/tmp/naeil-account-language-review-20261017/fixture-home",
+  "guardedCommands": [
+    {
+      "command": [
+        "python3",
+        "/private/tmp/naeil-account-language-review-20261017/fixture-home/scripts/console-db.py",
+        "http-stop"
+      ],
+      "exitCode": 0,
+      "output": "Local HTTP services stopped; the isolated DB and its volume remain running.\n"
+    },
+    {
+      "command": [
+        "python3",
+        "/private/tmp/naeil-account-language-review-20261017/fixture-home/scripts/console-db.py",
+        "stop"
+      ],
+      "exitCode": 0,
+      "output": "{\"project_id_filter\":\"naeil-account-language-20261017\",\"backup\":true,\"message\":\"Stopped supabase local development setup.\"}\n"
+    }
+  ],
+  "fixtureRestoredBeforeStop": true,
+  "ownedContainersRemaining": [],
+  "unrelatedContainersUnchanged": false,
+  "unrelatedContainerCount": 288,
+  "volumes": [
+    {
+      "name": "supabase_db_naeil-account-language-20261017",
+      "preserved": true
+    }
+  ],
+  "loopbackPortListening": {
+    "2482": false,
+    "2483": false,
+    "19676": false,
+    "55421": false,
+    "55422": false,
+    "55321": true,
+    "55322": true
+  },
+  "localHttpConfigRemoved": true,
+  "unrelatedObservedDifference": {
+    "name": "/cc-http-aside-repair-20261017",
+    "id": "a11134686977294ad79ad51c555bf28ead8313dc79076b9ae2aa21c49addc7cc",
+    "running": false,
+    "startedAt": "2026-10-17T07:29:01.557906798Z",
+    "finishedAt": "2026-10-17T07:56:18.314550262Z"
+  },
+  "unrelatedDifferenceNote": "The only observed unrelated change was already stopped at 2026-10-17T07:56:18.314550262Z, before the stop helper's final edit at 2026-10-17T07:56:35.469507+00:00 and its subsequent invocation. Neither guarded command targeted this container; it was left alone.",
+  "stopHelperFinalEditBeforeInvocationAt": "2026-10-17T07:56:35.469507+00:00",
+  "original553xxFixture": {
+    "project": "naeil-console-access-test",
+    "containerCount": 4,
+    "unchanged": true
+  }
+}

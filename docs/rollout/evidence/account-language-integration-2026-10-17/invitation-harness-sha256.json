@@ -1,0 +1,57 @@
+{
+  "scripts/console-invite-preview.py": {
+    "source": "5389d808b8d01da4509272dd56119fc4b241e08ca11ca987e529bac416551326",
+    "copied": "67146093e29358ed5a06a91988627eeb19619be8d90b5747e13942a4c263f23b",
+    "changes": "Owned API55421; final frozen standalone2b2835667792 node server.js cwd with PORT2482/HOSTNAME127.0.0.1; exact BUILD_ID guard; source checkout remains untouched"
+  },
+  "scripts/console-invite-browser.cjs": {
+    "source": "0ae86814762a3f4785b5d0435149d9b24641ad695319259319cfff089a163394",
+    "copied": "1b2890f8b6479798ded52c43f4e75c03729d9c7ab3db5f37864fa0fe02b38b3c",
+    "changes": "Owned API55421 and latest site checkout only"
+  },
+  "scripts/console-invite-management.cjs": {
+    "source": "b4ed05653a6d00e8920862964b77c83782e7ede2484101c73180a33a9c0bad6e",
+    "copied": "1a433ef58e03ce30d3be24e6fa6e5a784775c14779c91d9434f374eb2d52b124",
+    "changes": "Owned API55421 and latest site checkout only"
+  },
+  "homeBuiltStatic": {
+    "apple-touch-icon.png": "dbb6ce9e5e429f3fa9a06fc9a17a96e68a811baf46d8f58fd0d6c31713192e20",
+    "assets/index-BBFyGO9R.css": "3039a50ecd67e6fb200678e005010828b2ebe8180e35006c862fdb9cd3d3f5db",
+    "assets/index-BT9JCipU.js": "b9ef7ba9ad1824e4a8a53336d8e22a72ce9ef6dcfc479b5a519dfab4df6b1386",
+    "brand/naeil/1.0.1/icons/apple-touch-icon.png": "dbb6ce9e5e429f3fa9a06fc9a17a96e68a811baf46d8f58fd0d6c31713192e20",
+    "brand/naeil/1.0.1/icons/favicon.ico": "ab82d465b34a7996702604dfb16e8e2e1668bdbcef18d083fe95e66e27edd6a1",
+    "brand/naeil/1.0.1/icons/favicon.svg": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+    "brand/naeil/1.0.1/licenses/Lato-OFL.txt": "74ba064d03f1f1c4a952da936c3eb71866c34404916734de3cae73b34357e59e",
+    "brand/naeil/1.0.1/licenses/sources.json": "d0f8ac384ea5a28e66e498b56376f402415029b6e1daf9a30f4f824777c1d2d6",
+    "brand/naeil/1.0.1/svg/naeil-footer-gray-dark.svg": "ac1dc49f6bb2bd1f5f8f44cd4d441ee9e7323d2b92aa287deab287be6e6fab25",
+    "brand/naeil/1.0.1/svg/naeil-footer-gray.svg": "4dd9545ce3c92eb5cd9c7afe2abda4887555ad842c51c679adf4ac6a34f3670f",
+    "brand/naeil/1.0.1/svg/naeil-horizontal-color-dark.svg": "8062155f32e09ef4f7c63dbf3cfa6fc46131e1a626e7a8b0e840c868696f9151",
+    "brand/naeil/1.0.1/svg/naeil-horizontal-color.svg": "9e03116866d95ae6d43eae8b9d5de9f9833eafeb0759973d8440644164ce905c",
+    "brand/naeil/1.0.1/svg/naeil-symbol-color-dark-small.svg": "9ad217fa7413429c4188b457da55c866f27459c2350fd1ab332ec6921c4ab646",
+    "brand/naeil/1.0.1/svg/naeil-symbol-color-small.svg": "b457adee575ce6988d8df8059346d60ff2dbbfc59b37655d38378d30719e5748",
+    "brand/naeil/1.1.1/icons/apple-touch-icon.png": "dbb6ce9e5e429f3fa9a06fc9a17a96e68a811baf46d8f58fd0d6c31713192e20",
+    "brand/naeil/1.1.1/icons/favicon-transparent.ico": "903932704751ccc06ff8161cc9b08092d173b62fcc1d2d2a07805309a46e4c4f",
+    "brand/naeil/1.1.1/icons/favicon-transparent.svg": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+    "brand/naeil/1.1.1/icons/favicon.ico": "ab82d465b34a7996702604dfb16e8e2e1668bdbcef18d083fe95e66e27edd6a1",
+    "brand/naeil/1.1.1/icons/favicon.svg": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+    "brand/naeil/1.1.1/licenses/Lato-OFL.txt": "74ba064d03f1f1c4a952da936c3eb71866c34404916734de3cae73b34357e59e",
+    "brand/naeil/1.1.1/licenses/sources.json": "d0f8ac384ea5a28e66e498b56376f402415029b6e1daf9a30f4f824777c1d2d6",
+    "brand/naeil/1.1.1/svg/naeil-footer-gray-dark.svg": "d6fd2f00425847bbbde23674655090bf260653d12d146d9cf5f3cf123d143b9d",
+    "brand/naeil/1.1.1/svg/naeil-footer-gray.svg": "e79723c9c6e0dc3afe436660d79717ea70f39063559ce6fd2f6263939141655e",
+    "brand/naeil/1.1.1/svg/naeil-horizontal-color-dark.svg": "4533bef096c9eeba4f4714aebfcceb134a6715228e035ccd816f832708c8b74a",
+    "brand/naeil/1.1.1/svg/naeil-horizontal-color.svg": "84ed5011193fc562fc019a4898a2befecabef3b9bec1e14a0794a61bcebfaa32",
+    "brand/naeil/1.1.1/svg/naeil-symbol-color-dark-small.svg": "9ad217fa7413429c4188b457da55c866f27459c2350fd1ab332ec6921c4ab646",
+    "brand/naeil/1.1.1/svg/naeil-symbol-color-small.svg": "b457adee575ce6988d8df8059346d60ff2dbbfc59b37655d38378d30719e5748",
+    "favicon.ico": "903932704751ccc06ff8161cc9b08092d173b62fcc1d2d2a07805309a46e4c4f",
+    "favicon.svg": "57d6edce3b5b4cb9357f2baf337da355be6b6f9f62191418883f4824dcde8785",
+    "fonts/GeistSans-Variable.woff2": "e24cec106619c03f0b3519e31b9bc55e0d5e926b6a95b8d798cd8cef215b1505",
+    "fonts/PretendardVariable.woff2": "a1a94c6f267974f13ba8a00d9d3bd585795018183e941defdb208aa9ed66770a",
+    "fonts/jetbrains-mono-latin-ext.woff2": "db5ff4db83e580426280e9337a58dc57d3a83784a1b03ad80914651594441d52",
+    "fonts/jetbrains-mono-latin.woff2": "83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be",
+    "index.html": "1b47f7f133788bca5ff0fbfee47b0e287477264c6fa308d8aecdb30bc0e1d4e7"
+  },
+  "run-invitation-check.py": {
+    "sha256": "a3b87d31d34f48a07d64e4292ca6634d92300b1e330d39c07759b3fd05d0e2a3",
+    "changes": "All four local opt-ins, latest site harness path, frozen runtime identity, isolated environment, private raw log and count-only console output"
+  }
+}
