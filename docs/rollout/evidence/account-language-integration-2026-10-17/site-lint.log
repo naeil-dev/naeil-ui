@@ -1,0 +1,12 @@
+
+> @naeil/ui@0.7.1 lint /Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language
+> eslint
+
+
+/Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language/docs/design/logo-study-2026-10-09/verify_browser.mjs
+  34:70  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language/docs/rollout/evidence/account-correction-2026-10-17/verify-public.mjs
+  87:39  warning  'href' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)

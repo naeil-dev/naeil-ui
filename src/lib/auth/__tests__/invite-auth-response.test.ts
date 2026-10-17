@@ -8,12 +8,13 @@ const state = vi.hoisted(() => ({
   redirect: vi.fn(),
   intl: vi.fn(),
   sessionResponse: undefined as unknown,
+  unavailable: false,
 }));
 vi.mock("next/headers", () => ({
   cookies: async () => ({
-    getAll: () => [],
-    get: () =>
-      state.redirectCookie === undefined
+    getAll: () => [{ name: "naeil-site-auth-generation", value: "a".repeat(32) }],
+    get: (name: string) =>
+      name !== `auth_redirect_to-${"a".repeat(32)}-initial` || state.redirectCookie === undefined
         ? undefined
         : { value: state.redirectCookie },
     set: state.cookieSet,
@@ -39,11 +40,13 @@ vi.mock("@/i18n/routing", () => ({
   routing: { locales: ["en", "ko", "ja"], defaultLocale: "ko" },
   redirect: state.redirect,
 }));
+vi.mock("next/navigation", () => ({ redirect: state.redirect }));
 vi.mock("next-intl/middleware", () => ({ default: () => state.intl }));
 vi.mock("@/lib/supabase/middleware", () => ({
   updateSession: async () => ({
     response: state.sessionResponse,
     user: state.user,
+    unavailable: state.unavailable,
   }),
 }));
 vi.mock("@/components/logo", () => ({ Logo: () => null }));
@@ -53,6 +56,7 @@ import proxy from "@/proxy";
 beforeEach(() => {
   vi.clearAllMocks();
   state.user = null;
+  state.unavailable = false;
   state.error = null;
   state.redirectCookie = undefined;
   state.sessionResponse = NextResponse.next();
@@ -73,7 +77,7 @@ describe("actual auth redirect responses", () => {
       new Request("https://naeil.dev/auth/callback?code=fixture"),
     );
     expect(r.headers.get("location")).toBe("https://naeil.dev/");
-    expect(state.cookieSet).toHaveBeenCalledWith("auth_redirect_to", "", {
+    expect(state.cookieSet).toHaveBeenCalledWith(`auth_redirect_to-${"a".repeat(32)}-initial`, "", {
       path: "/",
       maxAge: 0,
     });
@@ -91,7 +95,7 @@ describe("actual auth redirect responses", () => {
     const r = await GET(
       new Request("https://naeil.dev/auth/callback?code=fixture"),
     );
-    expect(r.headers.get("location")).toBe("https://naeil.dev/login");
+    expect(r.headers.get("location")).toBe("https://naeil.dev/login?error=auth");
     expect(JSON.stringify(spy.mock.calls)).not.toContain(
       "private-provider-detail",
     );
@@ -109,10 +113,26 @@ describe("actual auth redirect responses", () => {
         searchParams: Promise.resolve({ next }),
       }),
     ).rejects.toThrow("REDIRECT");
-    expect(state.redirect).toHaveBeenCalledWith({ href: "/", locale: "ko" });
+    expect(state.redirect).toHaveBeenCalledWith("/");
+  });
+  it("an existing session returns to the already localized URL without duplicating its locale", async () => {
+    state.user = { id: "fixture" };
+    const next = "/ja/blog?q=one#results";
+    await expect(LoginPage({ params: Promise.resolve({locale:"ja"}), searchParams: Promise.resolve({next}) })).rejects.toThrow("REDIRECT");
+    expect(state.redirect).toHaveBeenCalledWith(next);
   });
 });
 describe("final proxy response cookies", () => {
+  it("protects document queries with a503 during Auth failure and preserves complete login return on401", async () => {
+    state.unavailable = true;
+    const unavailable = await proxy(new NextRequest("https://naeil.dev/ja/sa/reports/one?tab=detail"));
+    expect(unavailable.status).toBe(503);
+    expect(unavailable.headers.get("location")).toBeNull();
+    expect(unavailable.headers.get("cache-control")).toBe("no-store");
+    state.unavailable = false;
+    const expired = await proxy(new NextRequest("https://naeil.dev/ja/sa/reports/one?tab=detail"));
+    expect(new URL(expired.headers.get("location")!).searchParams.get("next")).toBe("/ja/sa/reports/one?tab=detail");
+  });
   function refreshed() {
     const r = NextResponse.next();
     r.cookies.set({
@@ -146,7 +166,7 @@ describe("final proxy response cookies", () => {
         expect(r.headers.get("location")).toContain("/login");
     },
   );
-  it("does not store unsafe return authority and uses secure host-only valid return cookies", async () => {
+  it("GET/prefetch never overwrites the return state owned by the provider-click action", async () => {
     const bad = await proxy(
       new NextRequest("https://naeil.dev/login?next=%2F%2Fevil.example"),
     );
@@ -154,14 +174,7 @@ describe("final proxy response cookies", () => {
     const good = await proxy(
       new NextRequest("https://naeil.dev/login?next=%2Freports"),
     );
-    expect(good.cookies.get("auth_redirect_to")).toMatchObject({
-      value: "/reports",
-      secure: true,
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-    });
-    expect(good.cookies.get("auth_redirect_to")?.domain).toBeUndefined();
+    expect(good.cookies.get("auth_redirect_to")).toBeUndefined();
   });
 });
 

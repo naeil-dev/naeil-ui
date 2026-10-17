@@ -1,0 +1,44 @@
+{
+  "latestSite": {
+    "path": "/Users/jaymini/.paseo/worktrees/28nele6j/pure-chicken",
+    "head": "9f83816f973618aa77c2bba56b6fa9319ef1fc3d",
+    "branch": "fix/shared-header-account",
+    "status": ""
+  },
+  "latestEstimate": {
+    "path": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1",
+    "head": "8c3e0430293dffc182695cfa2bc050214a750dc9",
+    "branch": "feat/shared-ui-rollout",
+    "status": ""
+  },
+  "latestJev": {
+    "path": "/Users/jaymini/.paseo/worktrees/3tl6a87q/shared-ui-rollout-jev",
+    "head": "6b5fd15d9843d971e9d6302f85b9a2a300fb051a",
+    "branch": "feat/shared-ui-rollout",
+    "status": ""
+  },
+  "authSite": {
+    "path": "/Users/jaymini/.paseo/worktrees/28nele6j/terrific-buffalo",
+    "head": "35f750357f90fe24ec0ca8c51b8e98b89facd997",
+    "branch": "review-naeil-ko-homepage",
+    "status": "M docs/design/frontend-sources.md\n?? docs/design/console-mockup/"
+  },
+  "authHome": {
+    "path": "/Users/jaymini/projects/naeil-home-console-access",
+    "head": "dd8fa93cadcb60a15469f642a61a5d5cad449ec8",
+    "branch": "feature/naeil-console-access",
+    "status": ""
+  },
+  "authEstimate": {
+    "path": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-console-access",
+    "head": "af7d6eab3ae46e6cdfc56179ec487d1c0912d0f1",
+    "branch": "feature/naeil-console-access",
+    "status": ""
+  },
+  "authJev": {
+    "path": "/Users/jaymini/projects/jev-console-access",
+    "head": "36002aa9f70906ecabd21e6502f91a0137247b71",
+    "branch": "feature/naeil-console-access",
+    "status": ""
+  }
+}

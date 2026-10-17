@@ -1,26 +1,35 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 import { createOAuthFlow, type OAuthState } from "./oauth-flow";
+import { prepareLogin } from "./actions";
 
 export function OAuthButtons({
   initialError = false,
+  next = "/",
 }: {
   initialError?: boolean;
+  next?: string;
 }) {
   const t = useTranslations("auth");
+  const locale = useLocale();
   const [state, setState] = useState<OAuthState>({
     status: initialError ? "error" : "idle",
   });
-  const [handleOAuth] = useState(() =>
+  const [flow] = useState(() =>
     createOAuthFlow(async (provider) => {
-      const supabase = createClient();
+      const returnLocation = new URL(window.location.href).searchParams.get("next") || next;
+      const binding = await prepareLogin(returnLocation, document.documentElement.lang || locale);
+      const supabase = createClient(binding);
       return supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {}),
+        },
       });
     }, setState),
   );
@@ -47,7 +56,7 @@ export function OAuthButtons({
         className="h-auto min-h-(--ui-touch-target) w-full whitespace-normal py-2"
         disabled={pending}
         aria-busy={pending && state.provider === "google"}
-        onClick={() => handleOAuth("google")}
+        onClick={() => flow("google")}
       >
         <GoogleIcon />
         {pending && state.provider === "google"
@@ -60,7 +69,7 @@ export function OAuthButtons({
         className="h-auto min-h-(--ui-touch-target) w-full whitespace-normal py-2"
         disabled={pending}
         aria-busy={pending && state.provider === "github"}
-        onClick={() => handleOAuth("github")}
+        onClick={() => flow("github")}
       >
         <GitHubIcon />
         {pending && state.provider === "github"

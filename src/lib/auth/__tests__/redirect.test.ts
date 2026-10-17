@@ -77,4 +77,11 @@ describe("canonical return destination", () => {
     expect(redirectCookieTarget("%2F%2Fevil.example")).toBe("/");
     expect(redirectCookieTarget("%2Freports")).toBe("/reports");
   });
+  it("preserves encoded query data and fragments already decoded by Next cookies", () => {
+    const destination = "/ja/blog?q=two%20words%26three%3Dfour#result%20one";
+    expect(redirectCookieTarget(destination)).toBe(destination);
+    expect(redirectCookieTarget(encodeURIComponent(destination))).toBe(destination);
+    expect(canonicalRedirect("/ja/blog?q=100%25#success%25")).toBe("/ja/blog?q=100%25#success%25");
+    expect(canonicalRedirect("/ja/blog?q=%25E0%25A4")).toBe("/ja/blog?q=%25E0%25A4");
+  });
 });

@@ -276,7 +276,7 @@ function boundary(request: Request, config: InviteConfig, post: boolean) {
   if (
     !["/auth/invite", "/auth/invite/"].includes(url.pathname) ||
     [...url.searchParams].some(
-      ([k, v]) => k !== "locale" || !["ko", "en"].includes(v),
+      ([k, v]) => k !== "locale" || !["ko", "ja", "en"].includes(v),
     ) ||
     url.searchParams.getAll("locale").length > 1
   )
@@ -595,10 +595,8 @@ export function createInviteHandler(deps: Dependencies = {}) {
       pageHeaders.set("Content-Type", "text/html; charset=utf-8");
       const locale =
         new URL(request.url).searchParams.get("locale") ||
-        (/^ko\b/i.test(request.headers.get("accept-language") || "")
-          ? "ko"
-          : "en");
-      return new Response(invitePage(nonce, locale as "ko" | "en", dto(t)), {
+        ((request.headers.get("accept-language") || "").match(/^(ko|ja)\b/i)?.[1].toLowerCase() || "en");
+      return new Response(invitePage(nonce, locale as "ko" | "ja" | "en", dto(t)), {
         headers: pageHeaders,
       });
     } catch (e) {

@@ -227,6 +227,10 @@
     "social": "ソーシャル"
   },
   "auth": {
+    "logoutFailed": "ログアウトできませんでした。もう一度お試しください。",
+    "localLogout": "このブラウザーでログアウト",
+    "localLogoutDescription": "このブラウザーから、このサイトのログイン情報を削除できます。認証サーバーや他のセッションからはログアウトされません。",
+    "localLogoutFailed": "このブラウザーのログイン情報を削除できませんでした。もう一度お試しください。",
     "login": "ログイン",
     "loginWithGoogle": "Googleでログイン",
     "loginWithGithub": "GitHubでログイン",

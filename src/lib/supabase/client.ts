@@ -1,18 +1,13 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { siteCookieOptions, type SiteSessionBinding } from "../auth/site-session";
 
-const COOKIE_DOMAIN =
-  typeof window !== "undefined" && window.location.hostname.endsWith(".naeil.dev")
-    ? ".naeil.dev"
-    : undefined;
-
-export function createClient() {
+export function createClient(binding: SiteSessionBinding) {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookieOptions: {
-        domain: COOKIE_DOMAIN,
-      },
+      isSingleton: false,
+      cookieOptions: siteCookieOptions(typeof window === "undefined" ? null : window.location.host, binding),
     },
   );
 }

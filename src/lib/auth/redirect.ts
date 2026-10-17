@@ -21,10 +21,14 @@ export function canonicalRedirect(value: unknown): string | null {
   if (relative ? value.startsWith("//") : !/^https:\/\//i.test(value))
     return null;
   try {
+    // Validate the original URI encoding once. Further passes below inspect
+    // encoded authority/control bytes, without treating a decoded literal % as
+    // another required URI escape or changing the returned query/fragment.
+    decodeURIComponent(value);
     let decoded = value;
     for (let depth = 0; depth < 8; depth++) {
       if (
-        UNSAFE.test(decoded) ||
+        /[\\\x00-\x1f\x7f]/.test(decoded) ||
         (relative && (!decoded.startsWith("/") || decoded.startsWith("//")))
       )
         return null;
@@ -36,7 +40,8 @@ export function canonicalRedirect(value: unknown): string | null {
         (relative && (check.origin !== BASE || check.pathname.startsWith("//")))
       )
         return null;
-      const next = decodeURIComponent(decoded);
+      const next = decoded.replace(/%([0-9a-f]{2})/gi, (_, byte: string) =>
+        String.fromCharCode(parseInt(byte, 16)));
       if (next === decoded) break;
       if (depth === 7) return null;
       decoded = next;
@@ -56,7 +61,12 @@ export function isAllowedRedirect(value: string): boolean {
 
 export function redirectCookieTarget(value: string | undefined): string {
   if (!value) return "/";
+  // Next's cookie reader has already decoded the cookie transport. Keep URI
+  // escapes inside the return URL intact; decoding again changes query data.
+  const canonical = canonicalRedirect(value);
+  if (canonical) return canonical;
   try {
+    // Compatibility for an older client that encoded the entire cookie value.
     return canonicalRedirect(decodeURIComponent(value)) || "/";
   } catch {
     return "/";

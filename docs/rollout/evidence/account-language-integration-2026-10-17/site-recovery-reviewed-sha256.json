@@ -1,0 +1,18 @@
+{
+  "workspace": "/Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language",
+  "files": {
+    "src/lib/auth/site-session.ts": "a55d6a76416ce4dd1073ac6a27d650f174b1f7979687da7d74070c2d1cae3ec0",
+    "src/lib/supabase/server.ts": "a79e3d240af7b2b7f1104569c5f8043ee76bda6e4bc16200038dfe360c23db04",
+    "src/lib/supabase/client.ts": "0c8806a2accbf28a29a573278fa4cc92bb8d6406d8017bbbb29fd6d63e72b0d8",
+    "src/lib/supabase/middleware.ts": "f040b15cb6f670faac5b8525b6187a408e98aba86ffb898b813d4c41dd4a5345",
+    "src/app/[locale]/login/actions.ts": "ab0bd6eb34f508e79a1b74d66e0d9ed04bcb541e7d8c007e386a9f506f25a50e",
+    "src/app/[locale]/login/oauth-buttons.tsx": "c8ed5579d7a88aef90b3917902467051e4d087ea6db7b21e99a5396d01f91db9",
+    "src/app/auth/callback/route.ts": "eac0b4dcd535cd89f085f50a72ea6be9c22a1099879723bb0c87bf1dd9561800",
+    "src/components/auth-slot.tsx": "ad6e154967a49ec46492720ef6ec6777443486c7a64dbd06014b6b568fd97207",
+    "src/components/nav-server-wrapper.tsx": "309df93b2bb41afa8db8c445cacb1a3ca55c0ee8fe0bbd78cd7bb75381e58ed9",
+    "src/components/nav-wrapper.tsx": "666d9195d9d3cf6ca921b0707110b06e1c02e1bd4c7b835c83f6db6c96ae511f",
+    "messages/en.json": "5865c94ab671f1d0c12b5c5a33b417b8052117199f1df583927731e3a858e1d6",
+    "messages/ko.json": "924fbfd23d4f565730765473d18b0640c4e2a9dbc33f345360ef3219e1a0ccd4",
+    "messages/ja.json": "4edb5d04b7e6885fd0ba5687eab53b412b6f31251db29dacb8ee2ce8974d87f1"
+  }
+}

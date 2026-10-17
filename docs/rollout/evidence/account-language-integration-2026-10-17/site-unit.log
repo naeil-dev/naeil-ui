@@ -1,0 +1,12 @@
+
+> @naeil/ui@0.7.1 test /Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language
+> vitest run
+
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language
+
+
+ Test Files  26 passed | 1 skipped (27)
+      Tests  260 passed | 5 skipped (265)
+   Start at  16:47:01
+   Duration  2.92s (transform 1.30s, setup 0ms, import 4.30s, tests 3.67s, environment 2ms)

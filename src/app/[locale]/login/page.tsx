@@ -1,10 +1,10 @@
 import { Logo } from "@/components/logo";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "@/i18n/routing";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { OAuthButtons } from "./oauth-buttons";
 import { PageTitle } from "@/components/typography";
-import { canonicalRedirect } from "@/lib/auth/redirect";
+import { loginDestination } from "@/lib/auth/return-location";
 
 export default async function LoginPage({
   params,
@@ -13,17 +13,18 @@ export default async function LoginPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const { locale } = await params;
+  await params;
   const { next, error } = await searchParams;
-  const destination = canonicalRedirect(next) || "/";
+  const destination = loginDestination(next);
 
   const supabase = await createClient();
   const {
-    data: { user },
+    data: { user }, error: authError,
   } = await supabase.auth.getUser();
 
-  if (user) {
-    redirect({ href: destination, locale });
+  if (user && !authError) {
+    // The validated return URL already contains its locale prefix.
+    redirect(destination);
   }
 
   const t = await getTranslations("auth");
@@ -43,7 +44,7 @@ export default async function LoginPage({
         </div>
 
         {/* OAuth buttons */}
-        <OAuthButtons initialError={error === "auth"} />
+        <OAuthButtons next={destination} initialError={error === "auth"} />
       </div>
     </div>
   );

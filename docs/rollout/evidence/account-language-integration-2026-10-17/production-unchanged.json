@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-17T07:34:06.397314+00:00",
+  "services": {
+    "naeil": {
+      "schemaVersion": 1,
+      "appId": "naeil",
+      "artifactId": "dpl_7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+      "sourceRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
+      "ui": {
+        "version": "0.7.1",
+        "contractVersion": "1"
+      }
+    },
+    "abestimate": {
+      "schemaVersion": 1,
+      "appId": "abestimate",
+      "artifactId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+      "sourceRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
+      "ui": {
+        "version": "0.7.1",
+        "contractVersion": "1"
+      }
+    },
+    "jev": {
+      "schemaVersion": 1,
+      "appId": "jev",
+      "artifactId": "jev-ui07-35dd4746e62d",
+      "sourceRevision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
+      "ui": {
+        "version": "0.7.1",
+        "contractVersion": "1"
+      }
+    }
+  },
+  "frozenHashes": {
+    "naeil-ui-0.7.1.tgz": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+    "naeil-chrome-0.7.1.json": "85bb399a13bba741e9c100d8f08db8ab5c58af3fd2a2614ca9ff24b7e455dfac",
+    "naeil-account-0.7.1.json": "158dd3bca9d5c4dd8068cf97d70de1c65d7b187f3057f9388409a7685b447bc5"
+  }
+}
