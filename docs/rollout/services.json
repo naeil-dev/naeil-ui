@@ -27,7 +27,7 @@
           "work",
           "trip"
         ],
-        "response": "미확인",
+        "response": "\ubbf8\ud655\uc778",
         "disposition": "Keep operating UI/source/adoption unresolved. No service exclusion, rollout exception or production approval was granted."
       },
       {
@@ -35,7 +35,7 @@
         "serviceIds": [
           "baby"
         ],
-        "response": "이건 전혀 다른 서비스잖아.",
+        "response": "\uc774\uac74 \uc804\ud600 \ub2e4\ub978 \uc11c\ube44\uc2a4\uc796\uc544.",
         "disposition": "Withdraw Baby Dashboard from active rollout targets; preserve historical evidence without counting it as rollout progress. Same-domain hosting is insufficient to establish service scope."
       },
       {
@@ -43,18 +43,19 @@
         "serviceIds": [
           "home"
         ],
-        "response": "Naeil Home도 제외하고 일단 3가지에 배포해줘.",
+        "response": "Naeil Home\ub3c4 \uc81c\uc678\ud558\uace0 \uc77c\ub2e8 3\uac00\uc9c0\uc5d0 \ubc30\ud3ec\ud574\uc918.",
         "disposition": "Home excluded. One-time deployment authorized for naeil, estimate and jev only; standing automatic deployment not authorized."
       }
     ]
   },
   "target": {
-    "uiVersion": "0.7.0",
+    "uiVersion": "0.7.1",
     "contractVersion": "1",
     "status": "frozen-local-candidate-not-published",
-    "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
-    "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
-    "referenceSha256": "6c8511f3fa4770a3a5653a7efdc4689d9afa3e94781d8406fc6b433123dfd771"
+    "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+    "sourceRevision": "32108fd8e1cb1db6dae24a09f3ca72ac9a91f618",
+    "referenceSha256": "85bb399a13bba741e9c100d8f08db8ab5c58af3fd2a2614ca9ff24b7e455dfac",
+    "accountReferenceSha256": "158dd3bca9d5c4dd8068cf97d70de1c65d7b187f3057f9388409a7685b447bc5"
   },
   "routePolicy": {
     "canonical": "Owned application UI must use approved shared header/footer, identity and layout contract.",
@@ -737,7 +738,7 @@
         {
           "kind": "public-html",
           "reference": "https://abestimate.naeil.dev/estimates",
-          "detail": "HTTP307 to /login; current title 見積."
+          "detail": "HTTP307 to /login; current title \u898b\u7a4d."
         },
         {
           "kind": "launch-agent",
@@ -967,7 +968,7 @@
         {
           "kind": "public-html",
           "reference": "https://jev.naeil.dev/",
-          "detail": "HTTP307 to /login; legacy title Jev · naeil."
+          "detail": "HTTP307 to /login; legacy title Jev \u00b7 naeil."
         },
         {
           "kind": "deployed-source-recovery",
@@ -1413,7 +1414,7 @@
       "decision": {
         "date": "2026-10-17",
         "source": "owner conversation correction",
-        "statement": "이건 전혀 다른 서비스잖아.",
+        "statement": "\uc774\uac74 \uc804\ud600 \ub2e4\ub978 \uc11c\ube44\uc2a4\uc796\uc544.",
         "reason": "The owner identified this as a different service. The earlier inclusion is withdrawn from this rollout.",
         "candidateDisposition": "Preserve the isolated local branch and evidence; do not publish, deploy or continue migration as part of this rollout.",
         "productionChanged": false
@@ -1609,7 +1610,7 @@
       "decision": {
         "date": "2026-10-17",
         "source": "owner deployment request",
-        "statement": "Naeil Home도 제외하고 일단 3가지에 배포해줘.",
+        "statement": "Naeil Home\ub3c4 \uc81c\uc678\ud558\uace0 \uc77c\ub2e8 3\uac00\uc9c0\uc5d0 \ubc30\ud3ec\ud574\uc918.",
         "reason": "Owner explicitly excludes Naeil Home and authorizes one-time deployment of naeil, Estimate and Jev.",
         "candidateDisposition": "Preserve local candidate and prior evidence without deploying or continuing Home migration in this rollout.",
         "productionChanged": false
@@ -1633,8 +1634,8 @@
             },
             "chrome": {
               "themeControlLabels": {
-                "light": "테마",
-                "dark": "테마"
+                "light": "\ud14c\ub9c8",
+                "dark": "\ud14c\ub9c8"
               }
             }
           },
@@ -1654,8 +1655,8 @@
             },
             "chrome": {
               "themeControlLabels": {
-                "light": "테마",
-                "dark": "테마"
+                "light": "\ud14c\ub9c8",
+                "dark": "\ud14c\ub9c8"
               }
             }
           },
@@ -1675,8 +1676,8 @@
             },
             "chrome": {
               "themeControlLabels": {
-                "light": "테마",
-                "dark": "테마"
+                "light": "\ud14c\ub9c8",
+                "dark": "\ud14c\ub9c8"
               }
             }
           },
@@ -1696,8 +1697,8 @@
             },
             "chrome": {
               "themeControlLabels": {
-                "light": "테마",
-                "dark": "테마"
+                "light": "\ud14c\ub9c8",
+                "dark": "\ud14c\ub9c8"
               }
             }
           },
@@ -1897,7 +1898,7 @@
       "jev"
     ],
     "approvalSource": "owner conversation",
-    "statement": "Naeil Home도 제외하고 일단 3가지에 배포해줘.",
+    "statement": "Naeil Home\ub3c4 \uc81c\uc678\ud558\uace0 \uc77c\ub2e8 3\uac00\uc9c0\uc5d0 \ubc30\ud3ec\ud574\uc918.",
     "uiVersion": "0.7.0",
     "contractVersion": "1",
     "status": "deployed-public-verified",
@@ -1914,5 +1915,19 @@
     "protectedProductionVerificationComplete": false,
     "completedAt": "2026-10-17T03:15:39.882Z",
     "evidence": "evidence/deployment-2026-10-17/summary.json"
+  },
+  "accountCorrectionRequest": {
+    "date": "2026-10-17",
+    "statement": "\uc544\ub2c8 \uc65c \ub85c\uadf8\uc778 \ubd80\ubd84\uc774 \ub2ec\ub77c? \uc624\ub978\ucabd",
+    "services": [
+      "naeil",
+      "estimate",
+      "jev"
+    ],
+    "uiVersion": "0.7.1",
+    "status": "candidate-verified-consumer-verification-in-progress",
+    "productionComplete": false,
+    "standingRolloutEnabled": false,
+    "reference": "frozen/naeil-account-0.7.1.json"
   }
 }

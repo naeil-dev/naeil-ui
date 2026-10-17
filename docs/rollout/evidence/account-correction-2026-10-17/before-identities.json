@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-10-17T03:57:15.583Z",
+  "services": [
+    {
+      "serviceId": "naeil",
+      "origin": "https://naeil.dev",
+      "status": 200,
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "naeil",
+        "artifactId": "dpl_29L2Bfoz4A6rZzAXgrjN4CbC9F24",
+        "sourceRevision": "b82f12d17cd3b273a92aa3934ea9ad14106581b4",
+        "ui": {
+          "version": "0.7.0",
+          "contractVersion": "1"
+        }
+      }
+    },
+    {
+      "serviceId": "estimate",
+      "origin": "https://abestimate.naeil.dev",
+      "status": 200,
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "abestimate",
+        "artifactId": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
+        "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+        "ui": {
+          "version": "0.7.0",
+          "contractVersion": "1"
+        }
+      }
+    },
+    {
+      "serviceId": "jev",
+      "origin": "https://jev.naeil.dev",
+      "status": 200,
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "jev",
+        "artifactId": "jev-ui07-7e1eb717ee56",
+        "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+        "ui": {
+          "version": "0.7.0",
+          "contractVersion": "1"
+        }
+      }
+    }
+  ]
+}

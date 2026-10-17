@@ -1,3 +1,11 @@
+# Status — 2026-10-17 account-control correction in progress
+
+The owner found authenticated account controls still differed after the three-service deployment. UI0.7.1 source `32108fd` adds one React-only account/login control while each app retains session/logout/save handling. Exact archive `ecd656…`, frame reference `85bb399…` and account reference `158dd3…` are frozen in `docs/rollout/frozen/`. Shared units85, types, package/site builds, real packed React/Next and account browser checks passed; consumer integration and the correction deployment are in progress. Production still serves the recorded0.7.0 artifacts until new per-service receipts say otherwise.
+
+See [correction spec](docs/superpowers/specs/2026-10-17-shared-account-correction.md), [plan](docs/superpowers/plans/2026-10-17-shared-account-correction.md) and [release metadata](docs/rollout/release.json). This correction keeps Home/Baby excluded and standing rollout disabled. The earlier deployment receipt below remains historical evidence, not authenticated account-parity proof.
+
+## Earlier three-service deployment
+
 # Status — 2026-10-17 three-service deployment complete; standing rollout disabled
 
 **naeil.dev, Estimate and Jev now serve canonical NaeilHeader/NaeilFooter, UI0.7.0/contract1.** Site Production7133974289 serves merge `b82f12d`; Estimate current is `cc4b6dee738e-fbed79a686e1`; Jev release is `20261017T024200Z-ui07`, source `7e1eb717`. Public acceptance passes280 independent-reference conditions: site248, Estimate8 and Jev24. Exact public artifact identities, provider/runtime bindings, assets/guards, complete render measurements and representative images are in [the deployment outcome](docs/rollout/deployment-2026-10-17.md) and [machine-readable receipt](docs/rollout/evidence/deployment-2026-10-17/summary.json).

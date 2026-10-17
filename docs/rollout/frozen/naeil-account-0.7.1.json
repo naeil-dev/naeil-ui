@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent-account-render",
+  "ui": {
+    "version": "0.7.1",
+    "contractVersion": "1"
+  },
+  "sourceRevision": "32108fd8e1cb1db6dae24a09f3ca72ac9a91f618",
+  "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+  "cases": [
+    {
+      "width": 1440,
+      "theme": "dark",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(32, 33, 39)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(38, 38, 38)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(25, 26, 31)",
+          "color": "rgb(239, 240, 243)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(100, 103, 115)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(239, 240, 243)",
+          "backgroundColor": "rgb(32, 33, 39)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      }
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(240, 241, 245)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(235, 235, 235)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgb(32, 33, 39)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(140, 143, 155)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(32, 33, 39)",
+          "backgroundColor": "rgb(240, 241, 245)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      }
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(32, 33, 39)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(38, 38, 38)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(25, 26, 31)",
+          "color": "rgb(239, 240, 243)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(100, 103, 115)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(239, 240, 243)",
+          "backgroundColor": "rgb(32, 33, 39)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      }
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(240, 241, 245)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(235, 235, 235)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgb(32, 33, 39)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(140, 143, 155)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(32, 33, 39)",
+          "backgroundColor": "rgb(240, 241, 245)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      }
+    }
+  ]
+}

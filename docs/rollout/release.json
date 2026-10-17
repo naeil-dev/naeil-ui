@@ -1,29 +1,29 @@
 {
   "schemaVersion": 1,
-  "releaseId": "ui-0.7.0-3b13e95",
-  "version": "0.7.0",
-  "previousVersion": "0.6.0",
-  "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+  "releaseId": "ui-0.7.1-32108fd",
+  "version": "0.7.1",
+  "previousVersion": "0.7.0",
+  "sourceRevision": "32108fd8e1cb1db6dae24a09f3ca72ac9a91f618",
   "archive": {
-    "path": "frozen/naeil-ui-0.7.0.tgz",
-    "sha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
-    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.0/naeil-ui-0.7.0.tgz",
+    "path": "frozen/naeil-ui-0.7.1.tgz",
+    "sha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.1/naeil-ui-0.7.1.tgz",
     "downloadOrigins": [
       "https://release-assets.githubusercontent.com"
     ]
   },
   "contract": {
     "version": "1",
-    "path": "frozen/naeil-chrome-0.7.0.json",
-    "sha256": "6c8511f3fa4770a3a5653a7efdc4689d9afa3e94781d8406fc6b433123dfd771",
-    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.0/naeil-chrome-0.7.0.json",
+    "path": "frozen/naeil-chrome-0.7.1.json",
+    "sha256": "85bb399a13bba741e9c100d8f08db8ab5c58af3fd2a2614ca9ff24b7e455dfac",
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.1/naeil-chrome-0.7.1.json",
     "downloadOrigins": [
       "https://release-assets.githubusercontent.com"
     ]
   },
   "changes": [
     "dom",
-    "guard",
-    "contract"
+    "api",
+    "fix"
   ]
 }
