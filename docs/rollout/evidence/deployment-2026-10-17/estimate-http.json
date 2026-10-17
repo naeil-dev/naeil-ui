@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-17T02:41:24.044Z",
+  "origin": "https://abestimate.naeil.dev",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "abestimate",
+    "artifactId": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
+    "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+    "ui": {
+      "version": "0.7.0",
+      "contractVersion": "1"
+    }
+  },
+  "identityStatus": 200,
+  "cacheControl": "no-store, max-age=0",
+  "healthStatus": 200,
+  "healthy": true
+}

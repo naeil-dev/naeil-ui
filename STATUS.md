@@ -1,6 +1,18 @@
-# Status — 2026-10-17 three-service deployment in progress
+# Status — 2026-10-17 account-control correction in progress
 
-Owner explicitly excludes Home as well as Baby and authorizes one-time deployment of **naeil.dev, Estimate and Jev**. The three verified local candidates cover336 independent render conditions. Standing automation stays disabled; the remaining unknown services are not part of this deployment request. [Deployment plan and outcome](docs/rollout/deployment-2026-10-17.md). No new production completion is claimed until the live receipts below are recorded.
+The owner found authenticated account controls still differed after the three-service deployment. UI0.7.1 source `32108fd` adds one React-only account/login control while each app retains session/logout/save handling. Exact archive `ecd656…`, frame reference `85bb399…` and account reference `158dd3…` are frozen in `docs/rollout/frozen/`. Shared units85, types, package/site builds, real packed React/Next and account browser checks passed; consumer integration and the correction deployment are in progress. Production still serves the recorded0.7.0 artifacts until new per-service receipts say otherwise.
+
+See [correction spec](docs/superpowers/specs/2026-10-17-shared-account-correction.md), [plan](docs/superpowers/plans/2026-10-17-shared-account-correction.md) and [release metadata](docs/rollout/release.json). This correction keeps Home/Baby excluded and standing rollout disabled. The earlier deployment receipt below remains historical evidence, not authenticated account-parity proof.
+
+## Earlier three-service deployment
+
+# Status — 2026-10-17 three-service deployment complete; standing rollout disabled
+
+**naeil.dev, Estimate and Jev now serve canonical NaeilHeader/NaeilFooter, UI0.7.0/contract1.** Site Production7133974289 serves merge `b82f12d`; Estimate current is `cc4b6dee738e-fbed79a686e1`; Jev release is `20261017T024200Z-ui07`, source `7e1eb717`. Public acceptance passes280 independent-reference conditions: site248, Estimate8 and Jev24. Exact public artifact identities, provider/runtime bindings, assets/guards, complete render measurements and representative images are in [the deployment outcome](docs/rollout/deployment-2026-10-17.md) and [machine-readable receipt](docs/rollout/evidence/deployment-2026-10-17/summary.json).
+
+Green PR CI and merged-source CI passed; the reviewed Git tree is preserved. Main executed independently reviewed one-time native transitions with fresh Estimate byte preservation and Jev current-code recovery capture. All47 rollout/verifier tests pass after correcting CI browser ordering and a Japanese/Latin font-subset verification race. A transient website connection timeout is retained separately from the successful31-route rerun.
+
+Home and Baby are excluded. Protected production workflows, real-provider/OAuth, native-device/AT and live rollback/reboot remain unverified; isolated authenticated candidate evidence stays separate. Standing automatic rollout is disabled, authoritative DNS/unknown-service discovery is incomplete, and this task did not publish npm or hosted Storybook. The requested three-service deployment is complete; the wider unattended rollout objective is not. No user tabs were reloaded.
 
 ## Earlier four-service preparation checkpoint (scope superseded)
 

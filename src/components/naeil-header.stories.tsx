@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { NaeilHeader, type NaeilHeaderLocale } from "./naeil-header";
-import { Button } from "./ui/button";
+import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale } from "./naeil-header";
 import { NaeilFooter } from "./naeil-footer";
 
 const meta = {
@@ -29,7 +28,8 @@ function HeaderExample({ locale: initialLocale, japaneseOnly = false, variant = 
   return <>
     <NaeilHeader locale={locale} currentHref={href} resolveHref={path => path}
       onLocaleChange={japaneseOnly || reference ? undefined : setLocale}
-      authSlot={reference ? undefined : <Button className="min-h-11" variant="ghost" onClick={() => setNotice("Application session callback")}>Example session</Button>}
+      authSlot={reference ? undefined : <NaeilHeaderAccountControl locale={locale}
+        account={{ status: "signed-in", onLogout: () => setNotice("Application session callback") }} />}
       onNavigate={(event, item) => {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || item.target === "_blank") return;
         event.preventDefault();
@@ -59,3 +59,23 @@ export const ReferenceFullEn: Story = { render: () => <HeaderExample locale="en"
 export const ReferenceCompactEn: Story = { render: () => <HeaderExample locale="en" variant="compact" reference /> };
 export const ReferenceFullKo: Story = { render: () => <HeaderExample locale="ko" variant="full" reference /> };
 export const ReferenceCompactKo: Story = { render: () => <HeaderExample locale="ko" variant="compact" reference /> };
+
+function AccountExample() {
+  useEffect(() => { document.documentElement.lang = "ja"; }, []);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState("ready");
+  const [authenticated, setAuthenticated] = useState(true);
+  return <>
+    <NaeilHeader locale="ja" authSlot={<NaeilHeaderAccountControl locale="ja" account={authenticated ? {
+      status: "signed-in", busy, displayName: "Example account with a very long display name", email: "long-example-address@example.invalid",
+      onLogout: () => { setBusy(true); setResult("pending"); },
+    } : { status: "signed-out", loginHref: "/login?next=%2Feditor" }} />} />
+    <main className="ui-app-frame pt-28">
+      <button onClick={() => { setBusy(false); setResult("cancelled"); }}>Cancel guarded action</button>
+      <button onClick={() => { setBusy(false); setResult("failed"); }}>Fail session action</button>
+      <button onClick={() => { setBusy(false); setAuthenticated(false); setResult("signed out"); }}>Complete session action</button>
+      <p role="status">{result}</p>
+    </main>
+  </>;
+}
+export const AccountStates: Story = { render: () => <AccountExample /> };

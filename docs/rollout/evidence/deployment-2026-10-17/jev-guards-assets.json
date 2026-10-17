@@ -1,0 +1,86 @@
+{
+  "checkedAt": "2026-10-17T02:47:57.486Z",
+  "guardChecked": true,
+  "nonpublicPathsChecked": 4,
+  "assetsChecked": 14,
+  "checks": [
+    {
+      "path": "/",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "path": "/api-key",
+      "status": 404
+    },
+    {
+      "path": "/server.env",
+      "status": 404
+    },
+    {
+      "path": "/password.json",
+      "status": 404
+    },
+    {
+      "path": "/state.sqlite",
+      "status": 404
+    },
+    {
+      "path": "/_next/static/chunks/3k-luykzm303i.css",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/1u0_gfwr5shit.css",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/3z3fqpvn4seph.css",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/0ku4pcwrc165n.css",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/0c65it44g4ur8.css",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/0g82m20bp-9bp.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/3vsfs_1wul5xy.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/10midoh743trl.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/turbopack-44zkotsdorqas.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/0snq_c0h3cvis.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/3og8mw--5s44z.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/3kjjwgw3clsa0.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/0m4gou1ref2iu.js",
+      "status": 200
+    },
+    {
+      "path": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+      "status": 200
+    }
+  ],
+  "passed": true
+}

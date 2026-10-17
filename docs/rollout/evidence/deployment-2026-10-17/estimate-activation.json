@@ -1,0 +1,28 @@
+{
+  "serviceId": "estimate",
+  "helperCommit": "cc441a13901f8a6f14a5f3b3684a62cac2313fef",
+  "helperSha256": "8c5c928cbc9c00a266f4097b7b87b81e664d34f44b72d6cc69b9683e41d050b1",
+  "currentRelease": "cc4b6dee738e-fbed79a686e1",
+  "privatePreservationVerified": true,
+  "receipts": [
+    {
+      "schemaVersion": 1,
+      "operationId": "ui070-deploy-cee45012-660d-48c7-b526-d15136281513",
+      "action": "deploy",
+      "from": "b305c0432420-4928a714c529",
+      "to": "cc4b6dee738e-fbed79a686e1",
+      "phase": "staged",
+      "recordedAt": "2026-10-17T02:40:43.351224+00:00"
+    },
+    {
+      "schemaVersion": 1,
+      "operationId": "ui070-activate-ac56a0d4-1264-4008-bfc9-319b99369dce",
+      "action": "activate",
+      "from": "b305c0432420-4928a714c529",
+      "to": "cc4b6dee738e-fbed79a686e1",
+      "phase": "verified",
+      "recordedAt": "2026-10-17T02:40:56.997760+00:00"
+    }
+  ],
+  "liveRollbackExercised": false
+}

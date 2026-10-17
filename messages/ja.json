@@ -173,6 +173,7 @@
     "confirm": "確認",
     "openMenu": "メニューを開く",
     "actions": "操作",
+    "logoutFailed": "ログアウトできませんでした。もう一度お試しください。",
     "profile": "プロフィール",
     "settings": "設定",
     "team": "チーム",

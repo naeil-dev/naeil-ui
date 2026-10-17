@@ -116,7 +116,7 @@ try {
     join(core, "src/packed-contract.tsx"),
     `${imports}
 import * as ui from '@naeil/ui/ui';
-import { NaeilHeader } from '@naeil/ui/naeil-header';
+import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
 import { uiRelease } from '@naeil/ui/release';
 import { cn } from '@naeil/ui/utils';
@@ -124,7 +124,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: 'ja', variant: 'compact'}));
 export const release = uiRelease;
-export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: 'Password session' }));
+export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: createElement(NaeilHeaderAccountControl, {locale: 'ja', account: {status: 'signed-in', onLogout: () => {}}}) }));
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
 export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
 `,
@@ -146,7 +146,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(result.header, /data-naeil-header/);
   assert.match(result.header, /https:\/\/naeil.dev\/ja\/blog/);
   assert.match(result.header, /プロジェクト/);
-  assert.match(result.header, /Password session/);
+  assert.match(result.header, /data-naeil-account-trigger/);
   assert.match(result.html, /Consumer action/);
   assert.match(result.html, /aria-busy="true"/);
   assert.match(result.html, /h-8/);
@@ -183,6 +183,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(html, /data-naeil-variant="footer"/);
   const headerHtml = readFileSync(join(next, ".next/server/app/header.html"), "utf8");
   assert.match(headerHtml, /data-naeil-header/);
+  assert.match(headerHtml, /data-naeil-account-trigger/);
   assert.match(headerHtml, /https:\/\/naeil.dev\/ja\/blog/);
   assert.match(html, /Packed Next compatibility/);
   assert.match(html, /Consumer-owned messages/);

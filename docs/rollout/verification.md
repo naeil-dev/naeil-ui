@@ -1,4 +1,10 @@
-# Shared UI rollout verification — 2026-10-16
+# Shared UI rollout verification — current deployment outcome 2026-10-17
+
+The owner-authorized one-time deployment to **naeil.dev, Estimate and Jev** is complete. All three public identities serve UI0.7.0/contract1; actual public comparisons pass280 conditions (248 site,8 Estimate,24 Jev). [Deployment/CI/runtime evidence and limits](deployment-2026-10-17.md), [final receipt](evidence/deployment-2026-10-17/summary.json), and [current registry](services.json) supersede the production-state statements in the historical checkpoint below. Home and Baby are excluded; their prior local work remains preserved.
+
+Standing automatic rollout, protected production workflow verification and wider DNS/service discovery remain incomplete. No new npm/Storybook publication or live rollback is claimed. The package archive/reference and application candidates remained frozen; CI/verifier corrections and outcome documentation have distinct revisions.
+
+## Historical local preparation — before deployment and final scope steering
 
 **Local implementation and frozen candidate verification are complete for the site, Estimate, Jev and the proven Home frontend. Production convergence is incomplete.** No new publication, push/merge, production replacement, standing activation, DNS/tunnel/auth change or private dataset access occurred. The completed 0.6.0 release is unchanged. The read-only coordinator plan has live actions disabled; aggregation returns `complete:false` and DNS inventory unresolved.
 

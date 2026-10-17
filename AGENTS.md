@@ -1,5 +1,7 @@
 # Shared UI work
 
+- The0.7.1 correction adds `NaeilHeaderAccountControl` from `/naeil-header`. Owned apps put this shared login/account/menu presentation in `authSlot` and supply their session state, busy flag and guarded callback. App-owned logout buttons or avatar-menu markup do not establish canonical header parity. Verify authenticated states as well as anonymous chrome.
+
 - The unpublished 0.7.0 candidate adds `@naeil/ui/naeil-footer`: owned services use `NaeilHeader` with `NaeilFooter` for canonical destinations, preserving consumer routing/save guards. Generic Navigation/SiteFooter and legacy Nav/Footer remain public. See `docs/components/naeil-footer.md` and `docs/rollout/`; local candidate checks do not establish production convergence.
 
 - Read `DESIGN.md` before changing shared UI. The implementation scope is in `docs/superpowers/specs/2026-09-29-shared-ui-v2-design.md` and consumer guidance in `docs/design/v2-migration.md`.

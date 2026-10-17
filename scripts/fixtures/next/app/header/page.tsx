@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
-import { NaeilHeader } from "@naeil/ui/naeil-header";
-import { Button } from "@naeil/ui/ui";
+import { NaeilHeader, NaeilHeaderAccountControl } from "@naeil/ui/naeil-header";
 export default function HeaderPage() {
-  return <><NaeilHeader locale="ja" Link={Link} authSlot={<Button>Next account</Button>} /><main><h1>Packed shared header</h1></main></>;
+  return <><NaeilHeader locale="ja" Link={Link} authSlot={<NaeilHeaderAccountControl locale="ja" account={{ status: "signed-in", onLogout: () => {} }} />} /><main><h1>Packed shared header</h1></main></>;
 }

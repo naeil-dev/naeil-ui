@@ -2,6 +2,8 @@
 
 Spec: [approved direction and contracts](../specs/2026-10-16-shared-ui-rollout.md).
 
+The checklist below records the earlier local preparation checkpoint. The owner's2026-10-17 deployment steering and [live deployment outcome](../../rollout/deployment-2026-10-17.md) supersede its historical no-deployment statements. Home and Baby are excluded; later outcome records must not be mistaken for new frozen application source.
+
 1. [x] Reconcile worktrees, remote main and allowed production metadata; isolate changes on local branches.
 2. [x] Record10 active surfaces and67 explicit route/state/locale entries, plus the separately preserved out-of-scope Baby discovery with source/artifact evidence, explicit route policies and unresolved DNS/source coverage.
 3. [x] Migrate estimate through verified exact 0.6.0, remove divergent frame overrides and update geometry assertions; retain business widths and save/auth behavior.
@@ -14,12 +16,14 @@ Spec: [approved direction and contracts](../specs/2026-10-16-shared-ui-rollout.m
 
 ## Outstanding operational completion
 
-- [ ] Confirm authoritative DNS coverage, Home full-backend identity and unavailable/Access service disposition; migrate the remaining applicable apps.
-- [ ] Establish reviewed Home complete-image or static-layer packaging, and supply Home/Jev deployment/rollback adapters; preserve each app's API/auth/data boundaries.
-- [ ] Provision Vercel project/CLI context, durable runners/stores and genuine prior immutable artifacts. The local standalone website tar is compatibility evidence, not a Vercel prebuilt deployment payload.
-- [ ] Review legacy predecessor bootstrap and native Estimate ownership/preservation/stop/activation behavior; connect policy-bound transition configuration/approval issuance and previous-artifact pointer maintenance.
+- [ ] Confirm authoritative DNS coverage and unavailable/Access service disposition before extending the owner's selected deployment scope. Home and Baby remain excluded.
+- [ ] Connect durable runners/stores and policy-bound deployment/recovery for the three selected services. Existing GitHub→Vercel integration serves this one-time site deployment; no CLI/prebuilt change is required for it.
+- [x] Review and execute the one-time legacy Estimate bootstrap with fresh ownership/preservation and natural stop/lock release; preserve its real legacy rollback target without fabricated public identity.
+- [x] Review and execute the one-time Jev code-only lifecycle; retain the fresh previous app and unchanged DB/auth/config paths.
+- [ ] Connect standing transition configuration/approval issuance and previous-artifact maintenance; the bounded one-time helpers do not establish unattended release fan-out.
 - [ ] Establish production-safe protected-route verification without reading business/family datasets.
-- [ ] Obtain the final concrete publication/migration decision and standing patch policy, then publish/deploy only the reviewed exact bytes.
+- [x] Obtain and execute the selected one-time deployment authorization for the site, Estimate and Jev; verify exact public identities and280 actual render conditions. PR and merged-source CI pass; detailed receipts/limits are in the deployment outcome.
+- [ ] Agree the remaining publication and standing patch policy before enabling unattended future release propagation.
 - [ ] Exercise real release fan-out, partial failure, interruption and code-only rollback; retain aggregate `complete:false` until every required target and inventory obligation is verified or explicitly excepted.
 
 Main owns shared contracts, integration and acceptance. Native GPT-6.1-Sol/high workers implemented estimate, inventory/Baby, and automation, then reviewed different implementations. Main inspected actual results and corrected review findings. No production or private data action was delegated. [Verification and frozen receipts](../../rollout/verification.md) distinguish local preparation from operational completion.

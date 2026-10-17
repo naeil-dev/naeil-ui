@@ -122,6 +122,13 @@ export async function checkConsumerBrowser(root: string) {
         const label = theme === "dark" ? "ライトテーマに切り替える" : "ダークテーマに切り替える";
         await themeScope.getByRole("button", { name: label, exact: true }).click();
         await expect(page.locator("html")).toHaveClass(theme === "dark" ? /light/ : /dark/);
+        const account = themeScope.getByRole("button", { name: "アカウントメニュー", exact: true });
+        assert.equal((await account.boundingBox())!.width, 44);
+        await account.click();
+        await expect(page.locator("[data-naeil-account-menu]")).toBeVisible();
+        await page.getByRole("menuitem", { name: "ログアウト", exact: true }).click();
+        await expect(page.getByTestId("packed-account-action")).toHaveText("logout requested");
+        await expect(account).toBeFocused();
         if (mobile) {
           await page.keyboard.press("Escape");
           await expect(panel).toBeHidden();

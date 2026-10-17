@@ -144,7 +144,8 @@ test("theme control changes the document theme and Japanese application omits un
   await theme.click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await expect(page.getByRole("button", { name: "ライトテーマに切り替える", exact: true })).toBeEnabled();
-  await page.getByRole("button", { name: "Example session", exact: true }).click();
+  await page.getByRole("button", { name: "アカウントメニュー", exact: true }).click();
+  await page.getByRole("menuitem", { name: "ログアウト", exact: true }).click();
   await expect(page.getByRole("status")).toHaveText("Application session callback");
   // Provider synchronization must not reset the user's selection after its own effect runs.
   await page.waitForTimeout(250);
