@@ -33,3 +33,7 @@ Unit/types/lint/contrast, actual Storybook, clean packed React/Next, affected pr
 ## Initial reconciliation
 
 2026-10-16: shared HEAD and remote main/tag 0.6.0 are `549c501cee0f6c9374920785b5fce1c235c7bafd`; estimate HEAD is `0e1bcaf6292018d0d57cbbe3e6f26196f7cd7258`, no remote. Both supplied worktrees were clean. New local branches `feat/shared-ui-rollout` preserve previous branches. Estimate current artifact remains `b305c0432420-4928a714c529`, source `b305c043242001a5bf4e2204ed7ea68d112071e7`, UI file archive 0.5.0. No runtime changed.
+
+## Owner scope correction — 2026-10-17
+
+Baby Dashboard at baby.naeil.dev/dashboard is withdrawn from this rollout after the owner identified it as a different service. Its prior migration/evidence remain local historical records only. It SHALL NOT be selected for fan-out, counted as rollout progress, or pursued as an outstanding deployment obligation under this plan. Shared hostname suffix or a similar product name alone does not establish service identity. The existing naeil.dev /baby-agent description-page entry is a website route, not proof that it represents that dashboard.

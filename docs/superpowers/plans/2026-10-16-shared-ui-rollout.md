@@ -3,10 +3,10 @@
 Spec: [approved direction and contracts](../specs/2026-10-16-shared-ui-rollout.md).
 
 1. [x] Reconcile worktrees, remote main and allowed production metadata; isolate changes on local branches.
-2. [x] Record 11 discovered services and 72 explicit route/state/locale entries with source/artifact evidence, explicit route policies and unresolved DNS/source coverage.
+2. [x] Record10 active surfaces and67 explicit route/state/locale entries, plus the separately preserved out-of-scope Baby discovery with source/artifact evidence, explicit route policies and unresolved DNS/source coverage.
 3. [x] Migrate estimate through verified exact 0.6.0, remove divergent frame overrides and update geometry assertions; retain business widths and save/auth behavior.
 4. [x] Implement canonical footer/guard/version contract, site adoption and final packed 0.7.0 candidate.
-5. [x] Integrate the frozen archive in estimate and the source-correlated Baby frontend. Home/Jev source-correlated candidates are recorded in the follow-up below.
+5. [x] Integrate the frozen archive in estimate. The earlier Baby migration is withdrawn from current scope and preserved as history after the owner's2026-10-17 correction. Home/Jev source-correlated candidates are recorded in the follow-up below.
 6. [x] Implement disabled release fan-out, update/build/package/platform bridges, fail-closed receipts, policy gates and code recovery. Real runner/configuration/bootstrap and standing activation are not complete.
 7. [x] Freeze independent Storybook reference; compare actual local candidate renders, reject wrong consumer override/stale identity/login redirect, and test partial failure.
 8. [x] Run relevant shared/package/Storybook/browser and consumer checks, inspect diffs/artifacts/screens, obtain separate review and fix findings. Scope and failed-run history remain in verification.
@@ -14,8 +14,8 @@ Spec: [approved direction and contracts](../specs/2026-10-16-shared-ui-rollout.m
 
 ## Outstanding operational completion
 
-- [ ] Confirm authoritative DNS coverage, Home/Baby full-backend identity and unavailable/Access service disposition; migrate the remaining applicable apps.
-- [ ] Establish reviewed Home/Baby complete-image or static-layer packaging, and supply Home/Baby/Jev deployment/rollback adapters; preserve each app's API/auth/data boundaries.
+- [ ] Confirm authoritative DNS coverage, Home full-backend identity and unavailable/Access service disposition; migrate the remaining applicable apps.
+- [ ] Establish reviewed Home complete-image or static-layer packaging, and supply Home/Jev deployment/rollback adapters; preserve each app's API/auth/data boundaries.
 - [ ] Provision Vercel project/CLI context, durable runners/stores and genuine prior immutable artifacts. The local standalone website tar is compatibility evidence, not a Vercel prebuilt deployment payload.
 - [ ] Review legacy predecessor bootstrap and native Estimate ownership/preservation/stop/activation behavior; connect policy-bound transition configuration/approval issuance and previous-artifact pointer maintenance.
 - [ ] Establish production-safe protected-route verification without reading business/family datasets.
@@ -40,3 +40,7 @@ No source, origin or scope question was repeated after the user said they did no
 - [x] Harden same-URL protected-state/locale coverage, exact route exceptions, final state recheck and exclusive themes;45 automation/verifier tests pass.
 
 Full deployment chains and production convergence remain open. No blanket activation approval is requested while runner/prior-artifact/backend/verification inputs are missing.
+
+## Scope correction — 2026-10-17
+
+- [x] Remove Baby Dashboard from active rollout targets and completion counts following the owner's different-service correction. Preserve its isolated branch/artifacts and prior registry record without further rollout work or deployment. Four in-scope consumers retain400 reference conditions; unknown Digest/LINE/ESG/Work/Trip remain unresolved.

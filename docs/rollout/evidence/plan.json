@@ -26,12 +26,6 @@
       "reason": "Standing rollout policy is disabled"
     },
     {
-      "serviceId": "baby",
-      "adapterConfigured": false,
-      "state": "review-required",
-      "reason": "Standing rollout policy is disabled"
-    },
-    {
       "serviceId": "trip",
       "adapterConfigured": false,
       "state": "review-required",

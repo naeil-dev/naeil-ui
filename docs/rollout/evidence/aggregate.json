@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "releaseId": "ui-0.7.0-3b13e95",
-  "observedAt": "2026-10-16T12:38:44.131Z",
+  "observedAt": "2026-10-17T01:54:24.111Z",
   "complete": false,
   "dnsInventory": "unresolved",
   "services": [
@@ -23,11 +23,6 @@
     {
       "serviceId": "jev",
       "state": "unresolved",
-      "reason": "Exactly one current release receipt required"
-    },
-    {
-      "serviceId": "baby",
-      "state": "not-adopted",
       "reason": "Exactly one current release receipt required"
     },
     {
