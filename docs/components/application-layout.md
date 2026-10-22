@@ -101,3 +101,16 @@ For each consumer, record its installed version, layout adapter, shared imports,
 A blanket ban on `<header>`, `<nav>` or `<footer>` would also reject valid section landmarks and adapters. Review the root composition and its rendered output instead. This repository checks packed React/Next examples; external applications still need their own upgrades, adapter migrations and CI. Publication and deployment are separate work.
 
 See [canonical footer content and save interception](naeil-footer.md). 0.7.0 candidate adds package/contract identity; publication and per-service operational rollout are separate.
+
+## Shared naeil.dev login (services on `*.naeil.dev`)
+
+Live since 2026-10-22 for naeil.dev, abestimate.naeil.dev and jev.naeil.dev. A new service joins the same login instead of running its own session, relay or password. Home Console (`:2455` on the tailnet) is outside the cookie scope.
+
+- **Session:** read the default `@supabase/ssr` 0.9.0 cookie `sb-dathsxdsaxooifnxjket-auth-token` (and its `.0`, `.1` chunks) with `Domain=.naeil.dev; Path=/; Secure; SameSite=Lax`. Write refreshed chunks with the same options; never set a host-only copy.
+- **Identity and access:** on the server call `supabase.auth.getUser()`, then `rpc('access_decision', { p_service_id: '<service>' })` with that session's access token. `allowed` → continue; `not_granted` / `member_inactive` / `service_inactive` → 403 page; terminal session errors → treat as signed out; other failures → 503.
+- **Signed out:** redirect (307) to `https://naeil.dev/login?next=<absolute URL>`. Add the service origin to the site's `canonicalRedirect` allowlist (`src/lib/auth/redirect.ts`).
+- **Logout:** `signOut({ scope: 'local' })`, then expire every shared cookie chunk with the same Domain/Path. All services see the user as signed out on the next request.
+- **Header:** `NaeilHeaderAccountControl` in `authSlot`, linked to the login URL and the logout callback.
+- **Onboarding:** register the service id in the central catalog, mark it verified, and grant users from Home Console (`console_set_access`).
+
+Reference code: Estimate `src/server/naeil-shared-session.ts`; site `src/lib/auth/site-session.ts` and `cookie-domain.ts`. Commit `c076391` handles a stale pre-2026-10-17 host-only apex cookie that otherwise breaks the OAuth callback.

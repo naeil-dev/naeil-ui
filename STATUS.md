@@ -1,3 +1,117 @@
+# Status — 2026-10-23 shared-login follow-up complete; production rebuilt from main
+
+The production site source is merged into `main` (PR #12, `e757f8d`), and Production rebuilt from `main` with the shared login intact (anonymous Estimate/Jev 307 to `naeil.dev/login?next=`, console relay 303, retired relays 404, signed in across all three services in the browser). Estimate/Jev commits are archived as local bundles only (no git remote yet). Old Estimate/Jev releases and the unused control wrapper are moved to `~/.Trash/naeil-cleanup-20261022/`; health 200. The service login contract is in [application layout](docs/components/application-layout.md#shared-naeildev-login-services-on-naeildev). [Handoff §3/§9](docs/rollout/auth-sso-handoff-2026-10-22.md).
+
+---
+
+# Status — 2026-10-22 shared .naeil.dev login live on naeil.dev, Estimate and Jev; user browser acceptance pending
+
+naeil.dev (`8b2a4e7`, `dpl_14tRFTnp8…`) writes the default Supabase session cookie with `Domain=.naeil.dev`; Estimate (`d7cf07a`) and Jev (`552f3ec`) verify it server-side with `getUser()` plus the central `access_decision`, redirect anonymous users to `naeil.dev/login?next=`, and clear the shared cookie on logout. App session registries, relay/PKCE flows and Jev passwords are removed; only the Home Console relay remains. Jev is a verified service; Jay's Jev grant and Google/GitHub cross-service login/logout acceptance are pending. [Handoff §3](docs/rollout/auth-sso-handoff-2026-10-22.md).
+
+---
+
+# Status — 2026-10-22 Estimate Google/GitHub return accepted; save confirmation and Jev pending
+
+**Operating update:** The user confirmed the actual Estimate list after both Google and GitHub login. Exact release47c01d7c49f6-913e9847deb4 remains admitted through the CLOSED controller with no automatic reopen. A fresh genuine session supported one revoke and one regrant, each independently reconciled; current member version3 has [abestimate]. The exact configured client/PostgREST denied access after revoke and allowed it after regrant and restart; this is separate from a public browser cookie-request HTTP-status capture. A controlled restart used one TERM and one explicit OPEN, preserved all21 business/backup files and the real session, and reached generation10 with matching native identity/job/listener. Twenty-four finite actual-HTTPS requests passed Google/GitHub synthetic error-return, binding, replay and retry checks; no provider UI cancellation or code exchange was performed by that sender. The user's restart-without-login and new-test-estimate save/reload confirmation is pending; the existing question is not repeated. Jev package, verification adapter and process-control preparation are local only; no Jev process or grant changed. [Current evidence and remaining acceptance](docs/rollout/auth-live-login-progress-2026-10-21.md). Earlier snapshots below remain historical.
+
+**Pre-transition snapshot:** The user reset the DB password and supplied it privately. Verified-TLS owner authentication succeeded; no further password input is needed. The exact schema envelope and existing-subject bootstrap were each applied once and separately accepted through fresh authenticated read-only reconciliation. There is exactly one active version-zero member/administrator, zero grants and two active/unverified services. Existing Auth/catalog metadata is preserved. The mandatory session-only logging protection passed actual effective readback and independent scoped review before private binding. No Estimate/Jev operating-process application has occurred. Estimate's exact-return source was frozen in an isolated local commit and release47c01d7c49f6-913e9847deb4 was installed at a distinct path; main verified all2958 app entries and341 packaged sources, while current remains unchanged. Final recorded smoke15/15 and before/after integrity17/17 match the accepted artifact; main matched all79 package evidence hashes, independently reran the corrected listener parser39/39, and confirmed actual Mac listener/writer/loaded-job agreement without signaling. Local package and control corrections are accepted; fresh preservation/transition admission and genuine Google authentication remain pending. Initial-handoff and service-activation reviews found no scoped blocker; genuine personal login and configured denial remain prerequisites. [Current application, evidence and next conditions](docs/rollout/auth-live-login-progress-2026-10-21.md). Site relay deployment and19/19 hosted correction checks remain valid; real Google/GitHub acceptance is incomplete. Earlier snapshots below remain historical.
+
+---
+
+# Status — 2026-10-21 application inputs and local controls verified; live login pending
+
+Continued the authorized local follow-up: preserved the exact285-file Vercel source package, implemented a fixed64-request hosted sender (12 local tests; zero HTTPS requests), and verified the dedicated Node24.21 native replacement primitive (36 cases) plus one-use CLOSED/OPEN lifecycle (30 groups). Independent review identified bounded JSON I/O and regex type-coercion defects; main fixed both, with12 focused regressions and the30 lifecycle groups passing afterward. The disabled central runner passes35 tests, actual psycopg wire behavior passes4 and new isolated PostgreSQL17.11 readbacks pass13. All owned SQL fixtures exited normally and were removed nonforced; original fixtures/locks/evidence remain protected. No product-source, actual configuration/schema/member/grant, deployment, current or operating-process change was made in this follow-up. Actual writer/start/lock readiness, installed control/private-config/stop orchestration, independent central owner access and live Vercel metadata/application remain incomplete. [Current evidence, artifact and minimum next conditions](docs/rollout/evidence/auth-application-preparation-2026-10-21/report.md). Earlier snapshots below remain historical.
+
+---
+
+# Status — 2026-10-21 static login relay locally complete; actual HTTPS acceptance pending
+
+The user's “너 권고만 먼저 진행해줘” authorized the bundled OP01–03 recommendation and local implementation/isolated verification; “필요한 작업 전부 진행해줘” authorized the bounded follow-up fix. Three static return routes replace the wildcard/Pages adapter. A rejection-only fallback now returns protected empty404 for all four former dot/.rsc HTML404 failures, without broadening OP02. Focused342 tests, typegen/types/build and129/129 HTTP cases pass. The same new artifact passes synthetic Estimate16 controller +16 browser, Home12 minimal-ASGI and Jev6 transport checks within their stated limits. Independent review found no remaining local defect. Owned runtimes stopped cleanly; five HEADs and unrelated protected sources remain unchanged. Local design/implementation/isolated verification are complete. Deployment, actual settings/schema/grants, operating-process application and real-provider HTTPS acceptance remain incomplete. Home administration/source transplant is separate. See the [current result and next conditions](docs/superpowers/plans/2026-10-20-auth-recovery-scope-plan.md) and [durable evidence](docs/rollout/evidence/auth-static-return-fallback-2026-10-21/report.md). Earlier snapshots below are unchanged historical records.
+
+---
+
+# Status — 2026-10-21 login-scope handoff refreshed; contract decision still pending
+
+[Login-scope handoff, section 8](docs/rollout/auth-login-main-handoff-2026-10-20.md) records the 06:04–06:05 JST five-root/protected-file and agent checks. The candidate is still unimplemented; the next unresolved item is adoption of the bundled callback contract changes. Preserve the login-only scope and complete authorized work autonomously; Home administration is a separate task. Only handoff documentation was updated; earlier records follow unchanged.
+
+---
+
+# Status — 2026-10-20 login-only successor handoff; contract decision still pending
+
+[Latest login-scope handoff](docs/rollout/auth-login-main-handoff-2026-10-20.md) records the user's correction: the immediate work is Jev/Estimate Google/GitHub login return, not Home Console administration or source transplant. The existing callback candidate/file/test plan is prepared but not adopted or implemented. This handoff adds no approval. Five-root HEAD/status, 71 protected files and current agent visibility were checked at 19:41–19:42 JST; no product/operational work or successor creation occurred. Earlier snapshots follow unchanged.
+
+---
+
+# Status — 2026-10-20 current-hosting callback candidate prepared; contract decision pending
+
+Authorized step1 of the [current execution plan](docs/superpowers/plans/2026-10-20-auth-recovery-scope-plan.md) now contains one static App Router relay candidate, exact proposed files, changed OP01–03 guarantees and finite verification. Existing consumer generators/finalizers remain compatible without edits. Platform query retention and retention periods remain unknown; early platform responses and normalized input cannot inherit the former raw-request guarantees. The replacement contract and local implementation remain pending explicit adoption. Only this pointer and the plan changed; no product implementation, tests/builds, probe or operational application occurred. A2 remains stopped and real-account acceptance remains incomplete. Earlier snapshots follow unchanged.
+
+---
+
+# Status — 2026-10-20 successor-main handoff prepared; no new execution approval
+
+[Latest handoff, scoped state and restart boundary](docs/rollout/auth-main-handoff-2026-10-20.md) records the 08:09–08:10 JST source, agent and runtime-metadata checks. The current-hosting plan remains proposed for follow-up execution; A2 stays stopped and actual authentication acceptance remains incomplete. This handoff adds no contract, implementation or operational approval. No successor agent was created. Earlier snapshots follow unchanged.
+
+---
+
+# Status — 2026-10-20 execution and scope-control plan prepared
+
+[Current-hosting execution plan and scope boundaries](docs/superpowers/plans/2026-10-20-auth-recovery-scope-plan.md) fixes the first delivery at existing Jay → Home administration/central grants → Estimate real-account acceptance. The first proposed unit is one coherent callback candidate covering OP01–03; further A2 work remains stopped. The plan defines permitted changes, stopping rules and staged verification/application. It does not approve a contract relaxation, new implementation or operational application. Only this pointer and the plan were added; authentication acceptance remains incomplete. Earlier snapshots follow unchanged.
+
+---
+
+# Status — 2026-10-20 independent direction review complete; further A2 work stopped
+
+[Independent Astra/Opus review and explicit decision boundary](docs/rollout/auth-direction-independent-review-2026-10-20.md) recommends current hosting first and a bounded reconsideration of callback/logging contracts. A2 is preserved as a conditional contingency, not the next implementation task. No policy relaxation or new implementation/operational application is authorized by the review. OP02/03, current Home integration, safe Estimate shutdown and independent central recovery remain unresolved. Only review documents/safe receipts and this pointer changed; real-account HTTPS acceptance is still incomplete. Earlier snapshots follow unchanged.
+
+---
+
+# Status — 2026-10-19 A2 stage1 concrete design prepared; no operational adoption
+
+[Concrete stage1 design and finite implementation boundary](docs/rollout/auth-a2-stage1-design-2026-10-19.md) selects a proposed Tokyo Linux ingress, explicit Vercel origin routing, raw-TCP/TLS Home2455 and Estimate backhaul, certificate custody, producer controls and same-policy recovery. Fresh narrow metadata confirms current Vercel Hobby/domain bindings and free candidate Mac ports. The effective tailnet authorization, certificate permissions, Vercel support/acceptance, Mac crash collection and safe retirement of old Home TLS connections remain adoption gates. Only design documents and read-only metadata changed; no implementation, probe, purchase, DNS/certificate, process or account application occurred.
+
+# Earlier — 2026-10-19 A2 design review complete; operational adoption remains on hold
+
+[A2 findings and decision boundaries](docs/rollout/auth-a2-design-review-2026-10-19.md) identify a conditional pinned Next custom-server dispatch and confirm existing Home HTTPS Serve2455 through a narrow read-only metadata projection. A first-hop-only A2 does not close E/J second-hop collection. Extending owned ingress to naeil.dev+Estimate first, Home collection controls, an actual operating target, Vercel support conditions and same-policy transition/recovery remain unresolved; Jev follows Estimate acceptance. Only design-review documents/safe metadata changed; no implementation, probe, infrastructure or operational application occurred.
+
+# Earlier — 2026-10-19 successor main intake verified; relay scope decision remains
+
+[Intake evidence and concrete decision boundary](docs/rollout/auth-main-intake-2026-10-19.md) records matching five-root HEAD/status, protected hashes and exact28-fixture metadata/ownership receipts. The new main owns follow-up coordination. No complete current-hosting OP01 control is established; A2 remains an unselected, unapproved hosting-scope expansion. Home transplant, Estimate closed gate and private central recovery retain their separate pending conditions. Only documentation/safe receipts changed; no implementation, observer, operational application or real-account acceptance occurred.
+
+# Earlier — 2026-10-19 next-main handoff prepared
+
+[Latest handoff and execution sequence](docs/rollout/auth-next-main-handoff-2026-10-19.md) records the 20:26–20:27 JST scoped state checks and the conversation's clarified priority: relay operational design is the first cutover decision; independent Home/Estimate/recovery preparation may proceed within its actual authorization. The handoff adds no implementation, design-change or operational approval. No successor agent was created.
+
+# Earlier — 2026-10-19 new main resumed; decision and recovery preparation
+
+[Current decision table and operations preparation](docs/rollout/auth-resume-decisions-2026-10-19.md) records the new main's ownership, matching protected sources/fixtures, OP01–03 choices and preserved approval boundaries. The observer remains on hold. No authentication implementation or operational application was performed.
+
+Fresh Home metadata identifies a different running image and actual DB head `20261017_000000_merge_auto_monitoring`, absent from the retained candidate; its former production parity cannot authorize a transition. A scoped current-source auth transplant proposal preserves Auto/monitoring and the newer migration graph; it is not implemented. A bounded Supabase catalog read established current independent Dashboard/postgres privileges, while private execution, durable reauthentication/custody and full recovery remain unresolved. Estimate's exact predecessor path audit supports early-pointer isolation under its current launch settings; the proposed closed gate for loaded KeepAlive/20-second stop policy still needs a separate design/implementation decision and validation. See the linked evidence and concrete scope/acceptance decisions; local/preparation results are not real-account HTTPS acceptance.
+
+# Earlier — 2026-10-19 two-model direction review complete; rollout plan proposed
+
+**Handoff:** [Current read-only state, ownership and restart instructions](docs/rollout/auth-direction-handoff-2026-10-19.md). No new implementation or operational authorization was added by the handoff request.
+
+Operational authentication remains incomplete: OP01–03, independent DB-owner recovery and the current Estimate stop procedure remain open. Opus 5.5 and GPT-6 Astra independently reviewed the direction and reconciled material disagreements. The recommendation is to hold the new checkpoint and prepare concrete supported remedies alongside Home/Estimate preservation, recovery and stop procedures. See the [integrated proposal, owners, acceptance and approval boundaries](docs/rollout/auth-direction-review-2026-10-19.md).
+
+Next proposed deliverables are the Jay→Estimate decision table and parallel operations package, followed by exact production artifacts and separately approved application. This review does not approve new implementation, changed security policy or operational actions. Existing completed evidence is retained; no code, tests, hosted configuration, account/grant or process change was made.
+
+# Earlier — 2026-10-19 query-boundary investigation and local observation proposal prepared
+
+Static artifact tracing identified a pre-proxy query serializer that reproduces three of four changed forms in four pure Node22 comparisons; the D12 empty-value change and the middleware-to-API handoff remain unexplained. The API captures own initURL before its later normalizer. Saved redirect bodies also differ from the direct Next clean-URL body. A separately identified single API-entry checkpoint, closed same-request comparison and future10-case proposal have been independently reviewed as preparation. No new observer/schema/artifact or hosted operation was created. Local implementation still needs the concrete scope decision; deployment/probe/WAF/logs/real-account authority is separate. See [findings, reviewed proposal and preservation evidence](docs/rollout/auth-boundary-preparation-2026-10-19.md). Baseline49 original /8 different /13 unobserved and both-hop/Host/ingress acceptance gates remain; existing Jay→Estimate with Home/central policy/relay stays first.
+
+# Earlier — 2026-10-19 approved protected Preview baseline completed; acceptance remains blocked
+
+The reviewed one-key/baseline178/exact-key-removal unit was explicitly approved and completed. All178 HTTPS attempts finished; exact-key absence and owned-sender exit were recorded, with no retry, redirect following or separate recovery. Independent review and root checks match the saved counts and bindings. Acceptance remains open:18 query-preserving308s, six TRACE405 header mismatches, diagnostic metadata49 original /8 different /13 unobserved, raw-Host/provenance and two-hop non-exposure limits. Product403 shape is not handler provenance. No WAF, logs, further probes, Production or real-account transition was authorized or applied. See [actual results, evidence and next preparation scope](docs/rollout/auth-preview-baseline-result-2026-10-19.md). Existing Jay→Estimate remains first with Home/central policy/relay dependencies intact. The one-time approval is consumed; source S still retains the wildcard candidate.
+
+# Earlier — 2026-10-19 protected Preview baseline ready for application approval
+
+The bounded executor, header inputs, source/runtime freeze and separate fresh-approval key-recovery helper are prepared and independently reviewed. Two recovery integration/environment findings were corrected; no unresolved Critical/Important defect was demonstrated in the final reviewed sources. Saved control47/root21/sender24 and corrected recovery79 checks are distinguished from affected checks and ten new offline dormant/template checks. Actual credential consumption by this executor, key generation/revocation and hosted baseline178 remain unapproved and unexecuted. See [application, preservation/recovery and evidence](docs/rollout/auth-preview-baseline-readiness-2026-10-19.md). Existing Jay→Estimate remains first; Home/central policy/relay, real Auth/HTTPS and operational transition conditions remain open.
+
+# Earlier — 2026-10-19 protected authentication Previews created
+
+The approved dedicated Vercel CLI login and two frozen Preview creations completed. Both diagnostic-v2 and product-literal Previews were READY in the recorded scoped readbacks; existing Production and protection settings were unchanged. All178 loopback TLS wire cases passed and their saved evidence was independently checked. Hosted probes, protection-bypass credentials and operational authentication cutover remain unapplied. The current CLI cannot enforce the required one-attempt/no-redirect mutation transport; the protected HTTPS executor/header freeze remains unfinished. See [results, evidence and exact remaining conditions](docs/rollout/auth-preview-created-2026-10-19.md). The following sections are historical checkpoints; source S still retains the wildcard candidate.
+
 # Status — 2026-10-17 Console account/language integration verified locally
 
 **The existing UI0.7.1 production rollout remains complete and unchanged. The new authentication integration is implemented and locally verified in isolated worktrees; it has not been pushed, merged or deployed.** Site runtime source is `2b2835667792bb83af3fa959bdcc774e1ac49471`; Estimate is `72e22fc74bcc8db266c8b844fe852b914e4ec36a`; Jev is `2b3a31140e12ec88677942a8749b39a55af2503a`. Home received narrow authentication/logout corrections at `51482f6c16cf3fca33648990998378629574fcbb`.
