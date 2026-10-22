@@ -20,6 +20,11 @@ jobs:
   package-and-site:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Keep both images aligned with the lockfile; the preflight checks the version.
+    # Browsers and OS dependencies are baked in, avoiding runner apt mirror stalls.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --ipc=host
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -28,9 +33,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
       # Rollout regression tests launch Chromium; package checks also use WebKit.
-      - run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Verify preinstalled Playwright browsers
+        run: node scripts/ci/check-playwright-image.mjs chromium webkit
+      - run: pnpm test
       - run: pnpm test:rollout
       - run: node --test scripts/account-render.test.mjs
       - run: node --test scripts/site-auth-slot.test.mjs
@@ -52,6 +58,9 @@ jobs:
   storybook-and-browser:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --ipc=host
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -60,6 +69,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Actual projects: Chromium, Firefox, WebKit; artifact upload does not deploy.
+      - name: Verify preinstalled Playwright browsers
+        run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm build:storybook
       - uses: actions/upload-artifact@v4
         with:
@@ -67,8 +79,6 @@ jobs:
           path: storybook-static/
           retention-days: 14
           if-no-files-found: error
-      # Actual projects: Chromium, Firefox, WebKit; artifact upload does not deploy.
-      - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:browser
       - name: Optional reference-workflow regressions (no credentials)
         run: |
