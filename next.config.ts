@@ -30,18 +30,16 @@ const nextConfig: NextConfig = {
   env: { NAEIL_APP_ARTIFACT_ID: artifactId, NAEIL_SOURCE_REVISION: sourceRevision },
   poweredByHeader: false,
   distDir: process.env.NAEIL_INVITE_DIST_DIR || ".next",
-  // Next discards configured headers on its built-in308. Preserve ordinary
-  // non-invite app/public canonicalization (compiler excludes /_next); invite-only
-  // proxy supplies its protected alias redirect and shared per-response nonce.
+  // Proxy rejects return aliases before site Auth/locale processing and keeps
+  // ordinary trailing-slash redirects after the protected namespaces.
   skipTrailingSlashRedirect: true,
-  async redirects() {
-    return [
-      {
-        source: "/:path((?!auth/invite/?$).+)/",
-        destination: "/:path",
-        permanent: true,
-      },
-    ];
+  skipProxyUrlNormalize: true,
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [],
+    };
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async headers() {

@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-import { SITE_AUTH_COOKIE, isSiteSessionCookie, isTerminalSessionError, siteCookieOptions } from "../site-session";
+import { isSiteSessionCookie, isTerminalSessionError, siteAuthCookiesToClear, siteCookieOptions } from "../site-session";
 
-const binding = { generation: "a".repeat(32), epoch: "b".repeat(32) };
-const sessionName = `${SITE_AUTH_COOKIE}-${binding.generation}-${binding.epoch}`;
-const boundCookies = `naeil-site-auth-generation=${binding.generation}; naeil-site-auth-epoch=${binding.epoch}; `;
+const sessionName = "sb-dathsxdsaxooifnxjket-auth-token";
 
 const state = vi.hoisted(() => ({ error: null as unknown, clientOptions: undefined as unknown }));
 vi.mock("@supabase/ssr", () => ({
@@ -12,7 +10,7 @@ vi.mock("@supabase/ssr", () => ({
     state.clientOptions = options;
     return { auth: { getUser: async () => {
       // Model the SDK's own early session removal during failed refresh.
-      if (state.error) (options as {cookies:{setAll:(cookies:unknown[])=>void}}).cookies.setAll([{name:(options as {cookieOptions:{name:string}}).cookieOptions.name+'.0',value:'',options:{path:'/',maxAge:0}}]);
+      if (state.error) (options as {cookies:{setAll:(cookies:unknown[])=>void}}).cookies.setAll([{name:'sb-dathsxdsaxooifnxjket-auth-token.0',value:'',options:{path:'/',maxAge:0}}]);
       return { data: { user: null }, error: state.error };
     } } };
   },
@@ -21,13 +19,22 @@ import { updateSession } from "@/lib/supabase/middleware";
 
 beforeEach(() => { state.error = null; state.clientOptions = undefined; });
 describe("website-only SSR session", () => {
-  it("uses a distinct secure host-only namespace, with local HTTP fixtures supported", () => {
-    expect(siteCookieOptions("naeil.dev", binding)).toEqual({ name: sessionName, path: "/", secure: true, sameSite: "lax" });
-    expect(siteCookieOptions("127.0.0.1:2482").secure).toBe(false);
+  it("shares one secure .naeil.dev session cookie, with local HTTP fixtures supported", () => {
+    expect(siteCookieOptions("naeil.dev")).toEqual({ path: "/", secure: true, sameSite: "lax", domain: ".naeil.dev" });
+    expect(siteCookieOptions("abestimate.naeil.dev:443").domain).toBe(".naeil.dev");
+    expect(siteCookieOptions("evilnaeil.dev").domain).toBeUndefined();
+    expect(siteCookieOptions("127.0.0.1:2482")).toMatchObject({ secure: false, domain: undefined });
     expect(siteCookieOptions("localhost:2482").secure).toBe(false);
-    expect(isSiteSessionCookie(sessionName + ".0", binding)).toBe(true);
-    expect(isSiteSessionCookie(sessionName + "-code-verifier", binding)).toBe(false);
-    expect(isSiteSessionCookie("sb-other-auth-token", binding)).toBe(false);
+    expect(isSiteSessionCookie(sessionName + ".0")).toBe(true);
+    expect(isSiteSessionCookie(sessionName + "-code-verifier")).toBe(false);
+  });
+
+  it("logout clears the shared session on .naeil.dev and legacy site cookies host-only", () => {
+    const cleared = siteAuthCookiesToClear([sessionName + ".0", sessionName + "-code-verifier", "sb-naeil-site-auth-" + "a".repeat(32) + "-initial.0", "naeil-site-auth-epoch", "auth_redirect_to", "NEXT_LOCALE"], "naeil.dev");
+    expect(cleared.map(c => [c.name, c.options.domain])).toEqual([
+      [sessionName + ".0", ".naeil.dev"], [sessionName + "-code-verifier", ".naeil.dev"],
+      ["sb-naeil-site-auth-" + "a".repeat(32) + "-initial.0", undefined], ["naeil-site-auth-epoch", undefined], ["auth_redirect_to", undefined],
+    ]);
   });
 
   it.each([
@@ -39,23 +46,23 @@ describe("website-only SSR session", () => {
   ])("retains recoverable cookies on ambiguous dependency failure %j", async error => {
     state.error = error;
     const request = new NextRequest("https://naeil.dev/ko", { headers: {
-      host: "naeil.dev", cookie: boundCookies + `${sessionName}.0=fixture; ${sessionName}-code-verifier=pkce; sb-legacy-auth-token=legacy`,
+      host: "naeil.dev", cookie: `${sessionName}.0=fixture; ${sessionName}-code-verifier=pkce; NEXT_LOCALE=ja`,
     } });
     const result = await updateSession(request);
     expect(result.unavailable).toBe(true);
     expect(result.response.cookies.getAll()).toHaveLength(0);
-    expect(state.clientOptions).toMatchObject({ cookieOptions: { name: sessionName, secure: true } });
+    expect(state.clientOptions).toMatchObject({ cookieOptions: { domain: ".naeil.dev", secure: true } });
   });
 
-  it("terminal expiry clears only session chunks and keeps pending PKCE and legacy scopes untouched", async () => {
+  it("terminal expiry clears only shared session chunks on .naeil.dev and keeps pending PKCE", async () => {
     state.error = { status: 400, code: "refresh_token_not_found" };
     const request = new NextRequest("https://naeil.dev/ko", { headers: {
-      host: "naeil.dev", cookie: boundCookies + `${sessionName}.0=fixture; ${sessionName}.1=fixture; ${sessionName}-code-verifier=pkce; sb-legacy-auth-token=legacy`,
+      host: "naeil.dev", cookie: `${sessionName}.0=fixture; ${sessionName}.1=fixture; ${sessionName}-code-verifier=pkce; NEXT_LOCALE=ja`,
     } });
     const result = await updateSession(request);
     expect(result.unavailable).toBe(false);
     expect(result.response.cookies.getAll().map(c => c.name)).toEqual([`${sessionName}.0`, `${sessionName}.1`]);
-    for (const cookie of result.response.cookies.getAll()) expect(cookie).toMatchObject({ value: "", path: "/", maxAge: 0, secure: true });
+    for (const cookie of result.response.cookies.getAll()) expect(cookie).toMatchObject({ value: "", path: "/", maxAge: 0, secure: true, domain: ".naeil.dev" });
   });
 
   it("does not treat a matching semantic code under the wrong HTTP status as expiry", () => {

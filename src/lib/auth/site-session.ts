@@ -1,63 +1,43 @@
-/** Website SSR namespace only. Console/Estimate/Jev own separate opaque sessions. */
-export const SITE_AUTH_COOKIE = "sb-naeil-site-auth";
-export const SITE_AUTH_GENERATION = "naeil-site-auth-generation";
-export const SITE_AUTH_EPOCH = "naeil-site-auth-epoch";
-// prepareLogin alone writes generation; successful/explicit-local logout alone
-// advances epoch. Refresh/callback only write their captured token namespace.
-// Keeping these independent prevents a delayed preparation from undoing logout.
-const ID = /^[a-f0-9]{32}$/;
-export type SiteSessionBinding = { generation: string; epoch: string };
+import { getCookieDomainFromHost } from "./cookie-domain";
+
+/**
+ * One Supabase session (default `sb-<ref>-auth-token` cookie) shared by
+ * naeil.dev and its *.naeil.dev services through Domain=.naeil.dev.
+ */
+export const RETURN_DESTINATION_COOKIE = "auth_redirect_to";
+export const RETURN_LOCALE_COOKIE = "auth_redirect_locale";
 type NamedCookie = { name: string; value: string };
 
-export function siteSessionEpoch(cookies: NamedCookie[]) {
-  const epoch = cookies.find(cookie => cookie.name === SITE_AUTH_EPOCH)?.value;
-  return epoch && ID.test(epoch) ? epoch : "initial";
+export function siteCookieOptions(host: string | null | undefined) {
+  const hostname = host?.toLowerCase().replace(/:\d+$/, "");
+  const loopback = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+  return { path: "/", sameSite: "lax" as const, secure: !loopback, domain: getCookieDomainFromHost(hostname) };
 }
 
-export function siteSessionBinding(cookies: NamedCookie[]): SiteSessionBinding | null {
-  const generation = cookies.find(cookie => cookie.name === SITE_AUTH_GENERATION)?.value;
-  return generation && ID.test(generation) ? { generation, epoch: siteSessionEpoch(cookies) } : null;
+/** Session chunks only. Never a pending PKCE verifier. */
+export function isSiteSessionCookie(name: string) {
+  return /^sb-[a-z0-9]+-auth-token(?:\.\d+)?$/.test(name);
 }
 
-export function siteSessionName(binding: SiteSessionBinding | null) {
-  return binding ? `${SITE_AUTH_COOKIE}-${binding.generation}-${binding.epoch}` : `${SITE_AUTH_COOKIE}-inactive`;
-}
+// Host-only cookies written by the 2026-10-17..22 per-site session namespace.
+const LEGACY_SITE_COOKIE = /^(?:sb-naeil-site-auth\S*|naeil-site-auth-(?:generation|epoch))$/;
 
-/** Callback cleanup is confined to the login attempt captured by its request. */
-export function siteReturnCookieNames(binding: SiteSessionBinding) {
-  const suffix = `${binding.generation}-${binding.epoch}`;
-  return { destination: `auth_redirect_to-${suffix}`, locale: `auth_redirect_locale-${suffix}` };
+/** Logout drops the shared session and pending PKCE, plus legacy host-only site cookies. */
+export function siteAuthCookiesToClear(names: string[], host: string | null | undefined) {
+  const shared = siteCookieOptions(host);
+  const hostOnly = { ...shared, domain: undefined };
+  return names.flatMap(name =>
+    /^sb-[a-z0-9]+-auth-token(?:-code-verifier)?(?:\.\d+)?$/.test(name) ? [{ name, options: shared }]
+      : LEGACY_SITE_COOKIE.test(name) || isOwnedSiteReturnCookie(name) ? [{ name, options: hostOnly }]
+      : []);
 }
 
 export function isOwnedSiteReturnCookie(name: string) {
   return /^auth_redirect_(?:to|locale)(?:-[a-f0-9]{32}-(?:initial|[a-f0-9]{32}))?$/.test(name);
 }
 
-export function siteCookieOptions(host: string | null | undefined, binding: SiteSessionBinding | null = null) {
-  const hostname = host?.toLowerCase().replace(/:\d+$/, "");
-  const loopback = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
-  return { name: siteSessionName(binding), path: "/", sameSite: "lax" as const, secure: !loopback };
-}
-
-/** Only delete this site's session chunks. Never delete a pending PKCE verifier. */
-export function isSiteSessionCookie(name: string, binding: SiteSessionBinding | null) {
-  const storage = siteSessionName(binding);
-  return !!binding && (name === storage || new RegExp(`^${storage}\\.\\d+$`).test(name));
-}
-
-/** Deliberate site logout also drops pending PKCE, but never shared/other-app cookies. */
-export function isOwnedSiteAuthCookie(name: string) {
-  return new RegExp(`^${SITE_AUTH_COOKIE}(?:-[a-f0-9]{32}-(?:initial|[a-f0-9]{32}))?(?:-code-verifier)?(?:\\.\\d+)?$`).test(name);
-}
-
-export function currentSiteCookies(cookies: NamedCookie[], binding: SiteSessionBinding | null) {
-  if (!binding) return [];
-  const name = siteSessionName(binding);
-  return cookies.filter(cookie => isSiteSessionCookie(cookie.name, binding) || cookie.name === `${name}-code-verifier` || new RegExp(`^${name}-code-verifier\\.\\d+$`).test(cookie.name));
-}
-
-export function hasSiteSession(cookies: NamedCookie[], binding: SiteSessionBinding | null) {
-  return cookies.some(cookie => !!cookie.value && isSiteSessionCookie(cookie.name, binding));
+export function hasSiteSession(cookies: NamedCookie[]) {
+  return cookies.some(cookie => !!cookie.value && isSiteSessionCookie(cookie.name));
 }
 
 export function isTerminalSessionError(error: unknown): boolean {

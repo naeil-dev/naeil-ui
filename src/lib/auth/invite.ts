@@ -1,6 +1,11 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { readInviteConfig, type InviteConfig } from "./invite-config";
 import { invitePage } from "./invite-page";
+import {
+  InviteStore,
+  inviteProofIdentity,
+  type InvitePhase,
+} from "./invite-store";
 
 const TTL = 10 * 60 * 1000;
 const MAX_TRANSACTIONS = 256;
@@ -18,15 +23,17 @@ type Envelope = {
   token_hash: string;
 };
 type Verified = { accessToken: string; userId: string; sessionId: string };
-type Transaction = {
+export type Transaction = {
   expires: number;
   csrf: string;
   proof?: Envelope;
+  proofIdentity?: { id: string; version: number; fingerprint: string };
   verified?: Verified;
   candidate?: Verified & { email: string };
   receiptRecorded?: boolean;
   links?: Link[];
   invalid?: boolean;
+  uncertain?: boolean;
   pending?: Promise<void>;
 };
 type Dependencies = {
@@ -162,9 +169,7 @@ function terminalDenial(path: string, status: number, text: string): boolean {
       value.msg.length > 0 &&
       (path === "/auth/v1/verify"
         ? value.error_code === "otp_expired"
-        : ["session_not_found", "user_not_found"].includes(
-            value.error_code,
-          ))
+        : ["session_not_found", "user_not_found"].includes(value.error_code))
     );
   }
   if (
@@ -234,13 +239,15 @@ export function inviteMethodNotAllowed(): Response {
 function state(t: Transaction) {
   return t.links
     ? "complete"
-    : t.invalid
-      ? "invalid"
-      : t.verified || t.candidate
-        ? "retry"
-        : t.proof
-          ? "staged"
-          : "empty";
+    : t.uncertain
+      ? "uncertain"
+      : t.invalid
+        ? "invalid"
+        : t.verified || t.candidate
+          ? "retry"
+          : t.proof
+            ? "staged"
+            : "empty";
 }
 function dto(t: Transaction) {
   return {
@@ -366,7 +373,11 @@ export function createInviteHandler(deps: Dependencies = {}) {
       }
     }
   }
-  async function accept(t: Transaction, config: InviteConfig) {
+  async function accept(
+    t: Transaction,
+    config: InviteConfig,
+    checkpoint?: (phase: InvitePhase) => Promise<void>,
+  ) {
     const p = t.proof;
     if (!p) throw new Failure(409);
     const fingerprints = {
@@ -388,6 +399,9 @@ export function createInviteHandler(deps: Dependencies = {}) {
         !["invite", "recovery"].includes(String(pre.verificationType))
       )
         throw new Failure(503);
+      if (t.expires <= now()) throw new Failure(409);
+      // The durable claim must survive before the single-use external effect.
+      await checkpoint?.("verifying");
       if (t.expires <= now()) throw new Failure(409);
       const auth = await call(config, "/auth/v1/verify", config.anonKey, {
         token_hash: p.token_hash,
@@ -431,9 +445,11 @@ export function createInviteHandler(deps: Dependencies = {}) {
         sessionId: claims.session_id,
         email: pre.email,
       };
+      await checkpoint?.("candidate");
     }
     if (!t.verified) {
       const candidate = t.candidate!;
+      if (t.expires <= now()) throw new Failure(409);
       const u = await call(config, "/auth/v1/user", candidate.accessToken);
       if (
         u.id !== candidate.userId ||
@@ -449,10 +465,12 @@ export function createInviteHandler(deps: Dependencies = {}) {
         sessionId: candidate.sessionId,
       };
       t.candidate = undefined;
+      await checkpoint?.("verified");
     }
     // Once a receipt is known, do not re-record after an unknown acceptance outcome.
     // record_verification correctly rejects a now-accepted invitation; accept replays it.
     if (!t.receiptRecorded) {
+      if (t.expires <= now()) throw new Failure(409);
       const recorded = await call(
         config,
         "/rest/v1/rpc/console_invite_record_verification",
@@ -471,6 +489,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
       )
         throw new Failure(503);
       t.receiptRecorded = true;
+      await checkpoint?.("recorded");
     }
     if (t.expires <= now()) throw new Failure(409);
     const receipt = await call(
@@ -501,18 +520,40 @@ export function createInviteHandler(deps: Dependencies = {}) {
     t.verified = undefined;
     t.candidate = undefined;
     t.receiptRecorded = undefined;
+    await checkpoint?.("complete");
   }
   async function handle(request: Request, post: boolean): Promise<Response> {
     const h = inviteResponseHeaders();
     let t: Transaction | undefined;
+    let store: InviteStore | undefined;
     try {
       const config = configReader();
       if (!config) throw new Failure(503);
+      if (process.env.VERCEL && config.transactionStore !== "supabase")
+        throw new Failure(503);
       boundary(request, config, post);
       purge();
       const name = cookieName(config);
       let id = cookieId(request, name);
-      t = id ? transactions.get(id) : undefined;
+      const setCookie = (handle: string) =>
+        h.set(
+          "Set-Cookie",
+          `${name}=${handle}; Path=/; Max-Age=600; HttpOnly; SameSite=Lax${config.siteOrigin.startsWith("https:") ? "; Secure" : ""}`,
+        );
+      const durable = config.transactionStore === "supabase";
+      const durableStore = (handle: string) =>
+        new InviteStore(handle, config.encryptionKey || "", (action, args) =>
+          call(
+            config,
+            `/rest/v1/rpc/console_invite_tx_${action}`,
+            config.serviceRoleKey,
+            args,
+          ),
+        );
+      if (durable && id) {
+        store = durableStore(id);
+        t = await store.read();
+      } else t = id ? transactions.get(id) : undefined;
       if (post) {
         if (!t) throw new Failure(403);
         const data = await body(request);
@@ -531,51 +572,93 @@ export function createInviteHandler(deps: Dependencies = {}) {
             throw new Failure(400);
           const p = envelope(data);
           if (!p) throw new Failure(400);
-          if (t.pending || t.links || t.invalid || t.verified || t.candidate)
+          const rotated =
+            !!store &&
+            t.proofIdentity?.id === p.id &&
+            p.version > t.proofIdentity.version;
+          if (rotated) {
+            // An explicitly supplied resend gets a separate lifetime and handle.
+            // Never claim or rewrite the old row, especially terminal uncertainty.
+            id = fresh();
+            store = durableStore(id);
+            t = await store.create({ expires: now() + TTL, csrf: fresh() });
+            // The new handle must remain recoverable if its stage checkpoint
+            // commits but the response is lost. GET reads empty/staged DB truth.
+            setCookie(id);
+          }
+          if (
+            t.pending ||
+            t.links ||
+            t.invalid ||
+            t.uncertain ||
+            t.verified ||
+            t.candidate
+          )
             throw new Failure(409);
           if (t.proof && JSON.stringify(t.proof) !== JSON.stringify(p))
             throw new Failure(409);
+          if (store) {
+            t = await store.claim();
+            // Rotation already checked the previous handle's CSRF. A new row's
+            // random CSRF was never sent by that previous tab.
+            if (!rotated && !equal(data.csrf, t.csrf))
+              throw new Failure(403);
+          }
           t.proof = p;
+          t.proofIdentity = inviteProofIdentity(p);
           t.csrf = fresh();
+          if (store) await store.checkpoint(t, "staged");
         } else if (data.action === "confirm") {
           if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
-          if (t.invalid || (!t.proof && !t.links)) throw new Failure(409);
+          if (t.invalid || t.uncertain || (!t.proof && !t.links))
+            throw new Failure(409);
           if (!t.links) {
-            if (!t.pending) {
+            if (store) {
+              t = await store.claim();
+              if (!equal(data.csrf, t.csrf)) throw new Failure(403);
               const current = t;
-              t.pending = accept(t, config).catch((e) => {
-                if (e instanceof Failure && e.status === 409) {
-                  current.invalid = true;
-                  current.proof = undefined;
-                  current.verified = undefined;
-                  current.candidate = undefined;
-                  current.receiptRecorded = undefined;
-                }
-                throw e;
-              });
-            }
-            const pending = t.pending;
-            try {
-              await pending;
-            } finally {
-              if (t.pending === pending) t.pending = undefined;
+              await accept(t, config, (phase) =>
+                store!.checkpoint(current, phase),
+              );
+            } else {
+              if (!t.pending) {
+                const current = t;
+                t.pending = accept(t, config).catch((e) => {
+                  if (e instanceof Failure && e.status === 409) {
+                    current.invalid = true;
+                    current.proof = undefined;
+                    current.verified = undefined;
+                    current.candidate = undefined;
+                    current.receiptRecorded = undefined;
+                  }
+                  throw e;
+                });
+              }
+              const pending = t.pending;
+              try {
+                await pending;
+              } finally {
+                if (t.pending === pending) t.pending = undefined;
+              }
             }
           }
-          t.csrf = fresh();
+          if (!store) t.csrf = fresh();
         } else if (data.action === "status") {
           if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
         } else throw new Failure(400);
+        await store?.release();
         return Response.json(dto(t), { headers: h });
       }
       if (!t) {
-        if (transactions.size >= MAX_TRANSACTIONS) throw new Failure(503);
+        if (!durable && transactions.size >= MAX_TRANSACTIONS)
+          throw new Failure(503);
         id = fresh();
         t = { expires: now() + TTL, csrf: fresh() };
-        transactions.set(id, t);
-        h.set(
-          "Set-Cookie",
-          `${name}=${id}; Path=/; Max-Age=600; HttpOnly; SameSite=Lax${config.siteOrigin.startsWith("https:") ? "; Secure" : ""}`,
-        );
+        if (durable) {
+          store = durableStore(id);
+          t = await store.create(t);
+        } else transactions.set(id, t);
+        setCookie(id);
       }
       if (
         request.headers
@@ -595,15 +678,45 @@ export function createInviteHandler(deps: Dependencies = {}) {
       pageHeaders.set("Content-Type", "text/html; charset=utf-8");
       const locale =
         new URL(request.url).searchParams.get("locale") ||
-        ((request.headers.get("accept-language") || "").match(/^(ko|ja)\b/i)?.[1].toLowerCase() || "en");
-      return new Response(invitePage(nonce, locale as "ko" | "ja" | "en", dto(t)), {
-        headers: pageHeaders,
-      });
+        (request.headers.get("accept-language") || "")
+          .match(/^(ko|ja)\b/i)?.[1]
+          .toLowerCase() ||
+        "en";
+      return new Response(
+        invitePage(nonce, locale as "ko" | "ja" | "en", dto(t)),
+        {
+          headers: pageHeaders,
+        },
+      );
     } catch (e) {
-      const status = e instanceof Failure ? e.status : 503;
+      let status = e instanceof Failure ? e.status : 503;
+      if (store && t) {
+        try {
+          if (
+            store.canWrite &&
+            (status === 409 || store.phase === "verifying")
+          ) {
+            t.invalid = status === 409;
+            t.uncertain = status !== 409;
+            t.proof = undefined;
+            t.verified = undefined;
+            t.candidate = undefined;
+            t.receiptRecorded = undefined;
+            await store.checkpoint(t, status === 409 ? "invalid" : "uncertain");
+          }
+          await store.release();
+        } catch {
+          status = 503;
+        }
+      }
       return Response.json(
         {
-          status: status === 503 ? "unavailable" : "invalid",
+          status:
+            status === 503
+              ? "unavailable"
+              : t?.uncertain
+                ? "uncertain"
+                : "invalid",
           ...(t ? { csrf: t.csrf } : {}),
         },
         { status, headers: h },

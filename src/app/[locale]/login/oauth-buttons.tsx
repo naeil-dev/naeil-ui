@@ -22,8 +22,8 @@ export function OAuthButtons({
   const [flow] = useState(() =>
     createOAuthFlow(async (provider) => {
       const returnLocation = new URL(window.location.href).searchParams.get("next") || next;
-      const binding = await prepareLogin(returnLocation, document.documentElement.lang || locale);
-      const supabase = createClient(binding);
+      await prepareLogin(returnLocation, document.documentElement.lang || locale);
+      const supabase = createClient();
       return supabase.auth.signInWithOAuth({
         provider,
         options: {

@@ -1,21 +1,20 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import type { CookieOptions } from "@supabase/ssr";
-import { currentSiteCookies, isSiteSessionCookie, isTerminalSessionError, siteCookieOptions, siteSessionBinding } from "../auth/site-session";
+import { isSiteSessionCookie, isTerminalSessionError, siteCookieOptions } from "../auth/site-session";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
   const pending = new Map<string, { name: string; value: string; options: CookieOptions }>();
-  const binding = siteSessionBinding(request.cookies.getAll());
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookieOptions: siteCookieOptions(request.headers.get("host"), binding),
+      cookieOptions: siteCookieOptions(request.headers.get("host")),
       cookies: {
         getAll() {
-          return currentSiteCookies(request.cookies.getAll(), binding);
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
           // The SDK may remove a session before returning a non-retryable
@@ -36,15 +35,14 @@ export async function updateSession(request: NextRequest) {
     for (const { name, value } of pending.values()) request.cookies.set(name, value);
     supabaseResponse = NextResponse.next({ request });
     for (const { name, value, options } of pending.values())
-      supabaseResponse.cookies.set(name, value, { ...options, domain: undefined });
+      supabaseResponse.cookies.set(name, value, options);
   }
 
   // Temporary provider/gateway failures must not erase a recoverable session.
   if (isTerminalSessionError(error) && !user) {
     request.cookies.getAll().forEach(({ name }) => {
-      if (isSiteSessionCookie(name, binding)) {
-        const { secure, path, sameSite } = siteCookieOptions(request.headers.get("host"));
-        supabaseResponse.cookies.set(name, "", { secure, path, sameSite, maxAge: 0 });
+      if (isSiteSessionCookie(name)) {
+        supabaseResponse.cookies.set(name, "", { ...siteCookieOptions(request.headers.get("host")), maxAge: 0 });
       }
     });
   }

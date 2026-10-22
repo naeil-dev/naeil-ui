@@ -176,7 +176,7 @@ async function recoveryPage(
 }
 describe("real-handler recovery after successful response loss", () => {
   it.each(["network", "json", "null502", 500, 502, 504] as const)(
-    "lost stage %s: explicit GET resync then a separate deliberate confirm",
+    "lost stage %s: explicit GET resync and same-envelope restage before deliberate confirm",
     async (kind) => {
       const t = await recoveryPage("stage", kind);
       expect(t.browser).toEqual(["stage"]);
@@ -187,7 +187,10 @@ describe("real-handler recovery after successful response loss", () => {
       expect(t.upstream).toHaveLength(0);
       expect(t.nodes.get("confirm")!.hidden).toBe(false);
       await t.click();
-      expect(t.browser).toEqual(["stage", "status", "confirm"]);
+      expect(t.browser).toEqual(["stage", "status", "stage"]);
+      expect(t.upstream).toHaveLength(0);
+      await t.click();
+      expect(t.browser).toEqual(["stage", "status", "stage", "confirm"]);
       expect(t.nodes.get("links")!.children).toHaveLength(1);
       expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
     },

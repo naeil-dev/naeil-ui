@@ -14,6 +14,8 @@ export interface InviteConfig {
   supabaseUrl: string;
   anonKey: string;
   serviceRoleKey: string;
+  transactionStore?: "supabase";
+  encryptionKey?: string;
 }
 
 function exactOrigin(value: unknown): value is string {
@@ -33,10 +35,65 @@ function exactOrigin(value: unknown): value is string {
   }
 }
 
-// This file is read only by the Node route. No public environment credential fallback.
+function parseConfig(raw: string, jsonSource: boolean): InviteConfig | null {
+  if (Buffer.byteLength(raw, "utf8") > 16384) return null;
+  const data: unknown = JSON.parse(raw);
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  const value = data as Record<string, unknown>;
+  const keys = [...raw.matchAll(/("(?:\\.|[^"\\])*")\s*:/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  if (keys.length !== new Set(keys).size) return null;
+  const durable = value.transactionStore === "supabase";
+  const expected =
+    "anonKey,serviceRoleKey,siteOrigin,supabaseUrl" +
+    (durable ? ",transactionStore,encryptionKey" : "");
+  if (
+    Object.keys(value).sort().join(",") !== expected.split(",").sort().join(",")
+  )
+    return null;
+  if ((jsonSource || process.env.VERCEL) && !durable) return null;
+  if (!exactOrigin(value.siteOrigin) || !exactOrigin(value.supabaseUrl))
+    return null;
+  for (const key of ["anonKey", "serviceRoleKey"]) {
+    if (
+      typeof value[key] !== "string" ||
+      !value[key] ||
+      value[key].length > 8192 ||
+      /[\s\x00-\x1f\x7f]/.test(value[key])
+    )
+      return null;
+  }
+  if (durable) {
+    const key = value.encryptionKey;
+    if (typeof key !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(key))
+      return null;
+    const bytes = Buffer.from(key, "base64url");
+    if (
+      bytes.length !== 32 ||
+      bytes.toString("base64url") !== key ||
+      bytes.every((b) => b === 0) ||
+      key === value.anonKey ||
+      key === value.serviceRoleKey
+    )
+      return null;
+  }
+  return value as unknown as InviteConfig;
+}
+
+// Server runtime only. Neither source has a public environment fallback.
 export function readInviteConfig(
   path = process.env.NAEIL_INVITE_CONFIG_FILE,
 ): InviteConfig | null {
+  const json = process.env.NAEIL_INVITE_CONFIG_JSON;
+  if (json) {
+    if (path) return null;
+    try {
+      return parseConfig(json, true);
+    } catch {
+      return null;
+    }
+  }
   if (!path || !isAbsolute(path) || path !== resolve(path)) return null;
   let fd: number | undefined;
   try {
@@ -82,27 +139,7 @@ export function readInviteConfig(
     const raw = new TextDecoder("utf-8", { fatal: true }).decode(
       buffer.subarray(0, length),
     );
-    const data = JSON.parse(raw);
-    if (
-      !data ||
-      typeof data !== "object" ||
-      Array.isArray(data) ||
-      Object.keys(data).sort().join(",") !==
-        "anonKey,serviceRoleKey,siteOrigin,supabaseUrl"
-    )
-      return null;
-    if (!exactOrigin(data.siteOrigin) || !exactOrigin(data.supabaseUrl))
-      return null;
-    for (const key of ["anonKey", "serviceRoleKey"]) {
-      if (
-        typeof data[key] !== "string" ||
-        !data[key] ||
-        data[key].length > 8192 ||
-        /[\s\x00-\x1f\x7f]/.test(data[key])
-      )
-        return null;
-    }
-    return data;
+    return parseConfig(raw, false);
   } catch {
     return null;
   } finally {

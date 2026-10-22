@@ -12,9 +12,9 @@ const state = vi.hoisted(() => ({
 }));
 vi.mock("next/headers", () => ({
   cookies: async () => ({
-    getAll: () => [{ name: "naeil-site-auth-generation", value: "a".repeat(32) }],
+    getAll: () => [],
     get: (name: string) =>
-      name !== `auth_redirect_to-${"a".repeat(32)}-initial` || state.redirectCookie === undefined
+      name !== "auth_redirect_to" || state.redirectCookie === undefined
         ? undefined
         : { value: state.redirectCookie },
     set: state.cookieSet,
@@ -77,7 +77,7 @@ describe("actual auth redirect responses", () => {
       new Request("https://naeil.dev/auth/callback?code=fixture"),
     );
     expect(r.headers.get("location")).toBe("https://naeil.dev/");
-    expect(state.cookieSet).toHaveBeenCalledWith(`auth_redirect_to-${"a".repeat(32)}-initial`, "", {
+    expect(state.cookieSet).toHaveBeenCalledWith("auth_redirect_to", "", {
       path: "/",
       maxAge: 0,
     });

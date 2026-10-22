@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-import { currentSiteCookies, siteCookieOptions, siteReturnCookieNames, siteSessionBinding } from "@/lib/auth/site-session";
+import { RETURN_DESTINATION_COOKIE, RETURN_LOCALE_COOKIE, siteCookieOptions } from "@/lib/auth/site-session";
 import { redirectCookieTarget } from "@/lib/auth/redirect";
 import { loginDestination, loginErrorLocation } from "@/lib/auth/return-location";
 
@@ -9,27 +9,25 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const cookieStore = await cookies();
-  const binding = siteSessionBinding(cookieStore.getAll());
-  const returnCookies = binding ? siteReturnCookieNames(binding) : null;
-  const destination = loginDestination(redirectCookieTarget(returnCookies ? cookieStore.get(returnCookies.destination)?.value : undefined));
-  const locale = returnCookies ? cookieStore.get(returnCookies.locale)?.value : undefined;
+  const destination = loginDestination(redirectCookieTarget(cookieStore.get(RETURN_DESTINATION_COOKIE)?.value));
+  const locale = cookieStore.get(RETURN_LOCALE_COOKIE)?.value;
 
-  if (code && binding && returnCookies) {
+  if (code) {
     const headerStore = await headers();
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookieOptions: siteCookieOptions(headerStore.get("host"), binding),
+        cookieOptions: siteCookieOptions(headerStore.get("host")),
         cookies: {
           getAll() {
-            return currentSiteCookies(cookieStore.getAll(), binding);
+            return cookieStore.getAll();
           },
           setAll(cookiesToSet) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, { ...options, domain: undefined }),
+                cookieStore.set(name, value, options),
               );
             } catch {
               // Ignore — cookies can only be set in Server Actions or Route Handlers
@@ -48,9 +46,8 @@ export async function GET(request: Request) {
     }
 
     if (!failed) {
-      // A late response must never clear a newer login attempt's return state.
-      cookieStore.set(returnCookies.destination, "", { path: "/", maxAge: 0 });
-      cookieStore.set(returnCookies.locale, "", { path: "/", maxAge: 0 });
+      cookieStore.set(RETURN_DESTINATION_COOKIE, "", { path: "/", maxAge: 0 });
+      cookieStore.set(RETURN_LOCALE_COOKIE, "", { path: "/", maxAge: 0 });
       return NextResponse.redirect(new URL(destination, origin));
     }
   }

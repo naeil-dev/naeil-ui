@@ -1,25 +1,23 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-import { currentSiteCookies, hasSiteSession, siteCookieOptions, siteSessionBinding } from "../auth/site-session";
+import { hasSiteSession, siteCookieOptions } from "../auth/site-session";
 
 export async function hasLocalSession() {
-  const values = (await cookies()).getAll();
-  return hasSiteSession(values, siteSessionBinding(values));
+  return hasSiteSession((await cookies()).getAll());
 }
 
 export async function createClient({ writeCookies = true }: { writeCookies?: boolean } = {}) {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const binding = siteSessionBinding(cookieStore.getAll());
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookieOptions: siteCookieOptions(headerStore.get("host"), binding),
+      cookieOptions: siteCookieOptions(headerStore.get("host")),
       cookies: {
         getAll() {
-          return currentSiteCookies(cookieStore.getAll(), binding);
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
           // Logout decides whether to clear only after the SDK's final result.
@@ -27,7 +25,7 @@ export async function createClient({ writeCookies = true }: { writeCookies?: boo
           if (!writeCookies) return;
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, { ...options, domain: undefined }),
+              cookieStore.set(name, value, options),
             );
           } catch {
             // The `setAll` method was called from a Server Component.
