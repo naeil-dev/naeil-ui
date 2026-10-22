@@ -1,3 +1,9 @@
+# Status — 2026-10-23 shared-login follow-up complete; production rebuilt from main
+
+The production site source is merged into `main` (PR #12, `e757f8d`), and Production rebuilt from `main` with the shared login intact (anonymous Estimate/Jev 307 to `naeil.dev/login?next=`, console relay 303, retired relays 404, signed in across all three services in the browser). Estimate/Jev commits are archived as local bundles only (no git remote yet). Old Estimate/Jev releases and the unused control wrapper are moved to `~/.Trash/naeil-cleanup-20261022/`; health 200. The service login contract is in [application layout](docs/components/application-layout.md#shared-naeildev-login-services-on-naeildev). [Handoff §3/§9](docs/rollout/auth-sso-handoff-2026-10-22.md).
+
+---
+
 # Status — 2026-10-22 shared .naeil.dev login live on naeil.dev, Estimate and Jev; user browser acceptance pending
 
 naeil.dev (`8b2a4e7`, `dpl_14tRFTnp8…`) writes the default Supabase session cookie with `Domain=.naeil.dev`; Estimate (`d7cf07a`) and Jev (`552f3ec`) verify it server-side with `getUser()` plus the central `access_decision`, redirect anonymous users to `naeil.dev/login?next=`, and clear the shared cookie on logout. App session registries, relay/PKCE flows and Jev passwords are removed; only the Home Console relay remains. Jev is a verified service; Jay's Jev grant and Google/GitHub cross-service login/logout acceptance are pending. [Handoff §3](docs/rollout/auth-sso-handoff-2026-10-22.md).
