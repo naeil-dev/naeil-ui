@@ -1,22 +1,18 @@
 import type { NextRequest } from "next/server";
 import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
-import * as abestimate from "@/app/auth/return/abestimate/route";
 import * as consoleRoute from "@/app/auth/return/console/route";
-import * as jev from "@/app/auth/return/jev/route";
 import * as rejected from "@/app/auth/return/[...rejected]/route";
 
 const nonce = "A".repeat(43);
 const routes = [
-  { service: "abestimate", adapter: abestimate, target: "https://abestimate.naeil.dev/auth/callback" },
   { service: "console", adapter: consoleRoute, target: "https://jay-macmini-2.tail165003.ts.net:2455/api/console/auth/callback" },
-  { service: "jev", adapter: jev, target: "https://jev.naeil.dev/auth/callback" },
 ] as const;
 const methods = ["HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] as const;
 
 // Deliberately do not construct a Request: these are the URL/Host values already
 // delivered by the platform, without another normalization before the parser.
 function delivered(url: string, method = "GET", host: string | null = "naeil.dev") {
-  const headers = new Headers({ "x-forwarded-host": "naeil.dev", "x-invoke-path": "/auth/return/jev", "x-original-url": "https://naeil.dev/auth/return/jev" });
+  const headers = new Headers({ "x-forwarded-host": "naeil.dev", "x-invoke-path": "/auth/return/console", "x-original-url": "https://naeil.dev/auth/return/console" });
   if (host !== null) headers.set("host", host);
   const get = headers.get.bind(headers);
   headers.get = (name) => {
@@ -76,9 +72,10 @@ describe.each(routes)("static $service App Router adapter", ({ service, adapter,
     await protectedResponse(adapter.GET(delivered(url(), "GET", host)), 403);
   });
   it.each([
-    "/api/internal/service-return", "/api/internal/service-return/", "/auth/return/jev/", "/auth/return/jev.rsc",
-    "/auth/return/unknown", "/auth/return/%6aev", "/auth/return/%2e/jev", "/auth/return/x/../jev",
-    "/auth/return/x/%2e%2e/jev", "/ja/auth/return/jev", "/_next/data/build/auth/return/jev.json",
+    "/auth/return/abestimate", "/auth/return/jev",
+    "/api/internal/service-return", "/api/internal/service-return/", "/auth/return/console/", "/auth/return/console.rsc",
+    "/auth/return/unknown", "/auth/return/%63onsole", "/auth/return/%2e/console", "/auth/return/x/../console",
+    "/auth/return/x/%2e%2e/console", "/ja/auth/return/console", "/_next/data/build/auth/return/console.json",
   ])("rejects a delivered noncanonical path: %s", async (path) => {
     await protectedResponse(adapter.GET(delivered(url(undefined, path))), 404);
   });
@@ -128,7 +125,7 @@ describe("unconditional return rejection fallback", () => {
   });
   it.each([
     "/auth/return/abestimate", "/auth/return/console", "/auth/return/jev",
-    "/auth/return/jev.rsc", "/auth/return/jev/../jev", "/auth/return/%2e/jev", "/auth/return/x/%2e%2e/jev",
+    "/auth/return/console.rsc", "/auth/return/console/../console", "/auth/return/%2e/console", "/auth/return/x/%2e%2e/console",
   ])("never turns a delivered canonical or normalized-looking URL into a relay: %s", async (path) => {
     await protectedResponse(rejected.GET(delivered(`https://naeil.dev${path}?nonce=${nonce}&code=synthetic&access_token=secret&destination=https%3A%2F%2Fevil.example`)), 404);
   });

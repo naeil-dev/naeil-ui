@@ -14,13 +14,11 @@ import { createConnection } from "node:net";
 import { resolve } from "node:path";
 
 const nonce = "A".repeat(43);
-const base = "/auth/return/jev";
+const base = "/auth/return/console";
 const query = `nonce=${nonce}&code=ok`;
 const errorMarker = "synthetic-private-provider-detail";
 const destinations = {
-  abestimate: "https://abestimate.naeil.dev/auth/callback",
   console: "https://jay-macmini-2.tail165003.ts.net:2455/api/console/auth/callback",
-  jev: "https://jev.naeil.dev/auth/callback",
 } as const;
 const securityHeaders: Record<string, string> = {
   "cache-control": "no-store",
@@ -40,9 +38,9 @@ type Case = {
   delivered?: Expected;
   smoke?: "callback" | "invite" | "locale" | "locale-default" | "locale-slash" | "health" | "identity";
 };
-const success = (service: keyof typeof destinations = "jev", code = "ok") =>
+const success = (service: keyof typeof destinations = "console", code = "ok") =>
   `${destinations[service]}?${new URLSearchParams({ nonce, code })}#`;
-const failure = (service: keyof typeof destinations = "jev") =>
+const failure = (service: keyof typeof destinations = "console") =>
   `${destinations[service]}?nonce=${nonce}&error=authentication_failed#`;
 
 function parseOrigin(value: string): number {
@@ -196,7 +194,7 @@ function cases(): Case[] {
     add(`canonical-${service}-error`, `/auth/return/${service}?nonce=${nonce}&error=access_denied&error_description=${errorMarker}&error_code=provider`, 303, failure(service));
     for (const method of ["HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]) add(`method-${service}-${method}`, `/auth/return/${service}?${query}`, 405, undefined, { method });
   }
-  add("one-decode", `${base}?nonce=${nonce}&code=%252F+%2B%26nonce%3Dother`, 303, success("jev", "%2F +&nonce=other"));
+  add("one-decode", `${base}?nonce=${nonce}&code=%252F+%2B%26nonce%3Dother`, 303, success("console", "%2F +&nonce=other"));
   const bound = [
     ["empty-code", "code="], ["missing-code", ""], ["duplicate-code", "code=ok&code=other"],
     ["code-and-error", "code=ok&error=denied"], ["only-description", `error_description=${errorMarker}`],
@@ -208,9 +206,9 @@ function cases(): Case[] {
     ["control-key", "code=ok&%00=x"], ["encoded-fragment", "code=ok%23fragment"],
     ["code-over-limit", `code=${"x".repeat(4097)}`], ["provider-over-limit", `error=denied&error_description=${"x".repeat(4097)}`],
     ["rsc", "code=ok&_rsc=opaque"], ["nxtPnonce", "code=ok&nxtPnonce=opaque"],
-    ["path-field", "code=ok&path=jev"], ["nxtPpath", "code=ok&nxtPpath=jev"], ["next-locale", "code=ok&__nextDefaultLocale=ja"],
+    ["path-field", "code=ok&path=console"], ["nxtPpath", "code=ok&nxtPpath=console"], ["next-locale", "code=ok&__nextDefaultLocale=ja"],
   ];
-  for (const [id, fields] of bound) add(`query-${id}`, `${base}?nonce=${nonce}${fields ? `&${fields}` : ""}`, 303, id === "encoded-fragment" ? success("jev", "ok#fragment") : failure());
+  for (const [id, fields] of bound) add(`query-${id}`, `${base}?nonce=${nonce}${fields ? `&${fields}` : ""}`, 303, id === "encoded-fragment" ? success("console", "ok#fragment") : failure());
   const unbound = [
     ["missing-nonce", "code=ok"], ["empty-nonce", "nonce=&code=ok"], ["short-nonce", `nonce=${"A".repeat(42)}&code=ok`],
     ["bad-nonce", `nonce=${"A".repeat(42)}!&code=ok`], ["duplicate-nonce", `nonce=${nonce}&nonce=${nonce}&code=ok`],
@@ -218,22 +216,22 @@ function cases(): Case[] {
     ["bad-utf8", `nonce=${nonce}&code=%FF`], ["overlong-utf8", `nonce=${nonce}&code=%C0%AF`], ["surrogate", `nonce=${nonce}&code=%ED%A0%80`],
   ];
   for (const [id, fields] of unbound) add(`query-${id}`, `${base}?${fields}`, 400);
-  add("code-exact-limit", `${base}?nonce=${nonce}&code=${"x".repeat(4096)}`, 303, success("jev", "x".repeat(4096)));
+  add("code-exact-limit", `${base}?nonce=${nonce}&code=${"x".repeat(4096)}`, 303, success("console", "x".repeat(4096)));
   const prefix = `nonce=${nonce}&unknown=`;
   add("query-exact-16k", `${base}?${prefix}${"x".repeat(16384 - prefix.length)}`, 303, failure());
   add("query-over-16k", `${base}?${prefix}${"x".repeat(16385 - prefix.length)}`, 400);
   // Original/transformed pairs are separately supplied inputs, never a claim
   // that this runtime performs the transformations observed on old Preview.
   const diagnostic: [string, string, number, string?][] = [
-    ["D01-original", `nonce=${nonce}&code=synthetic-platform-v1`, 303, success("jev", "synthetic-platform-v1")],
-    ["D01-transform-control", `nonce=${nonce}&code=synthetic-platform-v1`, 303, success("jev", "synthetic-platform-v1")],
-    ["D03-original", `nonce=${nonce}&code=%2f`, 303, success("jev", "/")],
-    ["D03-transform", `nonce=${nonce}&code=%2F`, 303, success("jev", "/")],
+    ["D01-original", `nonce=${nonce}&code=synthetic-platform-v1`, 303, success("console", "synthetic-platform-v1")],
+    ["D01-transform-control", `nonce=${nonce}&code=synthetic-platform-v1`, 303, success("console", "synthetic-platform-v1")],
+    ["D03-original", `nonce=${nonce}&code=%2f`, 303, success("console", "/")],
+    ["D03-transform", `nonce=${nonce}&code=%2F`, 303, success("console", "/")],
     ["D09-original", `%6eonce=${nonce}&nonce=${nonce}&code=x`, 400],
     ["D09-transform", `nonce=${nonce}&nonce=${nonce}&code=x`, 400],
     ["D12-original", `nonce=${nonce}&code=%`, 400], ["D12-transform", `nonce=${nonce}&code=`, 303, failure()],
     ["D30-original", `nonce=${nonce}&code=synthetic-platform-v1&&`, 303, failure()],
-    ["D30-transform", `nonce=${nonce}&code=synthetic-platform-v1`, 303, success("jev", "synthetic-platform-v1")],
+    ["D30-transform", `nonce=${nonce}&code=synthetic-platform-v1`, 303, success("console", "synthetic-platform-v1")],
   ];
   for (const [id, fields, status, location] of diagnostic) add(id, `${base}?${fields}`, status, location);
   for (const [i, host] of ["evil.example", "naeil.dev:443", "naeil.dev.evil.example", "naeil.dev, evil.example", "NAEIL.DEV"].entries()) {
@@ -247,19 +245,20 @@ function cases(): Case[] {
   result.push({ id: "host-duplicate-forged-second", target: `${base}?${query}`, hosts: ["naeil.dev", "evil.example"], platform: "host" });
   add("host-duplicate-forged-first", `${base}?${query}`, 403, undefined, { hosts: ["evil.example", "naeil.dev"] });
   const aliases = [
-    "/auth/return", "/auth/return/unknown", "/auth/return/jev/", "/auth/return/jev/extra", "/%61uth/return/jev", "/auth/%72eturn/jev", "/auth/return/%6aev",
-    "/%2561uth/return/jev", "/ja/auth/return/jev", "/auth/return/jev.rsc", "/auth/return/jev.json", "/auth/return/jev%2fextra",
-    "/_next/data/unknown/ja/auth/return/jev.json", "/auth/return/constructor", "/auth/return/__proto__",
+    "/auth/return/abestimate", "/auth/return/jev",
+    "/auth/return", "/auth/return/unknown", "/auth/return/console/", "/auth/return/console/extra", "/%61uth/return/console", "/auth/%72eturn/console", "/auth/return/%63onsole",
+    "/%2561uth/return/console", "/ja/auth/return/console", "/auth/return/console.rsc", "/auth/return/console.json", "/auth/return/console%2fextra",
+    "/_next/data/unknown/ja/auth/return/console.json", "/auth/return/constructor", "/auth/return/__proto__",
     "/api/internal/service-return", "/api/internal/service-return/", "/api/internal/service-return.rsc", "/api/%69nternal/service-return", "/ja/api/internal/service-return",
-    "/%61uth/return/jev%GG", "/auth/%72eturn/%FF", "/auth/return;bad/jev",
+    "/%61uth/return/console%GG", "/auth/%72eturn/%FF", "/auth/return;bad/console",
   ];
   for (const [i, path] of aliases.entries()) add(`namespace-alias-${String(i + 1).padStart(2, "0")}`, `${path}?${query}`, 404, undefined, { headers: [["X-Invoke-Path", base], ["X-Matched-Path", base]] });
-  for (const [i, path] of ["/auth//return/jev", "/auth/return//jev", "/auth\\return\\jev"].entries()) result.push({ id: `platform-slash-${i + 1}`, target: `${path}?${query}`, platform: "slash" });
-  for (const [i, path] of ["/auth/return/jev/../jev", "/auth/return/%2e/jev", "/auth/return/x/%2e%2e/jev"].entries()) result.push({ id: `delivered-dot-${i + 1}`, target: `${path}?${query}`, platform: "normalized" });
+  for (const [i, path] of ["/auth//return/console", "/auth/return//console", "/auth\\return\\console"].entries()) result.push({ id: `platform-slash-${i + 1}`, target: `${path}?${query}`, platform: "slash" });
+  for (const [i, path] of ["/auth/return/console/../console", "/auth/return/%2e/console", "/auth/return/x/%2e%2e/console"].entries()) result.push({ id: `delivered-dot-${i + 1}`, target: `${path}?${query}`, platform: "normalized" });
   result.push({ id: "platform-TRACE", target: `${base}?${query}`, method: "TRACE", platform: "trace" });
   for (const [id, suffix] of [["null", "\0"], ["tab", "\t"], ["del", "\x7f"]]) result.push({ id: `literal-control-${id}`, target: `${base}?nonce=${nonce}&code=ok${suffix}`, platform: "control" });
   add("literal-fragment", `${base}?${query}#fragment`, 400);
-  add("literal-apostrophe", `${base}?nonce=${nonce}&code=a'b`, 303, success("jev", "a'b"));
+  add("literal-apostrophe", `${base}?nonce=${nonce}&code=a'b`, 303, success("console", "a'b"));
   const smokes: [string, string, Case["smoke"]][] = [
     ["site-callback", "/auth/callback", "callback"], ["site-invite", "/auth/invite", "invite"],
     ["site-locale-ja", "/ja/login", "locale"], ["site-locale-ko", "/ko/login", "locale"],
@@ -278,7 +277,7 @@ function cases(): Case[] {
     "D12-original": "%", "D30-original": "synthetic-platform-v1", "literal-fragment": "ok",
   };
   for (const test of result) {
-    if (Object.hasOwn(deliveredCodes, test.id)) test.delivered = { status: 303, location: success("jev", deliveredCodes[test.id]) };
+    if (Object.hasOwn(deliveredCodes, test.id)) test.delivered = { status: 303, location: success("console", deliveredCodes[test.id]) };
   }
   // Dot/.rsc responses keep the strict empty-body oracle. The rejection-only
   // fallback must close these route misses without widening OP02 exceptions.
@@ -330,8 +329,8 @@ function selfCheck(): Checks {
       { status: 303, headers: { location: success() }, body: Buffer.alloc(0) },
     ).checks),
     deliveredBranchRejectsWrongCode: !all(evaluate(
-      { id: "self-check-delivered-value", target: "/", expected: { status: 400 }, delivered: { status: 303, location: success("jev", "%") } },
-      { status: 303, headers: { ...securityHeaders, location: success("jev", "unexpected") }, body: Buffer.alloc(0) },
+      { id: "self-check-delivered-value", target: "/", expected: { status: 400 }, delivered: { status: 303, location: success("console", "%") } },
+      { status: 303, headers: { ...securityHeaders, location: success("console", "unexpected") }, body: Buffer.alloc(0) },
     ).checks),
     rejectsReflectedFramework404: !all(evaluate(
       { id: "self-check-framework404", target: "/", platform: "normalized" },

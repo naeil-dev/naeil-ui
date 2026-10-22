@@ -1,4 +1,4 @@
-type Service = "jev" | "abestimate" | "console";
+type Service = "console";
 type Options = {
   siteAuthority: string;
   destinations: Readonly<Record<Service, string>>;
@@ -41,13 +41,13 @@ export function isServiceReturnPath(pathname: string): boolean {
 }
 
 export function isCanonicalServiceReturnPath(pathname: string): boolean {
-  return /^\/auth\/return\/(?:jev|abestimate|console)$/.test(pathname);
+  return /^\/auth\/return\/console$/.test(pathname);
 }
 
 function createHandler({ siteAuthority, destinations }: Options, service?: Service): (request: ReturnRequest) => Response {
   // Capture the code-owned map, so changing a test's input object after factory
   // creation cannot change an already constructed handler's destinations.
-  const targets = new Map((["jev", "abestimate", "console"] as const).map((service) => [`/auth/return/${service}`, destinations[service]]));
+  const targets = new Map((["console"] as const).map((service) => [`/auth/return/${service}`, destinations[service]]));
   return (request) => {
     if (request.headers.get("host") !== siteAuthority) return response(403);
     if (request.method !== "GET") return response(405, { Allow: "GET" });
@@ -99,8 +99,6 @@ export function createServiceReturnHandler(options: Options): (request: ReturnRe
 const PRODUCTION_OPTIONS: Options = {
   siteAuthority: "naeil.dev",
   destinations: {
-    jev: "https://jev.naeil.dev/auth/callback",
-    abestimate: "https://abestimate.naeil.dev/auth/callback",
     console: "https://jay-macmini-2.tail165003.ts.net:2455/api/console/auth/callback",
   },
 };
