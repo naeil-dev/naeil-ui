@@ -27,6 +27,10 @@ jobs:
       options: --ipc=host
     steps:
       - uses: actions/checkout@v4
+      # Actions mounts HOME as uid 1001, but this image runs as root. Firefox
+      # requires the home directory to belong to the browser's current user.
+      - name: Match container home ownership to the runner user
+        run: chown "$(id -u):$(id -g)" "$HOME"
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -63,6 +67,8 @@ jobs:
       options: --ipc=host
     steps:
       - uses: actions/checkout@v4
+      - name: Match container home ownership to the runner user
+        run: chown "$(id -u):$(id -g)" "$HOME"
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
