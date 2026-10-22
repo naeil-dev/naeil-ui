@@ -15,9 +15,11 @@ const mocks = {
   'next/navigation': `export { unstable_rethrow } from 'next/dist/client/components/unstable-rethrow.browser';`,
   '@/i18n/routing': `import {createElement} from 'react';
     export const Link = props => createElement('a', props);
+    export const getPathname = ({href, locale}) => '/' + locale + href;
     export const usePathname = () => '/editor';
     export const useRouter = () => ({replace() {}});`,
-  '@/app/[locale]/login/actions': `export function logout(locale) {
+  '@/app/[locale]/login/actions': `export async function clearLocalSession() {}
+    export function logout(locale) {
     window.siteFixture.requests.push(locale);
     return new Promise((resolve, reject) => { window.siteFixture.finish = error => error ? reject(error) : resolve(); });
   }`,

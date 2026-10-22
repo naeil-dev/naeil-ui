@@ -1,0 +1,100 @@
+{
+  "checkedAt": "2026-10-17T04:11:54.163Z",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "abestimate",
+    "artifactId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+    "sourceRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "assets": [
+    {
+      "path": "/_next/static/chunks/9d15c6a37ce2ad44.css",
+      "status": 200,
+      "sha256": "0b9ec9cba4997c25fae691af470da4dafa8086cc5bcab634b3a75b49de3d0cdb",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/9be5060dc187f981.js",
+      "status": 200,
+      "sha256": "da1a4d4be49965a0cf2457d7d2f2686c4c8a5fe469d5e76cc7a31ab6ec6f0168",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/fe46b5ca2f2a2dc1.js",
+      "status": 200,
+      "sha256": "04dee741aa60e149597c5c6944babb01821f810f476020ebc84c414c49e28c4d",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/e4579ff276e73aeb.js",
+      "status": 200,
+      "sha256": "9f2f3bc1a120f2d0e656b4b0989f260ecd4bdbfce2971873f4efeb613e567c66",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/e4a644e623ea1dd9.js",
+      "status": 200,
+      "sha256": "70cf33a8643c3fc3009f4fddeaa4311a95bc10d61d488bf9430c884a2ee2f9a0",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/turbopack-bad41bcb19a4d921.js",
+      "status": 200,
+      "sha256": "a1e05cc44a0563bf71fd2ba67a6fe8484ca16d63f25606753fa46ef1344977ee",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/d605f024065dc0cf.js",
+      "status": 200,
+      "sha256": "67db82559dd2916065f06d90c739c0d19b36323e5462c73e2a0c191481e9a73c",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/c41a923484166a5a.js",
+      "status": 200,
+      "sha256": "faea60e127b1ec5fea469e4f2594ee3a0b474a9687c6577398c46fa7e3f6d4d7",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/a066899a17b86ee2.js",
+      "status": 200,
+      "sha256": "e3fc4065c6f4f4532f9e0c92bd98010c4836fdddfc51c805f7d3268e60bb9e8a",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/72a021e72354ee36.js",
+      "status": 200,
+      "sha256": "a1a0fc18560b5f527d02ff2ccdcac93043e1bc1796d1ef8d30b8cc2db99a8a57",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/672fba485ed5d087.js",
+      "status": 200,
+      "sha256": "dde151299ae3024851937996b1779b6b4e606fe0885bac1a4b635f3847f67a2c",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/6beccb81d1652631.js",
+      "status": 200,
+      "sha256": "a9fcedeec8d8ee8c9adb4248963d8cca5291ee170fa7fc1806f111ae191b89d1",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/95e426494267b1b8.js",
+      "status": 200,
+      "sha256": "71ded70ca1f6cf1618144afae2ed1e73d3d3974e4ce9671f409d19fbd931f7b8",
+      "exactInstalledCodeMatch": true
+    },
+    {
+      "path": "/_next/static/chunks/a6dad97d9634a72d.js",
+      "status": 200,
+      "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+      "exactInstalledCodeMatch": true
+    }
+  ],
+  "passed": true
+}

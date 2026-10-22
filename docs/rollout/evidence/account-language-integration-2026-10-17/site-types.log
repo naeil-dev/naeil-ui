@@ -1,0 +1,3 @@
+
+> @naeil/ui@0.7.1 check:types /Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language
+> tsc --noEmit

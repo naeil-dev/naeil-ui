@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "release": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1/release/8c3e0430293d-82280965179e",
+  "releaseId": "8c3e0430293d-82280965179e",
+  "sourceCommit": "8c3e0430293dffc182695cfa2bc050214a750dc9",
+  "buildId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+  "ui": {
+    "version": "0.7.1",
+    "contractVersion": "1"
+  },
+  "manifestSha256": "67f253b2d962bd818ba40873393c15a2d549e5066e51fe8f815e9a5edf17b286",
+  "sourceFilesVerified": 319,
+  "artifactEntriesVerified": 3056,
+  "artifactHash": "35f89771704e7baf8815b6d7b04dba2a1a990bc21b97eab4baccc4a631e1d266",
+  "sourceArchiveHash": "d6f33cd39da1c0185096393b4436c38101e6ef5610e65cddaf0c424098db9c95",
+  "sourceTreeHash": "e1c75ba6487aee3889f4cdafab32c0041b8a7a9fa38f142e92822f1ecf57bab3"
+}

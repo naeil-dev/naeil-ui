@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-17T04:26:59.601Z",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "naeil",
+    "artifactId": "dpl_7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+    "sourceRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "identityStatus": 200,
+  "cacheControl": "no-store, max-age=0",
+  "githubDeploymentId": 7134744798,
+  "productionStatus": "success",
+  "productionStatusAt": "2026-10-17T04:26:12Z",
+  "immutableOrigin": "https://design-system-9ez7hpbya-naeils-projects.vercel.app",
+  "providerStatusUrl": "https://vercel.com/naeils-projects/design-system/7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+  "providerDeploymentId": "7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+  "providerIdentityMatched": true,
+  "reviewedHead": "805b7197520b292d126c0194e4d09a2073ade975",
+  "mergeTreeIdenticalToReviewedHead": "ce16879ae9ca3e6e34ffaf8a40dae418c16fd644",
+  "previousDeploymentId": 7133974289,
+  "previousArtifactId": "dpl_29L2Bfoz4A6rZzAXgrjN4CbC9F24",
+  "rollbackExercised": false
+}

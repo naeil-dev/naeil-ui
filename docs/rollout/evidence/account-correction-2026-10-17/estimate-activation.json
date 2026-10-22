@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-10-17T04:07:45.735Z",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "abestimate",
+    "artifactId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+    "sourceRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "releaseId": "8c3e0430293d-82280965179e",
+  "manifestSha256": "67f253b2d962bd818ba40873393c15a2d549e5066e51fe8f815e9a5edf17b286",
+  "activation": {
+    "activated": true,
+    "artifactId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+    "preservationVerified": true
+  },
+  "identityStatus": 200,
+  "cacheControl": "no-store, max-age=0",
+  "health": true,
+  "rollbackTarget": "cc4b6dee738e-fbed79a686e1",
+  "rollbackExecuted": false,
+  "transportNote": "Python urllib public probe returned403; standard Node fetch identity and health returned200 with exact expected content."
+}

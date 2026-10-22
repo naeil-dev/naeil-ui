@@ -1,30 +1,39 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-import { getCookieDomainFromHost } from "@/lib/auth/cookie-domain";
-import { isAllowedRedirect } from "@/lib/auth/redirect";
+import { RETURN_DESTINATION_COOKIE, RETURN_LOCALE_COOKIE, isSiteSessionCookie, siteCookieOptions } from "@/lib/auth/site-session";
+import { redirectCookieTarget } from "@/lib/auth/redirect";
+import { loginDestination, loginErrorLocation } from "@/lib/auth/return-location";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const cookieStore = await cookies();
+  const destination = loginDestination(redirectCookieTarget(cookieStore.get(RETURN_DESTINATION_COOKIE)?.value));
+  const locale = cookieStore.get(RETURN_LOCALE_COOKIE)?.value;
 
   if (code) {
-    const cookieStore = await cookies();
     const headerStore = await headers();
-    const domain = getCookieDomainFromHost(headerStore.get("host"));
+    const options = siteCookieOptions(headerStore.get("host"));
+    // Exchange into a fresh session. A stale session's failed refresh makes the
+    // SDK drop the PKCE verifier before the exchange; leftover chunks expire.
+    const existing = cookieStore.getAll().filter(c => !isSiteSessionCookie(c.name));
+    for (const { name } of cookieStore.getAll())
+      if (isSiteSessionCookie(name)) cookieStore.set(name, "", { ...options, maxAge: 0 });
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
+        cookieOptions: options,
         cookies: {
           getAll() {
-            return cookieStore.getAll();
+            return existing;
           },
           setAll(cookiesToSet) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, { ...options, domain }),
+                cookieStore.set(name, value, options),
               );
             } catch {
               // Ignore — cookies can only be set in Server Actions or Route Handlers
@@ -34,39 +43,21 @@ export async function GET(request: Request) {
       },
     );
 
-    let error: Error | null = null;
+    let failed = false;
     try {
       const result = await supabase.auth.exchangeCodeForSession(code);
-      error = result.error;
-    } catch (e) {
-      error = e instanceof Error ? e : new Error(String(e));
-      console.error("[auth/callback] exchangeCodeForSession threw:", error.message);
+      failed = !!result.error;
+    } catch {
+      failed = true;
     }
 
-    if (error) {
-      console.error("[auth/callback] session exchange failed:", error.message);
-    }
-
-    const redirectCookie = cookieStore.get("auth_redirect_to");
-
-    if (!error) {
-      // decodeURIComponent required: Next.js cookies.set() URL-encodes values,
-      // but cookies.get() returns them raw (still encoded)
-      const next = decodeURIComponent(redirectCookie?.value || "/");
-
-      // Clear the redirect cookie
-      cookieStore.set("auth_redirect_to", "", { path: "/", maxAge: 0, domain });
-
-      // Redirect to original page
-      if (isAllowedRedirect(next)) {
-        const redirectUrl = next.startsWith("http") ? next : `${origin}${next}`;
-        return NextResponse.redirect(redirectUrl);
-      }
-      console.warn("[auth/callback] blocked redirect to disallowed destination");
-      return NextResponse.redirect(origin);
+    if (!failed) {
+      cookieStore.set(RETURN_DESTINATION_COOKIE, "", { path: "/", maxAge: 0 });
+      cookieStore.set(RETURN_LOCALE_COOKIE, "", { path: "/", maxAge: 0 });
+      return NextResponse.redirect(new URL(destination, origin));
     }
   }
 
   // Auth error — redirect to login
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  return NextResponse.redirect(loginErrorLocation(origin, destination, locale));
 }

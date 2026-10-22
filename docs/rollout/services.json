@@ -115,7 +115,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko",
@@ -125,7 +126,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/login",
@@ -135,7 +137,9 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:26:59.295Z"
         },
         {
           "path": "/ko/design",
@@ -145,7 +149,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/projects",
@@ -155,7 +160,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/blog",
@@ -165,7 +171,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/blog/2026-03-30",
@@ -175,7 +182,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/baby-agent",
@@ -185,7 +193,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/pkm",
@@ -195,7 +204,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/sa",
@@ -205,7 +215,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ko/cc",
@@ -215,7 +226,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja",
@@ -225,7 +237,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/login",
@@ -235,7 +248,9 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:26:59.295Z"
         },
         {
           "path": "/ja/design",
@@ -245,7 +260,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/projects",
@@ -255,7 +271,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/blog",
@@ -265,7 +282,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/blog/2026-03-30",
@@ -275,7 +293,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/baby-agent",
@@ -285,7 +304,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/pkm",
@@ -295,7 +315,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/sa",
@@ -305,7 +326,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/ja/cc",
@@ -315,7 +337,8 @@
           "exception": null,
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en",
@@ -326,7 +349,8 @@
           "expectedPath": "/",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/login",
@@ -337,7 +361,9 @@
           "expectedPath": "/login",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:26:59.295Z"
         },
         {
           "path": "/en/design",
@@ -348,7 +374,8 @@
           "expectedPath": "/design",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/projects",
@@ -359,7 +386,8 @@
           "expectedPath": "/projects",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/blog",
@@ -370,7 +398,8 @@
           "expectedPath": "/blog",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/blog/2026-03-30",
@@ -381,7 +410,8 @@
           "expectedPath": "/blog/2026-03-30",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/baby-agent",
@@ -392,7 +422,8 @@
           "expectedPath": "/baby-agent",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/pkm",
@@ -403,7 +434,8 @@
           "expectedPath": "/pkm",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/sa",
@@ -414,7 +446,8 @@
           "expectedPath": "/sa",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         },
         {
           "path": "/en/cc",
@@ -425,45 +458,48 @@
           "expectedPath": "/cc",
           "renderState": {
             "access": "public"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.0"
         }
       ],
       "source": {
         "candidatePath": "/Users/jaymini/.paseo/worktrees/28nele6j/pure-chicken",
         "repository": "https://github.com/naeil-dev/naeil-ui",
-        "candidateRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+        "candidateRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
         "productionCorrelation": "github-production-sha-and-vercel-deployment-id-match-public-identity",
-        "lastDocumentedProductionRevision": "b82f12d17cd3b273a92aa3934ea9ad14106581b4",
-        "revision": "b82f12d17cd3b273a92aa3934ea9ad14106581b4"
+        "lastDocumentedProductionRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
+        "revision": "ff372235cda3091fd392dc0c4f53932825428f2c"
       },
       "deployment": {
         "kind": "vercel",
         "status": "deployed-public-verified",
-        "artifactId": "dpl_29L2Bfoz4A6rZzAXgrjN4CbC9F24",
-        "lastDocumentedDeploymentId": "7133974289",
+        "artifactId": "dpl_7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+        "lastDocumentedDeploymentId": "7134744798",
         "method": "Reviewed green PR merged through existing GitHub/Vercel integration; exact provider deployment ID and merge SHA match public identity before/after all registered route comparisons.",
         "adapterId": "naeil-vercel-v1",
         "adapterStatus": "one-time-git-deployed-standing-adapter-disabled",
-        "deploymentId": "7133974289",
-        "providerDeploymentId": "29L2Bfoz4A6rZzAXgrjN4CbC9F24",
-        "immutableOrigin": "https://design-system-ka41slgro-naeils-projects.vercel.app",
-        "verifiedAt": "2026-10-17T03:15:39.882Z",
-        "previousDeploymentId": "7110237014"
+        "deploymentId": "7134744798",
+        "providerDeploymentId": "7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+        "immutableOrigin": "https://design-system-9ez7hpbya-naeils-projects.vercel.app",
+        "verifiedAt": "2026-10-17T04:26:59.295Z",
+        "previousDeploymentId": "7133974289"
       },
       "ui": {
-        "version": "0.7.0",
-        "candidateVersion": "0.7.0",
+        "version": "0.7.1",
+        "candidateVersion": "0.7.1",
         "adoption": "canonical-deployed",
         "header": "NaeilHeader",
         "footer": "NaeilFooter full",
         "requiredHeader": "NaeilHeader",
         "requiredFooter": "NaeilFooter",
-        "lastVerifiedVersion": "0.7.0",
-        "contractVersion": "1"
+        "lastVerifiedVersion": "0.7.1",
+        "contractVersion": "1",
+        "account": "NaeilHeaderAccountControl"
       },
-      "status": "production-verified",
+      "status": "deployed-protected-verification-pending",
       "blockers": [
-        "Standing automatic rollout remains disabled; current production success is a one-time authorized Git deployment."
+        "Standing automatic rollout remains disabled; current production success is a one-time authorized Git deployment.",
+        "Authenticated account acceptance uses real site adapter and compiled CSS with synthetic session/routing boundaries; real-provider OAuth/protected production account acceptance remains unverified."
       ],
       "evidence": [
         {
@@ -490,6 +526,11 @@
           "kind": "one-time-production-deployment",
           "reference": "evidence/deployment-2026-10-17/naeil-http-deployment.json",
           "detail": "2026-10-17: Production7133974289, exact provider artifact ID and merge SHA match public identity;31 route/locale entries and248 independent-reference conditions pass. Immutable Vercel URL retains SSO protection; no authenticated immutable body read."
+        },
+        {
+          "kind": "account-correction-production",
+          "reference": "docs/rollout/evidence/account-correction-2026-10-17/naeil-activation.json",
+          "detail": "Reviewed green PR11 source tree equals merge; exact successful Vercel deployment and public identity agree.24 public login/frame conditions; authenticated account presentation separately matches4 synthetic actual-adapter reference conditions."
         }
       ],
       "lastVerifiedRelease": {
@@ -501,28 +542,24 @@
         "scope": "32 production routes and16 menus; separate from current rollout verification"
       },
       "candidate": {
-        "status": "local-standalone-candidate-not-used-for-git-production",
+        "status": "deployed-public-verified",
         "sourceCleanAtBuild": true,
         "artifact": {
-          "id": "naeil-ui07-3b13e95-review",
-          "sha256": "1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579",
-          "immutable": true,
-          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil/1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579.tar.gz",
-          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/naeil/1e032bcf84bc9afaaef2a0046c369af8f8977cc02edf419ab71628d985226579.tar.gz",
-          "sourceRevision": "3b13e9534cfe7a83caa59c0df6e49b755cdce89c",
+          "kind": "provider-deployment",
+          "id": "dpl_7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+          "sourceRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
           "ui": {
-            "version": "0.7.0",
+            "version": "0.7.1",
             "contractVersion": "1"
-          }
+          },
+          "immutableOrigin": "https://design-system-9ez7hpbya-naeils-projects.vercel.app"
         },
-        "artifactScope": "local standalone compatibility check; Vercel prebuilt payload not created",
-        "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
-        "provisional": false,
-        "renderVerification": [
-          "evidence/naeil-render-verification.json",
-          "evidence/naeil-additional-render-verification.json"
-        ],
-        "productionVerified": false
+        "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+        "productionArtifactVerified": true,
+        "publicProductionVerified": true,
+        "protectedProductionVerified": false,
+        "renderVerification": "evidence/account-correction-2026-10-17/public/naeil-public.json",
+        "authenticatedCandidateVerification": "evidence/account-correction-2026-10-17/site-authenticated-render.json"
       }
     },
     {
@@ -543,7 +580,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/login",
@@ -554,7 +592,9 @@
           "renderState": {
             "access": "public",
             "visible": ".login-form input[type=password]"
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:09:38.728Z"
         },
         {
           "path": "/estimates",
@@ -569,7 +609,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/estimates/[id]",
@@ -585,7 +626,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/calendar",
@@ -600,7 +642,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/compare",
@@ -615,7 +658,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/settings",
@@ -630,7 +674,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/calendar-preview",
@@ -645,7 +690,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/calendar-preview/estimates",
@@ -660,7 +706,8 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/calendar-preview/estimates/[id]",
@@ -676,53 +723,55 @@
               ".login-form"
             ]
           },
-          "state": "authenticated"
+          "state": "authenticated",
+          "lastVerifiedUiVersion": null
         }
       ],
       "source": {
         "candidatePath": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1",
-        "candidateRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+        "candidateRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
         "candidateDirty": false,
         "repository": null,
-        "revision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+        "revision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
         "productionCorrelation": "immutable-artifact-plus-public-identity",
-        "checkoutMatchesProduction": false
+        "checkoutMatchesProduction": true
       },
       "deployment": {
         "kind": "launchd-next-standalone",
         "status": "deployed-public-verified",
-        "artifactId": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
-        "runtimePath": "/Users/jaymini/.local/share/estimate-app/releases/cc4b6dee738e-fbed79a686e1",
+        "artifactId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+        "runtimePath": "/Users/jaymini/.local/share/estimate-app/releases/8c3e0430293d-82280965179e",
         "currentPath": "/Users/jaymini/.local/share/estimate-app/current",
         "launchAgent": "dev.naeil.estimate",
-        "method": "One-time reviewed helper staged exact immutable code and gracefully activated; fresh private main/every-backup equality and auth/config metadata preservation passed.",
+        "method": "Fresh reviewed code-only account correction; exact public identity and installed code assets match; previous verified code retained.",
         "adapterId": "estimate-standalone-v1",
         "adapterStatus": "one-time-native-deployed-standing-adapter-disabled",
         "applicationPath": "/Users/jaymini/.local/share/estimate-app/current/app",
-        "verifiedAt": "2026-10-17T02:48:27.380Z",
+        "verifiedAt": "2026-10-17T04:09:38.728Z",
         "identityPath": "/.well-known/naeil-ui.json",
         "oneTime": true,
-        "releaseId": "cc4b6dee738e-fbed79a686e1",
-        "previousReleaseId": "b305c0432420-4928a714c529"
+        "releaseId": "8c3e0430293d-82280965179e",
+        "previousReleaseId": "cc4b6dee738e-fbed79a686e1"
       },
       "ui": {
-        "version": "0.7.0",
-        "dependency": "file:vendor/naeil-ui-0.7.0-candidate.tgz",
+        "version": "0.7.1",
+        "dependency": "file:vendor/naeil-ui-0.7.1-candidate.tgz",
         "adoption": "canonical-deployed",
         "header": "NaeilHeader",
         "footer": "NaeilFooter compact",
         "requiredHeader": "NaeilHeader",
         "requiredFooter": "NaeilFooter",
         "candidate": {
-          "version": "0.7.0",
+          "version": "0.7.1",
           "contractVersion": "1",
           "header": "NaeilHeader",
           "footer": "NaeilFooter compact",
-          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+          "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
           "adoption": "deployed",
           "provisional": false
         },
-        "contractVersion": "1"
+        "contractVersion": "1",
+        "account": "NaeilHeaderAccountControl"
       },
       "status": "deployed-protected-verification-pending",
       "blockers": [
@@ -754,47 +803,50 @@
           "kind": "one-time-production-deployment",
           "reference": "evidence/deployment-2026-10-17/estimate-activation.json",
           "detail": "2026-10-17: exact UI0.7.0 artifact activated; 1 public route/language states and 8 reference conditions pass. Protected production content not accessed; no live rollback performed."
+        },
+        {
+          "kind": "account-correction-production",
+          "reference": "docs/rollout/evidence/account-correction-2026-10-17/estimate-activation.json",
+          "detail": "UI0.7.1 deployed; anonymous login/frame checked against independent reference. Protected account behavior validated only in exact isolated consumer artifact."
         }
       ],
       "identity": {
         "appId": "abestimate"
       },
       "candidate": {
-        "schemaVersion": 1,
         "status": "deployed-public-verified",
         "sourceCleanAtBuild": true,
-        "releaseId": "cc4b6dee738e-fbed79a686e1",
         "identity": {
           "schemaVersion": 1,
           "appId": "abestimate",
-          "artifactId": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
-          "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+          "artifactId": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
+          "sourceRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
           "ui": {
-            "version": "0.7.0",
+            "version": "0.7.1",
             "contractVersion": "1"
           }
         },
-        "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+        "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+        "productionArtifactVerified": true,
+        "publicProductionVerified": true,
+        "protectedProductionVerified": false,
+        "renderVerification": "evidence/account-correction-2026-10-17/public/estimate-public.json",
+        "authenticatedCandidateVerification": "evidence/account-correction-2026-10-17/authenticated-candidate-verification.json",
+        "releaseId": "8c3e0430293d-82280965179e",
+        "manifestSha256": "67f253b2d962bd818ba40873393c15a2d549e5066e51fe8f815e9a5edf17b286",
         "artifact": {
-          "id": "73b8972b-918f-42c3-9fb3-4bb7fdc6ecf5",
-          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/estimate/3dfc71e7b77f3a70efc76fec0e6dcb991e873a82d76382c9655b58e805d71c85.tar.gz",
-          "sha256": "3dfc71e7b77f3a70efc76fec0e6dcb991e873a82d76382c9655b58e805d71c85",
-          "bytes": 143098828,
+          "kind": "immutable-directory",
+          "id": "e5a805e1-a8a6-46e2-9eb4-ae77010b31a2",
           "immutable": true,
-          "sourceRevision": "cc4b6dee738eafb6d6f97000de4ba8b4b15f8c02",
+          "sourceRevision": "8c3e0430293dffc182695cfa2bc050214a750dc9",
           "ui": {
-            "version": "0.7.0",
+            "version": "0.7.1",
             "contractVersion": "1"
           },
-          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/estimate/3dfc71e7b77f3a70efc76fec0e6dcb991e873a82d76382c9655b58e805d71c85.tar.gz"
-        },
-        "manifestSha256": "a5d11ee64200d3bc22cf030c822c76326d92051b0656956cf6b4073d249138cd",
-        "applicationTreeHash": "23470085a2cda6581e1644e2e57875af07c5056a860eb7a070dc9b60d20cc62b",
-        "tarRegularFilesVerified": 3286,
-        "productionVerified": false,
-        "renderVerification": "evidence/estimate-render-verification.json",
-        "productionArtifactVerified": true,
-        "publicProductionVerified": true
+          "path": "/Users/jaymini/.paseo/worktrees/1bnldk74/estimate-v1/release/8c3e0430293d-82280965179e",
+          "manifestSha256": "67f253b2d962bd818ba40873393c15a2d549e5066e51fe8f815e9a5edf17b286",
+          "applicationTreeHash": "35f89771704e7baf8815b6d7b04dba2a1a990bc21b97eab4baccc4a631e1d266"
+        }
       }
     },
     {
@@ -813,7 +865,9 @@
             "access": "public",
             "visible": ".login-content input[type=password]",
             "hidden": []
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:09:55.574Z"
         },
         {
           "path": "/?lang=ko",
@@ -828,7 +882,8 @@
             "hidden": [
               "input[type=password]"
             ]
-          }
+          },
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/login?lang=ja",
@@ -841,7 +896,9 @@
             "access": "public",
             "visible": ".login-content input[type=password]",
             "hidden": []
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:09:55.574Z"
         },
         {
           "path": "/?lang=ja",
@@ -856,7 +913,8 @@
             "hidden": [
               "input[type=password]"
             ]
-          }
+          },
+          "lastVerifiedUiVersion": null
         },
         {
           "path": "/login?lang=en",
@@ -869,7 +927,9 @@
             "access": "public",
             "visible": ".login-content input[type=password]",
             "hidden": []
-          }
+          },
+          "lastVerifiedUiVersion": "0.7.1",
+          "verifiedAt": "2026-10-17T04:09:55.574Z"
         },
         {
           "path": "/?lang=en",
@@ -884,17 +944,18 @@
             "hidden": [
               "input[type=password]"
             ]
-          }
+          },
+          "lastVerifiedUiVersion": null
         }
       ],
       "source": {
         "candidatePath": "/Users/jaymini/.paseo/worktrees/3tl6a87q/shared-ui-rollout-jev",
-        "candidateRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+        "candidateRevision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
         "candidateDirty": false,
         "rootDraftPath": "/Users/jaymini/projects/jev",
         "productionCorrelation": "immutable-artifact-plus-public-identity",
         "productionSourceManifest": "/Users/jaymini/projects/jev-recovery/20261008T112101Z/deployed-20261005T000213Z-source-hashes.json",
-        "revision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+        "revision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
         "productionSourceArchiveSha256": "ca80ef27d0c4b470f608adb2adf8b5e1682d774f77958a845d718f80a6f46e8c",
         "recoveredBaselineRevision": "04bb1539e82e2e1c07568838d838f941315d8291",
         "checkoutMatchesProduction": false
@@ -902,22 +963,23 @@
       "deployment": {
         "kind": "launchd-next-standalone",
         "status": "deployed-public-verified",
-        "artifactId": "jev-ui07-7e1eb717ee56",
-        "releaseId": "20261017T024200Z-ui07",
+        "artifactId": "jev-ui07-35dd4746e62d",
+        "releaseId": "20261017T040900Z-ui071",
         "runtimePath": "/Users/jaymini/.local/share/jev/app",
         "loopbackOrigin": "http://127.0.0.1:2466",
         "launchAgent": "dev.naeil.jev",
-        "method": "One-time reviewed helper retained fresh current app as previous-app and swapped exact code using unchanged launchd configuration; DB/auth/config paths retained.",
+        "method": "Fresh reviewed code-only account correction; exact public identity and installed code assets match; previous verified code retained.",
         "adapterId": null,
-        "verifiedAt": "2026-10-17T02:48:38.276Z",
+        "verifiedAt": "2026-10-17T04:09:55.574Z",
         "identityPath": "/.well-known/naeil-ui.json",
         "oneTime": true,
-        "previousBuildId": "5c8klC9uqKrC2wNSEzuke",
-        "previousCodeLocation": "releases/20261017T024200Z-ui07/previous-app",
-        "adapterStatus": "one-time-native-deployed-no-standing-adapter"
+        "previousBuildId": "_Qv6sy-ccIKZ2B0scI4qH",
+        "previousCodeLocation": "releases/20261017T040900Z-ui071/previous-app",
+        "adapterStatus": "one-time-native-deployed-no-standing-adapter",
+        "previousReleaseId": "20261017T024200Z-ui07"
       },
       "ui": {
-        "version": "0.7.0",
+        "version": "0.7.1",
         "adoption": "canonical-deployed",
         "header": "NaeilHeader",
         "footer": "NaeilFooter full",
@@ -930,19 +992,20 @@
           "en"
         ],
         "candidate": {
-          "version": "0.7.0",
+          "version": "0.7.1",
           "contractVersion": "1",
           "adoption": "deployed",
           "header": "NaeilHeader",
           "footer": "NaeilFooter full",
-          "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
+          "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
           "supportedLocales": [
             "ko",
             "ja",
             "en"
           ]
         },
-        "contractVersion": "1"
+        "contractVersion": "1",
+        "account": "NaeilHeaderAccountControl"
       },
       "status": "deployed-protected-verification-pending",
       "blockers": [
@@ -984,33 +1047,46 @@
           "kind": "one-time-production-deployment",
           "reference": "evidence/deployment-2026-10-17/jev-activation.json",
           "detail": "2026-10-17: exact UI0.7.0 artifact activated; 3 public route/language states and 24 reference conditions pass. Protected production content not accessed; no live rollback performed."
+        },
+        {
+          "kind": "account-correction-production",
+          "reference": "docs/rollout/evidence/account-correction-2026-10-17/jev-activation.json",
+          "detail": "UI0.7.1 deployed; anonymous login/frame checked against independent reference. Protected account behavior validated only in exact isolated consumer artifact."
         }
       ],
       "candidate": {
         "status": "deployed-public-verified",
         "sourceCleanAtBuild": true,
-        "artifact": {
-          "id": "jev-ui07-7e1eb717ee56",
-          "sha256": "66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e",
-          "immutable": true,
-          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e.tar.gz",
-          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/66628501fd1ea1d0ef8e7c889f3857f363c7715026f660bd370f2008e29b708e.tar.gz",
-          "sourceRevision": "7e1eb717ee56814c25ca1402d499f8f1415b1521",
+        "identity": {
+          "schemaVersion": 1,
+          "appId": "jev",
+          "artifactId": "jev-ui07-35dd4746e62d",
+          "sourceRevision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
           "ui": {
-            "version": "0.7.0",
+            "version": "0.7.1",
             "contractVersion": "1"
           }
         },
-        "artifactScope": "isolated Next standalone; exact artifact activated with one-time code-only helper",
-        "buildId": "_Qv6sy-ccIKZ2B0scI4qH",
-        "archiveSha256": "f15f9a06020edb14aa41b74e07f7925c970c55adbd733bdf8adcf3942535693d",
-        "receipt": "evidence/jev-candidate-receipt.json",
-        "renderVerification": "evidence/jev-render-verification.json",
-        "integrityVerification": "evidence/jev-candidate-integrity.json",
-        "conditions": 48,
-        "productionVerified": false,
+        "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
         "productionArtifactVerified": true,
-        "publicProductionVerified": true
+        "publicProductionVerified": true,
+        "protectedProductionVerified": false,
+        "renderVerification": "evidence/account-correction-2026-10-17/public/jev-public.json",
+        "authenticatedCandidateVerification": "evidence/account-correction-2026-10-17/authenticated-candidate-verification.json",
+        "buildId": "Qqngj6d8EWQAChlLZsa6x",
+        "artifact": {
+          "kind": "immutable-archive",
+          "id": "jev-ui07-35dd4746e62d",
+          "immutable": true,
+          "sourceRevision": "35dd4746e62d07f1c58e75182160ed40d9c7d115",
+          "ui": {
+            "version": "0.7.1",
+            "contractVersion": "1"
+          },
+          "path": "/Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/35dd4746e62d07f1c58e75182160ed40d9c7d115/standalone.tar.gz",
+          "storageRef": "file:///Users/jaymini/.local/share/naeil-ui-rollout/consumer-candidates/jev/35dd4746e62d07f1c58e75182160ed40d9c7d115/standalone.tar.gz",
+          "sha256": "5b5d322771b57cf507ad756120f644e6cae228baa881af5311f900c2e42df4a9"
+        }
       }
     },
     {
@@ -1925,9 +2001,19 @@
       "jev"
     ],
     "uiVersion": "0.7.1",
-    "status": "candidate-verified-consumer-verification-in-progress",
-    "productionComplete": false,
+    "status": "deployed-public-verified",
+    "productionComplete": true,
     "standingRolloutEnabled": false,
-    "reference": "frozen/naeil-account-0.7.1.json"
+    "reference": "frozen/naeil-account-0.7.1.json",
+    "deployedServices": [
+      "naeil",
+      "estimate",
+      "jev"
+    ],
+    "pendingServices": [],
+    "publicAcceptanceComplete": true,
+    "protectedProductionAcceptanceComplete": false,
+    "completedAt": "2026-10-17T04:27:53.100Z",
+    "evidence": "evidence/account-correction-2026-10-17/summary.json"
   }
 }

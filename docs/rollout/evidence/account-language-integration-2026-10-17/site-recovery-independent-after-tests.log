@@ -1,0 +1,8 @@
+
+ RUN  v4.1.0 /Users/jaymini/.paseo/worktrees/28nele6j/naeil-account-language
+
+
+ Test Files  5 passed (5)
+      Tests  62 passed (62)
+   Start at  16:46:47
+   Duration  499ms (transform 281ms, setup 0ms, import 689ms, tests 54ms, environment 0ms)

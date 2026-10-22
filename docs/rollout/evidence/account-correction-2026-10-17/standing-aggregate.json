@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "ui-0.7.1-32108fd",
+  "observedAt": "2026-10-17T04:30:26.641Z",
+  "complete": false,
+  "dnsInventory": "unresolved",
+  "services": [
+    {
+      "serviceId": "naeil",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "estimate",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "jev",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "trip",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "work",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "digest",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "line",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "esg",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    },
+    {
+      "serviceId": "storybook",
+      "state": "unresolved",
+      "reason": "Exactly one current release receipt required"
+    }
+  ],
+  "scope": "Standing coordinator only; one-time deployment receipts do not certify all protected routes or unattended rollout."
+}

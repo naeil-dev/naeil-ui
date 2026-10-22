@@ -29,6 +29,18 @@ const nextConfig: NextConfig = {
   generateBuildId: async () => artifactId,
   env: { NAEIL_APP_ARTIFACT_ID: artifactId, NAEIL_SOURCE_REVISION: sourceRevision },
   poweredByHeader: false,
+  distDir: process.env.NAEIL_INVITE_DIST_DIR || ".next",
+  // Proxy rejects return aliases before site Auth/locale processing and keeps
+  // ordinary trailing-slash redirects after the protected namespaces.
+  skipTrailingSlashRedirect: true,
+  skipProxyUrlNormalize: true,
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async headers() {
     return [
@@ -44,6 +56,28 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+      {
+        source: "/auth/callback",
+        headers: [
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+      {
+        source: "/auth/invite/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Vary", value: "Cookie, Accept, Accept-Language" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'",
           },
         ],
       },

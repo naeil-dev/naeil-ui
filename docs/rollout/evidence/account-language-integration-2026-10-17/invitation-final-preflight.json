@@ -1,0 +1,11 @@
+{
+  "homeProduct": {
+    "app/modules/console/repository.py": "d198098945f6fd08209764faf8990f597a1857c53faac7c5c175f07ad0e2fd8d",
+    "app/modules/console/api.py": "685fe8dcd0e34dc4e8ec980478711c159409586bf29d97db0d5faaf208c783be",
+    "app/modules/console/schemas.py": "5a0561d948e6ecc95c590453ed77b6e0a25bac9435be8aee76d6d469dcc5a6eb"
+  },
+  "fixtureMatch": true,
+  "builtStaticCount": 34,
+  "staticMatchesFixture": true,
+  "fixtureCountReceipt": "fixture-counts-before-final-invitation.json"
+}

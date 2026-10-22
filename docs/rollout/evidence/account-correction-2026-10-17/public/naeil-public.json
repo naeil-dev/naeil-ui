@@ -1,0 +1,1844 @@
+{
+  "serviceId": "naeil",
+  "origin": "https://naeil.dev",
+  "checkedAt": "2026-10-17T04:26:59.295Z",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "naeil",
+    "artifactId": "dpl_7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+    "sourceRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "referenceSha256": "85bb399a13bba741e9c100d8f08db8ab5c58af3fd2a2614ca9ff24b7e455dfac",
+  "cases": [
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 390,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 390,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 16
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 16
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 390,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 390,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 16
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 16
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 768,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 768,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 18.421875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 18.421875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 768,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 768,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 18.421875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 18.421875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 1440,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 1440,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 34.546875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 34.546875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 1440,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 1440,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 34.546875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 34.546875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 1920,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 1920,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "footerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 40
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 40
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ko/login",
+      "locale": "ko",
+      "width": 1920,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 1920,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "footerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 40
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 40
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ko",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ko/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ko/login?next=%2Flogin",
+        "height": 44,
+        "width": 65.484375,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 390,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 390,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 16
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 16
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 390,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 390,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 16
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 16
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 768,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 768,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 18.421875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 18.421875
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 768,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 768,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 18.421875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 18.421875
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 1440,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 1440,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 34.546875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 34.546875
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 1440,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 1440,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 34.546875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 34.546875
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 1920,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 1920,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "footerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 40
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 40
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/ja/login",
+      "locale": "ja",
+      "width": 1920,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 1920,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "footerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 40
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 40
+        },
+        "overflow": false,
+        "expectedFont": "Noto Sans JP",
+        "renderedFont": "Noto Sans JP",
+        "fontLoaded": true,
+        "fontFamily": "\"Noto Sans JP\", \"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/ja",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/ja/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/ja/login?next=%2Flogin",
+        "height": 44,
+        "width": 88,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 390,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 390,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 16
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 16
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 390,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 390,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 390,
+          "padding": 16
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 16
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 16
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 768,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 768,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 18.421875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 18.421875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 768,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 768,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 768,
+          "padding": 18.432
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 18.421875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 18.421875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 1440,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 1440,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 34.546875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 34.546875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 1440,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 1440,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "footerFrame": {
+          "x": 0,
+          "width": 1440,
+          "padding": 34.56
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 34.546875
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 34.546875
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 1920,
+      "theme": "light",
+      "chrome": {
+        "layoutWidth": 1920,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "footerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 40
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 40
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(247, 248, 250)",
+        "foreground": "rgb(32, 33, 39)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(32, 33, 39)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    },
+    {
+      "path": "/en/login",
+      "locale": "en",
+      "width": 1920,
+      "theme": "dark",
+      "chrome": {
+        "layoutWidth": 1920,
+        "layoutX": 0,
+        "headerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "footerFrame": {
+          "x": 160,
+          "width": 1600,
+          "padding": 40
+        },
+        "headerHeight": 65,
+        "headerBrand": {
+          "height": 28,
+          "offset": 40
+        },
+        "footerBrand": {
+          "height": 20,
+          "offset": 40
+        },
+        "overflow": false,
+        "expectedFont": "Pretendard",
+        "renderedFont": "Pretendard Variable",
+        "fontLoaded": true,
+        "fontFamily": "\"Pretendard Variable\", Pretendard, \"Noto Sans JP\", -apple-system, system-ui, sans-serif",
+        "background": "rgb(11, 12, 14)",
+        "foreground": "rgb(239, 240, 243)",
+        "version": "0.7.1",
+        "contractVersion": "1",
+        "footerVersion": "0.7.1",
+        "footerContract": "1",
+        "footerVariant": "full",
+        "footerLinks": [
+          {
+            "href": "/",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/projects",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "/blog",
+            "target": "",
+            "rel": ""
+          },
+          {
+            "href": "https://github.com/naeil-dev",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ]
+      },
+      "login": {
+        "href": "/login?next=%2Flogin",
+        "height": 44,
+        "width": 67.953125,
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "25px",
+        "color": "rgb(239, 240, 243)",
+        "background": "rgba(0, 0, 0, 0)",
+        "padding": "8px 12px",
+        "borderRadius": "8px"
+      },
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "Anonymous production login and shared frame only; authenticated acceptance uses isolated actual-consumer tests."
+}

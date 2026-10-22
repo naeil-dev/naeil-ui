@@ -1,0 +1,204 @@
+{
+  "sourceRevision": "805b7197520b292d126c0194e4d09a2073ade975",
+  "scope": "Real site NavWrapper and freshly compiled site CSS/static fonts; session and routing boundaries mocked. No protected production access.",
+  "reference": "naeil-account-0.7.1.json",
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(240, 241, 245)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(235, 235, 235)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgb(32, 33, 39)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(140, 143, 155)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(32, 33, 39)",
+          "backgroundColor": "rgb(240, 241, 245)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      },
+      "passed": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(32, 33, 39)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(38, 38, 38)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(25, 26, 31)",
+          "color": "rgb(239, 240, 243)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(100, 103, 115)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(239, 240, 243)",
+          "backgroundColor": "rgb(32, 33, 39)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      },
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(240, 241, 245)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(235, 235, 235)",
+          "color": "rgb(32, 33, 39)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgb(32, 33, 39)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(140, 143, 155)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(32, 33, 39)",
+          "backgroundColor": "rgb(240, 241, 245)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      },
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "locale": "ja",
+      "render": {
+        "uiVersion": "0.7.1",
+        "trigger": {
+          "width": "44px",
+          "height": "44px",
+          "padding": "0px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(32, 33, 39)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "avatar": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "50%",
+          "backgroundColor": "rgb(38, 38, 38)",
+          "color": "rgb(239, 240, 243)"
+        },
+        "icon": {
+          "width": "16px",
+          "height": "16px",
+          "strokeWidth": "2px"
+        },
+        "menu": {
+          "width": "224px",
+          "padding": "4px",
+          "borderRadius": "8px",
+          "backgroundColor": "rgb(25, 26, 31)",
+          "color": "rgb(239, 240, 243)",
+          "borderTopWidth": "1px",
+          "borderTopColor": "rgb(100, 103, 115)"
+        },
+        "action": {
+          "height": "44px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "padding": "6px 8px",
+          "color": "rgb(239, 240, 243)",
+          "backgroundColor": "rgb(32, 33, 39)"
+        },
+        "fontFamily": "Noto Sans JP",
+        "overflow": false
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

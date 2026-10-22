@@ -227,6 +227,10 @@
     "social": "Social"
   },
   "auth": {
+    "logoutFailed": "Could not log out. Please try again.",
+    "localLogout": "Log out of this browser",
+    "localLogoutDescription": "You can remove this website’s login from this browser. The authentication server and other sessions will not be signed out.",
+    "localLogoutFailed": "Could not remove this browser’s login. Please try again.",
     "login": "Sign in",
     "loginWithGoogle": "Sign in with Google",
     "loginWithGithub": "Sign in with GitHub",

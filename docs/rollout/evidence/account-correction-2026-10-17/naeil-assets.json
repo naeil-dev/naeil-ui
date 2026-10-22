@@ -1,0 +1,137 @@
+{
+  "checkedAt": "2026-10-17T04:27:00.978Z",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "naeil",
+    "artifactId": "dpl_7zTs8hNcVMTZ7D8YMDsc2j5kYpnx",
+    "sourceRevision": "ff372235cda3091fd392dc0c4f53932825428f2c",
+    "ui": {
+      "version": "0.7.1",
+      "contractVersion": "1"
+    }
+  },
+  "assets": [
+    {
+      "path": "/_next/static/chunks/9eb63f028c4ae5c5.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "sha256": "a02155b3037b749d8890ee6d21df9c1b8d61a6da02d79762975b29f6099a0f7a"
+    },
+    {
+      "path": "/_next/static/chunks/d5b925bceb0e6bf9.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "sha256": "a9859324b699964ed81371ce4239e8e6bda5f5a020f48f1fe8ae9127db432a03"
+    },
+    {
+      "path": "/_next/static/chunks/16d6f0e9cb8f5361.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "sha256": "51217e5bc1c70319ea388a1cf0a3e684204690d0d2f6a7d92e3223c3b8e08291"
+    },
+    {
+      "path": "/_next/static/chunks/79a3d54d1639d7b8.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "sha256": "8bb02018116a7c9dcfe16c6987d254e913732574fdb4d75a214a9faeaf59ec40"
+    },
+    {
+      "path": "/_next/static/chunks/02debd0a997b7693.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "sha256": "eb1591e9960eccc6a744ef03ea39384c08a2de476595f29e7edb8d3bfa9c8db1"
+    },
+    {
+      "path": "/_next/static/chunks/96e32d611d9b8b20.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "sha256": "d61f7ac2c8c032725349552c0285d658c8e40313b9db4774bcc9dc405de05da3"
+    },
+    {
+      "path": "/_next/static/chunks/459460c988861cf6.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "106b8794ce64f6949a93b871a6c176c5d87177889ad132bfd3e54de842a8e734"
+    },
+    {
+      "path": "/_next/static/chunks/54dc4e5c21bc5c8c.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "69542c31934895de8c2005cb7e9a8903ee61dc2be44ff0ef8ffd08fd897df337"
+    },
+    {
+      "path": "/_next/static/chunks/0d0287fedf92a797.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "dee8302b0c8ba8d66e90bcb1521b5ccea67424847bdd5d781c0d143e9be6ff52"
+    },
+    {
+      "path": "/_next/static/chunks/turbopack-9cc778a3aa30a5a6.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "60777201cb14d5ce055ec7d30e1590f5399c8e203298d4883c753e6bda8f118b"
+    },
+    {
+      "path": "/_next/static/chunks/ba3ccfe8b38b924f.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "ad80a32e35889901221975744de44daac5718fcb5bdb997131cfa6dcebe55cbf"
+    },
+    {
+      "path": "/_next/static/chunks/c98d7c4ea37d25cc.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "2e0c2cf63a4366eeffb208d6c3fb71d85db6e8906601a8075b91fabbdcc67a31"
+    },
+    {
+      "path": "/_next/static/chunks/a29d9a21ced11080.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "23b2eb74c6088fb005eed76450feb5a8bffee0f972437d03bc5703071ec1548f"
+    },
+    {
+      "path": "/_next/static/chunks/fc81fc335858c6e5.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "54208be0871d6b6829d0bf887d143c51486b7ac2ac0374ee774a4cd19b8aa80b"
+    },
+    {
+      "path": "/_next/static/chunks/ef7e7b0e291ed747.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "fcefadea8197b5ad3c4ff8a1bfda7a99f030dd8e28683af2c3facc0ab24635c8"
+    },
+    {
+      "path": "/_next/static/chunks/ba8effc90e6d8c75.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "e26c28e582d13f7119710f4801b692ed64a42ed2d31317e912daf4b5976ed33e"
+    },
+    {
+      "path": "/_next/static/chunks/c1c28b59f64a94f3.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "1a77cb434ab2b3d053391549e7310af55c6b0e812212d82e323b0c2a849bb777"
+    },
+    {
+      "path": "/_next/static/chunks/fb3ddfdd7be60ba4.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "e5a0b702358976d1920ebcf06e58af8d343adeea22e4cb2bc3c905ae935ed47f"
+    },
+    {
+      "path": "/_next/static/chunks/9a165fbfad8dd166.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "2b45b5e59f3e039ca41f729cd641fc9bc1cc9d377e6ac91977b0094041206b7c"
+    },
+    {
+      "path": "/_next/static/chunks/a6dad97d9634a72d.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683"
+    }
+  ],
+  "passed": true,
+  "scope": "Public asset responses bound to exact provider deployment/source; no immutable-origin SSO bypass."
+}

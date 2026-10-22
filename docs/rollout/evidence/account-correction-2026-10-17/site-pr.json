@@ -1,0 +1,10 @@
+{
+  "baseRefOid": "b82f12d17cd3b273a92aa3934ea9ad14106581b4",
+  "headRefOid": "805b7197520b292d126c0194e4d09a2073ade975",
+  "mergeCommit": {
+    "oid": "ff372235cda3091fd392dc0c4f53932825428f2c"
+  },
+  "mergedAt": "2026-10-17T04:25:13Z",
+  "state": "MERGED",
+  "url": "https://github.com/naeil-dev/naeil-ui/pull/11"
+}

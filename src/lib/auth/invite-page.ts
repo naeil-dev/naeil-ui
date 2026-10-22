@@ -1,0 +1,68 @@
+// Isolated app HTML, not shared React component integration. Numeric/color source:
+// DESIGN.md and src/tokens/semantic.json at ff1c5b6; site maintains these copies.
+// Font: self-hosted Pretendard 1.3.9 (SIL OFL), public/console-invite/LICENSE.txt.
+export function invitePage(
+  nonce: string,
+  locale: "ko" | "ja" | "en",
+  initial: unknown,
+): string {
+  const pageTitle = {ko: "초대 확인", ja: "招待の確認", en: "Confirm invitation"}[locale];
+  const heading = {ko: "초대받으셨습니다", ja: "招待が届いています", en: "You’re invited"}[locale];
+  const intro = {ko: "초대를 확인하면 관리자가 선택한 서비스 접근 권한이 활성화됩니다.", ja: "招待を確認すると、管理者が選択したサービスを利用できるようになります。", en: "Confirm your invitation to activate the access selected for you."}[locale];
+  const waiting = {ko: "초대 준비 중…", ja: "招待を準備中…", en: "Preparing invitation…"}[locale];
+  const confirm = {ko: "초대 수락", ja: "招待を受け入れる", en: "Accept invitation"}[locale];
+  const noscript = {ko: "초대를 안전하게 확인하려면 JavaScript가 필요합니다.", ja: "招待を安全に確認するにはJavaScriptが必要です。", en: "JavaScript is required to safely confirm this invitation."}[locale];
+  const data = JSON.stringify(initial).replace(/</g, "\\u003c");
+  return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>${pageTitle} — .naeil</title><link rel="icon" href="/icon.svg" type="image/svg+xml">
+<script nonce="${nonce}">(()=>{'use strict';
+let fragment=location.hash;history.replaceState(null,'',location.pathname+location.search);
+const initial=${data};let csrf=initial.csrf;let current=initial;let language='${locale}';let busy=false;let failed=false;let malformed=false;let pendingStage=null;let needsRecovery=false;
+const copy={en:{check:'Check status',recover:'The result could not be received. Check status before continuing.',title:'You’re invited',intro:'Confirm your invitation to activate the access selected for you.',empty:'Open the full invitation link from your email. If it has expired, ask your administrator to resend it.',staged:'Your invitation is ready. Confirm when you’re ready to continue.',retry:'Email verification succeeded. Access could not be confirmed yet. Retry to continue with the same verification.',complete:'Your access is ready',done:'Choose a service below. Each service may ask you to sign in separately.',invalid:'This invitation cannot be used. Ask your administrator for a fresh invitation.',unavailable:'We couldn’t confirm access. Please try again. If this page was restarted or the link expired, ask for a fresh invitation.',confirm:'Accept invitation',again:'Try again',working:'Confirming…',wait:'Preparing invitation…',safety:'Only the access selected by your administrator will be activated.',noscript:'JavaScript is required to safely confirm this invitation.',theme:'Appearance',system:'System',light:'Light',dark:'Dark'},ko:{check:'진행 상태 확인',recover:'결과를 받지 못했습니다. 진행 상태를 확인한 후 계속해 주세요.',title:'초대받으셨습니다',intro:'초대를 확인하면 관리자가 선택한 서비스 접근 권한이 활성화됩니다.',empty:'이메일의 전체 초대 링크를 열어 주세요. 만료된 경우 관리자에게 다시 보내기를 요청해 주세요.',staged:'초대가 준비되었습니다. 아래 버튼을 눌러 수락해 주세요.',retry:'이메일 확인이 완료되었습니다. 접근 권한을 아직 확인하지 못했습니다. 같은 확인 정보로 다시 시도해 주세요.',complete:'접근 권한이 준비되었습니다',done:'아래에서 서비스를 선택해 주세요. 서비스마다 별도 로그인이 필요할 수 있습니다.',invalid:'사용할 수 없는 초대입니다. 관리자에게 새 초대를 요청해 주세요.',unavailable:'접근 권한을 확인하지 못했습니다. 다시 시도해 주세요. 서버가 재시작되었거나 링크가 만료되었다면 새 초대를 요청해 주세요.',confirm:'초대 수락',again:'다시 시도',working:'확인 중…',wait:'초대 준비 중…',safety:'관리자가 선택한 서비스 접근 권한만 활성화됩니다.',noscript:'초대를 안전하게 확인하려면 JavaScript가 필요합니다.',theme:'화면 모드',system:'시스템',light:'밝게',dark:'어둡게'},ja:{check:'状態を確認',recover:'結果を受信できませんでした。状態を確認してから続けてください。',title:'招待が届いています',intro:'招待を確認すると、管理者が選択したサービスを利用できるようになります。',empty:'メールに記載された招待リンク全体を開いてください。有効期限が切れている場合は、管理者に再送を依頼してください。',staged:'招待の準備ができました。下のボタンで受け入れてください。',retry:'メールの確認が完了しました。アクセス権限をまだ確認できません。同じ確認情報でもう一度お試しください。',complete:'アクセス権限の準備ができました',done:'下からサービスを選択してください。サービスごとにログインが必要な場合があります。',invalid:'この招待は利用できません。管理者に新しい招待を依頼してください。',unavailable:'アクセス権限を確認できませんでした。もう一度お試しください。サーバーが再起動した場合やリンクの有効期限が切れた場合は、新しい招待を依頼してください。',confirm:'招待を受け入れる',again:'もう一度試す',working:'確認中…',wait:'招待を準備中…',safety:'管理者が選択したサービスのアクセス権限のみが有効になります。',noscript:'招待を安全に確認するにはJavaScriptが必要です。',theme:'表示',system:'システム',light:'ライト',dark:'ダーク'}};
+copy.en.uncertain='The email verification result cannot be recovered. Ask your administrator to resend the invitation.';
+copy.ko.uncertain='이메일 확인 결과를 복구할 수 없습니다. 관리자에게 초대 재전송을 요청해 주세요.';
+copy.ja.uncertain='メール確認の結果を復元できません。管理者に招待の再送を依頼してください。';
+copy.en.restage='The invitation link is still available. Prepare it again before accepting.';copy.en.prepare='Prepare invitation';
+copy.ko.restage='초대 링크가 남아 있습니다. 다시 준비한 후 수락해 주세요.';copy.ko.prepare='초대 다시 준비';
+copy.ja.restage='招待リンクはまだ利用できます。もう一度準備してから受け入れてください。';copy.ja.prepare='招待を再準備';
+let appearance='system';
+function render(){if(!document.getElementById('status'))return;const c=copy[language];document.documentElement.lang=language;document.title=({ko:'초대 확인',ja:'招待の確認',en:'Confirm invitation'}[language])+' — .naeil';document.getElementById('title').textContent=current.status==='complete'?c.complete:c.title;document.getElementById('intro').textContent=current.status==='complete'?c.done:c.intro;document.getElementById('status').textContent=busy?c.working:malformed?c.invalid:needsRecovery?c.recover:failed?c.unavailable:pendingStage?c.restage:(c[current.status]||c.empty);document.getElementById('safety').textContent=c.safety;const button=document.getElementById('confirm');button.hidden=(!['staged','retry'].includes(current.status)&&!pendingStage&&!needsRecovery)||malformed;button.disabled=busy;button.setAttribute('aria-busy',String(busy));button.textContent=busy?c.working:needsRecovery?c.check:pendingStage?c.prepare:failed||current.status==='retry'?c.again:c.confirm;const list=document.getElementById('links');list.replaceChildren();if(current.status==='complete'){for(const link of current.links||[]){if(!['https://jev.naeil.dev/','https://abestimate.naeil.dev/'].includes(link.href))continue;const a=document.createElement('a');a.href=link.href;a.textContent=link.label;list.append(a);}document.getElementById('status').hidden=true;}else document.getElementById('status').hidden=false;document.getElementById('language').textContent=({ko:'日本語',ja:'English',en:'한국어'}[language]);document.getElementById('theme').textContent=c.theme+': '+c[appearance];}
+async function send(payload){
+  let response,result;
+  try{
+    response=await fetch(location.pathname+location.search,{method:'POST',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({csrf,...payload})});
+    result=await response.json();
+    if(!result||typeof result!=='object'||Array.isArray(result))throw new Error('Unavailable');
+  }catch{needsRecovery=true;throw new Error('Unavailable');}
+  if(typeof result.csrf==='string')csrf=result.csrf;
+  if(!response.ok){
+    if(response.status===409&&result.status==='uncertain'){needsRecovery=false;pendingStage=null;return result;}
+    if(response.status===403||response.status===408||response.status>=500){needsRecovery=true;}
+    else{current={status:'invalid'};malformed=true;pendingStage=null;}
+    throw new Error('Unavailable');
+  }
+  return result;
+}
+async function recover(){
+  const response=await fetch(location.pathname+location.search,{method:'GET',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{Accept:'application/json'}});
+  const result=await response.json();
+  if(!response.ok||typeof result.csrf!=='string'||!['empty','staged','retry','invalid','uncertain','complete'].includes(result.status))throw new Error('Unavailable');
+  csrf=result.csrf;current=result;needsRecovery=false;
+  // GET cannot identify which envelope was staged, and a lost response may
+  // include its Set-Cookie. Retain this tab's envelope until explicit restage
+  // succeeds; no verification occurs until a separate subsequent confirm.
+  if(result.status==='invalid'&&!pendingStage)malformed=true;
+}
+
+async function start(){render();if(!fragment)return;const raw=fragment.slice(1);fragment='';if(raw.length>2048||/%(?![0-9a-fA-F]{2})/.test(raw)){malformed=true;render();return;}const params=new URLSearchParams(raw);const keys=['id','version','nonce','token_hash'];if([...params.keys()].length!==4||keys.some(k=>params.getAll(k).length!==1)||[...params.keys()].some(k=>!keys.includes(k))||!/^([1-9][0-9]{0,14})$/.test(params.get('version')||'')){malformed=true;render();return;}pendingStage={action:'stage',id:params.get('id'),version:Number(params.get('version')),nonce:params.get('nonce'),token_hash:params.get('token_hash')};busy=true;render();try{current=await send(pendingStage);pendingStage=null;}catch{failed=true;}finally{busy=false;render();}}
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('confirm').addEventListener('click',async()=>{if(busy||malformed)return;busy=true;failed=false;render();try{if(needsRecovery){await recover();}else{current=await send(pendingStage||{action:'confirm'});pendingStage=null;}}catch{failed=true;}finally{busy=false;render();}});document.getElementById('language').addEventListener('click',()=>{language=({ko:'ja',ja:'en',en:'ko'}[language]);const params=new URLSearchParams(location.search);params.set('locale',language);history.replaceState(null,'',location.pathname+'?'+params.toString());render();});document.getElementById('theme').addEventListener('click',()=>{appearance=appearance==='system'?'light':appearance==='light'?'dark':'system';document.documentElement.dataset.theme=appearance;render();});start();});
+})();</script>
+<style nonce="${nonce}">
+@font-face{font-family:"Noto Sans JP";src:url('/console-invite/noto-sans-jp-japanese-400-normal.woff2') format('woff2');font-weight:400;font-display:swap}@font-face{font-family:"Noto Sans JP";src:url('/console-invite/noto-sans-jp-japanese-500-normal.woff2') format('woff2');font-weight:500;font-display:swap}@font-face{font-family:"Noto Sans JP";src:url('/console-invite/noto-sans-jp-japanese-600-normal.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:Pretendard;src:url('/console-invite/PretendardVariable.woff2') format('woff2');font-weight:100 900;font-display:swap}
+:root:lang(ja){--font:"Noto Sans JP"}
+:root{color-scheme:light;--bg:#f7f8fa;--fg:#202127;--surface:#fff;--muted:#5f626e;--action:#292929;--on-action:#fff;--border:#8c8f9b;--focus:#616161}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0b0c0e;--fg:#eff0f3;--surface:#111215;--muted:#a4a6b0;--action:#e5e5e5;--on-action:#171717;--border:#646773;--focus:#b5b5b5}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0b0c0e;--fg:#eff0f3;--surface:#111215;--muted:#a4a6b0;--action:#e5e5e5;--on-action:#171717;--border:#646773;--focus:#b5b5b5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.5625 var(--font,Pretendard),system-ui,sans-serif;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:32px 16px}main{width:100%;max-width:480px}.wordmark{margin:0 0 32px}.wordmark img{width:144px;height:48px;object-fit:contain;object-position:left}.brand-dark{display:none}:root[data-theme=dark] .brand-light{display:none}:root[data-theme=dark] .brand-dark{display:block}@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .brand-light{display:none}:root:not([data-theme=light]) .brand-dark{display:block}}h1{font-size:32px;line-height:1.3125;font-weight:600;margin:0 0 16px;overflow-wrap:anywhere}p{margin:0 0 24px;overflow-wrap:anywhere}.support{font-size:14px;line-height:1.5715;color:var(--muted)}#status{padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-top:32px}button,a{font:500 16px/1.5625 var(--font,Pretendard),system-ui,sans-serif;min-height:44px;border-radius:8px;padding:10px 16px;cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid var(--focus);outline-offset:3px}#confirm,#links a{display:flex;align-items:center;justify-content:center;width:100%;background:var(--action);color:var(--on-action);border:1px solid var(--action);text-decoration:none}#confirm:disabled{cursor:wait}#confirm[hidden]{display:none}#links{display:grid;gap:12px;margin:32px 0 24px}#links:empty{display:none}.controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}.controls button{background:transparent;color:var(--fg);border:1px solid var(--border)}@media(max-width:360px){h1{font-size:28px}.controls button{flex:1}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style></head><body><main><div class="wordmark"><img class="brand-light" src="/console-invite/naeil-wordmark-color.svg" alt=".naeil" width="144" height="48"><img class="brand-dark" src="/console-invite/naeil-wordmark-color-dark.svg" alt=".naeil" width="144" height="48"></div><h1 id="title">${heading}</h1><p id="intro">${intro}</p><p id="status" role="status" aria-live="polite">${waiting}</p><button id="confirm" type="button" hidden>${confirm}</button><div id="links"></div><p id="safety" class="support"></p><noscript><p>${noscript}</p></noscript><div class="controls"><button id="language" type="button">${{ko:"日本語",ja:"English",en:"한국어"}[locale]}</button><button id="theme" type="button">${{ko:"화면 모드: 시스템",ja:"表示: システム",en:"Appearance: System"}[locale]}</button></div></main></body></html>`;
+}

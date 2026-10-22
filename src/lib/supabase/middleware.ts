@@ -1,27 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-import { getCookieDomainFromHost } from "../auth/cookie-domain";
+import type { CookieOptions } from "@supabase/ssr";
+import { isSiteSessionCookie, isTerminalSessionError, siteCookieOptions } from "../auth/site-session";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
-  const domain = getCookieDomainFromHost(request.headers.get("host"));
+  const pending = new Map<string, { name: string; value: string; options: CookieOptions }>();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: siteCookieOptions(request.headers.get("host")),
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, { ...options, domain }),
-          );
+          // The SDK may remove a session before returning a non-retryable
+          // gateway error. Commit only after classifying the actual outcome.
+          cookiesToSet.forEach(cookie => pending.set(cookie.name, cookie));
         },
       },
     },
@@ -33,20 +31,21 @@ export async function updateSession(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
 
-  // If refresh token is invalid/expired, clear stale auth cookies
-  // so they don't interfere with new login attempts (PKCE flow)
-  if (error && !user) {
-    const cookiePrefix = "sb-" + (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/^https?:\/\//, "").split(".")[0] + "-auth-token";
+  if (!error || isTerminalSessionError(error)) {
+    for (const { name, value } of pending.values()) request.cookies.set(name, value);
+    supabaseResponse = NextResponse.next({ request });
+    for (const { name, value, options } of pending.values())
+      supabaseResponse.cookies.set(name, value, options);
+  }
+
+  // Temporary provider/gateway failures must not erase a recoverable session.
+  if (isTerminalSessionError(error) && !user) {
     request.cookies.getAll().forEach(({ name }) => {
-      if (name.startsWith(cookiePrefix)) {
-        supabaseResponse.cookies.delete({
-          name,
-          path: "/",
-          domain: domain ?? undefined,
-        });
+      if (isSiteSessionCookie(name)) {
+        supabaseResponse.cookies.set(name, "", { ...siteCookieOptions(request.headers.get("host")), maxAge: 0 });
       }
     });
   }
 
-  return { response: supabaseResponse, user };
+  return { response: supabaseResponse, user: error ? null : user, unavailable: !!error && !isTerminalSessionError(error) };
 }

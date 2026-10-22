@@ -51,6 +51,8 @@ Standard header attributes and the remaining inherited [Navigation props](naviga
 
 Keep errors visible in the consumer's recovery UI or toast. The package never calls an authentication endpoint. Compare signed-in and signed-out render states separately; anonymous-only acceptance cannot establish authenticated parity. `AccountStates` is a synthetic Storybook example for pending/cancel/error/retry.
 
+Own pending state and the in-flight request lock above `NaeilHeader`. Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. Pass the same controller to both through `authSlot`; test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
+
 ## Frame and content clearance
 
 The fixed header is 65px: the current 64px navigation token plus a 1px border. Clear it in the application's main, sticky regions and focus/anchor scroll margins with `calc(var(--ui-navigation-height) + 1px)`. The header, main and footer now share a 1600px maximum outer frame, including responsive `clamp(16px, 2.4vw, 40px)` gutters. Put `ui-app-frame` on main and reading/settings or short-form sections inside it; the header and shared footer apply their own internal frame. Do not wrap them in another padded frame. Apply deliberate `--ui-width-frame` / `--ui-frame-gutter` overrides on a common ancestor. Remove old `max-w-7xl` or `px-6` overrides to adopt the new defaults. This width update supersedes the previous 1280px/24px branded frame. See the [application layout starter](application-layout.md).
