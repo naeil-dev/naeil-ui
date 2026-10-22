@@ -9,10 +9,12 @@ const state = vi.hoisted(() => ({
   intl: vi.fn(),
   sessionResponse: undefined as unknown,
   unavailable: false,
+  jar: [] as { name: string; value: string }[],
+  seen: [] as { name: string; value: string }[],
 }));
 vi.mock("next/headers", () => ({
   cookies: async () => ({
-    getAll: () => [],
+    getAll: () => state.jar,
     get: (name: string) =>
       name !== "auth_redirect_to" || state.redirectCookie === undefined
         ? undefined
@@ -22,8 +24,10 @@ vi.mock("next/headers", () => ({
   headers: async () => new Headers({ host: "naeil.dev" }),
 }));
 vi.mock("@supabase/ssr", () => ({
-  createServerClient: () => ({
+  createServerClient: (_url: unknown, _key: unknown, options: { cookies: { getAll: () => { name: string; value: string }[] } }) => ({
     auth: {
+      // Records what the SDK would see when it initializes for the exchange.
+      ...(state.seen = options.cookies.getAll(), {}),
       exchangeCodeForSession: async () => {
         if (state.error) throw state.error;
         return { error: null };
@@ -81,6 +85,14 @@ describe("actual auth redirect responses", () => {
       path: "/",
       maxAge: 0,
     });
+  });
+  it("callback exchanges into a fresh session even beside a stale one", async () => {
+    const session = "sb-dathsxdsaxooifnxjket-auth-token";
+    state.jar = [{ name: session + ".0", value: "stale" }, { name: session + "-code-verifier", value: "pkce" }];
+    await GET(new Request("https://naeil.dev/auth/callback?code=fixture"));
+    expect(state.seen.map(c => c.name)).toEqual([session + "-code-verifier"]);
+    expect(state.cookieSet).toHaveBeenCalledWith(session + ".0", "", expect.objectContaining({ domain: ".naeil.dev", maxAge: 0 }));
+    state.jar = [];
   });
   it("callback returns the canonical allowed URL", async () => {
     state.redirectCookie = "https://JEV.naeil.dev:443/a";

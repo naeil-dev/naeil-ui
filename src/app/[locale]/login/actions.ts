@@ -18,6 +18,10 @@ async function clearSiteCookies() {
 export async function prepareLogin(next: string, locale: string) {
   const cookieStore = await cookies();
   const { secure } = siteCookieOptions((await headers()).get("host"));
+  // Before 2026-10-17 the apex site wrote this session host-only. A stale copy
+  // shadows the shared .naeil.dev session in the browser, so drop it here.
+  for (const { name } of cookieStore.getAll())
+    if (/^sb-[a-z0-9]+-auth-token/.test(name)) cookieStore.set(name, "", { path: "/", maxAge: 0 });
   const options = { path: "/", httpOnly: true, sameSite: "lax" as const, secure, maxAge: 600 };
   cookieStore.set(RETURN_DESTINATION_COOKIE, loginDestination(next), options);
   cookieStore.set(RETURN_LOCALE_COOKIE, authLocale(locale), options);

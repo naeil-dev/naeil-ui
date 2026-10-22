@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-import { RETURN_DESTINATION_COOKIE, RETURN_LOCALE_COOKIE, siteCookieOptions } from "@/lib/auth/site-session";
+import { RETURN_DESTINATION_COOKIE, RETURN_LOCALE_COOKIE, isSiteSessionCookie, siteCookieOptions } from "@/lib/auth/site-session";
 import { redirectCookieTarget } from "@/lib/auth/redirect";
 import { loginDestination, loginErrorLocation } from "@/lib/auth/return-location";
 
@@ -14,15 +14,21 @@ export async function GET(request: Request) {
 
   if (code) {
     const headerStore = await headers();
+    const options = siteCookieOptions(headerStore.get("host"));
+    // Exchange into a fresh session. A stale session's failed refresh makes the
+    // SDK drop the PKCE verifier before the exchange; leftover chunks expire.
+    const existing = cookieStore.getAll().filter(c => !isSiteSessionCookie(c.name));
+    for (const { name } of cookieStore.getAll())
+      if (isSiteSessionCookie(name)) cookieStore.set(name, "", { ...options, maxAge: 0 });
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookieOptions: siteCookieOptions(headerStore.get("host")),
+        cookieOptions: options,
         cookies: {
           getAll() {
-            return cookieStore.getAll();
+            return existing;
           },
           setAll(cookiesToSet) {
             try {
