@@ -1,6 +1,6 @@
 # Application frame and shared navigation/footer
 
-This maintained guide includes **@naeil/ui 0.7.1, release in progress**, combining canonical footer/release identity and shared account presentation with the published 0.6.0 frame. Current registry baseline: 0.6.0. Use the reviewed 0.7.1 archive until registry publication is verified; see [release identities and status](../package-release.md#publication-and-deployment) and [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
+This maintained guide covers **published and registry-verified @naeil/ui 0.7.1**, combining canonical footer/release identity and shared account presentation with the published 0.6.0 frame. Install exact `@naeil/ui@0.7.1` from npm; hosted Docs and service activation have separate receipts. See [release identities and status](../package-release.md#publication-and-deployment) and [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
 
 ## Choose the shared composition first
 

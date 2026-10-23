@@ -2,21 +2,21 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-**0.7.1 릴리스 진행 중 — 2026-10-23.** 현재 게시된 기준 버전은 **0.6.0**이다. 이 유지보수 안내는 0.7.1의 canonical `NaeilFooter`, `NaeilHeaderAccountControl`, `/release` 식별자와 기존 1600px 프레임을 함께 다룬다. 0.7.0은 미게시 후보이며, 첫 0.7.x 게시 대상은 0.7.1이다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 동결 패키지 소스·archive, 별도 검토한 Docs 소스와 실제 게시·배포 결과는 [릴리스 정책](../package-release.md#publication-and-deployment)에서 구분한다.
+**0.7.1 npm 게시·registry 검증 완료 — 2026-10-23.** 현재 게시된 기준 버전은 **0.7.1**이다. 이 유지보수 안내는 canonical `NaeilFooter`, `NaeilHeaderAccountControl`, `/release` 식별자와 기존 1600px 프레임을 함께 다룬다. 0.7.0은 미게시 후보이며, 처음 게시된 0.7.x 버전은 0.7.1이다. 독립된 새 React/Next registry 설치에서 동결 파일 139개와 타입·프로덕션 빌드·브라우저 검증이 통과했다. hosted Docs와 상시 배포 활성화는 별도 실행 기록으로 확인한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 동결 패키지 소스·archive, 별도 검토한 Docs 소스와 실제 게시·배포 결과는 [릴리스 정책](../package-release.md#publication-and-deployment)에서 구분한다.
 
 ## 시작하기
 
-React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`·`/naeil-footer`를 사용한다. API 키와 Next.js는 필요 없다. 0.7.1 게시 검증 전의 registry 설치 명령은 다음과 같다.
+React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`·`/naeil-footer`를 사용한다. API 키와 Next.js는 필요 없다. 검증한 registry 버전을 고정해 설치한다.
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.6.0
+pnpm add --save-exact @naeil/ui@0.7.1
 ```
 
-아래 0.7.1 API는 registry 게시가 검증될 때까지 검토된 0.7.1 archive로 소비한다. 로컬 개발에서는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 `/tmp/naeil-ui-0.7.1.tgz`를 설치한다. 현재 소스의 개발용 pack은 동결 릴리스 archive와 다르므로 게시 파일을 대체하지 않는다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+registry의 0.7.1 archive는 동결 릴리스 archive와 바이트가 일치한다. archive에 포함된 안내는 준비 시점의 기록이므로 현재 설치에는 이 유지보수 안내를 따른다. 로컬 개발에서는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 `/tmp/naeil-ui-0.7.1.tgz`를 설치한다. 현재 소스의 개발용 pack은 동결 릴리스 archive와 다르므로 게시 파일을 대체하지 않는다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
-버전을 생략한 설치는 registry의 latest 태그를 따른다. 현재 게시 버전만 사용하려면 0.6.0을 명시한다. 0.7.1 API에는 검토된 0.7.1 archive를 사용하고, 게시 완료 후 해당 버전을 고정한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
+버전을 생략한 설치는 registry의 latest 태그를 따른다. 2026-10-23에 latest는 0.7.1로 확인했다. 검증한 버전을 유지하려면 0.7.1을 명시한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -170,7 +170,7 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 ## 0.3 package boundary
 
-The heading retains the original 0.3 migration anchor; the boundary below includes the 0.7.1 release in progress. `/ui` is the React core. Opt-in `/naeil-header` provides the canonical complete branded header and `NaeilHeaderAccountControl`; `/naeil-footer` provides canonical full/compact footers. Both are React-only. `/release` exports server-safe `uiRelease` metadata, without application artifact or environment data. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use the dedicated entries and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
+The heading retains the original 0.3 migration anchor; the boundary below includes published and registry-verified 0.7.1. `/ui` is the React core. Opt-in `/naeil-header` provides the canonical complete branded header and `NaeilHeaderAccountControl`; `/naeil-footer` provides canonical full/compact footers. Both are React-only. `/release` exports server-safe `uiRelease` metadata, without application artifact or environment data. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use the dedicated entries and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
 
 Next.js `^15 || ^16` and next-intl `^4` are optional peers. Install both when using root, Nav, Footer or `i18n/routing`. This is an existing compatibility contract, not a claim that every peer combination has browser validation; the clean Next fixture checks Next 16.1.7. React/ReactDOM `^19` come from the host. Tailwind 4 is the documented styling pipeline. Explicit `className`, Radix props, Toaster options and theme-provider props remain consumer overrides.
 

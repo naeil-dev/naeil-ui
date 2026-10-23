@@ -2,7 +2,7 @@
 
 React components, semantic design tokens, and shared styles for naeil products. The approved system uses a neutral light/dark palette, Pretendard, 16px controls, comfortable or compact density, purpose-specific content widths, and restrained motion. Radix supplies interaction behavior.
 
-**0.7.1 release in progress — 2026-10-23.** The current published baseline is **0.6.0**. The first intended published 0.7.x release combines canonical `NaeilFooter`, server-safe `/release` identity and `NaeilHeaderAccountControl`; 0.7.0 remains an unpublished candidate. The frozen package source is `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618` (intended tag `v0.7.1`). Maintained guides and hosted Docs use separately reviewed source; publication and deployment receipts belong in the [release policy](docs/package-release.md#publication-and-deployment).
+**0.7.1 published and registry-verified — 2026-10-23.** The current published baseline is **0.7.1**. This first published 0.7.x release combines canonical `NaeilFooter`, server-safe `/release` identity and `NaeilHeaderAccountControl`; 0.7.0 remains an unpublished candidate. The frozen package source and `v0.7.1` tag are `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618`. Fresh React/Next registry consumers matched all 139 frozen files and passed types, production builds and browser checks. Maintained guides use separately reviewed source; hosted Docs and standing activation require separate receipts. See the [release policy and receipts](docs/package-release.md#publication-and-deployment).
 
 This repository also contains the **naeil.dev brand/example website** and an **optional agent reference workflow**. Choose the path you need:
 
@@ -15,13 +15,13 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 
 ## Use the UI
 
-Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. Until 0.7.1 publication is verified, the current registry installation is:
+Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. Install the verified registry release:
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.6.0
+pnpm add --save-exact @naeil/ui@0.7.1
 ```
 
-The 0.7.1 APIs below require the reviewed 0.7.1 archive until registry publication completes. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-0.7.1.tgz`. A fresh pack of maintained source differs from the frozen release archive; use the exact frozen file for release verification. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
+The [npm 0.7.1 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.7.1.tgz) is byte-identical to the frozen release archive. Its bundled guides retain the preparation snapshot; use these maintained instructions for current installation. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-0.7.1.tgz`. A fresh pack of maintained source differs from the frozen release archive; use the exact frozen file for release verification. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
 
 The preceding [0.5.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0) was published on 2026-10-15 and introduced the whole shared header. Version 0.6.0 adds the shared 1600px frame; existing applications must upgrade and adopt its layout composition.
 

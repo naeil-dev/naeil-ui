@@ -1,6 +1,6 @@
 # Package verification and release policy
 
-**0.7.1 release in progress — 2026-10-23.** The owner authorized publication and the selected three-service continuous rollout. Current registry baseline: **0.6.0**. Version 0.7.1 is the first intended published 0.7.x release: canonical footer/release identity from the unpublished 0.7.0 candidate, plus shared account presentation. Record actual publication and deployment receipts before reporting completion. The completed [0.6.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) remains evidence for its published application frame; do not republish it. Verified 0.5.0, 0.4.0 and 0.3.0 evidence remains dated history. UI v2 names a design generation, not an npm major. Future breaking changes require an explicit migration and version decision. Version-scoped installation is in the [README](../README.md#use-the-ui).
+**0.7.1 published and registry-verified — 2026-10-23.** Current registry baseline: **0.7.1**. This first published 0.7.x release includes canonical footer/release identity from the unpublished 0.7.0 candidate, plus shared account presentation. The owner authorized publication and the selected three-service continuous rollout; hosted Docs and standing activation require separate receipts. The completed [0.6.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) remains evidence for its published application frame. Verified 0.5.0, 0.4.0 and 0.3.0 evidence remains dated history. UI v2 names a design generation, not an npm major. Future breaking changes require an explicit migration and version decision. Version-scoped installation is in the [README](../README.md#use-the-ui).
 
 ## Architecture
 
@@ -50,23 +50,23 @@ The explicit font-notice regression gate copies the real React fixture config in
 
 ## Publication and deployment
 
-### 0.7.1 frozen release and maintained Docs — 2026-10-23
+### Verified 0.7.1 registry publication and maintained Docs — 2026-10-23
 
-The authorized release preserves these immutable identities:
+The published release preserves these immutable identities:
 
 | Item | Identity |
 | --- | --- |
-| Package source and intended `v0.7.1` tag | `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618` |
+| Package source and pushed `v0.7.1` tag | `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618` |
 | Frozen archive | `docs/rollout/frozen/naeil-ui-0.7.1.tgz` |
 | Archive SHA-256 | `ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8` |
 | Archive size / contents | 167705 compressed bytes; 139 files; 904985 unpacked bytes |
 | Chrome contract | 1, with matching frozen frame/account references |
 
-Publish the frozen archive directly with scripts disabled; do not build or pack maintained main and call it the same frozen release. Exact-archive validation is retained in the [dated account-correction evidence](https://github.com/naeil-dev/naeil-ui/tree/main/docs/rollout/evidence/account-correction-2026-10-17). [CI run 39859416335](https://github.com/naeil-dev/naeil-ui/actions/runs/39859416335) passed at `041c3c4f61755eca422d9a5727b32adc8c02a1f4`, including 563 unit tests and 380 browser tests (5 and 4 expected skips respectively), contrast, package/site and consumer checks. Its rebuilt archive differs because maintained guides changed; that CI is current compatibility evidence, not byte-identical frozen validation.
+The frozen archive was published directly with scripts disabled. npm records publication at `2026-10-23T01:14:11.387Z`; `latest` was verified as `0.7.1`. An independent [registry archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.7.1.tgz) download matched the frozen SHA-256, SHA-1, SRI, length and contents. Do not build or pack maintained main and call it the same frozen release. Earlier exact-archive validation is retained in the [dated account-correction evidence](https://github.com/naeil-dev/naeil-ui/tree/main/docs/rollout/evidence/account-correction-2026-10-17). [CI run 39859416335](https://github.com/naeil-dev/naeil-ui/actions/runs/39859416335) passed at `041c3c4f61755eca422d9a5727b32adc8c02a1f4`, including 563 unit tests and 380 browser tests (5 and 4 expected skips respectively), contrast, package/site and consumer checks. Its rebuilt archive differs because maintained guides changed; that CI is current compatibility evidence, not byte-identical frozen validation.
 
 The archive's bundled guides are an immutable preparation snapshot, including 0.6.0 installation copy. Release notes must point to maintained instructions. Deploy Docs from a separately reviewed commit containing current guidance, the `v0.7.1` link correction and the corrected manual workflow. Record that Docs SHA, workflow run, deployment and actual hosted checks separately; retain `v0.7.1` at the frozen package source.
 
-After publication, independently download the registry archive with an empty cache, compare its hash, integrity, length and all 139 files to the frozen archive, and install exact `@naeil/ui@0.7.1` from npmjs in separate fresh React/Next fixtures. Check types, production builds, root/deep imports, release/footer/account SSR and the React fixture's absence of Next/Supabase/Three. Packed local checks do not substitute for registry consumption. Publication, registry-consumer, GitHub Release, hosted Docs and per-service rollout outcomes remain pending until their actual receipts are recorded. Native/manual, real OAuth and global service-discovery evidence retain their separate scopes and limits.
+Postpublication registry checks passed on 2026-10-23. Separate fresh React/Next fixtures installed exact `@naeil/ui@0.7.1` from npmjs with independent empty caches and no repository dependency symlinks; every installed file matched the frozen 139-file inventory in both fixtures. Types, production builds, public root/deep import boundaries, release/footer/account SSR and browser checks passed, including the React fixture's absence of Next/Supabase/Three. The retained `registry-receipt.json` and successful `npm-publication-verification.json` bind these checks to the frozen source/archive; the latter records `checkedAt: 2026-10-23T01:19:50.385Z`. At the 01:19 UTC registry checkpoint, the tag had been pushed and the Release draft prepared. GitHub Release publication, hosted Docs and standing activation require separate receipts; see the release assets and [current rollout runbook](rollout/automation.md). Native/manual, real OAuth and global service-discovery evidence retain their separate scopes and limits.
 
 ### 0.6.0 release scope — 2026-10-16
 

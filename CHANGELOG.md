@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.7.1 — canonical service chrome (release in progress)
+## 0.7.1 — canonical service chrome (published 2026-10-23)
 
-Current published baseline: 0.6.0. Version 0.7.1 is the first intended published 0.7.x release and includes the unpublished 0.7.0 scope below. Frozen package source: `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618`, intended tag `v0.7.1`; archive SHA-256: `ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8`. Publication and hosted Docs receipts are recorded separately in the [release policy](docs/package-release.md#publication-and-deployment).
+Published to npm at `2026-10-23T01:14:11.387Z`; `latest` was verified as `0.7.1`. This first published 0.7.x release includes the unpublished 0.7.0 scope below. Frozen package source and tag `v0.7.1`: `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618`; archive SHA-256: `ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8`. Independent download and fresh React/Next registry consumers matched the archive and all 139 files, with types, production builds and browser checks passing. Hosted Docs and standing activation require separate receipts; see the [release policy](docs/package-release.md#publication-and-deployment).
 
 - Add canonical `NaeilHeaderAccountControl` for shared login/account/logout presentation while consumers retain session and save guards.
 - Include React-only `NaeilFooter`, canonical full/compact destinations, save-navigation interception and server-safe `/release` package/contract identity from the unpublished 0.7.0 candidate.

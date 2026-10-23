@@ -1,6 +1,6 @@
 # NaeilHeader — branded whole-header composition
 
-This maintained guide includes **@naeil/ui 0.7.1, release in progress**, adding shared account presentation to the unchanged 0.6.0 frame. The current published baseline is 0.6.0; use the reviewed 0.7.1 archive until registry publication is verified. See [release identities and publication status](../package-release.md#publication-and-deployment). Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
+This maintained guide covers **published and registry-verified @naeil/ui 0.7.1**, adding shared account presentation to the unchanged 0.6.0 frame. Install exact `@naeil/ui@0.7.1` from npm; hosted Docs and service activation have separate receipts. See [release identities and publication status](../package-release.md#publication-and-deployment). Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
 
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
