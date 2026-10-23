@@ -1,6 +1,6 @@
 # NaeilHeader — branded whole-header composition
 
-This guide includes the **@naeil/ui 0.7.1 candidate**, whose unchanged frame comes from published 0.6.0. See the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) for archive and publication evidence. Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
+This maintained guide includes **@naeil/ui 0.7.1, release in progress**, adding shared account presentation to the unchanged 0.6.0 frame. The current published baseline is 0.6.0; use the reviewed 0.7.1 archive until registry publication is verified. See [release identities and publication status](../package-release.md#publication-and-deployment). Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
 
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
@@ -22,7 +22,7 @@ The module owns the brand, five-project catalog and header-only translations, pr
 
 Consumers provide an existing next-themes provider, routing/dirty-save guard, current locale and real authentication behavior. Default destinations point to `https://naeil.dev/{locale}`; the site's localized Link instead uses `resolveHref={path => path}`. A supplied `Link` handles default official destinations, including cross-origin URLs. `onNavigate` can intercept brand and menu links; honor modified clicks and target behavior. Explicit `external: true` project overrides and `projectsExternal` use native anchors, so intercept them with `onNavigate` when a dirty guard is required.
 
-Only provide `onLocaleChange` when the application's interface supports all three canonical locales (`en`, `ko`, `ja`). Omitting it removes the locale control; the component does not create application translations or shared preferences. `authSlot` uses `NaeilHeaderAccountControl` in owned applications: a shared44px neutral account trigger and localized Radix logout menu. Consumers supply their real session state/callbacks, not alternative account markup. The legacy slot remains public for deliberate compatibility overrides. It does not integrate site SSO, share credentials or create accounts. Theme preferences remain consumer-origin state. Without a working provider, rendering alone does not establish theme switching.
+Only provide `onLocaleChange` when the application's interface supports all three canonical locales (`en`, `ko`, `ja`). Omitting it removes the locale control; the component does not create application translations or shared preferences. `authSlot` uses `NaeilHeaderAccountControl` in owned applications: a shared 44px neutral account trigger and localized Radix logout menu. Consumers supply their real session state/callbacks, not alternative account markup. The legacy slot remains public for deliberate compatibility overrides. It does not integrate site SSO, share credentials or create accounts. Theme preferences remain consumer-origin state. Without a working provider, rendering alone does not establish theme switching.
 
 | Prop | Contract |
 | --- | --- |
@@ -61,8 +61,8 @@ The fixed header is 65px: the current 64px navigation token plus a 1px border. C
 
 The five decorative images reference `https://naeil.dev/images/{coral,jellyfish,whale,fish,turtle}.png`. Rendering those images requires network access to the official origin. Their bytes are not redistributed in npm; [third-party notices](../../THIRD_PARTY_NOTICES.md) retain unresolved artwork provenance and redistribution limits. Brand marks are not relicensed by the repository MIT license. Captions and links remain usable when images fail.
 
-This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. The local Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication**; the Japanese example omits unsupported locale switching and uses a consumer-owned auth slot. Candidate examples do not establish hosted deployment.
+This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication, AccountStates, ReferenceFull, ReferenceCompact**; the Japanese example omits unsupported locale switching and supplies application state to the shared account control. Local examples do not establish hosted deployment.
 
 Verify actual packed consumption, Storybook behavior and rendered comparisons at matching viewport/language/theme. Source imports alone do not prove visual parity. Native Safari, devices, assistive technology, full OAuth and unresolved accessibility observations retain the [documented support limits](../design/public-ui-support.md).
 
-Pair owned-service headers with [NaeilFooter](naeil-footer.md). The 0.7.1 candidate emits package/contract identifiers for actual rendered validation.
+Pair owned-service headers with [NaeilFooter](naeil-footer.md). Version 0.7.1 emits package/contract identifiers for actual rendered validation. The immutable `v0.7.1` package source is `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618`; maintained pending-state guidance above and hosted Docs are reviewed separately from that frozen snapshot.
