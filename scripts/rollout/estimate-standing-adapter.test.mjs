@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, realpathSync, chmodSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, realpathSync, chmodSync, symlinkSync, linkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, test } from 'node:test';
@@ -102,10 +102,10 @@ test('rejects response binding, stale evidence and missing authenticated route r
   request.expectedIdentity = { schemaVersion: 1, appId: 'abestimate', artifactId: request.artifact.id, sourceRevision: request.artifact.sourceRevision, ui: request.artifact.ui };
   for (const override of [{ attemptId: 'wrong' }, { phase: 'production' }, { archiveSha256: '0'.repeat(64) }, { checkedAt: '2000-01-01T00:00:00Z' }, { routes: [verified(request).routes[1]] }]) assert.throws(() => assertVerification({ ...verified(request), ...override }, request));
 });
-test('failed adoption verification never records a baseline or repeats native work', async () => {
+test('failed read-only adoption preserves evidence and permits a fresh verification attempt', async () => {
   dependencies.verify = async () => { throw new Error('synthetic verifier failure'); };
   let result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert(!existsSync(join(config.stateDirectory, 'baseline.json')));
-  calls.length = 0; input.attemptId = 'another-attempt'; result = await runStanding(input, config, dependencies); assert.equal(result.state, 'deferred'); assert.equal(result.mutationAttempted, false); assert.deepEqual(calls, []);
+  calls.length = 0; input.attemptId = 'another-attempt'; dependencies.verify = async request => verified(request); result = await runStanding(input, config, dependencies); assert.equal(result.state, 'production-verified'); assert.equal(result.mutationAttempted, false); assert.deepEqual(calls, ['inspect', 'inspect']);
 });
 test('standing requires a verified baseline', async () => {
   standing(); const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert(!calls.includes('update'));
@@ -178,4 +178,145 @@ test('rehashes the full dispatcher closure immediately before a verifier call', 
   const result = await runStanding(input, config, dependencies);
   assert.equal(result.state, 'gate-failed'); assert.equal(result.mutationAttempted, false);
   assert(!calls.includes('verify:adopt')); assert(!existsSync(join(config.stateDirectory, 'baseline.json')));
+});
+
+test('F2 regression: pre-mutation STOP records terminal deferral and preserves history on retry', async () => {
+  await adopt(); standing();
+  const original = dependencies.native;
+  dependencies.native = async (action, request) => {
+    const response = await original(action, request);
+    if (action === 'inspect') put(input.policy.stopFile, 'synthetic STOP after inspect');
+    return response;
+  };
+  const first = await runStanding(input, config, dependencies);
+  assert.equal(first.state, 'deferred'); assert.equal(first.mutationAttempted, false);
+  assert(!calls.includes('update')); assert(!calls.includes('activate'));
+  rmSync(input.policy.stopFile); dependencies.native = original;
+  const key = join(config.stateDirectory, 'keys', hash(input.idempotencyKey) + '.json');
+  assert.equal(JSON.parse(readFileSync(key)).state, 'deferred');
+  calls.length = 0;
+  const second = await runStanding({ ...input, attemptId: 'retry-after-stop' }, config, dependencies);
+  assert.equal(second.state, 'production-verified', dependencies.lastError?.stack);
+  assert(calls.includes('activate'));
+  const history = readdirSync(join(config.stateDirectory, 'keys')).filter(name => name.includes('.history-'));
+  assert.equal(history.length, 1);
+  assert.equal(JSON.parse(readFileSync(join(config.stateDirectory, 'keys', history[0]))).state, 'deferred');
+});
+
+async function activationFailure({ pointer = 'to', markerChange, stop = false, recoverFails = false, markerMode, policyChange, responseChange } = {}) {
+  await adopt(); standing();
+  const releases = join(config.activation.deploymentRoot, 'releases');
+  mkdirSync(releases, { recursive: true, mode: 0o700 });
+  for (const ref of [current, candidate]) mkdirSync(join(releases, ref.releaseId), { mode: 0o700 });
+  if (pointer === 'elsewhere') mkdirSync(join(releases, 'elsewhere'), { mode: 0o700 });
+  symlinkSync(join(releases, pointer === 'from' ? current.releaseId : pointer === 'to' ? candidate.releaseId : 'elsewhere'), join(config.activation.deploymentRoot, 'current'));
+  const original = dependencies.native;
+  let recovered;
+  dependencies.native = async (action, request) => {
+    if (action === 'activate') {
+      calls.push(action);
+      const marker = { operationId: request.approval.operationId, action: 'activate', from: current.releaseId, to: candidate.releaseId, phase: 'bootstrap-requested' };
+      markerChange?.(marker);
+      const path = join(config.activation.stateDirectory, 'operation.json'); put(path, marker);
+      if (markerMode === 'public') chmodSync(path, 0o644);
+      if (markerMode === 'hardlink') linkSync(path, join(root, 'marker-alias'));
+      if (stop) put(input.policy.stopFile, 'STOP');
+      policyChange?.(input.policy);
+      throw new Error('synthetic interrupted activate');
+    }
+    if (action !== 'recover') return original(action, request);
+    calls.push(action); recovered = request;
+    assert.equal(request.approval.action, 'recover');
+    assert.equal(request.approval.recoveryMarkerSha256, hash(readFileSync(join(config.activation.stateDirectory, 'operation.json'))));
+    assert.equal(request.approval.expectedCurrentReleaseId, pointer === 'from' ? current.releaseId : candidate.releaseId);
+    assert.equal(request.approval.targetReleaseId, current.releaseId);
+    assert.equal(request.config.current.releaseId, request.approval.expectedCurrentReleaseId);
+    assert.equal(request.config.previous.releaseId, current.releaseId);
+    assert.equal(request.config.candidate.releaseId, candidate.releaseId);
+    if (recoverFails) throw new Error('synthetic lost recovery response');
+    const response = { schemaVersion: 1, releaseId: request.releaseId, serviceId: 'estimate', idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, action, passed: true, activated: true, preservationVerified: true, nativeReleaseId: current.releaseId, artifactId: current.artifactId };
+    responseChange?.(response); return response;
+  };
+  return { result: await runStanding(input, config, dependencies), recovered };
+}
+for (const pointer of ['from', 'to']) test('F1 deterministic recovery verifies baseline with pointer at ' + pointer, async () => {
+  const { result, recovered } = await activationFailure({ pointer });
+  assert(recovered); assert.equal(result.state, 'gate-failed'); assert.equal(result.runtimeMutationAttempted, true);
+  assert.equal(result.rollback.state, 'production-verified'); assert.equal(result.rollback.mode, 'recover');
+  assert.equal(result.rollback.production.identity.artifactId, current.artifactId);
+  assert(calls.includes('verify:rollback')); assert(!calls.includes('rollback'));
+  assert(!existsSync(join(config.stateDirectory, 'running.lock')));
+  assert.equal(JSON.parse(readFileSync(join(config.stateDirectory, 'baseline.json'))).artifact.id, current.artifactId);
+});
+for (const [name, options] of [
+  ['foreign operation', { markerChange: marker => { marker.operationId = 'another-operation'; } }],
+  ['foreign action', { markerChange: marker => { marker.action = 'rollback'; } }],
+  ['foreign predecessor', { markerChange: marker => { marker.from = candidate.releaseId; } }],
+  ['foreign candidate', { markerChange: marker => { marker.to = current.releaseId; } }],
+  ['completed phase', { markerChange: marker => { marker.phase = 'completed'; } }],
+  ['pointer elsewhere', { pointer: 'elsewhere' }],
+  ['STOP', { stop: true }],
+  ['public marker', { markerMode: 'public' }],
+  ['linked marker', { markerMode: 'hardlink' }],
+  ['unapproved recovery', { policyChange: policy => { policy.rollbackApproved = false; } }],
+  ['expired authorization', { policyChange: policy => { policy.expiresAt = '2000-01-01'; } }],
+  ['foreign rollback scope', { policyChange: policy => { policy.rollbackScope = 'restore-data'; } }],
+]) test('F1 refuses recovery for ' + name + ' and retains the pending lock', async () => {
+  const { result, recovered } = await activationFailure(options);
+  assert.equal(result.state, 'activation-pending'); assert(!recovered); assert(!calls.includes('recover'));
+  assert(existsSync(join(config.stateDirectory, 'running.lock'))); assert(existsSync(join(config.activation.stateDirectory, 'operation.json')));
+});
+test('F1 uncertain recover keeps activation-pending without browser success', async () => {
+  const { result, recovered } = await activationFailure({ recoverFails: true });
+  assert(recovered); assert.equal(result.state, 'activation-pending'); assert.equal(result.rollback.state, 'activation-pending');
+  assert(!calls.includes('verify:rollback')); assert(existsSync(join(config.stateDirectory, 'running.lock')));
+});
+test('F8 STOP accompanying a refused read-only inspect defers without consuming the retry', async () => {
+  dependencies.native = async () => { put(input.policy.stopFile, 'STOP'); throw new Error('inspect refused'); };
+  const result = await runStanding(input, config, dependencies);
+  assert.equal(result.state, 'deferred'); assert.equal(result.mutationAttempted, false); assert.equal(result.runtimeMutationAttempted, false);
+  const ledger = JSON.parse(readFileSync(join(config.stateDirectory, 'keys', hash(input.idempotencyKey) + '.json')));
+  assert.equal(ledger.state, 'deferred'); assert.equal(ledger.runtimeMutationAttempted, false);
+});
+test('F8 STOP after source update is gate-failed with runtime untouched', async () => {
+  await adopt(); standing(); const update = dependencies.update;
+  dependencies.update = async (...args) => { const updated = await update(...args); put(input.policy.stopFile, 'STOP'); return updated; };
+  const result = await runStanding(input, config, dependencies);
+  assert.equal(result.state, 'gate-failed'); assert.equal(result.reasonCode, 'stopped-after-source-update');
+  assert.equal(result.mutationAttempted, true); assert.equal(result.runtimeMutationAttempted, false);
+  assert(!calls.includes('deploy')); assert(!calls.includes('command:run typecheck'));
+});
+test('F2 source-only gate failure requires reconciliation for the exact prior attempt', async () => {
+  await adopt(); standing(); const command = dependencies.command;
+  dependencies.command = async (...args) => { if (args[1].join(' ') === 'run typecheck') throw new Error('synthetic typecheck'); return command(...args); };
+  const first = await runStanding(input, config, dependencies);
+  assert.equal(first.state, 'gate-failed'); assert.equal(first.runtimeMutationAttempted, false);
+  const priorAttemptId = input.attemptId; calls.length = 0; dependencies.command = command;
+  for (const reconciliation of [undefined, { priorAttemptId: 'foreign' }]) {
+    const result = await runStanding({ ...input, attemptId: 'unapproved-retry', reconciliation }, config, dependencies);
+    assert.equal(result.state, 'review-required'); assert.deepEqual(calls, []);
+  }
+  const result = await runStanding({ ...input, attemptId: 'approved-retry', reconciliation: { priorAttemptId } }, config, dependencies);
+  assert.equal(result.state, 'production-verified', dependencies.lastError?.stack);
+  assert.equal(readdirSync(join(config.stateDirectory, 'keys')).filter(name => name.includes('.history-')).length, 1);
+});
+for (const [name, prior] of [
+  ['nonterminal', { state: 'invoked', mutationAttempted: false, runtimeMutationAttempted: false }],
+  ['runtime-mutated', { state: 'gate-failed', mutationAttempted: true, runtimeMutationAttempted: true }],
+  ['verified', { state: 'production-verified', mutationAttempted: false, runtimeMutationAttempted: false }],
+]) test('F2 ledger ' + name + ' requires review and is preserved byte-for-byte', async () => {
+  const keys = join(config.stateDirectory, 'keys'); mkdirSync(keys, { mode: 0o700 });
+  const path = join(keys, hash(input.idempotencyKey) + '.json'); put(path, { ...prior, idempotencyKey: input.idempotencyKey, attemptId: 'prior-attempt' });
+  const bytes = readFileSync(path);
+  const result = await runStanding({ ...input, reconciliation: { priorAttemptId: 'prior-attempt' } }, config, dependencies);
+  assert.equal(result.state, 'review-required'); assert.deepEqual(calls, []); assert.deepEqual(readFileSync(path), bytes);
+});
+
+for (const [name, responseChange] of [
+  ['missing preservation proof', response => { response.preservationVerified = false; }],
+  ['wrong baseline identity', response => { response.artifactId = candidate.artifactId; }],
+]) test('F1 recovery ' + name + ' retains pending without rollback browser verification', async () => {
+  const { result, recovered } = await activationFailure({ responseChange });
+  assert(recovered); assert.equal(result.state, 'activation-pending'); assert(!calls.includes('verify:rollback'));
+  assert(existsSync(join(config.stateDirectory, 'running.lock')));
 });

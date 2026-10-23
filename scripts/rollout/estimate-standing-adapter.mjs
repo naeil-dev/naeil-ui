@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { assertFrozen, policyGate } from './rollout.mjs';
 import { updateConsumer } from './update-consumer.mjs';
-import { atomicJSON, assertTrustedFiles, commandConfig, invokeJSON, privateDirectory, readPrivateJSON, routeKey } from './standing-config.mjs';
+import { atomicJSON, assertTrustedFiles, commandConfig, invokeJSON, privateDirectory, readPrivateBytes, readPrivateJSON, routeKey } from './standing-config.mjs';
 
 const HEX = /^[a-f0-9]{64}$/, REVISION = /^[a-f0-9]{40}$/, VERSION = /^0\.7\.(0|[1-9]\d*)$/, ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/;
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -123,12 +123,16 @@ function configuration(input, config) {
   assert(Array.isArray(input.service.routes) && input.service.routes.some(route => route.policy !== 'non-ui'), 'Concrete verification route inventory required');
   for (const route of input.service.routes) assert(typeof route.path === 'string' && route.path.startsWith('/') && !route.path.startsWith('//') && !/[\[\]*]/.test(route.path), 'Concrete local route required');
 }
+function stopActive(path) {
+  if (typeof path !== 'string') return false;
+  try { lstatSync(path); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; }
+}
 function active(input) {
   const policy = input.policy;
   assert(policy?.schemaVersion === 1 && policy.enabled === true && policy.approvedBy?.trim() && policy.approvalRef?.trim() && Date.parse(policy.expiresAt) > Date.now() && policy.services?.includes('estimate'), 'Active recorded standing authorization required');
   assert(canonical(policy.stopFile) && Number.isSafeInteger(policy.maxEvidenceAgeSeconds) && policy.maxEvidenceAgeSeconds > 0 && policy.maxEvidenceAgeSeconds <= 21600, 'Stop file and bounded evidence lifetime required');
   assert(policy.rollbackScope === 'code-only', 'Only code-only rollback is supported');
-  if (existsSync(policy.stopFile)) { const error = new Error('STOP switch active'); error.deferred = true; throw error; }
+  if (stopActive(policy.stopFile)) { const error = new Error('STOP switch active'); error.deferred = true; throw error; }
 }
 function releaseGate(input, config, baseline) {
   assertFrozenInputs(input.release);
@@ -248,8 +252,9 @@ export function installDependencies(config) {
 }
 
 export async function runStanding(input, config, dependencies = {}) {
-  const result = { schemaVersion: 1, releaseId: input?.release?.releaseId, serviceId: input?.service?.id, idempotencyKey: input?.idempotencyKey, attemptId: input?.attemptId, state: 'gate-failed', mutationAttempted: false };
-  let state, directory, lock, token, pending = false, activated = false, baselineCommitted = false, baseline, artifact, ledger;
+  const result = { schemaVersion: 1, releaseId: input?.release?.releaseId, serviceId: input?.service?.id, idempotencyKey: input?.idempotencyKey, attemptId: input?.attemptId, state: 'gate-failed', mutationAttempted: false, runtimeMutationAttempted: false };
+  let state, directory, lock, token, pending = false, activated = false, baselineCommitted = false, baseline, artifact, ledger, ledgerOwned = false, native, verify, pendingAction;
+  const terminalLedger = () => { if (ledgerOwned) atomicJSON(ledger, { attemptId: input.attemptId, idempotencyKey: input.idempotencyKey, state: result.state, mutationAttempted: result.mutationAttempted, runtimeMutationAttempted: result.runtimeMutationAttempted, completedAt: new Date().toISOString() }); };
   const save = () => { if (directory) atomicJSON(join(directory, 'result.json'), { ...result, checkedAt: new Date().toISOString() }); };
   const trust = () => { assertTrustedFiles(input.trustedFiles); assertTrustedFiles(config.trustedFiles); };
   const boundary = () => { active(input); trust(); releaseGate(input, config, baseline); };
@@ -264,30 +269,38 @@ export async function runStanding(input, config, dependencies = {}) {
     const stateFd = openSync(state, 'r'); try { fsyncSync(stateFd); } finally { closeSync(stateFd); }
     const attempts = durableDirectory(join(state, 'attempts')), keys = durableDirectory(join(state, 'keys'));
     ledger = join(keys, hash(input.idempotencyKey) + '.json');
-    if (existsSync(ledger)) return { ...result, state: 'deferred', reason: 'Idempotency key already recorded; inspect retained attempt' };
+    if (existsSync(ledger)) {
+      const bytes = readPrivateBytes(ledger, 2 * 1024 * 1024), prior = JSON.parse(bytes);
+      const terminal = ['deferred', 'gate-failed', 'review-required', 'not-deployed'].includes(prior.state);
+      const retry = prior.idempotencyKey === input.idempotencyKey && typeof prior.attemptId === 'string' && terminal && prior.runtimeMutationAttempted === false && (prior.mutationAttempted === false || prior.state === 'gate-failed' && prior.mutationAttempted === true && input.reconciliation?.priorAttemptId === prior.attemptId);
+      if (!retry) return { ...result, state: 'review-required', reason: 'Retained ledger requires explicit review; no uncertain or runtime-mutated operation is replayed' };
+      const history = openSync(ledger + '.history-' + randomUUID(), 'wx', 0o600);
+      try { writeFileSync(history, bytes); fsyncSync(history); } finally { closeSync(history); }
+      const parent = openSync(dirname(ledger), 'r'); try { fsyncSync(parent); } finally { closeSync(parent); }
+    }
     directory = join(attempts, input.attemptId); assert(!existsSync(directory), 'Attempt already exists; reconcile retained result'); durableDirectory(directory);
-    atomicJSON(ledger, { attemptId: input.attemptId, idempotencyKey: input.idempotencyKey, state: 'invoked' }); save();
+    atomicJSON(ledger, { attemptId: input.attemptId, idempotencyKey: input.idempotencyKey, state: 'invoked', mutationAttempted: false, runtimeMutationAttempted: false }); ledgerOwned = true; save();
     const baselinePath = join(state, 'baseline.json');
     if (existsSync(baselinePath)) { baseline = readPrivateJSON(baselinePath); assertArtifact(baseline.artifact); assertFrozenInputs(baseline.release); nativeUi(baseline.artifact, baseline.release); assert.equal(baseline.production?.identity?.artifactId, baseline.artifact.id, 'Baseline verification artifact mismatch'); assert.deepEqual(baseline.production.identity, identity(baseline.artifact)); }
     releaseGate(input, config, baseline);
-    const native = async (action, current, target, previous = current, label = action) => {
+    native = async (action, current, target, previous = current, label = action, approvalExtra = {}) => {
       boundary(); assert.equal(hash(readFileSync(config.bridgePath)), config.bridgeSha256, 'Native bridge review drift');
       const nativeConfig = { ...config.activation, current: reference(current), candidate: reference(target), previous: reference(previous) };
       const nativeDirectory = durableDirectory(join(directory, 'native-' + label));
-      const approval = { schemaVersion: 1, operationId: 'standing-' + hash(input.idempotencyKey + ':' + input.attemptId + ':' + label), action, approvedBy: input.policy.approvedBy, reviewRef: input.policy.approvalRef, expiresAt: new Date(Math.min(Date.parse(input.policy.expiresAt), Date.now() + 2 * 60 * 60 * 1000)).toISOString(), configSha256: hash(JSON.stringify(nativeConfig)), bridgeSha256: config.bridgeSha256, expectedCurrentReleaseId: current.releaseId, targetReleaseId: (action === 'inspect' ? current : action === 'rollback' ? previous : target).releaseId, scope: 'code-only-preserve-current-data' };
+      const approval = { schemaVersion: 1, operationId: 'standing-' + hash(input.idempotencyKey + ':' + input.attemptId + ':' + label), action, approvedBy: input.policy.approvedBy, reviewRef: input.policy.approvalRef, expiresAt: new Date(Math.min(Date.parse(input.policy.expiresAt), Date.now() + 2 * 60 * 60 * 1000)).toISOString(), configSha256: hash(JSON.stringify(nativeConfig)), bridgeSha256: config.bridgeSha256, expectedCurrentReleaseId: current.releaseId, targetReleaseId: (action === 'inspect' ? current : ['rollback', 'recover'].includes(action) ? previous : target).releaseId, scope: 'code-only-preserve-current-data', ...approvalExtra };
       const request = { schemaVersion: 1, releaseId: input.release.releaseId, serviceId: 'estimate', idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, action, config: nativeConfig, approval, executionPath: config.executionPath };
       atomicJSON(join(nativeDirectory, 'dispatch.json'), { schemaVersion: 1, state: 'invoked', action, requestSha256: hash(JSON.stringify(request)), invokedAt: new Date().toISOString() });
-      if (action !== 'inspect') { result.mutationAttempted = true; pending = true; result.state = 'activation-pending'; save(); }
+      if (action !== 'inspect') { result.mutationAttempted = true; result.runtimeMutationAttempted = true; pendingAction = action; pending = true; result.state = 'activation-pending'; save(); }
       const response = dependencies.native ? await dependencies.native(action, request) : await invokeJSON({ file: config.executables.node, args: ['--import', config.tsxPath, config.bridgePath], cwd: config.worktree, timeoutMs: config.activation.timeoutMs * 4 + 60000 }, request, nativeDirectory);
       for (const [key, value] of Object.entries({ schemaVersion: 1, releaseId: input.release.releaseId, serviceId: 'estimate', idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, action, passed: true })) assert.equal(response[key], value, 'Bound native response mismatch: ' + key);
-      const expected = action === 'inspect' ? current : action === 'rollback' ? previous : target;
+      const expected = action === 'inspect' ? current : ['rollback', 'recover'].includes(action) ? previous : target;
       assert.equal(response.nativeReleaseId, expected.releaseId); assert.equal(response.artifactId, expected.id);
       if (action === 'inspect') assert.equal(response.mutationAttempted, false);
       else if (action === 'deploy') assert.equal(response.deploymentId, expected.releaseId);
       else { assert.equal(response.activated, true); assert.equal(response.preservationVerified, true); }
       atomicJSON(join(nativeDirectory, 'dispatch.json'), { state: 'completed', action, response, checkedAt: new Date().toISOString() }); pending = false; return response;
     };
-    const verify = async (phase, target, released = input.release) => {
+    verify = async (phase, target, released = input.release) => {
       boundary(); assertFrozenInputs(released); assertArtifact(target);
       const outputDirectory = durableDirectory(join(directory, 'browser-' + phase));
       const request = { ...input, release: released, phase, artifact: target, expectedIdentity: identity(target), origin: input.service.origin, outputDirectory, referencePath: released.contract.path, executionPath: config.executionPath };
@@ -319,7 +332,7 @@ export async function runStanding(input, config, dependencies = {}) {
         finally { for (const key of Object.keys(process.env)) delete process.env[key]; Object.assign(process.env, prior); }
       }
       assert.equal(updated.uiVersion, input.release.version); assert.equal(updated.archiveSha256, input.release.archive.sha256); assert.equal(updated.dependencyExact, true); assert(REVISION.test(updated.sourceRevision), 'Clean committed update revision required');
-      atomicJSON(join(directory, 'source-update.json'), { state: 'completed', ...updated }); assert.equal(await cleanCheckout(config, run), updated.sourceRevision, 'Updated source revision differs from clean HEAD');
+      atomicJSON(join(directory, 'source-update.json'), { state: 'completed', ...updated }); boundary(); assert.equal(await cleanCheckout(config, run), updated.sourceRevision, 'Updated source revision differs from clean HEAD');
       const packageCheck = dependencies.packageCheck ?? (() => installedPackage(input, config, run)), before = await packageCheck();
       if (!dependencies.command && existsSync(join(config.worktree, '.next'))) { const next = join(config.worktree, '.next'); assert(lstatSync(next).isDirectory() && !lstatSync(next).isSymbolicLink()); rmSync(next, { recursive: true }); }
       for (const args of [['run', 'typecheck'], ['run', 'lint'], ['run', 'test', '--maxWorkers=1'], ['run', 'build']]) { boundary(); await run(config.executables.pnpm, args, { cwd: config.worktree, env: { ...env, NAEIL_SOURCE_REVISION: updated.sourceRevision } }); }
@@ -341,15 +354,42 @@ export async function runStanding(input, config, dependencies = {}) {
     result.artifact = artifact; result.state = 'production-verified';
     atomicJSON(baselinePath, { state: result.state, artifact, release: input.release, production: result.production, verifiedAt: new Date().toISOString() });
     baselineCommitted = true;
-    atomicJSON(ledger, { attemptId: input.attemptId, idempotencyKey: input.idempotencyKey, state: result.state }); save(); return result;
+    terminalLedger(); save(); return result;
   } catch (error) {
     dependencies.onError?.(error);
-    result.state = pending ? 'activation-pending' : error.deferred && !result.mutationAttempted ? 'deferred' : 'gate-failed';
+    const stopped = stopActive(input?.policy?.stopFile);
+    result.state = pending ? 'activation-pending' : (error.deferred || stopped) && !result.mutationAttempted ? 'deferred' : 'gate-failed';
+    if (stopped) result.reasonCode = result.runtimeMutationAttempted ? 'stopped-after-native-dispatch' : result.mutationAttempted ? 'stopped-after-source-update' : 'stopped';
     result.reason = pending ? 'Native operation may have changed runtime; retained state requires reconciliation' : 'Estimate gate failed; inspect private step records';
     if (baselineCommitted) { pending = true; result.state = 'activation-pending'; }
+    if (pending && !activated && !baselineCommitted && pendingAction === 'activate') {
+      try {
+        active(input); trust(); releaseGate(input, config, baseline);
+        assert(input.policy.rollbackApproved === true && input.policy.rollbackScope === 'code-only', 'Explicit recovery authorization required');
+        const bytes = readPrivateBytes(join(config.activation.stateDirectory, 'operation.json'), 2 * 1024 * 1024), marker = JSON.parse(bytes);
+        assert.equal(marker.operationId, 'standing-' + hash(input.idempotencyKey + ':' + input.attemptId + ':activate'), 'Foreign activation marker');
+        assert.equal(marker.action, 'activate'); assert.equal(marker.from, baseline.artifact.releaseId); assert.equal(marker.to, artifact.releaseId);
+        assert(['validated', 'captured', 'stop-requested', 'stopped', 'switch-requested', 'switched', 'bootstrap-requested'].includes(marker.phase), 'Ambiguous activation phase');
+        const pointer = join(config.activation.deploymentRoot, 'current');
+        assert(lstatSync(pointer).isSymbolicLink(), 'Native current must be a symlink');
+        const pointed = realpathSync(pointer), releases = join(config.activation.deploymentRoot, 'releases');
+        assert(pointed === join(releases, marker.from) || pointed === join(releases, marker.to), 'Native current points elsewhere');
+        const current = pointed === join(releases, marker.from) ? baseline.artifact : artifact;
+        assertArtifact(baseline.artifact); assertArtifact(artifact); assertFrozenInputs(baseline.release);
+        const response = await native('recover', current, artifact, baseline.artifact, 'recover', { recoveryMarkerSha256: hash(bytes) });
+        pending = true; result.state = 'activation-pending'; save();
+        const production = await verify('rollback', baseline.artifact, baseline.release);
+        atomicJSON(join(directory, 'native-recover', 'verification.json'), { response, production });
+        result.rollback = { state: 'production-verified', mode: 'recover', artifact: baseline.artifact, production };
+        pending = false; result.state = 'gate-failed';
+      } catch {
+        pending = true; result.state = 'activation-pending';
+        if (pendingAction === 'recover') result.rollback = { state: 'activation-pending', mode: 'recover', artifact: baseline?.artifact };
+      }
+    }
     if (activated && !pending && !baselineCommitted) {
       pending = true; result.state = 'activation-pending'; save();
-      if (input.policy.rollbackApproved === true && input.policy.rollbackScope === 'code-only' && !existsSync(input.policy.stopFile)) {
+      if (input.policy.rollbackApproved === true && input.policy.rollbackScope === 'code-only' && !stopActive(input.policy.stopFile)) {
         try {
           active(input); trust(); assertFrozenInputs(baseline.release); assertArtifact(baseline.artifact);
           const rollbackDirectory = durableDirectory(join(directory, 'native-rollback'));
@@ -369,7 +409,7 @@ export async function runStanding(input, config, dependencies = {}) {
         } catch { result.rollback = { state: 'activation-pending', artifact: baseline.artifact }; }
       }
     }
-    save(); return result;
+    terminalLedger(); save(); return result;
   } finally {
     if (lock !== undefined) {
       try { if (!pending) { assert.equal(readPrivateJSON(join(state, 'running.lock')).token, token, 'Lock ownership changed'); unlinkSync(join(state, 'running.lock')); } }
