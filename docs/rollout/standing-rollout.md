@@ -53,6 +53,14 @@ Preserve the frozen0.7.1 archive, references, tag and assets. For the next genui
 
 Never add, replace or delete assets, or move the tag, after publication: the worker blocks with `published-release-changed`. GitHub platform immutable releases is currently false; worker-side immutability checks still apply. Keep other main merges outside the release window until the observer verifies the selected site SHA. If another revision is live, the observer defers with `site-revision-not-live`. Main pushes no longer cancel each other's CI; a cancelled exact-SHA run is treated as waiting and can be re-run. Local preparation does not prove main ancestry, successful CI, clean-source packing or a live deployment.
 
+## Monitoring
+
+After **every** dispatcher poll, including a nonzero exit, the private launcher should run `node scripts/rollout/standing-monitor.mjs CONFIG --dispatcher-exit N`. Installing this hook in the live launcher is a separate reviewed operation. The monitor reads private `summary.json` and `state.json`, writes current `alerts.json`, and persists first-seen timers, notification history, cleared alerts and delivery failures in `monitor.json` (0600). `monitor-notification.json` contains the notifications selected for the current delivery attempt.
+
+Blocked state, nonzero dispatcher exit, missing state/summary or observations older than20minutes alert immediately. Waiting/deferred states alert after6hours; authorization warns within14days and alerts on expiry; STOP warns after24hours. Stable fingerprints notify on first observation, escalation and at most once per24hours while present. Optional `config.monitor` settings are `staleSeconds`, `waitingSeconds`, `expiryWarningSeconds`, `stopWarningSeconds` and `repeatSeconds`, subject to the bounds in [standing-monitor.mjs](../../scripts/rollout/standing-monitor.mjs).
+
+Delivery to a person requires an explicitly configured `monitor.notifier` (`file`, `args`, `timeoutMs`): an absolute executable pinned in `trustedFiles`, invoked without a shell with the private payload path in `NAEIL_STANDING_ALERT_FILE`. Script arguments must also be pinned. Child output is never copied into alerts; notifier failure is recorded without crashing the monitor. With no notifier, new notifications produce bounded stderr lines. **No external notifier or recipient is configured yet.**
+
 ## Operator checks
 
 The private configuration records the immutable automation checkout, complete trusted executable/helper hashes, explicit execution PATH, existing account session, service configs and bounded policy. Native consumers remain on dedicated `rollout/standing` branches; changes since each reviewed source may include only the exact UI dependency, lockfile and vendored package. Recompute pins only after reviewing the changed code, never as automatic recovery from a mismatch.
