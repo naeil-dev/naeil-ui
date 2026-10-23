@@ -79,7 +79,7 @@ export function assertTrustedFiles(files) {
   }
 }
 
-export async function invokeJSON(command, request, directory, kind = 'rollout') {
+export async function invokeJSON(command, request, directory, kind = 'rollout', { acceptNonzeroResult = false } = {}) {
   commandConfig(command); privateDirectory(directory, true);
   const input = join(directory, 'input.json'), output = join(directory, 'output.json');
   assert(!existsSync(input) && !existsSync(output), 'Invocation files already exist; reconciliation required');
@@ -90,21 +90,30 @@ export async function invokeJSON(command, request, directory, kind = 'rollout') 
   for (const key of ['HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ', 'TMPDIR', 'SYSTEMROOT', 'SSH_AUTH_SOCK', 'GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN', 'PLAYWRIGHT_BROWSERS_PATH']) if (process.env[key] !== undefined) env[key] = process.env[key];
   env.PATH = request.executionPath || '/usr/bin:/bin:/usr/sbin:/sbin';
   Object.assign(env, kind === 'verify' ? { NAEIL_VERIFY_INPUT: input, NAEIL_VERIFY_OUTPUT: output } : { NAEIL_ROLLOUT_INPUT: input, NAEIL_ROLLOUT_OUTPUT: output, NAEIL_ROLLOUT_STEP: 'standing' });
+  let exitCode;
   try {
     await exec(command.file, command.args, { cwd: command.cwd, env, shell: false, timeout: command.timeoutMs, maxBuffer: 1024 * 1024, encoding: 'utf8' });
-  } catch {
-    // Child output/errors can include private configuration. Never copy them to
-    // an aggregate or shell error; a dispatched failure is reconciled by owner.
-    throw new Error('Configured command failed or timed out; dispatched outcome requires reconciliation');
+  } catch (error) {
+    if (acceptNonzeroResult && Number.isInteger(error.code) && error.code > 0 && !error.killed && !error.signal) exitCode = error.code;
+    else {
+      // Child output/errors can include private configuration. Never copy them to
+      // an aggregate or shell error; a dispatched failure is reconciled by owner.
+      throw new Error('Configured command failed or timed out; dispatched outcome requires reconciliation');
+    }
   }
-  return readPrivateJSON(output);
+  const result = readPrivateJSON(output);
+  if (exitCode !== undefined) {
+    assert(result && typeof result === 'object' && !Array.isArray(result), 'Object result required');
+    return { ...result, transportExitCode: exitCode };
+  }
+  return result;
 }
 
 export function routeKey(route) {
   return fingerprint({ path: route.path, expectedPath: route.expectedPath || route.path, locale: route.locale || null, state: route.state || null, renderState: route.renderState || null, chrome: route.chrome || null });
 }
 
-export function assertProduction(production, request, artifact) {
+export function assertProduction(production, request, artifact, { allowExpired = false } = {}) {
   assert(production?.schemaVersion === 1 && production.passed === true, 'Production verification did not pass');
   for (const [key, expected] of Object.entries({ releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production' })) assert.equal(production[key], expected, `Verification ${key} mismatch`);
   const expected = { schemaVersion: 1, appId: request.service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui };
@@ -113,9 +122,17 @@ export function assertProduction(production, request, artifact) {
   assert.deepEqual(artifact.ui, { version: request.release.version, contractVersion: '1' });
   for (const [key, value] of Object.entries({ archiveSha256: request.release.archive.sha256, referenceSha256: request.release.contract.sha256, accountReferenceSha256: request.release.account.sha256 })) assert.equal(production[key], value, `Production ${key} mismatch`);
   const date = Date.parse(production.checkedAt), age = request.policy.maxEvidenceAgeSeconds * 1000;
-  assert(Number.isFinite(date) && date <= Date.now() + 5000 && Date.now() - date <= age, 'Stale production verification');
+  assert(Number.isFinite(date) && date <= Date.now() + 5000 && (allowExpired || Date.now() - date <= age), 'Stale production verification');
   assert(Array.isArray(production.routes), 'Route receipts required');
   for (const route of request.service.routes.filter(route => route.policy !== 'non-ui')) assert(production.routes.some(result => result.path === route.path && result.routeKey === routeKey(route) && (result.passed === true || result.status === 'production-verified')), 'Missing exact route/state verification');
+}
+
+export function inactiveState(config) {
+  if (config.enabled !== true || config.policy.enabled !== true) return 'disabled';
+  if (!(Date.parse(config.policy.expiresAt) > Date.now())) return 'authorization-expired';
+  try { lstatSync(config.policy.stopFile); return 'stopped'; }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  return null;
 }
 
 export function assertActive(config) {

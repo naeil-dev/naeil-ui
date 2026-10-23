@@ -74,8 +74,8 @@ test('only pending CI or deployment returns explicit no-mutation deferral', asyn
   }
 });
 
-test('development, old package source, wrong UI or deployment identity cannot gate native consumers', async t => {
-  for (const change of [value => { value.sourceRevision = 'development'; }, value => { value.sourceRevision = packageSource; }, value => { value.ui.version = '0.7.0'; }, value => { value.ui.contractVersion = '2'; }, value => { value.artifactId = 'native-fixture'; }, value => { value.appId = 'estimate'; }]) {
+test('development, wrong UI or deployment identity cannot gate native consumers', async t => {
+  for (const change of [value => { value.sourceRevision = 'development'; }, value => { value.ui.version = '0.7.0'; }, value => { value.ui.contractVersion = '2'; }, value => { value.artifactId = 'native-fixture'; }, value => { value.appId = 'estimate'; }]) {
     const f = fixture(t); change(f.identity); await assert.rejects(observe(f.request, f)); assert.equal(f.verifications.length, 0);
   }
 });
@@ -188,4 +188,19 @@ test('latest exact Vercel context status controls correlation, pending never fal
     else { const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.mutationAttempted, false); }
     assert.equal(f.verifications.length, 0);
   }
+});
+
+test('F15 cancelled site CI defers without observing deployment or running browser checks', async t => {
+  const f = fixture(t); f.github.workflow = async () => ({ state: 'cancelled' });
+  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-ci-cancelled'); assert.equal(result.mutationAttempted, false); assert.equal(f.calls.length, 0); assert.equal(f.verifications.length, 0);
+});
+test('F15 another valid live site revision defers and a later matching deploy verifies', async t => {
+  const f = fixture(t); f.identity.sourceRevision = packageSource;
+  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-live'); assert.equal(f.verifications.length, 0);
+  f.identity.sourceRevision = siteSource; assert.equal((await observe(f.request, f)).state, 'production-verified');
+});
+test('F15 a different main deployment winning during browser verification remains a deferral', async t => {
+  const f = fixture(t), verify = f.verify;
+  f.verify = async (...args) => { const result = await verify(...args); f.identity.sourceRevision = packageSource; return result; };
+  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-live'); assert.equal(result.mutationAttempted, false);
 });
