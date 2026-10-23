@@ -7,6 +7,8 @@ import { assertTrustedFiles, hash, invokeJSON } from './standing-config.mjs';
 import { invokeVerifier } from './jev-standing-adapter.mjs';
 
 const credentials = ['GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN'];
+// Linux images may link /bin to /usr/bin; the Jev transport requires canonical PATH entries.
+const executionPath = [...new Set(['/usr/bin', '/bin'].map(path => realpathSync(path)))].join(':');
 
 test('pinned child receives credential key names only for naeil observer rollout', async t => {
  const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-env-')));
@@ -30,14 +32,14 @@ test('pinned child receives credential key names only for naeil observer rollout
   ['missing service', {}, 'rollout', false],
  ]) await t.test(name, async () => {
   assertTrustedFiles(pins);
-  const keys = await invokeJSON(command, { ...request, executionPath: '/usr/bin:/bin' }, join(root, name.replaceAll(' ', '-')), kind);
+  const keys = await invokeJSON(command, { ...request, executionPath }, join(root, name.replaceAll(' ', '-')), kind);
   assert.deepEqual(keys.filter(key => credentials.includes(key)), allowed ? [...credentials].sort() : []);
   assert(!keys.includes('NODE_OPTIONS')); assert(!keys.includes('PYTHONPATH'));
   assert(keys.includes('PATH')); assert(keys.includes(kind === 'verify' ? 'NAEIL_VERIFY_INPUT' : 'NAEIL_ROLLOUT_INPUT'));
  });
  await t.test('Jev existing verifier transport strips credentials independently', async () => {
   assertTrustedFiles(pins);
-  const keys = await invokeVerifier({ phase: 'production' }, { verificationCommand: command, executionPath: '/usr/bin:/bin', worktree: root }, root);
+  const keys = await invokeVerifier({ phase: 'production' }, { verificationCommand: command, executionPath, worktree: root }, root);
   assert.deepEqual(keys.filter(key => credentials.includes(key)), []);
  });
 });
