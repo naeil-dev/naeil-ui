@@ -27,7 +27,9 @@ export class GitHub {
     try { return await this.fetch(url, options); } catch { throw new GitHubUnavailable(); }
   }
   async api(path) {
-    assert(path.startsWith(`/repos/${this.repository}/`) && !path.includes('..'), 'Unexpected GitHub API route');
+    const comparePrefix = `/repos/${this.repository}/compare/main...`;
+    const mainComparison = path.startsWith(comparePrefix) && path.length === comparePrefix.length + 40 && REVISION.test(path.slice(comparePrefix.length));
+    assert(path.startsWith(`/repos/${this.repository}/`) && (!path.includes('..') || mainComparison), 'Unexpected GitHub API route');
     const response = await this.request(`https://api.github.com${path}`, { redirect: 'error', signal: AbortSignal.timeout(30000), headers: { accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', ...(this.token ? { authorization: `Bearer ${this.token}` } : {}) } });
     return JSON.parse((await bounded(response, 8 * 1024 * 1024)).toString('utf8'));
   }
