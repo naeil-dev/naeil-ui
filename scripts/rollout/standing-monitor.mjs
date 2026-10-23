@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { assertTrustedFiles, atomicJSON, commandConfig, fingerprint, loadConfig, readPrivateJSON } from './standing-config.mjs';
 
 const exec = promisify(execFile), day = 86400;
-const waiting = new Set(['waiting-package-ci', 'deferred', 'waiting-predecessor', 'poll-unavailable', 'release-unavailable', 'stopped']);
+const waiting = new Set(['waiting-package-ci', 'deferred', 'waiting-predecessor', 'poll-unavailable', 'release-unavailable', 'stopped', 'disabled', 'cached-evidence-expired']);
 const defaults = { staleSeconds: 1200, waitingSeconds: 21600, expiryWarningSeconds: 14 * day, stopWarningSeconds: day, repeatSeconds: day };
 const bounds = { staleSeconds: [60, 3600], waitingSeconds: [300, day], expiryWarningSeconds: [day, 30 * day], stopWarningSeconds: [3600, 7 * day], repeatSeconds: [day, 7 * day] };
 const safe = value => typeof value === 'string' && /^[A-Za-z0-9._:-]{1,120}$/.test(value) ? value : null;
