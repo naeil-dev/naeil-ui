@@ -1,21 +1,29 @@
 {
   "schemaVersion": 1,
-  "releaseId": "ui-0.7.0-CANDIDATE-NOT-FROZEN",
-  "version": "0.7.0",
-  "previousVersion": "0.6.0",
-  "sourceRevision": "REPLACE_WITH_REVIEWED_FULL_40_HEX_SOURCE_REVISION",
+  "releaseId": "naeil-ui-REPLACE_VERSION",
+  "version": "REPLACE_VERSION",
+  "previousVersion": "REPLACE_PREVIOUS_VERSION",
+  "sourceRevision": "REPLACE_PACKAGE_40_HEX_REVISION",
+  "siteSourceRevision": "REPLACE_SITE_40_HEX_REVISION",
+  "siteRuntimeSha256": "REPLACE_RUNTIME_64_HEX_SHA256",
   "archive": {
-    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.0/naeil-ui-0.7.0.tgz",
-    "downloadOrigins": ["https://release-assets.githubusercontent.com"],
-    "path": "frozen/naeil-ui-0.7.0.tgz",
-    "sha256": "REPLACE_WITH_FULL_64_HEX_SHA256"
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/vREPLACE_VERSION/naeil-ui-REPLACE_VERSION.tgz",
+    "sha256": "REPLACE_ARCHIVE_64_HEX_SHA256"
   },
   "contract": {
-    "version": "1",
-    "path": "frozen/naeil-chrome-0.7.0.json",
-    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.0/naeil-chrome-0.7.0.json",
-    "downloadOrigins": ["https://release-assets.githubusercontent.com"],
-    "sha256": "REPLACE_WITH_FULL_64_HEX_SHA256"
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/vREPLACE_VERSION/naeil-chrome-REPLACE_VERSION.json",
+    "sha256": "REPLACE_CONTRACT_64_HEX_SHA256",
+    "version": "1"
   },
-  "changes": ["frame", "dom", "guard", "contract"]
+  "account": {
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/vREPLACE_VERSION/naeil-account-REPLACE_VERSION.json",
+    "sha256": "REPLACE_ACCOUNT_64_HEX_SHA256"
+  },
+  "siteArchive": {
+    "url": "https://github.com/naeil-dev/naeil-ui/releases/download/vREPLACE_VERSION/naeil-site-package-REPLACE_VERSION.tgz",
+    "sha256": "REPLACE_SITEARCHIVE_64_HEX_SHA256"
+  },
+  "changes": [
+    "fix"
+  ]
 }

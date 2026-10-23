@@ -63,7 +63,7 @@ export class GitHub {
     const response = await this.api(`/repos/${this.repository}/actions/runs?head_sha=${revision}&event=push&branch=main&per_page=100`);
     const runs = (response.workflow_runs || []).filter(run => run.head_sha === revision && run.head_branch === 'main' && run.event === 'push' && run.path?.split('@')[0] === path).sort((a, b) => b.id - a.id);
     if (!runs.length || runs[0].status !== 'completed') return { state: 'pending' };
-    return { state: runs[0].conclusion === 'success' ? 'success' : 'failed', id: runs[0].id, attempt: runs[0].run_attempt };
+    return { state: ['success', 'cancelled'].includes(runs[0].conclusion) ? runs[0].conclusion : 'failed', id: runs[0].id, attempt: runs[0].run_attempt };
   }
   async asset(asset) {
     const expected = `https://github.com/${this.repository}/releases/download/`;

@@ -13,7 +13,7 @@ async function boundedJSON(response, maximum) {
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
-async function publicIdentity(origin, fetchImpl) {
+export async function publicIdentity(origin, fetchImpl) {
   const url = new URL('/.well-known/naeil-ui.json', origin);
   assert.equal(url.protocol, 'https:');
   const response = await fetchImpl(url.href, { redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(15000), headers: { 'cache-control': 'no-cache' } });
@@ -94,6 +94,7 @@ async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, 
   const runtime = compareRuntime(frozenIndex, runtimeIndex(siteBytes));
   assert.equal(runtime.runtimeSha256, release.siteRuntimeSha256, 'Reviewed site runtime proof mismatch');
   const workflow = await github.workflow(release.siteSourceRevision, observer.workflowPath);
+  if (workflow.state === 'cancelled') return { ...base, state: 'deferred', reasonCode: 'site-ci-cancelled' };
   if (workflow.state === 'pending') return { ...base, state: 'deferred', reasonCode: 'site-ci-pending' };
   if (workflow.state !== 'success') return { ...base, state: 'gate-failed', reasonCode: 'site-ci-failed', recoveryRequired: true };
   const values = await github.pages(`/repos/naeil-dev/naeil-ui/deployments?sha=${release.siteSourceRevision}&environment=Production`);
@@ -108,6 +109,8 @@ async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, 
   authorize();
   const identity = await publicIdentity(service.origin, fetchImpl);
   assert.match(identity.artifactId, /^dpl_[A-Za-z0-9]+$/, 'Expected Git/Vercel artifact identity');
+  assert(identity.schemaVersion === 1 && identity.appId === 'naeil' && REVISION.test(identity.sourceRevision), 'Invalid live website identity');
+  if (identity.sourceRevision !== release.siteSourceRevision) return { ...base, state: 'deferred', reasonCode: 'site-revision-not-live' };
   const expected = { schemaVersion: 1, appId: 'naeil', artifactId: identity.artifactId, sourceRevision: release.siteSourceRevision, ui: { version: release.version, contractVersion: '1' } };
   assert.deepEqual(identity, expected, 'Live website has not adopted the reviewed app source and UI release');
   const platform = await correlate(status, identity, observer, fetchImpl, github);
@@ -119,7 +122,10 @@ async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, 
   const production = await verify(service.verification.command, verification, join(directory, 'command'), 'verify');
   assertProduction(production, request, artifact);
   authorize();
-  assert.deepEqual(await publicIdentity(service.origin, fetchImpl), expected, 'Production changed during verification');
+  const after = await publicIdentity(service.origin, fetchImpl);
+  assert(after.schemaVersion === 1 && after.appId === 'naeil' && REVISION.test(after.sourceRevision) && /^dpl_[A-Za-z0-9]+$/.test(after.artifactId), 'Invalid live website identity');
+  if (after.sourceRevision !== release.siteSourceRevision) return { ...base, state: 'deferred', reasonCode: 'site-revision-not-live' };
+  assert.deepEqual(after, expected, 'Production changed during verification');
   return { ...base, state: 'production-verified', artifact, production };
 }
 

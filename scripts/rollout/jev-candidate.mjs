@@ -67,8 +67,11 @@ export function prepareCandidateHarness(release, worktree, directory, sourceRevi
   writeFileSync(sharedPath, parameterized.shared); writeFileSync(accountPath, parameterized.account);
   symlinkSync(join(worktree, 'node_modules'), join(directory, 'node_modules'));
   writeFileSync(join(directory, 'package.json'), '{"private":true,"type":"module"}\n', { mode: 0o600, flag: 'wx' });
+  // Copied access tests resolve the Next data route from ./.next/BUILD_ID; use the packaged build's ID.
+  const buildId = readFileSync(join(worktree, '.next/standalone/.next/BUILD_ID'), 'utf8').trim(); assert(/^[A-Za-z0-9_-]{1,120}$/.test(buildId), 'Built candidate BUILD_ID required');
+  mkdirSync(join(directory, '.next'), { mode: 0o700 }); writeFileSync(join(directory, '.next/BUILD_ID'), buildId + '\n', { mode: 0o600, flag: 'wx' });
   const releasePath = join(directory, 'frozen-release.json'); writeFileSync(releasePath, JSON.stringify(release), { mode: 0o600, flag: 'wx' });
-  const receipt = { schemaVersion: 1, sourceRevision, fixturesSha256, helperSha256: hash(readFileSync(fileURLToPath(import.meta.url))), archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, originalFiles: files, parameterizedFiles: { 'tests/e2e/shared-chrome.spec.ts': hash(parameterized.shared), 'tests/e2e/account-control.spec.ts': hash(parameterized.account) } };
+  const receipt = { schemaVersion: 1, sourceRevision, buildId, fixturesSha256, helperSha256: hash(readFileSync(fileURLToPath(import.meta.url))), archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, originalFiles: files, parameterizedFiles: { 'tests/e2e/shared-chrome.spec.ts': hash(parameterized.shared), 'tests/e2e/account-control.spec.ts': hash(parameterized.account) } };
   writeFileSync(join(directory, 'harness-receipt.json'), JSON.stringify(receipt, null, 2), { mode: 0o600, flag: 'wx' });
   return { directory, configPath: join(directory, 'playwright.config.ts'), releasePath, receipt };
 }

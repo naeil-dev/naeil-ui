@@ -73,3 +73,13 @@ test('ordinary repository API routes retain fixed HTTPS origin and redirect refu
   } });
   assert.deepEqual(await github.releases(), [{ id: 1 }]);
 });
+
+test('F15 latest exact workflow cancellation is rerunnable and never falls back to old success', async () => {
+  const run = { id: 10, head_sha: revision, head_branch: 'main', event: 'push', path: '.github/workflows/verify.yml', status: 'completed', conclusion: 'success', run_attempt: 1 };
+  let latest = { ...run, id: 11, conclusion: 'cancelled' };
+  const github = new GitHub({ fetchImpl: async () => Response.json({ workflow_runs: [run, latest, { ...run, id: 12, event: 'pull_request' }] }) });
+  assert.equal((await github.workflow(revision, '.github/workflows/verify.yml')).state, 'cancelled');
+  latest = { ...latest, conclusion: 'success', run_attempt: 2 };
+  assert.equal((await github.workflow(revision, '.github/workflows/verify.yml')).state, 'success');
+  latest.conclusion = 'failure'; assert.equal((await github.workflow(revision, '.github/workflows/verify.yml')).state, 'failed');
+});
