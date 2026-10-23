@@ -42,6 +42,17 @@ Each stable GitHub Release supplies `release.json`, the exact npm archive, froze
 
 The old Actions/prebuilt adapters in [automation.md](automation.md) are retained historical preparation. They are not the installed standing execution path and must not be enabled to bypass the current native/shared-session gates.
 
+## Publishing the next patch release
+
+Preserve the frozen0.7.1 archive, references, tag and assets. For the next genuine fix patch, follow this order:
+
+1. Commit the package source on main and wait for a successful **push** run of `.github/workflows/verify.yml` for that exact SHA. Freeze the npm archive from that clean source.
+2. Select the exact site source SHA on main; require its successful push verification run and its Git/Vercel production deployment. Pack the separate site archive from that clean SHA and compare its public runtime with the frozen npm archive.
+3. Generate chrome and account references from the frozen package's reviewed source/archive using the [maintained capture commands](release-preparation.md). Run `node scripts/rollout/prepare-release.mjs prepare INPUT.json` to validate provenance fields, runtime parity and reference metadata, and assemble a fresh private asset directory.
+4. Create a **draft** release with every prepared asset, including `release.json` and `site-runtime-verification.json`. Export its actual asset listing and run `node scripts/rollout/prepare-release.mjs check OUTPUT_DIRECTORY DRAFT_ASSETS.json`. Publish only after that check and the separate npm byte-identity/registry-consumption checks pass.
+
+Never add, replace or delete assets, or move the tag, after publication: the worker blocks with `published-release-changed`. GitHub platform immutable releases is currently false; worker-side immutability checks still apply. Keep other main merges outside the release window until the observer verifies the selected site SHA. If another revision is live, the observer defers with `site-revision-not-live`. Main pushes no longer cancel each other's CI; a cancelled exact-SHA run is treated as waiting and can be re-run. Local preparation does not prove main ancestry, successful CI, clean-source packing or a live deployment.
+
 ## Operator checks
 
 The private configuration records the immutable automation checkout, complete trusted executable/helper hashes, explicit execution PATH, existing account session, service configs and bounded policy. Native consumers remain on dedicated `rollout/standing` branches; changes since each reviewed source may include only the exact UI dependency, lockfile and vendored package. Recompute pins only after reviewing the changed code, never as automatic recovery from a mismatch.
