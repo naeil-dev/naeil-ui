@@ -6,5 +6,5 @@
   },
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile --prod=false",
-  "buildCommand": "VERCEL_GIT_COMMIT_SHA=development pnpm build --webpack"
+  "buildCommand": "pnpm build --webpack"
 }
