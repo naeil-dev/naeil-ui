@@ -3,7 +3,9 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import sqlite3
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -185,6 +187,34 @@ class NativeTests(unittest.TestCase):
             with self.assertRaises(n.Refusal): n.Native(changed).static()
             retained = Path(config['preserveDirectories'][0]); retained.rename(retained.with_name('saved')); retained.mkdir()
             with self.assertRaises(n.Refusal): n.Native(config).static()
+
+    def test_protected_metadata_survives_python_node_json_round_trip(self):
+        config = self.native_config()
+        observed = {}
+        for path_key, metadata_key in [('envPath', 'envMetadata'), ('passwordPath', 'passwordMetadata')]:
+            path = Path(config[path_key]); before = path.stat()
+            os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns // 1_000_000_000 * 1_000_000_000 + 123_456_789))
+            observed[metadata_key] = path.stat().st_mtime_ns
+            self.assertGreater(observed[metadata_key], 2 ** 53)
+            self.assertNotEqual(int(float(observed[metadata_key])), observed[metadata_key])
+            config[metadata_key] = n.file_metadata(path)
+        node = shutil.which('node'); self.assertIsNotNone(node, 'Node required to test the actual JSON transport')
+
+        def round_trip(value):
+            result = subprocess.run([node, '-e', 'process.stdout.write(JSON.stringify(JSON.parse(require("node:fs").readFileSync(0,"utf8"))))'], input=json.dumps(value), capture_output=True, text=True, check=True, timeout=20, env={'PATH': '/usr/bin:/bin', 'NODE_OPTIONS': '', 'NODE_PATH': ''}, shell=False)
+            return json.loads(result.stdout)
+
+        transported = round_trip(config)
+        with patch.object(n.Native, 'command', return_value=SimpleNamespace(returncode=0, stdout=config['nodeVersion'])):
+            n.Native(transported).static()
+            for metadata_key, stamp in observed.items():
+                self.assertEqual(transported[metadata_key][3], str(stamp))
+                legacy = json.loads(json.dumps(transported)); legacy[metadata_key][3] = stamp
+                legacy = round_trip(legacy)
+                self.assertNotEqual(legacy[metadata_key][3], stamp, 'Regression fixture must reproduce Number precision loss')
+                with self.assertRaisesRegex(n.Refusal, 'protected-metadata-changed'): n.Native(legacy).static()
+                drift = json.loads(json.dumps(transported)); drift[metadata_key][3] = str(stamp + 1)
+                with self.assertRaisesRegex(n.Refusal, 'protected-metadata-changed'): n.Native(round_trip(drift)).static()
 
     def test_secret_output_file_hardlink_is_refused_before_truncation(self):
         original = self.root / 'existing'; original.write_text('untouched')

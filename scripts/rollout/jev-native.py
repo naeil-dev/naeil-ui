@@ -231,7 +231,8 @@ def backup_verified(source, backup, proof):
 def file_metadata(path):
     regular(path); s = path.stat()
     require(s.st_uid == os.getuid() and not s.st_mode & 0o077, 'protected-file-ownership')
-    return [s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_mode & 0o777, s.st_uid]
+    # Nanosecond timestamps exceed JavaScript's exact JSON-number range.
+    return [s.st_dev, s.st_ino, s.st_size, str(s.st_mtime_ns), s.st_mode & 0o777, s.st_uid]
 
 
 def private_json(path):
