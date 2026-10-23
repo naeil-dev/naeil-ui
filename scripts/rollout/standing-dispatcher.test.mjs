@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import test from 'node:test';
-import { assertServiceResult, poll } from './standing-dispatcher.mjs';
+import { assertServiceResult, inspect, poll, reconcile } from './standing-dispatcher.mjs';
 import { atomicJSON, automationDigest, hash, IDS, invokeJSON, ORIGINS, readPrivateJSON, routeKey, validateConfig } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
@@ -126,9 +126,9 @@ test('only explicit no-mutation deferral retries, preserving previously passed s
 });
 
 test('STOP and expired policy prevent dispatch; wrong attempt, account, route or app source cannot verify', async t => {
-  const stopped = fixture(t); writeFileSync(stopped.config.policy.stopFile, 'stop'); await assert.rejects(poll(stopped.config, stopped)); assert.equal(stopped.calls.length, 0);
-  const broken = fixture(t); symlinkSync(join(broken.directory, 'missing-stop-target'), broken.config.policy.stopFile); await assert.rejects(poll(broken.config, broken)); assert.equal(broken.calls.length, 0);
-  const expired = fixture(t); expired.config.policy.expiresAt = '2000-01-01'; await assert.rejects(poll(expired.config, expired));
+  const stopped = fixture(t); writeFileSync(stopped.config.policy.stopFile, 'stop'); assert.equal((await poll(stopped.config, stopped)).state, 'stopped'); assert.equal(stopped.calls.length, 0);
+  const broken = fixture(t); symlinkSync(join(broken.directory, 'missing-stop-target'), broken.config.policy.stopFile); assert.equal((await poll(broken.config, broken)).state, 'stopped'); assert.equal(broken.calls.length, 0);
+  const expired = fixture(t); expired.config.policy.expiresAt = '2000-01-01'; assert.equal((await poll(expired.config, expired)).state, 'authorization-expired');
   const f = fixture(t); await poll(f.config, f); const request = f.calls[0];
   for (const change of [value => { value.attemptId = 'foreign'; }, value => { value.production.accountReferenceSha256 = 'f'.repeat(64); }, value => { value.production.routes[0].routeKey = 'foreign'; }, value => { value.artifact.sourceRevision = request.release.sourceRevision; }]) { const result = success(request); change(result); assert.throws(() => assertServiceResult(result, request)); }
 });
@@ -195,12 +195,15 @@ test('external trusted helper bytes and executable closure are mandatory and rec
 test('STOP and stale cached production prevent later app dispatch without replaying earlier apps', async t => {
   const stopped = fixture(t), original = stopped.invoke;
   stopped.invoke = async (...args) => { const value = await original(...args); writeFileSync(stopped.config.policy.stopFile, 'STOP'); return value; };
-  assert.equal((await poll(stopped.config, stopped)).state, 'blocked'); assert.equal(stopped.calls.length, 1);
+  assert.equal((await poll(stopped.config, stopped)).state, 'stopped'); assert.equal(stopped.calls.length, 1);
+  assert(!stopped.state().blocked); assert.equal(stopped.state().releases['1'].state, 'stopped');
+  unlinkSync(stopped.config.policy.stopFile); stopped.invoke = original; assert.equal((await poll(stopped.config, stopped)).state, 'complete'); assert.equal(stopped.calls.length, 3);
   const stale = fixture(t), invoke = stale.invoke; let deferred = true;
   stale.invoke = async (command, request) => request.service.id === 'estimate' && deferred ? { ...success(request), state: 'deferred', mutationAttempted: false } : invoke(command, request);
   await poll(stale.config, stale);
   const state = stale.state(); state.releases['1'].services.naeil.result.production.checkedAt = '2000-01-01T00:00:00Z'; atomicJSON(join(stale.config.stateDirectory, 'state.json'), state);
-  deferred = false; assert.equal((await poll(stale.config, stale)).state, 'blocked'); assert.equal(stale.calls.length, 1);
+  deferred = false; stale.verify = async (_command, request) => success(request).production;
+  assert.equal((await poll(stale.config, stale)).state, 'complete'); assert.equal(stale.calls.length, 3);
 });
 
 test('child command uses configured PATH and removes inherited runtime injection options', async t => {
@@ -213,4 +216,196 @@ test('child command uses configured PATH and removes inherited runtime injection
     const result = await invokeJSON({ file: process.execPath, args: [script], timeoutMs: 1000 }, { executionPath: '/usr/bin:/bin' }, join(f.directory, 'environment'));
     assert.deepEqual(result, { PATH: '/usr/bin:/bin', NODE_OPTIONS: null, NODE_PATH: null, PYTHONPATH: null, LD_PRELOAD: null });
   } finally { for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } }
+});
+
+test('F3 regression: stale cached evidence is reverified without replaying the adapter', async t => {
+  const f = fixture(t);
+  const original = f.invoke;
+  f.invoke = async (command, request, directory) => request.service.id === 'estimate' ? { ...success(request), state: 'deferred', mutationAttempted: false } : original(command, request, directory);
+  assert.equal((await poll(f.config, f)).state, 'deferred');
+  const state = f.state();
+  state.releases['1'].services.naeil.result.production.checkedAt = new Date(Date.now() - (f.config.policy.maxEvidenceAgeSeconds + 60) * 1000).toISOString();
+  atomicJSON(join(f.config.stateDirectory, 'state.json'), state);
+  const prior = structuredClone(state.releases['1'].services.naeil.result);
+  f.verify = async (_command, request) => success(request).production;
+  const result = await poll(f.config, f);
+  assert.equal(result.state, 'deferred');
+  const saved = f.state().releases['1'].services.naeil;
+  assert.deepEqual(saved.result, prior);
+  assert.equal(saved.reverifications.length, 1);
+  assert.equal(f.calls.filter(r => r.service.id === 'naeil').length, 1);
+});
+
+test('F4 regression: bound nonzero gate-failed result is retained and classified', async t => {
+  const f = fixture(t);
+  const script = join(f.directory, 'adapter.mjs');
+  writeFileSync(script, "import{readFileSync,writeFileSync}from'node:fs';const r=JSON.parse(readFileSync(process.env.NAEIL_ROLLOUT_INPUT));writeFileSync(process.env.NAEIL_ROLLOUT_OUTPUT,JSON.stringify({schemaVersion:1,releaseId:r.release.releaseId,serviceId:r.service.id,idempotencyKey:r.idempotencyKey,attemptId:r.attemptId,state:'gate-failed',mutationAttempted:false}),{mode:0o600});process.exitCode=1;", {mode:0o600});
+  f.config.services.estimate.command = {file:process.execPath,args:[script],timeoutMs:3000};
+  f.config.trustedFiles[script] = hash(readFileSync(script));
+  const original = f.invoke;
+  let outputPath;
+  f.invoke = async (command, request, directory, kind, options) => {
+    if(request.service.id!=='estimate') return original(command,request,directory);
+    outputPath=join(directory,'output.json');return invokeJSON(command,request,directory,kind,options);
+  };
+  const result = await poll(f.config, f);
+  assert.equal(result.state, 'blocked'); assert.equal(result.reasonCode, 'gate-failed');
+  const output = readPrivateJSON(outputPath);
+  assert.equal(output.state,'gate-failed');assert.equal(output.mutationAttempted,false);
+  assert.equal(f.state().releases['1'].services.estimate.state,'gate-failed');
+  assert.equal(f.state().releases['1'].services.estimate.result.transportExitCode, 1);
+});
+
+for (const status of ['disabled', 'authorization-expired', 'stopped']) test('F8 entry ' + status + ' writes resumable summary and persists since', async t => {
+  const f = fixture(t); let network = 0; f.github.releases = async () => { network++; return f.releases; };
+  if (status === 'disabled') f.config.enabled = false;
+  if (status === 'authorization-expired') f.config.policy.expiresAt = '2000-01-01';
+  if (status === 'stopped') writeFileSync(f.config.policy.stopFile, 'STOP');
+  const first = await poll(f.config, f); assert.equal(first.state, status); assert(first.since); assert(!f.state().blocked);
+  const saved = f.state(); saved.observedAt = '2000-01-01'; atomicJSON(join(f.config.stateDirectory, 'state.json'), saved);
+  const second = await poll(f.config, f); assert.equal(second.since, first.since); assert.notEqual(f.state().observedAt, saved.observedAt);
+  assert.deepEqual(readPrivateJSON(join(f.config.stateDirectory, 'summary.json')), second);
+  assert.equal(network, 0); assert.equal(f.calls.length, 0);
+});
+for (const status of ['disabled', 'authorization-expired']) test('F8 mid-loop ' + status + ' leaves release stopped without a durable block', async t => {
+  const f = fixture(t), original = f.invoke;
+  f.invoke = async (...args) => { const result = await original(...args); if (status === 'disabled') f.config.enabled = false; else f.config.policy.expiresAt = '2000-01-01'; return result; };
+  assert.equal((await poll(f.config, f)).state, status); assert.equal(f.state().releases['1'].state, 'stopped'); assert(!f.state().blocked); assert.equal(f.calls.length, 1);
+});
+test('F15 cancelled exact package CI waits and resumes after the rerun succeeds', async t => {
+  const f = fixture(t, [1, 2]); f.github.workflow = async () => ({ state: 'cancelled' });
+  const waiting = await poll(f.config, f); assert.equal(waiting.state, 'waiting-package-ci'); assert.equal(waiting.reasonCode, 'cancelled'); assert(waiting.since); assert(!f.state().blocked); assert.equal(f.calls.length, 3);
+  const again = await poll(f.config, f); assert.equal(again.since, waiting.since);
+  f.github.workflow = async () => ({ state: 'success' }); assert.equal((await poll(f.config, f)).state, 'complete'); assert.equal(f.calls.length, 6);
+});
+test('F3 fresh identity or binding failure during re-verification blocks without replay', async t => {
+  for (const failure of ['identity', 'route', 'stale', 'command', 'cached-binding']) {
+    const f = fixture(t), original = f.invoke;
+    f.invoke = async (command, request) => request.service.id === 'estimate' ? { ...success(request), state: 'deferred', mutationAttempted: false } : original(command, request);
+    await poll(f.config, f);
+    const saved = f.state(), prior = saved.releases['1'].services.naeil;
+    prior.result.production.checkedAt = '2000-01-01';
+    if (failure === 'cached-binding') prior.result.production.accountReferenceSha256 = 'f'.repeat(64);
+    atomicJSON(join(f.config.stateDirectory, 'state.json'), saved);
+    let checks = 0;
+    f.verify = async (_command, request) => {
+      checks++; assert.equal(readPrivateJSON(join(f.config.stateDirectory, 'summary.json')).state, 'cached-evidence-expired');
+      if (failure === 'command') throw new Error('synthetic verifier refusal');
+      const value = success(request).production;
+      if (failure === 'identity') value.identity.artifactId = 'foreign';
+      if (failure === 'route') value.routes = [];
+      if (failure === 'stale') value.checkedAt = '2000-01-01';
+      return value;
+    };
+    const blocked = await poll(f.config, f); assert.equal(blocked.reasonCode, 'cached-evidence-reverification-failed');
+    assert.equal(checks, failure === 'cached-binding' ? 0 : 1); assert.equal(f.calls.length, 1);
+    await poll(f.config, f); assert.equal(f.calls.length, 1);
+  }
+});
+test('F3 successive read-only refreshes append receipts and use new private attempt directories', async t => {
+  const f = fixture(t), original = f.invoke, checks = [];
+  f.invoke = async (command, request) => request.service.id === 'estimate' ? { ...success(request), state: 'deferred', mutationAttempted: false } : original(command, request);
+  f.verify = async (_command, request, directory, kind) => { checks.push(request); assert.equal(kind, 'verify'); assert(directory.startsWith(request.outputDirectory)); return success(request).production; };
+  await poll(f.config, f);
+  const path = join(f.config.stateDirectory, 'state.json');
+  for (let index = 0; index < 2; index++) {
+    const saved = f.state(), prior = saved.releases['1'].services.naeil;
+    (index ? prior.reverifications.at(-1).production : prior.result.production).checkedAt = '2000-01-01'; atomicJSON(path, saved);
+    assert.equal((await poll(f.config, f)).state, 'deferred');
+  }
+  const prior = f.state().releases['1'].services.naeil;
+  assert.equal(prior.reverifications.length, 2); assert.equal(prior.result.production.checkedAt, '2000-01-01');
+  assert.notEqual(checks[0].attemptId, checks[1].attemptId); assert.notEqual(checks[0].outputDirectory, checks[1].outputDirectory);
+  assert(checks.every(value => value.outputDirectory.includes('/naeil/reverify-') && value.phase === 'adopt'));
+  assert.equal(f.calls.filter(value => value.service.id === 'naeil').length, 1);
+});
+for (const outcome of ['activation-pending', 'review-required', 'not-deployed', 'production-verified', 'deferred', 'unbound', 'invalid', 'missing', 'timeout', 'signal', 'maxBuffer']) test('F4 transport classifies nonzero ' + outcome + ' conservatively', async t => {
+  const f = fixture(t), script = join(f.directory, 'nonzero.mjs'), original = f.invoke;
+  let code = "import{readFileSync,writeFileSync}from'node:fs';const r=JSON.parse(readFileSync(process.env.NAEIL_ROLLOUT_INPUT));";
+  if (outcome !== 'missing') code += outcome === 'invalid' ? "writeFileSync(process.env.NAEIL_ROLLOUT_OUTPUT,'invalid',{mode:0o600});" : "writeFileSync(process.env.NAEIL_ROLLOUT_OUTPUT,JSON.stringify(r.syntheticResult),{mode:0o600});";
+  code += outcome === 'timeout' ? 'setInterval(()=>{},1000);' : outcome === 'signal' ? "process.kill(process.pid,'SIGTERM');" : outcome === 'maxBuffer' ? "process.stdout.write('x'.repeat(2*1024*1024));process.exitCode=1;" : 'process.exitCode=1;';
+  writeFileSync(script, code, { mode: 0o600 });
+  f.config.services.estimate.command = { file: process.execPath, args: [script], timeoutMs: outcome === 'timeout' ? 150 : 3000 }; f.config.trustedFiles[script] = hash(readFileSync(script));
+  f.invoke = async (command, request, directory, kind, options) => {
+    if (request.service.id !== 'estimate') return original(command, request);
+    const result = { ...success(request), state: ['unbound', 'invalid', 'missing', 'timeout', 'signal', 'maxBuffer'].includes(outcome) ? 'gate-failed' : outcome, mutationAttempted: false };
+    if (outcome === 'unbound') result.attemptId = 'foreign';
+    return invokeJSON(command, { ...request, syntheticResult: result }, directory, kind, options);
+  };
+  const result = await poll(f.config, f), accepted = ['activation-pending', 'review-required', 'not-deployed'].includes(outcome);
+  assert.equal(result.reasonCode, accepted ? outcome : 'command-or-result-uncertain');
+  assert.equal(f.state().releases['1'].services.estimate.state, accepted ? outcome : 'uncertain');
+  const count = f.calls.length; await poll(f.config, f); assert.equal(f.calls.length, count);
+});
+function nativeInspectionFixture(f) {
+  const stateDirectory = join(f.directory, 'estimate-state'), nativeState = join(f.directory, 'estimate-native');
+  mkdirSync(stateDirectory, { mode: 0o700 }); mkdirSync(nativeState, { mode: 0o700 }); mkdirSync(join(stateDirectory, 'keys'), { mode: 0o700 });
+  atomicJSON(f.config.services.estimate.adapterOptions.standingConfigPath, { stateDirectory, activation: { stateDirectory: nativeState } });
+  return { stateDirectory, nativeState };
+}
+const ownerResolution = { approvedBy: 'synthetic-owner', reason: 'Bound evidence proves this retry is before native dispatch' };
+test('F4 inspect exposes bounded operational facts and validates retained output without writing', async t => {
+  const f = fixture(t), native = nativeInspectionFixture(f), original = f.invoke;
+  f.invoke = async (command, request, directory) => {
+    if (request.service.id !== 'estimate') return original(command, request);
+    atomicJSON(join(directory, 'output.json'), { ...success(request), state: 'gate-failed', mutationAttempted: true, runtimeMutationAttempted: false }); throw new Error('synthetic transport loss');
+  };
+  await poll(f.config, f);
+  const prior = f.state().releases['1'].services.estimate;
+  atomicJSON(join(native.nativeState, 'operation.json'), { phase: 'stopped', secret: 'PRIVATE_SENTINEL' });
+  atomicJSON(join(native.stateDirectory, 'running.lock'), { secret: 'PRIVATE_SENTINEL' });
+  atomicJSON(join(native.stateDirectory, 'keys', hash(prior.request.idempotencyKey) + '.json'), { state: 'gate-failed', mutationAttempted: true, runtimeMutationAttempted: false, secret: 'PRIVATE_SENTINEL' });
+  const before = readFileSync(join(f.config.stateDirectory, 'state.json'));
+  const result = await inspect(f.config, { fetchImpl: async url => { const id = IDS.find(id => ORIGINS[id] === new URL(url).origin); const request = { ...f.calls[0], service: f.config.services[id] }; return Response.json(success(request).production.identity); } });
+  assert(!JSON.stringify(result).includes('PRIVATE_SENTINEL')); assert.deepEqual(readFileSync(join(f.config.stateDirectory, 'state.json')), before); assert(!existsSync(join(f.config.stateDirectory, 'dispatcher.lock')));
+  const estimate = result.releases[0].services[1];
+  assert.deepEqual(estimate.retainedOutput, { exists: true, validates: true }); assert.equal(estimate.native.phase, 'stopped'); assert(estimate.native.runningLock); assert(estimate.native.operationMarker); assert.equal(estimate.native.ledger.state, 'gate-failed');
+  assert.equal(estimate.mutationAttempted, true); assert.equal(estimate.runtimeMutationAttempted, false); assert.equal(result.liveIdentity.estimate.appId, 'abestimate');
+});
+test('F4 explicit pre-mutation reconciliation uses retained bound proof and preserves prior record', async t => {
+  const f = fixture(t); f.invoke = async (_command, request, directory) => { atomicJSON(join(directory, 'output.json'), { ...success(request), state: 'gate-failed', mutationAttempted: false, runtimeMutationAttempted: false }); throw new Error('synthetic lost transport'); };
+  await poll(f.config, f); const prior = f.state().releases['1'].services.naeil;
+  await assert.rejects(reconcile(f.config, 'ui-0.7.1', 'naeil', 'retry-pre-mutation', { reason: 'missing owner' }), /approver/);
+  await reconcile(f.config, 'ui-0.7.1', 'naeil', 'retry-pre-mutation', ownerResolution);
+  const saved = f.state(), record = saved.releases['1']; assert(!saved.blocked); assert.deepEqual(record.history[0].prior, prior); assert.equal(record.history[0].approvedBy, ownerResolution.approvedBy);
+  f.invoke = async (_command, request) => { f.calls.push(request); return success(request); };
+  assert.equal((await poll(f.config, f)).state, 'complete'); assert.equal(f.calls[0].reconciliation.priorAttemptId, prior.attemptId);
+});
+test('F2 gate-failure reconciliation requires absent native state and live predecessor identity', async t => {
+  const f = fixture(t, [1, 2]), native = nativeInspectionFixture(f), original = f.invoke;
+  f.invoke = async (command, request) => request.release.version === '0.7.2' && request.service.id === 'estimate' ? { ...success(request), state: 'gate-failed', mutationAttempted: true, runtimeMutationAttempted: false } : original(command, request);
+  await poll(f.config, f);
+  const path = join(f.config.stateDirectory, 'state.json'), before = readFileSync(path), prior = f.state().releases['2'].services.estimate;
+  const options = { ...ownerResolution, fetchImpl: async () => Response.json(f.state().releases['1'].services.estimate.result.production.identity) };
+  for (const nativePath of [join(native.stateDirectory, 'running.lock'), join(native.nativeState, 'operation.json')]) {
+    atomicJSON(nativePath, {}); await assert.rejects(reconcile(f.config, 'ui-0.7.2', 'estimate', 'retry-after-gate-failure', options), /lock or native marker/); assert.deepEqual(readFileSync(path), before); unlinkSync(nativePath);
+  }
+  await assert.rejects(reconcile(f.config, 'ui-0.7.2', 'estimate', 'retry-after-gate-failure', { ...options, fetchImpl: async () => Response.json(success(prior.request).production.identity) }), /Live public identity/);
+  await reconcile(f.config, 'ui-0.7.2', 'estimate', 'retry-after-gate-failure', options);
+  f.invoke = async (command, request) => { if (request.service.id === 'estimate' && request.release.version === '0.7.2') assert.equal(request.reconciliation.priorAttemptId, prior.attemptId); return original(command, request); };
+  assert.equal((await poll(f.config, f)).currentVersion, '0.7.2');
+});
+for (const [name, fields] of [
+  ['pending', { state: 'activation-pending', mutationAttempted: true, runtimeMutationAttempted: false }],
+  ['runtime mutation', { state: 'gate-failed', mutationAttempted: true, runtimeMutationAttempted: true }],
+  ['pending rollback', { state: 'gate-failed', mutationAttempted: false, runtimeMutationAttempted: false, rollback: { state: 'activation-pending' } }],
+  ['missing mutation proof', { state: 'gate-failed' }],
+  ['foreign attempt', { state: 'gate-failed', mutationAttempted: false, attemptId: 'foreign' }],
+]) test('F4 reconciliation refuses ' + name + ' without changing durable evidence', async t => {
+  const f = fixture(t); f.invoke = async (_command, request) => ({ ...success(request), ...fields }); await poll(f.config, f);
+  const path = join(f.config.stateDirectory, 'state.json'), before = readFileSync(path);
+  await assert.rejects(reconcile(f.config, 'ui-0.7.1', 'naeil', 'retry-pre-mutation', ownerResolution)); assert.deepEqual(readFileSync(path), before);
+});
+
+test('F2 reconciliation refuses uncertain, runtime-mutated or conflicting Estimate ledgers', async t => {
+  const f = fixture(t), native = nativeInspectionFixture(f);
+  f.invoke = async (_command, request) => request.service.id === 'estimate' ? { ...success(request), state: 'gate-failed', mutationAttempted: false, runtimeMutationAttempted: false } : success(request);
+  await poll(f.config, f); const prior = f.state().releases['1'].services.estimate;
+  const path = join(f.config.stateDirectory, 'state.json'), before = readFileSync(path), ledger = join(native.stateDirectory, 'keys', hash(prior.request.idempotencyKey) + '.json');
+  const bound = { attemptId: prior.attemptId, idempotencyKey: prior.request.idempotencyKey, state: 'gate-failed', mutationAttempted: false, runtimeMutationAttempted: false };
+  for (const fields of [{ state: 'invoked' }, { runtimeMutationAttempted: true }, { attemptId: 'foreign' }, { mutationAttempted: true }]) {
+    atomicJSON(ledger, { ...bound, ...fields });
+    await assert.rejects(reconcile(f.config, 'ui-0.7.1', 'estimate', 'retry-pre-mutation', ownerResolution), /Estimate ledger/); assert.deepEqual(readFileSync(path), before);
+  }
+  atomicJSON(ledger, bound); await reconcile(f.config, 'ui-0.7.1', 'estimate', 'retry-pre-mutation', ownerResolution); assert(!f.state().blocked);
 });
