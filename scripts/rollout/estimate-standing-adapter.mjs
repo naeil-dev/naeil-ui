@@ -219,7 +219,7 @@ async function packageCandidate(input, config, revision, run, gate) {
   await run(config.executables.pnpm, ['run', 'smoke'], { cwd: config.worktree, env: environment(config) });
   gate(); return createArtifact(ref, config);
 }
-async function installedPackage(input, config, run) {
+export async function installedPackage(input, config, run) {
   const archive = input.release.archive.path;
   const listing = await run(config.executables.tar, ['-tzf', archive], { env: environment(config) });
   const members = listing.stdout.trim().split('\n').filter(name => !name.endsWith('/'));
@@ -233,7 +233,11 @@ async function installedPackage(input, config, run) {
     assert(lstatSync(path).isFile() && !lstatSync(path).isSymbolicLink(), 'Regular installed UI member required');
     files[key] = hash(readFileSync(path)); assert.equal(files[key], hash(member), 'Installed UI differs from frozen archive');
   }
-  assert.deepEqual(inventory(realpathSync(join(config.worktree, 'node_modules/@naeil/ui'))), files, 'Installed UI must contain exactly the frozen files');
+  const root = realpathSync(join(config.worktree, 'node_modules/@naeil/ui')), nested = join(root, 'node_modules');
+  // pnpm creates node_modules/.bin tool shims inside the package; they are not package content.
+  if (existsSync(nested)) assert(lstatSync(nested).isDirectory() && !lstatSync(nested).isSymbolicLink() && readdirSync(nested).every(name => name === '.bin'), 'Installed UI contains unexpected nested dependencies');
+  const installed = Object.fromEntries(Object.entries(inventory(root)).filter(([key]) => !key.startsWith('node_modules/.bin/')));
+  assert.deepEqual(installed, files, 'Installed UI must contain exactly the frozen files');
   return files;
 }
 async function cleanCheckout(config, run) {

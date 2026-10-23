@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, exist
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, test } from 'node:test';
-import { createArtifact, runStanding, assertVerification, installDependencies } from './estimate-standing-adapter.mjs';
+import { createArtifact, runStanding, assertVerification, installDependencies, installedPackage } from './estimate-standing-adapter.mjs';
 import { routeKey } from './standing-config.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -319,4 +319,24 @@ for (const [name, responseChange] of [
   const { result, recovered } = await activationFailure({ responseChange });
   assert(recovered); assert.equal(result.state, 'activation-pending'); assert(!calls.includes('verify:rollback'));
   assert(existsSync(join(config.stateDirectory, 'running.lock')));
+});
+
+test('installed UI check accepts only pnpm .bin shims beside the exact frozen files', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const source = join(root, 'pack'); mkdirSync(join(source, 'package/dist'), { recursive: true });
+  put(join(source, 'package/package.json'), { name: '@naeil/ui', version: '0.7.2' }); put(join(source, 'package/dist/index.js'), 'export {};');
+  const archive = join(root, 'naeil-ui-0.7.2.tgz'); execFileSync('/usr/bin/tar', ['-czf', archive, '-C', source, 'package'], { env: { COPYFILE_DISABLE: '1' } });
+  const worktree = join(root, 'consumer'), installed = join(worktree, 'node_modules/@naeil/ui');
+  mkdirSync(join(installed, 'dist'), { recursive: true });
+  put(join(installed, 'package.json'), { name: '@naeil/ui', version: '0.7.2' }); put(join(installed, 'dist/index.js'), 'export {};');
+  const settings = { worktree, executables: { tar: '/usr/bin/tar', node: process.execPath }, executionPath: '/usr/bin:/bin' };
+  const run = async (file, args) => ({ stdout: execFileSync(file, args, { encoding: 'utf8' }) });
+  const check = () => installedPackage({ release: { archive: { path: archive } } }, settings, run);
+  assert.deepEqual(Object.keys(await check()).sort(), ['dist/index.js', 'package.json']);
+  mkdirSync(join(installed, 'node_modules/.bin'), { recursive: true }); put(join(installed, 'node_modules/.bin/next'), '#!/bin/sh\n');
+  assert.deepEqual(Object.keys(await check()).sort(), ['dist/index.js', 'package.json'], 'pnpm tool shims are not package content');
+  mkdirSync(join(installed, 'node_modules/next')); put(join(installed, 'node_modules/next/index.js'), 'nested');
+  await assert.rejects(check, /unexpected nested dependencies/);
+  rmSync(join(installed, 'node_modules'), { recursive: true }); put(join(installed, 'extra.js'), 'drift');
+  await assert.rejects(check, /exactly the frozen files/);
 });
