@@ -10,6 +10,8 @@ import { fixtureManifest } from './jev-candidate.mjs';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const put = (path, value) => writeFileSync(path, JSON.stringify(value), { mode: 0o600 });
+// Merged-/usr systems alias /bin and /sbin; reviewed PATH entries must be canonical.
+const canonicalExecutionPath = (...directories) => [...new Set(directories.map(directory => realpathSync(directory)))].join(':');
 const source = 'a'.repeat(40);
 function fixture(t, mode = 'adopt') {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'jev-standing-')));
@@ -61,7 +63,7 @@ test('disabled policy and stop switch refuse before any app operation', async t 
 });
 
 test('reviewed PATH and hermetic git options replace inherited runtime and git injection', t => {
-  const f = fixture(t), executionPath = `${f.root}:${dirname(process.execPath)}:/usr/bin:/bin`;
+  const f = fixture(t), executionPath = canonicalExecutionPath(f.root, dirname(process.execPath), '/usr/bin', '/bin');
   const original = process.env;
   let env;
   try { process.env = { ...original, NODE_OPTIONS: '--inspect=0', PYTHONPATH: '/unreviewed', LD_PRELOAD: '/unreviewed', GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'include.path', GIT_CONFIG_VALUE_0: '/unreviewed' }; env = cleanEnvironment({ ...f.config, executionPath }); }
@@ -72,6 +74,14 @@ test('reviewed PATH and hermetic git options replace inherited runtime and git i
   assert.equal(env.GIT_CONFIG_KEY_0, 'core.hooksPath'); assert.equal(env.GIT_CONFIG_VALUE_0, '/dev/null');
   assert.equal(env.GIT_CONFIG_KEY_1, 'core.fsmonitor'); assert.equal(env.GIT_CONFIG_VALUE_1, 'false');
   assert.equal(env.GIT_CONFIG_KEY_2, 'commit.gpgsign'); assert.equal(env.GIT_CONFIG_VALUE_2, 'false');
+});
+
+test('reviewed PATH rejects a symlinked directory and accepts its canonical target', t => {
+  const f = fixture(t), alias = join(f.root, 'system-bin');
+  symlinkSync('/usr/bin', alias);
+  assert.throws(() => cleanEnvironment({ ...f.config, executionPath: alias }), /Reviewed canonical execution PATH required/);
+  const executionPath = canonicalExecutionPath(alias);
+  assert.equal(cleanEnvironment({ ...f.config, executionPath }).PATH, realpathSync('/usr/bin'));
 });
 
 test('full trusted-file drift during verification refuses the next native boundary', async t => {
@@ -356,7 +366,7 @@ test('complete synthetic CLI pipeline uses real updater commit, package bytes, c
   const f = fixture(t), subprocess = subprocessFixture(f), checkout = f.config.worktree;
   const git = join(f.root, 'git'), gitLog = join(f.root, 'git-calls.jsonl');
   writeFileSync(git, `#!${process.execPath}\nimport{appendFileSync}from'node:fs';import{execFileSync}from'node:child_process';if(process.env.GIT_CONFIG_NOSYSTEM!=='1'||process.env.GIT_CONFIG_GLOBAL!=='/dev/null'||process.env.GIT_CONFIG_KEY_0!=='core.hooksPath'||process.env.GIT_CONFIG_VALUE_0!=='/dev/null'||process.env.GIT_CONFIG_VALUE_1!=='false'||process.env.GIT_CONFIG_VALUE_2!=='false')process.exit(91);appendFileSync(${JSON.stringify(gitLog)},JSON.stringify(process.argv.slice(2))+'\\n');process.stdout.write(execFileSync('/usr/bin/git',process.argv.slice(2),{env:process.env}));`); chmodSync(git, 0o700);
-  f.input.executionPath = `${f.root}:${dirname(process.execPath)}:/usr/bin:/bin:/usr/sbin:/sbin`; f.config.gitExecutable = git;
+  f.input.executionPath = canonicalExecutionPath(f.root, dirname(process.execPath), '/usr/bin', '/bin', '/usr/sbin', '/sbin'); f.config.gitExecutable = git;
   f.input.trustedFiles[git] = hash(readFileSync(git));
   const oldArchive = await npmArchive(f.root, '0.7.1'), nextArchive = await npmArchive(f.root, '0.7.2'); frozen(f, '0.7.1', oldArchive);
   delete f.input.policy.schemaVersion; f.input.policy.patchWindow = { minVersion: '0.7.2', maxVersion: '0.7.99', contractVersion: '1' };

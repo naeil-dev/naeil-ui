@@ -132,6 +132,20 @@ test('failed production verification rolls code back to the verified shared-sess
   const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert.equal(result.rollback.state, 'production-verified'); assert(calls.includes('rollback')); assert(calls.includes('verify:rollback')); assert(!existsSync(join(config.stateDirectory, 'running.lock')));
   assert.equal(JSON.parse(readFileSync(join(config.stateDirectory, 'baseline.json'))).artifact.id, current.artifactId);
 });
+test('a maximum-length attempt ID still permits an authorized code rollback', async () => {
+  await adopt(); standing(); input.attemptId = 'a'.repeat(100);
+  dependencies.verify = async request => { if (request.phase === 'production') throw new Error('new production differs'); return verified(request); };
+  const original = dependencies.native, operationIds = [];
+  dependencies.native = async (action, request) => {
+    assert.match(request.approval.operationId, /^[-a-zA-Z0-9_.]{1,100}$/, 'Native approval ID must remain within its accepted bound');
+    operationIds.push(request.approval.operationId);
+    return original(action, request);
+  };
+  const result = await runStanding(input, config, dependencies);
+  assert.equal(result.state, 'gate-failed'); assert.equal(result.rollback.state, 'production-verified');
+  assert(calls.includes('rollback')); assert(!existsSync(join(config.stateDirectory, 'running.lock')));
+  assert.equal(new Set(operationIds).size, operationIds.length, 'Each native action retains a distinct approval ID');
+});
 test('uncertain rollback retains the durable pending state', async () => {
   await adopt(); standing(); dependencies.verify = async request => { if (request.phase === 'production') throw new Error('failed production'); return verified(request); };
   const original = dependencies.native; dependencies.native = async (action, request) => { if (action === 'rollback') throw new Error('rollback result lost'); return original(action, request); };
