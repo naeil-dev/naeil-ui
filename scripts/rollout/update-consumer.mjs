@@ -6,6 +6,70 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { assertFrozen, digest, policyGate } from './rollout.mjs';
 
+// Parse pnpm's block layout without reserializing YAML: all unapproved bytes,
+// including resolution/peer details, must survive exactly. Unknown shapes fail
+// closed rather than broadening the unattended dependency-update lane.
+function blocks(text, indent) {
+  const pattern = new RegExp(`^ {${indent}}(\\S.*?):(?:[ \\r\\n]|$)`);
+  const result = { prefix: '', entries: [] }, seen = new Set();
+  for (const line of text.match(/[^\n]*\n|[^\n]+$/g) || []) {
+    const match = line.match(pattern);
+    if (match) {
+      assert(!seen.has(match[1]), 'Duplicate lockfile entry'); seen.add(match[1]);
+      result.entries.push({ key: match[1], text: line });
+    } else {
+      assert(!line.trim() || line.startsWith(' '.repeat(indent + 1)), 'Unsupported lockfile layout');
+      if (result.entries.length) result.entries.at(-1).text += line;
+      else result.prefix += line;
+    }
+  }
+  return result;
+}
+
+function body(entry, indent, transform) {
+  const end = entry.text.indexOf('\n');
+  assert(end >= 0 && entry.text.slice(0, end).trim() === `${entry.key}:`, 'Block mapping required');
+  return entry.text.slice(0, end + 1) + transform(blocks(entry.text.slice(end + 1), indent));
+}
+
+const uiDependency = key => ['@naeil/ui', "'@naeil/ui'", '"@naeil/ui"'].includes(key);
+const uiResolution = key => /^(?:['"])?@naeil\/ui@/.test(key);
+const joinBlocks = (value, transform = entry => entry.text) => value.prefix + value.entries.map(transform).join('');
+
+function unrelatedImporterBytes(importer) {
+  return body(importer, 4, groups => joinBlocks(groups, group => {
+    if (!['dependencies', 'devDependencies', 'optionalDependencies'].includes(group.key)) return group.text;
+    return body(group, 6, deps => joinBlocks({ ...deps, entries: deps.entries.filter(entry => !uiDependency(entry.key)) }));
+  }));
+}
+
+function unrelatedLockBytes(bytes) {
+  const sections = blocks(bytes.toString(), 0);
+  assert(sections.entries.some(entry => entry.key === 'lockfileVersion'), 'Lockfile version required');
+  return joinBlocks(sections, section => {
+    if (['packages', 'snapshots'].includes(section.key)) return body(section, 2, value => joinBlocks({ ...value, entries: value.entries.filter(entry => !uiResolution(entry.key)) }));
+    if (section.key !== 'importers') return section.text;
+    return body(section, 2, importers => joinBlocks(importers, unrelatedImporterBytes));
+  });
+}
+
+/** Only the UI dependency and its own pnpm importer/package/snapshot blocks may change. */
+export function assertDependencyDelta(before, after) {
+  try {
+    const withoutUI = bytes => {
+      const pkg = JSON.parse(bytes.toString());
+      assert(typeof pkg.dependencies?.['@naeil/ui'] === 'string', 'UI dependency required');
+      delete pkg.dependencies['@naeil/ui'];
+      return pkg;
+    };
+    assert.deepEqual(withoutUI(before.packageJSON), withoutUI(after.packageJSON));
+    assert.equal(unrelatedLockBytes(before.lockfile), unrelatedLockBytes(after.lockfile));
+  } catch {
+    // Keep the checkout as-is for review; do not dump package/config contents.
+    throw new Error('Dependency graph changed beyond @naeil/ui; review required');
+  }
+}
+
 /** Runs only in a provisioned clean bot worktree. Never switches an owner checkout. */
 export function updateConsumer(context, { root = process.cwd(), install } = {}) {
   const config = context.adapterOptions?.update;
@@ -26,7 +90,9 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
   assert.equal(git(['branch', '--show-current']), config.branch, 'Dedicated bot branch mismatch');
   assert(config.branch?.startsWith('rollout/'), 'Updater requires an explicitly provisioned rollout/ branch');
   assert.equal(git(['status', '--porcelain', '--untracked-files=normal']), '', 'Updater requires a clean dedicated checkout');
-  const pkgPath = join(root, 'package.json'), pkg = JSON.parse(readFileSync(pkgPath));
+  const pkgPath = join(root, 'package.json');
+  const before = { packageJSON: readFileSync(pkgPath), lockfile: readFileSync(join(root, 'pnpm-lock.yaml')) };
+  const pkg = JSON.parse(before.packageJSON);
   assert.equal(pkg.packageManager, config.packageManager, 'Consumer package manager pin changed');
   assert(/^pnpm@\d+\.\d+\.\d+$/.test(config.packageManager), 'This bounded updater supports pinned pnpm consumers');
   const dependency = pkg.dependencies?.['@naeil/ui'];
@@ -57,6 +123,7 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
     writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
   }
   runInstall();
+  assertDependencyDelta(before, { packageJSON: readFileSync(pkgPath), lockfile: readFileSync(join(root, 'pnpm-lock.yaml')) });
   assert(readFileSync(join(root, 'pnpm-lock.yaml'), 'utf8').includes(`integrity: ${integrity}`), 'Installed lock does not bind frozen UI bytes');
   const installed = JSON.parse(readFileSync(join(root, 'node_modules/@naeil/ui/package.json')));
   assert.equal(installed.name, '@naeil/ui'); assert.equal(installed.version, next.version);

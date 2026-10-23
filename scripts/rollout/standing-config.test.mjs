@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdtempSync, writeFileSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { assertTrustedFiles, hash, invokeJSON } from './standing-config.mjs';
+import { invokeVerifier } from './jev-standing-adapter.mjs';
+
+const credentials = ['GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN'];
+// Linux images may link /bin to /usr/bin; the Jev transport requires canonical PATH entries.
+const executionPath = [...new Set(['/usr/bin', '/bin'].map(path => realpathSync(path)))].join(':');
+
+test('pinned child receives credential key names only for naeil observer rollout', async t => {
+ const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-env-')));
+ t.after(() => rmSync(root, { recursive: true, force: true }));
+ const script = join(root, 'env-keys.mjs'), node = realpathSync(process.execPath);
+ // Persist key names only, even if the parent has real unrelated credentials.
+ writeFileSync(script, "import { writeFileSync } from 'node:fs'; writeFileSync(process.env.NAEIL_VERIFY_OUTPUT || process.env.NAEIL_ROLLOUT_OUTPUT, JSON.stringify(Object.keys(process.env).sort()), { mode: 0o600 });");
+ const pins = { [node]: hash(readFileSync(node)), [script]: hash(readFileSync(script)) };
+ const previous = process.env;
+ process.env = { ...previous, GH_TOKEN: 'fixture', GITHUB_TOKEN: 'fixture', NAEIL_STANDING_VERCEL_TOKEN: 'fixture', NODE_OPTIONS: '--unreviewed', PYTHONPATH: '/unreviewed' };
+ t.after(() => { process.env = previous; });
+ const command = { file: node, args: [script], timeoutMs: 5000 };
+ for (const [name, request, kind, allowed] of [
+  ['dispatcher to observer', { service: { id: 'naeil' } }, 'rollout', true],
+  ['observer to verifier', { service: { id: 'naeil' } }, 'verify', false],
+  ['dispatcher to Estimate', { service: { id: 'estimate' } }, 'rollout', false],
+  ['dispatcher to Jev', { service: { id: 'jev' } }, 'rollout', false],
+  ['Estimate to native bridge', { serviceId: 'estimate', action: 'deploy' }, 'rollout', false],
+  ['Estimate to verifier', { service: { id: 'estimate' } }, 'verify', false],
+  ['Jev verification envelope', { service: { id: 'jev' } }, 'verify', false],
+  ['missing service', {}, 'rollout', false],
+ ]) await t.test(name, async () => {
+  assertTrustedFiles(pins);
+  const keys = await invokeJSON(command, { ...request, executionPath }, join(root, name.replaceAll(' ', '-')), kind);
+  assert.deepEqual(keys.filter(key => credentials.includes(key)), allowed ? [...credentials].sort() : []);
+  assert(!keys.includes('NODE_OPTIONS')); assert(!keys.includes('PYTHONPATH'));
+  assert(keys.includes('PATH')); assert(keys.includes(kind === 'verify' ? 'NAEIL_VERIFY_INPUT' : 'NAEIL_ROLLOUT_INPUT'));
+ });
+ await t.test('Jev existing verifier transport strips credentials independently', async () => {
+  assertTrustedFiles(pins);
+  const keys = await invokeVerifier({ phase: 'production' }, { verificationCommand: command, executionPath, worktree: root }, root);
+  assert.deepEqual(keys.filter(key => credentials.includes(key)), []);
+ });
+});

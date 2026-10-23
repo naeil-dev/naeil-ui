@@ -87,7 +87,11 @@ export async function invokeJSON(command, request, directory, kind = 'rollout', 
   const env = {};
   // A fixed transport does not need the interactive shell's runtime options,
   // loader hooks, package-manager settings or arbitrary application secrets.
-  for (const key of ['HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ', 'TMPDIR', 'SYSTEMROOT', 'SSH_AUTH_SOCK', 'GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN', 'PLAYWRIGHT_BROWSERS_PATH']) if (process.env[key] !== undefined) env[key] = process.env[key];
+  const keys = ['HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ', 'TMPDIR', 'SYSTEMROOT', 'SSH_AUTH_SOCK', 'PLAYWRIGHT_BROWSERS_PATH'];
+  // Only the website observer reads GitHub/Vercel metadata. Its verifier and
+  // all native adapters/bridges receive the same credential-free transport.
+  if (request.service?.id === 'naeil' && kind === 'rollout') keys.push('GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN');
+  for (const key of keys) if (process.env[key] !== undefined) env[key] = process.env[key];
   env.PATH = request.executionPath || '/usr/bin:/bin:/usr/sbin:/sbin';
   Object.assign(env, kind === 'verify' ? { NAEIL_VERIFY_INPUT: input, NAEIL_VERIFY_OUTPUT: output } : { NAEIL_ROLLOUT_INPUT: input, NAEIL_ROLLOUT_OUTPUT: output, NAEIL_ROLLOUT_STEP: 'standing' });
   let exitCode;

@@ -40,6 +40,12 @@ jobs:
         env:
           REVIEWED_SHA: ${{ inputs.reviewed_sha }}
         run: test "$(git rev-parse HEAD)" = "$REVIEWED_SHA"
+      - name: Require the reviewed commit to belong to main
+        env:
+          REVIEWED_SHA: ${{ inputs.reviewed_sha }}
+        run: |
+          git fetch --no-tags --unshallow origin +refs/heads/main:refs/remotes/origin/main
+          git merge-base --is-ancestor "$REVIEWED_SHA" origin/main
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
