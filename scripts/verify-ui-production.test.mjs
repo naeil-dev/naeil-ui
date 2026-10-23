@@ -113,3 +113,26 @@ test('Japanese font verification rejects a Latin-only face with Japanese fallbac
     assert.equal((await readChrome(page, 'ja')).fontLoaded, false, 'Latin coverage must not certify missing Japanese faces');
   } finally { await browser.close(); }
 });
+test('protected production contexts require an explicit scoped provider while public routes stay anonymous', async () => {
+  const { createVerificationContext } = await import('./verify-ui-production.mjs');
+  const browser = await chromium.launch();
+  try {
+    const options = { browser, origin: 'https://jev.naeil.dev', viewport: { width: 390, height: 900 }, colorScheme: 'dark' };
+    const protectedRoute = { path: '/', renderState: { access: 'protected', visible: '[data-workspace]' } };
+    await assert.rejects(createVerificationContext({ ...options, route: protectedRoute }), /provider|authenticated/i);
+    let calls = 0;
+    const contextFactory = async ({ browser, origin, contextOptions }) => {
+      assert.equal(origin, options.origin); calls++;
+      const context = await browser.newContext(contextOptions);
+      await context.addCookies([{ name: 'synthetic', value: 'test', url: origin }]);
+      return context;
+    };
+    const protectedContext = await createVerificationContext({ ...options, route: protectedRoute, contextFactory });
+    assert.equal((await protectedContext.cookies()).length, 1);
+    await protectedContext.close();
+    const publicContext = await createVerificationContext({ ...options, route: { renderState: { access: 'public' } }, contextFactory });
+    assert.equal((await publicContext.cookies()).length, 0);
+    assert.equal(calls, 1, 'Public checks must never inherit the private session');
+    await publicContext.close();
+  } finally { await browser.close(); }
+});

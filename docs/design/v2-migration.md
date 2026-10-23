@@ -2,21 +2,21 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-이 안내는 **@naeil/ui 0.6.0**의 CSS·API·패키지 경계를 대상으로 한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 소스·archive와 실제 게시·배포 결과는 [릴리스 기록](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0)에서 구분한다. 이전 0.5.0은 2026-10-15에 게시되었으며, 이번 버전에서 공통 1600px 프레임과 적용 규칙을 추가한다.
+**0.7.1 npm 게시·registry 검증 완료 — 2026-10-23.** 현재 게시된 기준 버전은 **0.7.1**이다. 이 유지보수 안내는 canonical `NaeilFooter`, `NaeilHeaderAccountControl`, `/release` 식별자와 기존 1600px 프레임을 함께 다룬다. 0.7.0은 미게시 후보이며, 처음 게시된 0.7.x 버전은 0.7.1이다. 독립된 새 React/Next registry 설치에서 동결 파일 139개와 타입·프로덕션 빌드·브라우저 검증이 통과했다. hosted Docs와 상시 배포 활성화는 별도 실행 기록으로 확인한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 동결 패키지 소스·archive, 별도 검토한 Docs 소스와 실제 게시·배포 결과는 [릴리스 정책](../package-release.md#publication-and-deployment)에서 구분한다.
 
 ## 시작하기
 
-React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`를 사용한다. API 키와 Next.js는 필요 없다.
+React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`·`/naeil-footer`를 사용한다. API 키와 Next.js는 필요 없다. 검증한 registry 버전을 고정해 설치한다.
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.6.0
+pnpm add --save-exact @naeil/ui@0.7.1
 ```
 
-로컬 후보를 검증할 때는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 `/tmp/naeil-ui-0.6.0.tgz`를 설치한다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+registry의 0.7.1 archive는 동결 릴리스 archive와 바이트가 일치한다. archive에 포함된 안내는 준비 시점의 기록이므로 현재 설치에는 이 유지보수 안내를 따른다. 로컬 개발에서는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 `/tmp/naeil-ui-0.7.1.tgz`를 설치한다. 현재 소스의 개발용 pack은 동결 릴리스 archive와 다르므로 게시 파일을 대체하지 않는다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
-버전을 생략한 설치는 registry의 latest 태그를 따른다. 이 안내와 동일한 경계를 사용하려면 0.6.0을 명시하거나 같은 버전의 검증된 로컬 archive를 사용한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
+버전을 생략한 설치는 registry의 latest 태그를 따른다. 2026-10-23에 latest는 0.7.1로 확인했다. 검증한 버전을 유지하려면 0.7.1을 명시한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -80,7 +80,7 @@ Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지�
 
 ## 앱 전체 틀과 콘텐츠 폭
 
-실제 naeil.dev 브랜드 헤더를 이어받는 앱은 선택적 React 전용 `@naeil/ui/naeil-header`의 `NaeilHeader`를 사용한다. 전체 프로젝트 메뉴·헤더 번역·테마/선택적 언어 컨트롤·toolbar·반응형 스타일을 한 모듈에서 제공하므로 소비 앱에 다시 복사하지 않는다. 소비 앱은 기존 theme provider, 라우팅·저장 guard, 현재 언어와 실제 인증 슬롯을 연결한다. 언어 변경을 지원하지 않으면 `onLocaleChange`를 생략한다. [전체 헤더 계약](../components/naeil-header.md)을 참조한다.
+실제 naeil.dev 브랜드 헤더를 이어받는 앱은 선택적 React 전용 `@naeil/ui/naeil-header`의 `NaeilHeader`를 사용하고, 소유 서비스 푸터는 `@naeil/ui/naeil-footer`의 `NaeilFooter`로 구성한다. 전체 프로젝트 메뉴·헤더 번역·테마/선택적 언어 컨트롤·toolbar·반응형 스타일과 canonical 푸터 목적지를 소비 앱에 다시 복사하지 않는다. 소비 앱은 기존 theme provider, 라우팅·저장 guard와 현재 언어를 연결한다. `authSlot`에는 같은 모듈의 `NaeilHeaderAccountControl`을 두고 실제 세션 상태·busy·guarded logout 콜백을 전달한다. pending 상태와 요청 잠금은 헤더 위에서 소유해 데스크톱/모바일 슬롯이 공유한다. 언어 변경을 지원하지 않으면 `onLocaleChange`를 생략한다. [전체 헤더 계약](../components/naeil-header.md)과 [푸터 계약](../components/naeil-footer.md)을 참조한다.
 
 2026-10-16 승인한 기본 프레임은 최대 1600px(여백 포함), 좌우 `clamp(16px, 2.4vw, 40px)`다. 브랜드 헤더·범용 Navigation·SiteFooter·본문 `.ui-app-frame`이 `--ui-width-frame`, `--ui-frame-gutter`를 함께 사용한다. 브랜드 헤더의 고정 높이는 65px이므로 main·sticky 영역과 초점/anchor 이동에 `calc(var(--ui-navigation-height) + 1px)`만큼 여유를 둔다. 다섯 장식 이미지는 공식 `https://naeil.dev/images/*.png` URL을 참조하므로 네트워크가 필요하다. 이미지 바이트는 npm에 포함하지 않으며 재배포 출처·권리 미해결 사항은 [제3자 고지](../../THIRD_PARTY_NOTICES.md)에 유지한다.
 
@@ -120,6 +120,7 @@ import { Navigation, SiteFooter } from "@naeil/ui/ui";
 
 - 주요 경로를 같은 조건에서 비교한다. 메뉴 좌표와 여백, 제목·행동의 정렬을 확인하고 의도적인 차이는 이유를 남긴다.
 - 제품이 지원하는 언어, 긴 이름, 적은/많은 데이터, 영향을 받는 로딩·오류 상태를 포함한다. 공유 컴포넌트 예시는 기존 한글·영문·일문 기준을 유지한다.
+- 인증 전·후, 계정 메뉴, 로그아웃 busy·취소·실패·재시도를 확인한다. pending 중 모바일 메뉴 재열기나 화면 폭 변경으로 중복 요청이 발생하지 않아야 한다. 익명 화면만으로 인증된 헤더의 일치를 주장하지 않는다.
 - 페이지 넘침과 함께 표 내부 잘림·줄바꿈·조작 영역을 확인한다. 내부 스크롤 자체를 페이지 넘침과 혼동하지 않는다.
 - 기능 검사, 공통 기준 준수, 실제 화면 구성을 별도로 기록한다. 기존 대비·중첩 조작·터치 크기 문제는 현재 증거가 생기기 전까지 미해결로 남긴다.
 
@@ -156,7 +157,7 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 ## 개별 컴포넌트 안내
 
-[컴포넌트 사용 안내](../components/README.md)는 13개 primitive와 Navigation·SiteFooter·전체 NaeilHeader의 실제 wrapper API·기본값, 키보드, 상태, 레이블·오류 연결, 재정의 책임을 설명한다. 현재 로컬 Storybook은 UI 15개와 Brand 2개, 총 17개 Docs를 제공한다. 각 `Docs`·`Usage`와 `Brand / NaeilHeader / JapaneseApplication`에서 안내와 실행 예시를 확인한다. 이는 새 hosted Docs 배포 완료를 뜻하지 않는다. [지원 범위와 수동 점검](public-ui-support.md)은 자동 검사와 실제 보조 기술·운영체제 검증의 차이를 기록한다.
+[컴포넌트 사용 안내](../components/README.md)는 13개 primitive와 Navigation·SiteFooter·NaeilFooter·전체 NaeilHeader 및 계정 컨트롤의 실제 API·기본값, 키보드, 상태, 레이블·오류 연결, 재정의 책임을 설명한다. Storybook 소스는 UI 15개와 Brand 2개, 총 17개 Docs를 제공한다. canonical 푸터 전체/축약형과 계정 상태는 기존 NaeilHeader/SiteFooter stories에 포함된다. 각 `Docs`·`Usage`와 `Brand / NaeilHeader / JapaneseApplication, ReferenceFull, ReferenceCompact, AccountStates`에서 안내와 실행 예시를 확인한다. 이는 새 hosted Docs 배포 완료를 뜻하지 않는다. [지원 범위와 수동 점검](public-ui-support.md)은 자동 검사와 실제 보조 기술·운영체제 검증의 차이를 기록한다.
 
 ## 확인 방법
 
@@ -169,7 +170,7 @@ Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 �
 
 ## 0.3 package boundary
 
-The heading retains the original 0.3 migration anchor; the allowlist below reflects the 0.6.0 package boundary. `/ui` is the React core. The opt-in `/naeil-header` is the canonical complete branded header, also React-only. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use `/ui`, `/utils` and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
+The heading retains the original 0.3 migration anchor; the boundary below includes published and registry-verified 0.7.1. `/ui` is the React core. Opt-in `/naeil-header` provides the canonical complete branded header and `NaeilHeaderAccountControl`; `/naeil-footer` provides canonical full/compact footers. Both are React-only. `/release` exports server-safe `uiRelease` metadata, without application artifact or environment data. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use the dedicated entries and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
 
 Next.js `^15 || ^16` and next-intl `^4` are optional peers. Install both when using root, Nav, Footer or `i18n/routing`. This is an existing compatibility contract, not a claim that every peer combination has browser validation; the clean Next fixture checks Next 16.1.7. React/ReactDOM `^19` come from the host. Tailwind 4 is the documented styling pipeline. Explicit `className`, Radix props, Toaster options and theme-provider props remain consumer overrides.
 
@@ -206,7 +207,7 @@ i18n/config
 i18n/routing
 ```
 
-`components/index` has the same framework requirements as root. `/utils` and `lib/utils` remain aliases for `cn`. `i18n/config` preserves the compatibility locale names; products may instead own their locale list and routing. There are no open-ended component/lib/i18n export patterns. Root, `/ui`, `/utils`, `/theme.css`, `/globals.css` and `/components.css` remain public; `/naeil-header` is the explicit new opt-in entry. It is not an open-ended component export pattern.
+`components/index` has the same framework requirements as root. `/utils` and `lib/utils` remain aliases for `cn`. `i18n/config` preserves the compatibility locale names; products may instead own their locale list and routing. There are no open-ended component/lib/i18n export patterns. Root, `/ui`, `/utils`, `/theme.css`, `/globals.css` and `/components.css` remain public. `/naeil-header`, `/naeil-footer` and `/release` are explicit dedicated entries; they do not create open-ended component export patterns.
 
 Every excluded source path stays in this repository for the brand/example website. Move any local-source consumer use into the consumer application before upgrading:
 
@@ -214,7 +215,7 @@ Every excluded source path stays in this repository for the brand/example websit
 | --- | --- |
 | `components/nav-wrapper`, `components/nav-server-wrapper` | Use `/naeil-header` for the canonical whole header, or preserve Nav compatibility through your own adapter; your app loads users/sessions. |
 | `components/footer-wrapper` | Compose preserved Footer with your app's Link. |
-| `components/auth-slot` | App-owned account UI, logout action and avatar policy; pass it through Nav slots. |
+| `components/auth-slot` | The app owns session state and guarded logout. Owned-service headers render `NaeilHeaderAccountControl` from `/naeil-header` in `authSlot`; legacy custom Nav slots remain compatible. |
 | `components/hero-scene`, `components/hero-section`, `components/paraglider-cursor` | Website scene/cursor source, assets and Three dependencies stay website-owned. |
 | `components/project-layout`, `components/workflow-diagram`, `components/accent-picker` | Website showcase/data/theme editing composition; use shared primitives in product-owned compositions. |
 | `components/blog/MarkdownRenderer`, `lib/blog` | Application-owned content rendering, filesystem and MDX/remark pipeline. |

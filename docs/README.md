@@ -1,9 +1,12 @@
 # Documentation
 
+**0.7.1 published and registry-verified — 2026-10-23.** Current registry baseline: 0.7.1. The first published 0.7.x release includes canonical `NaeilFooter`, `NaeilHeaderAccountControl` and `/release` identity; 0.7.0 remains unpublished. Fresh React/Next registry consumers matched all 139 frozen files and passed their checks. Hosted Docs and standing activation require separate receipts. [Release policy and identities](package-release.md#publication-and-deployment) distinguish the frozen package source/tag from maintained guides, hosted Docs and service rollout receipts.
+
 ## Maintained public guides
 
 - [Design authority](../DESIGN.md): approved visual rules and shared versus site scope.
-- [13 component usage guides](components/README.md): exact wrapper APIs, states, keyboard and consumer responsibilities; matching Storybook Docs and runnable Usage examples.
+- [Component usage guides](components/README.md): 13 primitives, generic navigation/footer and canonical service compositions, with exact APIs, states, keyboard and consumer responsibilities.
+- [Application layout](components/application-layout.md), [NaeilHeader and account control](components/naeil-header.md), [NaeilFooter](components/naeil-footer.md): owned-service composition, guards and the shared frame.
 - [Current support and manual acceptance](design/public-ui-support.md), [Stage 3 verification](design/public-ui-stage3-verification.md), [Stage 4 extension verification](design/public-ui-stage4-verification.md) and [demand decision](design/component-demand.md) and [preview artifact instructions](package-release.md#storybook-preview-artifact).
 - [UI consumer and migration guide](design/v2-migration.md): imports, styles, fonts, density, layout, compatibility.
 - [0.4.0 publication and brand 1.1.1](design/naeil-brand-0.4.0-publication.md): exact source/archive, npm, GitHub Release, hosted Docs and production results.
@@ -11,7 +14,7 @@
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.
 - [Contributing](../CONTRIBUTING.md), [security](../SECURITY.md), [licenses and provenance](../THIRD_PARTY_NOTICES.md).
 
-[Hosted Docs](https://naeil-dev.github.io/naeil-ui/) include the 13 component families and Brand / Logo following the [2026-10-11 Pages run](https://github.com/naeil-dev/naeil-ui/actions/runs/38114879574). npm 0.4.0 was published on 2026-10-11; the [0.4.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) retains registry/consumer, hosted Docs and production receipts, the npm archive and [independent brand kit](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip). The approved brand is live on [naeil.dev](https://naeil.dev/). The downloadable Storybook artifact can also be served locally. Native/manual acceptance and real-product adoption remain open.
+Current Storybook source defines 17 Docs pages: 15 UI families plus Brand / Logo and NaeilHeader. Canonical footer full/compact and account-state examples live in the existing NaeilHeader/SiteFooter stories. [Hosted Docs](https://naeil-dev.github.io/naeil-ui/) have recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/download/v0.5.0/hosted-docs-verification.json); current source is not evidence of a later deployment. The [0.4.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) retains its registry/consumer, hosted Docs and production receipts and [independent brand kit](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip). The approved brand is live on [naeil.dev](https://naeil.dev/). The downloadable Storybook artifact can also be served locally. Native/manual acceptance retains its documented limits; [service adoption and rollout evidence](rollout/inventory.md) has a separate scope.
 
 Guides bundled in each immutable npm archive are its release-preparation snapshot. Maintained GitHub guides record subsequent publication status; source documentation updates do not alter the archive, tag or release asset. Hosted Docs reflect their separately deployed source, recorded in the Pages run. The [0.3.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) and earlier verification reports remain dated history.
 

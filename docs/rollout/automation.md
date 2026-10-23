@@ -1,5 +1,11 @@
 # Shared UI rollout automation
 
+## Current follow-up — 2026-10-23
+
+The owner now requires standing rollout for **naeil.dev, Estimate and Jev**, along with exact frozen0.7.1 publication and documentation updates. The current implementation is the [trusted local pull worker](standing-rollout.md), with [selected live routes](standing-services.json), existing Git/Vercel observation, current shared-session native adapters and private authenticated verification. Home/Baby remain excluded. The following disabled Actions/prebuilt preparation is historical, not the current operational design or an instruction to request authorization again. See the current runbook for activation/verification status; code presence alone does not establish deployment.
+
+## Historical Actions and prebuilt preparation
+
 This implementation prepares a release-to-production pipeline. **Standing rollout is disabled** in `policy.json`, repository enablement is not set here, and both concrete Naeil/Estimate adapters in `adapters.json` are explicitly disabled with `prepared-platform-blocked` status. No workflow was dispatched, no package was published, and no consumer was pushed, deployed, activated or scheduled by this work. A green unit test or prepared workflow is not an operational rollout result.
 
 The prepared `estimate-standalone-v1` mapping runs the bounded archive updater, then app-owned real checks/build/isolated E2E and immutable packaging on dedicated Node24.21.0. It has disabled stage/activate/rollback/recover code with fresh private preservation and ownership checks. No native operation has been executed. The real predecessor, private action-specific configurations/approvals and runner paths are intentionally absent; the mapping stays disabled.
@@ -10,7 +16,7 @@ The current inventory in [services.json](services.json) remains authoritative ab
 
 ## Frozen inputs
 
-The committed [release.json](release.json) binds unpublished UI source `3b13e95`, archive `f15f9a…` and independent reference `6c8511…`; both frozen inputs are included under `frozen/`. Its GitHub Release asset URLs are intended future locations and have not been published. [release.example.json](release.example.json) remains an intentionally invalid schema example. Version 0.7.0 is a minor migration requiring review.
+At this historical checkpoint, UI0.7.0 used source `3b13e95`, archive `f15f9a…` and reference `6c8511…`. The maintained [release.json](release.json) now binds frozen0.7.1 source `32108fd`, archive `ecd656c…` and chrome reference `85bb399…`; frozen files remain preserved. Publication receipts, rather than asset URL strings, establish availability. [release.example.json](release.example.json) remains an intentionally invalid schema example.
 
 Required release inputs are an exact stable UI version, previous exact version, full reviewed source SHA, HTTPS version-scoped archive URL, SHA-256 of the actual archive, and an independently frozen browser reference with its own SHA-256 and contract version. The reference JSON must have `frozen:true` and match the manifest’s `archive.sha256`, reviewed `sourceRevision`, exact UI version and contract version; a valid digest for an unrelated reference is rejected. `archive.path` and `contract.path` resolve relative to the config directory; runner-local download paths do not change release identity. Never use `latest`, ranges, a rebuilt tarball with unreviewed bytes, or a consumer's current screenshots as its own expected reference. The reference must be captured from the frozen reviewed package/Storybook and checked against the independent contract.
 

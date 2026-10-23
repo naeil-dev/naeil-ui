@@ -1,13 +1,13 @@
 # NaeilFooter — canonical service footer
 
-New in the **0.7.0 candidate** (not published). React-only opt-in entry:
+Included in **published and registry-verified 0.7.1**, from the unpublished 0.7.0 candidate. Install exact `@naeil/ui@0.7.1` from npm; hosted Docs and service activation have separate receipts. See [release identities and publication status](../package-release.md#publication-and-deployment). React-only opt-in entry:
 
 ```tsx
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
 <NaeilFooter locale="ja" variant="compact" Link={GuardedLink} />
 ```
 
-Use with [NaeilHeader](naeil-header.md) on owned user-facing services. Both `full` and `compact` contain the .naeil home link, Projects, Blog and the official naeil GitHub link. Full also displays the existing tagline. Compact reduces spacing/description, not the destinations. No social account or legal claim is invented. The website's former generic X homepage icon is not a canonical account link.
+Use with [NaeilHeader and its account control](naeil-header.md) on owned user-facing services. Both `full` and `compact` contain the .naeil home link, Projects, Blog and the official naeil GitHub link. Full also displays the existing tagline. Compact reduces spacing/description, not the destinations. No social account or legal claim is invented. The website's former generic X homepage icon is not a canonical account link.
 
 `locale` selects `en`, `ko`, or `ja`. `resolveHref(path)` defaults to official localized naeil.dev destinations; a local website router may resolve unlocalized paths itself. `Link` handles **every** canonical anchor, including absolute GitHub URLs. It must forward href, target, rel, onClick, className and children. GitHub opens a new tab with noopener/noreferrer. The shared implementation does not itself trigger navigation or await saves.
 

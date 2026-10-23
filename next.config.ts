@@ -3,17 +3,20 @@ import createNextIntlPlugin from "next-intl/plugin";
 import createMDX from "@next/mdx";
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { resolveSiteSourceRevision } from "./scripts/site-build-identity";
 
 // Public allowlist only. These constants are compiled into the immutable build.
 const artifactId = process.env.NAEIL_APP_ARTIFACT_ID || process.env.VERCEL_DEPLOYMENT_ID || randomUUID();
-const sourceRevision = process.env.VERCEL_GIT_COMMIT_SHA || (() => {
+const sourceRevision = resolveSiteSourceRevision(process.env, () => {
   try {
     return execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim()
       ? "development" : execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   } catch { return "development"; }
-})();
+});
 if (!/^[A-Za-z0-9._-]{1,100}$/.test(artifactId)) throw new Error("Invalid public artifact identifier");
 if (sourceRevision !== "development" && !/^[a-f0-9]{40}$/.test(sourceRevision)) throw new Error("Invalid source revision");
+// These are public provenance fields only; never log environment contents.
+console.info("naeil-build-source", { sourceRevision, explicit: Boolean(process.env.NAEIL_SOURCE_REVISION), gitDeployment: Boolean(process.env.VERCEL_GIT_COMMIT_SHA) });
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const withMDX = createMDX({

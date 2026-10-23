@@ -42,6 +42,7 @@ jobs:
         run: node scripts/ci/check-playwright-image.mjs chromium webkit
       - run: pnpm test
       - run: pnpm test:rollout
+      - run: python3 -B scripts/rollout/jev-native.test.py
       - run: node --test scripts/account-render.test.mjs
       - run: node --test scripts/site-auth-slot.test.mjs
       - run: node scripts/build-ui-release.mjs --check

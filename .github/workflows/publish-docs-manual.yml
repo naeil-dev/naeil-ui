@@ -24,10 +24,18 @@ jobs:
     if: inputs.confirmation == 'PUBLISH_REVIEWED_DOCS'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Match verify.yml and the locked Playwright version; browsers and OS deps
+    # are preinstalled so publication does not depend on runner apt mirrors.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --ipc=host
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.reviewed_sha }}
+      # Firefox checks HOME ownership and Git checks repository ownership.
+      - name: Match mounted directory ownership to the runner user
+        run: chown "$(id -u):$(id -g)" "$HOME" "$GITHUB_WORKSPACE"
       - name: Require the exact reviewed commit
         env:
           REVIEWED_SHA: ${{ inputs.reviewed_sha }}
@@ -38,8 +46,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Verify preinstalled Playwright browsers
+        run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm build:storybook
-      - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:browser
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,6 +1,6 @@
 # Component usage guides
 
-These guides include the unpublished **@naeil/ui 0.7.0 candidate**; the last published release is 0.6.0. release identities and publication evidence are recorded in the [release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 17 Docs pages (15 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) was last verified for [0.5.0 on 2026-10-15](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment is recorded separately. Select chooses a value; DropdownMenu chooses an action.
+These maintained guides cover **published and registry-verified @naeil/ui 0.7.1**: canonical footer and release identity from the unpublished 0.7.0 candidate, plus shared account presentation. The current published baseline is 0.7.1; see [release policy and identities](../package-release.md#publication-and-deployment). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 17 Docs pages (15 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) has recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment requires its own receipt. Select chooses a value; DropdownMenu chooses an action.
 
 Start application layouts with the [shared navigation/footer selection and frame guide](application-layout.md). It includes a starter, the 1600px frame contract and instructions to place in consumer repositories so agents reuse the shared implementation.
 
@@ -22,8 +22,8 @@ Start application layouts with the [shared navigation/footer selection and frame
 | Navigation | [Navigation](./navigation.md) | UI / Navigation / Usage |
 | SiteFooter | [SiteFooter](./navigation.md) | UI / SiteFooter / Usage |
 | NaeilFooter | [NaeilFooter](./naeil-footer.md) | Brand / NaeilHeader / ReferenceFull, ReferenceCompact |
-| NaeilHeader | [NaeilHeader](./naeil-header.md) | Brand / NaeilHeader / Usage, JapaneseApplication |
+| NaeilHeader and account control | [NaeilHeader](./naeil-header.md) | Brand / NaeilHeader / Usage, JapaneseApplication, AccountStates |
 
 [Field, native radio, Select and action composition](./composition.md) explains consumer state and semantic choices. [Demand decision](../design/component-demand.md) records why these two families were added.
 
-Use opt-in `@naeil/ui/naeil-header` for the actual naeil.dev branded header, with official artwork URL references and consumer-owned routing, theme provider and authentication. Use generic `Navigation` from `/ui` for different product menus. [Navigation / SiteFooter](navigation.md) also documents the compatibility adapters.
+Use opt-in `@naeil/ui/naeil-header` for the actual naeil.dev branded header and its `NaeilHeaderAccountControl` in `authSlot`, paired with `@naeil/ui/naeil-footer` on owned services. Consumers supply routing/save guards, theme providers and authentication state/actions; official artwork remains URL-referenced. Canonical footer and account examples are part of existing stories, without additional Docs families. Use generic `Navigation` and `SiteFooter` from `/ui` for different products. [Navigation / SiteFooter](navigation.md) also documents the compatibility adapters.
