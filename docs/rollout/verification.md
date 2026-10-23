@@ -1,4 +1,10 @@
-# Shared UI rollout verification — current account correction 2026-10-17
+# Shared UI rollout verification
+
+## Current follow-up — 2026-10-23
+
+The original operations closeout verified shared Google/GitHub login/logout, central403 enforcement, Estimate save/restart persistence, private source recovery and DNS/callback inventory. Those are separate from standing release acceptance. Current work adds exact0.7.1 publication and the [three-service standing pipeline](standing-rollout.md); Home Console/Baby are excluded. Production checks use the [current concrete route snapshot](standing-services.json) and private renewing sessions. The dated evidence below is preserved, with its original scope and limitations, and does not by itself certify the new worker.
+
+## Account correction — 2026-10-17
 
 UI0.7.1 is deployed to the selected naeil.dev, Estimate and Jev services, including canonical account controls. Current evidence is in the [account correction outcome](account-correction-2026-10-17.md) and [receipt](evidence/account-correction-2026-10-17/summary.json):380 CI browser passes/4 expected skips,12 isolated authenticated presentation comparisons and56 anonymous production conditions. Standing rollout and protected production sessions remain unverified. The0.7.0 outcome below is historical.
 

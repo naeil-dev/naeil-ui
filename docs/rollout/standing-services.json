@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "scope": "selected-three-service-standing-ui",
+  "services": [
+    {
+      "id": "naeil",
+      "appId": "naeil",
+      "origin": "https://naeil.dev",
+      "routes": [
+        {
+          "path": "/ko",
+          "locale": "ko",
+          "policy": "shared",
+          "renderState": {
+            "access": "public"
+          }
+        },
+        {
+          "path": "/ko/login",
+          "locale": "ko",
+          "policy": "shared",
+          "renderState": {
+            "access": "public"
+          }
+        },
+        {
+          "path": "/ko",
+          "locale": "ko",
+          "policy": "shared",
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-naeil-header]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/ja",
+          "locale": "ja",
+          "policy": "shared",
+          "renderState": {
+            "access": "public"
+          }
+        },
+        {
+          "path": "/ja/login",
+          "locale": "ja",
+          "policy": "shared",
+          "renderState": {
+            "access": "public"
+          }
+        },
+        {
+          "path": "/ja",
+          "locale": "ja",
+          "policy": "shared",
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-naeil-header]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/en",
+          "locale": "en",
+          "policy": "shared",
+          "renderState": {
+            "access": "public"
+          },
+          "expectedPath": "/"
+        },
+        {
+          "path": "/en/login",
+          "locale": "en",
+          "policy": "shared",
+          "renderState": {
+            "access": "public"
+          },
+          "expectedPath": "/login"
+        },
+        {
+          "path": "/en",
+          "locale": "en",
+          "policy": "shared",
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-naeil-header]",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "state": "authenticated",
+          "expectedPath": "/"
+        }
+      ]
+    },
+    {
+      "id": "estimate",
+      "appId": "abestimate",
+      "origin": "https://abestimate.naeil.dev",
+      "routes": [
+        {
+          "path": "/estimates",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".estimates-list",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/calendar",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-master-calendar]",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/compare",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".compare-view",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/settings",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": "[data-settings-view]",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/calendar-preview",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".calendar-preview",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/calendar-preview/estimates",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".preview-project-list",
+            "hidden": [
+              ".login-form"
+            ]
+          },
+          "state": "authenticated"
+        }
+      ],
+      "anonymousBoundaries": [
+        {
+          "path": "/estimates",
+          "status": 307,
+          "centralLogin": true
+        },
+        {
+          "path": "/login",
+          "status": 307,
+          "centralLogin": true
+        }
+      ]
+    },
+    {
+      "id": "jev",
+      "appId": "jev",
+      "origin": "https://jev.naeil.dev",
+      "routes": [
+        {
+          "path": "/?lang=ko",
+          "locale": "ko",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".main-content .input-section",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/?lang=ja",
+          "locale": "ja",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".main-content .input-section",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "state": "authenticated"
+        },
+        {
+          "path": "/?lang=en",
+          "locale": "en",
+          "policy": "canonical",
+          "renderState": {
+            "access": "protected",
+            "visible": ".main-content .input-section",
+            "hidden": [
+              "input[type=password]"
+            ]
+          },
+          "state": "authenticated"
+        }
+      ],
+      "anonymousBoundaries": [
+        {
+          "path": "/",
+          "status": 307,
+          "centralLogin": true
+        },
+        {
+          "path": "/login",
+          "status": 307,
+          "centralLogin": true
+        }
+      ]
+    }
+  ],
+  "excluded": [
+    "home",
+    "baby"
+  ],
+  "coverage": "Concrete representative production routes and all supported account locales; full product routes and mutation/save/stream guards remain isolated consumer test gates. Parameterized business records are not standing browser fixtures."
+}

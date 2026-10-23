@@ -141,7 +141,19 @@ export async function checkMenu(page, locale, theme, chrome = {}) {
   if (mobile) await dismiss();
 }
 
-export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir }) {
+/** The context provider is trusted local code, never loaded from a release.
+ * Public routes deliberately bypass it and remain independent anonymous checks. */
+export async function createVerificationContext({ browser, route, origin, viewport, colorScheme, contextFactory }) {
+  assertRouteConfig(route);
+  const contextOptions = { viewport, colorScheme };
+  if (route.renderState.access === 'protected') {
+    assert.equal(typeof contextFactory, 'function', 'Protected verification requires an authenticated context provider');
+    return contextFactory({ browser, route, origin, contextOptions });
+  }
+  return browser.newContext(contextOptions);
+}
+
+export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true }) {
   const { assertReference, verifyIdentity } = await import('./rollout/rollout.mjs');
   const referenceBytes = readFileSync(referencePath);
   const reference = assertReference(release, referenceBytes);
@@ -158,7 +170,7 @@ export async function verifyProduction({ release, origin, identity, routes, refe
       assert(!route.path.includes('*'), `Concrete route specimen required: ${route.path}`);
       const cases = [];
       for (const width of reference.contract.viewports) for (const theme of reference.contract.themes) {
-        const context = await browser.newContext({ viewport: { width, height: 900 }, colorScheme: theme });
+        const context = await createVerificationContext({ browser, route, origin, viewport: { width, height: 900 }, colorScheme: theme, contextFactory });
         const page = await context.newPage();
         try {
           await context.addInitScript(value => { localStorage.setItem('theme', value); localStorage.setItem('naeil-theme', value); }, theme);
@@ -178,10 +190,14 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, locale, origin, reference.contract);
           await checkMenu(page, locale, theme, route.chrome);
+          if (checkAccount) await checkAccount({ page, route, locale, width, theme });
           // Capture only shared chrome; never business/family content.
           const name = `${results.length}-${width}-${theme}`;
-          await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`) });
-          await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
+          if (screenshots) {
+            const mask = [page.locator('[data-naeil-account-menu]'), page.locator('[data-naeil-account-trigger]')];
+            await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`), mask });
+            await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
+          }
           assertRouteDestination(page.url(), route, origin);
           await assertRouteState(page, route);
           cases.push({ width, theme, locale, variant: actual.footerVariant, render: actual, passed: true });

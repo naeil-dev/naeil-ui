@@ -1,0 +1,93 @@
+import assert from 'node:assert/strict';
+import { constants } from 'node:fs';
+import { open, lstat, realpath, mkdir, rename, rmdir } from 'node:fs/promises';
+import { dirname, isAbsolute, resolve } from 'node:path';
+import { randomUUID } from 'node:crypto';
+
+export async function assertPrivateDirectory(path) {
+  assert(isAbsolute(path) && resolve(path) === path && await realpath(path) === path, 'Canonical private directory required');
+  const stat = await lstat(path);
+  assert(stat.isDirectory() && stat.uid === process.getuid() && (stat.mode & 0o777) === 0o700, 'Owner-only private0700 directory required');
+}
+
+export async function readPrivateJson(path) {
+  assert(isAbsolute(path) && resolve(path) === path && await realpath(path) === path, 'Canonical private file required');
+  await assertPrivateDirectory(dirname(path));
+  const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const stat = await file.stat();
+    assert(stat.isFile() && stat.uid === process.getuid() && (stat.mode & 0o777) === 0o600 && stat.size <= 8 * 1024 * 1024, 'Owner-only bounded private0600 file required');
+    try { return JSON.parse(await file.readFile('utf8')); } catch { throw new Error('Private JSON is invalid'); }
+  } finally { await file.close(); }
+}
+
+export async function writePrivateJson(path, value) {
+  await assertPrivateDirectory(dirname(path));
+  const temporary = `${path}.${randomUUID()}.tmp`;
+  const file = await open(temporary, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+  try { await file.writeFile(JSON.stringify(value) + '\n'); await file.sync(); } finally { await file.close(); }
+  await rename(temporary, path);
+  const directory = await open(dirname(path), constants.O_RDONLY);
+  try { await directory.sync(); } finally { await directory.close(); }
+}
+
+function supabaseOrigin(url) {
+  const parsed = new URL(url);
+  assert(parsed.protocol === 'https:' && /^[a-z0-9]+\.supabase\.co$/.test(parsed.hostname) && parsed.origin === url && !parsed.username && !parsed.password, 'Exact hosted Supabase origin required');
+  return parsed;
+}
+
+function assertSession(session, userId, now, minimumValidityMs) {
+  assert(session && typeof session.access_token === 'string' && session.access_token.length > 0 && typeof session.refresh_token === 'string' && session.refresh_token.length > 0, 'Verification session missing');
+  assert.equal(session.user?.id, userId, 'Verification account mismatch');
+  assert(Number.isFinite(session.expires_at) && session.expires_at * 1000 > now + minimumValidityMs, 'Verification session expiry too near');
+}
+
+/** A refresh is a credential rotation. An interrupted/ambiguous rotation leaves
+ * the lock for explicit reconciliation, never a blind automatic token replay. */
+export async function renewVerificationSession(config, { fetchImpl = fetch, now = Date.now(), minimumValidityMs = 25 * 60_000 } = {}) {
+  supabaseOrigin(config.supabaseUrl);
+  assert(Number.isSafeInteger(minimumValidityMs) && minimumValidityMs >= 5 * 60_000, 'Bounded verification session lifetime required');
+  assert(typeof config.anonKey === 'string' && config.anonKey && typeof config.userId === 'string' && config.userId, 'Pinned verification account/config required');
+  await readPrivateJson(config.stateFile);
+  const lock = `${config.stateFile}.refresh-lock`;
+  try { await mkdir(lock, { mode: 0o700 }); } catch { throw new Error('Verification refresh pending/locked; reconciliation required'); }
+  // Read only after obtaining the lock; another completed refresh may have
+  // rotated the token between the initial permission check and lock creation.
+  const prior = await readPrivateJson(config.stateFile);
+  assert.equal(prior.user?.id, config.userId, 'Verification account mismatch');
+  assert(typeof prior.refresh_token === 'string' && prior.refresh_token, 'Verification refresh session missing');
+  // No secret is ever written into the operation marker or error message.
+  await writePrivateJson(`${lock}/pending.json`, { startedAt: new Date(now).toISOString(), phase: 'refresh-requested' });
+  let response;
+  try {
+    response = await fetchImpl(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST', redirect: 'error', signal: AbortSignal.timeout(20_000),
+      headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: prior.refresh_token }),
+    });
+  } catch { throw new Error('Verification session refresh uncertain; reconciliation required'); }
+  assert(response.ok, 'Verification session refresh rejected; reconciliation required');
+  let next;
+  try { next = await response.json(); } catch { throw new Error('Verification session response invalid'); }
+  assertSession(next, config.userId, now, minimumValidityMs);
+  await writePrivateJson(config.stateFile, next);
+  // Retain the consumed marker as an audit record, without credential data.
+  await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
+  await rmdir(lock);
+  return next;
+}
+
+/** Supabase SSR uses base64url JSON split into 3180-character cookie chunks.
+ * Only these shared-session cookies are exposed to isolated browser contexts. */
+export function sessionCookies(session, url) {
+  const project = supabaseOrigin(url).hostname.split('.')[0];
+  const name = `sb-${project}-auth-token`;
+  const value = `base64-${Buffer.from(JSON.stringify(session)).toString('base64url')}`;
+  const chunks = value.match(/.{1,3180}/g);
+  return chunks.map((chunk, index) => ({
+    name: chunks.length === 1 ? name : `${name}.${index}`, value: chunk,
+    domain: '.naeil.dev', path: '/', secure: true, httpOnly: false,
+    sameSite: 'Lax', expires: session.expires_at,
+  }));
+}

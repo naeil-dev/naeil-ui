@@ -2,14 +2,35 @@ import assert from 'node:assert/strict';
 
 // Capture the actual open account menu. The caller owns synthetic authentication,
 // viewport, locale, theme, navigation opening and font readiness.
-export async function captureAccountRender(page) {
+export async function captureAccountRender(page, { animationTimeoutMs = 2000 } = {}) {
+  assert(Number.isSafeInteger(animationTimeoutMs) && animationTimeoutMs > 0 && animationTimeoutMs <= 10000, 'Bounded account animation timeout required');
   const trigger = page.locator('[data-naeil-account-trigger]:visible');
   const menu = page.locator('[data-naeil-account-menu]:visible');
   await trigger.waitFor();
   await menu.waitFor();
   await page.mouse.move(0, 0);
   await menu.getByRole('menuitem').first().focus();
-  await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => {}))));
+  await page.evaluate(async timeoutMs => {
+    const shown = selector => [...document.querySelectorAll(selector)].find(element => element.getBoundingClientRect().width > 0);
+    const roots = [shown('[data-naeil-account-trigger]'), shown('[data-naeil-account-menu]')];
+    if (roots.some(element => !element)) throw Error('Missing account animation root');
+    let timer;
+    try {
+      await Promise.race([
+        (async () => {
+          for (;;) {
+            // Product illustrations/loaders do not control shared account
+            // measurements. Infinite decorative animations never settle.
+            const animations = [...new Set(roots.flatMap(element => element.getAnimations({ subtree: true })))].filter(animation => !['finished', 'idle'].includes(animation.playState) && Number.isFinite(animation.effect?.getComputedTiming().endTime));
+            if (!animations.length) return;
+            await Promise.all(animations.map(animation => animation.finished.catch(() => {})));
+            // Recheck after cancellation/replacement by a new transition.
+          }
+        })(),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(Error('Account animation settling exceeded bounded timeout')), timeoutMs); }),
+      ]);
+    } finally { clearTimeout(timer); }
+  }, animationTimeoutMs);
   return page.evaluate(() => {
     const shown = selector => [...document.querySelectorAll(selector)].find(e => e.getBoundingClientRect().width > 0);
     const measure = (element, fields) => {
