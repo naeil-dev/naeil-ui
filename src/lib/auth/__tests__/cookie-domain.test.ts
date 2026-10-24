@@ -6,8 +6,8 @@ describe("getCookieDomainFromHost", () => {
     expect(getCookieDomainFromHost("naeil.dev")).toBe(".naeil.dev");
   });
 
-  it("returns .naeil.dev for esg.naeil.dev", () => {
-    expect(getCookieDomainFromHost("esg.naeil.dev")).toBe(".naeil.dev");
+  it("returns .naeil.dev for jev.naeil.dev", () => {
+    expect(getCookieDomainFromHost("jev.naeil.dev")).toBe(".naeil.dev");
   });
 
   it("returns .naeil.dev for foo.bar.naeil.dev", () => {

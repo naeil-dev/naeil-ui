@@ -1,8 +1,6 @@
 const BASE = "https://naeil.dev";
 const ORIGINS = new Set([
   BASE,
-  "https://esg.naeil.dev",
-  "https://work.naeil.dev",
   "https://jev.naeil.dev",
   "https://abestimate.naeil.dev",
 ]);

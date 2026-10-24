@@ -14,7 +14,8 @@ describe("login return location", () => {
     "rejects auth loops and unsafe destinations %s", value => expect(loginDestination(value)).toBe("/"),
   );
   it("keeps deliberate exact-host compatibility and rejects invalid locales", () => {
-    expect(loginDestination("https://esg.naeil.dev/reports?y=2026#one")).toBe("https://esg.naeil.dev/reports?y=2026#one");
+    expect(loginDestination("https://jev.naeil.dev/reports?y=2026#one")).toBe("https://jev.naeil.dev/reports?y=2026#one");
+    expect(loginDestination("https://esg.naeil.dev/reports")).toBe("/");
     expect(authLocale("de")).toBe("en");
   });
 });

@@ -186,7 +186,7 @@ Owner explicitly authorized package publication, reviewed main integration and n
 - **M5-lite Storybook baseline**: local Storybook 10 설정, `Button`/`Card`/`Badge` stories, `pnpm run build:storybook` 검증
 - **인증 시스템 Phase 1 (A04-A09)**: Supabase Auth — @supabase/ssr 쿠키, PKCE, proxy.ts 미들웨어, /login, /auth/callback, logout
 - **인증 시스템 Phase 2 (A11-A16)**: Nav AuthSlot (동물아바타 해시), NavServerWrapper, 보호라우트
-- **SSO 통합**: 쿠키 domain .naeil.dev, esg.naeil.dev 연동
+- **SSO 통합**: 쿠키 domain .naeil.dev (esg/work/line은 2026-10-24 퇴역, 로그인 복귀 허용 목록에서 제거)
 - **리다이렉트 버그 수정**: Google 로그인 후 원래 페이지 복귀 (Jay 테스트 통과)
 - **네비/풋터 production 버그 수정**: Tailwind 클래스 정상 동작 확인
 
@@ -199,12 +199,12 @@ Owner explicitly authorized package publication, reviewed main integration and n
 - 프로젝트: dathsxdsaxooifnxjket.supabase.co
 - Providers: Google OAuth, GitHub OAuth
 - Site URL: https://naeil.dev
-- Redirect URLs: naeil.dev/auth/callback, esg.naeil.dev/auth/callback
+- Redirect URLs: naeil.dev/auth/callback (esg/work callback은 2026-10-23 제거)
 
 ## 디자인 결정
 - 동물 아바타: user ID 해시로 결정적 배정 (coral/fish/jellyfish/turtle/whale/diver)
 - Auth 위치: toolbarSlot 맨 오른쪽 [🌙] [EN] | [로그인/🐢]
-- 중앙 로그인: esg.naeil.dev → naeil.dev/login → OAuth → 쿠키(.naeil.dev) → 복귀
+- 중앙 로그인: 서비스(예: jev.naeil.dev) → naeil.dev/login → OAuth → 쿠키(.naeil.dev) → 복귀
 
 ## 참고
 - Phase 3~4 (리포트 동기화 + UI)는 SA 프로젝트 범위 (~/Projects/sustainability-analyzer/)
