@@ -2,18 +2,19 @@
   "schemaVersion": 1,
   "observedAt": "2026-10-16T09:59:17.483834+00:00",
   "scope": {
-    "dnsComplete": false,
-    "dnsInventoryStatus": "unconfirmed",
+    "dnsComplete": true,
+    "dnsInventoryStatus": "confirmed-2026-10-25",
     "dnsScopeException": null,
     "discoverySources": [
       "User-named origins",
       "Local cloudflared hostname/service rows",
       "Owned source route files",
       "Public unauthenticated HTML/status and static asset hashes",
-      "Allowlisted listener, launch agent, image and compose metadata"
+      "Allowlisted listener, launch agent, image and compose metadata",
+      "Cloudflare zone DNS records and remote tunnel configuration read through the owner dashboard session (2026-10-23, 2026-10-25)"
     ],
     "limitations": [
-      "Remote DNS/Cloudflare control-plane inventory unconfirmed; local ingress is not authoritative remote DNS inventory.",
+      "Zone naeil.dev DNS was read in full on 2026-10-25: apex A record (Vercel) plus abestimate, baby and jev tunnel CNAMEs; no wildcard or delegated NS. baby and home remain out of scope.",
       "No credentials, environment values, business/API datasets, family records or application logs were inspected.",
       "Current registry is a baseline with explicit unresolved states, not a rollout completion claim."
     ],
@@ -45,6 +46,18 @@
         ],
         "response": "Naeil Home\ub3c4 \uc81c\uc678\ud558\uace0 \uc77c\ub2e8 3\uac00\uc9c0\uc5d0 \ubc30\ud3ec\ud574\uc918.",
         "disposition": "Home excluded. One-time deployment authorized for naeil, estimate and jev only; standing automatic deployment not authorized."
+      },
+      {
+        "date": "2026-10-25",
+        "serviceIds": [
+          "line",
+          "esg",
+          "work",
+          "trip",
+          "digest"
+        ],
+        "response": "\uc548 \uc4f0\ub294 \uc11c\ube44\uc2a4\ub77c \uc815\ub9ac. \ud544\uc694\ud558\uba74 \ub098\uc911\uc5d0 \ub2e4\uc2dc \ucf2c.",
+        "disposition": "Retired. Public routes, DNS records and Access applications deleted on 2026-10-24/25; records moved to outOfScopeServices with their historical entries preserved."
       }
     ]
   },
@@ -1090,267 +1103,6 @@
       }
     },
     {
-      "id": "trip",
-      "name": "Trip",
-      "origin": "https://trip.naeil.dev",
-      "routes": [
-        {
-          "path": "/",
-          "policy": "third-party-access",
-          "locale": null,
-          "status": "unverified",
-          "exception": null
-        }
-      ],
-      "source": {
-        "candidatePath": "/Users/jaymini/projects/abeam-business-trip-agent",
-        "productionCorrelation": "unverified",
-        "revision": null
-      },
-      "deployment": {
-        "kind": "launchd-python",
-        "status": "access-gated-dormant",
-        "artifactId": null,
-        "loopbackOrigin": "http://127.0.0.1:8765",
-        "method": "Unverified; preserve dormant/disabled state.",
-        "adapterId": null
-      },
-      "ui": {
-        "version": null,
-        "adoption": "unknown",
-        "header": null,
-        "footer": null,
-        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
-        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
-      },
-      "status": "unresolved",
-      "blockers": [
-        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
-        "No exception approved; an unavailable or Access-gated route cannot count as rollout success.",
-        "Do not restart dormant trip runtime."
-      ],
-      "evidence": [
-        {
-          "kind": "local-ingress",
-          "reference": "~/.cloudflared/config.yml hostname/service rows only",
-          "detail": "2026-09-05 STATUS documents stopped service; no8765 listener observed. Access gate does not prove application health."
-        },
-        {
-          "kind": "public-status",
-          "reference": "https://trip.naeil.dev/",
-          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
-        }
-      ]
-    },
-    {
-      "id": "work",
-      "name": "Work",
-      "origin": "https://work.naeil.dev",
-      "routes": [
-        {
-          "path": "/",
-          "policy": "third-party-access",
-          "locale": null,
-          "status": "unverified",
-          "exception": null
-        }
-      ],
-      "source": {
-        "candidatePath": null,
-        "productionCorrelation": "unverified",
-        "revision": null
-      },
-      "deployment": {
-        "kind": "http-status",
-        "status": "access-gated",
-        "artifactId": null,
-        "loopbackOrigin": null,
-        "method": "Unverified; preserve dormant/disabled state.",
-        "adapterId": null
-      },
-      "ui": {
-        "version": null,
-        "adoption": "unknown",
-        "header": null,
-        "footer": null,
-        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
-        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
-      },
-      "status": "unresolved",
-      "blockers": [
-        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
-        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
-      ],
-      "evidence": [
-        {
-          "kind": "local-ingress",
-          "reference": "~/.cloudflared/config.yml hostname/service rows only",
-          "detail": "Local ingress says http_status:503; public origin redirects to Cloudflare Access; origin UI/source unverified."
-        },
-        {
-          "kind": "public-status",
-          "reference": "https://work.naeil.dev/",
-          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
-        }
-      ]
-    },
-    {
-      "id": "digest",
-      "name": "Digest",
-      "origin": "https://digest.naeil.dev",
-      "routes": [
-        {
-          "path": "/",
-          "policy": "unavailable-ui",
-          "locale": null,
-          "status": "unverified",
-          "exception": null
-        }
-      ],
-      "source": {
-        "candidatePath": null,
-        "productionCorrelation": "unverified",
-        "revision": null
-      },
-      "deployment": {
-        "kind": "unknown",
-        "status": "unavailable",
-        "artifactId": null,
-        "loopbackOrigin": "http://127.0.0.1:7200",
-        "method": "Unverified; preserve dormant/disabled state.",
-        "adapterId": null
-      },
-      "ui": {
-        "version": null,
-        "adoption": "unknown",
-        "header": null,
-        "footer": null,
-        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
-        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
-      },
-      "status": "unresolved",
-      "blockers": [
-        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
-        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
-      ],
-      "evidence": [
-        {
-          "kind": "local-ingress",
-          "reference": "~/.cloudflared/config.yml hostname/service rows only",
-          "detail": "Public HTTP502; local ingress localhost7200; source and UI routes unknown."
-        },
-        {
-          "kind": "public-status",
-          "reference": "https://digest.naeil.dev/",
-          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
-        }
-      ]
-    },
-    {
-      "id": "line",
-      "name": "Line",
-      "origin": "https://line.naeil.dev",
-      "routes": [
-        {
-          "path": "/",
-          "policy": "unavailable-ui",
-          "locale": null,
-          "status": "unverified",
-          "exception": null
-        }
-      ],
-      "source": {
-        "candidatePath": null,
-        "productionCorrelation": "unverified",
-        "revision": null
-      },
-      "deployment": {
-        "kind": "http-status",
-        "status": "unavailable",
-        "artifactId": null,
-        "loopbackOrigin": null,
-        "method": "Unverified; preserve dormant/disabled state.",
-        "adapterId": null
-      },
-      "ui": {
-        "version": null,
-        "adoption": "unknown",
-        "header": null,
-        "footer": null,
-        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
-        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
-      },
-      "status": "unresolved",
-      "blockers": [
-        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
-        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
-      ],
-      "evidence": [
-        {
-          "kind": "local-ingress",
-          "reference": "~/.cloudflared/config.yml hostname/service rows only",
-          "detail": "Public HTTP503; local ingress http_status:503; UI ownership/type unknown."
-        },
-        {
-          "kind": "public-status",
-          "reference": "https://line.naeil.dev/",
-          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
-        }
-      ]
-    },
-    {
-      "id": "esg",
-      "name": "Esg",
-      "origin": "https://esg.naeil.dev",
-      "routes": [
-        {
-          "path": "/",
-          "policy": "unavailable-ui",
-          "locale": null,
-          "status": "unverified",
-          "exception": null
-        }
-      ],
-      "source": {
-        "candidatePath": null,
-        "productionCorrelation": "unverified",
-        "revision": null
-      },
-      "deployment": {
-        "kind": "http-status",
-        "status": "unavailable",
-        "artifactId": null,
-        "loopbackOrigin": null,
-        "method": "Unverified; preserve dormant/disabled state.",
-        "adapterId": null
-      },
-      "ui": {
-        "version": null,
-        "adoption": "unknown",
-        "header": null,
-        "footer": null,
-        "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
-        "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
-      },
-      "status": "unresolved",
-      "blockers": [
-        "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
-        "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
-      ],
-      "evidence": [
-        {
-          "kind": "local-ingress",
-          "reference": "~/.cloudflared/config.yml hostname/service rows only",
-          "detail": "Public HTTP503; local ingress http_status:503; UI source unknown."
-        },
-        {
-          "kind": "public-status",
-          "reference": "https://esg.naeil.dev/",
-          "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
-        }
-      ]
-    },
-    {
       "id": "storybook",
       "name": "Naeil UI Storybook",
       "origin": "https://naeil-dev.github.io",
@@ -1962,6 +1714,337 @@
           "integrityVerification": "evidence/home-candidate-integrity.json",
           "conditions": 64
         }
+      }
+    },
+    {
+      "id": "trip",
+      "name": "Trip",
+      "origin": "https://trip.naeil.dev",
+      "status": "retired",
+      "decision": {
+        "date": "2026-10-25",
+        "source": "owner conversation",
+        "statement": "\uc548 \uc4f0\ub294 \uc11c\ube44\uc2a4\ub77c \uacf5\uac1c \uacbd\ub85c\ub97c \uc815\ub9ac. \ud544\uc694\ud558\uba74 \ub098\uc911\uc5d0 \ub2e4\uc2dc \ucf2c.",
+        "reason": "The owner confirmed the service is unused. Its Cloudflare tunnel route and DNS record were deleted, along with any Access application, so the hostname no longer resolves.",
+        "candidateDisposition": "Preserve local source and dormant runtime state; do not count this record as rollout progress.",
+        "productionChanged": true
+      },
+      "historicalRecord": {
+        "id": "trip",
+        "name": "Trip",
+        "origin": "https://trip.naeil.dev",
+        "routes": [
+          {
+            "path": "/",
+            "policy": "third-party-access",
+            "locale": null,
+            "status": "unverified",
+            "exception": null
+          }
+        ],
+        "source": {
+          "candidatePath": "/Users/jaymini/projects/abeam-business-trip-agent",
+          "productionCorrelation": "unverified",
+          "revision": null
+        },
+        "deployment": {
+          "kind": "launchd-python",
+          "status": "access-gated-dormant",
+          "artifactId": null,
+          "loopbackOrigin": "http://127.0.0.1:8765",
+          "method": "Unverified; preserve dormant/disabled state.",
+          "adapterId": null
+        },
+        "ui": {
+          "version": null,
+          "adoption": "unknown",
+          "header": null,
+          "footer": null,
+          "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+          "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+        },
+        "status": "unresolved",
+        "blockers": [
+          "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+          "No exception approved; an unavailable or Access-gated route cannot count as rollout success.",
+          "Do not restart dormant trip runtime."
+        ],
+        "evidence": [
+          {
+            "kind": "local-ingress",
+            "reference": "~/.cloudflared/config.yml hostname/service rows only",
+            "detail": "2026-09-05 STATUS documents stopped service; no8765 listener observed. Access gate does not prove application health."
+          },
+          {
+            "kind": "public-status",
+            "reference": "https://trip.naeil.dev/",
+            "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+          }
+        ]
+      }
+    },
+    {
+      "id": "work",
+      "name": "Work",
+      "origin": "https://work.naeil.dev",
+      "status": "retired",
+      "decision": {
+        "date": "2026-10-24",
+        "source": "owner conversation",
+        "statement": "\uc548 \uc4f0\ub294 \uc11c\ube44\uc2a4\ub77c \uacf5\uac1c \uacbd\ub85c\ub97c \uc815\ub9ac. \ud544\uc694\ud558\uba74 \ub098\uc911\uc5d0 \ub2e4\uc2dc \ucf2c.",
+        "reason": "The owner confirmed the service is unused. Its Cloudflare tunnel route and DNS record were deleted, along with any Access application, so the hostname no longer resolves.",
+        "candidateDisposition": "Preserve local source and dormant runtime state; do not count this record as rollout progress.",
+        "productionChanged": true
+      },
+      "historicalRecord": {
+        "id": "work",
+        "name": "Work",
+        "origin": "https://work.naeil.dev",
+        "routes": [
+          {
+            "path": "/",
+            "policy": "third-party-access",
+            "locale": null,
+            "status": "unverified",
+            "exception": null
+          }
+        ],
+        "source": {
+          "candidatePath": null,
+          "productionCorrelation": "unverified",
+          "revision": null
+        },
+        "deployment": {
+          "kind": "http-status",
+          "status": "access-gated",
+          "artifactId": null,
+          "loopbackOrigin": null,
+          "method": "Unverified; preserve dormant/disabled state.",
+          "adapterId": null
+        },
+        "ui": {
+          "version": null,
+          "adoption": "unknown",
+          "header": null,
+          "footer": null,
+          "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+          "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+        },
+        "status": "unresolved",
+        "blockers": [
+          "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+          "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+        ],
+        "evidence": [
+          {
+            "kind": "local-ingress",
+            "reference": "~/.cloudflared/config.yml hostname/service rows only",
+            "detail": "Local ingress says http_status:503; public origin redirects to Cloudflare Access; origin UI/source unverified."
+          },
+          {
+            "kind": "public-status",
+            "reference": "https://work.naeil.dev/",
+            "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+          }
+        ]
+      }
+    },
+    {
+      "id": "digest",
+      "name": "Digest",
+      "origin": "https://digest.naeil.dev",
+      "status": "retired",
+      "decision": {
+        "date": "2026-10-25",
+        "source": "owner conversation",
+        "statement": "\uc548 \uc4f0\ub294 \uc11c\ube44\uc2a4\ub77c \uacf5\uac1c \uacbd\ub85c\ub97c \uc815\ub9ac. \ud544\uc694\ud558\uba74 \ub098\uc911\uc5d0 \ub2e4\uc2dc \ucf2c.",
+        "reason": "The owner confirmed the service is unused. Its Cloudflare tunnel route and DNS record were deleted, along with any Access application, so the hostname no longer resolves.",
+        "candidateDisposition": "Preserve local source and dormant runtime state; do not count this record as rollout progress.",
+        "productionChanged": true
+      },
+      "historicalRecord": {
+        "id": "digest",
+        "name": "Digest",
+        "origin": "https://digest.naeil.dev",
+        "routes": [
+          {
+            "path": "/",
+            "policy": "unavailable-ui",
+            "locale": null,
+            "status": "unverified",
+            "exception": null
+          }
+        ],
+        "source": {
+          "candidatePath": null,
+          "productionCorrelation": "unverified",
+          "revision": null
+        },
+        "deployment": {
+          "kind": "unknown",
+          "status": "unavailable",
+          "artifactId": null,
+          "loopbackOrigin": "http://127.0.0.1:7200",
+          "method": "Unverified; preserve dormant/disabled state.",
+          "adapterId": null
+        },
+        "ui": {
+          "version": null,
+          "adoption": "unknown",
+          "header": null,
+          "footer": null,
+          "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+          "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+        },
+        "status": "unresolved",
+        "blockers": [
+          "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+          "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+        ],
+        "evidence": [
+          {
+            "kind": "local-ingress",
+            "reference": "~/.cloudflared/config.yml hostname/service rows only",
+            "detail": "Public HTTP502; local ingress localhost7200; source and UI routes unknown."
+          },
+          {
+            "kind": "public-status",
+            "reference": "https://digest.naeil.dev/",
+            "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+          }
+        ]
+      }
+    },
+    {
+      "id": "line",
+      "name": "Line",
+      "origin": "https://line.naeil.dev",
+      "status": "retired",
+      "decision": {
+        "date": "2026-10-24",
+        "source": "owner conversation",
+        "statement": "\uc548 \uc4f0\ub294 \uc11c\ube44\uc2a4\ub77c \uacf5\uac1c \uacbd\ub85c\ub97c \uc815\ub9ac. \ud544\uc694\ud558\uba74 \ub098\uc911\uc5d0 \ub2e4\uc2dc \ucf2c.",
+        "reason": "The owner confirmed the service is unused. Its Cloudflare tunnel route and DNS record were deleted, along with any Access application, so the hostname no longer resolves.",
+        "candidateDisposition": "Preserve local source and dormant runtime state; do not count this record as rollout progress.",
+        "productionChanged": true
+      },
+      "historicalRecord": {
+        "id": "line",
+        "name": "Line",
+        "origin": "https://line.naeil.dev",
+        "routes": [
+          {
+            "path": "/",
+            "policy": "unavailable-ui",
+            "locale": null,
+            "status": "unverified",
+            "exception": null
+          }
+        ],
+        "source": {
+          "candidatePath": null,
+          "productionCorrelation": "unverified",
+          "revision": null
+        },
+        "deployment": {
+          "kind": "http-status",
+          "status": "unavailable",
+          "artifactId": null,
+          "loopbackOrigin": null,
+          "method": "Unverified; preserve dormant/disabled state.",
+          "adapterId": null
+        },
+        "ui": {
+          "version": null,
+          "adoption": "unknown",
+          "header": null,
+          "footer": null,
+          "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+          "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+        },
+        "status": "unresolved",
+        "blockers": [
+          "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+          "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+        ],
+        "evidence": [
+          {
+            "kind": "local-ingress",
+            "reference": "~/.cloudflared/config.yml hostname/service rows only",
+            "detail": "Public HTTP503; local ingress http_status:503; UI ownership/type unknown."
+          },
+          {
+            "kind": "public-status",
+            "reference": "https://line.naeil.dev/",
+            "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+          }
+        ]
+      }
+    },
+    {
+      "id": "esg",
+      "name": "Esg",
+      "origin": "https://esg.naeil.dev",
+      "status": "retired",
+      "decision": {
+        "date": "2026-10-24",
+        "source": "owner conversation",
+        "statement": "\uc548 \uc4f0\ub294 \uc11c\ube44\uc2a4\ub77c \uacf5\uac1c \uacbd\ub85c\ub97c \uc815\ub9ac. \ud544\uc694\ud558\uba74 \ub098\uc911\uc5d0 \ub2e4\uc2dc \ucf2c.",
+        "reason": "The owner confirmed the service is unused. Its Cloudflare tunnel route and DNS record were deleted, along with any Access application, so the hostname no longer resolves.",
+        "candidateDisposition": "Preserve local source and dormant runtime state; do not count this record as rollout progress.",
+        "productionChanged": true
+      },
+      "historicalRecord": {
+        "id": "esg",
+        "name": "Esg",
+        "origin": "https://esg.naeil.dev",
+        "routes": [
+          {
+            "path": "/",
+            "policy": "unavailable-ui",
+            "locale": null,
+            "status": "unverified",
+            "exception": null
+          }
+        ],
+        "source": {
+          "candidatePath": null,
+          "productionCorrelation": "unverified",
+          "revision": null
+        },
+        "deployment": {
+          "kind": "http-status",
+          "status": "unavailable",
+          "artifactId": null,
+          "loopbackOrigin": null,
+          "method": "Unverified; preserve dormant/disabled state.",
+          "adapterId": null
+        },
+        "ui": {
+          "version": null,
+          "adoption": "unknown",
+          "header": null,
+          "footer": null,
+          "requiredHeader": "NaeilHeader when owned canonical UI is confirmed",
+          "requiredFooter": "NaeilFooter when owned canonical UI is confirmed"
+        },
+        "status": "unresolved",
+        "blockers": [
+          "Underlying owned routes, production source/artifact and shared UI adoption are unverified.",
+          "No exception approved; an unavailable or Access-gated route cannot count as rollout success."
+        ],
+        "evidence": [
+          {
+            "kind": "local-ingress",
+            "reference": "~/.cloudflared/config.yml hostname/service rows only",
+            "detail": "Public HTTP503; local ingress http_status:503; UI source unknown."
+          },
+          {
+            "kind": "public-status",
+            "reference": "https://esg.naeil.dev/",
+            "detail": "2026-10-16 User-Agent Mozilla/5.0, redirects not followed; Access query parameters were discarded."
+          }
+        ]
       }
     }
   ],
