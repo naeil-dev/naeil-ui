@@ -14,8 +14,8 @@ describe("isAllowedRedirect", () => {
     expect(isAllowedRedirect("https://naeil.dev/x")).toBe(true);
   });
 
-  it("allows https://esg.naeil.dev/x", () => {
-    expect(isAllowedRedirect("https://esg.naeil.dev/x")).toBe(true);
+  it.each(["https://esg.naeil.dev/x", "https://work.naeil.dev/x", "https://line.naeil.dev/x"])("blocks retired service %s", (value) => {
+    expect(isAllowedRedirect(value)).toBe(false);
   });
 
   it("blocks https://evil.com", () => {
@@ -61,8 +61,6 @@ describe("canonical return destination", () => {
   });
   it.each([
     "https://naeil.dev/a",
-    "https://esg.naeil.dev/a",
-    "https://work.naeil.dev/a",
     "https://jev.naeil.dev/a",
     "https://abestimate.naeil.dev/a",
   ])("allows exact canonical service %s", (value) =>
