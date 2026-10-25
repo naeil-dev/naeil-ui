@@ -100,16 +100,23 @@ test('dispatcher-shaped policy adopts exact current0.7.1 even with historical AP
 });
 
 test('dispatcher-shaped fix window authorizes only consecutive contract1 patches', async t => {
-  for (const cause of ['valid', 'dom', 'contract', 'range', 'minor', 'expiry']) {
+  for (const cause of ['valid', 'dom', 'migrated', 'other-service', 'contract', 'range', 'minor', 'expiry']) {
     const f = fixture(t); await runStanding(f.input, f.config, f.deps); future(f); f.input.attemptId = 'attempt-2';
     delete f.input.policy.schemaVersion;
     f.input.policy.patchWindow = { minVersion: '0.7.2', maxVersion: '0.7.99', contractVersion: '1' };
     if (cause === 'dom') f.input.release.changes = ['dom'];
+    let updatePolicy;
+    if (['migrated', 'other-service'].includes(cause)) {
+      const release = f.input.release; release.changes = ['dom'];
+      f.input.policy.reviewedMigration = { releaseId: release.releaseId, version: release.version, sourceRevision: release.sourceRevision, archiveSha256: release.archive.sha256, changes: ['dom'], services: [cause === 'migrated' ? 'jev' : 'estimate'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: '2099-01-01T00:00:00Z' };
+      const update = f.deps.update; f.deps.update = async context => { updatePolicy = context.policy; return update(context); };
+    }
     if (cause === 'contract') f.input.policy.patchWindow.contractVersion = '2';
     if (cause === 'range') f.input.policy.patchWindow.minVersion = '0.7.3';
     if (cause === 'minor') f.input.release.previousVersion = '0.6.9';
     if (cause === 'expiry') f.input.policy.expiresAt = '2000-01-01';
-    assert.equal((await runStanding(f.input, f.config, f.deps)).state, cause === 'valid' ? 'production-verified' : 'gate-failed');
+    assert.equal((await runStanding(f.input, f.config, f.deps)).state, ['valid', 'migrated'].includes(cause) ? 'production-verified' : 'gate-failed');
+    if (cause === 'migrated') assert.deepEqual(updatePolicy.reviewedMigration, f.input.policy.reviewedMigration);
   }
 });
 

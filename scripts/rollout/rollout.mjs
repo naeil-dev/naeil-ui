@@ -22,6 +22,15 @@ export const releaseFingerprint = release => fingerprint(releaseIdentity(release
 const fresh = (date, age, now = Date.now()) => Number.isFinite(Date.parse(date)) && Date.parse(date) <= now + 5000 && now - Date.parse(date) <= age * 1000;
 const approval = item => item && typeof item.approvedBy === 'string' && item.approvedBy.trim() && typeof item.approvalRef === 'string' && item.approvalRef.trim() && typeof item.reason === 'string' && item.reason.trim() && Date.parse(item.expiresAt) > Date.now();
 
+// An unexpired owner approval bound to this exact release and service. It names
+// published identity fields, not runner-local paths, so every stage (including
+// jev-native.py) checks the same values. Callers keep every other gate.
+export const reviewedMigration = (release, service, policy) => {
+  const migration = policy?.reviewedMigration;
+  return Boolean(approval(migration) && migration.releaseId === release.releaseId && migration.version === release.version && migration.sourceRevision === release.sourceRevision
+    && migration.archiveSha256 === release.archive?.sha256 && Array.isArray(migration.changes) && migration.changes.join() === release.changes.join() && migration.services?.includes(service.id));
+};
+
 export function validateRelease(release) {
   assert.equal(release.schemaVersion, 1, 'Unsupported release schema');
   assert.match(release.releaseId, ID, 'Invalid release id');
@@ -51,8 +60,7 @@ export function policyGate(release, service, policy) {
   if (!policy.approvedBy || !policy.approvalRef || Date.parse(policy.expiresAt) <= Date.now() || !Number.isFinite(Date.parse(policy.expiresAt))) return no('Recorded unexpired standing approval required');
   if (!policy.services?.includes(service.id)) return no('Service outside approved scope');
   if (!isAbsolute(policy.stopFile || '') || !Number.isFinite(policy.maxEvidenceAgeSeconds) || policy.maxEvidenceAgeSeconds <= 0) return no('Stop switch and evidence lifetime must be configured');
-  const migration = policy.reviewedMigration;
-  if (approval(migration) && migration.releaseId === release.releaseId && migration.releaseFingerprint === releaseFingerprint(release) && migration.services?.includes(service.id)) return { state: 'eligible', mode: 'reviewed-migration', approvalRef: migration.approvalRef };
+  if (reviewedMigration(release, service, policy)) return { state: 'eligible', mode: 'reviewed-migration', approvalRef: policy.reviewedMigration.approvalRef };
   const before = release.previousVersion.split('.').map(Number); const after = release.version.split('.').map(Number);
   if (before[0] !== after[0] || before[1] !== after[1] || after[2] !== before[2] + 1) return no('Only consecutive patch releases are proposed for unattended rollout; minor/major requires review');
   if (release.changes.some(change => ['frame', 'dom', 'guard', 'contract', 'api'].includes(change))) return no('Frame/DOM/guard/contract/API change requires explicit reviewed migration');

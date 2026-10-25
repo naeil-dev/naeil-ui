@@ -92,6 +92,19 @@ test('untrusted publisher, wrong tag, invalid archive and classified migrations 
   assert.equal((await poll(migration.config, migration)).currentVersion, '0.7.1'); assert.equal(migration.calls.length, 3);
 });
 
+test('an owner-approved migration of the exact release runs through every selected service; partial or mismatched approval blocks', async t => {
+  const approve = (f, services, tweak = value => value) => {
+    let manifest; f.changeManifest(2, value => { value.changes = ['dom']; manifest = value; });
+    f.config.policy.reviewedMigration = tweak({ releaseId: manifest.releaseId, version: manifest.version, sourceRevision: manifest.sourceRevision, archiveSha256: manifest.archive.sha256, changes: ['dom'], services, approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: new Date(Date.now() + 86400000).toISOString() });
+  };
+  const approved = fixture(t, [1, 2]); approve(approved, [...approved.config.policy.services]);
+  assert.equal((await poll(approved.config, approved)).currentVersion, '0.7.2'); assert.equal(approved.calls.length, 6);
+  const partial = fixture(t, [1, 2]); approve(partial, partial.config.policy.services.slice(1));
+  assert.equal((await poll(partial.config, partial)).currentVersion, '0.7.1'); assert.equal(partial.calls.length, 3);
+  const otherBytes = fixture(t, [1, 2]); approve(otherBytes, [...otherBytes.config.policy.services], value => ({ ...value, archiveSha256: 'f'.repeat(64) }));
+  assert.equal((await poll(otherBytes.config, otherBytes)).currentVersion, '0.7.1'); assert.equal(otherBytes.calls.length, 3);
+});
+
 test('changed published asset or moved tag remains blocked even after completed baseline', async t => {
   const f = fixture(t); await poll(f.config, f); f.releases[0].assets[0].id++;
   assert.equal((await poll(f.config, f)).reasonCode, 'published-release-changed'); assert.equal(f.calls.length, 3);

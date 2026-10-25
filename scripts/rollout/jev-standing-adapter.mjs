@@ -11,7 +11,7 @@ import { constants, closeSync, copyFileSync, existsSync, fchmodSync, fstatSync, 
 import { dirname, isAbsolute, join, relative, resolve, basename } from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { assertFrozen, digest } from './rollout.mjs';
+import { assertFrozen, digest, reviewedMigration } from './rollout.mjs';
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
 import { updateConsumer } from './update-consumer.mjs';
 import { assertCandidateHarness, prepareCandidateHarness } from './jev-candidate.mjs';
@@ -141,7 +141,7 @@ function activePolicy(input, config) {
   }
   const patch = value => /^0\.7\.(0|[1-9]\d*)$/.test(value || '') ? Number(value.split('.')[2]) : NaN;
   assert.equal(patch(release.version), patch(release.previousVersion) + 1, 'Consecutive0.7.x patch required');
-  assert.deepEqual(release.changes, ['fix'], 'Only fix-only standing changes are approved');
+  assert((release.changes.length === 1 && release.changes[0] === 'fix') || reviewedMigration(release, service, policy), 'Only fix-only standing changes or an owner-approved migration of this exact release');
   const window = policy.patchWindow;
   const low = patch(window?.minVersion), high = patch(window?.maxVersion), next = patch(release.version);
   assert(Number.isSafeInteger(next) && Number.isSafeInteger(low) && Number.isSafeInteger(high) && low <= next && next <= high && window.contractVersion === '1', 'Release outside approved patch/contract window');
@@ -149,10 +149,11 @@ function activePolicy(input, config) {
   if (window.startsAt !== undefined) assert(Date.parse(window.startsAt) <= Date.now(), 'Patch window not active');
 }
 
-function updaterPolicy(policy) {
+function updaterPolicy({ policy, release, service }) {
   // The existing generic updater uses the older policy representation. Express
-  // the already validated bounded approval; never add a migration exemption.
-  return { ...policy, schemaVersion: 1, reviewedMigration: undefined, patchWindow: { ...policy.patchWindow, approvedBy: policy.approvedBy, approvalRef: policy.approvalRef, reason: 'Approved consecutive fix-only standing patch window', startsAt: policy.patchWindow.startsAt ?? '1970-01-02', expiresAt: policy.patchWindow.expiresAt ?? policy.expiresAt, services: policy.services } };
+  // the already validated bounded approval; pass through only an owner-approved
+  // migration of this exact release, never a new exemption.
+  return { ...policy, schemaVersion: 1, reviewedMigration: reviewedMigration(release, service, policy) ? policy.reviewedMigration : undefined, patchWindow: { ...policy.patchWindow, approvedBy: policy.approvedBy, approvalRef: policy.approvalRef, reason: 'Approved consecutive fix-only standing patch window', startsAt: policy.patchWindow.startsAt ?? '1970-01-02', expiresAt: policy.patchWindow.expiresAt ?? policy.expiresAt, services: policy.services } };
 }
 
 function validateArtifact(artifact) {
@@ -334,7 +335,7 @@ export async function runStanding(input, config, dependencies = {}) {
         return revision;
       });
       await sourceCheck(); gate();
-      const updateContext = { ...input, policy: updaterPolicy(input.policy), adapterOptions: { update: { enabled: true, worktree: config.worktree, branch: config.branch, packageManager: `pnpm@${config.pnpmVersion}` } } };
+      const updateContext = { ...input, policy: updaterPolicy(input), adapterOptions: { update: { enabled: true, worktree: config.worktree, branch: config.branch, packageManager: `pnpm@${config.pnpmVersion}` } } };
       const update = dependencies.update ? await dependencies.update(updateContext) : withEnvironment(env, () => updateConsumer(updateContext, { root: config.worktree, install: () => {
         const modules = join(config.worktree, 'node_modules');
         if (existsSync(modules)) { assert(lstatSync(modules).isDirectory() && !lstatSync(modules).isSymbolicLink()); rmSync(modules, { recursive: true }); }
