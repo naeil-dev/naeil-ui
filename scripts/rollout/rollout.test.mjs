@@ -8,7 +8,7 @@ import { createServer } from 'node:http';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, existsSync } from 'node:fs';
 import { packageStandalone } from './naeil-adapter.mjs';
-import { aggregate, assertReference, digest, policyGate, releaseFingerprint, runService, verifyIdentity, validateRelease, validateReleaseEvent } from './rollout.mjs';
+import { aggregate, assertReference, digest, policyGate, runService, verifyIdentity, validateRelease, validateReleaseEvent } from './rollout.mjs';
 
 const sha = 'a'.repeat(64);
 const revision = 'b'.repeat(40);
@@ -47,9 +47,9 @@ test('published release event must match frozen UI version tag and reviewed UI s
   assert.throws(() => validateReleaseEvent(release, { tag: 'v0.6.1', sourceRevision: 'd'.repeat(40) }), /source/);
 });
 
-test('one-time reviewed migration binds exact release bytes, contract, service and approval expiry', () => {
+test('one-time reviewed migration binds exact release identity, change classes, service and approval expiry', () => {
   const migration = { ...release, version: '0.7.0', changes: ['frame', 'dom', 'guard'] };
-  const reviewedMigration = { releaseId: migration.releaseId, releaseFingerprint: releaseFingerprint(migration), services: ['example'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed migration', expiresAt: '2099-01-01T00:00:00Z' };
+  const reviewedMigration = { releaseId: migration.releaseId, version: migration.version, sourceRevision: migration.sourceRevision, archiveSha256: migration.archive.sha256, changes: migration.changes, services: ['example'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed migration', expiresAt: '2099-01-01T00:00:00Z' };
   assert.equal(policyGate(migration, service, { ...policy, reviewedMigration }).mode, 'reviewed-migration');
   assert.equal(policyGate({ ...migration, archive: { ...migration.archive, sha256: 'd'.repeat(64) } }, service, { ...policy, reviewedMigration }).state, 'review-required');
   assert.equal(policyGate(migration, service, { ...policy, reviewedMigration: { ...reviewedMigration, expiresAt: '2000-01-01T00:00:00Z' } }).state, 'review-required');

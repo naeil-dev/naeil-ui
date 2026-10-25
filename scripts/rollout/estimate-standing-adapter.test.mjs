@@ -118,6 +118,14 @@ test('runs all build gates before staging and binds activation to the verified p
 test('rejects contract/API patches before updater mutations', async () => {
   await adopt(); standing(); input.release.changes = ['api']; const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert(!calls.includes('update'));
 });
+test('a DOM patch runs only with an owner-approved migration of this exact release', async () => {
+  await adopt(); standing(); input.release.changes = ['dom'];
+  assert.equal((await runStanding(input, config, dependencies)).state, 'gate-failed'); assert(!calls.includes('update'));
+  const { releaseId, version, sourceRevision, changes } = input.release;
+  input.policy.reviewedMigration = { releaseId, version, sourceRevision, changes, archiveSha256: input.release.archive.sha256, services: ['estimate'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: new Date(Date.now() + 86400000).toISOString() };
+  input.attemptId = 'attempt-migration'; input.idempotencyKey += '-migration';
+  const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'production-verified', dependencies.lastError?.stack ?? result.reason);
+});
 test('source test failure leaves production alone and is never deferred', async () => {
   await adopt(); standing(); const original = dependencies.command; dependencies.command = async (...args) => { if (args[1].join(' ') === 'run test --maxWorkers=1') throw new Error('test failed'); return original(...args); };
   const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert.equal(result.mutationAttempted, true); assert(!calls.includes('deploy')); assert(!calls.includes('activate'));

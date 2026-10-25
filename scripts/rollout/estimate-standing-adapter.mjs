@@ -5,7 +5,7 @@ import { constants, closeSync, copyFileSync, existsSync, fsyncSync, lstatSync, m
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
-import { assertFrozen, policyGate } from './rollout.mjs';
+import { assertFrozen, policyGate, reviewedMigration } from './rollout.mjs';
 import { updateConsumer } from './update-consumer.mjs';
 import { atomicJSON, assertTrustedFiles, commandConfig, invokeJSON, privateDirectory, readPrivateBytes, readPrivateJSON, routeKey } from './standing-config.mjs';
 
@@ -146,7 +146,7 @@ function releaseGate(input, config, baseline) {
     const version = baseline.artifact.ui.version, patch = value => Number(value.split('.')[2]);
     assert.equal(input.release.previousVersion, version, 'Verified predecessor differs from patch predecessor');
     assert.equal(patch(input.release.version), patch(version) + 1, 'Only consecutive patches may roll forward');
-    assert.deepEqual(input.release.changes, ['fix'], 'Unattended patches must be fix only');
+    assert((input.release.changes.length === 1 && input.release.changes[0] === 'fix') || reviewedMigration(input.release, input.service, input.policy), 'Unattended patches must be fix only unless the owner approved this exact release');
     assert.equal(baseline.artifact.ui.contractVersion, input.release.contract.version);
     assert.equal(policyGate(input.release, input.service, input.policy).state, 'eligible', 'Current reviewed patch window required');
   }

@@ -145,6 +145,16 @@ class NativeTests(unittest.TestCase):
         request = policy_request(self.root); Path(request['policy']['stopFile']).symlink_to('missing')
         with self.assertRaises(n.Refusal): n.policy_gate(request)
 
+    def test_policy_accepts_dom_only_with_owner_approved_migration_of_exact_release(self):
+        request = policy_request(self.root); release = request['release']
+        release.update(changes=['dom'], sourceRevision='a' * 40, archive={'sha256': 'b' * 64})
+        with self.assertRaises(n.Refusal): n.policy_gate(request)
+        migration = {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'sourceRevision': 'a' * 40, 'archiveSha256': 'b' * 64, 'changes': ['dom'], 'services': ['jev'], 'approvedBy': 'owner', 'approvalRef': 'migration-approval', 'reason': 'Reviewed header catalog change', 'expiresAt': '2099-01-01T00:00:00Z'}
+        request['policy']['reviewedMigration'] = migration; n.policy_gate(request)
+        for change in [{'archiveSha256': 'c' * 64}, {'services': ['estimate']}, {'expiresAt': '2000-01-01T00:00:00Z'}, {'changes': ['dom', 'api']}, {'reason': ''}]:
+            request['policy']['reviewedMigration'] = {**migration, **change}
+            with self.assertRaises(n.Refusal): n.policy_gate(request)
+
     def test_dispatcher_policy_adopts_exact_current_without_predecessor_and_cannot_mutate(self):
         request = policy_request(self.root); request.update(mode='adopt', action='inspect')
         del request['policy']['schemaVersion']; del request['policy']['patchWindow']

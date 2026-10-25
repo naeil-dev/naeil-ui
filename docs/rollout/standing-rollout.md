@@ -16,7 +16,7 @@ Only `naeil`, `estimate`, `jev` execute, in that order. [standing-services.json]
 
 Initial0.7.1 adoption verifies the actual current shared-session artifacts, archives/manifests, ownership, protected/public routes and independent chrome/account references. It does not fabricate a0.7.0 predecessor or adopt the retained password-auth application as an automatic recovery target.
 
-Ordinary unattended changes begin with consecutive0.7.x patches, contract1, fix-only release classification and an unexpired private policy. The chosen initial operational window is90days through0.7.99. Contract/API/DOM changes and expired authorization stop for a reviewed migration. The release publisher still produces and validates each new package/reference; the worker then updates the selected services without per-app manual deployment commands.
+Ordinary unattended changes begin with consecutive0.7.x patches, contract1, fix-only release classification and an unexpired private policy. A frame/DOM/guard patch additionally needs a private `reviewedMigration` approval for that exact release and every selected service (see [automation.md](automation.md)); without it the worker blocks the release. The chosen initial operational window is90days through0.7.99. Contract/API/DOM changes and expired authorization stop for a reviewed migration. The release publisher still produces and validates each new package/reference; the worker then updates the selected services without per-app manual deployment commands.
 
 ## Execution and recovery
 

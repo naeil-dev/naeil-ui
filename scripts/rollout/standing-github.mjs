@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { closeSync, existsSync, fsyncSync, openSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { atomicJSON, fingerprint, hash, HEX, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
+import { reviewedMigration } from './rollout.mjs';
 
 export class GitHubUnavailable extends Error {
   constructor() { super('Trusted release service unavailable before dispatch'); this.name = 'GitHubUnavailable'; }
@@ -120,7 +121,8 @@ export function assertPolicyRelease(release, config, currentVersion) {
   const patch = value => Number(value.split('.')[2]);
   assert.equal(release.previousVersion, currentVersion, 'Release predecessor differs from last completed selected-scope baseline');
   assert.equal(patch(release.version), patch(currentVersion) + 1, 'Consecutive patches required; never skip a missing release');
-  assert.deepEqual(release.changes, ['fix'], 'Unattended releases must declare fix only');
+  const migrated = config.policy.services?.length > 0 && config.policy.services.every(id => reviewedMigration(release, { id }, config.policy));
+  assert(migrated || (release.changes.length === 1 && release.changes[0] === 'fix'), 'Unattended releases must declare fix only unless the owner approved this exact release for every selected service');
   const window = config.policy.patchWindow;
   assert(Date.parse(window.startsAt) <= Date.now() && Date.parse(window.expiresAt) > Date.now(), 'Approved patch window is not active');
   assert(patch(release.version) >= patch(window.minVersion) && patch(release.version) <= patch(window.maxVersion), 'Release outside approved patch window');
