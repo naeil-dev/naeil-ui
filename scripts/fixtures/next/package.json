@@ -6,7 +6,7 @@
     "build": "next build --webpack"
   },
   "dependencies": {
-    "@naeil/ui": "0.7.1",
+    "@naeil/ui": "0.7.2",
     "next": "16.1.7",
     "next-intl": "^4.8.3",
     "react": "^19.2.3",
