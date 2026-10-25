@@ -27,36 +27,12 @@ function ProjectsContent() {
 
   const PROJECTS = [
     {
-      name: t("projects.cc.name"),
-      description: t("projects.cc.description"),
-      href: "/cc" as const,
-      tags: ["Python", "RSS", "AI"],
-      status: t("projects.status.active"),
-      coming: false,
-    },
-    {
-      name: t("projects.pkm.name"),
-      description: t("projects.pkm.description"),
-      href: "/pkm" as const,
-      tags: ["Python", "Embeddings", "Search"],
-      status: t("projects.status.coming"),
-      coming: true,
-    },
-    {
       name: t("projects.naeilUi.name"),
       description: t("projects.naeilUi.description"),
       href: "/design" as const,
       tags: ["React", "Tailwind", "Design Tokens"],
       status: t("projects.status.active"),
       coming: false,
-    },
-    {
-      name: t("projects.babyAgent.name"),
-      description: t("projects.babyAgent.description"),
-      href: "/baby-agent" as const,
-      tags: ["OpenClaw", "LINE", "AI"],
-      status: t("projects.status.coming"),
-      coming: true,
     },
   ];
 

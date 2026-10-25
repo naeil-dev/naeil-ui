@@ -59,7 +59,7 @@ The fixed header is 65px: the current 64px navigation token plus a 1px border. C
 
 ## Artwork and package boundary
 
-The five decorative images reference `https://naeil.dev/images/{coral,jellyfish,whale,fish,turtle}.png`. Rendering those images requires network access to the official origin. Their bytes are not redistributed in npm; [third-party notices](../../THIRD_PARTY_NOTICES.md) retain unresolved artwork provenance and redistribution limits. Brand marks are not relicensed by the repository MIT license. Captions and links remain usable when images fail.
+The next release narrows the default catalog to naeil-ui and its `whale.png` image; 0.7.1 retains the five-project catalog described here. The five decorative images reference `https://naeil.dev/images/{coral,jellyfish,whale,fish,turtle}.png`. Rendering those images requires network access to the official origin. Their bytes are not redistributed in npm; [third-party notices](../../THIRD_PARTY_NOTICES.md) retain unresolved artwork provenance and redistribution limits. Brand marks are not relicensed by the repository MIT license. Captions and links remain usable when images fail.
 
 This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication, AccountStates, ReferenceFull, ReferenceCompact**; the Japanese example omits unsupported locale switching and supplies application state to the shared account control. Local examples do not establish hosted deployment.
 

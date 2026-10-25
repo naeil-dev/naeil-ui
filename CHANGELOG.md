@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Narrow the canonical `NaeilHeader` project catalog to naeil-ui. Content Collector, PKM, Sustainability Analyzer and Baby Agent are retired from naeil.dev; their site pages move to `src/app/_archive/` and old URLs temporarily redirect to the project list. The project menu uses one column for a single entry. `projects`, `translations` and `currentProjectKey` overrides are unchanged.
+
 ## 0.7.1 — canonical service chrome (published 2026-10-23)
 
 Published to npm at `2026-10-23T01:14:11.387Z`; `latest` was verified as `0.7.1`. This first published 0.7.x release includes the unpublished 0.7.0 scope below. Frozen package source and tag `v0.7.1`: `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618`; archive SHA-256: `ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8`. Independent download and fresh React/Next registry consumers matched the archive and all 139 files, with types, production builds and browser checks passing. Hosted Docs and standing activation require separate receipts; see the [release policy](docs/package-release.md#publication-and-deployment).

@@ -19,51 +19,16 @@ export default async function HubPage({
   return <HubContent />;
 }
 
+// Retired project pages live in src/app/_archive; restore an entry with its page.
 const PROJECTS = [
-  {
-    key: "cc" as const,
-    href: "/cc" as const,
-    icon: "/images/coral.png",
-    accent: "var(--project-cc)",
-    tags: ["Python", "RSS", "AI"],
-    status: "active" as const,
-    featured: true,
-  },
-  {
-    key: "pkm" as const,
-    href: "/pkm" as const,
-    icon: "/images/jellyfish.png",
-    accent: "var(--project-pkm)",
-    tags: ["Python", "Embeddings", "Search"],
-    status: "coming" as const,
-    featured: false,
-  },
   {
     key: "naeilUi" as const,
     href: "/design" as const,
     icon: "/images/whale.png",
     accent: "var(--project-naeilUi)",
     tags: ["React", "Tailwind", "OKLCH"],
-    status: "active" as const,
-    featured: false,
-  },
-  {
-    key: "sa" as const,
-    href: "/sa" as const,
-    icon: "/images/fish.png",
-    accent: "var(--project-sa)",
-    tags: ["Python", "pgvector", "Claude"],
-    status: "active" as const,
-    featured: false,
-  },
-  {
-    key: "babyAgent" as const,
-    href: "/baby-agent" as const,
-    icon: "/images/turtle.png",
-    accent: "var(--project-baby)",
-    tags: ["LINE", "AI"],
-    status: "coming" as const,
-    featured: false,
+    status: "active" as "active" | "coming",
+    featured: true,
   },
 ] as const;
 

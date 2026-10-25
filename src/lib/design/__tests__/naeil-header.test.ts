@@ -23,15 +23,12 @@ describe("complete branded header", () => {
     const element = header({ locale });
     const [group, blogLink] = element.props.items;
     expect(group.label).toBe(projects);
-    expect(group.columns).toBe(2);
-    expect(group.items.map((item: { href: string }) => item.href)).toEqual([
-      `https://naeil.dev/${locale}/cc`, `https://naeil.dev/${locale}/pkm`,
-      `https://naeil.dev/${locale}/design`, `https://naeil.dev/${locale}/sa`,
-      `https://naeil.dev/${locale}/baby-agent`,
-    ]);
+    expect(group.columns).toBe(1);
+    expect(group.items.map((item: { href: string }) => item.href)).toEqual([`https://naeil.dev/${locale}/design`]);
     expect(blogLink).toMatchObject({ label: blog, href });
-    expect(renderToStaticMarkup(group.items[1].badge)).toContain(coming);
-    expect(group.items[0].icon.props.children.props.src.slice(0, 80)).toBe("https://naeil.dev/images/coral.png");
+    expect(group.items[0].badge).toBeUndefined();
+    expect(renderToStaticMarkup(header({ locale, translations: { projects, blog, project: key => key === "status.coming" ? coming : key } }))).not.toContain(coming);
+    expect(group.items[0].icon.props.children.props.src.slice(0, 80)).toBe("https://naeil.dev/images/whale.png");
   });
 
   it("routes absolute blog and brand destinations through the consumer link", () => {
@@ -57,10 +54,9 @@ describe("complete branded header", () => {
   });
 
   it("applies compatibility translations to the actual shared project composition", () => {
-    const element = header({ locale: "en", translations: { projects: "Consumer tools", blog: "Consumer journal", project: key => ({ "cc.name": "My collector", "cc.description": "My feed description", "status.coming": "Later" })[key] ?? key } });
+    const element = header({ locale: "en", translations: { projects: "Consumer tools", blog: "Consumer journal", project: key => ({ "naeilUi.name": "My design system", "naeilUi.description": "My token description" })[key] ?? key } });
     expect(element.props.items[0]).toMatchObject({ label: "Consumer tools" });
-    expect(element.props.items[0].items[0]).toMatchObject({ label: "My collector", description: "My feed description" });
-    expect(renderToStaticMarkup(element.props.items[0].items[1].badge)).toContain("Later");
+    expect(element.props.items[0].items[0]).toMatchObject({ label: "My design system", description: "My token description" });
     expect(renderToStaticMarkup(element)).toContain("Consumer journal");
   });
 
@@ -93,9 +89,9 @@ describe("complete branded header", () => {
   });
 
   it("preserves explicit destinations, visibility, current project, labels and frame overrides", () => {
-    const element = header({ locale: "en", resolveHref: path => path, currentHref: "/cc/report", currentProjectKey: "pkm", currentProjectHref: "/workspace", brandHref: "/home", subNav: [{ label: "Settings", href: "/settings" }], labels: { navigation: "App", menu: "Open", close: "Close" }, containerClassName: "custom-frame", className: "custom-header" });
-    expect(element.props.items[0].items[0].active).toBe(true);
-    expect(element.props.items[0].items[1]).toMatchObject({ href: "/workspace", active: true });
+    const element = header({ locale: "en", resolveHref: path => path, currentHref: "/design/tokens", brandHref: "/home", subNav: [{ label: "Settings", href: "/settings" }], labels: { navigation: "App", menu: "Open", close: "Close" }, containerClassName: "custom-frame", className: "custom-header" });
+    expect(element.props.items[0].items[0]).toMatchObject({ href: "/design", active: true });
+    expect(header({ locale: "en", resolveHref: path => path, currentProjectKey: "naeilUi", currentProjectHref: "/workspace" }).props.items[0].items[0]).toMatchObject({ href: "/workspace", active: true });
     expect(element.props.items[2]).toMatchObject({ label: "Settings", href: "/settings" });
     expect(element.props.brand.props.href).toBe("/home");
     expect(element.props.labels.navigation).toBe("App");
@@ -129,8 +125,8 @@ describe("legacy Nav compatibility", () => {
   it("keeps legacy external blog destinations away from an internal-only Link", () => {
     expect(() => legacy("en", true)).not.toThrow();
     expect(legacy("en", true)).toContain('href="https://naeil.dev/blog"');
-    const element = header({ locale: "en", resolveHref: path => `https://naeil.dev${path}`, projectsExternal: true, currentProjectKey: "cc" });
-    expect(element.props.items[0].items[0].external).toBe(false);
-    expect(element.props.items[0].items[1].external).toBe(true);
+    const element = header({ locale: "en", resolveHref: path => `https://naeil.dev${path}`, projectsExternal: true });
+    expect(element.props.items[0].items[0].external).toBe(true);
+    expect(header({ locale: "en", projectsExternal: true, currentProjectKey: "naeilUi" }).props.items[0].items[0].external).toBe(false);
   });
 });
