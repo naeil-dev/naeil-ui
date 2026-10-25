@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.7.2 — retired project catalog (candidate)
 
 - Narrow the canonical `NaeilHeader` project catalog to naeil-ui. Content Collector, PKM, Sustainability Analyzer and Baby Agent are retired from naeil.dev; their site pages move to `src/app/_archive/` and old URLs temporarily redirect to the project list. The project menu uses one column for a single entry. `projects`, `translations` and `currentProjectKey` overrides are unchanged.
+- Release class `dom`: the standing worker adopts it only through an owner-approved `reviewedMigration` of this exact release; ordinary fix-only patches are unaffected.
 
 ## 0.7.1 — canonical service chrome (published 2026-10-23)
 
