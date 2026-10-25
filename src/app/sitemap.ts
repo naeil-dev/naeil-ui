@@ -7,10 +7,6 @@ const staticPages = [
   "/",
   "/projects",
   "/design",
-  "/cc",
-  "/sa",
-  "/pkm",
-  "/baby-agent",
   "/blog",
 ];
 

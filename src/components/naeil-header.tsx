@@ -136,7 +136,7 @@ export function NaeilHeader({
         {brandSlot ?? <Logo variant="horizontal" size={28} className="block" label={null} />}
       </BrandLink>}
       items={[
-        ...(showProjects ? [{ id: "projects", label: translations?.projects ?? content.nav.projects, items: projectLinks, columns: 2 as const }] : []),
+        ...(showProjects ? [{ id: "projects", label: translations?.projects ?? content.nav.projects, items: projectLinks, columns: projectLinks.length > 1 ? 2 as const : 1 as const }] : []),
         ...(showBlog ? [{ id: "blog", label: translations?.blog ?? content.nav.blog, href: resolveHref("/blog"), external: projectsExternal }] : []),
         ...(subNav ?? []).map(item => ({ ...item, id: item.href })),
       ]}

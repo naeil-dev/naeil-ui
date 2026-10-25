@@ -37,6 +37,13 @@ const nextConfig: NextConfig = {
   // ordinary trailing-slash redirects after the protected namespaces.
   skipTrailingSlashRedirect: true,
   skipProxyUrlNormalize: true,
+  // Retired project pages (src/app/_archive) stay temporary so they can return.
+  async redirects() {
+    return [
+      { source: "/:locale(en|ko|ja)/:project(cc|sa|pkm|baby-agent)", destination: "/:locale/projects", permanent: false },
+      { source: "/:project(cc|sa|pkm|baby-agent)", destination: "/projects", permanent: false },
+    ];
+  },
   async rewrites() {
     return {
       beforeFiles: [],

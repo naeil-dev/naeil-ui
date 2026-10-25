@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const evidence = process.env.NAEIL_HEADER_EVIDENCE_DIR ?? "test-results/naeil-header";
-const projects = ["cc", "pkm", "design", "sa", "baby-agent"];
+const projects = ["design"];
 
 async function open(page: Page, theme = "light", story = "usage") {
   await page.goto(`/iframe.html?id=brand-naeilheader--${story}&viewMode=story&globals=theme:${theme};a11y.manual:!true`);
@@ -59,15 +59,15 @@ for (const theme of ["light", "dark"]) for (const width of [390, 768, 1440, 2560
     await expect(panel).toBeVisible();
     await settled(page);
     expect(await panel.locator(".ui-navigation-menu-grid").count()).toBe(mobile ? 0 : 1);
-    if (!mobile) expect(await panel.locator(".ui-navigation-menu-grid").evaluate(element => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(2);
+    if (!mobile) expect(await panel.locator(".ui-navigation-menu-grid").evaluate(element => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(1);
     const links = panel.locator("a");
     for (const path of projects) await expect(panel.locator(`a[href="/${path}"]`)).toBeVisible();
-    await expect(panel.getByText("準備中", { exact: true })).toHaveCount(2);
+    await expect(panel.getByText("準備中", { exact: true })).toHaveCount(0);
     for (const image of await panel.locator("img").all()) {
-      await expect(image).toHaveAttribute("src", /^https:\/\/naeil.dev\/images\/(coral|jellyfish|whale|fish|turtle)\.png$/);
+      await expect(image).toHaveAttribute("src", /^https:\/\/naeil.dev\/images\/whale\.png$/);
       await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true);
     }
-    expect(await panel.locator("img").count()).toBe(5);
+    expect(await panel.locator("img").count()).toBe(1);
     for (const control of await panel.locator("a,button").all()) {
       const rect = await control.boundingBox();
       if (rect) { expect(rect.width).toBeGreaterThanOrEqual(44); expect(rect.height).toBeGreaterThanOrEqual(44); }
@@ -159,11 +159,11 @@ test("blocked decorative images preserve visible catalog links and descriptions"
   await trigger.focus();
   await page.keyboard.press("Enter");
   const panel = page.locator('[data-slot="navigation-popover"]');
-  await expect(panel.getByRole("link", { name: /Content Collector/ })).toBeVisible();
-  await expect(panel.getByText("RSS、YouTube、Redditの自動収集 + AI要約", { exact: true })).toBeVisible();
+  await expect(panel.getByRole("link", { name: /naeil-ui/ })).toBeVisible();
+  await expect(panel.getByText("ミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn", { exact: true })).toBeVisible();
   for (const path of projects) await expect(panel.locator(`a[href="/${path}"]`)).toBeVisible();
-  await panel.locator('a[href="/cc"]').click();
-  await expect(page.getByRole("status")).toHaveText("/cc");
+  await panel.locator('a[href="/design"]').click();
+  await expect(page.getByRole("status")).toHaveText("/design");
 });
 
 test("actual whole-header Docs loads the public composition", async ({ page }) => {

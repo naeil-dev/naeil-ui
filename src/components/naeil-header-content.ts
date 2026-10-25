@@ -5,39 +5,11 @@ export type NaeilHeaderLocale = (typeof headerLocales)[number];
 export const headerLocaleNames = { en: "English", ko: "한국어", ja: "日本語" } as const;
 export const headerProjects = [
   {
-    "key": "cc",
-    "href": "/cc",
-    "accent": "oklch(0.704 0.140 181)",
-    "icon": "coral",
-    "status": "active"
-  },
-  {
-    "key": "pkm",
-    "href": "/pkm",
-    "accent": "oklch(0.702 0.183 293)",
-    "icon": "jellyfish",
-    "status": "coming"
-  },
-  {
     "key": "naeilUi",
     "href": "/design",
     "accent": "oklch(0.623 0.214 259)",
     "icon": "whale",
-    "status": "active"
-  },
-  {
-    "key": "sa",
-    "href": "/sa",
-    "accent": "oklch(0.723 0.219 149)",
-    "icon": "fish",
-    "status": "active"
-  },
-  {
-    "key": "babyAgent",
-    "href": "/baby-agent",
-    "accent": "oklch(0.769 0.188 70.08)",
-    "icon": "turtle",
-    "status": "coming"
+    "status": "active" as "active" | "coming"
   }
 ] as const;
 export const headerContent = {
