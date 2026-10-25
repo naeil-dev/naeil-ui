@@ -49,7 +49,7 @@ test('published release event must match frozen UI version tag and reviewed UI s
 
 test('one-time reviewed migration binds exact release identity, change classes, service and approval expiry', () => {
   const migration = { ...release, version: '0.7.0', changes: ['frame', 'dom', 'guard'] };
-  const reviewedMigration = { releaseId: migration.releaseId, version: migration.version, sourceRevision: migration.sourceRevision, archiveSha256: migration.archive.sha256, changes: migration.changes, services: ['example'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed migration', expiresAt: '2099-01-01T00:00:00Z' };
+  const reviewedMigration = { releaseId: migration.releaseId, version: migration.version, sourceRevision: migration.sourceRevision, siteSourceRevision: migration.siteSourceRevision, archiveSha256: migration.archive.sha256, contractSha256: migration.contract.sha256, changes: migration.changes, services: ['example'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed migration', expiresAt: '2099-01-01T00:00:00Z' };
   assert.equal(policyGate(migration, service, { ...policy, reviewedMigration }).mode, 'reviewed-migration');
   assert.equal(policyGate({ ...migration, archive: { ...migration.archive, sha256: 'd'.repeat(64) } }, service, { ...policy, reviewedMigration }).state, 'review-required');
   assert.equal(policyGate(migration, service, { ...policy, reviewedMigration: { ...reviewedMigration, expiresAt: '2000-01-01T00:00:00Z' } }).state, 'review-required');

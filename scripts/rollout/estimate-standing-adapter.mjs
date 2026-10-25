@@ -149,6 +149,10 @@ function releaseGate(input, config, baseline) {
     assert((input.release.changes.length === 1 && input.release.changes[0] === 'fix') || reviewedMigration(input.release, input.service, input.policy), 'Unattended patches must be fix only unless the owner approved this exact release');
     assert.equal(baseline.artifact.ui.contractVersion, input.release.contract.version);
     assert.equal(policyGate(input.release, input.service, input.policy).state, 'eligible', 'Current reviewed patch window required');
+    // policyGate returns early for a migration; recheck the window at every boundary.
+    const window = input.policy.patchWindow, next = patch(input.release.version);
+    assert(window && patch(window.minVersion) <= next && next <= patch(window.maxVersion) && window.contractVersion === input.release.contract.version && window.services?.includes(input.service.id)
+      && Date.parse(window.startsAt) <= Date.now() && Date.parse(window.expiresAt) > Date.now(), 'Release outside the approved patch window');
   }
 }
 function environment(config) {

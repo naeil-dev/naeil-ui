@@ -28,7 +28,7 @@ const approval = item => item && typeof item.approvedBy === 'string' && item.app
 export const reviewedMigration = (release, service, policy) => {
   const migration = policy?.reviewedMigration;
   return Boolean(approval(migration) && migration.releaseId === release.releaseId && migration.version === release.version && migration.sourceRevision === release.sourceRevision
-    && migration.archiveSha256 === release.archive?.sha256 && Array.isArray(migration.changes) && migration.changes.join() === release.changes.join() && migration.services?.includes(service.id));
+    && migration.siteSourceRevision === release.siteSourceRevision && migration.archiveSha256 === release.archive?.sha256 && migration.contractSha256 === release.contract?.sha256 && Array.isArray(migration.changes) && migration.changes.join() === release.changes.join() && migration.services?.includes(service.id));
 };
 
 export function validateRelease(release) {

@@ -67,7 +67,7 @@ def policy_gate(request):
     before, after = version(release.get('previousVersion')), version(release.get('version'))
     require(len(before) == 3 and len(after) == 3 and before[:2] == after[:2] == (0, 7) and after[2] == before[2] + 1, 'consecutive-patch-required')
     migration = policy.get('reviewedMigration')
-    migrated = isinstance(migration, dict) and all(isinstance(migration.get(key), str) and migration[key].strip() for key in ['approvedBy', 'approvalRef', 'reason']) and date(migration.get('expiresAt')) > now and all(migration.get(key) == release.get(key) for key in ['releaseId', 'version', 'sourceRevision', 'changes']) and migration.get('archiveSha256') == release['archive']['sha256'] and service in migration.get('services', [])
+    migrated = isinstance(migration, dict) and all(isinstance(migration.get(key), str) and migration[key].strip() for key in ['approvedBy', 'approvalRef', 'reason']) and date(migration.get('expiresAt')) > now and all(migration.get(key) == release.get(key) for key in ['releaseId', 'version', 'sourceRevision', 'siteSourceRevision', 'changes']) and migration.get('archiveSha256') == release['archive']['sha256'] and migration.get('contractSha256') == release['contract']['sha256'] and service in migration.get('services', [])
     require((release.get('changes') == ['fix'] or migrated) and release['contract']['version'] == '1', 'fix-only-contract1-required')
     window = policy.get('patchWindow')
     require(isinstance(window, dict), 'active-patch-window-required')

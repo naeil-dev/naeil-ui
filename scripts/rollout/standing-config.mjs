@@ -10,7 +10,7 @@ export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestima
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs'].map(name => `scripts/rollout/${name}`);
+export const AUTOMATION_FILES = ['standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs'].map(name => `scripts/rollout/${name}`);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
 const exec = promisify(execFile);
