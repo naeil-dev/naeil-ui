@@ -98,13 +98,13 @@ export async function checkConsumerBrowser(root: string) {
         };
         let panel = await open("en");
         const images = panel.locator("img");
-        await expect(images).toHaveCount(5);
+        await expect(images).toHaveCount(1);
         for (const image of await images.all()) {
           await expect.poll(() => image.evaluate(element => (element as HTMLImageElement).complete && (element as HTMLImageElement).naturalWidth > 0)).toBe(true);
-          assert.match((await image.getAttribute("src"))!, /^https:\/\/naeil.dev\/images\/(coral|jellyfish|whale|fish|turtle)\.png$/);
+          assert.match((await image.getAttribute("src"))!, /^https:\/\/naeil.dev\/images\/whale\.png$/);
         }
-        await panel.getByRole("link", { name: /Content Collector/ }).click();
-        await expect(page.getByTestId("packed-header-route")).toHaveText("https://naeil.dev/en/cc");
+        await panel.getByRole("link", { name: /naeil-ui/ }).click();
+        await expect(page.getByTestId("packed-header-route")).toHaveText("https://naeil.dev/en/design");
         if (mobile) panel = await open("en");
         const controls = mobile ? panel : header;
         await controls.getByRole("combobox").click();
@@ -115,8 +115,8 @@ export async function checkConsumerBrowser(root: string) {
         const localizedControls = mobile ? page.getByRole("dialog", { name: "メニュー", exact: true }) : header;
         await expect(localizedControls.getByRole("combobox")).toHaveText("JA");
         panel = mobile ? localizedControls : await open("ja");
-        await expect(panel.getByText("準備中", { exact: true })).toHaveCount(2);
-        await expect(panel.locator('a[href="https://naeil.dev/ja/cc"]')).toBeVisible();
+        await expect(panel.getByText("準備中", { exact: true })).toHaveCount(0);
+        await expect(panel.locator('a[href="https://naeil.dev/ja/design"]')).toBeVisible();
         if (!mobile) await page.keyboard.press("Escape");
         const themeScope = mobile ? panel : header;
         const label = theme === "dark" ? "ライトテーマに切り替える" : "ダークテーマに切り替える";
