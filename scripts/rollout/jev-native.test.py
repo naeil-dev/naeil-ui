@@ -147,11 +147,11 @@ class NativeTests(unittest.TestCase):
 
     def test_policy_accepts_dom_only_with_owner_approved_migration_of_exact_release(self):
         request = policy_request(self.root); release = request['release']
-        release.update(changes=['dom'], sourceRevision='a' * 40, archive={'sha256': 'b' * 64})
+        release.update(changes=['dom'], sourceRevision='a' * 40, siteSourceRevision='d' * 40, archive={'sha256': 'b' * 64}); release['contract']['sha256'] = 'e' * 64
         with self.assertRaises(n.Refusal): n.policy_gate(request)
-        migration = {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'sourceRevision': 'a' * 40, 'archiveSha256': 'b' * 64, 'changes': ['dom'], 'services': ['jev'], 'approvedBy': 'owner', 'approvalRef': 'migration-approval', 'reason': 'Reviewed header catalog change', 'expiresAt': '2099-01-01T00:00:00Z'}
+        migration = {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'sourceRevision': 'a' * 40, 'siteSourceRevision': 'd' * 40, 'archiveSha256': 'b' * 64, 'contractSha256': 'e' * 64, 'changes': ['dom'], 'services': ['jev'], 'approvedBy': 'owner', 'approvalRef': 'migration-approval', 'reason': 'Reviewed header catalog change', 'expiresAt': '2099-01-01T00:00:00Z'}
         request['policy']['reviewedMigration'] = migration; n.policy_gate(request)
-        for change in [{'archiveSha256': 'c' * 64}, {'services': ['estimate']}, {'expiresAt': '2000-01-01T00:00:00Z'}, {'changes': ['dom', 'api']}, {'reason': ''}]:
+        for change in [{'archiveSha256': 'c' * 64}, {'contractSha256': 'c' * 64}, {'siteSourceRevision': 'c' * 40}, {'services': ['estimate']}, {'expiresAt': '2000-01-01T00:00:00Z'}, {'changes': ['dom', 'api']}, {'reason': ''}]:
             request['policy']['reviewedMigration'] = {**migration, **change}
             with self.assertRaises(n.Refusal): n.policy_gate(request)
 

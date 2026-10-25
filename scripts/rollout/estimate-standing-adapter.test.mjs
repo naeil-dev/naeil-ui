@@ -122,8 +122,11 @@ test('a DOM patch runs only with an owner-approved migration of this exact relea
   await adopt(); standing(); input.release.changes = ['dom'];
   assert.equal((await runStanding(input, config, dependencies)).state, 'gate-failed'); assert(!calls.includes('update'));
   const { releaseId, version, sourceRevision, changes } = input.release;
-  input.policy.reviewedMigration = { releaseId, version, sourceRevision, changes, archiveSha256: input.release.archive.sha256, services: ['estimate'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: new Date(Date.now() + 86400000).toISOString() };
+  input.policy.reviewedMigration = { releaseId, version, sourceRevision, changes, siteSourceRevision: input.release.siteSourceRevision, archiveSha256: input.release.archive.sha256, contractSha256: input.release.contract.sha256, services: ['estimate'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: new Date(Date.now() + 86400000).toISOString() };
   input.attemptId = 'attempt-migration'; input.idempotencyKey += '-migration';
+  const window = input.policy.patchWindow; input.policy.patchWindow = { ...window, maxVersion: '0.7.1' }; input.attemptId = 'attempt-outside-window'; input.idempotencyKey += '-window';
+  assert.equal((await runStanding(input, config, dependencies)).state, 'gate-failed'); assert(!calls.includes('update'));
+  input.policy.patchWindow = window; input.attemptId = 'attempt-migration-final'; input.idempotencyKey += '-final';
   const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'production-verified', dependencies.lastError?.stack ?? result.reason);
 });
 test('source test failure leaves production alone and is never deferred', async () => {

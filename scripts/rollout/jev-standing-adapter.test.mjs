@@ -108,7 +108,7 @@ test('dispatcher-shaped fix window authorizes only consecutive contract1 patches
     let updatePolicy;
     if (['migrated', 'other-service'].includes(cause)) {
       const release = f.input.release; release.changes = ['dom'];
-      f.input.policy.reviewedMigration = { releaseId: release.releaseId, version: release.version, sourceRevision: release.sourceRevision, archiveSha256: release.archive.sha256, changes: ['dom'], services: [cause === 'migrated' ? 'jev' : 'estimate'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: '2099-01-01T00:00:00Z' };
+      f.input.policy.reviewedMigration = { releaseId: release.releaseId, version: release.version, sourceRevision: release.sourceRevision, siteSourceRevision: release.siteSourceRevision, archiveSha256: release.archive.sha256, contractSha256: release.contract.sha256, changes: ['dom'], services: [cause === 'migrated' ? 'jev' : 'estimate'], approvedBy: 'owner', approvalRef: 'migration-approval', reason: 'Reviewed header catalog change', expiresAt: '2099-01-01T00:00:00Z' };
       const update = f.deps.update; f.deps.update = async context => { updatePolicy = context.policy; return update(context); };
     }
     if (cause === 'contract') f.input.policy.patchWindow.contractVersion = '2';
