@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
-import { assertGeometry, assertRouteDestination, assertRouteState, checkMenu, readChrome } from './verify-ui-production.mjs';
+import { assertGeometry, assertRouteDestination, assertRouteState, catalogSize, checkMenu, readChrome } from './verify-ui-production.mjs';
 const contract = JSON.parse(readFileSync(new URL('../contracts/naeil-chrome.v1.json', import.meta.url)));
 const baseline = {
   layoutWidth: 1920, layoutX: 0, headerFrame: { x: 160, width: 1600, padding: 40 }, footerFrame: { x: 160, width: 1600, padding: 40 },
@@ -38,6 +38,8 @@ test('registered application theme labels still require working theme changes an
     </script></html>`, { waitUntil: 'domcontentloaded' });
     await checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } });
     assert.equal(await page.locator('html').getAttribute('class'), 'light');
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, 1), /Canonical project catalog missing/);
+    await page.keyboard.press('Escape');
     await page.locator('#theme').evaluate(button => { button.onclick = null; });
     await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }), /Timeout/);
     await page.locator('#theme').evaluate(button => { button.onclick = () => document.documentElement.classList.add('light', 'dark'); });
@@ -135,4 +137,9 @@ test('protected production contexts require an explicit scoped provider while pu
     assert.equal(calls, 1, 'Public checks must never inherit the private session');
     await publicContext.close();
   } finally { await browser.close(); }
+});
+
+test('catalog size follows the verified UI release, including 0.7.1 rollback targets', () => {
+  assert.equal(catalogSize('0.7.1'), 5); assert.equal(catalogSize('0.6.0'), 5);
+  assert.equal(catalogSize('0.7.2'), 1); assert.equal(catalogSize('0.7.10'), 1);
 });
