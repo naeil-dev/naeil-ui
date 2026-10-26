@@ -296,6 +296,14 @@ test('F8 STOP accompanying a refused read-only inspect defers without consuming 
   const ledger = JSON.parse(readFileSync(join(config.stateDirectory, 'keys', hash(input.idempotencyKey) + '.json')));
   assert.equal(ledger.state, 'deferred'); assert.equal(ledger.runtimeMutationAttempted, false);
 });
+test('I3: Estimate independently refuses any read-only reverification envelope before native work', async () => {
+  for (const envelope of [{ reverification: { schemaVersion: 1, kind: 'standing-read-only-reverification' } }, { reverification: null }, { phase: 'production', attemptId: 'substituted-verifier' }]) {
+    const result = await runStanding({ ...input, ...envelope }, config, dependencies);
+    assert.equal(result.state, 'gate-failed'); assert.deepEqual(calls, []);
+  }
+  assert(!existsSync(join(config.stateDirectory, 'running.lock')));
+});
+
 test('F8 STOP after source update is gate-failed with runtime untouched', async () => {
   await adopt(); standing(); const update = dependencies.update;
   dependencies.update = async (...args) => { const updated = await update(...args); put(input.policy.stopFile, 'STOP'); return updated; };

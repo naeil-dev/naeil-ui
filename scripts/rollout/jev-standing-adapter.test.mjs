@@ -54,6 +54,15 @@ test('adoption verifies actual current artifact without updating, staging or sel
   assert.equal(JSON.parse(readFileSync(join(f.config.stateDirectory, 'baseline.json'))).artifact.id, 'jev-current');
 });
 
+test('I3: Jev independently refuses any read-only reverification envelope before native work', async t => {
+  const f = fixture(t);
+  for (const envelope of [{ reverification: { schemaVersion: 1, kind: 'standing-read-only-reverification' } }, { reverification: null }, { phase: 'production', attemptId: 'substituted-verifier' }]) {
+    const result = await runStanding({ ...f.input, ...envelope }, f.config, f.deps);
+    assert.equal(result.state, 'gate-failed'); assert.deepEqual(f.events, []);
+  }
+  assert(!existsSync(join(f.config.stateDirectory, 'running.lock')));
+});
+
 test('disabled policy and stop switch refuse before any app operation', async t => {
   for (const cause of ['policy', 'stop']) {
     const f = fixture(t);

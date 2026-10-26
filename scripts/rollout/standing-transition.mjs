@@ -60,13 +60,18 @@ function assertApproval(plan, approval) {
   for (const [key,value] of Object.entries({ planSha256: plan.planSha256, previousApprovalSha256: plan.previousApprovalSha256, successorOf: plan.previousApprovalSha256, releaseSha256: releaseIdentityDigest(plan.release), generationSha256: plan.next.generationSha256, priorAttemptId: plan.estimate.priorAttemptId, attemptId: plan.estimate.newAttemptId })) assert.equal(approval[key], value, 'Continuation authorization identity mismatch: ' + key);
   assert(approval.approvedBy?.trim() && approval.approvalRef?.trim() && Date.parse(approval.approvedAt) <= Date.now() && Date.parse(approval.expiresAt) > Date.now() && Date.parse(approval.approvedAt) < Date.parse(approval.expiresAt), 'Current bounded unrevoked continuation approval required');
 }
+function assertRecoveryApproval(plan, approval, recovery) {
+  exact(recovery,['schemaVersion','kind','planSha256','approvalSha256','journal','phase','pointerSha256','approvedBy','approvalRef','approvedAt','expiresAt','revoked']);
+  assert(recovery.schemaVersion===1&&recovery.kind==='standing-transition-recovery-approval'&&recovery.revoked===false&&recovery.approvedBy?.trim()&&recovery.approvalRef?.trim()&&Date.parse(recovery.approvedAt)<=Date.now()&&Date.parse(recovery.expiresAt)>Date.now()&&Date.parse(recovery.approvedAt)<Date.parse(recovery.expiresAt),'Explicit current recovery approval required');
+  assert.equal(recovery.planSha256,plan.planSha256); assert.equal(recovery.approvalSha256,fingerprint(approval));
+}
 async function execute(file,args) {
   try { const result = await exec(file,args,{ env:{PATH:'/usr/bin:/bin:/usr/sbin:/sbin',LANG:'C',LC_ALL:'C'}, timeout:15000,maxBuffer:1024*1024,encoding:'utf8',shell:false }); return { code:0,stdout:result.stdout,stderr:result.stderr }; }
   catch(error) { if (Number.isInteger(error.code) && !error.killed && !error.signal) return {code:error.code,stdout:error.stdout || '',stderr:error.stderr || ''}; throw Error('Pinned OS quiescence probe failed'); }
 }
 
 /** Probe raw OS results; caller booleans never establish re-entry fencing. */
-export async function probeQuiescence(plan, dependencies = {}) {
+export async function probeQuiescence(plan, dependencies = {}, assertAuthority = () => {}) {
   assert.equal(dependencies.platform || process.platform, 'darwin', 'Production quiescence requires macOS');
   const q = plan.quiescence, run = dependencies.execute || execute, facts = [];
   if (!dependencies.execute) {
@@ -74,8 +79,10 @@ export async function probeQuiescence(plan, dependencies = {}) {
     assert.equal(q.uid, process.getuid(), 'Current user scheduler domain required');
   }
   const invoke = async (name,args) => {
+    assertAuthority();
     exact(q.tools[name], ['path','sha256']); assertTrustedFiles({[q.tools[name].path]:q.tools[name].sha256});
     const result = await run(q.tools[name].path,args);
+    assertAuthority();
     assert(Number.isInteger(result.code) && typeof result.stdout === 'string' && typeof result.stderr === 'string' && Buffer.byteLength(result.stdout)+Buffer.byteLength(result.stderr)<=1024*1024, 'Bounded exact OS probe result required');
     facts.push({tool:name,path:q.tools[name].path,sha256:q.tools[name].sha256,args,code:result.code,stdoutSha256:hash(result.stdout),stderrSha256:hash(result.stderr)}); return result;
   };
@@ -123,7 +130,14 @@ function originalState(plan) {
   assertServiceResult(prior.result,prior.request,{allowExpired:true});
   assert(prior.result.state === 'gate-failed' && prior.result.mutationAttempted === true && prior.result.runtimeMutationAttempted === false && !prior.result.rollback, 'Only proved source-only Estimate failure may continue');
   assert.deepEqual(prior.request.release,plan.release,'Original published tuple changed');
-  const retained=readPrivateJSON(join(prior.request.outputDirectory,'output.json')); assert.deepEqual(retained,prior.result,'Retained original Estimate output conflicts');
+  const retained=readPrivateJSON(join(prior.request.outputDirectory,'output.json'));
+  assert(!Object.hasOwn(retained,'transportExitCode'),'Native Estimate output cannot contain transport metadata');
+  assertServiceResult(retained,prior.request,{allowExpired:true});
+  const {transportExitCode,...nativeResult}=prior.result;
+  // Estimate's gate-failed CLI exits1. The transport retains native output bytes
+  // and decorates only the stored result; neither original record is rewritten.
+  if(Object.hasOwn(prior.result,'transportExitCode'))assert.equal(transportExitCode,1,'Unsupported Estimate transport exit code');
+  assert.deepEqual(retained,nativeResult,'Retained original Estimate output conflicts');
   assert(!record.services.jev, 'Jev must remain unstarted'); assertHistoricalNaeil(record.services.naeil,plan.release);
   for(const release of Object.values(state.releases))for(const service of Object.values(release.services || {}))assert(!['invoking','uncertain','activation-pending'].includes(service.state)&&!service.verificationIntent,'Uncertain/nonterminal legacy work prohibits transition');
   const ledger=JSON.parse(readExactReference(plan.estimate.ledger));
@@ -192,7 +206,8 @@ function validateNativeEvidence(plan,config,adapters,original) {
   const actual=readdirSync(root).map(name=>{assert(/^[A-Za-z0-9._-]+$/.test(name),'Unknown native transaction path');const directory=join(root,name);privateDirectory(directory);return directory;}).sort();
   assert.deepEqual([...seen].sort(),actual,'Unknown/unbound Jev transaction history prohibits transition');
 }
-async function prerequisites(plan, approval, dependencies) {
+async function prerequisites(plan, approval, dependencies, assertAuthority = () => {}) {
+  assertAuthority();
   assertPlan(plan); assertApproval(plan,approval); privateDirectory(plan.controlDirectory); readPrivateBytes(plan.stopFile,JSON_LIMITS.controlIndex);
   assert.equal(lstatSync(plan.stopFile).mode & 0o777,0o600,'STOP must remain0600');
   if(!dependencies.execute)assert.equal(plan.stopFile,join(homedir(),'.local/share/naeil-ui-rollout/STOP'),'Canonical operational STOP required');
@@ -208,7 +223,7 @@ async function prerequisites(plan, approval, dependencies) {
   assert.equal(config.stateDirectory,plan.next.stateDirectory); assert.deepEqual(config.generationControl,{controlDirectory:plan.controlDirectory,generationId:plan.next.generationId,epochId:plan.next.epochId});
   assert.equal(config.configReferencesSha256,plan.next.configReferencesSha256); assertConfigReferences(config.configReferences,plan.next.configReferencesSha256);
   const original=originalState(plan);
-  for(const id of IDS) assert.deepEqual(await publicIdentity(config.services[id].origin,dependencies.fetchImpl),plan.predecessors[id],'Public predecessor changed');
+  for(const id of IDS) { const identity=await publicIdentity(config.services[id].origin,dependencies.fetchImpl); assertAuthority(); assert.deepEqual(identity,plan.predecessors[id],'Public predecessor changed'); }
   const adapters={};
   for(const id of ['estimate','jev']) {
     const refs=plan.sourceHandoffs[id]; exact(refs,['approval','adoption','candidate']);
@@ -226,7 +241,7 @@ async function prerequisites(plan, approval, dependencies) {
   assert(absent.every(path=>plan.quiescence.absentPaths.includes(path)),'Native lock/marker fence inventory cannot be omitted');
   assert.equal(plan.estimate.ledger.path,join(estimate.stateDirectory,'keys',hash(plan.estimate.idempotencyKey)+'.json'),'Exact native Estimate ledger path required');
   validateNativeEvidence(plan, config, adapters, original);
-  const proof=await probeQuiescence(plan,dependencies); return {config,...original,proof};
+  const proof=await probeQuiescence(plan,dependencies,assertAuthority); assertAuthority(); return {config,...original,proof};
 }
 
 /** Explicit evidence-preserving prerequisite after real process death. This
@@ -269,12 +284,13 @@ export async function recoverTransition(plan,approval,recovery,dependencies={}) 
 async function apply(plan,approval,recovery,dependencies) {
   assertPlan(plan); assertApproval(plan,approval); privateDirectory(plan.controlDirectory);
   const lease=acquireControlLock(plan.controlDirectory), journalPath=join(plan.controlDirectory,'transition.json');
+  let preserveLease=false, recheckAuthority;
   try {
     let journal=pathExists(journalPath)?readPrivateJSON(journalPath,JSON_LIMITS.controlIndex):null;
+    const recoveryAuthority=recovery?structuredClone(recovery):null;
     if(recovery) {
-      exact(recovery,['schemaVersion','kind','planSha256','approvalSha256','journal','phase','pointerSha256','approvedBy','approvalRef','approvedAt','expiresAt','revoked']);
-      assert(recovery.schemaVersion===1&&recovery.kind==='standing-transition-recovery-approval'&&recovery.revoked===false&&recovery.approvedBy?.trim()&&recovery.approvalRef?.trim()&&Date.parse(recovery.approvedAt)<=Date.now()&&Date.parse(recovery.expiresAt)>Date.now(),'Explicit current recovery approval required');
-      assert.equal(recovery.planSha256,plan.planSha256); assert.equal(recovery.approvalSha256,fingerprint(approval)); assert.equal(recovery.journal.path,journalPath); readExactReference(recovery.journal,JSON_LIMITS.controlIndex);
+      assertRecoveryApproval(plan,approval,recoveryAuthority);
+      assert.equal(recovery.journal.path,journalPath); readExactReference(recovery.journal,JSON_LIMITS.controlIndex);
       assert(journal&&journal.phase===recovery.phase&&journal.phase!=='completed','Exact incomplete recovery phase required');
       assert.equal(pathExists(join(plan.controlDirectory,'active.json'))?fileReference(join(plan.controlDirectory,'active.json')).sha256:null,recovery.pointerSha256,'Recovery pointer changed');
     } else assert(!journal,'Existing transition requires explicit exact recovery; no automatic replay');
@@ -288,22 +304,46 @@ async function apply(plan,approval,recovery,dependencies) {
       if(journal.imported){exact(journal.imported,['manifest','root']);assert.equal(journal.imported.manifest.path,join(plan.next.stateDirectory,'import-manifest.json'));assert.equal(journal.imported.root.path,join(plan.next.stateDirectory,'imported-root.json'));}
       if(journal.validatedState)assert.equal(journal.validatedState.path,join(plan.next.stateDirectory,'state.json'),'Validated root must be the exact successor state');
     }
-    const checked=await prerequisites(plan,approval,dependencies);
+    // Recovery pins the admission journal/pointer once. Our own subsequent
+    // durable progression gets a new exact reference, never renewed authority.
+    let journalRef=journal?fileReference(journalPath,JSON_LIMITS.controlIndex):null;
+    const pointerPath=join(plan.controlDirectory,'active.json');
+    let pointerRef=pathExists(pointerPath)?fileReference(pointerPath,JSON_LIMITS.controlIndex):null, recoveryRef;
+    const authorityConfig=JSON.parse(readExactReference(plan.next.config));
+    const guard=()=>{
+      try {
+        assertPlan(plan); assertApproval(plan,approval);
+        if(recoveryAuthority) {
+          assertRecoveryApproval(plan,approval,recoveryAuthority);
+          assert.equal(fingerprint(recovery),fingerprint(recoveryAuthority),'Immutable recovery authorization changed');
+          if(recoveryRef)readExactReference(recoveryRef,JSON_LIMITS.controlIndex);
+        }
+        readExactReference(plan.next.config); readPrivateBytes(plan.stopFile,JSON_LIMITS.controlIndex);
+        assert.equal(lstatSync(plan.stopFile).mode&0o777,0o600,'STOP must remain0600');
+        assert(authorityConfig.enabled===true&&authorityConfig.policy.enabled===true&&Date.parse(authorityConfig.policy.expiresAt)>Date.now(),'Current standing execution authorization required');
+        for(const id of IDS)assert(reviewedMigration(plan.release,{id},authorityConfig.policy),'Original exact reviewedMigration expired or changed; continuation cannot extend authorization');
+        const window=authorityConfig.policy.patchWindow;assert(Date.parse(window.startsAt)<=Date.now()&&Date.parse(window.expiresAt)>Date.now(),'Current exact patch window required');
+        if(journalRef)readExactReference(journalRef,JSON_LIMITS.controlIndex);else assert(!pathExists(journalPath),'Transition journal changed outside authorized progression');
+        if(pointerRef)readExactReference(pointerRef,JSON_LIMITS.controlIndex);else assert(!pathExists(pointerPath),'Active pointer changed outside authorized progression');
+      } catch(error) { preserveLease=true; throw error; }
+    };
+    recheckAuthority=guard;
+    guard(); const checked=await prerequisites(plan,approval,dependencies,guard); guard();
     const transitions=privateDirectory(join(plan.controlDirectory,'transitions'),true), directory=privateDirectory(join(transitions,plan.planSha256),true); syncDirectory(plan.controlDirectory); syncDirectory(transitions);
     const planRef=immutableJSON(join(directory,'plan.json'),plan), approvalRef=immutableJSON(join(directory,'approval.json'),approval); immutableJSON(join(directory,'old-pointer.json'),plan.oldPointer);
-    if(recovery) immutableJSON(join(directory,'recovery-'+fingerprint(recovery)+'.json'),recovery);
-    const boundary=async name=>{await dependencies.afterBoundary?.(name);};
+    if(recoveryAuthority) { guard(); recoveryRef=immutableJSON(join(directory,'recovery-'+fingerprint(recoveryAuthority)+'.json'),recoveryAuthority); }
+    const boundary=async name=>{await dependencies.afterBoundary?.(name);guard();};
     const phase=async name=>{
-      assertApproval(plan,approval); readPrivateBytes(plan.stopFile,JSON_LIMITS.controlIndex); readExactReference(plan.next.config); assertConfigReferences(checked.config.configReferences,plan.next.configReferencesSha256);
+      guard(); assertConfigReferences(checked.config.configReferences,plan.next.configReferencesSha256);
       originalState(plan); readExactReference(plan.old.config);
-      const proof=await probeQuiescence(plan,dependencies);
+      const proof=await probeQuiescence(plan,dependencies,guard);guard();
       journal={schemaVersion:1,planSha256:plan.planSha256,approvalSha256:fingerprint(approval),plan:planRef,approval:approvalRef,oldPointer:plan.oldPointer,newPointer,phase:name,imported:journal?.imported||null,validatedState:journal?.validatedState||null,proof:immutableJSON(join(directory,'proof-'+name+'-'+fingerprint(proof)+'.json'),proof)};
-      immutableJSON(join(directory,'phase-'+name+'-'+fingerprint(journal)+'.json'),journal); atomicJSON(journalPath,journal,JSON_LIMITS.controlIndex); await boundary('journal-'+name);
+      guard();immutableJSON(join(directory,'phase-'+name+'-'+fingerprint(journal)+'.json'),journal); guard();atomicJSON(journalPath,journal,JSON_LIMITS.controlIndex);journalRef=fileReference(journalPath,JSON_LIMITS.controlIndex);await boundary('journal-'+name);
     };
     if(!journal)await phase('prepared');
     const importInput={sourcePath:plan.old.snapshot.path,expectedSha256:plan.old.snapshot.sha256,destination:plan.next.stateDirectory,epochId:plan.next.epochId,evidenceRoot:plan.old.evidenceRoot}, importedRootPath=join(plan.next.stateDirectory,'imported-root.json');
     if(journal.phase==='prepared') {
-      await prerequisites(plan,approval,dependencies);
+      await prerequisites(plan,approval,dependencies,guard);guard();
       if(pathExists(plan.next.stateDirectory)&&readdirSync(plan.next.stateDirectory).length)validateCompletedImport(importInput,{importedRootPath:pathExists(importedRootPath)?importedRootPath:join(plan.next.stateDirectory,'state.json')});
       else importLegacyState(importInput);
       await boundary('import-complete');
@@ -313,7 +353,7 @@ async function apply(plan,approval,recovery,dependencies) {
     assert(journal.imported,'Completed exact imported epoch required');readExactReference(journal.imported.root,JSON_LIMITS.controlIndex);readExactReference(journal.imported.manifest,JSON_LIMITS.controlIndex);validateCompletedImport(importInput,{importedRootPath});
     if(['imported','continuation-intent'].includes(journal.phase)) {
       if(journal.phase==='imported')await phase('continuation-intent');
-      await prerequisites(plan,approval,dependencies);
+      await prerequisites(plan,approval,dependencies,guard);guard();
       const imported=readPrivateJSON(importedRootPath),state=readStandingEvidence(plan.next.stateDirectory,imported.state),record=Object.values(state.releases).find(record=>record.releaseId===plan.release.releaseId),prior=record.services.estimate;
       const provenance={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:plan.next.generationSha256,historicalRequestSha256:fingerprint(record.services.naeil.request),historicalResultSha256:fingerprint(record.services.naeil.result),requiresFreshVerification:true};
       record.services.naeil.continuation=provenance;
@@ -321,7 +361,7 @@ async function apply(plan,approval,recovery,dependencies) {
       record.services.estimate={state:'deferred',reconciliation:{priorAttemptId:plan.estimate.priorAttemptId},authorizedAttemptId:plan.estimate.newAttemptId};
       record.generationContinuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:plan.next.generationSha256,originalBinding:record.binding,releaseSha256:releaseIdentityDigest(plan.release)}; record.state='deferred'; delete state.blocked; state.lastState='deferred';
       const currentState=readStandingState(plan.next.stateDirectory);
-      if(fingerprint(currentState)!==fingerprint(state)) { assert.equal(fingerprint(currentState),fingerprint(readStandingEvidence(plan.next.stateDirectory,imported.state)),'Partially continued epoch conflicts; retained for review'); writeStandingState(plan.next.stateDirectory,state); }
+      if(fingerprint(currentState)!==fingerprint(state)) { assert.equal(fingerprint(currentState),fingerprint(readStandingEvidence(plan.next.stateDirectory,imported.state)),'Partially continued epoch conflicts; retained for review'); guard();writeStandingState(plan.next.stateDirectory,state); }
       await boundary('continuation-state');
       validateConfig(checked.config); journal.validatedState=fileReference(join(plan.next.stateDirectory,'state.json'));
       immutableJSON(join(plan.next.stateDirectory,'generation-binding.json'),{schemaVersion:1,controlDirectory:plan.controlDirectory,generationSha256:plan.next.generationSha256,epochId:plan.next.epochId});await boundary('generation-binding');await phase('validated');
@@ -330,13 +370,17 @@ async function apply(plan,approval,recovery,dependencies) {
       readExactReference(journal.validatedState,JSON_LIMITS.controlIndex); validateConfig(checked.config);
       if(journal.phase==='validated')await phase('cutover-intent');
       if(journal.phase==='cutover-intent') {
-        await prerequisites(plan,approval,dependencies);
+        await prerequisites(plan,approval,dependencies,guard);guard();
         const now=pointerNow(plan.controlDirectory);assert(fingerprint(now)===fingerprint(plan.oldPointer)||fingerprint(now)===fingerprint(newPointer),'Cutover pointer conflicts');
-        if(fingerprint(now)!==fingerprint(newPointer))atomicJSON(join(plan.controlDirectory,'active.json'),newPointer,JSON_LIMITS.controlIndex);
+        if(fingerprint(now)!==fingerprint(newPointer)){guard();atomicJSON(pointerPath,newPointer,JSON_LIMITS.controlIndex);pointerRef=fileReference(pointerPath,JSON_LIMITS.controlIndex);}
         await boundary('active-pointer');await phase('cutover');
       }
       assert.deepEqual(pointerNow(plan.controlDirectory),newPointer);await phase('completed');
     }
     return {schemaVersion:1,planSha256:plan.planSha256,phase:journal.phase,newPointer,stopActive:true};
-  } finally { lease.release(); }
+  } catch(error) {
+    // A rejected await must not skip the authority check and release a lock
+    // after its approval expired while the failing operation was in flight.
+    recheckAuthority?.(); throw error;
+  } finally { if(preserveLease)lease.retain();else lease.release(); }
 }

@@ -6,6 +6,7 @@ import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, mkdi
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { treeDigest } from './preflight-sandbox.mjs';
+import { readStandingEvidence, readStandingState } from './standing-state.mjs';
 
 export const IDS = ['naeil', 'estimate', 'jev'];
 export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestimate.naeil.dev', jev: 'https://jev.naeil.dev' };
@@ -107,6 +108,13 @@ export function automationDigest(root) {
   }));
 }
 
+/** Entry modules supply their own import.meta.url-derived root, never a request
+ * override. Checking a separate configured checkout cannot admit running code. */
+export function assertExecutingAutomation(config, automationRoot) {
+  assert.equal(realpathSync(automationRoot), realpathSync(config.automation.root), 'Running code differs from approved automation root');
+  assert.equal(automationDigest(automationRoot), config.automation.sha256, 'Running automation bytes differ from approved generation');
+}
+
 export function privateDirectory(path, create = false) {
   assert(isAbsolute(path) && resolve(path) === path, 'Canonical absolute private directory required');
   if (create) mkdirSync(path, { recursive: true, mode: 0o700 });
@@ -172,7 +180,8 @@ export function assertTrustedFiles(files) {
 }
 
 export async function invokeJSON(command, request, directory, kind = 'rollout', { acceptNonzeroResult = false } = {}) {
-  assertGenerationExecution(request); commandConfig(command); privateDirectory(directory, true);
+  const admit = () => kind === 'verify' ? assertGenerationVerification(request) : assertGenerationExecution(request);
+  admit(); commandConfig(command); privateDirectory(directory, true);
   const input = join(directory, 'input.json'), output = join(directory, 'output.json');
   assert(!existsSync(input) && !existsSync(output), 'Invocation files already exist; reconciliation required');
   assertGenerationFence(request); atomicJSON(input, request);
@@ -187,7 +196,7 @@ export async function invokeJSON(command, request, directory, kind = 'rollout', 
   env.PATH = request.executionPath || '/usr/bin:/bin:/usr/sbin:/sbin';
   Object.assign(env, kind === 'verify' ? { NAEIL_VERIFY_INPUT: input, NAEIL_VERIFY_OUTPUT: output } : { NAEIL_ROLLOUT_INPUT: input, NAEIL_ROLLOUT_OUTPUT: output, NAEIL_ROLLOUT_STEP: 'standing' });
   let exitCode;
-  assertGenerationExecution(request);
+  admit();
   try {
     await exec(command.file, command.args, { cwd: command.cwd, env, shell: false, timeout: command.timeoutMs, maxBuffer: 1024 * 1024, encoding: 'utf8' });
   } catch (error) {
@@ -255,7 +264,7 @@ export function validateConfig(config, { automationRoot } = {}) {
   assert.equal(config.repository, 'naeil-dev/naeil-ui', 'Only trusted UI repository supported');
   assert(Array.isArray(config.trustedPublishers) && config.trustedPublishers.length && config.trustedPublishers.every(name => /^[A-Za-z0-9[\]_-]+$/.test(name)), 'Explicit trusted release publishers required');
   assert(isAbsolute(config.automation?.root || '') && HEX.test(config.automation.sha256), 'Pinned automation root/digest required');
-  if (automationRoot) assert.equal(realpathSync(config.automation.root), realpathSync(automationRoot), 'Running code differs from approved automation root');
+  if (automationRoot) assertExecutingAutomation(config, automationRoot);
   assert.equal(automationDigest(config.automation.root), config.automation.sha256, 'Reviewed automation bytes changed');
   privateDirectory(config.stateDirectory);
   assert(typeof config.executionPath === 'string' && config.executionPath.split(':').every(value => isAbsolute(value) && resolve(value) === value), 'Reviewed explicit execution PATH required');
@@ -334,7 +343,9 @@ export function acquireControlLock(directory) {
     throw Error('Explicit lock archival is in progress or incomplete');
   }
   const release = () => { assert.equal(readPrivateJSON(path, JSON_LIMITS.controlIndex).token, token, 'Control lock ownership changed'); unlinkSync(path); syncDirectory(directory); closeSync(fd); };
-  return { token, release };
+  // Fail-closed transition authority loss retains ownership bytes for explicit
+  // archival, while closing this process's descriptor without stealing a lock.
+  return { token, release, retain: () => closeSync(fd) };
 }
 
 /** The pointer is authority for exact config bytes; request manifests alone are not. */
@@ -411,14 +422,65 @@ export function assertGenerationFence(value, adapterConfig) {
   return active;
 }
 
+function assertEstimateSuccessor(value, active) {
+  assert.equal(value.attemptId,active.plan.estimate.newAttemptId,'Estimate attempt outside exact successor authorization');
+  assert.equal(value.idempotencyKey,active.plan.estimate.idempotencyKey,'Estimate successor idempotency key changed');
+  assert.equal(value.reconciliation?.priorAttemptId,active.plan.estimate.priorAttemptId,'Estimate successor must name the exact retained source-only failure');
+}
+
+function assertReverification(value, active) {
+  const lineage=value.reverification;
+  exactFields(lineage,['schemaVersion','kind','epochId','successfulAttempt'],'Exact read-only reverification lineage required');
+  assert(lineage.schemaVersion===1&&lineage.kind==='standing-read-only-reverification'&&lineage.epochId===active.pointer.epochId,'Read-only reverification epoch changed');
+  assert(['estimate','jev'].includes(value.service.id)&&value.mode==='standing'&&value.phase==='production','Only current native success may be reverified read-only');
+  const state=readStandingState(active.pointer.stateDirectory), records=Object.values(state.releases).filter(record=>record.releaseId===value.release.releaseId);
+  assert.equal(records.length,1,'Exact current release required for reverification');
+  const prior=records[0].services[value.service.id],intent=prior?.verificationIntent;
+  assert(prior?.state==='production-verified'&&intent?.state==='invoking','Durable invoking verification intent required; replay is prohibited');
+  assert.equal(fingerprint(intent.request),fingerprint(value),'Read-only verification input differs from durable intent');
+  assert(state.storageIntents?.intents.some(intent=>intent.kind==='verify'&&intent.releaseId===value.release.releaseId&&intent.serviceId===value.service.id&&intent.attemptId===value.attemptId&&intent.requestSha256===hash(serializeJSON(value))),'Durable bound verification barrier required');
+  assert(!prior.reverificationAttempts?.some(attempt=>attempt.request.attemptId===value.attemptId),'Completed verification attempt cannot replay');
+  const success=readStandingEvidence(active.pointer.stateDirectory,lineage.successfulAttempt);
+  exactFields(success,['schemaVersion','kind','generationSha256','epochId','request','result'],'Exact successful native attempt evidence required');
+  assert(success.schemaVersion===1&&success.kind==='standing-successful-native-attempt'&&success.generationSha256===active.pointer.generationSha256&&success.epochId===active.pointer.epochId,'Successful attempt generation/epoch changed');
+  const original=success.request,result=success.result;
+  assert(!Object.hasOwn(original,'reverification')&&original.phase===undefined,'Read-only proof cannot establish native success');
+  assert.equal(fingerprint(original),fingerprint(prior.request),'Reverification substituted the successful native request');
+  assert.equal(fingerprint(result),fingerprint(prior.result),'Reverification substituted the successful native result');
+  assertGenerationFence(original);
+  for(const [key,expected]of Object.entries({schemaVersion:1,state:'production-verified',releaseId:value.release.releaseId,serviceId:value.service.id,attemptId:original.attemptId,idempotencyKey:original.idempotencyKey}))assert.equal(result[key],expected,'Successful native result binding changed');
+  if(value.service.id==='estimate')assertEstimateSuccessor(original,active);
+  assertProduction(result.production,original,result.artifact,{allowExpired:true});
+  assert.notEqual(value.attemptId,original.attemptId,'Reverification requires a fresh verification attempt');
+  assert.equal(value.idempotencyKey,original.idempotencyKey,'Reverification service key changed');
+  assert.equal(releaseIdentityDigest(value.release),releaseIdentityDigest(original.release),'Reverification release changed');
+  assert.deepEqual(value.artifact,result.artifact,'Reverification artifact differs from successful native attempt');
+  for(const key of ['candidate','sourceAdoption','reconciliation'])assert.deepEqual(value[key],original[key],'Reverification source/attempt lineage changed: '+key);
+}
+
+/** Native admission never accepts a verifier envelope, including legacy input. */
 export function assertGenerationExecution(value,adapterConfig) {
+  assert(!Object.hasOwn(value,'reverification'),'Read-only reverification cannot authorize native execution');
+  if(['estimate','jev'].includes(value.service?.id))assert(value.phase===undefined,'Verification input cannot authorize native execution');
+  return assertGenerationAdmission(value,adapterConfig,false);
+}
+
+/** Separate verifier admission; its read-only lineage is authority only while
+ * the exact current-epoch verification intent and fsynced barrier remain. */
+export function assertGenerationVerification(value) {
+  return assertGenerationAdmission(value,undefined,true);
+}
+
+function assertGenerationAdmission(value,adapterConfig,verification) {
   const active=assertGenerationFence(value,adapterConfig);
+  if(Object.hasOwn(value,'reverification'))assert(active&&verification,'Current-generation read-only verification authority required');
   if(active) {
     assertStandingPolicyActive(active.config);
     assert(Date.parse(active.approval.approvedAt)<=Date.now()&&Date.parse(active.approval.expiresAt)>Date.now(),'Continuation execution authorization expired or not active');
     const migration=active.config.policy?.reviewedMigration;
     if(migration)assert(Date.parse(migration.expiresAt)>Date.now(),'Original reviewedMigration expired; continuation cannot extend native authorization');
-    if(value.service?.id==='estimate'){assert.equal(value.attemptId,active.plan.estimate.newAttemptId,'Estimate attempt outside exact successor authorization');assert.equal(value.idempotencyKey,active.plan.estimate.idempotencyKey,'Estimate successor idempotency key changed');assert.equal(value.reconciliation?.priorAttemptId,active.plan.estimate.priorAttemptId,'Estimate successor must name the exact retained source-only failure');}
+    if(Object.hasOwn(value,'reverification'))assertReverification(value,active);
+    else if(value.service?.id==='estimate')assertEstimateSuccessor(value,active);
     if(['estimate','jev'].includes(value.service?.id)) {
       const ref=value.naeilPrerequisite;
       assert(ref?.path?.startsWith(join(active.pointer.stateDirectory,'prerequisites')+'/'),'Current-epoch fresh naeil prerequisite required');

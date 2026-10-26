@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { loadReleaseExpectations, selectExpectationProfile, assertExpectationChrome } from './release-expectations.mjs';
 import { verifyProduction } from '../verify-ui-production.mjs';
 import { captureAccountRender } from '../account-render.mjs';
-import { assertGenerationExecution, assertGenerationFence, fingerprint, readExactReference } from './standing-config.mjs';
+import { assertGenerationVerification, assertGenerationFence, fingerprint, readExactReference } from './standing-config.mjs';
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
 import { readPrivateJson, writePrivateJson, assertPrivateDirectory, renewVerificationSession, sessionCookies } from './verification-session.mjs';
 
@@ -16,7 +16,7 @@ const origins = { naeil: 'https://naeil.dev', estimate: 'https://abestimate.naei
 const menuLabels = { en: 'Menu', ja: 'メニュー', ko: '메뉴' };
 
 export function validateVerificationRequest(input, config) {
-  const active=assertGenerationExecution(input);
+  const active=assertGenerationVerification(input);
   if(active){const args=input.service.verification.command.args,index=args.indexOf('--config');assert(index>=0&&args.lastIndexOf('--config')===index,'Exact referenced verifier configuration required');const ref=active.config.configReferences.find(ref=>ref.path===args[index+1]);assert(ref,'Verifier config absent from active manifest');assert.equal(fingerprint(config),fingerprint(JSON.parse(readExactReference(ref))),'Running verifier configuration changed');}
   assert.equal(input.schemaVersion, 1);
   assert.equal(config.schemaVersion, 1);
@@ -105,7 +105,7 @@ async function anonymousBoundaries(service, beforeAction) {
 
 export async function verifyStanding(input, config) {
   const identity = validateVerificationRequest(input, config);
-  const beforeWrite=()=>assertGenerationFence(input),beforeAction=()=>assertGenerationExecution(input);
+  const beforeWrite=()=>assertGenerationFence(input),beforeAction=()=>assertGenerationVerification(input);
   const service = config.services[input.service.id];
   await assertPrivateDirectory(config.evidenceRoot);
   assert(isAbsolute(input.outputDirectory), 'Absolute private output directory required');

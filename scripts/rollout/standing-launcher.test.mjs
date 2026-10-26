@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import * as configAPI from './standing-config.mjs';
 
 const { atomicJSON, fingerprint, hash } = configAPI;
+const automationRoot = resolve(new URL('../..', import.meta.url).pathname);
 function fixture(t) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-launcher-'))); chmodSync(root, 0o700);
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -14,6 +16,7 @@ function fixture(t) {
   const verifier = join(root, 'verifier.json'); atomicJSON(verifier, { schemaVersion: 1, synthetic: 'verifier' });
   const pin = path => ({ path, sha256: hash(readFileSync(path)), bytes: readFileSync(path).length });
   const configReferences = [pin(verifier)], config = { schemaVersion: 1, enabled: true, policy: { enabled: true, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://standing', expiresAt: '2099-01-01', stopFile: join(root,'STOP') }, generationSha256: 'a'.repeat(64), stateDirectory, configReferences, configReferencesSha256: fingerprint(configReferences), generationControl: { controlDirectory, generationId: 'synthetic-v2', epochId: 'synthetic-epoch' } };
+  config.automation = { root: automationRoot, sha256: configAPI.automationDigest(automationRoot) };
   const path = join(root, 'config.json'); atomicJSON(path, config);
   atomicJSON(join(stateDirectory, 'state.json'), { schemaVersion: 2, epochId: 'synthetic-epoch' });
   const plan = { kind:'standing-0.7.2-continuation', next:{generationId:'synthetic-v2',generationSha256:config.generationSha256,config:pin(path),configReferencesSha256:config.configReferencesSha256,stateDirectory,epochId:'synthetic-epoch'},previousApprovalSha256:'b'.repeat(64),release:{version:'0.7.2'},estimate:{priorAttemptId:'original',newAttemptId:'new'} };plan.planSha256=fingerprint(plan);
@@ -71,4 +74,19 @@ test('STOP during admitted work permits fenced completion evidence and independe
   atomicJSON(f.config.policy.stopFile,{reason:'synthetic owner stop'});
   assert.doesNotThrow(()=>configAPI.assertGenerationFence(request));
   assert.throws(()=>configAPI.assertGenerationExecution(request),/STOP/);
+});
+
+test('I2: a stale executing launcher refuses before entering its dispatcher while the approved root is intact', async t => {
+  const f = fixture(t), staleRoot = join(f.root, 'stale-copy'), scripts = join(staleRoot, 'scripts', 'rollout');
+  mkdirSync(scripts, { recursive: true, mode: 0o700 });
+  for (const name of ['standing-launcher.mjs','standing-config.mjs','standing-state.mjs','release-expectations.mjs','preflight-sandbox.mjs']) {
+    cpSync(join(automationRoot, 'scripts', 'rollout', name), join(scripts, name));
+  }
+  const entered = join(f.root, 'stale-dispatcher-entered');
+  writeFileSync(join(scripts, 'standing-dispatcher.mjs'), `import {writeFileSync} from 'node:fs'; export async function poll() {writeFileSync(${JSON.stringify(entered)}, 'entered');return {state:'stopped'};}`);
+  const stale = await import(pathToFileURL(join(scripts, 'standing-launcher.mjs')).href);
+  await assert.rejects(() => stale.runActiveGeneration(f.controlDirectory));
+  assert(!existsSync(entered), 'The stale imported dispatcher must never be entered');
+  assert.equal(configAPI.automationDigest(automationRoot), f.config.automation.sha256);
+  assert.equal(JSON.parse(readFileSync(join(f.controlDirectory, 'launcher-status.json'))).state, 'refused');
 });

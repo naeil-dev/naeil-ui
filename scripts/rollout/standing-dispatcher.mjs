@@ -33,7 +33,7 @@ function publicSummary(state) {
 
 /** One bounded poll; launchd supplies cadence. Never installs or starts a job. */
 export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON, controlLease } = {}) {
-  validateConfig(config);
+  validateConfig(config, { automationRoot: root });
   const active=assertGenerationFence(config), lease=active&&!controlLease?acquireControlLock(config.generationFence.controlDirectory):null;
   if(controlLease)assert.equal(readPrivateJSON(join(config.generationFence.controlDirectory,'control.lock')).token,controlLease.token,'Launcher lease changed');
   let unlock;try {assertGenerationFence(config);unlock=acquireLock(config.stateDirectory);}catch(error){lease?.release();throw error;}
@@ -131,6 +131,10 @@ export async function poll(config, { github = new GitHub({ repository: config.re
                 const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId);assertGenerationFence(config);privateDirectory(outputDirectory, true);
                 const {command,...currentService}=config.services[id];
                 const request = { ...prior.request,release,service:currentService,policy:config.policy,trustedFiles:config.trustedFiles,executionPath:config.executionPath,...generationRequest(config,id,record),attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
+                if(config.generation&&id!=='naeil') {
+                  const successfulAttempt=writeStandingEvidence(config.stateDirectory,{schemaVersion:1,kind:'standing-successful-native-attempt',generationSha256:config.generationSha256,epochId:config.generationControl.epochId,request:prior.request,result:prior.result},config);
+                  request.reverification={schemaVersion:1,kind:'standing-read-only-reverification',epochId:config.generationControl.epochId,successfulAttempt};
+                }
                 const attempt = { state: 'invoking', request, startedAt: new Date().toISOString() };
                 prior.verificationIntent = attempt; save();
                 assertActive(config);const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');

@@ -80,6 +80,36 @@ test('pure plan exposes exact identities and cutover preserves old binding, naei
   assert.equal(readPrivateJSON(join(f.controlDirectory, 'transition.json')).phase, 'completed');
 });
 
+test('I1: the exact nonzero Estimate transport envelope preserves both original records', async t => {
+  const api = await load(), f = fixture(t), nativePath = join(f.oldState, 'output.json');
+  const nativeBytes = readFileSync(nativePath);
+  f.state.releases['2'].services.estimate.result.transportExitCode = 1;
+  atomicJSON(join(f.oldState, 'state.json'), f.state);
+  f.input.old.snapshot = f.put('snapshot.json', f.state);
+  const snapshotBytes = readFileSync(f.input.old.snapshot.path), plan = api.planTransition(f.input);
+  await api.applyTransition(plan, approval(plan), f.deps);
+  const retained = readStandingState(f.newState).releases['2'].history.at(-1).prior.result;
+  assert.equal(retained.transportExitCode, 1);
+  assert.deepEqual(readFileSync(nativePath), nativeBytes);
+  assert.deepEqual(readFileSync(f.input.old.snapshot.path), snapshotBytes);
+  assert.deepEqual(readPrivateJSON(nativePath), Object.fromEntries(Object.entries(retained).filter(([key]) => key !== 'transportExitCode')));
+});
+
+test('I1: unsupported transport metadata and any altered native output refuse continuation', async t => {
+  const api = await load();
+  for (const cause of ['zero','negative','string','unsupported-exit','extra-metadata','native-payload','native-envelope']) {
+    const f = fixture(t), stored = f.state.releases['2'].services.estimate.result;
+    stored.transportExitCode = { zero: 0, negative: -1, string: '1', 'unsupported-exit': 2 }[cause] ?? 1;
+    if (cause === 'extra-metadata') stored.transportSignal = 'SIGTERM';
+    if (cause === 'native-payload') atomicJSON(join(f.oldState, 'output.json'), { ...stored, transportExitCode: undefined, detail: 'substituted' });
+    if (cause === 'native-envelope') atomicJSON(join(f.oldState, 'output.json'), stored);
+    atomicJSON(join(f.oldState, 'state.json'), f.state); f.input.old.snapshot = f.put('snapshot.json', f.state);
+    const plan = api.planTransition(f.input);
+    await assert.rejects(() => api.applyTransition(plan, approval(plan), f.deps), /transport|output/i);
+    assert(!existsSync(f.newState)); assert(existsSync(f.stopFile));
+  }
+});
+
 test('quiescence rejects registration, enabled override, matching process/open file, lock, marker and uncertain ledger', async t => {
   const api = await load();
   for (const cause of ['registered','enabled','arbitrary-exit','process','open-file','lock','marker','ledger','runtime']) {
@@ -130,6 +160,73 @@ test('every journal/pointer boundary refuses polling until explicit exact recove
     if (filesBefore) assert.deepEqual(readFileSync(join(f.newState, 'legacy-source.json')), filesBefore);
     assert.equal(f.events.filter(event => event[0] === 'native').length, 0);
   }
+});
+
+test('I4: recovery authority lost across awaited boundaries preserves the exact journal, pointer, STOP and lock', async t => {
+  const api = await load(), realNow = Date.now.bind(Date); let clock = realNow();
+  t.mock.method(Date, 'now', () => clock);
+  for (const boundary of ['initial-prerequisites','phase-probe','cutover-prerequisites','after-pointer','completed-probe']) {
+    clock = realNow();
+    const f = fixture(t), plan = api.planTransition(f.input), approved = approval(plan);
+    const initial = boundary === 'phase-probe' ? 'journal-imported' : boundary === 'completed-probe' ? 'journal-cutover' : 'journal-cutover-intent';
+    await assert.rejects(() => api.applyTransition(plan, approved, { ...f.deps, afterBoundary: name => { if (name === initial) throw Error('synthetic interruption'); } }));
+    const journalPath = join(f.controlDirectory, 'transition.json'), pointerPath = join(f.controlDirectory, 'active.json'), lockPath = join(f.controlDirectory, 'control.lock');
+    const recovery = { schemaVersion: 1, kind: 'standing-transition-recovery-approval', planSha256: plan.planSha256, approvalSha256: fingerprint(approved), journal: fileReference(journalPath), phase: readPrivateJSON(journalPath).phase, pointerSha256: existsSync(pointerPath) ? fileReference(pointerPath).sha256 : null, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://short-recovery', approvedAt: new Date(clock - 1000).toISOString(), expiresAt: new Date(clock + 60000).toISOString(), revoked: false };
+    let fetches = 0, schedulerProbes = 0, armed = false, retained;
+    const expire = () => {
+      retained ||= { journal: readFileSync(journalPath), pointer: existsSync(pointerPath) ? readFileSync(pointerPath) : null, state: readFileSync(join(f.newState, 'state.json')), lock: readFileSync(lockPath) };
+      clock = Date.parse(recovery.expiresAt) + 1;
+    };
+    const deps = { ...f.deps,
+      fetchImpl: async (...args) => { fetches++; const response = await f.deps.fetchImpl(...args); if (boundary === 'initial-prerequisites' && fetches === 1 || boundary === 'cutover-prerequisites' && fetches === 4) expire(); return response; },
+      execute: async (file, args) => { const response = await f.deps.execute(file, args); if (file === f.tools.launchctl.path && args[0] === 'print') { schedulerProbes++; if (armed || boundary === 'completed-probe' && schedulerProbes === 2) { armed = false; expire(); } } return response; },
+      afterBoundary: name => { if (boundary === 'phase-probe' && name === 'generation-binding') armed = true; if (boundary === 'after-pointer' && name === 'active-pointer') expire(); },
+    };
+    await assert.rejects(() => api.recoverTransition(plan, approved, recovery, deps), /recovery.*approval|recovery.*author/i);
+    assert(retained, boundary + ' did not exercise awaited authority loss');
+    assert.deepEqual(readFileSync(journalPath), retained.journal, boundary);
+    assert.deepEqual(existsSync(pointerPath) ? readFileSync(pointerPath) : null, retained.pointer, boundary);
+    assert.deepEqual(readFileSync(join(f.newState, 'state.json')), retained.state, boundary);
+    assert.deepEqual(readFileSync(lockPath), retained.lock, boundary);
+    assert.equal(readFileSync(f.stopFile, 'utf8'), 'STOP\n');
+  }
+});
+
+test('I4: recovery cannot extend immutable recovery, continuation or original migration authority after an await', async t => {
+  const api = await load(), realNow = Date.now.bind(Date); let clock = realNow();
+  t.mock.method(Date, 'now', () => clock);
+  for (const authority of ['recovery-mutation','continuation','migration']) {
+    clock = realNow(); const f = fixture(t), plan = api.planTransition(f.input), approved = approval(plan);
+    if (authority === 'continuation') approved.expiresAt = new Date(clock + 60000).toISOString();
+    await assert.rejects(() => api.applyTransition(plan, approved, { ...f.deps, afterBoundary: name => { if (name === 'journal-cutover-intent') throw Error('synthetic interruption'); } }));
+    const path = join(f.controlDirectory, 'transition.json'), journal = fileReference(path), before = readFileSync(path);
+    const recovery = { schemaVersion: 1, kind: 'standing-transition-recovery-approval', planSha256: plan.planSha256, approvalSha256: fingerprint(approved), journal, phase: 'cutover-intent', pointerSha256: null, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://immutable-recovery', approvedAt: new Date(clock - 1000).toISOString(), expiresAt: new Date(clock + 60000).toISOString(), revoked: false };
+    if (authority !== 'recovery-mutation') recovery.expiresAt = '2099-01-01';
+    let fetches = 0;
+    await assert.rejects(() => api.recoverTransition(plan, approved, recovery, { ...f.deps, fetchImpl: async (...args) => {
+      const response = await f.deps.fetchImpl(...args);
+      if (++fetches === 4) {
+        if (authority === 'recovery-mutation') recovery.expiresAt = '2099-01-01';
+        else clock = Date.parse(authority === 'continuation' ? approved.expiresAt : f.config.policy.reviewedMigration.expiresAt) + 1;
+      }
+      return response;
+    } }), authority === 'recovery-mutation' ? /Immutable recovery authorization changed/ : authority === 'continuation' ? /continuation approval/ : /reviewedMigration expired/);
+    assert.equal(fetches, 4, 'Refusal must occur immediately after the affected await');
+    assert.deepEqual(readFileSync(path), before); assert(!existsSync(join(f.controlDirectory, 'active.json')));
+    assert(existsSync(join(f.controlDirectory, 'control.lock'))); assert(existsSync(f.stopFile));
+  }
+});
+
+test('I4: expiry during a rejected await still retains the recovery lock and completed boundaries', async t => {
+  const api = await load(), f = fixture(t), plan = api.planTransition(f.input), approved = approval(plan);
+  await assert.rejects(() => api.applyTransition(plan, approved, { ...f.deps, afterBoundary: name => { if (name === 'journal-cutover-intent') throw Error('synthetic interruption'); } }));
+  const path = join(f.controlDirectory, 'transition.json'), before = readFileSync(path), now = Date.now(); let clock = now;
+  t.mock.method(Date, 'now', () => clock);
+  const recovery = { schemaVersion: 1, kind: 'standing-transition-recovery-approval', planSha256: plan.planSha256, approvalSha256: fingerprint(approved), journal: fileReference(path), phase: 'cutover-intent', pointerSha256: null, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://rejected-await', approvedAt: new Date(now - 1000).toISOString(), expiresAt: new Date(now + 60000).toISOString(), revoked: false };
+  await assert.rejects(() => api.recoverTransition(plan, approved, recovery, { ...f.deps, fetchImpl: async () => { clock = now + 60001; throw Error('synthetic unavailable identity'); } }));
+  assert.deepEqual(readFileSync(path), before); assert(!existsSync(join(f.controlDirectory, 'active.json')));
+  assert(existsSync(join(f.controlDirectory, 'control.lock')), 'Lost recovery authority must retain ownership even when the await rejects');
+  assert(existsSync(f.stopFile));
 });
 
 test('competing cutovers and a retained crash lock cannot steal ownership or replay conversion', async t => {

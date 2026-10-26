@@ -2,15 +2,16 @@ import assert from 'node:assert/strict';
 import { chmodSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import test from 'node:test';
 import { assertServiceResult, inspect, poll, reconcile } from './standing-dispatcher.mjs';
 import { assertGenerationExecution, atomicJSON, automationDigest, fileReference, fingerprint, hash, IDS, invokeJSON, operationalGenerationDigest, ORIGINS, readPrivateJSON, routeKey, validateConfig } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
-import { readStandingState, writeStandingState } from './standing-state.mjs';
+import { readStandingEvidence, readStandingState, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
 import {declaration} from './fixtures/reviewed-expectations.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
+import { validateVerificationRequest } from './standing-verification.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 function archive(version) {
@@ -71,11 +72,26 @@ function success(request) {
   return { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, state: 'production-verified', artifact, production };
 }
 
+test('I2: a separately imported dispatcher cannot poll an intact approved root from another executing root', async t => {
+  const f = fixture(t), staleDirectory = join(f.directory, 'stale', 'scripts', 'rollout');
+  mkdirSync(staleDirectory, { recursive: true, mode: 0o700 });
+  // Synthetic copy uses reviewed helpers while retaining its own module root.
+  const source = readFileSync(new URL('./standing-dispatcher.mjs', import.meta.url), 'utf8').replace(/from '\.\/([^']+)'/g, (_match, name) => 'from ' + JSON.stringify(new URL('./' + name, import.meta.url).href));
+  const path = join(staleDirectory, 'standing-dispatcher.mjs'); writeFileSync(path, source);
+  const stale = await import(pathToFileURL(path).href); let entered = false;
+  await assert.rejects(() => stale.poll(f.config, { ...f, automationRoot: root, github: { releases: async () => { entered = true; return []; } } }), /Running code differs from approved automation root/);
+  assert.equal(entered, false); assert.equal(f.calls.length, 0);
+  assert(!existsSync(join(f.config.stateDirectory, 'dispatcher.lock')));
+  assert(!existsSync(join(f.config.stateDirectory, 'state.json')));
+  assert.equal(automationDigest(root), f.config.automation.sha256);
+});
+
 function activateGeneration(f, release) {
   const controlDirectory=join(f.directory,'control');mkdirSync(controlDirectory,{mode:0o700});
   const pin=fileReference,verifier=join(f.directory,'verifier.json');atomicJSON(verifier,{schemaVersion:1,synthetic:'verifier'});
   for(const id of ['estimate','jev']) {const candidate=join(f.directory,id+'-candidate.json');atomicJSON(candidate,{service:id,passed:true});atomicJSON(f.config.services[id].adapterOptions.standingConfigPath,{handoff:{candidateReceipt:pin(candidate),sourceAdoption:{synthetic:id}}});}
   for(const id of IDS)f.config.services[id].verification.command.args=['fixture','--config',verifier];
+  atomicJSON(verifier,{schemaVersion:1,services:f.config.services});
   f.config.configReferences=[verifier,...['estimate','jev'].map(id=>f.config.services[id].adapterOptions.standingConfigPath)].sort().map(path=>pin(path));f.config.configReferencesSha256=fingerprint(f.config.configReferences);
   const context={automationSha256:f.config.automation.sha256,trustedFiles:f.config.trustedFiles,executionPath:f.config.executionPath,stateSchemaVersion:2};
   f.config.generation={...context,executionContexts:{estimate:context,jev:{...context,executionPath:'/bin:/usr/bin'}}};f.config.generationSha256=operationalGenerationDigest(f.config.generation);
@@ -118,6 +134,84 @@ async function continuationFixture(t) {
   record.services.estimate={state:'deferred',reconciliation:{priorAttemptId:prior.request.attemptId},authorizedAttemptId:'estimate-new-attempt'};delete state.blocked;writeStandingState(f.config.stateDirectory,state);f.calls.length=0;
   return {...f,invoke:invoke,verify:async(_command,request)=>success(request).production};
 }
+
+test('I3: expired Estimate evidence refreshes with durable fresh verification without repeating its native attempt', async t => {
+  const f = await continuationFixture(t), nativeRequests = [], verificationRequests = [];
+  const invoke = async (_command, request) => {
+    assertGenerationExecution(request); nativeRequests.push(request);
+    return request.service.id === 'jev' ? { ...success(request), state: 'deferred', mutationAttempted: false } : success(request);
+  };
+  const verify = async (_command, request) => {
+    const verifierPath = request.service.verification.command.args.at(-1);
+    const verifierConfig = readPrivateJSON(verifierPath);
+    validateVerificationRequest(request, verifierConfig);
+    const saved = f.state().releases['2'].services[request.service.id];
+    assert.equal(fingerprint(saved.verificationIntent.request), fingerprint(request), 'Intent must be durable before verification');
+    if (request.service.id === 'estimate') {
+      assert(request.reverification, 'A request flag cannot replace durable lineage');
+      // Real credential-free transport and a synthetic read-only child each
+      // enforce admission from the same durable intent. No native work runs.
+      const script = `import {assertGenerationVerification,atomicJSON,readPrivateJSON} from ${JSON.stringify(new URL('./standing-config.mjs', import.meta.url).href)}; Date.now=()=>${Date.now()}; const input=readPrivateJSON(process.env.NAEIL_VERIFY_INPUT); assertGenerationVerification(input); atomicJSON(process.env.NAEIL_VERIFY_OUTPUT,{accepted:input.attemptId});`;
+      const transported = await invokeJSON({ file: realpathSync(process.execPath), args: ['--input-type=module', '-e', script], timeoutMs: 10000 }, request, join(request.outputDirectory, 'synthetic-transport'), 'verify');
+      assert.equal(transported.accepted, request.attemptId);
+      const baseline = f.state();
+      for (const [cause, expected] of [
+        ['missing-lineage', /exact successor/], ['changed-input', /differs from durable intent/],
+        ['missing-intent', /Durable invoking/], ['missing-barrier', /verification barrier/],
+        ['epoch', /epoch changed/], ['artifact', /artifact differs/], ['source', /source\/attempt lineage/],
+        ['success-reference', /Unsafe evidence reference/], ['substituted-native', /exact successor/],
+        ['used-verifier-id', /cannot replay/], ['expired-site', /Stale production/],
+      ]) {
+        const current = structuredClone(baseline), input = structuredClone(request), prior = current.releases['2'].services.estimate;
+        if (cause === 'missing-lineage') delete input.reverification;
+        if (cause === 'changed-input') input.referencePath += '.substituted';
+        if (cause === 'epoch') input.reverification.epochId = 'foreign';
+        if (cause === 'artifact') input.artifact.id = 'substituted';
+        if (cause === 'source') input.candidate.service = 'foreign';
+        if (cause === 'success-reference') input.reverification.successfulAttempt.sha256 = 'f'.repeat(64);
+        if (cause === 'substituted-native') {
+          const success = readStandingEvidence(f.config.stateDirectory, input.reverification.successfulAttempt);
+          success.request.attemptId = 'substituted-native'; success.result.attemptId = 'substituted-native';
+          prior.request = success.request; prior.result = success.result;
+          input.reverification.successfulAttempt = writeStandingEvidence(f.config.stateDirectory, success, f.config);
+        }
+        if (cause === 'used-verifier-id') (prior.reverificationAttempts ||= []).push({ request: input, state: 'production-verified' });
+        if (cause === 'expired-site') {
+          const proof = readPrivateJSON(input.naeilPrerequisite.path); proof.production.checkedAt = '2000-01-01';
+          const path = join(f.config.stateDirectory, 'prerequisites', 'expired-synthetic-site.json'); atomicJSON(path, proof); input.naeilPrerequisite = fileReference(path);
+        }
+        if (cause !== 'changed-input') prior.verificationIntent.request = input;
+        if (cause === 'missing-intent') delete prior.verificationIntent;
+        writeStandingState(f.config.stateDirectory, current, f.config);
+        if (cause === 'missing-barrier') rmSync(join(f.config.stateDirectory, 'pending-intent.json'));
+        try { assert.throws(() => validateVerificationRequest(input, verifierConfig), expected, cause); }
+        catch (error) { t.diagnostic(cause + ': ' + (error.actual?.message || error.message)); throw error; }
+        finally { writeStandingState(f.config.stateDirectory, baseline, f.config); }
+      }
+      assert.throws(() => assertGenerationExecution(request), /cannot authorize native/);
+    }
+    verificationRequests.push(request); return success(request).production;
+  };
+  assert.equal((await poll(f.config, { ...f, invoke, verify })).state, 'deferred');
+  const original = f.state().releases['2'].services.estimate;
+  t.mock.timers.enable({ apis: ['Date'], now: Date.now() + (f.config.policy.maxEvidenceAgeSeconds + 1) * 1000 });
+  assert.equal((await poll(f.config, { ...f, invoke, verify })).state, 'deferred');
+  assert.equal(nativeRequests.filter(request => request.service.id === 'estimate').length, 1);
+  const fresh = verificationRequests.find(request => request.service.id === 'estimate');
+  assert(fresh); assert.notEqual(fresh.attemptId, original.request.attemptId);
+  assert.deepEqual(fresh.artifact, original.result.artifact);
+  const after = f.state().releases['2'].services.estimate;
+  assert.deepEqual(after.request, original.request); assert.deepEqual(after.result, original.result);
+  assert.equal(after.reverifications.at(-1).request.attemptId, fresh.attemptId);
+  assert.equal(after.verificationIntent, undefined); assert.equal(f.state().blocked, undefined);
+  const verifierConfig = readPrivateJSON(fresh.service.verification.command.args.at(-1));
+  assert.throws(() => validateVerificationRequest(fresh, verifierConfig), /Durable invoking/);
+  const replayDirectory = join(fresh.outputDirectory, 'replayed-transport');
+  await assert.rejects(() => invokeJSON(fresh.service.verification.command, fresh, replayDirectory, 'verify'), /Durable invoking/);
+  assert(!existsSync(replayDirectory), 'Replayed verification must fail before transport writes');
+  await assert.rejects(() => invokeJSON(fresh.service.verification.command, fresh, replayDirectory, 'rollout'), /cannot authorize native/);
+  assert(!existsSync(replayDirectory));
+});
 
 test('generation or manifest drift after admitted child completion prevents all later writes and dispatches',async t=>{
   for(const cause of ['manifest','pointer']) {

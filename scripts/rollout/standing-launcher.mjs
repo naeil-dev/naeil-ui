@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { acquireControlLock, assertGenerationFence, atomicJSON, JSON_LIMITS, privateDirectory, readActiveGeneration } from './standing-config.mjs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { acquireControlLock, assertExecutingAutomation, assertGenerationFence, atomicJSON, JSON_LIMITS, privateDirectory, readActiveGeneration } from './standing-config.mjs';
+
+const automationRoot = fileURLToPath(new URL('../..', import.meta.url));
 
 export { readActiveGeneration };
 
@@ -15,8 +17,11 @@ export async function runActiveGeneration(controlDirectory, dependencies = {}) {
     lease = acquireControlLock(controlDirectory); status('starting', null);
     active = readActiveGeneration(controlDirectory);
     const config = { ...active.config, generationFence: { controlDirectory, pointerSha256: active.pointerSha256 } };
+    assertExecutingAutomation(config, automationRoot);
     assertGenerationFence(config); status('running', null);
+    // poll is an explicit synthetic IO seam; it never substitutes code identity.
     const poll = dependencies.poll || (await import('./standing-dispatcher.mjs')).poll;
+    assertExecutingAutomation(config, automationRoot);
     dispatched = true;
     const result = await poll(config, { ...dependencies.dispatcher, controlLease: lease });
     assertGenerationFence(config);
