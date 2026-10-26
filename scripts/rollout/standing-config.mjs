@@ -494,9 +494,22 @@ function assertGenerationAdmission(value,adapterConfig,verification) {
       const proof=JSON.parse(readExactReference(ref));
       exactFields(proof,['schemaVersion','kind','generationSha256','pointerSha256','releaseSha256','request','artifact','production'],'Exact current naeil verification evidence required');
       assert(proof.schemaVersion===1&&proof.kind==='standing-current-naeil-verification'&&proof.generationSha256===active.pointer.generationSha256&&proof.pointerSha256===active.pointerSha256&&proof.releaseSha256===active.approval.releaseSha256,'Naeil verification generation/release changed');
-      assert.equal(proof.request.service.id,'naeil');assert.equal(releaseIdentityDigest(proof.request.release),active.approval.releaseSha256);
-      assertGenerationFence(proof.request);assertProduction(proof.production,proof.request,proof.artifact);
-      const target = requestSiteTarget(proof.request);
+      const nested=proof.request;
+      assert(nested.schemaVersion===1&&nested.kind===undefined&&nested.mode==='standing'&&(nested.phase===undefined||nested.phase==='production')&&!Object.hasOwn(nested,'reverification'),'Operational current-generation naeil prerequisite required; standalone evidence is not authority');
+      for(const key of ['generationSha256','generationFence','configReferences','configReferencesSha256','policy','trustedFiles','executionPath'])assert(Object.hasOwn(nested,key)&&nested[key]!==undefined,'Complete current-generation naeil request authority required');
+      assert.equal(nested.service.id,'naeil');assert.equal(releaseIdentityDigest(nested.release),active.approval.releaseSha256);
+      assert.deepEqual(nested.generationFence,value.generationFence,'Naeil prerequisite belongs to another current pointer/control');
+      const nestedActive=assertGenerationFence(nested);
+      assert(nestedActive&&nestedActive.pointerSha256===active.pointerSha256,'Naeil prerequisite requires the exact active native generation');
+      assert.deepEqual(nestedActive.pointer,active.pointer,'Naeil prerequisite active generation changed');
+      const {command,...siteService}=active.config.services.naeil;
+      assert.deepEqual(nested.service,siteService,'Naeil prerequisite service differs from exact active configuration');
+      assert.deepEqual(nested.policy,active.config.policy,'Naeil prerequisite policy differs from exact active configuration');
+      assert.deepEqual(nested.trustedFiles,active.config.trustedFiles,'Naeil prerequisite executable closure differs from active configuration');
+      assert.equal(nested.executionPath,active.config.generation?.executionContexts.naeil?.executionPath||active.config.executionPath,'Naeil prerequisite execution PATH differs from active configuration');
+      const target=requestSiteTarget({...nested,service:siteService});
+      assert.deepEqual(requestSiteTarget(nested),target,'Naeil prerequisite target differs from exact active configuration');
+      assertProduction(proof.production,nested,proof.artifact);
       if (target.approvalSha256) {
         assert.equal(proof.request.service.siteContinuationApproval.oldSourceRevision, active.plan.predecessors.naeil.sourceRevision, 'Site continuation lost its exact historical predecessor');
         assert.equal(proof.production.identity.sourceRevision, target.sourceRevision, 'Naeil production differs from approved current site');

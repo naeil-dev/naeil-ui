@@ -16,17 +16,19 @@ export async function readPrivateJson(path) {
   const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const stat = await file.stat();
-    assert(stat.isFile() && stat.uid === process.getuid() && (stat.mode & 0o777) === 0o600 && stat.size <= 8 * 1024 * 1024, 'Owner-only bounded private0600 file required');
+    assert(stat.isFile() && stat.nlink === 1 && stat.uid === process.getuid() && (stat.mode & 0o777) === 0o600 && stat.size <= 8 * 1024 * 1024, 'Owner-only bounded single-link private0600 file required');
     try { return JSON.parse(await file.readFile('utf8')); } catch { throw new Error('Private JSON is invalid'); }
   } finally { await file.close(); }
 }
 
 export async function writePrivateJson(path, value, { beforeWrite = () => {} } = {}) {
   await assertPrivateDirectory(dirname(path));
+  const bytes=JSON.stringify(value)+'\n';
+  assert(Buffer.byteLength(bytes)<=8*1024*1024,'Bounded private JSON write required');
   const temporary = `${path}.${randomUUID()}.tmp`;
-  beforeWrite(); const file = await open(temporary, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
-  try { beforeWrite(); await file.writeFile(JSON.stringify(value) + '\n'); await file.sync(); } finally { await file.close(); }
-  beforeWrite(); await rename(temporary, path);
+  beforeWrite({operation:'create',path:temporary,target:path}); const file = await open(temporary, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+  try { beforeWrite({operation:'write',path:temporary,target:path}); await file.writeFile(bytes); await file.sync(); } finally { await file.close(); }
+  beforeWrite({operation:'rename',path:temporary,destination:path}); await rename(temporary, path);
   const directory = await open(dirname(path), constants.O_RDONLY);
   try { await directory.sync(); } finally { await directory.close(); }
 }
@@ -51,7 +53,7 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   assert(typeof config.anonKey === 'string' && config.anonKey && typeof config.userId === 'string' && config.userId, 'Pinned verification account/config required');
   await readPrivateJson(config.stateFile);
   const lock = `${config.stateFile}.refresh-lock`;
-  beforeWrite(); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new Error('Verification refresh pending/locked; reconciliation required'); }
+  beforeWrite({operation:'mkdir',path:lock}); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new Error('Verification refresh pending/locked; reconciliation required'); }
   // Read only after obtaining the lock; another completed refresh may have
   // rotated the token between the initial permission check and lock creation.
   const prior = await readPrivateJson(config.stateFile);
@@ -74,8 +76,8 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   assertSession(next, config.userId, now, minimumValidityMs);
   await writePrivateJson(config.stateFile, next, { beforeWrite });
   // Retain the consumed marker as an audit record, without credential data.
-  beforeWrite(); await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
-  beforeWrite(); await rmdir(lock);
+  beforeWrite({operation:'rename',path:`${lock}/pending.json`,destination:`${config.stateFile}.last-refresh.json`}); await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
+  beforeWrite({operation:'rmdir',path:lock}); await rmdir(lock);
   return next;
 }
 

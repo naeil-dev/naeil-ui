@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { atomicJSON, automationDigest, fileReference, fingerprint, hash, readPrivateJSON, routeKey } from './standing-config.mjs';
@@ -8,6 +8,8 @@ import { runtimeIndex } from './package-runtime.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 import { syntheticSite } from './fixtures/site-continuation.mjs';
+import { verifySiteReadOnly } from './standing-verification.mjs';
+import { renewVerificationSession, writePrivateJson } from './verification-session.mjs';
 
 const api = () => import('./site-continuation.mjs').catch(error => { if (error.code === 'ERR_MODULE_NOT_FOUND') return {}; throw error; });
 const automationRoot = realpathSync(new URL('../..', import.meta.url).pathname);
@@ -124,4 +126,70 @@ test('T7 standalone bounds its session/browser action lifetime without a subproc
   f.verify = async (...args) => { t.mock.method(Date, 'now', () => now + f.request.service.verification.command.timeoutMs + 1000); return verify(...args); };
   await assert.rejects(() => validateSiteReadOnly(f.request, { ...f, authorization: f.authorizationRef }), /deadline expired/);
   assert(!existsSync(join(f.request.outputDirectory, 'result.json')));
+});
+
+function existingSessionFixture(t) {
+  const f=fixture(t),directory=realpathSync(mkdtempSync(join(tmpdir(),'existing-session-')));chmodSync(directory,0o700);t.after(()=>rmSync(directory,{recursive:true,force:true}));
+  rmSync(join(f.root,'session','session.json'));
+  f.config.session.stateFile=join(directory,'verification-session.json');
+  const prior={access_token:'expired-synthetic-access',refresh_token:'existing-synthetic-refresh',user:{id:f.config.session.userId},expires_at:1};
+  atomicJSON(f.config.session.stateFile,prior);
+  f.release.account=f.put('inputs/account.json',{kind:'independent-account-render',sourceRevision:f.release.sourceRevision,archiveSha256:f.release.archive.sha256,ui:{version:f.release.version,contractVersion:'1'},cases:[]});
+  f.release.expectations=f.put('inputs/expectations.json',declaration(f.release));
+  const approve=()=>{f.authorization.input=f.put('inputs/request.json',f.request);f.authorization.verificationConfig=f.put('inputs/verifier.json',f.config);f.authorizationRef=f.put('inputs/authorization.json',f.authorization);};approve();
+  const next={...prior,access_token:'renewed-synthetic-access',refresh_token:'rotated-synthetic-refresh',expires_at:Math.floor(Date.now()/1000)+7200};
+  let posts=0;
+  f.verify=(input,config,hooks)=>verifySiteReadOnly(input,config,hooks,{
+    sessionRenewer:(session,options)=>renewVerificationSession(session,{...options,fetchImpl:async(url,init)=>{
+      posts++;assert.equal(url,'https://synthetic.supabase.co/auth/v1/token?grant_type=refresh_token');assert.equal(JSON.parse(init.body).refresh_token,prior.refresh_token);
+      assert.equal(JSON.parse(readFileSync(session.stateFile+'.refresh-lock/pending.json')).phase,'refresh-requested');
+      return Response.json(next);
+    }}),
+    productionVerifier:async options=>{
+      assert.equal(options.screenshots,false);let cookies;
+      await options.contextFactory({browser:{newContext:async()=>({addCookies:async values=>{cookies=values;}})},origin:'https://naeil.dev',contextOptions:{}});
+      assert.equal(JSON.parse(Buffer.from(cookies[0].value.slice(7),'base64url')).refresh_token,next.refresh_token);
+      return {passed:true,identity:structuredClone(f.identity),checkedAt:new Date().toISOString(),referenceSha256:f.release.contract.sha256,expectationsSha256:f.release.expectations.sha256,routes:options.routes.map(route=>({path:route.path,routeKey:routeKey(route),passed:true}))};
+    },boundaryFetch:async()=>assert.fail('No boundary fetch is configured'),
+  });
+  return {...f,directory,prior,next,approve,posts:()=>posts};
+}
+
+test('R2 top-level standalone renews an expired existing cache in place with one shared lock and no second cache',async t=>{
+  const {validateSiteReadOnly}=await api(),f=existingSessionFixture(t),stateFile=f.config.session.stateFile;
+  const result=await validateSiteReadOnly(f.request,{...f,authorization:f.authorizationRef});
+  assert.equal(result.state,'production-verified');assert.equal(f.posts(),1);
+  assert.deepEqual(JSON.parse(readFileSync(stateFile)),f.next);
+  assert.equal(JSON.parse(readFileSync(stateFile+'.last-refresh.json')).phase,'refresh-requested');assert(!existsSync(stateFile+'.refresh-lock'));
+  assert.deepEqual(readdirSync(f.directory).sort(),['verification-session.json','verification-session.json.last-refresh.json']);
+  assert.deepEqual(readdirSync(join(f.root,'session')),[]);assert(existsSync(join(f.request.outputDirectory,'result.json')));
+});
+
+for(const cause of ['unapproved-path','unapproved-account','wrong-account','symlink','hardlink','locked','ambiguous'])test('R2 existing standalone cache refuses '+cause+' without credential replay',async t=>{
+  const {validateSiteReadOnly}=await api(),f=existingSessionFixture(t),path=f.config.session.stateFile;
+  if(cause==='unapproved-path')atomicJSON(f.authorization.verificationConfig.path,{...f.config,session:{...f.config.session,stateFile:join(f.directory,'other.json')}});
+  if(cause==='unapproved-account')atomicJSON(f.authorization.verificationConfig.path,{...f.config,session:{...f.config.session,userId:'unapproved-account'}});
+  if(cause==='wrong-account')atomicJSON(path,{...f.prior,user:{id:'other-account'}});
+  if(cause==='symlink'||cause==='hardlink'){const original=join(f.directory,'original.json');writeFileSync(original,readFileSync(path),{mode:0o600});rmSync(path);if(cause==='symlink')symlinkSync(original,path);else linkSync(original,path);}
+  if(cause==='locked'||cause==='ambiguous'){mkdirSync(path+'.refresh-lock',{mode:0o700});if(cause==='ambiguous')atomicJSON(path+'.refresh-lock/pending.json',{phase:'refresh-requested',startedAt:'2000-01-01'});}
+  const before=readFileSync(path);
+  await assert.rejects(()=>validateSiteReadOnly(f.request,{...f,authorization:f.authorizationRef}));
+  assert.equal(f.posts(),0);assert.deepEqual(readFileSync(path),before);assert(!existsSync(join(f.request.outputDirectory,'result.json')));
+  if(cause==='ambiguous')assert.equal(JSON.parse(readFileSync(path+'.refresh-lock/pending.json')).phase,'refresh-requested');
+});
+
+test('R2 standalone write hooks refuse an unrelated sibling and preserve ambiguous rotation after approval drift',async t=>{
+  const {validateSiteReadOnly}=await api();
+  {
+    const f=existingSessionFixture(t),outside=join(f.directory,'unapproved.json');let entered=false;
+    f.verify=async(_input,_config,hooks)=>{entered=true;await writePrivateJson(outside,{synthetic:true},{beforeWrite:hooks.beforeWrite});assert.fail('Unapproved session sibling write succeeded');};
+    await assert.rejects(()=>validateSiteReadOnly(f.request,{...f,authorization:f.authorizationRef}));
+    assert(entered);assert(!existsSync(outside));assert.deepEqual(readdirSync(f.directory),['verification-session.json']);
+  }
+  {
+    const f=existingSessionFixture(t),path=f.config.session.stateFile;
+    f.verify=(input,config,hooks)=>verifySiteReadOnly(input,config,hooks,{sessionRenewer:(session,options)=>renewVerificationSession(session,{...options,fetchImpl:async()=>{atomicJSON(f.authorization.input.path,{changed:true});return Response.json(f.next);}}),productionVerifier:()=>assert.fail('Approval loss must prevent rendering')});
+    await assert.rejects(()=>validateSiteReadOnly(f.request,{...f,authorization:f.authorizationRef}));
+    assert.deepEqual(JSON.parse(readFileSync(path)),f.prior);assert.equal(JSON.parse(readFileSync(path+'.refresh-lock/pending.json')).phase,'refresh-requested');assert(!existsSync(path+'.last-refresh.json'));
+  }
 });

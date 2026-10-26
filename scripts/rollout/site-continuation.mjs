@@ -109,20 +109,51 @@ function readOnlyAuthority(request, authorizationRef) {
   assert.deepEqual(request.service, config.services.naeil, 'Standalone service/routes/profile drift');
   assert(request.service.routes?.some(route => route.renderState?.access === 'public') && request.service.routes.some(route => route.renderState?.access === 'protected'), 'Standalone validation requires exact public and protected route specimens');
   assert.equal(config.evidenceRoot, join(approval.workspaceDirectory, 'evidence'), 'Separate standalone evidence root required'); privateDirectory(config.evidenceRoot);
-  const sessionDirectory = privateDirectory(join(approval.workspaceDirectory, 'session'));
   exact(config.session, ['supabaseUrl', 'anonKey', 'userId', 'stateFile'], 'Exact standalone session profile required');
-  assert.equal(config.session.stateFile, join(sessionDirectory, 'session.json'), 'Separate standalone session cache required');
+  const stateFile=config.session.stateFile;
   assert.equal(request.outputDirectory, join(config.evidenceRoot, request.attemptId), 'Standalone evidence escaped its exact attempt directory');
   assert.equal(request.referencePath, request.release.contract.path, 'Standalone frozen reference path drift');
   const target = requestSiteTarget(request), identity = request.expectedIdentity;
   assert.deepEqual(identity, { schemaVersion: 1, appId: 'naeil', artifactId: identity?.artifactId, sourceRevision: target.sourceRevision, ui: { version: request.release.version, contractVersion: '1' } }, 'Standalone exact expected identity changed');
   assert(/^dpl_[A-Za-z0-9]+$/.test(identity.artifactId) && (!target.deploymentId || target.deploymentId === identity.artifactId), 'Exact standalone deployment identity required');
-  // No input, source archive or executable may be overwritten by the only two
-  // writable subtrees. The session cache is deliberately mutable and unpinned.
+  // Evidence has a separate tree. The existing rotating cache grants only its
+  // exact file/marker namespace, never its external parent directory.
   const protectedPaths = [authorizationRef.path, approval.input.path, approval.verificationConfig.path, ...Object.keys(approval.trustedFiles), ...['archive', 'siteArchive', 'contract', 'account', 'expectations'].flatMap(kind => request.release[kind]?.path ? [request.release[kind].path] : []), target.archive?.path, request.service.siteContinuationApproval?.source.root].filter(Boolean);
-  for (const path of protectedPaths) for (const writable of [config.evidenceRoot, sessionDirectory]) assert(path !== writable && !path.startsWith(writable + '/'), 'Standalone writable tree overlaps approved input/source');
-  for (const directory of [approval.automation.root, request.service.siteContinuationApproval?.source.root].filter(Boolean)) for (const writable of [config.evidenceRoot, sessionDirectory]) assert(directory !== writable && !writable.startsWith(directory + '/') && !directory.startsWith(writable + '/'), 'Standalone evidence/session must be separate from executable/source trees');
+  for (const path of protectedPaths) {
+    assert(path!==config.evidenceRoot&&!path.startsWith(config.evidenceRoot+'/'),'Standalone evidence tree overlaps approved input/source');
+    assert(!sessionMember(stateFile,path),'Standalone session writes overlap approved input/source');
+  }
+  for(const directory of [inputs,config.evidenceRoot,approval.automation.root,request.service.siteContinuationApproval?.source.root].filter(Boolean))assert(stateFile!==directory&&!stateFile.startsWith(directory+'/'),'Standalone session must be separate from inputs/evidence/executable/source trees');
+  for(const directory of [approval.automation.root,request.service.siteContinuationApproval?.source.root].filter(Boolean))assert(directory!==config.evidenceRoot&&!config.evidenceRoot.startsWith(directory+'/')&&!directory.startsWith(config.evidenceRoot+'/'),'Standalone evidence must be separate from executable/source trees');
+  privateDirectory(dirname(stateFile));
+  const session=JSON.parse(readPrivateBytes(stateFile,8*1024*1024));
+  assert(typeof config.session.userId==='string'&&config.session.userId&&session.user?.id===config.session.userId,'Standalone verification account mismatch');
+  assert(typeof session.refresh_token==='string'&&session.refresh_token,'Existing standalone renewing session required');
+  if(pathExists(stateFile+'.refresh-lock'))privateDirectory(stateFile+'.refresh-lock');
+  for(const path of [stateFile+'.refresh-lock/pending.json',stateFile+'.last-refresh.json'])if(pathExists(path))readPrivateBytes(path,8*1024*1024);
   return { approval, config, target };
+}
+
+const temporaryFor=(path,target)=>typeof path==='string'&&path.startsWith(target+'.')&&/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\.tmp$/.test(path.slice(target.length+1));
+function sessionMember(stateFile,path) {
+  const lock=stateFile+'.refresh-lock',pending=join(lock,'pending.json');
+  return [stateFile,lock,pending,stateFile+'.last-refresh.json'].includes(path)||temporaryFor(path,stateFile)||temporaryFor(path,pending);
+}
+function assertSessionWrite(stateFile,write) {
+  const lock=stateFile+'.refresh-lock',pending=join(lock,'pending.json'),last=stateFile+'.last-refresh.json';
+  if(write.operation==='mkdir'||write.operation==='rmdir') {
+    exact(write,['operation','path'],'Exact session lock operation required');assert.equal(write.path,lock,'Unapproved standalone session lock path');
+  } else if(write.operation==='create'||write.operation==='write') {
+    exact(write,['operation','path','target'],'Exact session atomic write required');
+    assert([stateFile,pending].includes(write.target)&&temporaryFor(write.path,write.target),'Unapproved standalone session temporary/target');
+  } else {
+    exact(write,['operation','path','destination'],'Exact session rename required');
+    assert(write.operation==='rename'&&([stateFile,pending].includes(write.destination)&&temporaryFor(write.path,write.destination)||write.path===pending&&write.destination===last),'Unapproved standalone session rename');
+  }
+  privateDirectory(dirname(write.path));
+  for(const path of [write.path,write.target,write.destination].filter(Boolean))if(pathExists(path)) {
+    if(path===lock)privateDirectory(path);else readPrivateBytes(path,8*1024*1024);
+  }
 }
 
 export async function validateSiteReadOnly(request, { authorization, github, fetchImpl, verify } = {}) {
@@ -143,7 +174,7 @@ export async function validateSiteReadOnly(request, { authorization, github, fet
   assert.deepEqual(request.expectedIdentity, { schemaVersion: 1, appId: 'naeil', artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui }, 'Observed site differs from approved standalone identity');
   authority(); privateDirectory(request.outputDirectory, true);
   const verification = { ...input, artifact, phase: 'site-read-only' };
-  const hooks = { beforeAction: authority, beforeWrite: authority };
+  const hooks = { beforeAction: authority, beforeWrite: write => {const current=authority();if(write)assertSessionWrite(current.config.session.stateFile,write);} };
   const production = await (verify || verifySiteReadOnly)(verification, config, hooks); authority();
   assertProduction(production, verification, artifact);
   const after = await checkSiteProvenance(input, { github, fetchImpl, beforeAction: authority }); authority();

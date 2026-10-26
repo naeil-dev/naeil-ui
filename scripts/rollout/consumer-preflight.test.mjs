@@ -14,7 +14,8 @@ import { dependencyLock } from './fixtures/dependency-lock.mjs';
 const node='/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node';
 function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
  const node=service==='estimate'?'/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node':'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node';
- const root=realpathSync(mkdtempSync(join(tmpdir(),'consumer-preflight-')));t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'consumer-preflight-')));let retain=false;t.after(()=>{if(retain)t.diagnostic('Retained unexpected synthetic preflight failure: '+root);else rmSync(root,{recursive:true,force:true});});
+ const retainFailure=error=>{retain=true;for(let current=error;current;current=current.cause)t.diagnostic(current.stack||String(current));};
  const source=join(root,'source');mkdirSync(source,{mode:0o700});
  const git=args=>execFileSync('/usr/bin/git',args,{cwd:source,encoding:'utf8',env:{PATH:'/usr/bin:/bin',HOME:process.env.HOME,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'}}).trim();
  git(['init','-q','-b','fixture']);git(['config','user.name','Synthetic']);git(['config','user.email','synthetic@example.invalid']);
@@ -42,7 +43,7 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
  input.harnessSha256=hash(JSON.stringify({'playwright.config.ts':hash(readFileSync(join(source,'playwright.config.ts'))),'tests/check.mjs':hash(readFileSync(join(source,'tests/check.mjs')))}));
  input.approval={approvedBy:'synthetic',approvalRef:'synthetic-only',planSha256:preflightPlanDigest(input)};
  writeFileSync(join(root,'STOP'),'standing remains stopped',{mode:0o600});
- return {root,input,config,git};
+ return {root,input,config,git,retainFailure};
 }
 import {createHash} from 'node:crypto';
 function awaitHash512(bytes){return createHash('sha512').update(bytes).digest('base64');}
@@ -67,7 +68,7 @@ test('generation is separate from config/authorization/candidate receipts and re
  assert.notEqual(generationDigest(value),generationDigest({...value,stateSchemaVersion:3}));
 });
 test('STOP-safe synthetic candidate E2E uses retained artifact, package bytes, same source commit and one transferable bundle',{skip:process.platform!=='darwin'?'actual macOS sandbox required; unsupported OS is fail-closed':false},async t=>{
- const f=setup(t);const base=f.input.reviewedBaseSha;const prepared=await prepareCandidate(f.input);
+ const f=setup(t);try {const base=f.input.reviewedBaseSha;const prepared=await prepareCandidate(f.input);
  assert.equal(prepared.candidateSourceSha,base);assert.equal(prepared.passed,false);assert(existsSync(prepared.bundle.path));
  const passed=await runPreflight(prepared,f.config);assert.equal(passed.passed,true);assert.equal(passed.candidateSourceSha,base);
  assert(passed.checks.some(check=>check.name==='release-integrity'&&check.exitCode===0));
@@ -76,6 +77,7 @@ test('STOP-safe synthetic candidate E2E uses retained artifact, package bytes, s
  assert.equal(f.git(['rev-parse','HEAD']),base);assert.equal(readFileSync(join(f.root,'STOP'),'utf8'),'standing remains stopped');
  const checkout=join(f.input.isolatedRoot,'checkout');assert.equal(execFileSync('/usr/bin/git',['rev-parse','HEAD'],{cwd:checkout,encoding:'utf8'}).trim(),base);
  writeFileSync(join(passed.artifact.directory,'app/identity.json'),'rebuilt');assert.throws(()=>assertCandidate(passed,candidateBinding(passed)),/artifact|digest|manifest/i);
+ }catch(error){f.retainFailure(error);throw error;}
 });
 test('dependency-only candidate is committed once; validation never creates another commit',{skip:process.platform!=='darwin'?'actual macOS sandbox required; unsupported OS is fail-closed':false},async t=>{
  const f=setup(t,{update:true});const c=await prepareCandidate(f.input);assert.notEqual(c.candidateSourceSha,c.reviewedBaseSha);
@@ -150,7 +152,7 @@ test('failed Estimate release integrity cannot select an artifact or issue a pas
 });
 
 test('post-consumer Git filter cannot launch an outside synthetic marker',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t),candidate=await prepareCandidate(f.input),marker=join(f.root,'outside-filter-marker');
+ const f=setup(t);try {const candidate=await prepareCandidate(f.input),marker=join(f.root,'outside-filter-marker');
  const gitDirectory=execFileSync('/usr/bin/git',['rev-parse','--absolute-git-dir'],{cwd:candidate.checkout,encoding:'utf8'}).trim();
  // Parent fixture corruption proves post-consumer Git remains sandboxed even if metadata is tampered.
  const helper=join(f.root,'outside-filter.cjs');writeFileSync(helper,`require('node:fs').writeFileSync(${JSON.stringify(marker)},'synthetic');`);
@@ -159,6 +161,7 @@ test('post-consumer Git filter cannot launch an outside synthetic marker',{skip:
  assert.equal(execFileSync('/usr/bin/git',['config','--get','filter.canary.clean'],{cwd:candidate.checkout,encoding:'utf8'}).trim(),clean);
  writeFileSync(join(gitDirectory,'info/attributes'),'package.json filter=canary\n');const pkg=join(candidate.checkout,'package.json');writeFileSync(pkg,readFileSync(pkg,'utf8').replace('synthetic','mutated00'));fs.utimesSync(pkg,new Date(),new Date(Date.now()+2000));
  await assert.rejects(()=>runPreflight(candidate,f.config));assert(!existsSync(marker),'Git launched an outside filter marker');
+ }catch(error){f.retainFailure(error);throw error;}
 });
 
 test('consumer cannot write real Git metadata and redirecting .git cannot select host filters',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{

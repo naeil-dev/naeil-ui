@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, readFile, mkdir, chmod, rm, realpath } from 'node:fs/promises';
+import { mkdtemp, writeFile, readFile, readdir, mkdir, chmod, rm, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { renewVerificationSession, sessionCookies } from './verification-session.mjs';
+import { renewVerificationSession, sessionCookies, writePrivateJson } from './verification-session.mjs';
 
 const session = { access_token: 'synthetic-access', refresh_token: 'synthetic-refresh', token_type: 'bearer', expires_at: 4102444800, user: { id: 'test-user' } };
 async function fixture() {
@@ -79,5 +79,23 @@ test('fence loss during an admitted refresh retains prior session and unresolved
   await assert.rejects(()=>renewVerificationSession(config,{beforeAction:()=>assert(current,'generation fence lost'),beforeWrite:()=>assert(current,'generation fence lost'),fetchImpl:async()=>{posts++;current=false;return Response.json({...session,refresh_token:'rotated-on-server'});}}),/generation fence lost/);
   assert.equal(posts,1);assert.equal(JSON.parse(await readFile(config.stateFile,'utf8')).refresh_token,'synthetic-refresh');
   assert.equal(JSON.parse(await readFile(config.stateFile+'.refresh-lock/pending.json','utf8')).phase,'refresh-requested');
+ }finally{await rm(directory,{recursive:true,force:true});}
+});
+
+test('R2 session renewal exposes exact atomic file and lock operations before persistence',async()=>{
+ const {directory,config}=await fixture(),writes=[];
+ try {
+  await renewVerificationSession(config,{fetchImpl:async()=>Response.json({...session,refresh_token:'rotated'}),beforeWrite:write=>writes.push(write)});
+  assert.deepEqual(writes.map(write=>write.operation),['mkdir','create','write','rename','create','write','rename','rename','rmdir']);
+  assert.equal(writes[0].path,config.stateFile+'.refresh-lock');assert.equal(writes[8].path,config.stateFile+'.refresh-lock');
+  for(const [start,target]of [[1,config.stateFile+'.refresh-lock/pending.json'],[4,config.stateFile]]) {
+   assert.equal(writes[start].target,target);assert.match(writes[start].path.slice(target.length),/^\.[a-f0-9-]{36}\.tmp$/);
+   assert.deepEqual(writes[start+1],{operation:'write',path:writes[start].path,target});
+   assert.deepEqual(writes[start+2],{operation:'rename',path:writes[start].path,destination:target});
+  }
+  assert.deepEqual(writes[7],{operation:'rename',path:config.stateFile+'.refresh-lock/pending.json',destination:config.stateFile+'.last-refresh.json'});
+  const refused=join(directory,'refused.json');
+  await assert.rejects(()=>writePrivateJson(refused,{synthetic:true},{beforeWrite:()=>{throw Error('unapproved target');}}),/unapproved target/);
+  assert.deepEqual((await readdir(directory)).sort(),['session.json','session.json.last-refresh.json']);
  }finally{await rm(directory,{recursive:true,force:true});}
 });

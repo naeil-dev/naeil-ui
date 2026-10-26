@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as configAPI from './standing-config.mjs';
 
@@ -79,8 +79,9 @@ test('STOP during admitted work permits fenced completion evidence and independe
 test('I2: a stale executing launcher refuses before entering its dispatcher while the approved root is intact', async t => {
   const f = fixture(t), staleRoot = join(f.root, 'stale-copy'), scripts = join(staleRoot, 'scripts', 'rollout');
   mkdirSync(scripts, { recursive: true, mode: 0o700 });
-  for (const name of ['standing-launcher.mjs','standing-config.mjs','standing-state.mjs','release-expectations.mjs','preflight-sandbox.mjs']) {
-    cpSync(join(automationRoot, 'scripts', 'rollout', name), join(scripts, name));
+  for (const relative of configAPI.AUTOMATION_FILES) {
+    const destination=join(staleRoot,relative);mkdirSync(dirname(destination),{recursive:true,mode:0o700});
+    cpSync(join(automationRoot,relative),destination);
   }
   const entered = join(f.root, 'stale-dispatcher-entered');
   writeFileSync(join(scripts, 'standing-dispatcher.mjs'), `import {writeFileSync} from 'node:fs'; export async function poll() {writeFileSync(${JSON.stringify(entered)}, 'entered');return {state:'stopped'};}`);
