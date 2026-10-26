@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, lstatSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { acquireControlLock, acquireLock, assertActive, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fileReference, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, releaseIdentityDigest, validateConfig } from './standing-config.mjs';
+import { acquireControlLock, acquireLock, activeControlAcquisition, assertActive, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fileReference, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, releaseIdentityDigest, validateConfig } from './standing-config.mjs';
 import { assertEvidencePath, JSON_LIMITS, readOperatorStatus, readStandingState, StandingStorageError, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
 import { checkSiteProvenance, publicIdentity } from './naeil-standing-observer.mjs';
 import { assertSiteArtifact, resolveSiteTarget } from './site-continuation.mjs';
@@ -40,7 +40,7 @@ function publicSummary(state) {
 /** One bounded poll; launchd supplies cadence. Never installs or starts a job. */
 export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON, fetchImpl = fetch, controlLease } = {}) {
   validateConfig(config, { automationRoot: root });
-  const active=assertGenerationFence(config), lease=active&&!controlLease?acquireControlLock(config.generationFence.controlDirectory):null;
+  const active=assertGenerationFence(config), lease=active&&!controlLease?acquireControlLock(config.generationFence.controlDirectory,activeControlAcquisition(config.generationFence.controlDirectory)):null;
   if(controlLease)assert.equal(readPrivateJSON(join(config.generationFence.controlDirectory,'control.lock')).token,controlLease.token,'Launcher lease changed');
   let unlock;try {assertGenerationFence(config);unlock=acquireLock(config.stateDirectory);}catch(error){lease?.release();throw error;}
   let state;

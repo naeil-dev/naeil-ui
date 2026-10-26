@@ -337,11 +337,20 @@ export function readExactReference(ref, maxBytes = JSON_LIMITS.transport) {
 }
 
 /** One shared lease, outside all state epochs. Never steals/removes stale locks. */
-export function acquireControlLock(directory) {
+export function acquireControlLock(directory, acquisition) {
   privateDirectory(directory);
   assert(!pathExists(join(directory,'control-archive.lock')), 'Explicit lock archival is in progress or incomplete');
-  const path = join(directory, 'control.lock'), token = randomUUID(), fd = openSync(path, 'wx', 0o600);
-  try { writeFileSync(fd, serializeJSON({ schemaVersion: 1, token, pid: process.pid, startedAt: new Date().toISOString() }, JSON_LIMITS.controlIndex)); fsyncSync(fd); syncDirectory(directory); }
+  const path = join(directory, 'control.lock'), token = randomUUID();
+  // The acquisition is part of the first durable write, not a later admission
+  // phase. A crash before the first journal must still have an exact purpose.
+  const bytes = serializeJSON({ schemaVersion: 1, token, pid: process.pid, startedAt: new Date().toISOString(), ...(acquisition ? { acquisition } : {}) }, JSON_LIMITS.controlIndex);
+  const fd = openSync(path, 'wx', 0o600);
+  try {
+    writeFileSync(fd, bytes); fsyncSync(fd); syncDirectory(directory);
+    if(acquisition?.kind==='standing-active-generation-acquisition') {
+      readExactReference(acquisition.pointer,JSON_LIMITS.controlIndex);readExactReference(acquisition.journal,JSON_LIMITS.controlIndex);
+    }
+  }
   catch (error) { closeSync(fd); throw error; }
   if(pathExists(join(directory,'control-archive.lock'))) {
     try { assert.equal(readPrivateJSON(path).token,token); unlinkSync(path);syncDirectory(directory); } finally { closeSync(fd); }
@@ -351,6 +360,10 @@ export function acquireControlLock(directory) {
   // Fail-closed transition authority loss retains ownership bytes for explicit
   // archival, while closing this process's descriptor without stealing a lock.
   return { token, release, retain: () => closeSync(fd) };
+}
+
+export function activeControlAcquisition(directory) {
+  return { kind: 'standing-active-generation-acquisition', pointer: fileReference(join(directory, 'active.json'), JSON_LIMITS.controlIndex), journal: fileReference(join(directory, 'transition.json'), JSON_LIMITS.controlIndex) };
 }
 
 /** The pointer is authority for exact config bytes; request manifests alone are not. */

@@ -63,6 +63,17 @@ test('launcher heartbeats survive unreadable dispatcher state and never steal an
   assert.deepEqual(readFileSync(join(f.controlDirectory, 'control.lock')), before);
 });
 
+test('IF1 active launcher records the exact pointer and completed journal in its first control acquisition', async t => {
+  const f = fixture(t), launcher = await import('./standing-launcher.mjs'); let called = false;
+  await launcher.runActiveGeneration(f.controlDirectory, { poll: async () => {
+    called = true;
+    const lock = configAPI.readPrivateJSON(join(f.controlDirectory, 'control.lock'));
+    assert.deepEqual(lock.acquisition, { kind: 'standing-active-generation-acquisition', pointer: f.pin(join(f.controlDirectory, 'active.json')), journal: f.pin(join(f.controlDirectory, 'transition.json')) });
+    return { state: 'stopped' };
+  } });
+  assert(called); assert(!existsSync(join(f.controlDirectory, 'control.lock')));
+});
+
 test('an active file without its completed approved journal is never execution authority', t=>{
   const f=fixture(t);rmSync(join(f.controlDirectory,'transition.json'));
   assert.throws(()=>configAPI.assertGenerationFence({...f.config,generationFence:f.fence}),/journal|transition/i);

@@ -17,6 +17,15 @@ const credentials = ['GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN'];
 // Linux images may link /bin to /usr/bin; the Jev transport requires canonical PATH entries.
 const executionPath = [...new Set(['/usr/bin', '/bin'].map(path => realpathSync(path)))].join(':');
 
+test('IF1 oversized acquisition refuses before creating ownership and retained acquisition cannot be stolen', async t => {
+ const {acquireControlLock,JSON_LIMITS,readPrivateJSON}=await import('./standing-config.mjs');
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'standing-acquisition-')));fs.chmodSync(root,0o700);t.after(()=>rmSync(root,{recursive:true,force:true}));
+ assert.throws(()=>acquireControlLock(root,{kind:'synthetic-unvalidated',bytes:'x'.repeat(JSON_LIMITS.controlIndex)}),/limit/);assert.deepEqual(fs.readdirSync(root),[]);
+ const acquisition={kind:'synthetic-unvalidated',planSha256:'a'.repeat(64),approvalSha256:'b'.repeat(64)},lease=acquireControlLock(root,acquisition);
+ const path=join(root,'control.lock'),before=readFileSync(path);assert.deepEqual(readPrivateJSON(path).acquisition,acquisition);lease.retain();
+ assert.throws(()=>acquireControlLock(root),/EEXIST/);assert.deepEqual(readFileSync(path),before);
+});
+
 test('pinned child receives credential key names only for naeil observer rollout', async t => {
  const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-env-')));
  t.after(() => rmSync(root, { recursive: true, force: true }));

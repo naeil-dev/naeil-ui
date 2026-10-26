@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { acquireControlLock, assertExecutingAutomation, assertGenerationFence, atomicJSON, JSON_LIMITS, privateDirectory, readActiveGeneration } from './standing-config.mjs';
+import { acquireControlLock, activeControlAcquisition, assertExecutingAutomation, assertGenerationFence, atomicJSON, JSON_LIMITS, privateDirectory, readActiveGeneration } from './standing-config.mjs';
 
 const automationRoot = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -14,8 +14,10 @@ export async function runActiveGeneration(controlDirectory, dependencies = {}) {
   let lease, active, dispatched = false;
   const status = (state, exitCode, endedAt = null) => atomicJSON(statusPath, { schemaVersion: 1, state, startedAt, endedAt, exitCode, generationId: active?.pointer.generationId || null }, JSON_LIMITS.operatorStatus);
   try {
-    lease = acquireControlLock(controlDirectory); status('starting', null);
+    const acquisition = activeControlAcquisition(controlDirectory);
+    lease = acquireControlLock(controlDirectory, acquisition); status('starting', null);
     active = readActiveGeneration(controlDirectory);
+    assert.equal(active.pointerSha256, acquisition.pointer.sha256, 'Launcher acquisition pointer changed');
     const config = { ...active.config, generationFence: { controlDirectory, pointerSha256: active.pointerSha256 } };
     assertExecutingAutomation(config, automationRoot);
     assertGenerationFence(config); status('running', null);
