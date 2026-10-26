@@ -11,7 +11,7 @@ import { frozenPackageIndex, runtimeIndex } from './package-runtime.mjs';
 import { copyCodeTree, codeManifest, inspectEstimateRelease, inspectJevStandalone } from './consumer-artifact.mjs';
 import { fixtureManifest } from './jev-candidate.mjs';
 import { validateReleaseExpectations, selectExpectationProfile } from './release-expectations.mjs';
-import { createSandbox, executeSandbox, networkManifest, sanitizedEnvironment, treeDigest, treeManifest } from './preflight-sandbox.mjs';
+import { createSandbox, executeSandbox, networkManifest, sanitizedEnvironment, treeDigest, treeManifest, readBoundedSource } from './preflight-sandbox.mjs';
 import { verifySandbox } from './preflight-sandbox.mjs';
 
 const AUTOMATION_ROOT=resolve(fileURLToPath(new URL('../../',import.meta.url)));
@@ -38,7 +38,8 @@ function configured(input) {
  generationDigest(input.generation);
  assert.equal(automationDigest(AUTOMATION_ROOT),input.generation.automationSha256,'Reviewed preflight automation bytes changed');
  for(const [path,digest] of Object.entries(input.generation.trustedFiles)) {assert(realpathSync(path)===path,'Canonical trusted generation path required');const stat=lstatSync(path);assert(stat.isDirectory()||stat.isFile(),'Trusted file/tree required');assert.equal(stat.isDirectory()?treeDigest(path):hash(readFileSync(path)),digest,'Trusted generation bytes changed');}
- const c=input.config;keys(c,['schemaVersion','node','pnpm','executables','readable','executionPath','network','checks','artifactRelative','releaseIntegrity','e2e','smoke','environment','dependencyStore']);assert.equal(c.schemaVersion,1);
+ const c=input.config;keys(c,['schemaVersion','node','git','pnpm','executables','readable','executionPath','network','checks','artifactRelative','releaseIntegrity','e2e','smoke','environment','dependencyStore']);assert.equal(c.schemaVersion,1);
+ if(c.git!==undefined)assert(c.executables[c.git]&&isAbsolute(c.git),'Explicit pinned isolated Git required');
  assert.equal(c.node,input.service==='estimate'?'/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node':'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node','Exact consumer Node runtime required');
  assert.equal(c.executionPath,input.generation.executionPath,'Generation PATH mismatch');
  for(const [path,digest] of Object.entries(c.executables)) assert.equal(input.generation.trustedFiles[path],digest,'Executable absent from generation trusted closure');
@@ -64,13 +65,26 @@ function git(config,root,args,{raw=false}={}) {
  assert.equal(hash(readFileSync('/usr/bin/git')),config.executables['/usr/bin/git'],'Pinned Git bytes changed');
  const result=execFileSync('/usr/bin/git',['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','commit.gpgsign=false',...args],{cwd:root,encoding:'utf8',env:sanitizedEnvironment({executionPath:config.executionPath,tmp:root,cache:root}),stdio:['ignore','pipe','pipe'],maxBuffer:2097152});return raw?result:result.trim();
 }
-function sourceIdentity(config,checkout) {
- return {candidateSourceSha:git(config,checkout,['rev-parse','HEAD']),treeSha:git(config,checkout,['rev-parse','HEAD^{tree}']),lockfileSha256:hash(readFileSync(join(checkout,'pnpm-lock.yaml')))};
+async function isolatedGit(input,root,args,{raw=false,writable=false}={}) {
+ const result=await executeSandbox(snapshotSandbox(input,root,[],writable),{file:input.config.git??'/usr/bin/git',args:['--git-dir='+join(root,'git'),'--work-tree='+join(root,'checkout'),'-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','commit.gpgsign=false',...args],timeoutMs:120000});
+ assert.equal(result.exitCode,0,'Isolated Git inspection/transport failed');return raw?result.stdout:result.stdout.trim();
 }
-function assertSource(candidate,config) {
- assert.deepEqual(sourceIdentity(config,candidate.checkout),Object.fromEntries(['candidateSourceSha','treeSha','lockfileSha256'].map(key=>[key,candidate[key]])),'Exact candidate source/tree/lock changed');
- assert.equal(git(config,candidate.checkout,['status','--porcelain','--untracked-files=normal']),'','Candidate checkout changed during checks');
- assert.equal(fingerprint(fixtureManifest(candidate.checkout)),candidate.harnessSha256,'Reviewed harness changed');
+const SOURCE_READER=`const {constants,closeSync,fstatSync,lstatSync,openSync,readSync,readdirSync,realpathSync}=require('node:fs');const {isAbsolute,resolve,sep,join}=require('node:path');const assert=require('node:assert/strict');const hash=bytes=>require('node:crypto').createHash('sha256').update(bytes).digest('hex');const readBoundedSource=${readBoundedSource.toString()};`;
+async function sourceInspection(input,root,code) {
+ const result=await executeSandbox(snapshotSandbox(input,root,[]),{file:input.config.node,args:['-e',SOURCE_READER+code]});assert.equal(result.exitCode,0,'Isolated bounded source inspection failed');return result.stdout;
+}
+async function sourceBytes(input,root,path) {
+ return Buffer.from(await sourceInspection(input,root,`process.stdout.write(readBoundedSource(${JSON.stringify(join(root,'checkout',path))},${JSON.stringify(join(root,'checkout'))}).toString('base64'));`),'base64');
+}
+async function sourceIdentity(input,root) {
+ return {candidateSourceSha:await isolatedGit(input,root,['rev-parse','HEAD']),treeSha:await isolatedGit(input,root,['rev-parse','HEAD^{tree}']),lockfileSha256:hash(await sourceBytes(input,root,'pnpm-lock.yaml'))};
+}
+async function assertSource(candidate,input) {
+ assert.deepEqual(await sourceIdentity(input,candidate.root),Object.fromEntries(['candidateSourceSha','treeSha','lockfileSha256'].map(key=>[key,candidate[key]])),'Exact candidate source/tree/lock changed');
+ assert.equal((await sourceBytes(input,candidate.root,'.git')).toString(),`gitdir: ${join(candidate.root,'git')}\n`,'Immutable Git directory pointer changed');
+ assert.equal(await isolatedGit(input,candidate.root,['status','--porcelain','--untracked-files=normal']),'','Candidate checkout changed during checks');
+ const harness=await sourceInspection(input,candidate.root,`const root=${JSON.stringify(candidate.checkout)},files={};function walk(directory){assert.equal(realpathSync(directory),directory,'Source directory link refused');for(const name of readdirSync(directory).sort()){const path=join(directory,name),stat=lstatSync(path);assert(!stat.isSymbolicLink(),'Source test link refused');if(stat.isDirectory())walk(path);else files[path.slice(root.length+1)]=hash(readBoundedSource(path,root));}}walk(join(root,'tests'));files['playwright.config.ts']=hash(readBoundedSource(join(root,'playwright.config.ts'),root));process.stdout.write(hash(JSON.stringify(Object.fromEntries(Object.entries(files).sort(([a],[b])=>a<b?-1:a>b?1:0)))));`);
+ assert.equal(harness,candidate.harnessSha256,'Reviewed harness changed');
 }
 function transport(input,inputDirectory) {
  const original=JSON.parse(checkedReference(input.fixture));keys(original,['schemaVersion','kind','release','account','expectations','routingProfile']);
@@ -83,11 +97,11 @@ function transport(input,inputDirectory) {
  const expectations=validateReleaseExpectations(JSON.parse(readFileSync(copied.expectations.path)),release);selectExpectationProfile(expectations,copied.routingProfile??undefined);
  const path=join(inputDirectory,'fixture.json');atomicJSON(path,copied);return reference(path);
 }
-function snapshotSandbox(input,root,roles) {
+function snapshotSandbox(input,root,roles,gitWritable=false) {
  const all=networkManifest(input.service,input.config.network);
  if(roles!==undefined) {assert(Array.isArray(roles)&&roles.every(role=>Object.hasOwn(all.roles,role)),'Unapproved network stage role');}
  // The canonical manifest is retained; stage profiles use its exact reviewed endpoints.
- return createSandbox({schemaVersion:1,root,writable:['checkout','output','tmp','cache'].map(name=>join(root,name)),readOnly:['input','artifact'].map(name=>join(root,name)),runtime:input.config.node,executables:input.config.executables,executionPath:input.config.executionPath,readable:[...(input.config.readable??[]),{path:input.config.pnpm.path,sha256:input.config.pnpm.sha256}],endpoints:all,roles});
+ return createSandbox({schemaVersion:1,root,writable:['checkout','output','tmp','cache',...(gitWritable?['git']:[])].map(name=>join(root,name)),readOnly:['input','artifact',...(gitWritable?[]:['git'])].map(name=>join(root,name)),runtime:input.config.node,executables:input.config.executables,executionPath:input.config.executionPath,readable:[...(input.config.readable??[]),{path:input.config.pnpm.path,sha256:input.config.pnpm.sha256}],endpoints:all,roles});
 }
 async function enforcement(input,root,sandbox,phase='prepare') {
  const probes=join(root,`probes-${phase}`);mkdirSync(probes,{mode:0o700});const outsideRead=join(probes,'secret'),nativeExecutable=join(probes,'native');
@@ -121,7 +135,7 @@ export async function prepareCandidate(input,dependencies={}) {
  privateDirectory(root,true);for(const name of ['output','tmp','cache','input','artifact'])mkdirSync(join(root,name),{mode:0o700});
  const output=join(root,'output');atomicJSON(join(output,'prepare-intent.json'),{schemaVersion:1,planSha256:preflightPlanDigest(input),passed:false});
  try {
-  const checkout=join(root,'checkout');git(config,root,['clone','--no-local','--no-hardlinks','--no-checkout','--',input.sourceRoot,checkout]);git(config,checkout,['checkout','--detach',input.reviewedBaseSha]);
+  const checkout=join(root,'checkout');git(config,root,['clone','--no-local','--no-hardlinks','--no-checkout','--separate-git-dir='+join(root,'git'),'--',input.sourceRoot,checkout]);git(config,checkout,['checkout','--detach',input.reviewedBaseSha]);
   for(const path of ['package.json','pnpm-lock.yaml','vendor'])assert(realpathSync(join(checkout,path))===join(checkout,path),'Candidate source key path symlink refused');
   const archive=join(root,'input','ui.tgz');writeFileSync(archive,checkedReference(input.archive,64*1024*1024),{mode:0o600,flag:'wx'});
   const fixture=transport(input,join(root,'input'));atomicJSON(join(root,'input','approved-plan.json'),input);
@@ -129,7 +143,7 @@ export async function prepareCandidate(input,dependencies={}) {
   const sandbox=snapshotSandbox(input,root),isolation=await enforcement(input,root,sandbox);
   const installSandbox=snapshotSandbox(input,root,[]);
   const versionResult=await executeSandbox(installSandbox,{file:config.node,args:[config.pnpm.path,'--version']});assert.equal(versionResult.stdout.trim(),'10.30.3','Exact pnpm 10.30.3 runtime required');
-  const before={packageJSON:readFileSync(join(checkout,'package.json')),lockfile:readFileSync(join(checkout,'pnpm-lock.yaml'))},pkg=JSON.parse(before.packageJSON);
+  const before={packageJSON:await sourceBytes(input,root,'package.json'),lockfile:await sourceBytes(input,root,'pnpm-lock.yaml')},pkg=JSON.parse(before.packageJSON);
   assert.equal(pkg.packageManager,'pnpm@10.30.3','Exact pnpm consumer pin required');
   const dependency=pkg.dependencies?.['@naeil/ui'];assert(/^file:vendor\/naeil-ui-[0-9A-Za-z.+-]+\.tgz$/.test(dependency||''),'Exact vendored UI dependency required');
   const oldPath=join(checkout,dependency.slice(5));assert.equal(realpathSync(oldPath),oldPath,'Vendor archive symlink refused');
@@ -141,14 +155,14 @@ export async function prepareCandidate(input,dependencies={}) {
   const installArgs=[config.pnpm.path,'install',target.unchanged?'--frozen-lockfile':'--no-frozen-lockfile','--ignore-scripts','--offline','--store-dir',join(root,'cache','store'),'--package-import-method=copy'];
   const checks=[await stage(installSandbox,{file:config.node,args:installArgs,timeoutMs:1800000},output,'install')];
   checks.push(await stage(installSandbox,{file:config.node,args:[...installArgs.filter(arg=>arg!=='--no-frozen-lockfile'&&arg!=='--frozen-lockfile'),'--frozen-lockfile'],timeoutMs:1800000},output,'install-frozen'));
-  assertDependencyDelta(before,{packageJSON:readFileSync(join(checkout,'package.json')),lockfile:readFileSync(join(checkout,'pnpm-lock.yaml'))});
-  const integrity='sha512-'+createHash('sha512').update(readFileSync(archive)).digest('base64');assert(readFileSync(join(checkout,'pnpm-lock.yaml'),'utf8').includes(`integrity: ${integrity}`),'Lockfile must bind exact frozen archive');
-  const changed=git(config,checkout,['status','--porcelain','-z','--untracked-files=all'],{raw:true}).split('\0').filter(Boolean).map(line=>line.slice(3));
+  assertDependencyDelta(before,{packageJSON:await sourceBytes(input,root,'package.json'),lockfile:await sourceBytes(input,root,'pnpm-lock.yaml')});
+  const integrity='sha512-'+createHash('sha512').update(readFileSync(archive)).digest('base64');assert((await sourceBytes(input,root,'pnpm-lock.yaml')).toString().includes(`integrity: ${integrity}`),'Lockfile must bind exact frozen archive');
+  const changed=(await isolatedGit(input,root,['status','--porcelain','-z','--untracked-files=all'],{raw:true})).split('\0').filter(Boolean).map(line=>line.slice(3));
   assert(changed.every(path=>['package.json','pnpm-lock.yaml',target.vendor].includes(path)),'Unapproved source or executable changes during install');
-  if(changed.length) {git(config,checkout,['add','--',...changed]);git(config,checkout,['-c','user.name=Naeil preflight','-c','user.email=preflight@naeil.dev','commit','-m',`chore: prepare exact @naeil/ui ${input.release.version}`]);}
-  const identity=sourceIdentity(config,checkout),bundlePath=join(root,'input','candidate.bundle');git(config,checkout,['bundle','create',bundlePath,'HEAD']);chmodSync(bundlePath,0o600);git(config,checkout,['bundle','verify',bundlePath]);
+  if(changed.length) {await isolatedGit(input,root,['add','--',...changed],{writable:true});await isolatedGit(input,root,['-c','user.name=Naeil preflight','-c','user.email=preflight@naeil.dev','commit','-m',`chore: prepare exact @naeil/ui ${input.release.version}`],{writable:true});}
+  const identity=await sourceIdentity(input,root),bundlePath=join(root,'input','candidate.bundle'),bundleOutput=join(root,'output','candidate.bundle');await isolatedGit(input,root,['bundle','create',bundleOutput,'HEAD']);writeFileSync(bundlePath,readBoundedSource(bundleOutput,join(root,'output'),67108864),{mode:0o600,flag:'wx'});await isolatedGit(input,root,['bundle','verify',bundlePath]);
   const candidate={schemaVersion:1,kind:'isolated-consumer-candidate',passed:false,service:input.service,repository:input.repository,reviewedBaseSha:input.reviewedBaseSha,...identity,release:input.release,expectationsSha256:JSON.parse(readFileSync(fixture.path)).expectations.sha256,harnessSha256:input.harnessSha256,generationSha256:generationDigest(input.generation),preflightPlanSha256:preflightPlanDigest(input),preflightConfigSha256:fingerprint(config),root,checkout,output,archive:reference(archive),fixture,bundle:reference(bundlePath),plan:reference(join(root,'input','approved-plan.json')),isolation,checks};
-  candidate.packageParity=parity(candidate);assertSource(candidate,config);atomicJSON(join(root,'input','prepared.json'),candidate);atomicJSON(join(output,'prepared.json'),candidate);return candidate;
+  candidate.packageParity=parity(candidate);await assertSource(candidate,input);atomicJSON(join(root,'input','prepared.json'),candidate);atomicJSON(join(output,'prepared.json'),candidate);return candidate;
  }catch(error) {atomicJSON(join(output,'prepare-failed.json'),{schemaVersion:1,passed:false,planSha256:preflightPlanDigest(input),reasonSha256:hash(String(error.message))});throw new Error('Isolated candidate preparation failed; retained stage evidence', {cause:error});}
 }
 
@@ -160,10 +174,11 @@ export async function runPreflight(candidate,config,dependencies={}) {
  assert.deepEqual(candidate,readPrivateJSON(join(candidate.root,'input','prepared.json')),'Retained exact candidate binding changed');
  const input=readPrivateJSON(candidate.plan.path);assert.equal(hash(readPrivateBytes(candidate.plan.path)),candidate.plan.sha256,'Approved plan bytes changed');configured(input);assert.equal(candidate.root,input.isolatedRoot,'Candidate isolated root mismatch');
  assert.equal(fingerprint(config),candidate.preflightConfigSha256,'Exact approved build/test config changed');assert.deepEqual(config,input.config,'Candidate configuration mismatch');
- assertSource(candidate,config);checkedReference(candidate.bundle,64*1024*1024);checkedReference(candidate.fixture);
+ checkedReference(candidate.bundle,64*1024*1024);checkedReference(candidate.fixture);
  const intent=join(candidate.root,'input','preflight-intent.json');assert(!existsSync(intent),'Single preflight attempt only; replay/rebuild requires a fresh candidate root');exclusiveIntent(intent,{schemaVersion:1,candidateSourceSha:candidate.candidateSourceSha,preflightPlanSha256:candidate.preflightPlanSha256});
  const checks=[...candidate.checks];
  try {
+  await assertSource(candidate,input);
   const sandbox=snapshotSandbox(input,candidate.root);assert.equal(sandbox.profileSha256,candidate.isolation.profileSha256,'Isolation profile changed');
   assert.equal(candidate.isolation.passed,true,'Actual enforcement proof required');
   const isolation=await enforcement(input,candidate.root,sandbox,'checks');
@@ -179,7 +194,7 @@ export async function runPreflight(candidate,config,dependencies={}) {
   }
 
   let packageOutput;
-  for(const command of config.checks) {checks.push(await stage(snapshotSandbox(input,candidate.root,command.roles??(command.name==='unit'?(input.service==='estimate'?['estimateAuth','estimateHttp']:['jevIdentity']):[])),command,candidate.output,command.name,env,command.name==='package'?result=>{packageOutput=result.stdout;}:undefined));assertSource(candidate,config);assert.deepEqual(parity(candidate),before,'Package bytes changed during checks');}
+  for(const command of config.checks) {checks.push(await stage(snapshotSandbox(input,candidate.root,command.roles??(command.name==='unit'?(input.service==='estimate'?['estimateAuth','estimateHttp']:['jevIdentity']):[])),command,candidate.output,command.name,env,command.name==='package'?result=>{packageOutput=result.stdout;}:undefined));await assertSource(candidate,input);assert.deepEqual(parity(candidate),before,'Package bytes changed during checks');}
   let artifactRelative=config.artifactRelative;
   if(artifactRelative==='estimate-package-output') {
     assert.equal(input.service,'estimate');const matches=[...packageOutput.matchAll(/^Standalone prepared: (release\/[a-f0-9]{12}-[a-f0-9]{12})\s*$/gm)];assert.equal(matches.length,1,'One exact packaged Estimate output required');artifactRelative=matches[0][1];
@@ -190,8 +205,8 @@ export async function runPreflight(candidate,config,dependencies={}) {
   if(input.service==='estimate') {
     metadata=inspectEstimateRelease(source,candidate.candidateSourceSha,candidate.release);
     const packagedSha256=treeDigest(source);
-    checks.push(await stage(snapshotSandbox(input,candidate.root,[]),{...config.releaseIntegrity,args:[...config.releaseIntegrity.args,artifactRelative]},candidate.output,'release-integrity',env));
-    assert.equal(treeDigest(source),packagedSha256,'Packaged release changed during integrity check');assertSource(candidate,config);assert.deepEqual(parity(candidate),before);
+    checks.push(await stage(snapshotSandbox(input,candidate.root,[]),{...config.releaseIntegrity,args:[...config.releaseIntegrity.args,artifactRelative]},candidate.output,'release-integrity',{...env,RELEASE_INTEGRITY_EVIDENCE_PATH:join(candidate.output,'release-integrity-evidence.json')}));
+    assert.equal(treeDigest(source),packagedSha256,'Packaged release changed during integrity check');await assertSource(candidate,input);assert.deepEqual(parity(candidate),before);
     directory=join(selected,'release');mkdirSync(directory,{mode:0o700});
     copyCodeTree(join(source,'app'),join(directory,'app'));copyFileSync(join(source,'manifest.json'),join(directory,'manifest.json'));
     inspectEstimateRelease(directory,candidate.candidateSourceSha,candidate.release);manifestPath=join(directory,'manifest.json');archiveMembers=['app','manifest.json'];
@@ -210,7 +225,7 @@ export async function runPreflight(candidate,config,dependencies={}) {
   if(config.smoke)checks.push(await stage(snapshotSandbox(input,candidate.root,input.service==='estimate'?['estimateSmoke','estimateAuth','estimateContender']:[]),config.smoke,candidate.output,'smoke',artifactEnv));
   assert.equal(treeDigest(directory),inventorySha256,'Packaged artifact changed during smoke');
   checks.push(await stage(snapshotSandbox(input,candidate.root,input.service==='estimate'?['estimateE2E','estimateAuth']:['jevE2E']),config.e2e,candidate.output,'e2e',artifactEnv));
-  assert.equal(treeDigest(directory),inventorySha256,'Packaged artifact changed during E2E');assertSource(candidate,config);assert.deepEqual(parity(candidate),before);checkedReference(candidate.fixture);const fixture=JSON.parse(readFileSync(candidate.fixture.path));checkedReference(fixture.account);checkedReference(fixture.expectations);
+  assert.equal(treeDigest(directory),inventorySha256,'Packaged artifact changed during E2E');await assertSource(candidate,input);assert.deepEqual(parity(candidate),before);checkedReference(candidate.fixture);const fixture=JSON.parse(readFileSync(candidate.fixture.path));checkedReference(fixture.account);checkedReference(fixture.expectations);
   const result={...candidate,passed:true,artifact,isolation,checks,packageParity:{before,after:parity(candidate)},completedAt:new Date().toISOString()};
   const receiptPath=join(candidate.root,'input','passed.json');atomicJSON(receiptPath,result);const returned={...result,receipt:reference(receiptPath)};atomicJSON(join(candidate.output,'passed.json'),returned);return returned;
  }catch(error) {atomicJSON(join(candidate.output,'failed.json'),{schemaVersion:1,passed:false,service:candidate.service,candidateSourceSha:candidate.candidateSourceSha,planSha256:candidate.preflightPlanSha256,checks,reasonSha256:hash(String(error.message))});throw new Error('Isolated consumer preflight failed; retained stage evidence',{cause:error});}

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -33,8 +35,8 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
  const release={releaseId:'naeil-ui-0.7.42',version:'0.7.42',contractVersion:'1',sourceRevision:'b'.repeat(40),archiveSha256:hash(archive),chromeSha256:'c'.repeat(64),accountSha256:hash(readFileSync(account))};
  writeFileSync(expectations,JSON.stringify(declaration({...release,archive:{sha256:release.archiveSha256},contract:{version:'1',sha256:release.chromeSha256},account:{sha256:release.accountSha256}})),{mode:0o600});
  const fixture=join(root,'fixture.json');writeFileSync(fixture,JSON.stringify({schemaVersion:2,kind:'standing-ui-reference',release,account:pin(account),expectations:pin(expectations),routingProfile:null}),{mode:0o600});
- const executables=Object.fromEntries([node,'/usr/bin/git',realpathSync('/usr/bin/tar'),'/usr/bin/sandbox-exec'].map(p=>[p,hash(readFileSync(p))]));
- const config={schemaVersion:1,node,pnpm:pin(pnpm),executables,readable:[],executionPath:node.slice(0,node.lastIndexOf('/'))+':/usr/bin',network:{},checks:[{name:'unit',file:node,args:['-e','0']},{name:'type',file:node,args:['-e','0']},{name:'lint',file:node,args:['-e','0']},{name:'build',file:node,args:['scripts/build.mjs']},{name:'package',file:node,args:['-e','0']}],artifactRelative:service==='estimate'?'release':'.next/standalone',e2e:{file:node,args:['scripts/e2e.mjs']},smoke:{file:node,args:['-e','0']},...(service==='estimate'?{releaseIntegrity:{file:node,args:['-e',"const assert=require('node:assert/strict'),fs=require('node:fs');assert.equal(process.argv[1],'release');assert.equal(JSON.parse(fs.readFileSync(process.argv[1]+'/manifest.json')).sourceCommit,process.env.NAEIL_SOURCE_REVISION);"]}}:{})};
+ const executables=Object.fromEntries([node,'/usr/bin/git','/Library/Developer/CommandLineTools/usr/bin/git',realpathSync('/usr/bin/tar'),'/usr/bin/sandbox-exec'].map(p=>[p,hash(readFileSync(p))]));
+ const config={schemaVersion:1,node,git:'/Library/Developer/CommandLineTools/usr/bin/git',pnpm:pin(pnpm),executables,readable:[],executionPath:node.slice(0,node.lastIndexOf('/'))+':/usr/bin',network:{},checks:[{name:'unit',file:node,args:['-e','0']},{name:'type',file:node,args:['-e','0']},{name:'lint',file:node,args:['-e','0']},{name:'build',file:node,args:['scripts/build.mjs']},{name:'package',file:node,args:['-e','0']}],artifactRelative:service==='estimate'?'release':'.next/standalone',e2e:{file:node,args:['scripts/e2e.mjs']},smoke:{file:node,args:['-e','0']},...(service==='estimate'?{releaseIntegrity:{file:node,args:['-e',"const assert=require('node:assert/strict'),fs=require('node:fs');assert.equal(process.argv[1],'release');assert.equal(JSON.parse(fs.readFileSync(process.argv[1]+'/manifest.json')).sourceCommit,process.env.NAEIL_SOURCE_REVISION);"]}}:{})};
  const input={schemaVersion:1,service,repository:service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev',sourceRoot:source,reviewedBaseSha:git(['rev-parse','HEAD']),isolatedRoot:join(root,'isolated'),release,previousVersion:'0.7.41',archive:pin(archivePath),fixture:pin(fixture),harnessSha256:null,generation:{automationSha256:automationDigest(new URL('../../',import.meta.url).pathname),trustedFiles:{...executables,[pnpm]:hash(readFileSync(pnpm))},executionPath:config.executionPath,stateSchemaVersion:2},config};
  // Harness closure is explicitly approved before preparation; never inferred after checks.
  input.harnessSha256=hash(JSON.stringify({'playwright.config.ts':hash(readFileSync(join(source,'playwright.config.ts'))),'tests/check.mjs':hash(readFileSync(join(source,'tests/check.mjs')))}));
@@ -118,4 +120,44 @@ test('failed Estimate release integrity cannot select an artifact or issue a pas
  const candidate=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(candidate,f.config),/preflight failed/i);
  const check=JSON.parse(readFileSync(join(candidate.root,'input/receipts/release-integrity.json')));assert.equal(check.exitCode,1);
  assert(!existsSync(join(candidate.root,'artifact/selected/receipt.json')));assert(!existsSync(join(candidate.root,'input/passed.json')));
+});
+
+test('post-consumer Git filter cannot launch an outside synthetic marker',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t),candidate=await prepareCandidate(f.input),marker=join(f.root,'outside-filter-marker');
+ const gitDirectory=execFileSync('/usr/bin/git',['rev-parse','--absolute-git-dir'],{cwd:candidate.checkout,encoding:'utf8'}).trim();
+ // Parent fixture corruption proves post-consumer Git remains sandboxed even if metadata is tampered.
+ const helper=join(f.root,'outside-filter.cjs');writeFileSync(helper,`require('node:fs').writeFileSync(${JSON.stringify(marker)},'synthetic');`);
+ const clean=JSON.stringify(node)+' '+JSON.stringify(helper);
+ execFileSync('/usr/bin/git',['config','filter.canary.clean',clean],{cwd:candidate.checkout});execFileSync('/usr/bin/git',['config','filter.canary.required','true'],{cwd:candidate.checkout});
+ assert.equal(execFileSync('/usr/bin/git',['config','--get','filter.canary.clean'],{cwd:candidate.checkout,encoding:'utf8'}).trim(),clean);
+ writeFileSync(join(gitDirectory,'info/attributes'),'package.json filter=canary\n');const pkg=join(candidate.checkout,'package.json');writeFileSync(pkg,readFileSync(pkg,'utf8').replace('synthetic','mutated00'));fs.utimesSync(pkg,new Date(),new Date(Date.now()+2000));
+ await assert.rejects(()=>runPreflight(candidate,f.config));assert(!existsSync(marker),'Git launched an outside filter marker');
+});
+
+test('consumer cannot write real Git metadata and redirecting .git cannot select host filters',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t);f.config.checks[0].args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const pointer=fs.readFileSync('.git','utf8').trim();assert(pointer.startsWith('gitdir: '));const dir=path.resolve(pointer.slice(8));for(const file of ['config','info/attributes'])assert.throws(()=>fs.appendFileSync(path.join(dir,file),'bad'),e=>['EPERM','EACCES'].includes(e.code));fs.writeFileSync('.git','gitdir: ../outside-git');"];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const c=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(c,f.config),/preflight failed/i);
+ const unit=JSON.parse(readFileSync(join(c.root,'input/receipts/unit.json')));assert.equal(unit.exitCode,0);
+});
+
+test('source lock symlink is rejected without any parent read of its synthetic outside target',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t),canary=join(f.root,'outside-source-canary');writeFileSync(canary,'synthetic-outside-bytes',{mode:0o600});
+ f.config.checks[0].args=['-e',`const fs=require('node:fs');fs.unlinkSync('pnpm-lock.yaml');fs.symlinkSync(${JSON.stringify(canary)},'pnpm-lock.yaml');`];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const c=await prepareCandidate(f.input),original=fs.readFileSync;let outsideReads=0;
+ fs.readFileSync=(path,...args)=>{if(typeof path==='string'&&path===join(c.checkout,'pnpm-lock.yaml')&&fs.lstatSync(path).isSymbolicLink())outsideReads++;return original(path,...args);};syncBuiltinESMExports();
+ try{await assert.rejects(()=>runPreflight(c,f.config));assert.equal(outsideReads,0,'Parent followed consumer-controlled source symlink');}finally{fs.readFileSync=original;syncBuiltinESMExports();}
+});
+
+test('post-install package symlink cannot trigger a parent reread outside the checkout',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t,{update:true}),canary=join(f.root,'outside-package-canary');writeFileSync(canary,'synthetic-outside-bytes',{mode:0o600});
+ const pnpm=f.config.pnpm.path;fs.appendFileSync(pnpm,`if(process.argv.includes('--frozen-lockfile')){fs.unlinkSync('package.json');fs.symlinkSync(${JSON.stringify(canary)},'package.json');}`);
+ f.config.pnpm.sha256=hash(readFileSync(pnpm));f.config.pnpm.bytes=readFileSync(pnpm).length;f.input.generation.trustedFiles[pnpm]=f.config.pnpm.sha256;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const original=fs.readFileSync;let outsideReads=0;
+ fs.readFileSync=(path,...args)=>{if(typeof path==='string'&&path===join(f.input.isolatedRoot,'checkout/package.json')&&fs.lstatSync(path).isSymbolicLink())outsideReads++;return original(path,...args);};syncBuiltinESMExports();
+ try{await assert.rejects(()=>prepareCandidate(f.input));assert.equal(outsideReads,0,'Parent followed post-install package symlink');}finally{fs.readFileSync=original;syncBuiltinESMExports();}
+});
+
+test('release integrity writes only its runner-bound output evidence without dirtying source',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t);f.config.releaseIntegrity.args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const output=process.env.RELEASE_INTEGRITY_EVIDENCE_PATH;assert.equal(output,path.resolve('..','output','release-integrity-evidence.json'));fs.writeFileSync(output,JSON.stringify({ok:true}));"];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const c=await prepareCandidate(f.input),passed=await runPreflight(c,f.config);assert.equal(passed.passed,true);assert.deepEqual(JSON.parse(readFileSync(join(c.output,'release-integrity-evidence.json'))),{ok:true});
 });

@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { createSandbox, verifySandbox, executeSandbox, networkManifest, sanitizedEnvironment } from './preflight-sandbox.mjs';
+import { spawn, execFileSync } from 'node:child_process';
+import { createSandbox, verifySandbox, executeSandbox, networkManifest, sanitizedEnvironment, readBoundedSource } from './preflight-sandbox.mjs';
 const hash = b => createHash('sha256').update(b).digest('hex');
 const node = process.platform==='darwin'?'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node':realpathSync(process.execPath);
 function setup(t) {
@@ -18,6 +19,13 @@ function setup(t) {
   return {root,spec,secret,immutable,native};
 }
 test('unsupported OS fails before filesystem or consumer access',()=>{assert.throws(()=>createSandbox({}, {platform:'linux'}),/macOS/);});
+test('bounded source reader refuses outside links, oversized files and FIFO without blocking',t=>{
+ const {root,secret}=setup(t),path=join(root,'checkout','source');writeFileSync(path,'safe');assert.equal(readBoundedSource(path,join(root,'checkout')).toString(),'safe');
+ assert.throws(()=>readBoundedSource(path,join(root,'checkout'),3),/bounded/);rmSync(path);symlinkSync(secret,path);assert.throws(()=>readBoundedSource(path,join(root,'checkout')),/symlink/);rmSync(path);
+ linkSync(secret,path);assert.throws(()=>readBoundedSource(path,join(root,'checkout')),/single-link/);rmSync(path);
+ if(process.platform==='darwin')assert(readBoundedSource('/usr/bin/true','/usr/bin',2097152,true).length>0,'Root-owned pinned runtime reads remain supported');
+ if(process.platform!=='win32'){execFileSync('/usr/bin/mkfifo',[path]);const start=Date.now();assert.throws(()=>readBoundedSource(path,join(root,'checkout')),/regular/);assert(Date.now()-start<1000);}
+});
 test('fails closed on missing pin, root overlap and symlink escape',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},t=>{
  const {root,spec}=setup(t);
  assert.throws(()=>createSandbox({...spec,executables:{}}),/pinned/);
@@ -71,5 +79,21 @@ test('explicit ESBUILD_BINARY_PATH selects only an externally pinned executable'
  assert.equal(result.exitCode,0);
  const marker=join(root,'output','must-not-launch');
  for(const path of [join(root,'checkout','node_modules/esbuild/bin/esbuild'),'/usr/bin/true'])await assert.rejects(()=>executeSandbox(sandbox,{file:node,args:['-e',`require('node:fs').writeFileSync(${JSON.stringify(marker)},'bad')`],env:{ESBUILD_BINARY_PATH:path}}),/pinned external executable/);
+ assert(!existsSync(marker));
+});
+
+test('sandbox cannot signal an unrelated synthetic process and can terminate its own child',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const {spec}=setup(t);const outside=spawn(node,['-e',"process.on('SIGTERM',()=>process.exit(42));console.log('ready');setInterval(()=>{},1000)"],{stdio:['ignore','pipe','pipe']});
+ const closed=new Promise(resolve=>outside.once('close',(code,signal)=>resolve({code,signal})));
+ try {
+  await new Promise((resolve,reject)=>{outside.once('error',reject);outside.stdout.once('data',resolve);});
+  const result=await executeSandbox(createSandbox({...spec,roles:[]}),{file:node,args:['-e',`const assert=require('node:assert/strict'),{spawn}=require('node:child_process');assert.throws(()=>process.kill(${outside.pid},'SIGTERM'),e=>e.code==='EPERM'||e.code==='EACCES');const child=spawn(process.execPath,['-e',"console.log('ready');setInterval(()=>{},1000)"],{stdio:['ignore','pipe','pipe']});child.stdout.once('data',()=>child.kill('SIGTERM'));child.once('close',(code,signal)=>{assert.equal(signal,'SIGTERM');console.log('own child cleaned')});`],timeoutMs:5000});
+  assert.equal(result.exitCode,0,result.stderr);assert.match(result.stdout,/own child cleaned/);assert.equal(outside.exitCode,null);assert.equal(outside.signalCode,null);
+ } finally {outside.kill('SIGKILL');await closed;}
+});
+
+test('release integrity evidence env is confined to canonical output before child launch',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const {root,spec}=setup(t),sandbox=createSandbox({...spec,roles:[]}),marker=join(root,'output','launched');
+ for(const path of [join(root,'checkout','evidence.json'),join(root,'outside','evidence.json')])await assert.rejects(()=>executeSandbox(sandbox,{file:node,args:['-e',`require('node:fs').writeFileSync(${JSON.stringify(marker)},'bad')`],env:{RELEASE_INTEGRITY_EVIDENCE_PATH:path}}),/isolated output/);
  assert(!existsSync(marker));
 });
