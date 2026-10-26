@@ -95,8 +95,10 @@ export async function executeSandbox(sandbox, command) {
   const cwd=command.cwd??spec.writable[0];assert(canonical(cwd)&&spec.writable.some(root=>under(cwd,root)),'Command cwd must be isolated writable checkout');
   const env=sanitizedEnvironment({executionPath:spec.executionPath,tmp:spec.writable[2],cache:spec.writable[3]});
   for(const [key,value] of Object.entries(command.env??{})) {
-    assert(/^(?:NAEIL_|ESTIMATE_|JEV_|LUNA_KEY_FILE$|DATA_DIR$|APP_ORIGIN$|PORT$|HOSTNAME$|NODE_ENV$|PLAYWRIGHT_|E2E_REPORT_PATH$|SHARED_HEADER_EVIDENCE_DIR$|SHELL_EVIDENCE_DIR$|NAVIGATION_EVIDENCE_DIR$|COMPANY_LAYOUT_EVIDENCE_DIR$|LAYOUT_EVIDENCE_DIR$|CI$)/.test(key),'Unapproved preflight environment key');
-    assert(typeof value==='string','Explicit environment values required');env[key]=value;
+    assert(/^(?:NAEIL_|ESTIMATE_|JEV_|ESBUILD_BINARY_PATH$|LUNA_KEY_FILE$|DATA_DIR$|APP_ORIGIN$|PORT$|HOSTNAME$|NODE_ENV$|PLAYWRIGHT_|E2E_REPORT_PATH$|SHARED_HEADER_EVIDENCE_DIR$|SHELL_EVIDENCE_DIR$|NAVIGATION_EVIDENCE_DIR$|COMPANY_LAYOUT_EVIDENCE_DIR$|LAYOUT_EVIDENCE_DIR$|CI$)/.test(key),'Unapproved preflight environment key');
+    assert(typeof value==='string','Explicit environment values required');
+    if(key==='ESBUILD_BINARY_PATH')assert(spec.executables[value]&&value!=='/usr/bin/sandbox-exec'&&!under(value,spec.root),'ESBUILD_BINARY_PATH requires a pinned external executable');
+    env[key]=value;
   }
   const timeout=command.timeoutMs??120000;assert(Number.isSafeInteger(timeout)&&timeout>0&&timeout<=10800000,'Bounded timeout required');
   return await new Promise(resolveResult=>{

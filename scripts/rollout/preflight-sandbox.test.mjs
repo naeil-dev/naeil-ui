@@ -64,3 +64,12 @@ test('pinned readable helper mutation is rejected before child launch',{skip:pro
  const sandbox=createSandbox({...spec,readable:[{path:helper,sha256:hash(readFileSync(helper))}]});writeFileSync(helper,'// changed after approval');
  await assert.rejects(()=>executeSandbox(sandbox,{file:node,args:['-e',`require('fs').writeFileSync(${JSON.stringify(join(root,'output','should-not-exist'))},'bad')`]}),/closure changed/);assert(!existsSync(join(root,'output','should-not-exist')));
 });
+
+test('explicit ESBUILD_BINARY_PATH selects only an externally pinned executable',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const {root,spec}=setup(t);const sandbox=createSandbox(spec);
+ const result=await executeSandbox(sandbox,{file:node,args:['-e',"const assert=require('node:assert/strict');assert.equal(process.env.ESBUILD_BINARY_PATH,process.execPath);assert.equal(require('node:child_process').spawnSync(process.env.ESBUILD_BINARY_PATH,['-e','0']).status,0);"],env:{ESBUILD_BINARY_PATH:node}});
+ assert.equal(result.exitCode,0);
+ const marker=join(root,'output','must-not-launch');
+ for(const path of [join(root,'checkout','node_modules/esbuild/bin/esbuild'),'/usr/bin/true'])await assert.rejects(()=>executeSandbox(sandbox,{file:node,args:['-e',`require('node:fs').writeFileSync(${JSON.stringify(marker)},'bad')`],env:{ESBUILD_BINARY_PATH:path}}),/pinned external executable/);
+ assert(!existsSync(marker));
+});
