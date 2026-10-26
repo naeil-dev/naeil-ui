@@ -8,7 +8,8 @@ import { promisify } from 'node:util';
 import { acquireControlLock, assertConfigReferences, assertTrustedFiles, atomicJSON, fileReference, fingerprint, generationDigest, hash, HEX, IDS, JSON_LIMITS, operationalGenerationDigest, pathExists, privateDirectory, readExactReference, readPrivateBytes, readPrivateJSON, releaseIdentityDigest, serializeJSON, syncDirectory, validateConfig } from './standing-config.mjs';
 import { importLegacyState, parseStandingJSON, readStandingEvidence, readStandingState, validateCompletedImport, writeStandingState } from './standing-state.mjs';
 import { assertServiceResult } from './standing-dispatcher.mjs';
-import { publicIdentity } from './naeil-standing-observer.mjs';
+import { checkSiteProvenance, publicIdentity } from './naeil-standing-observer.mjs';
+import { resolveSiteTarget } from './site-continuation.mjs';
 import { validateCandidateHandoff } from './source-approval.mjs';
 import { reviewedMigration } from './rollout.mjs';
 import { inspectEstimateRelease, inspectJevArchive, inspectJevStandalone } from './consumer-artifact.mjs';
@@ -227,7 +228,18 @@ async function prerequisites(plan, approval, dependencies, assertAuthority = () 
   assert.equal(config.stateDirectory,plan.next.stateDirectory); assert.deepEqual(config.generationControl,{controlDirectory:plan.controlDirectory,generationId:plan.next.generationId,epochId:plan.next.epochId});
   assert.equal(config.configReferencesSha256,plan.next.configReferencesSha256); assertConfigReferences(config.configReferences,plan.next.configReferencesSha256);
   const original=originalState(plan);
-  for(const id of IDS) { const identity=await publicIdentity(config.services[id].origin,dependencies.fetchImpl); assertAuthority(); assert.deepEqual(identity,plan.predecessors[id],'Public predecessor changed'); }
+  for(const id of IDS) {
+    const service=config.services[id];
+    if(id==='naeil'&&service.siteContinuationApproval) {
+      const siteTarget=resolveSiteTarget(plan.release,service.siteContinuationApproval);
+      assert.equal(service.siteContinuationApproval.oldSourceRevision,plan.predecessors.naeil.sourceRevision,'Approved current site lost its historical predecessor');
+      const observed=await checkSiteProvenance({release:plan.release,service,siteTarget},{github:dependencies.github,fetchImpl:dependencies.fetchImpl,beforeAction:assertAuthority});assertAuthority();
+      assert.equal(observed.state,'observed','Approved current site provenance is not ready');
+      assert.deepEqual(nativeIdentity(service,observed.artifact),{...plan.predecessors.naeil,artifactId:siteTarget.deploymentId,sourceRevision:siteTarget.sourceRevision},'Current site differs from exact approved target');
+    } else {
+      const identity=await publicIdentity(service.origin,dependencies.fetchImpl);assertAuthority();assert.deepEqual(identity,plan.predecessors[id],'Public predecessor changed');
+    }
+  }
   const adapters={};
   for(const id of ['estimate','jev']) {
     const refs=plan.sourceHandoffs[id]; exact(refs,['approval','adoption','candidate']);
@@ -323,6 +335,7 @@ async function apply(plan,approval,recovery,dependencies) {
           if(recoveryRef)readExactReference(recoveryRef,JSON_LIMITS.controlIndex);
         }
         readExactReference(plan.next.config); readPrivateBytes(plan.stopFile,JSON_LIMITS.controlIndex);
+        if(authorityConfig.services.naeil.siteContinuationApproval)resolveSiteTarget(plan.release,authorityConfig.services.naeil.siteContinuationApproval);
         assert.equal(lstatSync(plan.stopFile).mode&0o777,0o600,'STOP must remain0600');
         assert(authorityConfig.enabled===true&&authorityConfig.policy.enabled===true&&Date.parse(authorityConfig.policy.expiresAt)>Date.now(),'Current standing execution authorization required');
         for(const id of IDS)assert(reviewedMigration(plan.release,{id},authorityConfig.policy),'Original exact reviewedMigration expired or changed; continuation cannot extend authorization');

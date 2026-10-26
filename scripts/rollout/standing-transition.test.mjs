@@ -5,10 +5,13 @@ import { once } from 'node:events';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, operationalGenerationDigest, ORIGINS, readPrivateJSON } from './standing-config.mjs';
+import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, operationalGenerationDigest, ORIGINS, readPrivateJSON, releaseIdentityDigest } from './standing-config.mjs';
 import { codeManifest } from './consumer-artifact.mjs';
 import { readStandingState } from './standing-state.mjs';
 import { syntheticJevArchive } from './fixtures/jev-archive.mjs';
+import { syntheticSite } from './fixtures/site-continuation.mjs';
+import { syntheticArchive } from './fixtures/release.mjs';
+import { runtimeIndex } from './package-runtime.mjs';
 
 const automationRoot = resolve(new URL('../..', import.meta.url).pathname);
 function fixture(t) {
@@ -66,7 +69,7 @@ function fixture(t) {
   return { root, controlDirectory, newState, oldState, config, state, input, deps, events, put, tools, identities, stopFile, baselineRelease, nativeArtifacts, makeNativeArtifact };
 }
 const load = async () => import('./standing-transition.mjs').catch(() => ({}));
-function approval(plan) { return { schemaVersion: 1, kind: 'standing-continuation-approval', action: 'continue-0.7.2-after-source-gate-failure', planSha256: plan.planSha256, previousApprovalSha256: plan.previousApprovalSha256, releaseSha256: fingerprint(plan.release), generationSha256: plan.next.generationSha256, priorAttemptId: plan.estimate.priorAttemptId, attemptId: plan.estimate.newAttemptId, successorOf: plan.previousApprovalSha256, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://exact-plan', approvedAt: '2020-01-01', expiresAt: '2099-01-01', revoked: false }; }
+function approval(plan) { return { schemaVersion: 1, kind: 'standing-continuation-approval', action: 'continue-0.7.2-after-source-gate-failure', planSha256: plan.planSha256, previousApprovalSha256: plan.previousApprovalSha256, releaseSha256: releaseIdentityDigest(plan.release), generationSha256: plan.next.generationSha256, priorAttemptId: plan.estimate.priorAttemptId, attemptId: plan.estimate.newAttemptId, successorOf: plan.previousApprovalSha256, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://exact-plan', approvedAt: '2020-01-01', expiresAt: '2099-01-01', revoked: false }; }
 
 test('pure plan exposes exact identities and cutover preserves old binding, naeil receipt, ledger and STOP', async t => {
   const api = await load(), f = fixture(t), before = readFileSync(f.input.old.snapshot.path);
@@ -368,4 +371,44 @@ test('T7 original Jev archive-and-manifest baseline needs no extracted standalon
   const plan = api.planTransition(f.input); await api.applyTransition(plan, approval(plan), f.deps);
   for (const { path, bytes } of before) assert.deepEqual(readFileSync(path), bytes);
   assert(!Object.hasOwn(readPrivateJSON(ref.path).artifact, 'standalonePath'));
+});
+
+function approveCurrentSite(f) {
+  const release = f.input.release, bytes = syntheticArchive('0.7.2');
+  const path = join(f.oldState, 'published-site-package.tgz'); writeFileSync(path, bytes, { mode: 0o600 });
+  release.archive = { path, sha256: hash(bytes) }; release.siteArchive = { ...release.archive }; release.siteRuntimeSha256 = hash(JSON.stringify(runtimeIndex(bytes)));
+  const { approval: site } = syntheticSite(f.root, release, bytes);
+  f.identities.naeil.sourceRevision = release.siteSourceRevision;
+  const prior = f.state.releases['2'].services.naeil;
+  prior.result.artifact.sourceRevision = release.siteSourceRevision; prior.result.production.archiveSha256 = release.archive.sha256;
+  f.config.policy.reviewedMigration.siteSourceRevision = release.siteSourceRevision; f.config.policy.reviewedMigration.archiveSha256 = release.archive.sha256;
+  atomicJSON(join(f.oldState, 'state.json'), f.state); f.input.old.snapshot = f.put('snapshot.json', f.state);
+  const old = readPrivateJSON(f.input.old.config.path); old.policy.reviewedMigration = f.config.policy.reviewedMigration; f.input.old.config = f.put('old-config.json', old); f.input.previousApprovalSha256 = fingerprint(old.policy.reviewedMigration);
+  f.config.services.naeil.siteContinuationApproval = site;
+  f.config.services.naeil.observer = { workflowPath: '.github/workflows/verify.yml', environment: 'Production', deploymentCreator: 'vercel[bot]', correlation: 'immutable-url' };
+  const identity = { ...f.identities.naeil, sourceRevision: site.sourceRevision, artifactId: site.deploymentId };
+  const nativeFetch = f.deps.fetchImpl;
+  f.deps.fetchImpl = async url => new URL(url).origin === ORIGINS.naeil || url.startsWith('https://synthetic.vercel.app') ? Response.json(identity) : nativeFetch(url);
+  f.deps.github = { mainAncestor: async () => {}, workflow: async () => ({ state: 'success', id: 10 }), pages: async path => path.endsWith('/statuses') ? [{ id: 12, state: 'success', created_at: new Date().toISOString(), creator: { login: 'vercel[bot]' }, environment_url: 'https://synthetic.vercel.app' }] : [{ id: 11, sha: site.sourceRevision, environment: 'Production', creator: { login: 'vercel[bot]' } }] };
+  f.input.next.config = f.put('new-config.json', f.config);
+  return { site, identity };
+}
+test('T7 transition current-site observation accepts only the original identity or the separately approved exact target', async t => {
+  const api = await load();
+  for (const cause of ['original', 'approved', 'missing', 'changed', 'expired', 'target', 'native-mismatch']) await t.test(cause, async () => {
+    const f = fixture(t), current = cause === 'original' ? null : approveCurrentSite(f);
+    if (cause === 'missing') delete f.config.services.naeil.siteContinuationApproval;
+    if (cause === 'changed') current.site.diffSha256 = 'f'.repeat(64);
+    if (cause === 'expired') current.site.expiresAt = '2001-01-01';
+    if (cause === 'target') current.identity.artifactId = 'dpl_Unapproved';
+    if (cause === 'native-mismatch') f.identities.estimate = { ...f.identities.estimate, artifactId: 'wrong-native' };
+    f.input.next.config = f.put('new-config.json', f.config);
+    const plan = api.planTransition(f.input), before = readFileSync(f.input.old.snapshot.path);
+    if (['original', 'approved'].includes(cause)) {
+      await api.applyTransition(plan, approval(plan), f.deps);
+      assert.deepEqual(readStandingState(f.newState).releases['2'].services.naeil.result, f.state.releases['2'].services.naeil.result);
+      assert.deepEqual(plan.predecessors.naeil, f.state.releases['2'].services.naeil.result.production.identity);
+    } else { await assert.rejects(() => api.applyTransition(plan, approval(plan), f.deps)); assert(!existsSync(f.newState)); }
+    assert.deepEqual(readFileSync(f.input.old.snapshot.path), before); assert(existsSync(f.stopFile));
+  });
 });

@@ -7,13 +7,14 @@ import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { treeDigest } from './preflight-sandbox.mjs';
 import { readStandingEvidence, readStandingState } from './standing-state.mjs';
+import { assertSiteArtifact, requestSiteTarget } from './site-continuation.mjs';
 
 export const IDS = ['naeil', 'estimate', 'jev'];
 export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestimate.naeil.dev', jev: 'https://jev.naeil.dev' };
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['standing-transition.mjs', 'standing-launcher.mjs', 'source-approval.mjs', 'consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
+export const AUTOMATION_FILES = ['site-continuation.mjs', 'standing-transition.mjs', 'standing-launcher.mjs', 'source-approval.mjs', 'consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
 /** Published identity is independent of the epoch that materialized assets. */
@@ -224,13 +225,17 @@ export function assertProduction(production, request, artifact, { allowExpired =
   assert.equal(production?.expectationsSha256,expectations.sha256,'Production expectationsSha256 mismatch; fresh verification required');
   for(const route of request.service.routes) {assertExpectationChrome(route.chrome);selectExpectationProfile(expectations,route.chrome?.projectProfile);}
   assert(production?.schemaVersion === 1 && production.passed === true, 'Production verification did not pass');
-  for (const [key, expected] of Object.entries({ releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production' })) assert.equal(production[key], expected, `Verification ${key} mismatch`);
+  for (const [key, expected] of Object.entries({ releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.kind === 'standing-site-read-only' ? 'site-read-only' : request.mode === 'adopt' ? 'adopt' : 'production' })) assert.equal(production[key], expected, `Verification ${key} mismatch`);
+  if (request.service.id === 'naeil') {
+    assertSiteArtifact(request, artifact);
+    if (request.siteTarget !== undefined) assert.equal(production.siteTargetSha256, fingerprint(requestSiteTarget(request)), 'Production site target changed; fresh verification required');
+  }
   const expected = { schemaVersion: 1, appId: request.service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui };
   assert.deepEqual(production.identity, expected, 'Verified public identity mismatch');
   assert.match(artifact.sourceRevision, REVISION);
   assert.deepEqual(artifact.ui, { version: request.release.version, contractVersion: '1' });
   for (const [key, value] of Object.entries({ archiveSha256: request.release.archive.sha256, referenceSha256: request.release.contract.sha256, accountReferenceSha256: request.release.account.sha256 })) assert.equal(production[key], value, `Production ${key} mismatch`);
-  const date = Date.parse(production.checkedAt), age = request.policy.maxEvidenceAgeSeconds * 1000;
+  const date = Date.parse(production.checkedAt), age = (request.kind === 'standing-site-read-only' ? request.maxEvidenceAgeSeconds : request.policy.maxEvidenceAgeSeconds) * 1000;
   assert(Number.isFinite(date) && date <= Date.now() + 5000 && (allowExpired || Date.now() - date <= age), 'Stale production verification');
   assert(Array.isArray(production.routes), 'Route receipts required');
   for (const route of request.service.routes.filter(route => route.policy !== 'non-ui')) assert(production.routes.some(result => result.path === route.path && result.routeKey === routeKey(route) && (result.passed === true || result.status === 'production-verified')), 'Missing exact route/state verification');
@@ -460,6 +465,7 @@ function assertReverification(value, active) {
 
 /** Native admission never accepts a verifier envelope, including legacy input. */
 export function assertGenerationExecution(value,adapterConfig) {
+  assert(value.kind !== 'standing-site-read-only', 'Standalone site validation cannot authorize operational execution');
   assert(!Object.hasOwn(value,'reverification'),'Read-only reverification cannot authorize native execution');
   if(['estimate','jev'].includes(value.service?.id))assert(value.phase===undefined,'Verification input cannot authorize native execution');
   return assertGenerationAdmission(value,adapterConfig,false);
@@ -468,6 +474,7 @@ export function assertGenerationExecution(value,adapterConfig) {
 /** Separate verifier admission; its read-only lineage is authority only while
  * the exact current-epoch verification intent and fsynced barrier remain. */
 export function assertGenerationVerification(value) {
+  assert(value.kind !== 'standing-site-read-only', 'Standalone site validation cannot authorize operational verification');
   return assertGenerationAdmission(value,undefined,true);
 }
 
@@ -489,7 +496,12 @@ function assertGenerationAdmission(value,adapterConfig,verification) {
       assert(proof.schemaVersion===1&&proof.kind==='standing-current-naeil-verification'&&proof.generationSha256===active.pointer.generationSha256&&proof.pointerSha256===active.pointerSha256&&proof.releaseSha256===active.approval.releaseSha256,'Naeil verification generation/release changed');
       assert.equal(proof.request.service.id,'naeil');assert.equal(releaseIdentityDigest(proof.request.release),active.approval.releaseSha256);
       assertGenerationFence(proof.request);assertProduction(proof.production,proof.request,proof.artifact);
-      assert.deepEqual(proof.production.identity,active.plan.predecessors.naeil,'Naeil production differs from exact reviewed continuation predecessor');
+      const target = requestSiteTarget(proof.request);
+      if (target.approvalSha256) {
+        assert.equal(proof.request.service.siteContinuationApproval.oldSourceRevision, active.plan.predecessors.naeil.sourceRevision, 'Site continuation lost its exact historical predecessor');
+        assert.equal(proof.production.identity.sourceRevision, target.sourceRevision, 'Naeil production differs from approved current site');
+        assert.equal(proof.production.identity.artifactId, target.deploymentId, 'Naeil production differs from approved current deployment');
+      } else assert.deepEqual(proof.production.identity,active.plan.predecessors.naeil,'Naeil production differs from exact reviewed continuation predecessor');
     }
   }
   return active;

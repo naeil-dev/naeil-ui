@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { assertActive, assertGenerationExecution, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, hash, invokeJSON, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 import { compareRuntime, runtimeIndex } from './package-runtime.mjs';
+import { requestSiteTarget } from './site-continuation.mjs';
 
 async function boundedJSON(response, maximum) {
   const chunks = []; let length = 0;
@@ -77,56 +78,67 @@ export async function observe(request, options = {}) {
   }
 }
 
-async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, verify = invokeJSON } = {}) {
+/** Shared read-only provenance checks. No directory, state or native writes. */
+export async function checkSiteProvenance(request, { github = new GitHub(), fetchImpl = fetch, beforeAction = () => {} } = {}) {
   const { release, service } = request;
-  assert(request.schemaVersion === 1 && ['adopt', 'standing'].includes(request.mode) && service.id === 'naeil' && service.appId === 'naeil' && service.origin === 'https://naeil.dev', 'Reviewed Naeil standing envelope required');
-  assert.match(release.siteSourceRevision, REVISION, 'Separate reviewed website SHA required');
-  const base = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, mutationAttempted: false };
-  const observer = service.observer;
+  assert(service.id === 'naeil' && service.appId === 'naeil' && service.origin === 'https://naeil.dev', 'Reviewed Naeil site scope required');
+  const target = requestSiteTarget(request), observer = service.observer;
   assert(observer?.workflowPath === '.github/workflows/verify.yml' && observer.environment === 'Production' && observer.deploymentCreator === 'vercel[bot]', 'Reviewed existing Git/Vercel observation context required');
-  const authorize = () => { assertGenerationExecution(request); assertActive({ enabled: true, policy: request.policy }); assertTrustedFiles(request.trustedFiles); };
-  authorize();
-  const frozenBytes = readPrivateBytes(release.archive.path), siteBytes = readPrivateBytes(release.siteArchive.path);
+  beforeAction();
+  const frozenBytes = readPrivateBytes(release.archive.path), siteBytes = readPrivateBytes(target.archive.path);
   assert.equal(hash(frozenBytes), release.archive.sha256, 'Frozen package bytes changed');
-  assert.equal(hash(siteBytes), release.siteArchive.sha256, 'Site package proof bytes changed');
+  assert.equal(hash(siteBytes), target.archive.sha256, 'Site package proof bytes changed');
   const frozenIndex = runtimeIndex(frozenBytes);
   assert.equal(frozenIndex.package.version, release.version, 'Frozen archive version differs from release');
   const runtime = compareRuntime(frozenIndex, runtimeIndex(siteBytes));
-  assert.equal(runtime.runtimeSha256, release.siteRuntimeSha256, 'Reviewed site runtime proof mismatch');
-  const workflow = await github.workflow(release.siteSourceRevision, observer.workflowPath);
-  if (workflow.state === 'cancelled') return { ...base, state: 'deferred', reasonCode: 'site-ci-cancelled' };
-  if (workflow.state === 'pending') return { ...base, state: 'deferred', reasonCode: 'site-ci-pending' };
-  if (workflow.state !== 'success') return { ...base, state: 'gate-failed', reasonCode: 'site-ci-failed', recoveryRequired: true };
-  const values = await github.pages(`/repos/naeil-dev/naeil-ui/deployments?sha=${release.siteSourceRevision}&environment=Production`);
-  const deployments = values.filter(value => value.sha === release.siteSourceRevision && value.environment === observer.environment && value.creator?.login === observer.deploymentCreator).sort((a, b) => b.id - a.id);
-  if (!deployments.length) return { ...base, state: 'deferred', reasonCode: 'site-deployment-pending' };
+  assert.equal(runtime.runtimeSha256, target.runtimeSha256, 'Reviewed site runtime proof mismatch');
+  beforeAction(); await github.mainAncestor(target.sourceRevision); beforeAction();
+  const workflow = await github.workflow(target.sourceRevision, observer.workflowPath); beforeAction();
+  if (workflow.state === 'cancelled') return { state: 'deferred', reasonCode: 'site-ci-cancelled' };
+  if (workflow.state === 'pending') return { state: 'deferred', reasonCode: 'site-ci-pending' };
+  if (workflow.state !== 'success') return { state: 'gate-failed', reasonCode: 'site-ci-failed', recoveryRequired: true };
+  assert(Number.isSafeInteger(workflow.id) && workflow.id > 0, 'Exact successful site push-CI run required');
+  const values = await github.pages(`/repos/naeil-dev/naeil-ui/deployments?sha=${target.sourceRevision}&environment=Production`); beforeAction();
+  const deployments = values.filter(value => value.sha === target.sourceRevision && value.environment === observer.environment).sort((a, b) => b.id - a.id);
+  if (!deployments.length) return { state: 'deferred', reasonCode: 'site-deployment-pending' };
   const deployment = deployments[0];
-  const statuses = await github.pages(`/repos/naeil-dev/naeil-ui/deployments/${deployment.id}/statuses`);
+  assert(Number.isSafeInteger(deployment.id) && deployment.id > 0 && deployment.creator?.login === observer.deploymentCreator, 'Unexpected Git deployment publisher/identity');
+  const statuses = await github.pages(`/repos/naeil-dev/naeil-ui/deployments/${deployment.id}/statuses`); beforeAction();
   const status = statuses.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id)[0];
-  if (!status || ['pending', 'queued', 'in_progress'].includes(status.state)) return { ...base, state: 'deferred', reasonCode: 'site-deployment-pending' };
-  if (status.state !== 'success') return { ...base, state: 'gate-failed', reasonCode: 'site-deployment-failed', recoveryRequired: true };
+  if (!status || ['pending', 'queued', 'in_progress'].includes(status.state)) return { state: 'deferred', reasonCode: 'site-deployment-pending' };
   assert.equal(status.creator?.login, observer.deploymentCreator, 'Unexpected deployment status publisher');
-  authorize();
-  const identity = await publicIdentity(service.origin, fetchImpl);
-  assert.match(identity.artifactId, /^dpl_[A-Za-z0-9]+$/, 'Expected Git/Vercel artifact identity');
+  if (status.state !== 'success') return { state: 'gate-failed', reasonCode: 'site-deployment-failed', recoveryRequired: true };
+  const identity = await publicIdentity(service.origin, fetchImpl); beforeAction();
+  assert(/^dpl_[A-Za-z0-9]+$/.test(identity.artifactId), 'Expected Git/Vercel artifact identity');
   assert(identity.schemaVersion === 1 && identity.appId === 'naeil' && REVISION.test(identity.sourceRevision), 'Invalid live website identity');
-  if (identity.sourceRevision !== release.siteSourceRevision) return { ...base, state: 'deferred', reasonCode: 'site-revision-not-live' };
-  const expected = { schemaVersion: 1, appId: 'naeil', artifactId: identity.artifactId, sourceRevision: release.siteSourceRevision, ui: { version: release.version, contractVersion: '1' } };
-  assert.deepEqual(identity, expected, 'Live website has not adopted the reviewed app source and UI release');
-  const platform = await correlate(status, identity, observer, fetchImpl, github);
-  if (platform.pending) return { ...base, state: 'deferred', reasonCode: 'site-commit-status-pending' };
-  const artifact = { id: identity.artifactId, sourceRevision: identity.sourceRevision, ui: identity.ui, platform: { kind: 'vercel-git', ...platform, githubDeploymentId: String(deployment.id), githubRunId: String(workflow.id) } };
+  if (identity.sourceRevision !== target.sourceRevision) return { state: 'deferred', reasonCode: 'site-revision-not-approved' };
+  const expected = { schemaVersion: 1, appId: 'naeil', artifactId: target.deploymentId || identity.artifactId, sourceRevision: target.sourceRevision, ui: { version: release.version, contractVersion: '1' } };
+  assert.deepEqual(identity, expected, 'Live website differs from exact approved source/deployment and UI release');
+  beforeAction(); const platform = await correlate(status, identity, observer, fetchImpl, github); beforeAction();
+  if (platform.pending) return { state: 'deferred', reasonCode: 'site-commit-status-pending' };
+  return { state: 'observed', artifact: { id: identity.artifactId, sourceRevision: identity.sourceRevision, ui: identity.ui, platform: { kind: 'vercel-git', ...platform, githubDeploymentId: String(deployment.id), githubRunId: String(workflow.id) } } };
+}
+
+async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, verify = invokeJSON } = {}) {
+  assert(request.schemaVersion === 1 && ['adopt', 'standing'].includes(request.mode) && request.kind === undefined, 'Reviewed Naeil standing envelope required');
+  const { release, service } = request;
+  const base = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, mutationAttempted: false };
+  const authorize = () => { assertGenerationExecution(request); assertActive({ enabled: true, policy: request.policy }); assertTrustedFiles(request.trustedFiles); };
+  authorize();
+  const observed = await checkSiteProvenance(request, { github, fetchImpl, beforeAction: authorize });
+  if (observed.state !== 'observed') return { ...base, ...observed };
+  const artifact = observed.artifact;
+  const expected = { schemaVersion: 1, appId: 'naeil', artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui };
   const directory = join(request.outputDirectory, 'verification'); authorize(); privateDirectory(directory, true);
   const verification = { ...request, phase: request.mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: expected, origin: service.origin, outputDirectory: directory, referencePath: release.contract.path, options: service.verification.options || {} };
-  authorize();
-  const production = await verify(service.verification.command, verification, join(directory, 'command'), 'verify');
-  assertProduction(production, request, artifact);
-  authorize();
-  const after = await publicIdentity(service.origin, fetchImpl);
+  authorize(); const production = await verify(service.verification.command, verification, join(directory, 'command'), 'verify');
+  assertProduction(production, request, artifact); authorize();
+  const after = await publicIdentity(service.origin, fetchImpl); authorize();
   assert(after.schemaVersion === 1 && after.appId === 'naeil' && REVISION.test(after.sourceRevision) && /^dpl_[A-Za-z0-9]+$/.test(after.artifactId), 'Invalid live website identity');
-  if (after.sourceRevision !== release.siteSourceRevision) return { ...base, state: 'deferred', reasonCode: 'site-revision-not-live' };
+  if (after.sourceRevision !== expected.sourceRevision) return { ...base, state: 'deferred', reasonCode: 'site-revision-not-approved' };
   assert.deepEqual(after, expected, 'Production changed during verification');
-  return { ...base, state: 'production-verified', artifact, production };
+  assertProduction(production, request, artifact);
+  return { ...base, state: 'production-verified', artifact, production, ...(request.siteTarget ? { siteTarget: request.siteTarget } : {}) };
 }
 
 export async function main() {

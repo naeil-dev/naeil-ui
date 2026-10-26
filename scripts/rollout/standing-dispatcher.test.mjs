@@ -12,6 +12,8 @@ import { readStandingEvidence, readStandingState, writeStandingEvidence, writeSt
 import {declaration} from './fixtures/reviewed-expectations.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
 import { validateVerificationRequest } from './standing-verification.mjs';
+import { resolveSiteTarget } from './site-continuation.mjs';
+import { syntheticSite } from './fixtures/site-continuation.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 function archive(version) {
@@ -27,13 +29,14 @@ function archive(version) {
   return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]));
 }
 
-function fixture(t, patches = [1]) {
+function fixture(t, patches = [1], { siteContinuation = false } = {}) {
   const directory = realpathSync(mkdtempSync(join(tmpdir(), 'standing-rollout-'))); chmodSync(directory, 0o700);
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const stateDirectory = join(directory, 'state'); mkdirSync(stateDirectory, { mode: 0o700 });
   const data = new Map(), releases = [];
+  const continuedSite = siteContinuation ? syntheticSite(directory, { siteSourceRevision: 'a'.repeat(40) }, archive('0.7.2')) : null;
   for (const n of patches) {
-    const version = `0.7.${n}`, source = String(n).repeat(40), site = 'a'.repeat(40);
+    const version = `0.7.${n}`, source = String(n).repeat(40), site = continuedSite?.approval.oldSourceRevision || 'a'.repeat(40);
     const tar = archive(version), archiveSha256 = hash(tar), ui = { version, contractVersion: '1' };
     const reference = Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'independent-release-render', frozen: true, sourceRevision: source, archiveSha256, ui, cases: [{}] }));
     const account = Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'independent-account-render', sourceRevision: source, archiveSha256, ui, cases: [{}] }));
@@ -45,7 +48,7 @@ function fixture(t, patches = [1]) {
     const assets = Object.entries(files).map(([name, bytes], i) => { data.set(url(name), bytes); return { id: n * 10 + i, name, size: bytes.length, digest: `sha256:${hash(bytes)}`, browser_download_url: url(name) }; });
     releases.push({ id: n, tag_name: `v${version}`, draft: false, prerelease: false, author: { login: 'owner' }, published_at: new Date().toISOString(), assets });
   }
-  const config = { schemaVersion: 1, enabled: true, repository: 'naeil-dev/naeil-ui', trustedPublishers: ['owner'], automation: { root, sha256: automationDigest(root) }, stateDirectory, policy: { enabled: true, approvedBy: 'owner', approvalRef: 'fixture-approval', expiresAt: new Date(Date.now() + 86400000).toISOString(), stopFile: join(directory, 'STOP'), services: IDS, maxEvidenceAgeSeconds: 10800, rollbackApproved: true, rollbackScope: 'code-only', patchWindow: { minVersion: '0.7.2', maxVersion: '0.7.99', contractVersion: '1' } }, services: Object.fromEntries(IDS.map(id => [id, { id, appId: id === 'estimate' ? 'abestimate' : id, origin: ORIGINS[id], command: { file: process.execPath, args: ['fixture'], timeoutMs: 1000 }, verification: { command: { file: process.execPath, args: ['fixture'], timeoutMs: 1000 } }, adapterOptions: { standingConfigPath: join(directory, `${id}-private.json`) }, routes: [{ path: '/', policy: 'canonical', renderState: { access: 'public' } }] }])) };
+  const config = { schemaVersion: 1, enabled: true, repository: 'naeil-dev/naeil-ui', trustedPublishers: ['owner'], automation: { root, sha256: automationDigest(root) }, stateDirectory, policy: { enabled: true, approvedBy: 'owner', approvalRef: 'fixture-approval', expiresAt: new Date(Date.now() + 86400000).toISOString(), stopFile: join(directory, 'STOP'), services: IDS, maxEvidenceAgeSeconds: 10800, rollbackApproved: true, rollbackScope: 'code-only', patchWindow: { minVersion: '0.7.2', maxVersion: '0.7.99', contractVersion: '1' } }, services: Object.fromEntries(IDS.map(id => [id, { id, appId: id === 'estimate' ? 'abestimate' : id, origin: ORIGINS[id], command: { file: process.execPath, args: ['fixture'], timeoutMs: 1000 }, ...(id === 'naeil' ? { observer: { workflowPath: '.github/workflows/verify.yml', environment: 'Production', deploymentCreator: 'vercel[bot]', correlation: 'immutable-url' } } : {}), verification: { command: { file: process.execPath, args: ['fixture'], timeoutMs: 1000 } }, adapterOptions: { standingConfigPath: join(directory, `${id}-private.json`) }, routes: [{ path: '/', policy: 'canonical', renderState: { access: 'public' } }] }])) };
   config.trustedFiles = { [process.execPath]: hash(readFileSync(process.execPath)) }; config.executionPath = '/usr/bin:/bin:/usr/sbin:/sbin';
   config.policy.schemaVersion = 1;
   Object.assign(config.policy.patchWindow, { approvedBy: config.policy.approvedBy, approvalRef: config.policy.approvalRef, reason: 'Owner-authorized compatible shared UI fixes', startsAt: new Date(Date.now() - 86400000).toISOString(), expiresAt: config.policy.expiresAt, services: IDS });
@@ -54,7 +57,7 @@ function fixture(t, patches = [1]) {
   // baseline remains pinned independently of that incomplete event history.
   const baseTar = archive('0.7.1'), baseHash = hash(baseTar), baseUI = { version: '0.7.1', contractVersion: '1' };
   config.baseline = { version: '0.7.1', releaseId: 'ui-0.7.1', sourceRevision: '1'.repeat(40), archiveSha256: baseHash, referenceSha256: initial.contract?.sha256 || hash(Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'independent-release-render', frozen: true, sourceRevision: '1'.repeat(40), archiveSha256: baseHash, ui: baseUI, cases: [{}] }))), accountReferenceSha256: initial.account?.sha256 || hash(Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'independent-account-render', sourceRevision: '1'.repeat(40), archiveSha256: baseHash, ui: baseUI, cases: [{}] }))) };
-  const github = { releases: async () => releases, asset: async value => data.get(value.browser_download_url), tagRevision: async tag => tag.slice(5).repeat(40), mainAncestor: async () => {}, workflow: async () => ({ state: 'success', id: 10 }) };
+  const github = { releases: async () => releases, asset: async value => data.get(value.browser_download_url), tagRevision: async tag => tag.slice(5).repeat(40), mainAncestor: async () => {}, workflow: async () => ({ state: 'success', id: 10 }), pages: async path => path.includes('deployments?') ? [{ id: 11, sha: new URL('https://synthetic.test' + path).searchParams.get('sha'), environment: 'Production', creator: { login: 'vercel[bot]' } }] : [{ id: 12, state: 'success', created_at: new Date().toISOString(), creator: { login: 'vercel[bot]' }, environment_url: 'https://synthetic.vercel.app' }] };
   const calls = [];
   const invoke = async (command, request) => { calls.push(request); return success(request); };
   const changeManifest = (n, change) => {
@@ -62,13 +65,20 @@ function fixture(t, patches = [1]) {
     const value = JSON.parse(data.get(asset.browser_download_url)); change(value);
     const bytes = Buffer.from(JSON.stringify(value)); data.set(asset.browser_download_url, bytes); asset.size = bytes.length; asset.digest = `sha256:${hash(bytes)}`;
   };
-  return { directory, config, github, invoke, calls, releases, data, changeManifest, state: () => JSON.parse(JSON.stringify(readStandingState(stateDirectory))) };
+  const fetchImpl = async () => {
+    const records = Object.values(readStandingState(stateDirectory).releases), prior = records.reverse().find(record => record.services?.naeil?.result?.artifact)?.services.naeil;
+    assert(prior, 'Synthetic live identity requires a retained site result');
+    const request = { ...prior.request, service: config.services.naeil };
+    if (request.service.siteContinuationApproval) request.siteTarget = resolveSiteTarget(request.release, request.service.siteContinuationApproval);
+    return Response.json(success(request).production.identity);
+  };
+  return { directory, config, github, invoke, calls, releases, data, changeManifest, fetchImpl, continuedSite, state: () => JSON.parse(JSON.stringify(readStandingState(stateDirectory))) };
 }
 
 function success(request) {
   const { service, release } = request;
-  const artifact = { id: `${service.id}-${release.version}`, sourceRevision: service.id === 'naeil' ? release.siteSourceRevision : 'b'.repeat(40), ui: { version: release.version, contractVersion: '1' }, ...(service.id === 'naeil' ? { platform: { kind: 'vercel-git', deploymentId: 'dpl_fixture' } } : { sha256: 'c'.repeat(64) }) };
-  const production = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production', passed: true, identity: { schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui }, archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, expectationsSha256:release.expectations.sha256, checkedAt: new Date().toISOString(), routes: service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
+  const artifact = { id: service.id === 'naeil' ? request.siteTarget?.deploymentId || 'dpl_Fixture' + release.version.split('.')[2] : `${service.id}-${release.version}`, sourceRevision: service.id === 'naeil' ? request.siteTarget?.sourceRevision || release.siteSourceRevision : 'b'.repeat(40), ui: { version: release.version, contractVersion: '1' }, ...(service.id === 'naeil' ? { platform: { kind: 'vercel-git', deploymentId: request.siteTarget?.deploymentId || 'dpl_Fixture' + release.version.split('.')[2] } } : { sha256: 'c'.repeat(64) }) };
+  const production = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production', passed: true, identity: { schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui }, archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, expectationsSha256:release.expectations.sha256, ...(request.siteTarget ? {siteTargetSha256:fingerprint(request.siteTarget)} : {}), checkedAt: new Date().toISOString(), routes: service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
   return { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, state: 'production-verified', artifact, production };
 }
 
@@ -124,16 +134,73 @@ test('historical naeil continuation re-verifies in the new generation before exa
   const after=f.state().releases['2'];assert.equal(after.binding,binding);assert.deepEqual(after.services.naeil.request,naeil.request);assert.deepEqual(after.services.naeil.result,naeil.result);
 });
 
-async function continuationFixture(t) {
-  const f=fixture(t,[1,2]),invoke=f.invoke;
+async function continuationFixture(t, continued = false) {
+  const f=fixture(t,[1,2], { siteContinuation: continued }),invoke=f.invoke;
   f.invoke=async(command,request)=>request.release.version==='0.7.2'&&request.service.id==='estimate'?{...success(request),state:'gate-failed',mutationAttempted:true,runtimeMutationAttempted:false}:invoke(command,request);
   await poll(f.config,f);const state=f.state(),record=state.releases['2'],naeil=record.services.naeil,prior=record.services.estimate;delete naeil.result.production.expectationsSha256;
+  if (continued) { const site = f.continuedSite.approval; site.releaseSha256 = (await import('./standing-config.mjs')).releaseIdentityDigest(naeil.request.release); site.expiresAt = new Date(Date.now() + 10 * 60_000).toISOString(); f.config.services.naeil.siteContinuationApproval = site; }
   const {plan,approval,releaseSha256}=activateGeneration(f,naeil.request.release);
   record.generationContinuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:f.config.generationSha256,originalBinding:record.binding,releaseSha256};
   naeil.continuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:f.config.generationSha256,historicalRequestSha256:fingerprint(naeil.request),historicalResultSha256:fingerprint(naeil.result),requiresFreshVerification:true};
   record.services.estimate={state:'deferred',reconciliation:{priorAttemptId:prior.request.attemptId},authorizedAttemptId:'estimate-new-attempt'};delete state.blocked;writeStandingState(f.config.stateDirectory,state);f.calls.length=0;
   return {...f,invoke:invoke,verify:async(_command,request)=>success(request).production};
 }
+
+test('T7 approved changed site appends fresh head and current-epoch prerequisite without changing historical/native tuples', async t => {
+  const f = await continuationFixture(t, true), original = structuredClone(f.state().releases['2'].services.naeil), events = [];
+  const verify = async (_command, request) => {
+    events.push('fresh-site'); assert.notEqual(request.attemptId, original.request.attemptId);
+    assert.equal(request.siteTarget.sourceRevision, f.continuedSite.approval.sourceRevision);
+    assert.deepEqual(request.release, original.request.release);
+    return success(request).production;
+  };
+  const invoke = async (_command, request) => {
+    assertGenerationExecution(request); events.push(request.service.id);
+    assert.deepEqual(request.release, original.request.release); assert.equal(request.siteTarget, undefined);
+    return success(request);
+  };
+  const result = await poll(f.config, { ...f, verify, invoke });
+  assert.equal(result.currentVersion, '0.7.2'); assert.deepEqual(events, ['fresh-site', 'estimate', 'jev']);
+  const current = f.state().releases['2'].services.naeil;
+  assert.deepEqual(current.request, original.request); assert.deepEqual(current.result, original.result);
+  assert.equal(current.siteHead.artifact.sourceRevision, f.continuedSite.approval.sourceRevision);
+  assert.equal(current.reverifications.at(-1).production.siteTargetSha256, fingerprint(current.siteHead.request.siteTarget));
+});
+test('T7 provenance is freshly checked immediately before each native dispatch and drift blocks the later consumer', async t => {
+  const f = await continuationFixture(t), fetchImpl = f.fetchImpl, invoked = [];
+  const invoke = async (_command, request) => {
+    assertGenerationExecution(request); invoked.push(request.service.id);
+    if (request.service.id === 'estimate') f.fetchImpl = async () => Response.json({ ...success(f.state().releases['2'].services.naeil.request).production.identity, sourceRevision: 'f'.repeat(40) });
+    return success(request);
+  };
+  const result = await poll(f.config, { ...f, invoke, fetchImpl: (...args) => f.fetchImpl(...args) });
+  assert.equal(result.state, 'blocked'); assert.deepEqual(invoked, ['estimate']);
+  assert.equal(result.reasonCode, 'site-revision-not-approved');
+  assert.equal(f.state().releases['2'].services.jev, undefined); assert.notEqual(f.fetchImpl, fetchImpl);
+});
+
+test('T7 independent native admission rejects old or forged site prerequisites despite equal package runtime', async t => {
+  const f = await continuationFixture(t, true); let checks = 0;
+  const invoke = async (_command, request) => {
+    assertGenerationExecution(request);
+    if (request.service.id === 'estimate') {
+      for (const cause of ['old-site', 'missing-target', 'deployment', 'expectations', 'expired-production']) {
+        const input = structuredClone(request), proof = readPrivateJSON(input.naeilPrerequisite.path);
+        if (cause === 'old-site') { const original = f.state().releases['2'].services.naeil.result; proof.artifact = original.artifact; proof.production.identity = original.production.identity; }
+        if (cause === 'missing-target') delete proof.request.siteTarget;
+        if (cause === 'deployment') proof.artifact.id = 'dpl_Other';
+        if (cause === 'expectations') delete proof.production.expectationsSha256;
+        if (cause === 'expired-production') proof.production.checkedAt = '2001-01-01';
+        const path = join(f.config.stateDirectory, 'prerequisites', 'forged-' + cause + '.json'); atomicJSON(path, proof); input.naeilPrerequisite = fileReference(path);
+        assert.throws(() => assertGenerationExecution(input), /site|target|deployment|expectations|Stale/i); checks++;
+      }
+      const now = Date.now(); t.mock.method(Date, 'now', () => now + 11 * 60_000);
+      assert.throws(() => assertGenerationExecution(request), /Site approval expired/); t.mock.restoreAll(); checks++;
+    }
+    return success(request);
+  };
+  const result = await poll(f.config, { ...f, invoke }); assert.equal(result.currentVersion, '0.7.2'); assert.equal(checks, 6);
+});
 
 test('I3: expired Estimate evidence refreshes with durable fresh verification without repeating its native attempt', async t => {
   const f = await continuationFixture(t), nativeRequests = [], verificationRequests = [];
@@ -238,7 +305,7 @@ test('scoped baseline adoption, queued consecutive patches and idempotent later 
 
 test('missing predecessor and pending CI defer before app work, drafts/prereleases do not run', async t => {
   const future = fixture(t, [2]); assert.equal((await poll(future.config, future)).state, 'waiting-predecessor'); assert.equal(future.calls.length, 0);
-  const pending = fixture(t, [1, 2]); pending.github.workflow = async () => ({ state: 'pending' });
+  const pending = fixture(t, [1, 2]); pending.github.workflow = async sha => sha === '2'.repeat(40) ? { state: 'pending' } : { state: 'success', id: 10 };
   const result = await poll(pending.config, pending); assert.equal(result.currentVersion, '0.7.1'); assert.equal(result.state, 'waiting-package-ci'); assert.equal(pending.calls.length, 3);
   const drafts = fixture(t); drafts.releases[0].draft = true; assert.equal((await poll(drafts.config, drafts)).state, 'waiting-release'); assert.equal(drafts.calls.length, 0);
 });
@@ -447,10 +514,10 @@ for (const status of ['disabled', 'authorization-expired']) test('F8 mid-loop ' 
   assert.equal((await poll(f.config, f)).state, status); assert.equal(f.state().releases['1'].state, 'stopped'); assert(!f.state().blocked); assert.equal(f.calls.length, 1);
 });
 test('F15 cancelled exact package CI waits and resumes after the rerun succeeds', async t => {
-  const f = fixture(t, [1, 2]); f.github.workflow = async () => ({ state: 'cancelled' });
+  const f = fixture(t, [1, 2]); f.github.workflow = async sha => sha === '2'.repeat(40) ? { state: 'cancelled' } : { state: 'success', id: 10 };
   const waiting = await poll(f.config, f); assert.equal(waiting.state, 'waiting-package-ci'); assert.equal(waiting.reasonCode, 'cancelled'); assert(waiting.since); assert(!f.state().blocked); assert.equal(f.calls.length, 3);
   const again = await poll(f.config, f); assert.equal(again.since, waiting.since);
-  f.github.workflow = async () => ({ state: 'success' }); assert.equal((await poll(f.config, f)).state, 'complete'); assert.equal(f.calls.length, 6);
+  f.github.workflow = async () => ({ state: 'success', id: 10 }); assert.equal((await poll(f.config, f)).state, 'complete'); assert.equal(f.calls.length, 6);
 });
 test('F3 fresh identity or binding failure during re-verification blocks without replay', async t => {
   for (const failure of ['identity', 'route', 'stale', 'command', 'cached-binding']) {
@@ -484,7 +551,9 @@ test('F3 successive read-only refreshes append receipts and use new private atte
   const path = join(f.config.stateDirectory, 'state.json');
   for (let index = 0; index < 2; index++) {
     const saved = f.state(), prior = saved.releases['1'].services.naeil;
-    (index ? prior.reverifications.at(-1).production : prior.result.production).checkedAt = '2000-01-01'; writeStandingState(f.config.stateDirectory, saved);
+    (index ? prior.reverifications.at(-1).production : prior.result.production).checkedAt = '2000-01-01';
+    if (index) prior.siteHead.production.checkedAt = '2000-01-01'; // Age the current head as well as its retained appended receipt.
+    writeStandingState(f.config.stateDirectory, saved);
     assert.equal((await poll(f.config, f)).state, 'deferred');
   }
   const prior = f.state().releases['1'].services.naeil;

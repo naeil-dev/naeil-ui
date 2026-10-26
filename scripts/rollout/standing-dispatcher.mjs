@@ -5,11 +5,19 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { acquireControlLock, acquireLock, assertActive, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fileReference, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, releaseIdentityDigest, validateConfig } from './standing-config.mjs';
 import { assertEvidencePath, JSON_LIMITS, readOperatorStatus, readStandingState, StandingStorageError, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
-import { publicIdentity } from './naeil-standing-observer.mjs';
+import { checkSiteProvenance, publicIdentity } from './naeil-standing-observer.mjs';
+import { assertSiteArtifact, resolveSiteTarget } from './site-continuation.mjs';
 import { assertPolicyRelease, GitHub, GitHubUnavailable, materializeRelease, releaseMetadata } from './standing-github.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const patch = value => Number(value.split('.')[2]);
+class SiteRevisionNotApproved extends Error {
+  constructor() { super('Current site revision/deployment is not approved'); }
+}
+function assertObservedSite(observed) {
+  if (observed.reasonCode === 'site-revision-not-approved') throw new SiteRevisionNotApproved();
+  assert.equal(observed.state, 'observed', 'Current site provenance is not approved/ready');
+}
 
 export function assertServiceResult(result, request, options = {}) {
   for (const [key, expected] of Object.entries({ schemaVersion: 1, releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId })) assert.equal(result?.[key], expected, `Adapter ${key} mismatch`);
@@ -18,9 +26,7 @@ export function assertServiceResult(result, request, options = {}) {
   if (result.state !== 'production-verified') return;
   assert(result.artifact && typeof result.artifact.id === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/.test(result.artifact.id), 'Exact app artifact required');
   if (request.service.id === 'naeil') {
-    assert.equal(result.artifact.sourceRevision, request.release.siteSourceRevision, 'Site observer used package tag instead of reviewed app source');
-    assert.equal(result.artifact.platform?.kind, 'vercel-git', 'Existing Git/Vercel provenance required');
-    assert(typeof result.artifact.platform.deploymentId === 'string' && result.artifact.platform.deploymentId, 'Exact platform deployment required');
+    assertSiteArtifact(request, result.artifact);
   } else assert.match(result.artifact.sha256, HEX, 'Native immutable artifact digest required');
   assertProduction(result.production, request, result.artifact, options);
 }
@@ -32,7 +38,7 @@ function publicSummary(state) {
 }
 
 /** One bounded poll; launchd supplies cadence. Never installs or starts a job. */
-export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON, controlLease } = {}) {
+export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON, fetchImpl = fetch, controlLease } = {}) {
   validateConfig(config, { automationRoot: root });
   const active=assertGenerationFence(config), lease=active&&!controlLease?acquireControlLock(config.generationFence.controlDirectory):null;
   if(controlLease)assert.equal(readPrivateJSON(join(config.generationFence.controlDirectory,'control.lock')).token,controlLease.token,'Launcher lease changed');
@@ -121,16 +127,25 @@ export async function poll(config, { github = new GitHub({ repository: config.re
               const historical=prior.continuation;
               if(historical)assert(id==='naeil'&&active&&historical.requiresFreshVerification===true&&historical.planSha256===active.pointer.transitionPlanSha256&&historical.authorizationSha256===active.pointer.authorizationSha256&&historical.generationSha256===config.generationSha256&&historical.historicalRequestSha256===fingerprint(prior.request)&&historical.historicalResultSha256===fingerprint(prior.result),'Historical provenance continuation mismatch');
               else assertServiceResult(prior.result, prior.request, { allowExpired: true });
-              const latest = prior.reverifications?.at(-1) || { production: prior.result.production, request: prior.request };
-              const expired = historical&&latest.request.generationSha256!==config.generationSha256 || Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
+              const latest = latestVerification(prior);
+              const { command: ignored, ...currentService } = config.services[id];
+              const siteTarget = id === 'naeil' ? resolveSiteTarget(release, currentService.siteContinuationApproval) : undefined;
+              const changedSite = id === 'naeil' && (fingerprint(latest.request.siteTarget || resolveSiteTarget(latest.request.release, latest.request.service.siteContinuationApproval)) !== fingerprint(siteTarget) || fingerprint(latest.request.service) !== fingerprint(currentService));
+              const changedContext = id === 'naeil' && config.generation && (latest.request.generationSha256 !== config.generationSha256 || fingerprint(latest.request.generationFence) !== fingerprint(config.generationFence) || latest.request.configReferencesSha256 !== config.configReferencesSha256);
+              const expired = changedSite || changedContext || historical && latest.request.generationSha256 !== config.generationSha256 || Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
               if (expired) {
                 state.lastState = 'cached-evidence-expired'; state.lastReasonCode = 'cached-evidence-expired'; record.state = 'cached-evidence-expired'; finish();
                 if (stop(record)) return finish();
                 assertActive(config); assertTrustedFiles(config.trustedFiles);
-                const attemptId = randomUUID(), artifact = prior.result.artifact;
+                const attemptId = randomUUID(); let artifact = latest.artifact;
                 const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId);assertGenerationFence(config);privateDirectory(outputDirectory, true);
                 const {command,...currentService}=config.services[id];
-                const request = { ...prior.request,release,service:currentService,policy:config.policy,trustedFiles:config.trustedFiles,executionPath:config.executionPath,...generationRequest(config,id,record),attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
+                const request = { ...prior.request,release,service:currentService,...(siteTarget ? {siteTarget} : {}),policy:config.policy,trustedFiles:config.trustedFiles,executionPath:config.executionPath,...generationRequest(config,id,record),attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
+                if (id === 'naeil') {
+                  const observed = await checkSiteProvenance(request, { github, fetchImpl, beforeAction: () => { assertActive(config); assertTrustedFiles(config.trustedFiles); } });
+                  assertObservedSite(observed);
+                  artifact = observed.artifact; request.artifact = artifact; request.expectedIdentity = artifactIdentity(currentService, artifact);
+                }
                 if(config.generation&&id!=='naeil') {
                   const successfulAttempt=writeStandingEvidence(config.stateDirectory,{schemaVersion:1,kind:'standing-successful-native-attempt',generationSha256:config.generationSha256,epochId:config.generationControl.epochId,request:prior.request,result:prior.result},config);
                   request.reverification={schemaVersion:1,kind:'standing-read-only-reverification',epochId:config.generationControl.epochId,successfulAttempt};
@@ -139,22 +154,26 @@ export async function poll(config, { github = new GitHub({ repository: config.re
                 prior.verificationIntent = attempt; save();
                 assertActive(config);const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');
                 assertProduction(production, request, artifact);
+                if (id === 'naeil') await assertCurrentSite(config, { request, artifact, production }, { github, fetchImpl });
                 Object.assign(attempt, { state: 'production-verified', completedAt: new Date().toISOString() });
                 (prior.reverificationAttempts ||= []).push(attempt);
-                (prior.reverifications ||= []).push({ request, production }); delete prior.verificationIntent; save();
-              } else assertProduction(latest.production, latest.request, prior.result.artifact);
+                (prior.reverifications ||= []).push({ request, production, ...(id === 'naeil' ? {artifact} : {}) });
+                if (id === 'naeil') prior.siteHead = { request, artifact, production };
+                delete prior.verificationIntent; save();
+              } else assertProduction(latest.production, latest.request, latest.artifact);
             } catch (error) {
               if (error instanceof StandingStorageError) throw error;
               if (stop(record)) return finish();
-              record.state = 'blocked'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: 'cached-evidence-reverification-failed' }; return finish();
+              record.state = 'blocked'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: error instanceof SiteRevisionNotApproved ? 'site-revision-not-approved' : 'cached-evidence-reverification-failed' }; return finish();
             }
             continue;
           }
           assert(!prior || prior.state === 'deferred', 'A dispatched failed/uncertain app cannot replay');
+          if (id !== 'naeil') await assertCurrentSite(config, latestVerification(record.services.naeil), { github, fetchImpl });
           const attemptId = prior?.authorizedAttemptId || randomUUID();
           const configured = config.services[id], { command, ...service } = configured;
           const directory = join(config.stateDirectory, 'runs', key, id, attemptId);assertGenerationFence(config);privateDirectory(directory, true);
-          const request = { schemaVersion: 1, release, service, policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath,...generationRequest(config,id,record), idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
+          const request = { schemaVersion: 1, release, service, ...(id === 'naeil' && service.siteContinuationApproval ? {siteTarget:resolveSiteTarget(release,service.siteContinuationApproval)} : {}), policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath,...generationRequest(config,id,record), idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
           if (prior) (record.history ||= []).push({ serviceId: id, prior: JSON.parse(JSON.stringify(prior)), resolution: 'retry-deferred', at: new Date().toISOString() });
           record.services[id] = { state: 'invoking', attemptId, request, startedAt: new Date().toISOString() };
           record.state = 'running'; save(); // Must precede every child launch.
@@ -175,7 +194,7 @@ export async function poll(config, { github = new GitHub({ repository: config.re
         if (error instanceof StandingStorageError) throw error;
         if (stop(record)) return finish();
         if (error instanceof GitHubUnavailable) { record.state = 'release-unavailable'; state.lastState = record.state; return finish(); }
-        record.state = 'blocked'; state.blocked = { releaseId: record.releaseId || version, reasonCode: 'release-or-config-validation-failed' }; return finish();
+        record.state = 'blocked'; state.blocked = { releaseId: record.releaseId || version, reasonCode: error instanceof SiteRevisionNotApproved ? 'site-revision-not-approved' : 'release-or-config-validation-failed' }; return finish();
       }
     }
     delete state.lastReasonCode;
@@ -189,7 +208,7 @@ function generationRequest(config,id,record) {
   const fields={generationSha256:config.generationSha256,generationFence:config.generationFence,configReferences:config.configReferences,configReferencesSha256:config.configReferencesSha256,executionPath:config.generation.executionContexts[id]?.executionPath||config.executionPath};
   if(id!=='naeil') {
     const adapter=readPrivateJSON(config.services[id].adapterOptions.standingConfigPath),ref=adapter.handoff?.candidateReceipt;assert(ref,'Current generation requires exact candidate handoff');
-    const naeil=record?.services.naeil,latest=naeil?.reverifications?.at(-1)||{request:naeil?.request,production:naeil?.result?.production},artifact=naeil?.result?.artifact;
+    const naeil=record?.services.naeil,latest=latestVerification(naeil),artifact=latest.artifact;
     assert(naeil?.state==='production-verified'&&artifact,'Fresh naeil predecessor required');assertProduction(latest.production,latest.request,artifact);
     const active=assertGenerationFence(config);assert.equal(latest.request.generationSha256,config.generationSha256,'Fresh current-generation naeil verification required');
     const proof={schemaVersion:1,kind:'standing-current-naeil-verification',generationSha256:config.generationSha256,pointerSha256:config.generationFence.pointerSha256,releaseSha256:active.approval.releaseSha256,request:latest.request,artifact,production:latest.production};
@@ -198,6 +217,28 @@ function generationRequest(config,id,record) {
     const candidate=readPrivateJSON(ref.path);return {...fields,naeilPrerequisite:fileReference(path),candidate:{...candidate,receipt:ref},sourceAdoption:adapter.handoff.sourceAdoption};
   }
   return fields;
+}
+
+function latestVerification(prior) {
+  const latest = prior?.siteHead || prior?.reverifications?.at(-1);
+  return latest ? { ...latest, artifact: latest.artifact || prior.result.artifact } : { request: prior?.request, production: prior?.result?.production, artifact: prior?.result?.artifact };
+}
+async function assertCurrentSite(config, latest, { github, fetchImpl }) {
+  assertActive(config); assertTrustedFiles(config.trustedFiles);
+  assert(latest?.request && latest.artifact, 'Current site verification required before native dispatch');
+  const { command, ...service } = config.services.naeil;
+  const request = { ...latest.request, service, siteTarget: resolveSiteTarget(latest.request.release, service.siteContinuationApproval) };
+  // Never let an old request/receipt establish authority for a different target,
+  // route profile, verifier or generation even when package runtime is equal.
+  if (latest.request.siteTarget) assert.deepEqual(latest.request.siteTarget, request.siteTarget, 'Current site target changed; fresh verification required');
+  else assert(!service.siteContinuationApproval, 'Old site receipt cannot authorize a new target');
+  assert.deepEqual(latest.request.service, service, 'Site verification service/routes changed');
+  assertProduction(latest.production, latest.request, latest.artifact);
+  const observed = await checkSiteProvenance(request, { github, fetchImpl, beforeAction: () => { assertActive(config); assertTrustedFiles(config.trustedFiles); } });
+  assertObservedSite(observed);
+  if (fingerprint(artifactIdentity(service, observed.artifact)) !== fingerprint(artifactIdentity(service, latest.artifact))) throw new SiteRevisionNotApproved();
+  assertProduction(latest.production, latest.request, latest.artifact);
+  assertActive(config);
 }
 
 const artifactIdentity = (service, artifact) => ({ schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui });

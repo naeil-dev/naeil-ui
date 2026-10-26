@@ -9,6 +9,7 @@ import { verifyProduction } from '../verify-ui-production.mjs';
 import { captureAccountRender } from '../account-render.mjs';
 import { assertGenerationVerification, assertGenerationFence, fingerprint, readExactReference } from './standing-config.mjs';
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
+import { requestSiteTarget, assertSiteArtifact } from './site-continuation.mjs';
 import { readPrivateJson, writePrivateJson, assertPrivateDirectory, renewVerificationSession, sessionCookies } from './verification-session.mjs';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -18,10 +19,18 @@ const menuLabels = { en: 'Menu', ja: 'メニュー', ko: '메뉴' };
 export function validateVerificationRequest(input, config) {
   const active=assertGenerationVerification(input);
   if(active){const args=input.service.verification.command.args,index=args.indexOf('--config');assert(index>=0&&args.lastIndexOf('--config')===index,'Exact referenced verifier configuration required');const ref=active.config.configReferences.find(ref=>ref.path===args[index+1]);assert(ref,'Verifier config absent from active manifest');assert.equal(fingerprint(config),fingerprint(JSON.parse(readExactReference(ref))),'Running verifier configuration changed');}
+  assert(input.kind === undefined, 'Standalone input cannot use operational verification');
+  return validateVerificationData(input, config);
+}
+
+function validateVerificationData(input, config, standalone = false) {
   assert.equal(input.schemaVersion, 1);
   assert.equal(config.schemaVersion, 1);
-  assert(['standing', 'adopt'].includes(input.mode), 'Explicit standing/adopt mode required');
-  assert(['adopt', 'production', 'rollback'].includes(input.phase), 'Explicit verification phase required');
+  if (standalone) assert(input.kind === 'standing-site-read-only' && input.mode === undefined && input.phase === 'site-read-only', 'Explicit standalone verification scope required');
+  else {
+    assert(['standing', 'adopt'].includes(input.mode), 'Explicit standing/adopt mode required');
+    assert(['adopt', 'production', 'rollback'].includes(input.phase), 'Explicit verification phase required');
+  }
   const expectations=loadReleaseExpectations(input.release);
   const service = config.services?.[input.service?.id];
   assert(service && origins[service.id], 'Locally registered service required');
@@ -45,6 +54,7 @@ export function validateVerificationRequest(input, config) {
   for (const key of ['idempotencyKey', 'attemptId']) assert(typeof input[key] === 'string' && input[key] && input[key].length <= 200, 'Attempt binding required');
   const identity = { schemaVersion: 1, appId: service.appId, artifactId: input.artifact.id, sourceRevision: input.artifact.sourceRevision, ui: input.artifact.ui };
   if (input.expectedIdentity) assert.deepEqual(input.expectedIdentity, identity, 'Expected identity differs from artifact');
+  if (input.service.id === 'naeil') assertSiteArtifact(input, input.artifact);
   return identity;
 }
 
@@ -85,12 +95,12 @@ async function checkAccount(page, route, locale, width, theme, reference, before
   }
 }
 
-async function anonymousBoundaries(service, beforeAction) {
+async function anonymousBoundaries(service, beforeAction, fetchImpl) {
   const result = [];
   for (const probe of service.anonymousBoundaries || []) {
     const url = new URL(probe.path, service.origin);
     assert.equal(url.origin, service.origin, 'Boundary origin escape');
-    beforeAction(); const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000), cache: 'no-store' });
+    beforeAction(); const response = await fetchImpl(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000), cache: 'no-store' });
     assert.equal(response.status, probe.status, 'Anonymous boundary status changed');
     if (probe.centralLogin) {
       const location = new URL(response.headers.get('location'), service.origin);
@@ -103,9 +113,22 @@ async function anonymousBoundaries(service, beforeAction) {
   return result;
 }
 
-export async function verifyStanding(input, config) {
+export async function verifyStanding(input, config, dependencies = {}) {
   const identity = validateVerificationRequest(input, config);
-  const beforeWrite=()=>assertGenerationFence(input),beforeAction=()=>assertGenerationVerification(input);
+  return verifyData(input, config, identity, { beforeWrite: () => assertGenerationFence(input), beforeAction: () => assertGenerationVerification(input) }, dependencies);
+}
+
+/** The standalone caller supplies its exact non-operational approval guards.
+ * No policy or generation exemption is passed through the operational entry. */
+export async function verifySiteReadOnly(input, config, hooks, dependencies = {}) {
+  assert(typeof hooks?.beforeAction === 'function' && typeof hooks?.beforeWrite === 'function', 'Standalone approval guards required');
+  assert(input.service?.id === 'naeil' && input.policy === undefined && input.generationFence === undefined && input.generationSha256 === undefined, 'Standalone verifier supports only naeil without operational authority');
+  hooks.beforeAction();
+  const identity = validateVerificationData(input, config, true);
+  return verifyData(input, config, identity, hooks, dependencies);
+}
+
+async function verifyData(input, config, identity, { beforeAction, beforeWrite }, { productionVerifier = verifyProduction, sessionRenewer = renewVerificationSession, boundaryFetch = fetch } = {}) {
   const service = config.services[input.service.id];
   await assertPrivateDirectory(config.evidenceRoot);
   assert(isAbsolute(input.outputDirectory), 'Absolute private output directory required');
@@ -123,14 +146,14 @@ export async function verifyStanding(input, config) {
   assert.equal(reference.sourceRevision, input.release.sourceRevision);
   assert.equal(reference.archiveSha256, input.release.archive.sha256);
   assert.deepEqual(reference.ui, identity.ui);
-  const boundaries = await anonymousBoundaries(service,beforeAction);
+  const boundaries = await anonymousBoundaries(service,beforeAction,boundaryFetch);
   const needsSession = service.routes.some(route => route.renderState.access === 'protected');
   const verificationTimeoutMs = input.service.verification?.command?.timeoutMs ?? 20 * 60_000;
   assert(Number.isSafeInteger(verificationTimeoutMs) && verificationTimeoutMs > 0 && verificationTimeoutMs <= 3 * 60 * 60_000, 'Bounded verification timeout required');
   // Finish before Supabase SSR/browser auto-refresh can rotate an unpersisted
   // cookie. The subprocess deadline is the upper bound for the entire check.
-  const cookies = needsSession ? sessionCookies(await renewVerificationSession(config.session, { minimumValidityMs: verificationTimeoutMs + 5 * 60_000, beforeAction, beforeWrite }), config.session.supabaseUrl) : null;
-  const production = await verifyProduction({
+  const cookies = needsSession ? sessionCookies(await sessionRenewer(config.session, { minimumValidityMs: verificationTimeoutMs + 5 * 60_000, beforeAction, beforeWrite }), config.session.supabaseUrl) : null;
+  const production = await productionVerifier({
     release: input.release, origin: service.origin, identity, routes: service.routes,
     referencePath: input.referencePath, outputDir: input.outputDirectory,
     screenshots: false, beforeAction, beforeWrite,
@@ -146,7 +169,7 @@ export async function verifyStanding(input, config) {
   });
   return { ...production, schemaVersion: 1, releaseId: input.release.releaseId, serviceId: service.id,
     idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, phase: input.phase,
-    archiveSha256: input.release.archive.sha256, accountReferenceSha256: account.sha256, anonymousBoundaries: boundaries };
+    archiveSha256: input.release.archive.sha256, accountReferenceSha256: account.sha256, anonymousBoundaries: boundaries, ...(input.siteTarget ? { siteTargetSha256: fingerprint(requestSiteTarget(input)) } : {}) };
 }
 
 async function main() {

@@ -8,6 +8,7 @@ import { invokeVerifier } from './jev-standing-adapter.mjs';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { assertConfigReferences, fingerprint } from './standing-config.mjs';
+import { assertGenerationExecution, assertGenerationVerification } from './standing-config.mjs';
 
 const credentials = ['GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN'];
 // Linux images may link /bin to /usr/bin; the Jev transport requires canonical PATH entries.
@@ -79,4 +80,13 @@ test('published release identity ignores only known runner-local asset paths and
  const relocated=structuredClone(release);for(const kind of ['archive','contract','account','siteArchive','expectations'])relocated[kind].path=relocated[kind].path.replace('/epoch1/','/epoch2/');
  assert.equal(releaseIdentityDigest(relocated),releaseIdentityDigest(release));
  for(const change of [value=>{value.archive.url+='changed';},value=>{value.siteArchive.sha256='0'.repeat(64);},value=>{value.expectations.sha256='0'.repeat(64);},value=>{value.publicAssets[0].path='/public/other.png';},value=>{value.publicAssets.push({name:'new'});},value=>{value.sourceRevision='0'.repeat(40);}]){const changed=structuredClone(release);change(changed);assert.notEqual(releaseIdentityDigest(changed),releaseIdentityDigest(release));}
+});
+
+test('T7 standalone kind grants no operational or native transport authority even with a fabricated active policy', async t => {
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'standalone-admission-')));t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const input={kind:'standing-site-read-only',service:{id:'naeil'},policy:{enabled:true,expiresAt:'2099-01-01'},executionPath};
+ assert.throws(()=>assertGenerationExecution(input),/Standalone/);assert.throws(()=>assertGenerationVerification(input),/Standalone/);
+ await assert.rejects(()=>invokeJSON({file:process.execPath,args:['never-run'],timeoutMs:1000},input,join(root,'native')),/Standalone/);
+ await assert.rejects(()=>invokeJSON({file:process.execPath,args:['never-run'],timeoutMs:1000},input,join(root,'verify'),'verify'),/Standalone/);
+ assert.deepEqual(fs.readdirSync(root),[]);
 });
