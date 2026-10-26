@@ -2,6 +2,8 @@
 
 상태: 사용자가 2026-10-26 A 방향의 구현·격리 검증을 승인했다. 구현은 별도 브랜치에서 진행 중이다. 운영 설치·정책/state 전환·재개·main 머지는 별도 승인 대상이며, STOP을 유지한다.
 
+최신 검증: `2bf65cf`의 hosted CI 두 job과 v5의 사이트 읽기 전용 검증(9경로·72조건)은 통과했다. Estimate는 smoke까지 통과한 뒤 E2E 셸 위임 실행에서, Jev는 오프라인 설치·엄격한 의존성 변경 검사 통과 후 단위 검사의 Python 위임 실행에서 중단됐다. 두 소비자의 전체 수용 검증은 미완료이며, 정확한 실행 파일 핀 교정과 새 격리 root 검증이 남아 있다. 보존 대상은 삭제하지 않으며 현재 저장 공간 부족으로 전체 재검증을 대기한다. 자세한 근거와 재개 조건은 [구현 계획](../plans/2026-10-26-standing-rollout-a.md#progress-evidence)에 기록한다.
+
 구현 검토에서 확인한 남은 범위: 첫 실행 세대는 정확한 0.7.2와 한 번의 Estimate 후속 시도에 묶인다. §6의 채택된 소스 기록 재사용과 후속 candidate 준비는 구현했지만, §6·§12의 다음 dependency-only 릴리스를 실제 worker로 실행하는 절차는 아직 충족하지 않았다. 현재 승인 기간 안의 0.7.3도 이 세대로 자동 배포할 수 없다. 이 요구를 삭제하거나 완료로 간주하지 않으며, 새 candidate·config·generation·attempt를 결합하는 별도 후속 절차가 필요하다. 이번 0.7.2 복구 수정에서 기존 실행 제한을 완화하지 않는다.
 
 기준: main `40a3928e24cd2f0141be3e605eed0a75260938fd`, 설치된 r5는 PR [#26](https://github.com/naeil-dev/naeil-ui/pull/26)의 `f2bef4b8f66831c07a4f601ae8ceeece41ebc408`이다. 기존 [standing 설계](2026-10-23-standing-ui-release.md), [운영 지침](../../rollout/standing-rollout.md), [reviewedMigration 설명](../../rollout/automation.md#proposed-policy-pending-approval)을 대체하는 구현이 아니라 다음 변경의 제안이다. 시각은 별도 표기 없으면 UTC다.

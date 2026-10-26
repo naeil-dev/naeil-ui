@@ -38,6 +38,8 @@ The website observer correlates successful Git deployments with the current publ
 
 The [change-management spec](../superpowers/specs/2026-10-26-standing-rollout-change-management.md), together with the exact recorded approval, governs generation changes. The APIs in [standing-transition.mjs](../../scripts/rollout/standing-transition.mjs) implement only the retained source-only Estimate 0.7.2 failure: `planTransition(input)` is pure and returns a reviewable diff plus `planSha256`; `applyTransition(plan, approval)` stages a new epoch and cuts over; `recoverTransition(plan, approval, recoveryApproval)` resumes an exact interrupted phase. There is no generic rebind, skip or supersede command. These are library APIs, not installed operational commands or permission to execute a draft.
 
+Preparation status is recorded in the [implementation plan](../superpowers/plans/2026-10-26-standing-rollout-a.md#progress-evidence). The retained v5 standalone site check passed against the original deployment; both full consumer preflights remain incomplete after runtime executable-closure failures. STOP remains in place. CI and standalone site success do not authorize native execution, scheduler changes, installation, cutover or resume.
+
 Before apply or recovery, all of these conditions must hold:
 
 - The canonical `~/.local/share/naeil-ui-rollout/STOP` remains present, private0600. The old scheduler has an explicit disabled override **and** is absent from its exact GUI domain. The tool never disables or installs a job itself. Owner approval to stop the old launcher is separate preparation; STOP alone cannot fence r5 state writes.
