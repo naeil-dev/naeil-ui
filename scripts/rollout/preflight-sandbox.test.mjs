@@ -11,8 +11,8 @@ import { syncBuiltinESMExports } from 'node:module';
 import { createSandbox, verifySandbox, executeSandbox, networkManifest, sanitizedEnvironment, readBoundedSource } from './preflight-sandbox.mjs';
 const hash = b => createHash('sha256').update(b).digest('hex');
 const node = process.platform==='darwin'?'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node':realpathSync(process.execPath);
-function setup(t) {
-  const root = realpathSync(mkdtempSync(join(tmpdir(),'preflight-boundary-')));
+function setup(t, temporaryParent = tmpdir()) {
+  const root = realpathSync(mkdtempSync(join(temporaryParent,'preflight-boundary-')));
   t.after(()=>rmSync(root,{recursive:true,force:true}));
   for (const name of ['checkout','output','tmp','cache','input','artifact','outside']) mkdirSync(join(root,name),{mode:0o700});
   const secret = join(root,'outside','secret'); writeFileSync(secret,'synthetic secret',{mode:0o600});
@@ -90,8 +90,9 @@ test('fails closed on missing pin, root overlap and symlink escape',{skip:proces
  });
 });
 test('environment never inherits secrets or user runtime hooks and never repurposes HOME',()=>{
- const env=sanitizedEnvironment({executionPath:'/usr/bin',tmp:'/isolated/tmp',cache:'/isolated/cache'}, {HOME:'/real/home',AWS_SECRET_ACCESS_KEY:'secret',NODE_OPTIONS:'--inspect',SSH_AUTH_SOCK:'/agent',PATH:'/evil',CUSTOM_TOKEN:'secret'});
+ const env=sanitizedEnvironment({executionPath:'/usr/bin',tmp:'/isolated/tmp',cache:'/isolated/cache'}, {HOME:'/real/home',AWS_SECRET_ACCESS_KEY:'secret',NODE_OPTIONS:'--inspect',SSH_AUTH_SOCK:'/agent',PATH:'/evil',CUSTOM_TOKEN:'secret',MAC_CHROMIUM_TMPDIR:'/outside/chromium'});
  assert.equal(env.HOME,'/real/home');assert.equal(env.PATH,'/usr/bin');
+ assert.equal(env.MAC_CHROMIUM_TMPDIR,'/isolated/tmp','Chromium on macOS must use the isolated temporary directory, not its OS default or an inherited override');
  for(const key of ['AWS_SECRET_ACCESS_KEY','NODE_OPTIONS','SSH_AUTH_SOCK','CUSTOM_TOKEN']) assert(!Object.hasOwn(env,key));
 });
 test('exact role manifests reject port zero, duplicate endpoint and unknown roles',()=>{
@@ -117,6 +118,35 @@ test('actual OS enforcement: immutable/private/outside/child/native/network deni
 test('no-network stages deny even an otherwise approved exact loopback role',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const {spec}=setup(t);const sandbox=createSandbox({...spec,roles:[]});const port=spec.endpoints.roles.estimateAuth;
  const result=await executeSandbox(sandbox,{file:node,args:['-e',`const net=require('net');const s=net.createServer();s.on('error',e=>process.exit(['EPERM','EACCES'].includes(e.code)?0:2));s.listen(${port},'127.0.0.1',()=>{s.close();process.exit(3)});`]});assert.equal(result.exitCode,0);
+});
+
+test('E2E Unix IPC stays in isolated tmp; other stages, sibling paths and symlink escapes are denied',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const {root,spec}=setup(t,'/private/tmp');
+ const allowed=join(root,'tmp','inside.sock'),outside=join(root,'input','outside.sock');
+ const listener=net.createServer(socket=>socket.end('synthetic'));
+ await new Promise((resolve,reject)=>{listener.once('error',reject);listener.listen(outside,resolve);});
+ t.after(()=>new Promise(resolve=>listener.close(resolve)));
+ symlinkSync(outside,join(root,'tmp','outside.sock'));
+ symlinkSync(join(root,'checkout'),join(root,'tmp','escape'));
+ const deniedCode=`const assert=require('node:assert/strict'),net=require('node:net');
+ const denied=code=>assert(['EPERM','EACCES'].includes(code),String(code));
+ const bind=path=>new Promise(resolve=>{const server=net.createServer();server.once('error',error=>resolve(error.code));server.listen(path,()=>server.close(()=>resolve('bound')));});
+ const connect=path=>new Promise(resolve=>{const socket=net.connect(path);socket.once('error',error=>resolve(error.code));socket.once('connect',()=>{socket.destroy();resolve('connected');});});`;
+ const e2e=createSandbox({...spec,roles:['estimateE2E']});
+ const code=deniedCode+`(async()=>{
+ const server=net.createServer(socket=>socket.end('owned'));
+ await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(${JSON.stringify(allowed)},resolve);});
+ const bytes=await new Promise((resolve,reject)=>{let data='';const socket=net.connect(${JSON.stringify(allowed)});socket.once('error',reject);socket.on('data',part=>data+=part);socket.once('end',()=>resolve(data));});
+ assert.equal(bytes,'owned');await new Promise(resolve=>server.close(resolve));
+ for(const path of ${JSON.stringify([join(root,'checkout','denied.sock'),join(root,'tmp','escape','denied.sock')])})denied(await bind(path));
+ for(const path of ${JSON.stringify([outside,join(root,'tmp','outside.sock')])})denied(await connect(path));
+ })().catch(error=>{console.error(error);process.exitCode=1;});`;
+ const result=await executeSandbox(e2e,{file:node,args:['-e',code],timeoutMs:15000});
+ assert.equal(result.exitCode,0,result.stderr);
+ for(const roles of [[],['estimateAuth']]) {
+  const result=await executeSandbox(createSandbox({...spec,roles}),{file:node,args:['-e',deniedCode+`bind(${JSON.stringify(allowed)}).then(denied).catch(error=>{console.error(error);process.exitCode=1;});`],timeoutMs:15000});
+  assert.equal(result.exitCode,0,result.stderr);
+ }
 });
 
 test('pinned readable helper mutation is rejected before child launch',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{

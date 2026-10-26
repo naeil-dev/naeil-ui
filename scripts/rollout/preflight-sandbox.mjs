@@ -87,7 +87,8 @@ export function treeManifest(root) {
 export const treeDigest = root => hash(JSON.stringify(treeManifest(root)));
 
 export function sanitizedEnvironment({executionPath,tmp,cache}, inherited = process.env) {
-  const env={PATH:executionPath,TMPDIR:tmp,XDG_CACHE_HOME:cache, npm_config_cache:join(cache,'npm'), PNPM_HOME:join(cache,'pnpm'), NEXT_TELEMETRY_DISABLED:'1',COPYFILE_DISABLE:'1',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',GIT_OPTIONAL_LOCKS:'0'};
+  // macOS Chromium reads MAC_CHROMIUM_TMPDIR instead of TMPDIR.
+  const env={PATH:executionPath,TMPDIR:tmp,MAC_CHROMIUM_TMPDIR:tmp,XDG_CACHE_HOME:cache, npm_config_cache:join(cache,'npm'), PNPM_HOME:join(cache,'pnpm'), NEXT_TELEMETRY_DISABLED:'1',COPYFILE_DISABLE:'1',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',GIT_OPTIONAL_LOCKS:'0'};
   for(const key of ['HOME','USER','LOGNAME','LANG','LC_ALL','LC_CTYPE','TZ']) if(inherited[key]) env[key]=inherited[key];
   return env;
 }
@@ -125,6 +126,8 @@ export function createSandbox(spec,{platform=process.platform}={}) {
     `(allow process-exec* ${Object.keys(spec.executables).filter(p=>p!=='/usr/bin/sandbox-exec').map(p=>`(literal ${quote(p)})`).join(' ')})`];
   const selected=spec.roles??Object.keys(manifest.roles);
   assert(Array.isArray(selected)&&selected.every(role=>Object.hasOwn(manifest.roles,role))&&new Set(selected).size===selected.length,'Exact approved stage roles required');
+  // Chromium's profile lock uses a Unix socket. Keep E2E IPC inside its isolated temp root.
+  if(selected.some(role=>role.endsWith('E2E'))) rules.push(`(allow network-bind network-inbound network-outbound (subpath ${quote(spec.writable[2])}))`);
   for(const role of selected) {
     const port=manifest.roles[role];
     rules.push(`(allow network-bind (local tcp ${quote(`localhost:${port}`)}))`,`(allow network-inbound (local tcp ${quote(`localhost:${port}`)}))`,`(allow network-outbound (remote tcp ${quote(`localhost:${port}`)}))`);
