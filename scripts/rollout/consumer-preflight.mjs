@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, closeSync, fsyncSync, openSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, constants, fchmodSync, fstatSync, fsyncSync, openSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { atomicJSON, automationDigest, fingerprint, generationDigest, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
@@ -126,6 +126,20 @@ function parity(candidate) {
  walk(installed);assert.deepEqual(actual,expected,'Installed frozen package file parity mismatch');return {passed:true,files:Object.keys(expected).length,sha256:fingerprint(expected)};
 }
 
+function copyPreparedStore(source,destination) {
+ cpSync(source,destination,{recursive:true,dereference:false,errorOnExist:true,force:false,verbatimSymlinks:true});
+ // cpSync applies the parent's restrictive umask. Restore only copied regular
+ // members; a descriptor must never follow a substituted link or external target.
+ function modes(original,copied) {
+  const stat=lstatSync(original);if(stat.isSymbolicLink())return;
+  assert(realpathSync(copied)===copied,'Canonical copied dependency store member required');
+  const fd=openSync(copied,constants.O_RDONLY|constants.O_NOFOLLOW);
+  try {const target=fstatSync(fd);assert(stat.isDirectory()?target.isDirectory():stat.isFile()&&stat.nlink===1&&target.isFile()&&target.nlink===1,'Regular copied dependency store member required');fchmodSync(fd,stat.mode&0o777);}finally{closeSync(fd);}
+  if(stat.isDirectory())for(const name of readdirSync(original))modes(join(original,name),join(copied,name));
+ }
+ modes(source,destination);
+}
+
 export async function prepareCandidate(input,dependencies={}) {
  assert.deepEqual(dependencies,{},'Preflight enforcement cannot be replaced by injected command runners');configured(input);
  const config=input.config,root=input.isolatedRoot;
@@ -143,7 +157,7 @@ export async function prepareCandidate(input,dependencies={}) {
   for(const path of ['package.json','pnpm-lock.yaml','vendor'])assert(realpathSync(join(checkout,path))===join(checkout,path),'Candidate source key path symlink refused');
   const archive=join(root,'input','ui.tgz');writeFileSync(archive,checkedReference(input.archive,64*1024*1024),{mode:0o600,flag:'wx'});
   const fixture=transport(input,join(root,'input'));atomicJSON(join(root,'input','approved-plan.json'),input);
-  if(config.dependencyStore) {keys(config.dependencyStore,['path','sha256']);assert(isAbsolute(config.dependencyStore.path)&&realpathSync(config.dependencyStore.path)===config.dependencyStore.path&&!under(config.dependencyStore.path,root),'Canonical separate prepared dependency store required');assert.equal(treeDigest(config.dependencyStore.path),config.dependencyStore.sha256,'Prepared dependency store bytes changed');cpSync(config.dependencyStore.path,join(root,'cache','store'),{recursive:true,dereference:false,errorOnExist:true,force:false,verbatimSymlinks:true});assert.equal(treeDigest(join(root,'cache','store')),config.dependencyStore.sha256,'Prepared dependency store copy changed');}
+  if(config.dependencyStore) {keys(config.dependencyStore,['path','sha256']);assert(isAbsolute(config.dependencyStore.path)&&realpathSync(config.dependencyStore.path)===config.dependencyStore.path&&!under(config.dependencyStore.path,root),'Canonical separate prepared dependency store required');assert.equal(treeDigest(config.dependencyStore.path),config.dependencyStore.sha256,'Prepared dependency store bytes changed');copyPreparedStore(config.dependencyStore.path,join(root,'cache','store'));assert.equal(treeDigest(join(root,'cache','store')),config.dependencyStore.sha256,'Prepared dependency store copy changed');}
   const sandbox=snapshotSandbox(input,root),isolation=await enforcement(input,root,sandbox);
   const installSandbox=snapshotSandbox(input,root,[]);
   const versionResult=await executeSandbox(installSandbox,{file:config.node,args:[config.pnpm.path,'--version']});assert.equal(versionResult.stdout.trim(),'10.30.3','Exact pnpm 10.30.3 runtime required');

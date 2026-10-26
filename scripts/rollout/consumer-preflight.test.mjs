@@ -6,7 +6,9 @@ import { syncBuiltinESMExports } from 'node:module';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { prepareCandidate, runPreflight, assertCandidate, preflightPlanDigest } from './consumer-preflight.mjs';
+import { treeDigest, treeManifest } from './preflight-sandbox.mjs';
 import { automationDigest, generationDigest, hash } from './standing-config.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
@@ -48,6 +50,45 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
 import {createHash} from 'node:crypto';
 function awaitHash512(bytes){return createHash('sha512').update(bytes).digest('base64');}
 const candidateBinding=c=>Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,c[key]]));
+test('prepared dependency store preserves exact modes and internal links under umask 077',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ if(process.umask()!==0o077) {
+  const env={PATH:'/usr/bin:/bin',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',COPYFILE_DISABLE:'1'};
+  for(const key of ['HOME','TMPDIR'])if(process.env[key])env[key]=process.env[key];
+  try{t.diagnostic(execFileSync('/bin/sh',['-c','umask 077\nexec "$@"','synthetic-store-copy',process.execPath,'--test','--test-concurrency=1','--test-name-pattern=^prepared dependency store preserves exact modes and internal links under umask 077$',fileURLToPath(import.meta.url)],{env,encoding:'utf8'}));}catch(error){t.diagnostic(String(error.stdout));t.diagnostic(String(error.stderr));throw error;}return;
+ }
+ const f=setup(t),store=join(f.root,'prepared-store'),mode=path=>fs.lstatSync(path).mode&0o777;
+ mkdirSync(store,{mode:0o700});mkdirSync(join(store,'objects'));mkdirSync(join(store,'bin'));
+ writeFileSync(join(store,'objects/data'),Buffer.from('synthetic\0store\n'));writeFileSync(join(store,'bin/tool'),'#!/bin/sh\nexit 0\n');
+ for(const [path,value] of [['',0o755],['objects',0o750],['bin',0o755],['objects/data',0o644],['bin/tool',0o755]])fs.chmodSync(join(store,path),value);
+ fs.symlinkSync('objects/data',join(store,'data-link'));fs.symlinkSync('bin',join(store,'bin-link'));
+ const before=treeManifest(store),digest=treeDigest(store),rootMode=mode(store);
+ f.config.dependencyStore={path:store,sha256:digest};f.input.generation.trustedFiles[store]=digest;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ t.diagnostic(JSON.stringify({syntheticRoot:f.root,umask:process.umask().toString(8),approvedStoreSha256:digest,sourceManifest:before}));
+ try {
+  const c=await prepareCandidate(f.input),copied=join(c.root,'cache/store'),retained=JSON.parse(readFileSync(join(c.root,'input/approved-plan.json')));
+  assert.equal(c.passed,false);assert.equal(c.candidateSourceSha,f.input.reviewedBaseSha);assert.equal(c.packageParity.passed,true);
+  assert.deepEqual(treeManifest(copied),before);assert.equal(treeDigest(copied),retained.config.dependencyStore.sha256);assert.equal(retained.config.dependencyStore.sha256,digest);
+  assert.equal(mode(copied),rootMode);assert.equal(mode(join(copied,'objects/data')),0o644);assert.equal(mode(join(copied,'bin/tool')),0o755);
+  assert.equal(fs.readlinkSync(join(copied,'data-link')),'objects/data');assert.equal(fs.readlinkSync(join(copied,'bin-link')),'bin');
+  assert.equal(realpathSync(join(copied,'data-link')),join(copied,'objects/data'));assert.equal(realpathSync(join(copied,'bin-link')),join(copied,'bin'));
+  assert.deepEqual(treeManifest(store),before);assert.equal(mode(store),rootMode);assert.equal(f.git(['status','--porcelain']),'');assert.equal(readFileSync(join(f.root,'STOP'),'utf8'),'standing remains stopped');
+  for(const path of ['', 'cache','input','output','tmp','artifact'])assert.equal(mode(join(c.root,path)),0o700,'Private preparation parent mode changed');
+  t.diagnostic(JSON.stringify({preparedRoot:c.root,retainedStoreSha256:retained.config.dependencyStore.sha256,copiedStoreSha256:treeDigest(copied),sourceStoreSha256:treeDigest(store),copiedManifest:treeManifest(copied)}));
+ }catch(error){t.diagnostic(JSON.stringify({sourceStoreSha256:treeDigest(store),copiedManifest:existsSync(join(f.input.isolatedRoot,'cache/store'))?treeManifest(join(f.input.isolatedRoot,'cache/store')):null}));f.retainFailure(error);throw error;}
+});
+
+test('dependency store copy refuses unexpected destination links without chmod of outside targets',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ for(const directory of [false,true])await t.test(directory?'directory link':'file link',async t=>{
+  const f=setup(t),store=join(f.root,'prepared-store'),outside=join(f.root,'outside-copy-target');mkdirSync(store,{mode:0o700});
+  if(directory){mkdirSync(join(store,'member'));mkdirSync(outside,{mode:0o700});}else{writeFileSync(join(store,'member'),'synthetic source',{mode:0o600});writeFileSync(outside,'synthetic outside',{mode:0o600});}
+  fs.chmodSync(join(store,'member'),directory?0o755:0o644);const before=treeManifest(store),outsideStat=fs.lstatSync(outside),outsideBytes=directory?null:readFileSync(outside);
+  f.config.dependencyStore={path:store,sha256:treeDigest(store)};f.input.approval.planSha256=preflightPlanDigest(f.input);
+  const original=fs.cpSync;let swapped=false;
+  fs.cpSync=(source,destination,options)=>{const result=original(source,destination,options);if(source===store){const member=join(destination,'member');rmSync(member,{recursive:true});fs.symlinkSync(outside,member);swapped=true;}return result;};syncBuiltinESMExports();
+  try{await assert.rejects(()=>prepareCandidate(f.input));assert(swapped,'Synthetic copy boundary was not reached');assert.equal(fs.lstatSync(outside).mode,outsideStat.mode);if(directory)assert.deepEqual(fs.readdirSync(outside),[]);else assert.deepEqual(readFileSync(outside),outsideBytes);assert.deepEqual(treeManifest(store),before);assert(!existsSync(join(f.input.isolatedRoot,'input/prepared.json')));assert.equal(JSON.parse(readFileSync(join(f.input.isolatedRoot,'output/prepare-failed.json'))).passed,false);}catch(error){f.retainFailure(error);throw error;}finally{fs.cpSync=original;syncBuiltinESMExports();}
+ });
+});
+
 for(const included of [false,true])test(`preparation rejects ${included?'included':'local'} source filters before its first host inspection`,{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t),source=f.input.sourceRoot,marker=join(f.root,'source-filter-marker'),helper=join(f.root,'source-filter.cjs'),attributes=join(f.root,'source-attributes');
  writeFileSync(helper,`const fs=require('node:fs');fs.appendFileSync(${JSON.stringify(marker)},'clean\\n');process.stdout.write(fs.readFileSync(0));`);
