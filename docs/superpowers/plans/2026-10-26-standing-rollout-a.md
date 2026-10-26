@@ -115,7 +115,7 @@ Future releases provide `release.expectations: {url, sha256}` as a version-scope
 
 ### Task 7: Exact site continuation and STOP-safe read-only site validation
 
-**Files:** Create `scripts/rollout/site-continuation.mjs`, `site-continuation.test.mjs`; modify `naeil-standing-observer.mjs`, `standing-dispatcher.mjs`, `standing-verification.mjs`, tests and closure.
+**Files:** Create `scripts/rollout/site-continuation.mjs`, `site-continuation.test.mjs`; modify `naeil-standing-observer.mjs`, `standing-dispatcher.mjs`, `standing-verification.mjs`, tests and closure. Make minimal `standing-config.mjs` and `standing-transition.mjs`/test changes to validate the separately approved current naeil target at native admission and pre-cutover observation, while preserving its historical predecessor and exact Estimate/Jev predecessor checks.
 
 **Interfaces:** Produce `resolveSiteTarget(release, approval)` and `validateSiteReadOnly(request, options)`. `siteTarget` contains exact source/deployment ID, new source archive/runtime proof and approval digest. Absent approval, only original published target is valid. Read-only verification writes only its separate evidence/session cache and never dispatcher/native state. Original release/siteArchive fields passed to native/Python remain unchanged.
 
