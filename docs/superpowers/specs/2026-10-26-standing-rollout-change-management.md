@@ -1,6 +1,6 @@
 # Standing rollout 변경 관리 재설계
 
-상태: 설계 초안, 사용자 방향 승인 대기. 코드·정책·운영 state 변경 권한을 부여하지 않는다.
+상태: 사용자가 2026-10-26 A 방향의 구현·격리 검증을 승인했다. 구현은 별도 브랜치에서 진행 중이다. 운영 설치·정책/state 전환·재개·main 머지는 별도 승인 대상이며, STOP을 유지한다.
 
 기준: main `40a3928e24cd2f0141be3e605eed0a75260938fd`, 설치된 r5는 PR [#26](https://github.com/naeil-dev/naeil-ui/pull/26)의 `f2bef4b8f66831c07a4f601ae8ceeece41ebc408`이다. 기존 [standing 설계](2026-10-23-standing-ui-release.md), [운영 지침](../../rollout/standing-rollout.md), [reviewedMigration 설명](../../rollout/automation.md#proposed-policy-pending-approval)을 대체하는 구현이 아니라 다음 변경의 제안이다. 시각은 별도 표기 없으면 UTC다.
 
