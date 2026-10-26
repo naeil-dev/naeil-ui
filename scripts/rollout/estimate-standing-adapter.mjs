@@ -1,7 +1,8 @@
+import {copyCodeTree as copyCode} from './consumer-artifact.mjs';
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile, execFileSync } from 'node:child_process';
-import { constants, closeSync, copyFileSync, existsSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { constants, closeSync, copyFileSync, existsSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
@@ -165,16 +166,7 @@ async function command(file, args, options = {}) {
   try { return await exec(file, args, { ...options, shell: false, encoding: 'utf8', timeout: options.timeout ?? 30 * 60 * 1000, maxBuffer: 4 * 1024 * 1024 }); }
   catch { throw new Error('Estimate command failed or timed out; private output suppressed'); }
 }
-function copyCode(source, target) {
-  mkdirSync(target, { mode: 0o700 });
-  for (const name of readdirSync(source)) {
-    assert(!forbidden(name), 'Forbidden private code member');
-    const from = join(source, name), to = join(target, name), stat = lstatSync(from);
-    if (stat.isDirectory()) copyCode(from, to);
-    else if (stat.isSymbolicLink()) symlinkSync(readlinkSync(from), to);
-    else { assert(stat.isFile(), 'Unsupported immutable member'); copyFileSync(from, to); }
-  }
-}
+
 /** The code archive is distinct from manifest.artifactHash (an inventory hash).
  * Current live code is read only; neither runtime data nor config enters it. */
 export async function createArtifact(ref, config) {

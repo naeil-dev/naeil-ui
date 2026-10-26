@@ -55,3 +55,11 @@ test('changed runtime bytes, exports or omitted runtime files fail the site/pack
   const missing = structuredClone(baseline); delete missing.files['src/styles/theme.css'];
   assert.throws(() => compareRuntime(baseline, missing), /runtime/);
 });
+
+test('consumer frozen parity includes exact package.json and documentation bytes', async () => {
+ const { frozenPackageIndex } = await import('./package-runtime.mjs');
+ const { syntheticArchive } = await import('./fixtures/release.mjs');
+ const before=frozenPackageIndex(syntheticArchive('0.7.42','export const synthetic = true;','reviewed docs'));
+ const after=frozenPackageIndex(syntheticArchive('0.7.42','export const synthetic = true;','changed docs'));
+ assert(before['package.json']);assert(before['README.md']);assert.notEqual(before['README.md'].sha256,after['README.md'].sha256);assert.deepEqual(before['dist/index.js'],after['dist/index.js']);
+});

@@ -1,3 +1,4 @@
+import {copyCodeTree} from './consumer-artifact.mjs';
 /**
  * Main provisions service.adapterOptions.standingConfigPath (owned0600 JSON).
  * NAEIL_ROLLOUT_INPUT/OUTPUT carry JSON files; no shell, credentials or inline code.
@@ -7,7 +8,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
-import { constants, closeSync, copyFileSync, existsSync, fchmodSync, fstatSync, ftruncateSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { constants, closeSync, copyFileSync, existsSync, fchmodSync, fstatSync, ftruncateSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, basename } from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -17,6 +18,7 @@ import { updateConsumer } from './update-consumer.mjs';
 import { assertCandidateHarness, prepareCandidateHarness } from './jev-candidate.mjs';
 import { assertTrustedFiles } from './standing-config.mjs';
 
+const copyCode=(source,destination)=>copyCodeTree(source,destination,{normalizeLinks:true});
 const exec = promisify(execFile);
 const ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,119}$/;
 const HEX = /^[a-f0-9]{64}$/;
@@ -209,17 +211,6 @@ function manifest(root, normalizeLinks = false) {
     }
   };
   walk(root); return result;
-}
-
-function copyCode(source, destination) {
-  mkdirSync(destination, { mode: 0o700 });
-  for (const name of readdirSync(source)) {
-    assert(!forbidden(name), 'Forbidden source member');
-    const input = join(source, name), output = join(destination, name), stat = lstatSync(input);
-    if (stat.isDirectory()) copyCode(input, output);
-    else if (stat.isSymbolicLink()) symlinkSync(relative(dirname(input), realpathSync(input)), output);
-    else { assert(stat.isFile(), 'Unsupported source member'); copyFileSync(input, output); }
-  }
 }
 
 export async function createArtifact(input, config, sourceRevision) {

@@ -70,6 +70,20 @@ export function assertDependencyDelta(before, after) {
   }
 }
 
+/** Pure dependency-only preparation shared with STOP-safe isolated preflight.
+ * This grants no operational authorization and performs no writes or installs. */
+export function dependencyTarget(packageJSON, {version,previousVersion,existingVersion,existingArchiveSha256,archiveSha256}) {
+  const pkg=JSON.parse(packageJSON.toString());
+  assert(/^0\.7\.(0|[1-9]\d*)$/.test(version),'Bounded UI version required');
+  assert(/^file:vendor\/naeil-ui-[0-9A-Za-z.+-]+\.tgz$/.test(pkg.dependencies?.['@naeil/ui']||''),'Exact vendored UI dependency required');
+  assert([previousVersion,version].includes(existingVersion),'Consumer drifted from reviewed predecessor');
+  const unchanged=existingVersion===version&&existingArchiveSha256===archiveSha256;
+  if(!unchanged) assert.equal(existingVersion,previousVersion,'Same-version archive changed; immutable release violation');
+  const vendor=`vendor/naeil-ui-${version}.tgz`;
+  if(!unchanged)pkg.dependencies['@naeil/ui']=`file:${vendor}`;
+  return {unchanged,vendor,packageJSON:unchanged?Buffer.from(packageJSON):Buffer.from(`${JSON.stringify(pkg,null,2)}\n`)};
+}
+
 /** Runs only in a provisioned clean bot worktree. Never switches an owner checkout. */
 export function updateConsumer(context, { root = process.cwd(), install } = {}) {
   const config = context.adapterOptions?.update;
@@ -104,8 +118,8 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
   assert([context.release.previousVersion, context.release.version].includes(old.version), 'Consumer drifted from the reviewed predecessor; explicit migration required');
   const vendor = `vendor/naeil-ui-${context.release.version}.tgz`;
   regular(vendor, false, true);
-  const nextDependency = `file:${vendor}`;
-  const oldMatches = old.version === next.version && digest(readFileSync(join(root, dependency.slice(5)))) === context.release.archive.sha256;
+  const target = dependencyTarget(before.packageJSON, {version:next.version,previousVersion:context.release.previousVersion,existingVersion:old.version,existingArchiveSha256:digest(readFileSync(join(root,dependency.slice(5)))),archiveSha256:context.release.archive.sha256});
+  const oldMatches = target.unchanged;
   const integrity = `sha512-${createHash('sha512').update(readFileSync(context.release.archive.path)).digest('base64')}`;
   const runInstall = () => {
     if (install) return install({ root, integrity, version: next.version });
@@ -119,8 +133,7 @@ export function updateConsumer(context, { root = process.cwd(), install } = {}) 
     mkdirSync(join(root, 'vendor'), { recursive: true });
     if (existsSync(join(root, vendor))) assert.equal(digest(readFileSync(join(root, vendor))), context.release.archive.sha256, 'Existing immutable vendor archive differs');
     else writeFileSync(join(root, vendor), readFileSync(context.release.archive.path), { flag: 'wx' });
-    pkg.dependencies['@naeil/ui'] = nextDependency;
-    writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+    writeFileSync(pkgPath, target.packageJSON);
   }
   runInstall();
   assertDependencyDelta(before, { packageJSON: readFileSync(pkgPath), lockfile: readFileSync(join(root, 'pnpm-lock.yaml')) });

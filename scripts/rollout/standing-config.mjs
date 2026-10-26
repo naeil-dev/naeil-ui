@@ -11,10 +11,23 @@ export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestima
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
+export const AUTOMATION_FILES = ['consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
 const exec = promisify(execFile);
+
+/** Automation identity deliberately excludes config, receipts, approvals and state.
+ * The active pointer separately binds the exact config and state epoch. */
+export function generationDigest(identity) {
+  assert.deepEqual(Object.keys(identity).sort(), ['automationSha256','executionPath','stateSchemaVersion','trustedFiles'].sort(), 'Unsupported generation identity field');
+  assert(HEX.test(identity.automationSha256), 'Exact automation generation digest required');
+  assert(Number.isSafeInteger(identity.stateSchemaVersion)&&identity.stateSchemaVersion>0,'Exact state schema required');
+  assert(typeof identity.executionPath==='string'&&identity.executionPath.split(':').every(path=>isAbsolute(path)&&resolve(path)===path),'Exact generation execution PATH required');
+  assert(identity.trustedFiles&&Object.keys(identity.trustedFiles).length>0,'Generation trusted closure required');
+  const trustedFiles=Object.entries(identity.trustedFiles).sort(([a],[b])=>a.localeCompare(b));
+  for(const [path,digest] of trustedFiles) assert(isAbsolute(path)&&resolve(path)===path&&HEX.test(digest),'Exact generation trusted file pin required');
+  return fingerprint({schemaVersion:1,automationSha256:identity.automationSha256,trustedFiles,executionPath:identity.executionPath,stateSchemaVersion:identity.stateSchemaVersion});
+}
 
 export function automationDigest(root) {
   return fingerprint(AUTOMATION_FILES.map(path => {
