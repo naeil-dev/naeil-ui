@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { atomicJSON, hash, readPrivateJSON } from './standing-config.mjs';
 import { assertEvidencePath, importLegacyState, JSON_LIMITS, readStandingEvidence, readStandingState, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
+import * as stateAPI from './standing-state.mjs';
 
 function fixture(t) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-state-'))); chmodSync(root, 0o700);
@@ -14,6 +15,18 @@ function fixture(t) {
 }
 const initial = () => ({ schemaVersion: 1, repository: 'naeil-dev/naeil-ui', releases: {} });
 const materialize = value => JSON.parse(JSON.stringify(value));
+
+test('completed imports are validated and reused without conversion; conflicting roots retain all evidence', t => {
+  const f = fixture(t), sourcePath = join(f.root, 'legacy.json'), output = join(f.old, 'output.json');
+  atomicJSON(output, { state: 'gate-failed' }); const state = initial(); state.releases['2'] = { services: { estimate: { request: { outputDirectory: f.old } } } };
+  atomicJSON(sourcePath, state);
+  const input = { sourcePath, expectedSha256: hash(readFileSync(sourcePath)), destination: f.destination, epochId: 'exact-epoch', evidenceRoot: f.old };
+  const manifest = importLegacyState(input), before = readdirSync(join(f.destination, 'evidence'));
+  assert.deepEqual(stateAPI.validateCompletedImport(input), manifest);
+  assert.deepEqual(readdirSync(join(f.destination, 'evidence')), before);
+  atomicJSON(output, { state: 'changed' }); assert.throws(() => stateAPI.validateCompletedImport(input), /digest|bytes|size/i);
+  assert.deepEqual(readdirSync(join(f.destination, 'evidence')), before);
+});
 
 test('2,926,952-byte offline snapshot preserves every binding and attempt with bounded index and exact inventory', t => {
   const f = fixture(t), output = join(f.old, 'receipt.json'); atomicJSON(output, { schemaVersion: 1, old: true });
@@ -172,4 +185,12 @@ test('immutable evidence depth boundary accepts readable nodes and rejects deepe
     assert.deepEqual(readFileSync(path), before); assert.deepEqual(readdirSync(join(f.destination, 'evidence')), files);
     assert.deepEqual(readStandingEvidence(f.destination, reference), accepted);
   }
+});
+
+test('generation-bound epoch refuses stale and unfenced writers before any evidence or root changes',t=>{
+ const f=fixture(t);mkdirSync(f.destination,{mode:0o700});const state=initial();writeStandingState(f.destination,state);
+ atomicJSON(join(f.destination,'generation-binding.json'),{schemaVersion:1,controlDirectory:join(f.root,'control'),generationSha256:'a'.repeat(64),epochId:'initial'});
+ const before=readFileSync(join(f.destination,'state.json')),files=readdirSync(join(f.destination,'evidence'));state.lastState='changed';
+ for(const config of [undefined,{stateDirectory:f.destination,generationSha256:'b'.repeat(64),generationFence:{controlDirectory:join(f.root,'control'),pointerSha256:'c'.repeat(64)}}])assert.throws(()=>writeStandingState(f.destination,state,config),/storage/i);
+ assert.deepEqual(readFileSync(join(f.destination,'state.json')),before);assert.deepEqual(readdirSync(join(f.destination,'evidence')),files);
 });

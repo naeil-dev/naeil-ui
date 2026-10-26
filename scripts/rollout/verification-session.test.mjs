@@ -72,3 +72,12 @@ test('only exact shared session chunks are constructed without local storage or 
   assert.deepEqual(JSON.parse(Buffer.from(cookies[0].value.slice(7), 'base64url')), session);
   assert.throws(() => sessionCookies(session, 'https://untrusted.test'), /Supabase/);
 });
+
+test('fence loss during an admitted refresh retains prior session and unresolved rotation evidence',async()=>{
+ const {directory,config}=await fixture();let current=true,posts=0;
+ try {
+  await assert.rejects(()=>renewVerificationSession(config,{beforeAction:()=>assert(current,'generation fence lost'),beforeWrite:()=>assert(current,'generation fence lost'),fetchImpl:async()=>{posts++;current=false;return Response.json({...session,refresh_token:'rotated-on-server'});}}),/generation fence lost/);
+  assert.equal(posts,1);assert.equal(JSON.parse(await readFile(config.stateFile,'utf8')).refresh_token,'synthetic-refresh');
+  assert.equal(JSON.parse(await readFile(config.stateFile+'.refresh-lock/pending.json','utf8')).phase,'refresh-requested');
+ }finally{await rm(directory,{recursive:true,force:true});}
+});

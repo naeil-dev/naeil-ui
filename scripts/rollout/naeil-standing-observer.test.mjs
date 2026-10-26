@@ -204,3 +204,8 @@ test('F15 a different main deployment winning during browser verification remain
   f.verify = async (...args) => { const result = await verify(...args); f.identity.sourceRevision = packageSource; return result; };
   const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-live'); assert.equal(result.mutationAttempted, false);
 });
+
+test('new-generation observer cannot drop its fence before metadata, directory or verifier work',async t=>{
+ const f=fixture(t);f.request.generationSha256='a'.repeat(64);
+ await assert.rejects(()=>observe(f.request,f),/fence|generation/i);assert.equal(f.calls.length,0);assert.equal(f.verifications.length,0);
+});

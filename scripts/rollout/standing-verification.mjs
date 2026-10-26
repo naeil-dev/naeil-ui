@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { loadReleaseExpectations, selectExpectationProfile, assertExpectationChrome } from './release-expectations.mjs';
 import { verifyProduction } from '../verify-ui-production.mjs';
 import { captureAccountRender } from '../account-render.mjs';
+import { assertGenerationExecution, assertGenerationFence, fingerprint, readExactReference } from './standing-config.mjs';
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
 import { readPrivateJson, writePrivateJson, assertPrivateDirectory, renewVerificationSession, sessionCookies } from './verification-session.mjs';
 
@@ -15,6 +16,8 @@ const origins = { naeil: 'https://naeil.dev', estimate: 'https://abestimate.naei
 const menuLabels = { en: 'Menu', ja: 'メニュー', ko: '메뉴' };
 
 export function validateVerificationRequest(input, config) {
+  const active=assertGenerationExecution(input);
+  if(active){const args=input.service.verification.command.args,index=args.indexOf('--config');assert(index>=0&&args.lastIndexOf('--config')===index,'Exact referenced verifier configuration required');const ref=active.config.configReferences.find(ref=>ref.path===args[index+1]);assert(ref,'Verifier config absent from active manifest');assert.equal(fingerprint(config),fingerprint(JSON.parse(readExactReference(ref))),'Running verifier configuration changed');}
   assert.equal(input.schemaVersion, 1);
   assert.equal(config.schemaVersion, 1);
   assert(['standing', 'adopt'].includes(input.mode), 'Explicit standing/adopt mode required');
@@ -53,41 +56,41 @@ export function assertAccountReference(actual, expected, locale) {
   for (const field of ['trigger', 'avatar', 'icon', 'menu', 'action']) assert.deepEqual(actual[field], expected[field], `Account ${field} differs from frozen reference`);
 }
 
-async function checkAccount(page, route, locale, width, theme, reference) {
+async function checkAccount(page, route, locale, width, theme, reference, beforeAction) {
   const header = page.locator('[data-naeil-header]');
   const menu = header.getByRole('button', { name: menuLabels[locale], exact: true });
   const mobile = await menu.isVisible();
-  if (mobile) await menu.click();
+  if (mobile) { beforeAction(); await menu.click(); }
   const signedIn = route.renderState.access === 'protected';
   if (signedIn) {
     const trigger = page.locator('[data-naeil-account-trigger]:visible');
     await trigger.waitFor({ state: 'visible' });
     assert.equal(await page.locator('[data-naeil-account-state="signed-out"]:visible').count(), 0, 'Authenticated chrome rendered login');
-    await trigger.click();
-    const actual = await captureAccountRender(page);
+    beforeAction(); await trigger.click();
+    const actual = await captureAccountRender(page,{beforeAction});
     // Frozen 0.7.1 account geometry is viewport-independent and was captured
     // at desktop/mobile in Japanese. Fonts are checked per supported locale.
     const sample = reference.cases.find(value => value.theme === theme && value.width === (width < 768 ? 390 : 1440));
     assert(sample, 'Independent account reference case missing');
     assertAccountReference(actual, sample.render, locale);
-    await page.keyboard.press('Escape');
+    beforeAction(); await page.keyboard.press('Escape');
     await page.locator('[data-naeil-account-menu]:visible').waitFor({ state: 'hidden' });
   } else {
     await page.locator('[data-naeil-account-state="signed-out"]:visible').waitFor({ state: 'visible' });
     assert.equal(await page.locator('[data-naeil-account-trigger]:visible').count(), 0, 'Anonymous chrome unexpectedly authenticated');
   }
   if (mobile) {
-    await page.keyboard.press('Escape');
+    beforeAction(); await page.keyboard.press('Escape');
     await page.getByRole('dialog', { name: menuLabels[locale], exact: true }).waitFor({ state: 'hidden' });
   }
 }
 
-async function anonymousBoundaries(service) {
+async function anonymousBoundaries(service, beforeAction) {
   const result = [];
   for (const probe of service.anonymousBoundaries || []) {
     const url = new URL(probe.path, service.origin);
     assert.equal(url.origin, service.origin, 'Boundary origin escape');
-    const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000), cache: 'no-store' });
+    beforeAction(); const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000), cache: 'no-store' });
     assert.equal(response.status, probe.status, 'Anonymous boundary status changed');
     if (probe.centralLogin) {
       const location = new URL(response.headers.get('location'), service.origin);
@@ -102,12 +105,13 @@ async function anonymousBoundaries(service) {
 
 export async function verifyStanding(input, config) {
   const identity = validateVerificationRequest(input, config);
+  const beforeWrite=()=>assertGenerationFence(input),beforeAction=()=>assertGenerationExecution(input);
   const service = config.services[input.service.id];
   await assertPrivateDirectory(config.evidenceRoot);
   assert(isAbsolute(input.outputDirectory), 'Absolute private output directory required');
   const inside = relative(config.evidenceRoot, resolve(input.outputDirectory));
   assert(inside && inside !== '..' && !inside.startsWith(`..${sep}`) && !isAbsolute(inside), 'Output escaped evidence root');
-  await mkdir(input.outputDirectory, { recursive: true, mode: 0o700 });
+  beforeWrite(); await mkdir(input.outputDirectory, { recursive: true, mode: 0o700 });
   assert.equal(await realpath(input.outputDirectory), input.outputDirectory, 'Output symlink escape');
   await assertPrivateDirectory(input.outputDirectory);
   const account = input.release.account;
@@ -119,26 +123,26 @@ export async function verifyStanding(input, config) {
   assert.equal(reference.sourceRevision, input.release.sourceRevision);
   assert.equal(reference.archiveSha256, input.release.archive.sha256);
   assert.deepEqual(reference.ui, identity.ui);
-  const boundaries = await anonymousBoundaries(service);
+  const boundaries = await anonymousBoundaries(service,beforeAction);
   const needsSession = service.routes.some(route => route.renderState.access === 'protected');
   const verificationTimeoutMs = input.service.verification?.command?.timeoutMs ?? 20 * 60_000;
   assert(Number.isSafeInteger(verificationTimeoutMs) && verificationTimeoutMs > 0 && verificationTimeoutMs <= 3 * 60 * 60_000, 'Bounded verification timeout required');
   // Finish before Supabase SSR/browser auto-refresh can rotate an unpersisted
   // cookie. The subprocess deadline is the upper bound for the entire check.
-  const cookies = needsSession ? sessionCookies(await renewVerificationSession(config.session, { minimumValidityMs: verificationTimeoutMs + 5 * 60_000 }), config.session.supabaseUrl) : null;
+  const cookies = needsSession ? sessionCookies(await renewVerificationSession(config.session, { minimumValidityMs: verificationTimeoutMs + 5 * 60_000, beforeAction, beforeWrite }), config.session.supabaseUrl) : null;
   const production = await verifyProduction({
     release: input.release, origin: service.origin, identity, routes: service.routes,
     referencePath: input.referencePath, outputDir: input.outputDirectory,
-    screenshots: false,
+    screenshots: false, beforeAction, beforeWrite,
     contextFactory: async ({ browser, origin, contextOptions }) => {
       assert.equal(origin, service.origin, 'Session scope changed');
-      const context = await browser.newContext(contextOptions);
+      beforeAction(); const context = await browser.newContext(contextOptions);
       // No storageState, private source pages, browser traces or business text
       // are persisted. A safe navigation remains subject to real service auth.
-      await context.addCookies(cookies);
+      beforeAction(); await context.addCookies(cookies);
       return context;
     },
-    checkAccount: ({ page, route, locale, width, theme }) => checkAccount(page, route, locale, width, theme, reference),
+    checkAccount: ({ page, route, locale, width, theme }) => checkAccount(page, route, locale, width, theme, reference, beforeAction),
   });
   return { ...production, schemaVersion: 1, releaseId: input.release.releaseId, serviceId: service.id,
     idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, phase: input.phase,
@@ -152,7 +156,7 @@ async function main() {
   const config = await readPrivateJson(process.argv[index + 1]);
   const input = await readPrivateJson(process.env.NAEIL_VERIFY_INPUT || process.env.NAEIL_ROLLOUT_INPUT);
   const result = await verifyStanding(input, config);
-  await writePrivateJson(process.env.NAEIL_VERIFY_OUTPUT || process.env.NAEIL_ROLLOUT_OUTPUT, result);
+  assertGenerationFence(input); await writePrivateJson(process.env.NAEIL_VERIFY_OUTPUT || process.env.NAEIL_ROLLOUT_OUTPUT, result, {beforeWrite:()=>assertGenerationFence(input)});
   console.log(JSON.stringify({ serviceId: result.serviceId, passed: true, routes: result.routes.length }));
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch(() => {

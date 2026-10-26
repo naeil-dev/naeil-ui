@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, lstatSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { acquireLock, assertActive, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, validateConfig } from './standing-config.mjs';
+import { acquireControlLock, acquireLock, assertActive, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fileReference, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, releaseIdentityDigest, validateConfig } from './standing-config.mjs';
 import { assertEvidencePath, JSON_LIMITS, readOperatorStatus, readStandingState, StandingStorageError, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
 import { publicIdentity } from './naeil-standing-observer.mjs';
 import { assertPolicyRelease, GitHub, GitHubUnavailable, materializeRelease, releaseMetadata } from './standing-github.mjs';
@@ -32,25 +32,28 @@ function publicSummary(state) {
 }
 
 /** One bounded poll; launchd supplies cadence. Never installs or starts a job. */
-export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON } = {}) {
+export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON, controlLease } = {}) {
   validateConfig(config);
-  const unlock = acquireLock(config.stateDirectory);
+  const active=assertGenerationFence(config), lease=active&&!controlLease?acquireControlLock(config.generationFence.controlDirectory):null;
+  if(controlLease)assert.equal(readPrivateJSON(join(config.generationFence.controlDirectory,'control.lock')).token,controlLease.token,'Launcher lease changed');
+  let unlock;try {assertGenerationFence(config);unlock=acquireLock(config.stateDirectory);}catch(error){lease?.release();throw error;}
   let state;
-  const save = () => writeStandingState(config.stateDirectory, state);
+  const save = () => {assertGenerationFence(config);return writeStandingState(config.stateDirectory,state,config);};
+  const persist=(path,value,limit)=>{assertGenerationFence(config);atomicJSON(path,value,limit);};
   const complete = (key, record, release, binding, mode) => {
     record.state = 'complete'; record.completedAt ||= new Date().toISOString(); save();
-    const evidence = writeStandingEvidence(config.stateDirectory, { schemaVersion: 1, release, record });
+    assertGenerationFence(config);const evidence = writeStandingEvidence(config.stateDirectory, { schemaVersion: 1, release, record },config);
     const receipt = { schemaVersion: 2, scope: 'selected-services', complete: true, allDiscoveredServicesComplete: false, release, binding, mode, evidence, completedAt: record.completedAt };
     const path = join(config.stateDirectory, 'runs', key, 'receipt.json');
     if (existsSync(path)) assert.deepEqual(readPrivateJSON(path), receipt, 'Existing completion binding/evidence differs');
-    else atomicJSON(path, receipt);
+    else persist(path, receipt);
     state.currentVersion = release.version; state.lastState = 'complete'; save();
   };
-  const finish = () => { state.observedAt = new Date().toISOString(); const status = summaryState(state); if (state.statusState !== status || !state.since) state.since = state.observedAt; state.statusState = status; if (status === 'complete') delete state.since; save(); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary, JSON_LIMITS.summary); atomicJSON(join(config.stateDirectory, 'operator-status.json'), readOperatorStatus(config), JSON_LIMITS.operatorStatus); return summary; };
+  const finish = () => { state.observedAt = new Date().toISOString(); const status = summaryState(state); if (state.statusState !== status || !state.since) state.since = state.observedAt; state.statusState = status; if (status === 'complete') delete state.since; save(); const summary = publicSummary(state); persist(join(config.stateDirectory, 'summary.json'), summary, JSON_LIMITS.summary); persist(join(config.stateDirectory, 'operator-status.json'), readOperatorStatus(config), JSON_LIMITS.operatorStatus); return summary; };
   try {
     try { state = readStandingState(config.stateDirectory) || { schemaVersion: 1, repository: config.repository, currentVersion: null, releases: {}, createdAt: new Date().toISOString() }; }
     catch (cause) {
-      const status = readOperatorStatus(config); status.stateError ||= 'state-unreadable'; atomicJSON(join(config.stateDirectory, 'operator-status.json'), status, JSON_LIMITS.operatorStatus);
+      const status = readOperatorStatus(config); status.stateError ||= 'state-unreadable'; persist(join(config.stateDirectory, 'operator-status.json'), status, JSON_LIMITS.operatorStatus);
       throw new StandingStorageError(cause);
     }
     assert(state.schemaVersion === 1 && state.repository === config.repository, 'Durable state repository/schema mismatch');
@@ -89,13 +92,18 @@ export async function poll(config, { github = new GitHub({ repository: config.re
       let record = state.releases[key];
       if (!record) { record = { githubId: item.id, version, metadataHash: fingerprint(releaseMetadata(item)), state: 'observed', services: {} }; state.releases[key] = record; save(); }
       try {
-        const snapshot = await materializeRelease(item, config, github, record);
+        assertGenerationFence(config);const snapshot = await materializeRelease(item,config,github,record,{beforeWrite:()=>assertGenerationFence(config)});
         const release = snapshot.release, mode = assertPolicyRelease(release, config, state.currentVersion);
         assert(!Object.values(state.releases).some(other => other !== record && (other.releaseId === release.releaseId || other.version === release.version)), 'Duplicate release/version identity');
         record.releaseId = release.releaseId; record.tagSha = snapshot.tagSha;
         const binding = fingerprint({ release, manifestHash: snapshot.manifestHash, automation: config.automation, trustedFiles: config.trustedFiles, executionPath: config.executionPath, policy: config.policy, services: config.services, mode });
-        if (record.binding) assert.equal(record.binding, binding, 'Run configuration changed; reconciliation required');
-        record.binding = binding; record.mode = mode; save();
+        if(record.generationContinuation) {
+          const continuation=record.generationContinuation;
+          assert(active&&continuation.planSha256===active.pointer.transitionPlanSha256&&continuation.authorizationSha256===active.pointer.authorizationSha256&&continuation.generationSha256===config.generationSha256&&continuation.originalBinding===record.binding&&continuation.releaseSha256===releaseIdentityDigest(release),'Unapproved generation continuation');
+          if(continuation.activeBinding)assert.equal(continuation.activeBinding,binding,'Continuation config changed');
+          continuation.activeBinding=binding;
+        } else {if(record.binding)assert.equal(record.binding,binding,'Run configuration changed; reconciliation required');record.binding=binding;}
+        record.mode = mode; save();
         if (record.state === 'complete') { complete(key, record, release, binding, mode); continue; }
         assert(!existsSync(join(config.stateDirectory, 'runs', key, 'receipt.json')), 'Completion receipt conflicts with incomplete state');
         if (mode === 'standing') {
@@ -110,19 +118,22 @@ export async function poll(config, { github = new GitHub({ repository: config.re
           if (prior?.state === 'production-verified') {
             // Revalidate all cached evidence before allowing a later consumer.
             try {
-              assertServiceResult(prior.result, prior.request, { allowExpired: true });
+              const historical=prior.continuation;
+              if(historical)assert(id==='naeil'&&active&&historical.requiresFreshVerification===true&&historical.planSha256===active.pointer.transitionPlanSha256&&historical.authorizationSha256===active.pointer.authorizationSha256&&historical.generationSha256===config.generationSha256&&historical.historicalRequestSha256===fingerprint(prior.request)&&historical.historicalResultSha256===fingerprint(prior.result),'Historical provenance continuation mismatch');
+              else assertServiceResult(prior.result, prior.request, { allowExpired: true });
               const latest = prior.reverifications?.at(-1) || { production: prior.result.production, request: prior.request };
-              const expired = Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
+              const expired = historical&&latest.request.generationSha256!==config.generationSha256 || Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
               if (expired) {
                 state.lastState = 'cached-evidence-expired'; state.lastReasonCode = 'cached-evidence-expired'; record.state = 'cached-evidence-expired'; finish();
                 if (stop(record)) return finish();
                 assertActive(config); assertTrustedFiles(config.trustedFiles);
                 const attemptId = randomUUID(), artifact = prior.result.artifact;
-                const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId); privateDirectory(outputDirectory, true);
-                const request = { ...prior.request, attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
+                const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId);assertGenerationFence(config);privateDirectory(outputDirectory, true);
+                const {command,...currentService}=config.services[id];
+                const request = { ...prior.request,release,service:currentService,policy:config.policy,trustedFiles:config.trustedFiles,executionPath:config.executionPath,...generationRequest(config,id,record),attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
                 const attempt = { state: 'invoking', request, startedAt: new Date().toISOString() };
                 prior.verificationIntent = attempt; save();
-                const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');
+                assertActive(config);const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');
                 assertProduction(production, request, artifact);
                 Object.assign(attempt, { state: 'production-verified', completedAt: new Date().toISOString() });
                 (prior.reverificationAttempts ||= []).push(attempt);
@@ -136,15 +147,15 @@ export async function poll(config, { github = new GitHub({ repository: config.re
             continue;
           }
           assert(!prior || prior.state === 'deferred', 'A dispatched failed/uncertain app cannot replay');
-          const attemptId = randomUUID();
+          const attemptId = prior?.authorizedAttemptId || randomUUID();
           const configured = config.services[id], { command, ...service } = configured;
-          const directory = join(config.stateDirectory, 'runs', key, id, attemptId); privateDirectory(directory, true);
-          const request = { schemaVersion: 1, release, service, policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath, idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
+          const directory = join(config.stateDirectory, 'runs', key, id, attemptId);assertGenerationFence(config);privateDirectory(directory, true);
+          const request = { schemaVersion: 1, release, service, policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath,...generationRequest(config,id,record), idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
           if (prior) (record.history ||= []).push({ serviceId: id, prior: JSON.parse(JSON.stringify(prior)), resolution: 'retry-deferred', at: new Date().toISOString() });
           record.services[id] = { state: 'invoking', attemptId, request, startedAt: new Date().toISOString() };
           record.state = 'running'; save(); // Must precede every child launch.
           let result;
-          try { result = await invoke(command, request, directory, 'rollout', { acceptNonzeroResult: true }); assertServiceResult(result, request);
+          try { assertActive(config);result = await invoke(command, request, directory, 'rollout', { acceptNonzeroResult: true }); assertServiceResult(result, request);
             if (result.transportExitCode !== undefined) assert(Number.isInteger(result.transportExitCode) && result.transportExitCode > 0 && ['gate-failed', 'activation-pending', 'review-required', 'not-deployed'].includes(result.state), 'Nonzero exit did not prove a terminal failure'); }
           catch {
             record.services[id].state = 'uncertain'; record.state = 'uncertain';
@@ -165,7 +176,24 @@ export async function poll(config, { github = new GitHub({ repository: config.re
     }
     delete state.lastReasonCode;
     state.lastState = state.currentVersion ? 'complete' : 'waiting-release'; return finish();
-  } finally { unlock(); }
+  } finally { try {assertGenerationFence(config);unlock();}finally{lease?.release();} }
+}
+
+function generationRequest(config,id,record) {
+  if(!config.generation)return {};
+  assertGenerationFence(config);
+  const fields={generationSha256:config.generationSha256,generationFence:config.generationFence,configReferences:config.configReferences,configReferencesSha256:config.configReferencesSha256,executionPath:config.generation.executionContexts[id]?.executionPath||config.executionPath};
+  if(id!=='naeil') {
+    const adapter=readPrivateJSON(config.services[id].adapterOptions.standingConfigPath),ref=adapter.handoff?.candidateReceipt;assert(ref,'Current generation requires exact candidate handoff');
+    const naeil=record?.services.naeil,latest=naeil?.reverifications?.at(-1)||{request:naeil?.request,production:naeil?.result?.production},artifact=naeil?.result?.artifact;
+    assert(naeil?.state==='production-verified'&&artifact,'Fresh naeil predecessor required');assertProduction(latest.production,latest.request,artifact);
+    const active=assertGenerationFence(config);assert.equal(latest.request.generationSha256,config.generationSha256,'Fresh current-generation naeil verification required');
+    const proof={schemaVersion:1,kind:'standing-current-naeil-verification',generationSha256:config.generationSha256,pointerSha256:config.generationFence.pointerSha256,releaseSha256:active.approval.releaseSha256,request:latest.request,artifact,production:latest.production};
+    const directory=join(config.stateDirectory,'prerequisites'),path=join(directory,'naeil-'+fingerprint(proof)+'.json');assertGenerationFence(config);privateDirectory(directory,true);
+    if(!entryExists(path)){assertGenerationFence(config);atomicJSON(path,proof);}else assert.equal(fingerprint(readPrivateJSON(path)),fingerprint(proof),'Immutable naeil prerequisite conflicts');
+    const candidate=readPrivateJSON(ref.path);return {...fields,naeilPrerequisite:fileReference(path),candidate:{...candidate,receipt:ref},sourceAdoption:adapter.handoff.sourceAdoption};
+  }
+  return fields;
 }
 
 const artifactIdentity = (service, artifact) => ({ schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui });

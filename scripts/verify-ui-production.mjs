@@ -115,7 +115,7 @@ export function assertLinks(actual, locale, origin, contract) {
   for (const link of actual.footerLinks.filter(link => link.target === '_blank')) assert(link.rel.includes('noopener') && link.rel.includes('noreferrer'), 'External target needs safe rel');
 }
 
-export async function checkMenu(page, locale, theme, chrome = {}, expectations) {
+export async function checkMenu(page, locale, theme, chrome = {}, expectations, beforeAction = () => {}) {
   assertExpectationChrome(chrome);
   assert(expectations, 'Independent project expectations required');
   const approved = selectExpectationProfile(expectations, chrome.projectProfile);
@@ -128,7 +128,8 @@ export async function checkMenu(page, locale, theme, chrome = {}, expectations) 
   const menu = header.getByRole('button', { name: labels[locale].menu, exact: true });
   const mobile = await menu.isVisible();
   const trigger = mobile ? menu : header.getByRole('button', { name: labels[locale].projects, exact: true });
-  await trigger.focus(); await trigger.press('Enter');
+  beforeAction(); await trigger.focus();
+  beforeAction(); await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: mobile ? labels[locale].menu : labels[locale].projects, exact: true });
   await dialog.waitFor({ state: 'visible' });
   // Role locators omit hidden/aria-hidden regions. Count structural catalog
@@ -158,15 +159,15 @@ export async function checkMenu(page, locale, theme, chrome = {}, expectations) 
     assert(await link.evaluate((el,index)=>el===el.closest('section,nav').querySelectorAll('a')[index],i),'Project accessible name/order mismatch');
   }
   const dismiss = async () => {
-    await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
+    beforeAction(); await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
     assert(await trigger.evaluate(el => el === document.activeElement), 'Escape did not return focus to navigation trigger');
   };
   if (!mobile) await dismiss();
   const controls = mobile ? dialog : header;
   const nextTheme = theme === 'dark' ? 'light' : 'dark';
-  await controls.getByRole('button', { name: themeLabels[nextTheme], exact: true }).click();
+  beforeAction(); await controls.getByRole('button', { name: themeLabels[nextTheme], exact: true }).click();
   await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), nextTheme);
-  await controls.getByRole('button', { name: themeLabels[theme], exact: true }).click();
+  beforeAction(); await controls.getByRole('button', { name: themeLabels[theme], exact: true }).click();
   await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), theme);
   if (mobile) await dismiss();
 }
@@ -183,7 +184,7 @@ export async function createVerificationContext({ browser, route, origin, viewpo
   return browser.newContext(contextOptions);
 }
 
-export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true }) {
+export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true, beforeAction = () => {}, beforeWrite = () => {} }) {
   const expectations = loadReleaseExpectations(release);
   const { assertReference, verifyIdentity } = await import('./rollout/rollout.mjs');
   const referenceBytes = readFileSync(referencePath);
@@ -196,20 +197,20 @@ export async function verifyProduction({ release, origin, identity, routes, refe
     assertExpectationChrome(route.chrome);
     selectExpectationProfile(expectations, route.chrome?.projectProfile);
   }
-  await verifyIdentity(origin, identity);
-  const output = resolve(outputDir); mkdirSync(output, { recursive: true });
-  const browser = await chromium.launch(); const results = [];
+  beforeAction(); await verifyIdentity(origin, identity);
+  const output = resolve(outputDir); beforeWrite(); mkdirSync(output, { recursive: true });
+  beforeAction(); const browser = await chromium.launch(); const results = [];
   try {
     for (const route of routes) {
       if (!['canonical', 'shared'].includes(route.policy)) throw new Error(`Unverified route policy ${route.policy}: ${route.path}`);
       assert(!route.path.includes('*'), `Concrete route specimen required: ${route.path}`);
       const cases = [];
       for (const width of reference.contract.viewports) for (const theme of reference.contract.themes) {
-        const context = await createVerificationContext({ browser, route, origin, viewport: { width, height: 900 }, colorScheme: theme, contextFactory });
-        const page = await context.newPage();
+        beforeAction(); const context = await createVerificationContext({ browser, route, origin, viewport: { width, height: 900 }, colorScheme: theme, contextFactory });
+        beforeAction(); const page = await context.newPage();
         try {
-          await context.addInitScript(value => { localStorage.setItem('theme', value); localStorage.setItem('naeil-theme', value); }, theme);
-          const response = await page.goto(new URL(route.path, origin).href);
+          beforeAction(); await context.addInitScript(value => { localStorage.setItem('theme', value); localStorage.setItem('naeil-theme', value); }, theme);
+          beforeAction(); const response = await page.goto(new URL(route.path, origin).href);
           assert(response?.ok(), `Route HTTP failure: ${route.path}`);
           assertRouteDestination(page.url(), route, origin);
           await assertRouteState(page, route);
@@ -224,14 +225,14 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           assert(baseline, `No independent reference for ${locale}/${theme}/${width}/${actual.footerVariant}`);
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, locale, origin, reference.contract);
-          await checkMenu(page, locale, theme, route.chrome, expectations);
-          if (checkAccount) await checkAccount({ page, route, locale, width, theme });
+          beforeAction(); await checkMenu(page, locale, theme, route.chrome, expectations, beforeAction);
+          if (checkAccount) { beforeAction(); await checkAccount({ page, route, locale, width, theme }); }
           // Capture only shared chrome; never business/family content.
           const name = `${results.length}-${width}-${theme}`;
           if (screenshots) {
             const mask = [page.locator('[data-naeil-account-menu]'), page.locator('[data-naeil-account-trigger]')];
-            await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`), mask });
-            await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
+            beforeWrite(); await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`), mask });
+            beforeWrite(); await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
           }
           assertRouteDestination(page.url(), route, origin);
           await assertRouteState(page, route);
@@ -240,9 +241,9 @@ export async function verifyProduction({ release, origin, identity, routes, refe
       }
       results.push({ path: route.path, routeKey: routeKey(route), locale: route.locale || null, state: route.state || null, renderState: route.renderState, status: 'production-verified', cases });
     }
-    await verifyIdentity(origin, identity);
+    beforeAction(); await verifyIdentity(origin, identity);
     const result = { schemaVersion: 1, referenceSha256: hash(referenceBytes), expectationsSha256: expectations.sha256, identity, checkedAt: new Date().toISOString(), routes: results, passed: true };
-    writeFileSync(join(output, 'render-verification.json'), JSON.stringify(result, null, 2));
+    beforeWrite(); writeFileSync(join(output, 'render-verification.json'), JSON.stringify(result, null, 2));
     return result;
   } finally { await browser.close(); }
 }

@@ -12,9 +12,15 @@ export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestima
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['source-approval.mjs', 'consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
+export const AUTOMATION_FILES = ['standing-transition.mjs', 'standing-launcher.mjs', 'source-approval.mjs', 'consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
+/** Published identity is independent of the epoch that materialized assets. */
+export function releaseIdentityDigest(release) {
+  const identity=structuredClone(release);
+  for(const key of ['archive','siteArchive','contract','account','expectations'])if(identity[key])delete identity[key].path;
+  return fingerprint(identity);
+}
 const exec = promisify(execFile);
 
 /** Automation identity deliberately excludes config, receipts, approvals and state.
@@ -78,6 +84,19 @@ export function assertConfigReferences(references, sha256, requiredPaths) {
     assert.equal(hash(bytes), ref.sha256, 'Referenced configuration bytes changed');
   }
   return references;
+}
+
+export function operationalConfigurationPaths(config) {
+  const paths = ['estimate','jev'].map(id => {
+    const path = config.services[id].adapterOptions?.standingConfigPath;
+    assert(isAbsolute(path || '') && resolve(path) === path, 'Exact native adapter configuration path required'); return path;
+  });
+  for (const id of IDS) {
+    const args = config.services[id].verification.command.args, flags = args.flatMap((arg,index) => arg === '--config' ? [index] : []);
+    assert(flags.length === 1 && isAbsolute(args[flags[0]+1] || '') && resolve(args[flags[0]+1]) === args[flags[0]+1], 'Each service needs an exact referenced verifier --config');
+    paths.push(args[flags[0]+1]);
+  }
+  return [...new Set(paths)].sort();
 }
 
 export function automationDigest(root) {
@@ -153,10 +172,10 @@ export function assertTrustedFiles(files) {
 }
 
 export async function invokeJSON(command, request, directory, kind = 'rollout', { acceptNonzeroResult = false } = {}) {
-  commandConfig(command); privateDirectory(directory, true);
+  assertGenerationExecution(request); commandConfig(command); privateDirectory(directory, true);
   const input = join(directory, 'input.json'), output = join(directory, 'output.json');
   assert(!existsSync(input) && !existsSync(output), 'Invocation files already exist; reconciliation required');
-  atomicJSON(input, request);
+  assertGenerationFence(request); atomicJSON(input, request);
   const env = {};
   // A fixed transport does not need the interactive shell's runtime options,
   // loader hooks, package-manager settings or arbitrary application secrets.
@@ -168,6 +187,7 @@ export async function invokeJSON(command, request, directory, kind = 'rollout', 
   env.PATH = request.executionPath || '/usr/bin:/bin:/usr/sbin:/sbin';
   Object.assign(env, kind === 'verify' ? { NAEIL_VERIFY_INPUT: input, NAEIL_VERIFY_OUTPUT: output } : { NAEIL_ROLLOUT_INPUT: input, NAEIL_ROLLOUT_OUTPUT: output, NAEIL_ROLLOUT_STEP: 'standing' });
   let exitCode;
+  assertGenerationExecution(request);
   try {
     await exec(command.file, command.args, { cwd: command.cwd, env, shell: false, timeout: command.timeoutMs, maxBuffer: 1024 * 1024, encoding: 'utf8' });
   } catch (error) {
@@ -215,7 +235,7 @@ export function inactiveState(config) {
   return null;
 }
 
-export function assertActive(config) {
+function assertStandingPolicyActive(config) {
   const policy = config.policy;
   assert(config.enabled === true && policy.enabled === true, 'Standing dispatcher disabled');
   assert(typeof policy.approvedBy === 'string' && policy.approvedBy.trim() && typeof policy.approvalRef === 'string' && policy.approvalRef.trim(), 'Recorded authorization required');
@@ -223,6 +243,11 @@ export function assertActive(config) {
   let stopped = false;
   try { lstatSync(policy.stopFile); stopped = true; } catch (error) { if (error.code !== 'ENOENT') throw error; }
   assert(!stopped, 'Standing STOP switch active');
+}
+
+export function assertActive(config) {
+  assertGenerationExecution(config);
+  assertStandingPolicyActive(config);
 }
 
 export function validateConfig(config, { automationRoot } = {}) {
@@ -240,7 +265,7 @@ export function validateConfig(config, { automationRoot } = {}) {
     assert.equal(config.generation.automationSha256, config.automation.sha256, 'Operational automation identity mismatch');
     assert.equal(config.generation.executionPath, config.executionPath, 'Operational dispatcher PATH mismatch');
     assert.deepEqual(config.generation.trustedFiles, config.trustedFiles, 'Operational dispatcher trusted closure mismatch');
-    assertConfigReferences(config.configReferences, config.configReferencesSha256);
+    assertConfigReferences(config.configReferences, config.configReferencesSha256, config.generationControl ? operationalConfigurationPaths(config) : undefined);
     for (const ref of config.configReferences) for (const closure of [config.generation.trustedFiles, ...Object.values(config.generation.executionContexts).map(context => context.trustedFiles)]) assert(Object.keys(closure).every(path => ref.path !== path && !ref.path.startsWith(path + '/')), 'Configuration pins cannot enter executable generation closure');
     for (const context of Object.values(config.generation.executionContexts)) assertExecutionContext(context);
   } else assert(config.generationSha256 === undefined, 'Unbound operational generation digest');
@@ -280,4 +305,130 @@ export function acquireLock(directory) {
   const path = join(directory, 'dispatcher.lock'), fd = openSync(path, 'wx', 0o600);
   const token = randomUUID(); writeFileSync(fd, JSON.stringify({ pid: process.pid, token, startedAt: new Date().toISOString() })); fsyncSync(fd);
   return () => { try { assert.equal(readPrivateJSON(path).token, token, 'Dispatcher lock ownership changed'); unlinkSync(path); } finally { closeSync(fd); } };
+}
+
+const exactFields = (value, keys, reason) => assert(value && !Array.isArray(value) && Object.keys(value).sort().join(',') === [...keys].sort().join(','), reason);
+export const pathExists = path => { try { lstatSync(path); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } };
+export function syncDirectory(directory) {
+  const fd = openSync(directory, 'r'); try { fsyncSync(fd); } finally { closeSync(fd); }
+}
+export function fileReference(path, maxBytes = JSON_LIMITS.transport) {
+  const bytes = readPrivateBytes(path, maxBytes); return { path, sha256: hash(bytes), bytes: bytes.length };
+}
+export function readExactReference(ref, maxBytes = JSON_LIMITS.transport) {
+  exactFields(ref, ['path','sha256','bytes'], 'Exact immutable reference required');
+  assert(HEX.test(ref.sha256) && Number.isSafeInteger(ref.bytes) && ref.bytes > 0 && ref.bytes <= maxBytes, 'Bounded immutable reference required');
+  const bytes = readPrivateBytes(ref.path, maxBytes);
+  assert.equal(bytes.length, ref.bytes, 'Referenced byte count changed'); assert.equal(hash(bytes), ref.sha256, 'Referenced bytes changed'); return bytes;
+}
+
+/** One shared lease, outside all state epochs. Never steals/removes stale locks. */
+export function acquireControlLock(directory) {
+  privateDirectory(directory);
+  assert(!pathExists(join(directory,'control-archive.lock')), 'Explicit lock archival is in progress or incomplete');
+  const path = join(directory, 'control.lock'), token = randomUUID(), fd = openSync(path, 'wx', 0o600);
+  try { writeFileSync(fd, serializeJSON({ schemaVersion: 1, token, pid: process.pid, startedAt: new Date().toISOString() }, JSON_LIMITS.controlIndex)); fsyncSync(fd); syncDirectory(directory); }
+  catch (error) { closeSync(fd); throw error; }
+  if(pathExists(join(directory,'control-archive.lock'))) {
+    try { assert.equal(readPrivateJSON(path).token,token); unlinkSync(path);syncDirectory(directory); } finally { closeSync(fd); }
+    throw Error('Explicit lock archival is in progress or incomplete');
+  }
+  const release = () => { assert.equal(readPrivateJSON(path, JSON_LIMITS.controlIndex).token, token, 'Control lock ownership changed'); unlinkSync(path); syncDirectory(directory); closeSync(fd); };
+  return { token, release };
+}
+
+/** The pointer is authority for exact config bytes; request manifests alone are not. */
+export function readActiveGeneration(controlDirectory) {
+  privateDirectory(controlDirectory);
+  const pointerPath = join(controlDirectory, 'active.json'), pointerBytes = readPrivateBytes(pointerPath, JSON_LIMITS.controlIndex), pointer = JSON.parse(pointerBytes);
+  exactFields(pointer, ['schemaVersion','generationId','generationSha256','config','configReferencesSha256','stateDirectory','epochId','authorizationSha256','transitionPlanSha256'], 'Unsupported active generation pointer');
+  assert(pointer.schemaVersion === 1 && /^[A-Za-z0-9_-]{1,100}$/.test(pointer.generationId) && /^[A-Za-z0-9_-]{1,100}$/.test(pointer.epochId), 'Invalid active generation/epoch');
+  for (const key of ['generationSha256','configReferencesSha256','authorizationSha256','transitionPlanSha256']) assert(HEX.test(pointer[key]), 'Exact active pointer identity required');
+  const journalPath = join(controlDirectory, 'transition.json');
+  assert(pathExists(journalPath), 'Completed approved transition journal required');
+  const journal = readPrivateJSON(journalPath, JSON_LIMITS.controlIndex);
+  exactFields(journal,['schemaVersion','planSha256','approvalSha256','plan','approval','oldPointer','newPointer','phase','imported','validatedState','proof'],'Unsupported transition journal');
+  assert.equal(journal.schemaVersion,1,'Unsupported transition journal schema');
+  assert.equal(journal.phase, 'completed', 'Incomplete transition prohibits polling');
+  assert.equal(journal.planSha256, pointer.transitionPlanSha256, 'Active pointer/transition journal disagree');
+  assert.deepEqual(journal.newPointer, pointer, 'Active pointer/transition journal disagree');
+  const plan=JSON.parse(readExactReference(journal.plan,JSON_LIMITS.controlIndex)),approval=JSON.parse(readExactReference(journal.approval,JSON_LIMITS.controlIndex));
+  const {planSha256,...planBody}=plan;
+  assert(plan.kind==='standing-0.7.2-continuation'&&plan.release.version==='0.7.2','Only exact approved0.7.2 continuation may run');
+  assert.equal(planSha256,fingerprint(planBody),'Retained transition plan digest changed');
+  assert.equal(planSha256,pointer.transitionPlanSha256,'Retained transition plan differs from active pointer');
+  assert.equal(fingerprint(approval),pointer.authorizationSha256,'Active continuation approval changed');
+  assert.equal(journal.approvalSha256,pointer.authorizationSha256,'Active continuation approval/journal mismatch');
+  assert(approval.schemaVersion===1&&approval.kind==='standing-continuation-approval'&&approval.action==='continue-0.7.2-after-source-gate-failure'&&approval.revoked===false&&approval.approvedBy?.trim()&&approval.approvalRef?.trim(),'Recorded unrevoked continuation approval required');
+  assert.equal(approval.planSha256,planSha256); assert.equal(approval.generationSha256,pointer.generationSha256);
+  assert.equal(approval.previousApprovalSha256,plan.previousApprovalSha256);assert.equal(approval.successorOf,plan.previousApprovalSha256);assert.equal(approval.releaseSha256,releaseIdentityDigest(plan.release));assert.equal(approval.priorAttemptId,plan.estimate.priorAttemptId);assert.equal(approval.attemptId,plan.estimate.newAttemptId);
+  assert.deepEqual(plan.next,{generationId:pointer.generationId,generationSha256:pointer.generationSha256,config:pointer.config,configReferencesSha256:pointer.configReferencesSha256,stateDirectory:pointer.stateDirectory,epochId:pointer.epochId},'Active pointer differs from exact approved plan');
+  const config = JSON.parse(readExactReference(pointer.config));
+  assert.equal(config.generationSha256, pointer.generationSha256, 'Active generation/config mismatch');
+  assert.equal(config.stateDirectory, pointer.stateDirectory, 'Active state root mismatch');
+  assert.equal(config.configReferencesSha256, pointer.configReferencesSha256, 'Active configuration manifest mismatch');
+  assert.deepEqual(config.generationControl, { controlDirectory, generationId: pointer.generationId, epochId: pointer.epochId }, 'Active generation control binding mismatch');
+  assertConfigReferences(config.configReferences, pointer.configReferencesSha256);
+  privateDirectory(pointer.stateDirectory);
+  const state = readPrivateJSON(join(pointer.stateDirectory, 'state.json'), JSON_LIMITS.controlIndex);
+  assert(state.schemaVersion === 2 && state.epochId === pointer.epochId, 'Active state epoch mismatch');
+  assert(!pathExists(join(pointer.stateDirectory, 'import-incomplete.json')), 'Incomplete import prohibits polling');
+  if(config.automation)assert.equal(automationDigest(config.automation.root),config.automation.sha256,'Active automation bytes changed');
+  if(config.trustedFiles)assertTrustedFiles(config.trustedFiles);
+  return { pointer, pointerSha256: hash(pointerBytes), config, approval, plan };
+}
+
+/** Call before each applicable write/dispatch, including native failure paths.
+ * STOP is intentionally separate: an already dispatched child may finish its
+ * bounded native transaction, but can never change generation/config authority. */
+export function assertGenerationFence(value, adapterConfig) {
+  if (value.generationSha256 === undefined && value.generationFence === undefined && value.generationControl === undefined) return null;
+  const fence = value.generationFence;
+  exactFields(fence, ['controlDirectory','pointerSha256'], 'Current generation fence required');
+  const active = readActiveGeneration(fence.controlDirectory);
+  assert.equal(active.pointerSha256, fence.pointerSha256, 'Worker active pointer changed');
+  assert.equal(active.pointer.generationSha256, value.generationSha256, 'Worker generation changed');
+  assert.equal(active.pointer.configReferencesSha256, value.configReferencesSha256, 'Worker configuration manifest changed');
+  assert.deepEqual(active.config.configReferences, value.configReferences, 'Worker configuration inventory changed');
+  if(value.policy) assert.deepEqual(value.policy,active.config.policy,'Worker authorization policy differs from active config');
+  if(value.service) {
+    const {command,...service}=active.config.services[value.service.id]; assert.deepEqual(value.service,service,'Worker service differs from active config');
+    if(active.config.trustedFiles)assert.deepEqual(value.trustedFiles,active.config.trustedFiles,'Worker executable closure differs from active config');
+    if(active.config.executionPath)assert.equal(value.executionPath,active.config.generation?.executionContexts[value.service.id]?.executionPath||active.config.executionPath,'Worker execution PATH differs from active generation');
+    if(releaseIdentityDigest(value.release)!==active.approval.releaseSha256) {
+      assert(['adopt','rollback'].includes(value.phase)&&['estimate','jev'].includes(value.service.id),'Release outside exact continuation authorization');
+      const baseline=active.config.baseline;assert.equal(value.release.version,baseline.version);assert.equal(value.release.releaseId,baseline.releaseId);assert.equal(value.release.sourceRevision,baseline.sourceRevision);
+      for(const [kind,key]of [['archive','archiveSha256'],['contract','referenceSha256'],['account','accountReferenceSha256']])assert.equal(value.release[kind]?.sha256,baseline[key],'Predecessor verification release mismatch');
+    }
+  }
+  if (value.services) assert.equal(fingerprint(active.config), fingerprint(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'generationFence'))), 'Running dispatcher config differs from active pointer');
+  if (adapterConfig) {
+    const path = value.service?.adapterOptions?.standingConfigPath;
+    const ref = active.config.configReferences.find(ref => ref.path === path);
+    assert(ref, 'Adapter config absent from active manifest');
+    assert.equal(fingerprint(JSON.parse(readExactReference(ref))), fingerprint(adapterConfig), 'Running adapter config differs from active manifest');
+  }
+  return active;
+}
+
+export function assertGenerationExecution(value,adapterConfig) {
+  const active=assertGenerationFence(value,adapterConfig);
+  if(active) {
+    assertStandingPolicyActive(active.config);
+    assert(Date.parse(active.approval.approvedAt)<=Date.now()&&Date.parse(active.approval.expiresAt)>Date.now(),'Continuation execution authorization expired or not active');
+    const migration=active.config.policy?.reviewedMigration;
+    if(migration)assert(Date.parse(migration.expiresAt)>Date.now(),'Original reviewedMigration expired; continuation cannot extend native authorization');
+    if(value.service?.id==='estimate'){assert.equal(value.attemptId,active.plan.estimate.newAttemptId,'Estimate attempt outside exact successor authorization');assert.equal(value.idempotencyKey,active.plan.estimate.idempotencyKey,'Estimate successor idempotency key changed');assert.equal(value.reconciliation?.priorAttemptId,active.plan.estimate.priorAttemptId,'Estimate successor must name the exact retained source-only failure');}
+    if(['estimate','jev'].includes(value.service?.id)) {
+      const ref=value.naeilPrerequisite;
+      assert(ref?.path?.startsWith(join(active.pointer.stateDirectory,'prerequisites')+'/'),'Current-epoch fresh naeil prerequisite required');
+      const proof=JSON.parse(readExactReference(ref));
+      exactFields(proof,['schemaVersion','kind','generationSha256','pointerSha256','releaseSha256','request','artifact','production'],'Exact current naeil verification evidence required');
+      assert(proof.schemaVersion===1&&proof.kind==='standing-current-naeil-verification'&&proof.generationSha256===active.pointer.generationSha256&&proof.pointerSha256===active.pointerSha256&&proof.releaseSha256===active.approval.releaseSha256,'Naeil verification generation/release changed');
+      assert.equal(proof.request.service.id,'naeil');assert.equal(releaseIdentityDigest(proof.request.release),active.approval.releaseSha256);
+      assertGenerationFence(proof.request);assertProduction(proof.production,proof.request,proof.artifact);
+      assert.deepEqual(proof.production.identity,active.plan.predecessors.naeil,'Naeil production differs from exact reviewed continuation predecessor');
+    }
+  }
+  return active;
 }

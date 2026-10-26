@@ -52,3 +52,7 @@ test('production evidence requires the independent expectation digest for every 
  assert.doesNotThrow(()=>assertProduction(production,r,artifact));
  assert.throws(()=>assertProduction({...production,expectationsSha256:'f'.repeat(64)},r,artifact),/expectations/i);
 });
+
+test('new-generation verification requires the current fence before any session or browser work',()=>{
+ assert.throws(()=>validateVerificationRequest({...request,generationSha256:'a'.repeat(64)},config),/fence|generation/i);
+});

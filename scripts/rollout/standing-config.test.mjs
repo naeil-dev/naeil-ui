@@ -3,7 +3,7 @@ import test from 'node:test';
 import { mkdtempSync, writeFileSync, readFileSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { assertTrustedFiles, hash, invokeJSON } from './standing-config.mjs';
+import { assertTrustedFiles, hash, invokeJSON, releaseIdentityDigest } from './standing-config.mjs';
 import { invokeVerifier } from './jev-standing-adapter.mjs';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
@@ -72,4 +72,11 @@ test('unapproved configuration paths are refused before opening their bytes', t 
  try {fs.openSync=(path,...args)=>{if(path===outside)reads++;return original(path,...args);};syncBuiltinESMExports();assert.throws(()=>assertConfigReferences(refs,fingerprint(refs),[approved]),/inventory/);}
  finally {fs.openSync=original;syncBuiltinESMExports();}
  assert.equal(reads,0,'An unapproved path must not become a private-file read allowance');
+});
+
+test('published release identity ignores only known runner-local asset paths and retains optional public metadata',()=>{
+ const release={releaseId:'synthetic',version:'0.7.2',sourceRevision:'a'.repeat(40),archive:{path:'/epoch1/archive.tgz',sha256:'b'.repeat(64),url:'https://example.test/archive'},contract:{path:'/epoch1/contract.json',version:'1',sha256:'c'.repeat(64)},account:{path:'/epoch1/account.json',sha256:'d'.repeat(64)},siteArchive:{path:'/epoch1/site.tgz',sha256:'e'.repeat(64)},expectations:{path:'/epoch1/expectations.json',sha256:'f'.repeat(64),url:'https://example.test/expectations'},publicAssets:[{name:'optional',path:'/public/logo.png',sha256:'1'.repeat(64)}]};
+ const relocated=structuredClone(release);for(const kind of ['archive','contract','account','siteArchive','expectations'])relocated[kind].path=relocated[kind].path.replace('/epoch1/','/epoch2/');
+ assert.equal(releaseIdentityDigest(relocated),releaseIdentityDigest(release));
+ for(const change of [value=>{value.archive.url+='changed';},value=>{value.siteArchive.sha256='0'.repeat(64);},value=>{value.expectations.sha256='0'.repeat(64);},value=>{value.publicAssets[0].path='/public/other.png';},value=>{value.publicAssets.push({name:'new'});},value=>{value.sourceRevision='0'.repeat(40);}]){const changed=structuredClone(release);change(changed);assert.notEqual(releaseIdentityDigest(changed),releaseIdentityDigest(release));}
 });

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { assertActive, assertProduction, assertTrustedFiles, atomicJSON, hash, invokeJSON, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION } from './standing-config.mjs';
+import { assertActive, assertGenerationExecution, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, hash, invokeJSON, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 import { compareRuntime, runtimeIndex } from './package-runtime.mjs';
 
@@ -84,7 +84,7 @@ async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, 
   const base = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, mutationAttempted: false };
   const observer = service.observer;
   assert(observer?.workflowPath === '.github/workflows/verify.yml' && observer.environment === 'Production' && observer.deploymentCreator === 'vercel[bot]', 'Reviewed existing Git/Vercel observation context required');
-  const authorize = () => { assertActive({ enabled: true, policy: request.policy }); assertTrustedFiles(request.trustedFiles); };
+  const authorize = () => { assertGenerationExecution(request); assertActive({ enabled: true, policy: request.policy }); assertTrustedFiles(request.trustedFiles); };
   authorize();
   const frozenBytes = readPrivateBytes(release.archive.path), siteBytes = readPrivateBytes(release.siteArchive.path);
   assert.equal(hash(frozenBytes), release.archive.sha256, 'Frozen package bytes changed');
@@ -116,7 +116,7 @@ async function observeOnce(request, { github = new GitHub(), fetchImpl = fetch, 
   const platform = await correlate(status, identity, observer, fetchImpl, github);
   if (platform.pending) return { ...base, state: 'deferred', reasonCode: 'site-commit-status-pending' };
   const artifact = { id: identity.artifactId, sourceRevision: identity.sourceRevision, ui: identity.ui, platform: { kind: 'vercel-git', ...platform, githubDeploymentId: String(deployment.id), githubRunId: String(workflow.id) } };
-  const directory = join(request.outputDirectory, 'verification'); privateDirectory(directory, true);
+  const directory = join(request.outputDirectory, 'verification'); authorize(); privateDirectory(directory, true);
   const verification = { ...request, phase: request.mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: expected, origin: service.origin, outputDirectory: directory, referencePath: release.contract.path, options: service.verification.options || {} };
   authorize();
   const production = await verify(service.verification.command, verification, join(directory, 'command'), 'verify');
@@ -134,7 +134,7 @@ export async function main() {
   let result;
   try { result = await observe(request); }
   catch { result = { schemaVersion: 1, releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, state: 'gate-failed', mutationAttempted: false, reasonCode: 'site-provenance-or-live-verification-failed', recoveryRequired: true }; }
-  atomicJSON(resolve(process.env.NAEIL_ROLLOUT_OUTPUT || ''), result);
+  assertGenerationFence(request); atomicJSON(resolve(process.env.NAEIL_ROLLOUT_OUTPUT || ''), result);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch(() => { console.error('Naeil observation stopped; inspect private invocation state.'); process.exitCode = 1; });

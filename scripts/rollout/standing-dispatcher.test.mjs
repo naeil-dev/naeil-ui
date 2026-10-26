@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import test from 'node:test';
 import { assertServiceResult, inspect, poll, reconcile } from './standing-dispatcher.mjs';
-import { atomicJSON, automationDigest, hash, IDS, invokeJSON, ORIGINS, readPrivateJSON, routeKey, validateConfig } from './standing-config.mjs';
+import { assertGenerationExecution, atomicJSON, automationDigest, fileReference, fingerprint, hash, IDS, invokeJSON, operationalGenerationDigest, ORIGINS, readPrivateJSON, routeKey, validateConfig } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 import { readStandingState, writeStandingState } from './standing-state.mjs';
 import {declaration} from './fixtures/reviewed-expectations.mjs';
@@ -70,6 +70,67 @@ function success(request) {
   const production = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production', passed: true, identity: { schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui }, archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, expectationsSha256:release.expectations.sha256, checkedAt: new Date().toISOString(), routes: service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
   return { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, state: 'production-verified', artifact, production };
 }
+
+function activateGeneration(f, release) {
+  const controlDirectory=join(f.directory,'control');mkdirSync(controlDirectory,{mode:0o700});
+  const pin=fileReference,verifier=join(f.directory,'verifier.json');atomicJSON(verifier,{schemaVersion:1,synthetic:'verifier'});
+  for(const id of ['estimate','jev']) {const candidate=join(f.directory,id+'-candidate.json');atomicJSON(candidate,{service:id,passed:true});atomicJSON(f.config.services[id].adapterOptions.standingConfigPath,{handoff:{candidateReceipt:pin(candidate),sourceAdoption:{synthetic:id}}});}
+  for(const id of IDS)f.config.services[id].verification.command.args=['fixture','--config',verifier];
+  f.config.configReferences=[verifier,...['estimate','jev'].map(id=>f.config.services[id].adapterOptions.standingConfigPath)].sort().map(path=>pin(path));f.config.configReferencesSha256=fingerprint(f.config.configReferences);
+  const context={automationSha256:f.config.automation.sha256,trustedFiles:f.config.trustedFiles,executionPath:f.config.executionPath,stateSchemaVersion:2};
+  f.config.generation={...context,executionContexts:{estimate:context,jev:{...context,executionPath:'/bin:/usr/bin'}}};f.config.generationSha256=operationalGenerationDigest(f.config.generation);
+  f.config.generationControl={controlDirectory,generationId:'synthetic-v2',epochId:'initial'};
+  const configPath=join(f.directory,'active-config.json');atomicJSON(configPath,f.config);
+  const next={generationId:'synthetic-v2',generationSha256:f.config.generationSha256,config:pin(configPath),configReferencesSha256:f.config.configReferencesSha256,stateDirectory:f.config.stateDirectory,epochId:'initial'};
+  const releaseBody=structuredClone(release);for(const key of ['archive','siteArchive','contract','account','expectations'])if(releaseBody[key])delete releaseBody[key].path;
+  const priorAttemptId=Object.values(f.state().releases).find(record=>record.version===release.version).services.estimate.request.attemptId;
+  const releaseSha256=fingerprint(releaseBody),plan={kind:'standing-0.7.2-continuation',next,previousApprovalSha256:'b'.repeat(64),release:releaseBody,predecessors:{naeil:Object.values(f.state().releases).find(record=>record.version===release.version).services.naeil.result.production.identity},estimate:{priorAttemptId,newAttemptId:'estimate-new-attempt',idempotencyKey:release.releaseId+':estimate'}};plan.planSha256=fingerprint(plan);
+  const approval={schemaVersion:1,kind:'standing-continuation-approval',action:'continue-0.7.2-after-source-gate-failure',planSha256:plan.planSha256,generationSha256:f.config.generationSha256,previousApprovalSha256:plan.previousApprovalSha256,successorOf:plan.previousApprovalSha256,releaseSha256,priorAttemptId,attemptId:'estimate-new-attempt',approvedBy:'synthetic-owner',approvalRef:'synthetic://continuation',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false};
+  const planPath=join(controlDirectory,'plan.json'),approvalPath=join(controlDirectory,'approval.json');atomicJSON(planPath,plan);atomicJSON(approvalPath,approval);
+  const pointer={schemaVersion:1,...next,authorizationSha256:fingerprint(approval),transitionPlanSha256:plan.planSha256};
+  atomicJSON(join(controlDirectory,'active.json'),pointer);atomicJSON(join(controlDirectory,'transition.json'),{schemaVersion:1,oldPointer:null,imported:null,validatedState:null,proof:null,phase:'completed',newPointer:pointer,planSha256:plan.planSha256,approvalSha256:fingerprint(approval),plan:pin(planPath),approval:pin(approvalPath)});
+  f.config.generationFence={controlDirectory,pointerSha256:pin(join(controlDirectory,'active.json')).sha256};
+  return {plan,approval,releaseSha256};
+}
+
+test('historical naeil continuation re-verifies in the new generation before exact Estimate retry and preserves original binding',async t=>{
+  const f=fixture(t,[1,2]),invoke=f.invoke;
+  f.invoke=async (command,request)=>request.release.version==='0.7.2'&&request.service.id==='estimate'?{...success(request),state:'gate-failed',mutationAttempted:true,runtimeMutationAttempted:false}:invoke(command,request);
+  await poll(f.config,f);const state=f.state(),record=state.releases['2'],binding=record.binding,naeil=structuredClone(record.services.naeil),prior=record.services.estimate;
+  delete naeil.result.production.expectationsSha256;record.services.naeil=naeil;
+  const {plan,approval,releaseSha256}=activateGeneration(f,naeil.request.release);
+  record.generationContinuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:f.config.generationSha256,originalBinding:binding,releaseSha256};
+  naeil.continuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:f.config.generationSha256,historicalRequestSha256:fingerprint(naeil.request),historicalResultSha256:fingerprint(naeil.result),requiresFreshVerification:true};
+  record.history||=[];record.history.push({serviceId:'estimate',prior});record.services.estimate={state:'deferred',reconciliation:{priorAttemptId:prior.request.attemptId},authorizedAttemptId:'estimate-new-attempt'};delete state.blocked;writeStandingState(f.config.stateDirectory,state);f.calls.length=0;
+  const events=[];f.invoke=async(command,request)=>{assertGenerationExecution(request);events.push(request.service.id);assert.equal(request.generationSha256,f.config.generationSha256);assert.deepEqual(request.generationFence,f.config.generationFence);if(request.service.id==='estimate'){assert.equal(request.attemptId,'estimate-new-attempt');assert.equal(request.idempotencyKey,prior.request.idempotencyKey);assert.equal(request.reconciliation.priorAttemptId,prior.request.attemptId);}return invoke(command,request);};
+  const verify=async(command,request)=>{events.push('fresh-naeil');assert.equal(request.service.id,'naeil');assert.notEqual(request.attemptId,naeil.request.attemptId);assert.equal(request.generationSha256,f.config.generationSha256);return success(request).production;};
+  assert.equal((await poll(f.config,{...f,verify})).currentVersion,'0.7.2');assert.deepEqual(events,['fresh-naeil','estimate','jev']);
+  const after=f.state().releases['2'];assert.equal(after.binding,binding);assert.deepEqual(after.services.naeil.request,naeil.request);assert.deepEqual(after.services.naeil.result,naeil.result);
+});
+
+async function continuationFixture(t) {
+  const f=fixture(t,[1,2]),invoke=f.invoke;
+  f.invoke=async(command,request)=>request.release.version==='0.7.2'&&request.service.id==='estimate'?{...success(request),state:'gate-failed',mutationAttempted:true,runtimeMutationAttempted:false}:invoke(command,request);
+  await poll(f.config,f);const state=f.state(),record=state.releases['2'],naeil=record.services.naeil,prior=record.services.estimate;delete naeil.result.production.expectationsSha256;
+  const {plan,approval,releaseSha256}=activateGeneration(f,naeil.request.release);
+  record.generationContinuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:f.config.generationSha256,originalBinding:record.binding,releaseSha256};
+  naeil.continuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:f.config.generationSha256,historicalRequestSha256:fingerprint(naeil.request),historicalResultSha256:fingerprint(naeil.result),requiresFreshVerification:true};
+  record.services.estimate={state:'deferred',reconciliation:{priorAttemptId:prior.request.attemptId},authorizedAttemptId:'estimate-new-attempt'};delete state.blocked;writeStandingState(f.config.stateDirectory,state);f.calls.length=0;
+  return {...f,invoke:invoke,verify:async(_command,request)=>success(request).production};
+}
+
+test('generation or manifest drift after admitted child completion prevents all later writes and dispatches',async t=>{
+  for(const cause of ['manifest','pointer']) {
+    const f=await continuationFixture(t),invoke=f.invoke;let before,calls=0;
+    f.invoke=async(command,request)=>{calls++;assert.equal(request.service.id,'estimate');before=readFileSync(join(f.config.stateDirectory,'state.json'));const result=await invoke(command,request);atomicJSON(cause==='manifest'?f.config.configReferences[0].path:join(f.config.generationFence.controlDirectory,'active.json'),{changed:true});return result;};
+    await assert.rejects(()=>poll(f.config,f));assert.equal(calls,1);assert.deepEqual(readFileSync(join(f.config.stateDirectory,'state.json')),before);assert.equal(f.state().releases['2'].services.estimate.state,'invoking');assert(existsSync(join(f.config.stateDirectory,'dispatcher.lock')));
+  }
+});
+
+test('failed fresh historical naeil verification blocks Estimate and all later consumers',async t=>{
+ const f=await continuationFixture(t);let calls=0;const result=await poll(f.config,{...f,invoke:async()=>{calls++;assert.fail('failed naeil proof dispatched native');},verify:async()=>{throw Error('synthetic fresh naeil failure');}});
+ assert.equal(result.state,'blocked');assert.equal(calls,0);assert.equal(f.state().blocked.reasonCode,'cached-evidence-reverification-failed');assert.equal(f.state().releases['2'].services.naeil.result.production.expectationsSha256,undefined);
+});
 
 test('scoped baseline adoption, queued consecutive patches and idempotent later polling', async t => {
   const f = fixture(t, [1, 2, 3]);

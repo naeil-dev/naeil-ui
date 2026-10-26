@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { closeSync, fsyncSync, lstatSync, openSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
-import { atomicJSON, hash, HEX, IDS, inactiveState, JSON_LIMITS, privateDirectory, readPrivateBytes, serializeJSON } from './standing-config.mjs';
+import { assertGenerationFence, atomicJSON, hash, HEX, IDS, inactiveState, JSON_LIMITS, privateDirectory, readPrivateBytes, serializeJSON } from './standing-config.mjs';
 
 export { JSON_LIMITS };
 export class StandingStorageError extends Error { constructor(cause) { super('Standing storage failed; no dispatch permitted', { cause }); this.code = 'standing-storage-failed'; } }
@@ -61,13 +61,13 @@ function readNode(directory, ref) {
   assert.equal(bytes.length, ref.bytes, 'Evidence size changed'); assert.equal(hash(bytes), ref.sha256, 'Evidence digest changed');
   const node = parseStandingJSON(bytes); assert.equal(node.schemaVersion, 1, 'Unsupported evidence schema'); return node;
 }
-function putNode(directory, node) {
+function putNode(directory, node, beforeWrite = () => {}) {
   const bytes = serializeJSON({ schemaVersion: 1, ...node }, JSON_LIMITS.evidence), sha256 = hash(bytes);
   const ref = { path: `evidence/${sha256}.json`, sha256, bytes: bytes.length }, path = join(directory, ref.path);
   if (entryExists(path)) { readNode(directory, ref); return ref; }
   // Exclusive creation: immutable objects are never replaced. Partial writes
   // remain preserved and fail digest validation on a later attempt.
-  const fd = openSync(path, 'wx', 0o600);
+  beforeWrite(); const fd = openSync(path, 'wx', 0o600);
   try { writeFileSync(fd, bytes); fsyncSync(fd); } finally { closeSync(fd); }
   syncDirectory(join(directory, 'evidence')); return ref;
 }
@@ -107,16 +107,16 @@ function historyArray(directory, descriptor) {
   }, has(target, key) { if (typeof key === 'string' && /^(0|[1-9]\d*)$/.test(key)) return Number(key) < meta.count + meta.pending.length; return Reflect.has(target, key); }, set() { throw Error('Historical arrays are append-only'); } });
   histories.set(proxy, meta); return proxy;
 }
-function encodeHistory(directory, array) {
+function encodeHistory(directory, array, beforeWrite) {
   const old = histories.get(array);
   if (old) assert.equal(old.directory, directory, 'History belongs to another epoch');
   let tail = old?.tail || null, count = old?.count || 0;
   const values = old ? old.pending : array;
   for (let start = 0; start < values.length; start += 32) {
-    const entries = values.slice(start, start + 32).map(value => encode(directory, value)); count += entries.length;
-    tail = putNode(directory, { type: 'history-page', previous: tail, entries, count });
+    const entries = values.slice(start, start + 32).map(value => encode(directory, value, '', beforeWrite)); count += entries.length;
+    tail = putNode(directory, { type: 'history-page', previous: tail, entries, count }, beforeWrite);
   }
-  return putNode(directory, { type: 'history', tail, count });
+  return putNode(directory, { type: 'history', tail, count }, beforeWrite);
 }
 function fitsInline(value) {
   let remaining = 32768;
@@ -136,23 +136,24 @@ function fitsInline(value) {
   }
   return count(value);
 }
-function putPages(directory, type, references) {
-  while (references.length > 64) references = Array.from({ length: Math.ceil(references.length / 64) }, (_, n) => putNode(directory, { type, pages: references.slice(n * 64, (n + 1) * 64) }));
-  return putNode(directory, { type, pages: references });
+function putPages(directory, type, references, beforeWrite) {
+  while (references.length > 64) references = Array.from({ length: Math.ceil(references.length / 64) }, (_, n) => putNode(directory, { type, pages: references.slice(n * 64, (n + 1) * 64) }, beforeWrite));
+  return putNode(directory, { type, pages: references }, beforeWrite);
 }
-function encode(directory, value, key = '') {
-  if (Array.isArray(value) && (HISTORY.has(key) || histories.has(value))) return encodeHistory(directory, value);
-  if (fitsInline(value)) return putNode(directory, { type: 'json', value });
+function encode(directory, value, key = '', beforeWrite = () => {}) {
+  if (Array.isArray(value) && (HISTORY.has(key) || histories.has(value))) return encodeHistory(directory, value, beforeWrite);
+  const put=node=>putNode(directory,node,beforeWrite),next=(item,name='')=>encode(directory,item,name,beforeWrite);
+  if (fitsInline(value)) return put({ type: 'json', value });
   // Keep payloads bounded and make histories independently paged even when the
   // containing object would fit inline. Small leaf JSON stays readable on disk.
-  if (value === null || typeof value !== 'object') return putNode(directory, { type: 'json', value });
+  if (value === null || typeof value !== 'object') return put({ type: 'json', value });
   if (Array.isArray(value)) {
-    if (value.length > 64) return putPages(directory, 'array-pages', Array.from({ length: Math.ceil(value.length / 64) }, (_, n) => encode(directory, value.slice(n * 64, (n + 1) * 64))));
-    return putNode(directory, { type: 'array', entries: value.map(item => encode(directory, item)) });
+    if (value.length > 64) return putPages(directory, 'array-pages', Array.from({ length: Math.ceil(value.length / 64) }, (_, n) => next(value.slice(n * 64, (n + 1) * 64))), beforeWrite);
+    return put({ type: 'array', entries: value.map(item => next(item)) });
   }
   const entries = Object.entries(value);
-  if (entries.length > 64) return putPages(directory, 'object-pages', Array.from({ length: Math.ceil(entries.length / 64) }, (_, n) => encode(directory, Object.fromEntries(entries.slice(n * 64, (n + 1) * 64)))));
-  return putNode(directory, { type: 'object', entries: entries.map(([name, item]) => [name, encode(directory, item, name)]) });
+  if (entries.length > 64) return putPages(directory, 'object-pages', Array.from({ length: Math.ceil(entries.length / 64) }, (_, n) => next(Object.fromEntries(entries.slice(n * 64, (n + 1) * 64)))), beforeWrite);
+  return put({ type: 'object', entries: entries.map(([name, item]) => [name, next(item, name)]) });
 }
 function decode(directory, ref, depth = 0) {
   assert(depth < MAX_JSON_DEPTH, 'Evidence nesting exceeds bound');
@@ -228,8 +229,18 @@ function intentsFor(state) {
   }
   return intents;
 }
-export function writeStandingState(directory, state) {
+function assertStateWriter(directory,config) {
+  const bindingPath=join(directory,'generation-binding.json');
+  if(entryExists(bindingPath)) {
+    const binding=readJSON(bindingPath,JSON_LIMITS.controlIndex);
+    exact(binding,['schemaVersion','controlDirectory','generationSha256','epochId']);
+    assert(binding.schemaVersion===1&&config?.generationFence&&config.stateDirectory===directory&&binding.controlDirectory===config.generationFence.controlDirectory&&binding.generationSha256===config.generationSha256&&binding.epochId===config.generationControl?.epochId,'Fenced state writer required');
+  }
+  if(config)assertGenerationFence(config);
+}
+export function writeStandingState(directory, state, config) {
   try {
+    const beforeWrite=()=>assertStateWriter(directory,config);beforeWrite();
     validateValue(state);
     privateDirectory(directory); assert(state.schemaVersion === 1 && state.releases && !Array.isArray(state.releases), 'Invalid dispatcher state');
     const path = join(directory, 'state.json'), old = entryExists(path) ? readRoot(directory) : null;
@@ -239,11 +250,11 @@ export function writeStandingState(directory, state) {
     const intents = intentsFor(state), marker = join(directory, 'pending-intent.json');
     // This marker binds the exact request before any invoking evidence/index is
     // written. A crash on either side of root replacement cannot enable replay.
-    if (intents.length) atomicJSON(marker, { schemaVersion: 1, intents }, JSON_LIMITS.controlIndex);
-    privateDirectory(join(directory, 'evidence'), true);
-    index.state = encode(directory, state);
-    atomicJSON(path, index, JSON_LIMITS.controlIndex);
-    if (!intents.length && entryExists(marker)) { unlinkSync(marker); syncDirectory(directory); }
+    if (intents.length) { beforeWrite(); atomicJSON(marker, { schemaVersion: 1, intents }, JSON_LIMITS.controlIndex); }
+    beforeWrite();privateDirectory(join(directory, 'evidence'), true);
+    index.state = encode(directory, state, '', beforeWrite);
+    beforeWrite(); atomicJSON(path, index, JSON_LIMITS.controlIndex);
+    if (!intents.length && entryExists(marker)) { beforeWrite();unlinkSync(marker); syncDirectory(directory); }
     return index;
   } catch (cause) { throw new StandingStorageError(cause); }
 }
@@ -308,6 +319,35 @@ export function importLegacyState({ sourcePath, expectedSha256, destination, epo
   const manifest = { schemaVersion: 1, oldSha256: expectedSha256, oldBytes: bytes.length, newIndexSha256: hash(readPrivateBytes(join(destination, 'state.json'), JSON_LIMITS.controlIndex)), evidenceInventorySha256: index.legacy.inventory.sha256, epochId };
   atomicJSON(join(destination, 'import-manifest.json'), manifest, JSON_LIMITS.controlIndex); unlinkSync(join(destination, 'import-incomplete.json')); syncDirectory(destination); return manifest;
 }
+
+/** Read-only recovery boundary. A complete exact import can be reused, never
+ * reconverted into nonempty output. A saved root permits later continuation
+ * state without changing the original import receipt or its source bytes. */
+export function validateCompletedImport({ sourcePath, expectedSha256, destination, epochId, evidenceRoot }, { importedRootPath = join(destination, 'state.json') } = {}) {
+  privateDirectory(destination);
+  assert(!entryExists(join(destination, 'import-incomplete.json')), 'Incomplete import requires explicit review; evidence retained');
+  const source = readPrivateBytes(sourcePath, JSON_LIMITS.offlineLegacy), saved = readPrivateBytes(join(destination, 'legacy-source.json'), JSON_LIMITS.offlineLegacy);
+  assert.equal(hash(source), expectedSha256, 'Source snapshot changed'); assert.deepEqual(saved, source, 'Imported source snapshot changed');
+  const manifest = readJSON(join(destination, 'import-manifest.json'), JSON_LIMITS.controlIndex);
+  exact(manifest, ['schemaVersion','oldSha256','oldBytes','newIndexSha256','evidenceInventorySha256','epochId']);
+  assert.equal(manifest.schemaVersion, 1); assert.equal(manifest.oldSha256, expectedSha256); assert.equal(manifest.oldBytes, source.length); assert.equal(manifest.epochId, epochId);
+  contained(destination, importedRootPath);
+  const rootBytes = readPrivateBytes(importedRootPath, JSON_LIMITS.controlIndex); assert.equal(hash(rootBytes), manifest.newIndexSha256, 'Imported root changed');
+  const root = parseStandingJSON(rootBytes);
+  exact(root, ['schemaVersion','encodingVersion','epochId','state','legacy','observation']);
+  assert(root.schemaVersion === 2 && root.encodingVersion === 1 && root.epochId === epochId, 'Imported epoch/schema mismatch');
+  assert.deepEqual(root.legacy, { evidenceRoot, inventory: root.legacy?.inventory, sourceSha256: expectedSha256 }, 'Imported legacy root mismatch');
+  assert.equal(root.legacy.inventory.sha256, manifest.evidenceInventorySha256, 'Imported inventory mismatch');
+  const inventory = decode(destination, root.legacy.inventory); exact(inventory, ['schemaVersion','files']);
+  assert.equal(inventory.schemaVersion, 1); assert(Array.isArray(inventory.files)); privateDirectory(evidenceRoot);
+  const seen = new Set();
+  for (const file of inventory.files) {
+    exact(file, ['path','sha256','bytes']); assert(HEX.test(file.sha256) && Number.isSafeInteger(file.bytes) && file.bytes > 0 && file.bytes <= JSON_LIMITS.evidence, 'Invalid imported evidence reference');
+    const path = join(evidenceRoot, file.path); assert.equal(contained(evidenceRoot, path), file.path, 'Imported path escape'); assert(!seen.has(file.path), 'Duplicate imported evidence'); seen.add(file.path);
+    const bytes = readPrivateBytes(path, JSON_LIMITS.evidence); assert.equal(bytes.length, file.bytes, 'Imported evidence size changed'); assert.equal(hash(bytes), file.sha256, 'Imported evidence digest changed');
+  }
+  validateValue(decode(destination, root.state)); return manifest;
+}
 export function readOperatorStatus(config) {
   privateDirectory(config.stateDirectory);
   let stopActive = false; try { lstatSync(config.policy.stopFile); stopActive = true; } catch (error) { if (error.code !== 'ENOENT') throw error; }
@@ -348,8 +388,8 @@ export function archiveMonitorHistory(directory, entries) {
 }
 
 /** Bounded immutable snapshot references for completion receipts and later tasks. */
-export function writeStandingEvidence(directory, value) {
-  try { privateDirectory(directory); privateDirectory(join(directory, 'evidence')); validateValue(value); return encode(directory, value); }
+export function writeStandingEvidence(directory, value, config) {
+  try { const beforeWrite=()=>assertStateWriter(directory,config);beforeWrite();privateDirectory(directory); privateDirectory(join(directory, 'evidence')); validateValue(value); return encode(directory, value, '', beforeWrite); }
   catch (cause) { throw new StandingStorageError(cause); }
 }
 export function readStandingEvidence(directory, reference) { privateDirectory(directory); return decode(directory, reference); }

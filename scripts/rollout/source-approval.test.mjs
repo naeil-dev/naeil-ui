@@ -6,7 +6,7 @@ import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { collectSourceFacts, validateSourceApproval, adoptSourceBase, validateSourceAdoption, validateCandidateHandoff } from './source-approval.mjs';
-import { automationDigest, fingerprint, generationDigest, hash, operationalGenerationDigest, routeKey } from './standing-config.mjs';
+import { atomicJSON, automationDigest, fingerprint, generationDigest, hash, operationalGenerationDigest, releaseIdentityDigest, routeKey } from './standing-config.mjs';
 import { assertCandidateSource, preflightPlanDigest, stageCandidate } from './consumer-preflight.mjs';
 import { codeManifest } from './consumer-artifact.mjs';
 import { treeDigest } from './preflight-sandbox.mjs';
@@ -116,7 +116,26 @@ function handoffFixture(t, service='estimate') {
     ...(service==='estimate'?{executables,bridgePath:bridge,bridgeSha256:trusted[bridge],tsxPath:loader,activation:{schemaVersion:1,enabled:true,serviceId:service,appId:'abestimate',nodePath:executables.node,stopFile:policy.stopFile,stateDirectory:join(root,'native-state'),deploymentRoot:join(root,'deploy'),dataDirectory:join(root,'data'),runtimeEnvironmentSha256:{APP_ORIGIN:hash(input.service.origin),NAEIL_SUPABASE_URL:hash('synthetic URL'),NAEIL_SUPABASE_ANON_KEY:hash('synthetic key')}}}:{nodeExecutable:executables.node,nodeVersion:'synthetic',pnpmExecutable:executables.pnpm,pythonExecutable:'/usr/bin/python3',gitExecutable:'/usr/bin/git',native:{},verificationCommand:{file:executables.node,args:[]}})};
   const adapterConfigPath=join(root,service+'-config.json'),verificationConfigPath=join(root,'verification-config.json');
   config.handoff.adapterConfigPath=adapterConfigPath;config.handoff.configurationPaths=[adapterConfigPath,verificationConfigPath].sort();put(verificationConfigPath,{schemaVersion:1,synthetic:'verification-only'});
-  const bindConfig=(selectedConfig=config,selectedInput=input)=>{put(adapterConfigPath,selectedConfig);selectedInput.configReferences=config.handoff.configurationPaths.map(pin);selectedInput.configReferencesSha256=fingerprint(selectedInput.configReferences);};bindConfig();
+  const control=join(root,'control'),epoch=join(root,'epoch');mkdirSync(control,{mode:0o700});mkdirSync(epoch,{mode:0o700});put(join(epoch,'state.json'),{schemaVersion:2,epochId:'synthetic'});
+  input.service.adapterOptions={standingConfigPath:adapterConfigPath};
+  const bindConfig=(selectedConfig=config,selectedInput=input)=>{
+    if(!selectedInput.release.expectations){const declaration=JSON.parse(readFileSync(new URL('./expectations/0.7.2.json',import.meta.url)));declaration.release=flat(selectedInput.release);const path=join(root,'current-expectations-'+selectedInput.release.version+'.json');put(path,declaration);selectedInput.release.expectations=pin(path);}
+    const naeilService={id:'naeil',appId:'naeil',origin:'https://naeil.dev',routes:selectedInput.service.routes,verification:selectedInput.service.verification};
+    const siteArtifact={id:'synthetic-site-current',sourceRevision:'e'.repeat(40),ui:{version:selectedInput.release.version,contractVersion:'1'}};const siteIdentity={schemaVersion:1,appId:'naeil',artifactId:siteArtifact.id,sourceRevision:siteArtifact.sourceRevision,ui:siteArtifact.ui};
+    put(adapterConfigPath,selectedConfig);selectedInput.configReferences=config.handoff.configurationPaths.map(pin);selectedInput.configReferencesSha256=fingerprint(selectedInput.configReferences);
+    const outer={schemaVersion:1,enabled:true,generationSha256:handoff.generationSha256,stateDirectory:epoch,configReferences:selectedInput.configReferences,configReferencesSha256:selectedInput.configReferencesSha256,generationControl:{controlDirectory:control,generationId:'synthetic',epochId:'synthetic'},policy:selectedInput.policy,services:{[service]:selectedInput.service,naeil:naeilService}};
+    const configPath=join(control,'config.json');put(configPath,outer);
+    const next={generationId:'synthetic',generationSha256:handoff.generationSha256,config:pin(configPath),configReferencesSha256:outer.configReferencesSha256,stateDirectory:epoch,epochId:'synthetic'};
+    const transition={kind:'standing-0.7.2-continuation',next,release:selectedInput.release,previousApprovalSha256:hash('historical'),estimate:{priorAttemptId:'prior-source-failure',newAttemptId:selectedInput.attemptId,idempotencyKey:selectedInput.idempotencyKey},predecessors:{naeil:siteIdentity}};transition.planSha256=fingerprint(transition);
+    const continuation={schemaVersion:1,kind:'standing-continuation-approval',action:'continue-0.7.2-after-source-gate-failure',planSha256:transition.planSha256,generationSha256:handoff.generationSha256,previousApprovalSha256:transition.previousApprovalSha256,successorOf:transition.previousApprovalSha256,releaseSha256:releaseIdentityDigest(selectedInput.release),priorAttemptId:transition.estimate.priorAttemptId,attemptId:transition.estimate.newAttemptId,approvedBy:'synthetic-owner',approvalRef:'synthetic://continuation',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false};
+    put(join(control,'plan.json'),transition);put(join(control,'approval.json'),continuation);
+    const pointer={schemaVersion:1,...next,authorizationSha256:fingerprint(continuation),transitionPlanSha256:transition.planSha256};put(join(control,'active.json'),pointer);put(join(control,'transition.json'),{schemaVersion:1,oldPointer:null,imported:null,validatedState:null,proof:null,phase:'completed',planSha256:transition.planSha256,approvalSha256:fingerprint(continuation),newPointer:pointer,plan:pin(join(control,'plan.json')),approval:pin(join(control,'approval.json'))});
+    if(service==='estimate'){selectedInput.reconciliation={priorAttemptId:'prior-source-failure'};mkdirSync(join(config.stateDirectory,'keys'),{mode:0o700,recursive:true});put(join(config.stateDirectory,'keys',hash(selectedInput.idempotencyKey)+'.json'),{attemptId:'prior-source-failure',idempotencyKey:selectedInput.idempotencyKey,state:'gate-failed',mutationAttempted:true,runtimeMutationAttempted:false});}
+    selectedInput.generationFence={controlDirectory:control,pointerSha256:pin(join(control,'active.json')).sha256};
+    const siteRequest={schemaVersion:1,mode:'standing',phase:'production',service:naeilService,release:selectedInput.release,policy:selectedInput.policy,trustedFiles:trusted,generationSha256:selectedInput.generationSha256,generationFence:selectedInput.generationFence,configReferences:selectedInput.configReferences,configReferencesSha256:selectedInput.configReferencesSha256,idempotencyKey:selectedInput.release.releaseId+':naeil',attemptId:'fresh-site'};
+    const production={schemaVersion:1,passed:true,releaseId:selectedInput.release.releaseId,serviceId:'naeil',idempotencyKey:siteRequest.idempotencyKey,attemptId:siteRequest.attemptId,phase:'production',identity:siteIdentity,archiveSha256:selectedInput.release.archive.sha256,referenceSha256:selectedInput.release.contract.sha256,accountReferenceSha256:selectedInput.release.account.sha256,expectationsSha256:selectedInput.release.expectations.sha256,checkedAt:new Date().toISOString(),routes:naeilService.routes.map(route=>({path:route.path,routeKey:routeKey(route),passed:true}))};
+    mkdirSync(join(epoch,'prerequisites'),{mode:0o700,recursive:true});const prerequisitePath=join(epoch,'prerequisites','naeil.json');put(prerequisitePath,{schemaVersion:1,kind:'standing-current-naeil-verification',generationSha256:handoff.generationSha256,pointerSha256:selectedInput.generationFence.pointerSha256,releaseSha256:continuation.releaseSha256,request:siteRequest,artifact:siteArtifact,production});selectedInput.naeilPrerequisite=pin(prerequisitePath);
+  };bindConfig();
   return {root,put,pin,git,candidate,input,config,bindConfig,stage:{worktree,branch:'rollout/standing',reviewedSourceRevision:old,git:'/usr/bin/git',gitSha256:trusted['/usr/bin/git'],executionPath,beforeMutation:()=>validateCandidateHandoff(candidate,input,config)},releaseFor,makeArtifact,approval,facts,archives};
 }
 
@@ -200,26 +219,26 @@ for(const service of ['estimate','jev'])test(`${service}: exact approved handoff
   // Baseline adoption is separate. Seed only this synthetic root through the
   // unchanged adoption path; preserve that predecessor for candidate activation.
   const baseline=f.makeArtifact('0.7.1','d'.repeat(40),'baseline');baseline.storageRef+='?sha256='+baseline.sha256;
-  const priorRelease=f.releaseFor('0.7.1');const adoptInput={...f.input,mode:'adopt',release:priorRelease,idempotencyKey:`ui-0.7.1:${service}`,attemptId:'adopt'};delete adoptInput.candidate;delete adoptInput.sourceAdoption;
+  const priorRelease=f.releaseFor('0.7.1');const adoptInput={...f.input,mode:'adopt',release:priorRelease,idempotencyKey:`ui-0.7.1:${service}`,attemptId:'adopt'};for(const key of ['candidate','sourceAdoption','generationSha256','generationFence','configReferences','configReferencesSha256'])delete adoptInput[key];
   const adoptConfig={...f.config};delete adoptConfig.handoff;
   if(service==='estimate'){adoptConfig.currentBaseline=baseline;adoptConfig.baselineRelease={releaseId:priorRelease.releaseId,version:'0.7.1',sourceRevision:priorRelease.sourceRevision,archiveSha256:priorRelease.archive.sha256,referenceSha256:priorRelease.contract.sha256,accountReferenceSha256:priorRelease.account.sha256};}else adoptConfig.baselineArtifact=baseline;
   assert.equal((await run(adoptInput,adoptConfig,deps)).state,'production-verified',deps.error?.stack);
   const baselineBytes=readFileSync(join(f.config.stateDirectory,'baseline.json'));
   const invalid=[i=>{i.candidate={...i.candidate,candidateSourceSha:'f'.repeat(40)};},i=>{i.sourceAdoption={...i.sourceAdoption,reviewedBaseSha:'f'.repeat(40)};},i=>{i.generationSha256='f'.repeat(64);},i=>{i.policy={...i.policy,expiresAt:'2000-01-01'};},i=>{i.policy={...i.policy,revoked:true};},i=>{i.policy={...i.policy,patchWindow:{...i.policy.patchWindow,maxVersion:'0.7.1'}};},i=>{i.configReferencesSha256='f'.repeat(64);},i=>{i.configReferences=i.configReferences.slice(1);i.configReferencesSha256=fingerprint(i.configReferences);}];
-  for(const [index,mutate]of invalid.entries()){events.length=0;const input=structuredClone(f.input);input.attemptId='invalid-'+index;mutate(input);assert.equal((await run(input,f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);assert.deepEqual(readFileSync(join(f.config.stateDirectory,'baseline.json')),baselineBytes);}
+  for(const [index,mutate]of invalid.entries()){events.length=0;const input=structuredClone(f.input);input.attemptId='invalid-'+index;f.bindConfig(f.config,input);mutate(input);assert.equal((await run(input,f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);assert.deepEqual(readFileSync(join(f.config.stateDirectory,'baseline.json')),baselineBytes);}
   for(const path of [join(f.candidate.checkout,'pnpm-lock.yaml'),join(f.candidate.checkout,'tests/check.mjs'),f.candidate.artifact.path,JSON.parse(readFileSync(f.candidate.fixture.path)).expectations.path,...f.config.handoff.configurationPaths,join(f.config.worktree,'tests/check.mjs')]) {
-    const original=readFileSync(path);f.put(path,Buffer.concat([original,Buffer.from('changed')]));events.length=0;
-    assert.equal((await run({...f.input,attemptId:'changed-'+hash(path).slice(0,8)},f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);f.put(path,original);
+    const input={...f.input,attemptId:'changed-'+hash(path).slice(0,8)};f.bindConfig(f.config,input);const original=readFileSync(path);f.put(path,Buffer.concat([original,Buffer.from('changed')]));events.length=0;
+    assert.equal((await run(input,f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);f.put(path,original);
   }
   // A different commit with the exact same tree cannot replace the tested SHA.
   const sameTree=f.git(['commit-tree',f.candidate.treeSha,'-p',f.candidate.candidateSourceSha,'-m','synthetic same-tree substitution']);
   f.git(['update-ref','refs/heads/fixture',sameTree]);events.length=0;
-  assert.equal((await run({...f.input,attemptId:'same-tree'},f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);f.git(['update-ref','refs/heads/fixture',f.candidate.candidateSourceSha]);
-  f.put(join(f.config.stateDirectory,'running.lock'),'synthetic unresolved native attempt');events.length=0;
-  assert.equal((await run({...f.input,attemptId:'uncertain-retry'},f.config,deps)).state,'deferred');assert.deepEqual(events,[]);rmSync(join(f.config.stateDirectory,'running.lock'));
+  const sameTreeInput={...f.input,attemptId:'same-tree'};f.bindConfig(f.config,sameTreeInput);assert.equal((await run(sameTreeInput,f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);f.git(['update-ref','refs/heads/fixture',f.candidate.candidateSourceSha]);
+  f.bindConfig();f.put(join(f.config.stateDirectory,'running.lock'),'synthetic unresolved native attempt');events.length=0;
+  if(service==='estimate')assert.equal((await run({...f.input,attemptId:'uncertain-retry'},f.config,deps)).state,'gate-failed');
+  assert.equal((await run(f.input,f.config,deps)).state,'deferred');assert.deepEqual(events,[]);rmSync(join(f.config.stateDirectory,'running.lock'));
   if(service==='estimate') {
-    assert.equal((await run({...f.input,attemptId:'missing-prior'},f.config,deps)).state,'review-required');assert.deepEqual(events,[]);
-    f.input.reconciliation={priorAttemptId:'changed-'+hash(join(f.config.worktree,'tests/check.mjs')).slice(0,8)};
+    const missingPrior={...f.input};delete missingPrior.reconciliation;assert.equal((await run(missingPrior,f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);
   }
   events.length=0;const result=await run(f.input,f.config,deps);assert.equal(result.state,'production-verified',deps.error?.stack??result.reason);assert.equal(result.artifact.path,f.candidate.artifact.path);assert(events.includes(service==='estimate'?'deploy':'stage'));assert(events.includes('activate'));
 });
@@ -242,4 +261,41 @@ test('an adopted exact base supports a later dependency-only release; unadopted 
   // Even explicitly rebinding the receipt cannot turn application/script edits
   // into a dependency-only descendant of the adopted base.
   f.put(join(old.checkout,'tests/check.mjs'),'// new unapproved test code');f.git(['add','.']);f.git(['commit','-qm','unapproved test source']);assert.throws(()=>assertCandidateSource({...candidate,root:old.root,checkout:old.checkout,candidateSourceSha:f.git(['rev-parse','HEAD']),treeSha:f.git(['rev-parse','HEAD^{tree}'])}),/scope|dependency|harness/i);
+});
+
+for(const service of ['estimate','jev'])for(const drift of ['config','pointer','stop',...(service==='estimate'?['recover-config','recover-pointer']:[])])test(`${service}: ${drift} drift before failure recovery cannot dispatch rollback`,async t=>{
+  const f=handoffFixture(t,service),run=service==='estimate'?estimateStanding:jevStanding,events=[];
+  const baseline=f.makeArtifact('0.7.1','d'.repeat(40),'baseline');baseline.storageRef+='?sha256='+baseline.sha256;
+  const priorRelease=f.releaseFor('0.7.1');const adoptInput={...f.input,mode:'adopt',release:priorRelease,idempotencyKey:`ui-0.7.1:${service}`,attemptId:'adopt'};for(const key of ['candidate','sourceAdoption','generationSha256','generationFence','configReferences','configReferencesSha256'])delete adoptInput[key];
+  const adoptConfig={...f.config};delete adoptConfig.handoff;
+  if(service==='estimate'){adoptConfig.currentBaseline=baseline;adoptConfig.baselineRelease={releaseId:priorRelease.releaseId,version:'0.7.1',sourceRevision:priorRelease.sourceRevision,archiveSha256:priorRelease.archive.sha256,referenceSha256:priorRelease.contract.sha256,accountReferenceSha256:priorRelease.account.sha256};}else adoptConfig.baselineArtifact=baseline;
+  const deps={native:async(action,request)=>{
+    events.push(action);
+    if(action==='activate'&&drift==='stop')f.put(f.input.policy.stopFile,'STOP\n');
+    if(service==='estimate'&&action==='activate'&&drift.startsWith('recover-')){
+      const deployment=f.config.activation.deploymentRoot;mkdirSync(join(deployment,'releases',baseline.releaseId),{mode:0o700,recursive:true});symlinkSync(join(deployment,'releases',baseline.releaseId),join(deployment,'current'));
+      f.put(join(f.config.activation.stateDirectory,'operation.json'),{operationId:'standing-'+hash(f.input.idempotencyKey+':'+f.input.attemptId+':activate'),action:'activate',from:baseline.releaseId,to:f.candidate.artifact.releaseId,phase:'switched'});
+      if(drift==='recover-config')f.put(f.config.handoff.configurationPaths.find(path=>path!==f.config.handoff.adapterConfigPath),{changed:true});else f.put(join(f.input.generationFence.controlDirectory,'active.json'),{changed:true});
+      throw Error('synthetic interrupted activation');
+    }
+    if(service==='estimate'){const ref=action==='inspect'?request.config.current:action==='rollback'?request.config.previous:request.config.candidate;return {schemaVersion:1,releaseId:request.releaseId,serviceId:service,idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,action,passed:true,nativeReleaseId:ref.releaseId,artifactId:ref.artifactId,...(action==='inspect'?{mutationAttempted:false}:action==='deploy'?{deploymentId:ref.releaseId}:{activated:true,preservationVerified:true})};}
+    return {schemaVersion:1,releaseId:request.release.releaseId,serviceId:service,idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,action,passed:true,safe:true,activated:['activate','rollback'].includes(action)};
+  },verify:async request=>{
+    if(request.phase==='production') {if(drift==='config')f.put(f.config.handoff.configurationPaths.find(path=>path!==f.config.handoff.adapterConfigPath),{changed:true});else f.put(join(f.input.generationFence.controlDirectory,'active.json'),{changed:true});throw Error('synthetic production failure');}
+    return {schemaVersion:1,releaseId:request.release.releaseId,serviceId:service,idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,phase:request.phase,passed:true,identity:request.expectedIdentity,archiveSha256:request.release.archive.sha256,referenceSha256:request.release.contract.sha256,accountReferenceSha256:request.release.account.sha256,checkedAt:new Date().toISOString(),routes:request.service.routes.map(route=>({path:route.path,routeKey:routeKey(route),passed:true}))};
+  }};
+  assert.equal((await run(adoptInput,adoptConfig,deps)).state,'production-verified');events.length=0;
+  const before=readFileSync(join(f.config.stateDirectory,'baseline.json'));f.input.policy.rollbackApproved=true;f.bindConfig();
+  const result=await run(f.input,f.config,deps);
+  assert.equal(result.state,'activation-pending');assert(!events.includes('rollback'));assert(!events.includes('recover'));if(drift==='stop'&&service==='estimate')assert.equal(JSON.parse(readFileSync(join(f.config.stateDirectory,'attempts',f.input.attemptId,'native-activate/dispatch.json'))).state,'completed');assert(existsSync(join(f.config.stateDirectory,'running.lock')));assert.deepEqual(readFileSync(join(f.config.stateDirectory,'baseline.json')),before);
+});
+
+for(const service of ['estimate','jev'])test(`${service}: current-generation fresh naeil evidence is independently required before adapter writes or native dispatch`,async t=>{
+ for(const cause of ['missing','expired','tampered','prior-generation']) {
+  const f=handoffFixture(t,service),run=service==='estimate'?estimateStanding:jevStanding;let calls=0;
+  if(cause==='missing')delete f.input.naeilPrerequisite;
+  else {const proof=JSON.parse(readFileSync(f.input.naeilPrerequisite.path));if(cause==='expired')proof.production.checkedAt='2000-01-01';if(cause==='tampered')proof.production.identity.artifactId='substituted';if(cause==='prior-generation')proof.request.generationSha256='b'.repeat(64);f.put(f.input.naeilPrerequisite.path,proof);if(cause!=='tampered')f.input.naeilPrerequisite=f.pin(f.input.naeilPrerequisite.path);}
+  const result=await run(f.input,f.config,{native:async()=>{calls++;throw Error('unexpected native');}});
+  assert.equal(result.state,'gate-failed');assert.equal(calls,0);assert(!existsSync(join(f.config.stateDirectory,'running.lock')));assert(!existsSync(join(f.config.stateDirectory,'attempts')));
+ }
 });

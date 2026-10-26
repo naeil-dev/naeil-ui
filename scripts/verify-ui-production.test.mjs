@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { chromium } from '@playwright/test';
-import { assertGeometry, assertRouteDestination, assertRouteState, checkMenu, readChrome } from './verify-ui-production.mjs';
+import { assertGeometry, assertRouteDestination, assertRouteState, checkMenu, readChrome, verifyProduction } from './verify-ui-production.mjs';
 import { catalogHTML } from './rollout/fixtures/project-catalog.mjs';
 const compatibility = version => { const d=JSON.parse(readFileSync(new URL(`./rollout/expectations/${version}.json`,import.meta.url)));return {releaseId:d.release.releaseId,version,sourceRevision:d.release.sourceRevision,archive:{sha256:d.release.archiveSha256},contract:{version:'1',sha256:d.release.chromeSha256},account:{sha256:d.release.accountSha256}}; };
 const contract = JSON.parse(readFileSync(new URL('../contracts/naeil-chrome.v1.json', import.meta.url)));
@@ -277,4 +279,26 @@ test('I2 independently compares nonempty selected image metadata with the exact 
     assert.equal(await page.locator('img').getAttribute('src'), 'https://naeil.dev/images/whale.png');
     await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, loadReleaseExpectations(compatibility('0.7.2'))), /Project 0 selected image mismatch/);
   } finally { await browser.close(); }
+});
+
+test('production verifier checks action and write fences around awaited identity before creating files or a browser',async t=>{
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'standing-render-fence-')));chmodSync(root,0o700);t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const release={schemaVersion:1,...compatibility('0.7.1'),previousVersion:'0.7.0',changes:['fix']};release.archive.url='https://example.invalid/frozen.tgz';
+ const identity={schemaVersion:1,appId:'naeil',artifactId:'synthetic-site',sourceRevision:release.sourceRevision,ui:{version:release.version,contractVersion:'1'}},outputDir=join(root,'output');let current=false,fetches=0;
+ t.mock.method(globalThis,'fetch',async()=>{fetches++;current=false;return Response.json(identity);});t.mock.method(chromium,'launch',async()=>assert.fail('lost fence launched a browser'));
+ const options={release,identity,origin:'https://example.invalid',routes:[{path:'/',policy:'canonical',renderState:{access:'public'}}],referencePath:new URL('../docs/rollout/frozen/naeil-chrome-0.7.1.json',import.meta.url).pathname,outputDir,beforeAction:()=>assert(current,'generation action fence lost'),beforeWrite:()=>assert(current,'generation write fence lost')};
+ await assert.rejects(()=>verifyProduction(options),/action fence lost/);assert.equal(fetches,0);assert(!existsSync(outputDir));
+ current=true;await assert.rejects(()=>verifyProduction(options),/write fence lost/);assert.equal(fetches,1);assert(!existsSync(outputDir));
+});
+
+test('menu verification rechecks authority after awaited visibility and focus before a new input action',async()=>{
+ const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
+ const expectations=loadReleaseExpectations(compatibility('0.7.2'));
+ for(const drift of ['visibility','focus']) {
+  let current=true;const actions=[];
+  const trigger={isVisible:async()=>{if(drift==='visibility')current=false;return true;},focus:async()=>{actions.push('focus');if(drift==='focus')current=false;},press:async()=>{actions.push('Enter');throw Error('unfenced key input');}};
+  const page={url:()=> 'https://example.invalid/en',locator:()=>({getByRole:()=>trigger})};
+  await assert.rejects(()=>checkMenu(page,'en','light',{},expectations,()=>assert(current,'menu generation fence lost')),/menu generation fence lost/);
+  assert.deepEqual(actions,drift==='focus'?['focus']:[]);
+ }
 });

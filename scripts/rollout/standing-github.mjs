@@ -135,11 +135,11 @@ export function assertPolicyRelease(release, config, currentVersion) {
   return 'standing';
 }
 
-export async function materializeRelease(item, config, github, existing) {
+export async function materializeRelease(item, config, github, existing, { beforeWrite = () => {} } = {}) {
   assert(!item.draft && !item.prerelease && config.trustedPublishers.includes(item.author?.login) && item.published_at, 'Published release from an authorized publisher required');
   const metadata = releaseMetadata(item), metadataHash = fingerprint(metadata);
   if (existing) assert.equal(existing.metadataHash, metadataHash, 'Previously observed release assets changed');
-  const directory = join(config.stateDirectory, 'releases', String(item.id)); privateDirectory(directory, true);
+  const directory = join(config.stateDirectory, 'releases', String(item.id)); beforeWrite(); privateDirectory(directory, true);
   const manifestName = config.manifestAsset || 'rollout-manifest.json';
   assert(['rollout-manifest.json', 'release.json'].includes(manifestName), 'Fixed manifest asset name required');
   const manifests = item.assets.filter(asset => asset.name === manifestName); assert.equal(manifests.length, 1, 'Exactly one version-specific rollout manifest required');
@@ -160,7 +160,7 @@ export async function materializeRelease(item, config, github, existing) {
     assert.equal(hash(bytes), entry.sha256, 'Frozen input digest mismatch');
     const path = join(directory, ['archive', 'siteArchive'].includes(kind) ? `${kind}.tgz` : `${kind}.json`);
     if (existsSync(path)) assert.equal(hash(readPrivateBytes(path)), entry.sha256, 'Stored frozen asset changed');
-    else { const fd = openSync(path, 'wx', 0o600); try { writeFileSync(fd, bytes); fsyncSync(fd); } finally { closeSync(fd); } }
+    else { beforeWrite(); const fd = openSync(path, 'wx', 0o600); try { writeFileSync(fd, bytes); fsyncSync(fd); } finally { closeSync(fd); } }
     entry.path = path;
   }
   const reference = readPrivateJSON(release.contract.path), account = readPrivateJSON(release.account.path);
@@ -175,6 +175,6 @@ export async function materializeRelease(item, config, github, existing) {
   if(snapshot?.expectationsSha256 !== undefined) assert.equal(snapshot.expectationsSha256,expectations.sha256,'Frozen snapshot expectations digest mismatch');
   if(existing?.expectationsSha256 !== undefined) assert.equal(existing.expectationsSha256,expectations.sha256,'Previously observed expectations digest changed');
   // Historical snapshots are evidence: never rewrite them to add a new gate.
-  if(!snapshot) atomicJSON(cachedPath, result);
+  if(!snapshot) { beforeWrite(); atomicJSON(cachedPath, result); }
   return result;
 }

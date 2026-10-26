@@ -21,12 +21,12 @@ export async function readPrivateJson(path) {
   } finally { await file.close(); }
 }
 
-export async function writePrivateJson(path, value) {
+export async function writePrivateJson(path, value, { beforeWrite = () => {} } = {}) {
   await assertPrivateDirectory(dirname(path));
   const temporary = `${path}.${randomUUID()}.tmp`;
-  const file = await open(temporary, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
-  try { await file.writeFile(JSON.stringify(value) + '\n'); await file.sync(); } finally { await file.close(); }
-  await rename(temporary, path);
+  beforeWrite(); const file = await open(temporary, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+  try { beforeWrite(); await file.writeFile(JSON.stringify(value) + '\n'); await file.sync(); } finally { await file.close(); }
+  beforeWrite(); await rename(temporary, path);
   const directory = await open(dirname(path), constants.O_RDONLY);
   try { await directory.sync(); } finally { await directory.close(); }
 }
@@ -45,21 +45,22 @@ function assertSession(session, userId, now, minimumValidityMs) {
 
 /** A refresh is a credential rotation. An interrupted/ambiguous rotation leaves
  * the lock for explicit reconciliation, never a blind automatic token replay. */
-export async function renewVerificationSession(config, { fetchImpl = fetch, now = Date.now(), minimumValidityMs = 25 * 60_000 } = {}) {
+export async function renewVerificationSession(config, { fetchImpl = fetch, now = Date.now(), minimumValidityMs = 25 * 60_000, beforeWrite = () => {}, beforeAction = () => {} } = {}) {
   supabaseOrigin(config.supabaseUrl);
   assert(Number.isSafeInteger(minimumValidityMs) && minimumValidityMs >= 5 * 60_000, 'Bounded verification session lifetime required');
   assert(typeof config.anonKey === 'string' && config.anonKey && typeof config.userId === 'string' && config.userId, 'Pinned verification account/config required');
   await readPrivateJson(config.stateFile);
   const lock = `${config.stateFile}.refresh-lock`;
-  try { await mkdir(lock, { mode: 0o700 }); } catch { throw new Error('Verification refresh pending/locked; reconciliation required'); }
+  beforeWrite(); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new Error('Verification refresh pending/locked; reconciliation required'); }
   // Read only after obtaining the lock; another completed refresh may have
   // rotated the token between the initial permission check and lock creation.
   const prior = await readPrivateJson(config.stateFile);
   assert.equal(prior.user?.id, config.userId, 'Verification account mismatch');
   assert(typeof prior.refresh_token === 'string' && prior.refresh_token, 'Verification refresh session missing');
   // No secret is ever written into the operation marker or error message.
-  await writePrivateJson(`${lock}/pending.json`, { startedAt: new Date(now).toISOString(), phase: 'refresh-requested' });
+  await writePrivateJson(`${lock}/pending.json`, { startedAt: new Date(now).toISOString(), phase: 'refresh-requested' }, { beforeWrite });
   let response;
+  beforeAction();
   try {
     response = await fetchImpl(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(20_000),
@@ -71,10 +72,10 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   let next;
   try { next = await response.json(); } catch { throw new Error('Verification session response invalid'); }
   assertSession(next, config.userId, now, minimumValidityMs);
-  await writePrivateJson(config.stateFile, next);
+  await writePrivateJson(config.stateFile, next, { beforeWrite });
   // Retain the consumed marker as an audit record, without credential data.
-  await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
-  await rmdir(lock);
+  beforeWrite(); await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
+  beforeWrite(); await rmdir(lock);
   return next;
 }
 
