@@ -38,7 +38,7 @@ function configured(input) {
  generationDigest(input.generation);
  assert.equal(automationDigest(AUTOMATION_ROOT),input.generation.automationSha256,'Reviewed preflight automation bytes changed');
  for(const [path,digest] of Object.entries(input.generation.trustedFiles)) {assert(realpathSync(path)===path,'Canonical trusted generation path required');const stat=lstatSync(path);assert(stat.isDirectory()||stat.isFile(),'Trusted file/tree required');assert.equal(stat.isDirectory()?treeDigest(path):hash(readFileSync(path)),digest,'Trusted generation bytes changed');}
- const c=input.config;keys(c,['schemaVersion','node','pnpm','executables','readable','executionPath','network','checks','artifactRelative','e2e','smoke','environment','dependencyStore']);assert.equal(c.schemaVersion,1);
+ const c=input.config;keys(c,['schemaVersion','node','pnpm','executables','readable','executionPath','network','checks','artifactRelative','releaseIntegrity','e2e','smoke','environment','dependencyStore']);assert.equal(c.schemaVersion,1);
  assert.equal(c.node,input.service==='estimate'?'/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node':'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node','Exact consumer Node runtime required');
  assert.equal(c.executionPath,input.generation.executionPath,'Generation PATH mismatch');
  for(const [path,digest] of Object.entries(c.executables)) assert.equal(input.generation.trustedFiles[path],digest,'Executable absent from generation trusted closure');
@@ -46,13 +46,13 @@ function configured(input) {
  for(const entry of c.readable??[]) {assert.equal(input.generation.trustedFiles[entry.path],entry.sha256,'Runtime read closure absent from generation identity');assert(!under(input.sourceRoot,entry.path)&&!under(entry.path,input.sourceRoot),'Runtime read closure overlaps source clone');}
  assert(c.executables[c.node]&&c.executables['/usr/bin/git']&&c.executables[realpathSync('/usr/bin/tar')]&&c.executables['/usr/bin/sandbox-exec'],'Pinned node/git/tar/sandbox executables required');
  assert(Array.isArray(c.checks)&&c.checks.length>=5&&new Set(c.checks.map(c=>c.name)).size===c.checks.length,'Unique named check commands required');
- assert(!c.checks.some(check=>['install','install-frozen','archive','e2e','smoke'].includes(check.name)),'Reserved preflight stage name');
+ assert(!c.checks.some(check=>['install','install-frozen','archive','release-integrity','e2e','smoke'].includes(check.name)),'Reserved preflight stage name');
  for(const name of ['unit','type','lint','build','package']) assert(c.checks.some(c=>c.name===name),'Pinned unit/type/lint/build/package checks required');
  assert(c.checks.findIndex(c=>c.name==='build')>Math.max(...['unit','type','lint'].map(name=>c.checks.findIndex(c=>c.name===name))),'Final build must follow unit/type/lint checks');
  assert(c.checks.at(-1).name==='package','Packaging must follow final production build');
- if(input.service==='estimate') assert(c.smoke,'Estimate standalone data/auth/recovery smoke gate required');
+ if(input.service==='estimate') {assert(c.releaseIntegrity,'Estimate release integrity gate required');assert(c.smoke,'Estimate standalone data/auth/recovery smoke gate required');}
  assert(c.e2e,'Actual selected-artifact E2E command required');
- for(const command of [...c.checks,c.e2e,...(c.smoke?[c.smoke]:[])]) {if(command.name!==undefined)assert(/^[a-z][a-z0-9-]{0,63}$/.test(command.name),'Safe exact check name required');keys(command,['name','file','args','env','timeoutMs','roles']);assert(c.executables[command.file]&&command.file!=='/usr/bin/sandbox-exec','Pinned approved command required');assert(Array.isArray(command.args)&&command.args.every(a=>typeof a==='string'),'Exact command arguments required');}
+ for(const command of [...c.checks,c.e2e,...(c.smoke?[c.smoke]:[]),...(c.releaseIntegrity?[c.releaseIntegrity]:[])]) {if(command.name!==undefined)assert(/^[a-z][a-z0-9-]{0,63}$/.test(command.name),'Safe exact check name required');keys(command,['name','file','args','env','timeoutMs','roles']);assert(c.executables[command.file]&&command.file!=='/usr/bin/sandbox-exec','Pinned approved command required');assert(Array.isArray(command.args)&&command.args.every(a=>typeof a==='string'),'Exact command arguments required');}
  assert(typeof c.artifactRelative==='string'&&c.artifactRelative&&!isAbsolute(c.artifactRelative)&&!c.artifactRelative.split('/').some(p=>['','..','.'].includes(p)),'Exact relative package output required');
  keys(input.release,['releaseId','version','contractVersion','sourceRevision','archiveSha256','chromeSha256','accountSha256']);
  assert(VERSION.test(input.release.version)&&input.release.contractVersion==='1'&&REVISION.test(input.release.sourceRevision),'Exact supported release tuple required');
@@ -188,7 +188,11 @@ export async function runPreflight(candidate,config,dependencies={}) {
   const selected=join(candidate.root,'artifact','selected');mkdirSync(selected,{mode:0o700});
   let directory,metadata,manifestPath,archiveMembers;
   if(input.service==='estimate') {
-    metadata=inspectEstimateRelease(source,candidate.candidateSourceSha,candidate.release);directory=join(selected,'release');mkdirSync(directory,{mode:0o700});
+    metadata=inspectEstimateRelease(source,candidate.candidateSourceSha,candidate.release);
+    const packagedSha256=treeDigest(source);
+    checks.push(await stage(snapshotSandbox(input,candidate.root,[]),{...config.releaseIntegrity,args:[...config.releaseIntegrity.args,artifactRelative]},candidate.output,'release-integrity',env));
+    assert.equal(treeDigest(source),packagedSha256,'Packaged release changed during integrity check');assertSource(candidate,config);assert.deepEqual(parity(candidate),before);
+    directory=join(selected,'release');mkdirSync(directory,{mode:0o700});
     copyCodeTree(join(source,'app'),join(directory,'app'));copyFileSync(join(source,'manifest.json'),join(directory,'manifest.json'));
     inspectEstimateRelease(directory,candidate.candidateSourceSha,candidate.release);manifestPath=join(directory,'manifest.json');archiveMembers=['app','manifest.json'];
   }else {
@@ -220,7 +224,7 @@ export function assertCandidate(candidate,binding) {
  assert(REVISION.test(candidate.candidateSourceSha)&&REVISION.test(candidate.treeSha)&&HEX.test(candidate.lockfileSha256)&&HEX.test(candidate.generationSha256),'Exact candidate source/generation required');
  assert(candidate.isolation?.passed===true&&candidate.packageParity?.before?.passed===true&&candidate.packageParity?.after?.passed===true,'Verified isolation and package parity required');
  assert(candidate.checks.every(check=>check.exitCode===0),'Failed check cannot yield reusable candidate');
- for(const name of ['install','install-frozen','unit','type','lint','build','package','e2e',...(candidate.service==='estimate'?['smoke']:[])])assert(candidate.checks.some(c=>c.name===name),'Missing completed candidate check');
+ for(const name of ['install','install-frozen','unit','type','lint','build','package','e2e',...(candidate.service==='estimate'?['release-integrity','smoke']:[])])assert(candidate.checks.some(c=>c.name===name),'Missing completed candidate check');
  checkedReference(candidate.archive,64*1024*1024);checkedReference(candidate.bundle,64*1024*1024);checkedReference(candidate.fixture);
  const plan=JSON.parse(checkedReference(candidate.plan));assert.equal(candidate.preflightPlanSha256,preflightPlanDigest(plan),'Candidate preflight plan identity mismatch');assert.equal(candidate.preflightConfigSha256,fingerprint(plan.config),'Candidate preflight config identity mismatch');assert.equal(candidate.generationSha256,generationDigest(plan.generation),'Candidate generation identity mismatch');
  const fixture=JSON.parse(readFileSync(candidate.fixture.path));checkedReference(fixture.account);checkedReference(fixture.expectations);

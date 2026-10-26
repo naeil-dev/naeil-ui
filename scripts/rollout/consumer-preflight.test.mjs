@@ -34,7 +34,7 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
  writeFileSync(expectations,JSON.stringify(declaration({...release,archive:{sha256:release.archiveSha256},contract:{version:'1',sha256:release.chromeSha256},account:{sha256:release.accountSha256}})),{mode:0o600});
  const fixture=join(root,'fixture.json');writeFileSync(fixture,JSON.stringify({schemaVersion:2,kind:'standing-ui-reference',release,account:pin(account),expectations:pin(expectations),routingProfile:null}),{mode:0o600});
  const executables=Object.fromEntries([node,'/usr/bin/git',realpathSync('/usr/bin/tar'),'/usr/bin/sandbox-exec'].map(p=>[p,hash(readFileSync(p))]));
- const config={schemaVersion:1,node,pnpm:pin(pnpm),executables,readable:[],executionPath:node.slice(0,node.lastIndexOf('/'))+':/usr/bin',network:{},checks:[{name:'unit',file:node,args:['-e','0']},{name:'type',file:node,args:['-e','0']},{name:'lint',file:node,args:['-e','0']},{name:'build',file:node,args:['scripts/build.mjs']},{name:'package',file:node,args:['-e','0']}],artifactRelative:service==='estimate'?'release':'.next/standalone',e2e:{file:node,args:['scripts/e2e.mjs']},smoke:{file:node,args:['-e','0']}};
+ const config={schemaVersion:1,node,pnpm:pin(pnpm),executables,readable:[],executionPath:node.slice(0,node.lastIndexOf('/'))+':/usr/bin',network:{},checks:[{name:'unit',file:node,args:['-e','0']},{name:'type',file:node,args:['-e','0']},{name:'lint',file:node,args:['-e','0']},{name:'build',file:node,args:['scripts/build.mjs']},{name:'package',file:node,args:['-e','0']}],artifactRelative:service==='estimate'?'release':'.next/standalone',e2e:{file:node,args:['scripts/e2e.mjs']},smoke:{file:node,args:['-e','0']},...(service==='estimate'?{releaseIntegrity:{file:node,args:['-e',"const assert=require('node:assert/strict'),fs=require('node:fs');assert.equal(process.argv[1],'release');assert.equal(JSON.parse(fs.readFileSync(process.argv[1]+'/manifest.json')).sourceCommit,process.env.NAEIL_SOURCE_REVISION);"]}}:{})};
  const input={schemaVersion:1,service,repository:service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev',sourceRoot:source,reviewedBaseSha:git(['rev-parse','HEAD']),isolatedRoot:join(root,'isolated'),release,previousVersion:'0.7.41',archive:pin(archivePath),fixture:pin(fixture),harnessSha256:null,generation:{automationSha256:automationDigest(new URL('../../',import.meta.url).pathname),trustedFiles:{...executables,[pnpm]:hash(readFileSync(pnpm))},executionPath:config.executionPath,stateSchemaVersion:2},config};
  // Harness closure is explicitly approved before preparation; never inferred after checks.
  input.harnessSha256=hash(JSON.stringify({'playwright.config.ts':hash(readFileSync(join(source,'playwright.config.ts'))),'tests/check.mjs':hash(readFileSync(join(source,'tests/check.mjs')))}));
@@ -55,6 +55,7 @@ test('STOP-safe synthetic candidate E2E uses retained artifact, package bytes, s
  const f=setup(t);const base=f.input.reviewedBaseSha;const prepared=await prepareCandidate(f.input);
  assert.equal(prepared.candidateSourceSha,base);assert.equal(prepared.passed,false);assert(existsSync(prepared.bundle.path));
  const passed=await runPreflight(prepared,f.config);assert.equal(passed.passed,true);assert.equal(passed.candidateSourceSha,base);
+ assert(passed.checks.some(check=>check.name==='release-integrity'&&check.exitCode===0));
  assertCandidate(passed,{...candidateBinding(passed),service:'estimate',repository:f.input.repository,reviewedBaseSha:base,candidateSourceSha:base,generationSha256:generationDigest(f.input.generation),release:f.input.release});
  await assert.rejects(()=>runPreflight(prepared,f.config),/already|single|replay/);
  assert.equal(f.git(['rev-parse','HEAD']),base);assert.equal(readFileSync(join(f.root,'STOP'),'utf8'),'standing remains stopped');
@@ -105,4 +106,16 @@ test('unsafe stage names fail before checkout even in a newly approved isolated 
 test('newly approved preflight with stale automation bytes still fails before checkout',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t);f.input.generation.automationSha256='0'.repeat(64);f.input.approval.planSha256=preflightPlanDigest(f.input);
  await assert.rejects(()=>prepareCandidate(f.input),/automation.*changed|automation.*mismatch/i);assert(!existsSync(f.input.isolatedRoot));
+});
+
+test('Estimate requires its release integrity gate before creating a candidate checkout',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t);delete f.config.releaseIntegrity;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ await assert.rejects(()=>prepareCandidate(f.input),/release integrity gate/i);assert(!existsSync(f.input.isolatedRoot));
+});
+
+test('failed Estimate release integrity cannot select an artifact or issue a passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t);f.config.releaseIntegrity.args=['-e','process.exit(1)'];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const candidate=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(candidate,f.config),/preflight failed/i);
+ const check=JSON.parse(readFileSync(join(candidate.root,'input/receipts/release-integrity.json')));assert.equal(check.exitCode,1);
+ assert(!existsSync(join(candidate.root,'artifact/selected/receipt.json')));assert(!existsSync(join(candidate.root,'input/passed.json')));
 });
