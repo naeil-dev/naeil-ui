@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { assertTrustedFiles, hash, invokeJSON } from './standing-config.mjs';
 import { invokeVerifier } from './jev-standing-adapter.mjs';
+import fs from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
+import { assertConfigReferences, fingerprint } from './standing-config.mjs';
 
 const credentials = ['GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN'];
 // Linux images may link /bin to /usr/bin; the Jev transport requires canonical PATH entries.
@@ -58,4 +61,15 @@ test('all JSON budgets accept exact boundary and reject limit+1 before replaceme
   const before = readFileSync(path); assert.throws(() => atomicJSON(path, { value: value.value + 'x' }, limit), /bound|limit|large/i);
   assert.deepEqual(readFileSync(path), before);
  }
+});
+
+test('unapproved configuration paths are refused before opening their bytes', t => {
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'standing-config-refs-')));t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const approved=join(root,'approved.json'),outside=join(root,'synthetic-private-canary.json');
+ writeFileSync(approved,'{}',{mode:0o600});writeFileSync(outside,'synthetic private canary',{mode:0o600});
+ const refs=[{path:outside,sha256:hash(readFileSync(outside)),bytes:readFileSync(outside).length}];
+ const original=fs.openSync;let reads=0;
+ try {fs.openSync=(path,...args)=>{if(path===outside)reads++;return original(path,...args);};syncBuiltinESMExports();assert.throws(()=>assertConfigReferences(refs,fingerprint(refs),[approved]),/inventory/);}
+ finally {fs.openSync=original;syncBuiltinESMExports();}
+ assert.equal(reads,0,'An unapproved path must not become a private-file read allowance');
 });

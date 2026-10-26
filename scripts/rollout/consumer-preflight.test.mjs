@@ -70,6 +70,20 @@ test('dependency-only candidate is committed once; validation never creates anot
  const changed=execFileSync('/usr/bin/git',['diff-tree','--no-commit-id','--name-only','-r',c.candidateSourceSha],{cwd:c.checkout,encoding:'utf8'}).trim().split('\n').sort();
  assert.deepEqual(changed,['package.json','pnpm-lock.yaml','vendor/naeil-ui-0.7.42.tgz']);
 });
+
+test('an exact approved dependency-only source HEAD can reuse its adopted base in a fresh isolated preparation',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t,{update:true}),first=await prepareCandidate(f.input);
+ const next={...f.input,sourceRoot:first.checkout,sourceHeadSha:first.candidateSourceSha,isolatedRoot:join(f.root,'next-isolated')};
+ next.approval={approvedBy:'synthetic',approvalRef:'synthetic-later-preparation',planSha256:preflightPlanDigest(next)};
+ const second=await prepareCandidate(next);
+ assert.equal(second.reviewedBaseSha,f.input.reviewedBaseSha);assert.equal(second.sourceHeadSha,first.candidateSourceSha);assert.equal(second.candidateSourceSha,first.candidateSourceSha,'Exact already-prepared dependency bytes retain the existing SHA');
+ assert.notEqual(second.root,first.root);assert.equal(f.git(['rev-parse','HEAD']),f.input.reviewedBaseSha);
+ // Fresh exact plan approval does not permit other source edits above that base.
+ execFileSync('/usr/bin/git',['-c','user.name=Synthetic','-c','user.email=synthetic@example.invalid','commit','--allow-empty','-qm','synthetic harmless descendant'],{cwd:first.checkout});
+ writeFileSync(join(first.checkout,'scripts/unapproved.mjs'),'// unapproved executable source');execFileSync('/usr/bin/git',['add','.'],{cwd:first.checkout});execFileSync('/usr/bin/git',['-c','user.name=Synthetic','-c','user.email=synthetic@example.invalid','commit','-qm','unapproved source'],{cwd:first.checkout});
+ const bad={...next,sourceHeadSha:execFileSync('/usr/bin/git',['rev-parse','HEAD'],{cwd:first.checkout,encoding:'utf8'}).trim(),isolatedRoot:join(f.root,'unapproved-isolated')};bad.approval={...next.approval,planSha256:preflightPlanDigest(bad)};
+ await assert.rejects(()=>prepareCandidate(bad),/dependency-only scope/);assert(!existsSync(bad.isolatedRoot));
+});
 test('invalid policy/native config or stale exact plan fails before checkout; failed build retains evidence without passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required; unsupported OS is fail-closed':false},async t=>{
  const f=setup(t);await assert.rejects(()=>prepareCandidate({...f.input,policy:{stopFile:'/fake'}}),/field|operational|input/);assert(!existsSync(f.input.isolatedRoot));
  await assert.rejects(()=>prepareCandidate({...f.input,reviewedBaseSha:'0'.repeat(40)}),/approval|plan/);assert(!existsSync(f.input.isolatedRoot));

@@ -1,4 +1,6 @@
 import {copyCodeTree as copyCode} from './consumer-artifact.mjs';
+import { validateCandidateHandoff } from './source-approval.mjs';
+import { assertCandidateSource, stageCandidate } from './consumer-preflight.mjs';
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile, execFileSync } from 'node:child_process';
@@ -253,14 +255,19 @@ export function installDependencies(config) {
 
 export async function runStanding(input, config, dependencies = {}) {
   const result = { schemaVersion: 1, releaseId: input?.release?.releaseId, serviceId: input?.service?.id, idempotencyKey: input?.idempotencyKey, attemptId: input?.attemptId, state: 'gate-failed', mutationAttempted: false, runtimeMutationAttempted: false };
-  let state, directory, lock, token, pending = false, activated = false, baselineCommitted = false, baseline, artifact, ledger, ledgerOwned = false, native, verify, pendingAction;
+  let state, directory, lock, token, pending = false, activated = false, baselineCommitted = false, baseline, artifact, ledger, ledgerOwned = false, native, verify, pendingAction, handoff, staged = false;
   const terminalLedger = () => { if (ledgerOwned) atomicJSON(ledger, { attemptId: input.attemptId, idempotencyKey: input.idempotencyKey, state: result.state, mutationAttempted: result.mutationAttempted, runtimeMutationAttempted: result.runtimeMutationAttempted, completedAt: new Date().toISOString() }); };
   const save = () => { if (directory) atomicJSON(join(directory, 'result.json'), { ...result, checkedAt: new Date().toISOString() }); };
   const trust = () => { assertTrustedFiles(input.trustedFiles); assertTrustedFiles(config.trustedFiles); };
-  const boundary = () => { active(input); trust(); releaseGate(input, config, baseline); };
+  const stageOptions = () => ({worktree:config.worktree,branch:config.branch,reviewedSourceRevision:config.reviewedSourceRevision,git:config.executables.git,executionPath:config.executionPath,gitSha256:config.trustedFiles[config.executables.git]});
+  const boundary = () => { active(input); trust(); releaseGate(input, config, baseline); if(handoff) {validateCandidateHandoff(handoff,input,config);if(staged)assertCandidateSource(handoff,stageOptions());} };
   const run = dependencies.command ?? command;
   try {
     configuration(input, config); active(input); assertFrozenInputs(input.release);
+    if(input.candidate !== undefined || input.sourceAdoption !== undefined || (config.handoff || input.generationSha256 !== undefined) && input.mode === 'standing') {
+      assert.equal(input.mode,'standing','Source/candidate adoption does not replace baseline adoption');
+      handoff = validateCandidateHandoff(input.candidate,input,config);
+    }
     state = privateDirectory(config.stateDirectory);
     const lockPath = join(state, 'running.lock');
     try { lock = openSync(lockPath, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600); }
@@ -317,7 +324,16 @@ export async function runStanding(input, config, dependencies = {}) {
       result.production = await verify('adopt', artifact);
       await native('inspect', artifact, artifact, artifact, 'inspect-after');
     } else {
+      if(handoff) {
+        boundary();result.mutationAttempted=true;
+        const intent={schemaVersion:1,state:'invoked',candidateReceipt:handoff.receipt,sourceAdoptionSha256:config.handoff.sourceAdoptionSha256,generationSha256:config.handoff.generationSha256,candidateSourceSha:handoff.candidateSourceSha};
+        atomicJSON(join(directory,'candidate-stage.json'),intent);save();
+        stageCandidate(handoff,{...stageOptions(),beforeMutation:boundary});staged=true;
+        atomicJSON(join(directory,'candidate-stage.json'),{...intent,state:'completed'});
+        artifact=handoff.artifact;assertArtifact(artifact);nativeUi(artifact,input.release);
+      }
       await native('inspect', baseline.artifact, baseline.artifact, baseline.artifact, 'inspect-before');
+      if(!handoff) {
       const env = environment(config);
       assert.equal((await run(config.executables.node, ['--version'], { env })).stdout.trim(), 'v24.21.0', 'Dedicated Node24.21.0 required');
       assert.equal((await run(config.executables.pnpm, ['--version'], { env })).stdout.trim(), config.pnpmVersion, 'Pinned pnpm required');
@@ -345,6 +361,9 @@ export async function runStanding(input, config, dependencies = {}) {
       const browserEnvironment = { ...env, NAEIL_UI_STANDING_FIXTURE: fixturePath, SHARED_HEADER_EVIDENCE_DIR: join(directory, 'browser-isolated/header'), SHELL_EVIDENCE_DIR: join(directory, 'browser-isolated/shell'), NAVIGATION_EVIDENCE_DIR: join(directory, 'browser-isolated/navigation'), COMPANY_LAYOUT_EVIDENCE_DIR: join(directory, 'browser-isolated/company'), LAYOUT_EVIDENCE_DIR: join(directory, 'browser-isolated/layout'), E2E_REPORT_PATH: join(directory, 'browser-isolated/e2e.json') };
       await run(config.executables.pnpm, ['run', 'test:e2e', ...['shared-header', 'shared-footer', 'shared-account', 'shared-domain-access', 'ui-release-identity', 'app-shell', 'navigation-composition', 'save-recovery', 'editor', 'company-layout', 'layout'].map(name => 'tests/e2e/' + name + '.spec.ts'), '--workers=1'], { cwd: config.worktree, env: browserEnvironment });
       assert.equal(await cleanCheckout(config, run), artifact.sourceRevision, 'Packaged source revision differs from clean HEAD'); assertArtifact(artifact);
+      } else {
+        result.artifact=artifact;result.previousArtifact=baseline.artifact;result.candidateReceipt=handoff.receipt;result.sourceAdoptionSha256=config.handoff.sourceAdoptionSha256;save();boundary();
+      }
       await native('deploy', baseline.artifact, artifact);
       await native('activate', baseline.artifact, artifact); activated = true;
       result.production = await verify('production', artifact);

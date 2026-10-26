@@ -29,10 +29,11 @@ function exclusiveIntent(path,value) {
 }
 function configured(input) {
  assert.equal(process.platform,'darwin','Supported macOS sandbox required; no unsandboxed fallback');
- keys(input,['schemaVersion','service','repository','sourceRoot','reviewedBaseSha','isolatedRoot','release','previousVersion','archive','fixture','harnessSha256','generation','config','approval']);
+ keys(input,['schemaVersion','service','repository','sourceRoot','reviewedBaseSha','sourceHeadSha','isolatedRoot','release','previousVersion','archive','fixture','harnessSha256','generation','config','approval']);
  assert.equal(input.schemaVersion,1);assert(['estimate','jev'].includes(input.service),'Bounded consumer service required');
  assert.equal(input.repository,input.service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev','Exact repository binding required');
  assert(REVISION.test(input.reviewedBaseSha)&&HEX.test(input.harnessSha256),'Reviewed exact source and harness closure required');
+ if(input.sourceHeadSha!==undefined)assert(REVISION.test(input.sourceHeadSha),'Exact dependency-only source HEAD required');
  assert(input.approval?.approvedBy?.trim()&&input.approval?.approvalRef?.trim(),'Recorded exact preflight approval required');
  assert.equal(input.approval.planSha256,preflightPlanDigest(input),'Exact preflight plan approval mismatch');
  generationDigest(input.generation);
@@ -129,13 +130,15 @@ export async function prepareCandidate(input,dependencies={}) {
  const config=input.config,root=input.isolatedRoot;
  assert(isAbsolute(root)&&resolve(root)===root&&!existsSync(root),'Fresh explicit isolated root required');
  assert(isAbsolute(input.sourceRoot)&&realpathSync(input.sourceRoot)===input.sourceRoot,'Canonical read-only local source required');
- assert.equal(git(config,input.sourceRoot,['rev-parse','HEAD']),input.reviewedBaseSha,'Reviewed base differs from source HEAD');
+ const sourceHeadSha=input.sourceHeadSha??input.reviewedBaseSha;
+ assert.equal(git(config,input.sourceRoot,['rev-parse','HEAD']),sourceHeadSha,'Approved source HEAD differs from checkout');
  assert.equal(git(config,input.sourceRoot,['status','--porcelain','--untracked-files=normal']),'','Reviewed source must be clean');
+ assertDependencySource(input.sourceRoot,input.reviewedBaseSha,sourceHeadSha,{git:'/usr/bin/git',executionPath:config.executionPath,gitSha256:config.executables['/usr/bin/git']});
  assert.equal(fingerprint(fixtureManifest(input.sourceRoot)),input.harnessSha256,'Reviewed source harness closure mismatch');
  privateDirectory(root,true);for(const name of ['output','tmp','cache','input','artifact'])mkdirSync(join(root,name),{mode:0o700});
  const output=join(root,'output');atomicJSON(join(output,'prepare-intent.json'),{schemaVersion:1,planSha256:preflightPlanDigest(input),passed:false});
  try {
-  const checkout=join(root,'checkout');git(config,root,['clone','--no-local','--no-hardlinks','--no-checkout','--separate-git-dir='+join(root,'git'),'--',input.sourceRoot,checkout]);git(config,checkout,['checkout','--detach',input.reviewedBaseSha]);
+  const checkout=join(root,'checkout');git(config,root,['clone','--no-local','--no-hardlinks','--no-checkout','--separate-git-dir='+join(root,'git'),'--',input.sourceRoot,checkout]);git(config,checkout,['checkout','--detach',sourceHeadSha]);
   for(const path of ['package.json','pnpm-lock.yaml','vendor'])assert(realpathSync(join(checkout,path))===join(checkout,path),'Candidate source key path symlink refused');
   const archive=join(root,'input','ui.tgz');writeFileSync(archive,checkedReference(input.archive,64*1024*1024),{mode:0o600,flag:'wx'});
   const fixture=transport(input,join(root,'input'));atomicJSON(join(root,'input','approved-plan.json'),input);
@@ -162,6 +165,7 @@ export async function prepareCandidate(input,dependencies={}) {
   if(changed.length) {await isolatedGit(input,root,['add','--',...changed],{writable:true});await isolatedGit(input,root,['-c','user.name=Naeil preflight','-c','user.email=preflight@naeil.dev','commit','-m',`chore: prepare exact @naeil/ui ${input.release.version}`],{writable:true});}
   const identity=await sourceIdentity(input,root),bundlePath=join(root,'input','candidate.bundle'),bundleOutput=join(root,'output','candidate.bundle');await isolatedGit(input,root,['bundle','create',bundleOutput,'HEAD']);writeFileSync(bundlePath,readBoundedSource(bundleOutput,join(root,'output'),67108864),{mode:0o600,flag:'wx'});await isolatedGit(input,root,['bundle','verify',bundlePath]);
   const candidate={schemaVersion:1,kind:'isolated-consumer-candidate',passed:false,service:input.service,repository:input.repository,reviewedBaseSha:input.reviewedBaseSha,...identity,release:input.release,expectationsSha256:JSON.parse(readFileSync(fixture.path)).expectations.sha256,harnessSha256:input.harnessSha256,generationSha256:generationDigest(input.generation),preflightPlanSha256:preflightPlanDigest(input),preflightConfigSha256:fingerprint(config),root,checkout,output,archive:reference(archive),fixture,bundle:reference(bundlePath),plan:reference(join(root,'input','approved-plan.json')),isolation,checks};
+  if(input.sourceHeadSha!==undefined)candidate.sourceHeadSha=input.sourceHeadSha;
   candidate.packageParity=parity(candidate);await assertSource(candidate,input);atomicJSON(join(root,'input','prepared.json'),candidate);atomicJSON(join(output,'prepared.json'),candidate);return candidate;
  }catch(error) {atomicJSON(join(output,'prepare-failed.json'),{schemaVersion:1,passed:false,planSha256:preflightPlanDigest(input),reasonSha256:hash(String(error.message))});throw new Error('Isolated candidate preparation failed; retained stage evidence', {cause:error});}
 }
@@ -233,6 +237,8 @@ export async function runPreflight(candidate,config,dependencies={}) {
 
 export function assertCandidate(candidate,binding) {
  assert.equal(candidate?.schemaVersion,1);assert.equal(candidate.passed,true,'Passed preflight candidate required');
+ assert.equal(candidate.kind,'isolated-consumer-candidate','Supported exact candidate kind required');
+ assert.equal(candidate.checkout,join(candidate.root,'checkout'),'Exact retained candidate checkout required');
  assert.equal(candidate.receipt?.path,join(candidate.root,'input','passed.json'),'Retained immutable passed receipt required');const {receipt,...payload}=candidate;assert.deepEqual(JSON.parse(checkedReference(receipt)),payload,'Immutable passed candidate receipt mismatch');
  for(const key of ['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'])assert(Object.hasOwn(binding,key),'Complete independently approved candidate binding required');
  for(const [key,value] of Object.entries(binding))assert.deepEqual(candidate[key],value,`Exact candidate ${key} mismatch`);
@@ -242,9 +248,87 @@ export function assertCandidate(candidate,binding) {
  for(const name of ['install','install-frozen','unit','type','lint','build','package','e2e',...(candidate.service==='estimate'?['release-integrity','smoke']:[])])assert(candidate.checks.some(c=>c.name===name),'Missing completed candidate check');
  checkedReference(candidate.archive,64*1024*1024);checkedReference(candidate.bundle,64*1024*1024);checkedReference(candidate.fixture);
  const plan=JSON.parse(checkedReference(candidate.plan));assert.equal(candidate.preflightPlanSha256,preflightPlanDigest(plan),'Candidate preflight plan identity mismatch');assert.equal(candidate.preflightConfigSha256,fingerprint(plan.config),'Candidate preflight config identity mismatch');assert.equal(candidate.generationSha256,generationDigest(plan.generation),'Candidate generation identity mismatch');
- const fixture=JSON.parse(readFileSync(candidate.fixture.path));checkedReference(fixture.account);checkedReference(fixture.expectations);
- assert.equal(candidate.artifact.sourceRevision,candidate.candidateSourceSha,'Artifact source mismatch');assert.equal(treeDigest(candidate.artifact.directory),candidate.artifact.inventorySha256,'Artifact manifest/digest changed');assert.equal(hash(readFileSync(candidate.artifact.path)),candidate.artifact.sha256,'Artifact archive digest changed');
+ for(const key of ['service','repository','reviewedBaseSha','release','harnessSha256'])assert.deepEqual(candidate[key],plan[key],`Candidate approved plan ${key} mismatch`);
+ assert.equal(candidate.root,plan.isolatedRoot,'Candidate plan isolated root mismatch');
+ assert.equal(candidate.sourceHeadSha??candidate.reviewedBaseSha,plan.sourceHeadSha??plan.reviewedBaseSha,'Candidate source HEAD provenance changed');
+ if(plan.sourceHeadSha!==undefined)assert.equal(binding.sourceHeadSha,candidate.sourceHeadSha,'Independently approved candidate source HEAD required');
+ const fixture=JSON.parse(checkedReference(candidate.fixture));checkedReference(fixture.account);checkedReference(fixture.expectations);
+ assert.equal(fixture.schemaVersion,2,'Unsupported candidate fixture schema');assert.equal(fixture.kind,'standing-ui-reference');assert.deepEqual(fixture.release,candidate.release,'Fixture release tuple changed');assert.equal(fixture.account.sha256,candidate.release.accountSha256,'Candidate account reference changed');assert.equal(fixture.expectations.sha256,candidate.expectationsSha256,'Candidate expectations reference changed');
+ assert.equal(candidate.artifact.sourceRevision,candidate.candidateSourceSha,'Artifact source mismatch');assert.equal(treeDigest(candidate.artifact.directory),candidate.artifact.inventorySha256,'Artifact manifest/digest changed');assert.equal(hash(readPrivateBytes(candidate.artifact.path,1073741824)),candidate.artifact.sha256,'Artifact archive digest changed');
+ const metadata=candidate.service==='estimate'?inspectEstimateRelease(candidate.artifact.directory,candidate.candidateSourceSha,candidate.release):inspectJevStandalone(candidate.artifact.directory,candidate.candidateSourceSha,candidate.release);
+ assert.equal(candidate.artifact.id,metadata.identity.artifactId,'Candidate artifact identity changed');assert.deepEqual(candidate.artifact.ui,metadata.identity.ui,'Candidate artifact UI changed');assert.equal(candidate.artifact.packageSha256,candidate.release.archiveSha256,'Candidate artifact frozen archive changed');
+ if(candidate.service==='estimate')assert.equal(candidate.artifact.manifestSha256,metadata.manifestSha256,'Candidate native manifest changed');
+ else assert.deepEqual(readPrivateJSON(candidate.artifact.manifestPath),metadata.manifest,'Candidate native manifest changed');
  return candidate;
+}
+
+function handoffGit(root, args, {git='/usr/bin/git', executionPath='/usr/bin:/bin', gitSha256} = {}) {
+ assert.equal(realpathSync(root),root,'Canonical handoff checkout required');assert.equal(realpathSync(git),git,'Canonical handoff Git required');
+ assert(HEX.test(gitSha256)&&hash(readFileSync(git))===gitSha256,'Pinned handoff Git bytes changed');
+ try {return execFileSync(git,['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','commit.gpgsign=false','-c','diff.external=','-c','protocol.allow=never','-c','protocol.file.allow=always',...args],{cwd:root,env:{PATH:executionPath,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',GIT_OPTIONAL_LOCKS:'0'},maxBuffer:2097152,stdio:['ignore','pipe','pipe']});}
+ catch {throw new Error('Exact candidate Git transfer/inspection refused');}
+}
+
+/** An adopted base can accumulate exact dependency-only descendants. Previously
+ * frozen archives cannot change; retained added archives must be real UI packages.
+ * Package scripts/lifecycle/build/harness edits always require a new base review. */
+export function assertDependencySource(root, reviewedBaseSha, sourceSha, settings) {
+ assert(REVISION.test(reviewedBaseSha)&&REVISION.test(sourceSha),'Exact dependency source commits required');
+ const git=args=>handoffGit(root,args,settings),blob=(sha,path)=>git(['show',`${sha}:${path}`]);
+ git(['merge-base','--is-ancestor',reviewedBaseSha,sourceSha]);
+ const changed=git(['diff','--no-renames','--name-only','-z',reviewedBaseSha,sourceSha,'--']).toString().split('\0').filter(Boolean);
+ assert(changed.every(path=>['package.json','pnpm-lock.yaml'].includes(path)||/^vendor\/naeil-ui-0\.7\.(0|[1-9]\d*)\.tgz$/.test(path)),'Candidate source changed outside dependency-only scope');
+ assertDependencyDelta({packageJSON:blob(reviewedBaseSha,'package.json'),lockfile:blob(reviewedBaseSha,'pnpm-lock.yaml')},{packageJSON:blob(sourceSha,'package.json'),lockfile:blob(sourceSha,'pnpm-lock.yaml')});
+ for(const path of changed.filter(path=>path.startsWith('vendor/'))) {
+  assert.equal(git(['ls-tree',reviewedBaseSha,'--',path]).length,0,'Previously frozen vendor archive changed');
+  assert(/^100644 blob [a-f0-9]{40}\t/.test(git(['ls-tree',sourceSha,'--',path]).toString()),'Regular retained UI archive required');
+  const metadata=runtimeIndex(blob(sourceSha,path)).package;assert.equal(metadata.name,'@naeil/ui');assert.equal(path,`vendor/naeil-ui-${metadata.version}.tgz`,'Vendor archive filename/identity mismatch');
+ }
+ return sourceSha;
+}
+
+/** Inspect source without importing consumer helpers or rerunning an updater.
+ * The preflight protected Git metadata is retained read-only to tested code. */
+export function assertCandidateSource(candidate, options = {}) {
+ const plan=JSON.parse(checkedReference(candidate.plan));
+ const gitPath=options.git??plan.config.git??'/usr/bin/git', executionPath=options.executionPath??plan.generation.executionPath;
+ const settings={git:gitPath,executionPath,gitSha256:options.gitSha256??plan.generation.trustedFiles[gitPath]};
+ const checkout=options.worktree??candidate.checkout, git=args=>handoffGit(checkout,args,settings).toString().trim();
+ assert.equal(git(['status','--porcelain','--untracked-files=normal']),'','Dirty candidate checkout refused');
+ assert.equal(git(['rev-parse','HEAD']),candidate.candidateSourceSha,'Exact candidate commit changed; same-tree substitution prohibited');
+ assert.equal(git(['rev-parse','HEAD^{tree}']),candidate.treeSha,'Candidate tree changed');
+ const sourceHeadSha=candidate.sourceHeadSha??candidate.reviewedBaseSha;
+ assertDependencySource(checkout,candidate.reviewedBaseSha,sourceHeadSha,settings);
+ assertDependencySource(checkout,sourceHeadSha,candidate.candidateSourceSha,settings);
+ const vendor=`vendor/naeil-ui-${candidate.release.version}.tgz`;
+ const blob=(sha,path)=>handoffGit(checkout,['show',`${sha}:${path}`],settings);
+ const before={packageJSON:blob(candidate.reviewedBaseSha,'package.json'),lockfile:blob(candidate.reviewedBaseSha,'pnpm-lock.yaml')};
+ const after={packageJSON:readBoundedSource(join(checkout,'package.json'),checkout),lockfile:readBoundedSource(join(checkout,'pnpm-lock.yaml'),checkout)};
+ assertDependencyDelta(before,after);assert.equal(hash(after.lockfile),candidate.lockfileSha256,'Exact candidate lockfile changed');
+ assert.equal(JSON.parse(after.packageJSON).dependencies['@naeil/ui'],`file:${vendor}`,'Exact vendored UI target required');
+ const archive=readBoundedSource(join(checkout,vendor),checkout,67108864);assert.equal(hash(archive),candidate.release.archiveSha256,'Candidate vendor archive changed');
+ const metadata=runtimeIndex(archive).package;assert.equal(metadata.name,'@naeil/ui');assert.equal(metadata.version,candidate.release.version);
+ assert(after.lockfile.toString().includes(`integrity: sha512-${createHash('sha512').update(archive).digest('base64')}`),'Candidate lock lacks exact archive integrity');
+ const files={};
+ function walk(directory) {assert.equal(realpathSync(directory),directory,'Harness directory link refused');for(const name of readdirSync(directory).sort()){const path=join(directory,name),stat=lstatSync(path);assert(!stat.isSymbolicLink(),'Harness link refused');if(stat.isDirectory())walk(path);else files[path.slice(checkout.length+1)]=hash(readBoundedSource(path,checkout));}}
+ walk(join(checkout,'tests'));files['playwright.config.ts']=hash(readBoundedSource(join(checkout,'playwright.config.ts'),checkout));
+ assert.equal(hash(JSON.stringify(Object.fromEntries(Object.entries(files).sort(([a],[b])=>a<b?-1:a>b?1:0)))),candidate.harnessSha256,'Exact candidate harness changed');
+ return candidate;
+}
+
+/** Copy retained Git objects by local bundle and fast-forward the dedicated clean
+ * checkout. Never reset a divergent checkout, install, rebuild, or recreate SHA. */
+export function stageCandidate(candidate, {worktree,branch,reviewedSourceRevision,git='/usr/bin/git',executionPath,gitSha256,beforeMutation}) {
+ assert.equal(typeof beforeMutation,'function','Caller authorization/STOP/trust boundary required before source mutation');
+ checkedReference(candidate.bundle,67108864);assertCandidateSource(candidate);
+ const settings={git,executionPath,gitSha256}, run=args=>handoffGit(worktree,args,settings).toString().trim();
+ assert.equal(run(['status','--porcelain','--untracked-files=normal']),'','Dirty execution checkout refused');
+ assert.equal(run(['branch','--show-current']),branch,'Dedicated standing branch required');
+ run(['merge-base','--is-ancestor',reviewedSourceRevision,'HEAD']);
+ beforeMutation();run(['fetch','--no-tags','--no-write-fetch-head',candidate.bundle.path,'HEAD']);
+ run(['merge-base','--is-ancestor','HEAD',candidate.candidateSourceSha]);
+ if(run(['rev-parse','HEAD'])!==candidate.candidateSourceSha){beforeMutation();run(['merge','--ff-only','--no-edit',candidate.candidateSourceSha]);}
+ assertCandidateSource(candidate,{worktree,...settings});return candidate;
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {

@@ -63,6 +63,12 @@ test('disabled policy and stop switch refuse before any app operation', async t 
     assert.deepEqual(f.events, []);
   }
 });
+test('unapproved candidate and adoption transport cannot reach native inspection', async t => {
+  const f = fixture(t); await runStanding(f.input, f.config, f.deps); future(f); f.input.attemptId = 'unapproved-candidate'; f.events.length = 0;
+  f.input.generationSha256='f'.repeat(64);assert.equal((await runStanding(f.input,f.config,f.deps)).state,'gate-failed');assert.deepEqual(f.events,[]);delete f.input.generationSha256;
+  f.input.candidate = { passed: true }; f.input.sourceAdoption = { reviewedBaseSha: 'f'.repeat(40) };
+  assert.equal((await runStanding(f.input, f.config, f.deps)).state, 'gate-failed'); assert.deepEqual(f.events, []);
+});
 
 test('reviewed PATH and hermetic git options replace inherited runtime and git injection', t => {
   const f = fixture(t), executionPath = canonicalExecutionPath(f.root, dirname(process.execPath), '/usr/bin', '/bin');

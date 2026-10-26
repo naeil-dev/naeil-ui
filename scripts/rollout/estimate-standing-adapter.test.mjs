@@ -110,6 +110,13 @@ test('failed read-only adoption preserves evidence and permits a fresh verificat
 test('standing requires a verified baseline', async () => {
   standing(); const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert(!calls.includes('update'));
 });
+test('unapproved candidate and adoption transport cannot reach native inspection', async () => {
+  await adopt(); standing(); input.generationSha256='f'.repeat(64);
+  assert.equal((await runStanding(input,config,dependencies)).state,'gate-failed');assert.deepEqual(calls,[]);
+  delete input.generationSha256; input.candidate = { passed: true }; input.sourceAdoption = { reviewedBaseSha: 'f'.repeat(40) };
+  const result = await runStanding(input, config, dependencies);
+  assert.equal(result.state, 'gate-failed'); assert.deepEqual(calls, []);
+});
 test('runs all build gates before staging and binds activation to the verified predecessor', async () => {
   await adopt(); standing(); const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'production-verified', dependencies.lastError?.stack ?? result.reason);
   for (const stage of ['update', 'command:run typecheck', 'command:run lint', 'command:run test --maxWorkers=1', 'command:run build', 'package', 'deploy', 'activate', 'verify:production']) assert(calls.includes(stage), 'Missing ' + stage);

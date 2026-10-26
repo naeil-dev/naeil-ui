@@ -1,0 +1,179 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, chmodSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { collectSourceFacts, validateSourceApproval, adoptSourceBase, validateSourceAdoption, validateCandidateHandoff } from './source-approval.mjs';
+import { automationDigest, fingerprint, generationDigest, hash, operationalGenerationDigest, routeKey } from './standing-config.mjs';
+import { assertCandidateSource, preflightPlanDigest, stageCandidate } from './consumer-preflight.mjs';
+import { codeManifest } from './consumer-artifact.mjs';
+import { treeDigest } from './preflight-sandbox.mjs';
+import { syntheticArchive } from './fixtures/release.mjs';
+import { dependencyLock } from './fixtures/dependency-lock.mjs';
+import { createHash } from 'node:crypto';
+import { runStanding as estimateStanding } from './estimate-standing-adapter.mjs';
+import { runStanding as jevStanding } from './jev-standing-adapter.mjs';
+
+function fixture(t) {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'source-approval-'))); t.after(() => rmSync(root, { recursive: true, force: true }));
+  const git = args => execFileSync('/usr/bin/git', ['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false',...args], { cwd:root, encoding:'utf8', env:{PATH:'/usr/bin:/bin',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'} }).trim();
+  git(['init','-q','-b','reviewed']); git(['config','user.name','Synthetic']); git(['config','user.email','synthetic@example.invalid']);
+  mkdirSync(join(root,'tests')); writeFileSync(join(root,'tests/check.mjs'),'// old harness');
+  writeFileSync(join(root,'package.json'),JSON.stringify({scripts:{test:'node tests/check.mjs'}}));
+  git(['add','.']); git(['commit','-qm','old approved base']); const oldReviewedBaseSha=git(['rev-parse','HEAD']);
+  writeFileSync(join(root,'tests/check.mjs'),'// explicitly reviewed schema2 harness'); git(['add','.']); git(['commit','-qm','review schema2 fixture']);
+  const input={sourceRoot:root, service:'estimate', repository:'naeil-dev/abestimate', oldReviewedBaseSha, newReviewedBaseSha:git(['rev-parse','HEAD'])};
+  const facts=collectSourceFacts(input), now='2026-10-26T00:00:00Z';
+  const approval={schemaVersion:1,kind:'reviewed-source-approval',service:input.service,repository:input.repository,oldReviewedBaseSha,newReviewedBaseSha:input.newReviewedBaseSha,diffSha256:facts.diffSha256,
+    files:facts.files.map(file=>({...file,purpose:'Review exact schema2 fixture execution code'})),fixtureSchemaVersion:2,contractVersion:'1',dependencyOnly:true,approvedBy:'synthetic-owner',approvalRef:'synthetic://source-review',approvedAt:'2026-10-25T00:00:00Z',adoptBefore:'2026-10-27T00:00:00Z',revoked:false};
+  return {root,git,input,facts,approval,now};
+}
+test('adopts the exact reviewed base in time; the caller owns durable storage', t=>{
+  const f=fixture(t); assert.equal(validateSourceApproval(f.approval,f.facts,f.now),f.approval);
+  const before=f.git(['status','--porcelain']); const record=adoptSourceBase(f.approval,f.facts,f.now);
+  assert.equal(record.reviewedBaseSha,f.input.newReviewedBaseSha); assert.equal(record.adoptedAt,f.now);
+  assert.equal(validateSourceAdoption(f.approval,record,f.facts,'2026-11-10T00:00:00Z'),record);
+  assert.throws(()=>validateSourceAdoption({...f.approval,revoked:true},record,f.facts,'2026-11-10T00:00:00Z'),/revok/i);
+  assert.equal(f.git(['status','--porcelain']),before);
+  assert.throws(()=>adoptSourceBase(f.approval,f.facts,'2026-11-10T00:00:00Z'),/expir|window/i);
+  assert.throws(()=>validateSourceAdoption(f.approval,null,f.facts,f.now),/adopt/i);
+});
+test('foreign scope, scripts, diff/hash and unsupported fixture/contract are never approved implicitly', t=>{
+  const f=fixture(t);
+  for(const patch of [{service:'jev'},{repository:'foreign/repo'},{diffSha256:'0'.repeat(64)},{fixtureSchemaVersion:3},{contractVersion:'2'},{dependencyOnly:false},{revoked:true},{approvedBy:''},{files:[]},{newReviewedBaseSha:f.input.oldReviewedBaseSha}]) {
+    assert.throws(()=>validateSourceApproval({...f.approval,...patch},f.facts,f.now));
+  }
+  const files=structuredClone(f.approval.files); files[0].newSha256=hash('another test'); assert.throws(()=>validateSourceApproval({...f.approval,files},f.facts,f.now));
+  writeFileSync(join(f.root,'package.json'),JSON.stringify({scripts:{test:'unapproved-script'}})); f.git(['add','.']); f.git(['commit','-qm','unapproved scripts']);
+  const changed=collectSourceFacts({...f.input,newReviewedBaseSha:f.git(['rev-parse','HEAD'])}); assert.throws(()=>validateSourceApproval(f.approval,changed,f.now));
+});
+test('facts require exact ancestry and preserve the complete binary diff algorithm', t=>{
+  const f=fixture(t); const bytes=execFileSync('/usr/bin/git',['diff','--binary','--full-index',f.input.oldReviewedBaseSha,f.input.newReviewedBaseSha,'--'],{cwd:f.root});
+  assert.equal(f.facts.diffSha256,hash(bytes)); assert.equal(f.facts.files[0].newSha256,hash(readFileSync(join(f.root,'tests/check.mjs'))));
+  assert.throws(()=>collectSourceFacts({...f.input,oldReviewedBaseSha:f.input.newReviewedBaseSha,newReviewedBaseSha:f.input.oldReviewedBaseSha}),/ancestor|Git/i);
+});
+
+function handoffFixture(t, service='estimate') {
+  const root=realpathSync(mkdtempSync(join(tmpdir(),'source-handoff-')));t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const put=(path,value)=>writeFileSync(path,Buffer.isBuffer(value)||typeof value==='string'?value:JSON.stringify(value),{mode:0o600});
+  const pin=path=>({path,sha256:hash(readFileSync(path)),bytes:readFileSync(path).length});
+  const isolated=join(root,'isolated'),checkout=join(isolated,'checkout');
+  for(const path of [isolated,checkout,join(isolated,'input'),join(isolated,'output'),join(isolated,'artifact'),join(checkout,'tests'),join(checkout,'vendor'),join(checkout,'ops'),join(root,'bin'),join(root,'other-bin'),join(root,'state'),join(root,'artifacts'),join(root,'native-state')])mkdirSync(path,{mode:0o700});
+  const git=(args,cwd=checkout,raw=false)=>{const result=execFileSync('/usr/bin/git',['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false',...args],{cwd,env:{PATH:'/usr/bin:/bin',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'},maxBuffer:2097152});return raw?result:result.toString().trim();};
+  git(['init','-q','--separate-git-dir',join(isolated,'git'),'-b','fixture']);git(['config','user.name','Synthetic']);git(['config','user.email','synthetic@example.invalid']);
+  const archives=Object.fromEntries(['0.7.1','0.7.2','0.7.3'].map(version=>[version,syntheticArchive(version)]));
+  const integrity=bytes=>'sha512-'+createHash('sha512').update(bytes).digest('base64');
+  const packageFor=version=>({name:'synthetic',scripts:{test:'node tests/check.mjs'},dependencies:{'@naeil/ui':`file:vendor/naeil-ui-${version}.tgz`}});
+  put(join(checkout,'package.json'),packageFor('0.7.1'));put(join(checkout,'pnpm-lock.yaml'),dependencyLock('0.7.1',integrity(archives['0.7.1'])));put(join(checkout,'vendor/naeil-ui-0.7.1.tgz'),archives['0.7.1']);put(join(checkout,'tests/check.mjs'),'// old harness');put(join(checkout,'playwright.config.ts'),'// reviewed config');put(join(checkout,'ops/code-activation.mts'),'// pinned synthetic native bridge');
+  git(['add','.']);git(['commit','-qm','old approved source']);const old=git(['rev-parse','HEAD']);
+  put(join(checkout,'tests/check.mjs'),'// exact schema2 reviewed harness');git(['add','.']);git(['commit','-qm','review schema2 fixture']);const base=git(['rev-parse','HEAD']);
+  put(join(checkout,'package.json'),packageFor('0.7.2'));put(join(checkout,'pnpm-lock.yaml'),dependencyLock('0.7.2',integrity(archives['0.7.2'])));put(join(checkout,'vendor/naeil-ui-0.7.2.tgz'),archives['0.7.2']);git(['add','.']);git(['commit','-qm','prepare dependency exactly once']);const sha=git(['rev-parse','HEAD']);
+  const worktree=join(root,'worktree');git(['clone','-q','--no-hardlinks',checkout,worktree],root);git(['checkout','-qb','rollout/standing',old],worktree);
+  const executables=Object.fromEntries(['node','pnpm'].map(name=>{const path=join(root,'bin',name);put(path,'synthetic '+name);chmodSync(path,0o700);return[name,path];}));executables.git='/usr/bin/git';executables.tar=realpathSync('/usr/bin/tar');
+  const loader=join(root,'loader.mjs');put(loader,'// durable loader');const helper=join(root,'helper.mjs');put(helper,'// dispatcher helper');const bridge=join(worktree,'ops/code-activation.mts');
+  const trusted=Object.fromEntries([...Object.values(executables),loader,helper,bridge].map(path=>[path,hash(readFileSync(path))]));
+  const automationSha256=automationDigest(new URL('../../',import.meta.url).pathname),executionPath=join(root,'bin')+':/usr/bin';
+  const context={automationSha256,trustedFiles:trusted,executionPath,stateSchemaVersion:2};
+  const other={...context,executionPath:join(root,'other-bin')+':/usr/bin'};
+  const generation={...context,executionPath:'/usr/bin',trustedFiles:trusted,executionContexts:{estimate:service==='estimate'?context:other,jev:service==='jev'?context:other}};
+  const releaseFor=version=>{
+    const archive=join(root,`ui-${version}.tgz`);put(archive,archives[version]);const frame=join(root,`frame-${version}.json`),account=join(root,`account-${version}.json`);
+    const reference={schemaVersion:1,kind:'independent-release-render',frozen:true,archiveSha256:hash(archives[version]),sourceRevision:'a'.repeat(40),ui:{version,contractVersion:'1'},cases:[{}]};put(frame,reference);put(account,{...reference,kind:'independent-account-render'});
+    return {schemaVersion:1,releaseId:`ui-${version}`,version,previousVersion:version==='0.7.3'?'0.7.2':'0.7.1',sourceRevision:'a'.repeat(40),changes:['fix'],archive:{...pin(archive),url:'https://example.test/ui.tgz'},contract:{...pin(frame),version:'1'},account:pin(account)};
+  };
+  const released=releaseFor('0.7.2'),flat=release=>({releaseId:release.releaseId,version:release.version,contractVersion:'1',sourceRevision:release.sourceRevision,archiveSha256:release.archive.sha256,chromeSha256:release.contract.sha256,accountSha256:release.account.sha256});
+  const makeArtifact=(version,sourceRevision,name)=>{
+    const directory=join(root,name);mkdirSync(directory,{mode:0o700});let manifestPath,manifestSha256,id='build-'+name,releaseId;
+    const ui={version,contractVersion:'1'};
+    if(service==='estimate'){
+      mkdirSync(join(directory,'app/.next'),{recursive:true});put(join(directory,'app/server.js'),'// unchanged standalone');put(join(directory,'app/.next/BUILD_ID'),id);
+      releaseId=sourceRevision.slice(0,12)+'-'+hash(name).slice(0,12);const manifest={schemaVersion:1,releaseId,node:'v24.21.0',serverPath:'app/server.js',runtimeDataIncluded:false,sourceCommit:sourceRevision,buildId:id,uiBuildIdentity:{schemaVersion:1,appId:'abestimate',artifactId:id,sourceRevision,ui},artifactFiles:codeManifest(join(directory,'app'),{estimate:true}),packageVersions:{'@naeil/ui':`file:vendor/naeil-ui-${version}.tgz`},sourceFiles:{[`vendor/naeil-ui-${version}.tgz`]:hash(archives[version]),'src/server/naeil-shared-session.ts':'b'.repeat(64),'src/server/naeil-auth-client.ts':'c'.repeat(64)}};
+      manifestPath=join(directory,'manifest.json');put(manifestPath,manifest);manifestSha256=pin(manifestPath).sha256;
+    }else{
+      mkdirSync(join(directory,'public/.well-known'),{recursive:true});mkdirSync(join(directory,'.next'));put(join(directory,'server.js'),'// unchanged standalone');put(join(directory,'.next/BUILD_ID'),id);put(join(directory,'public/.well-known/naeil-ui.json'),{schemaVersion:1,appId:'jev',artifactId:id,sourceRevision,ui});
+      const manifest=codeManifest(directory);manifestPath=join(root,name+'-manifest.json');put(manifestPath,manifest);manifestSha256=hash(JSON.stringify(Object.fromEntries(Object.entries(manifest).sort().map(([key,value])=>[key,Object.fromEntries(Object.entries(value).sort())]))));releaseId=`ui-${version}`;
+    }
+    const path=join(root,name+'.tar.gz');put(path,'exact synthetic code archive '+name);
+    return {immutable:true,id,artifactId:id,sourceRevision,ui,releaseId,packageSha256:hash(archives[version]),...pin(path),storageRef:'file://'+path,directory,inventorySha256:treeDigest(directory),manifestPath,manifestSha256,buildId:id,...(service==='jev'?{standalonePath:directory}:{})};
+  };
+  const artifact=makeArtifact('0.7.2',sha,'candidate');artifact.storageRef+='?sha256='+artifact.sha256;
+  const account=join(isolated,'input/account.json');put(account,readFileSync(released.account.path));const expectations=join(isolated,'input/expectations.json');put(expectations,{schemaVersion:1,synthetic:true});const fixturePath=join(isolated,'input/fixture.json');put(fixturePath,{schemaVersion:2,kind:'standing-ui-reference',release:flat(released),account:pin(account),expectations:pin(expectations),routingProfile:null});
+  const archive=join(isolated,'input/ui.tgz');put(archive,archives['0.7.2']);const bundle=join(isolated,'input/candidate.bundle');git(['bundle','create',bundle,'HEAD']);chmodSync(bundle,0o600);
+  const harnessSha256=hash(JSON.stringify({'playwright.config.ts':hash(readFileSync(join(checkout,'playwright.config.ts'))),'tests/check.mjs':hash(readFileSync(join(checkout,'tests/check.mjs')))}));
+  const planValue={schemaVersion:1,service,repository:service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev',sourceRoot:checkout,reviewedBaseSha:base,isolatedRoot:isolated,release:flat(released),harnessSha256,generation:context,config:{git:'/usr/bin/git',executionPath}};const plan=join(isolated,'input/approved-plan.json');put(plan,planValue);
+  const candidate={schemaVersion:1,kind:'isolated-consumer-candidate',passed:true,service,repository:planValue.repository,reviewedBaseSha:base,candidateSourceSha:sha,treeSha:git(['rev-parse','HEAD^{tree}']),lockfileSha256:hash(readFileSync(join(checkout,'pnpm-lock.yaml'))),release:flat(released),expectationsSha256:pin(expectations).sha256,harnessSha256,generationSha256:generationDigest(context),preflightConfigSha256:fingerprint(planValue.config),preflightPlanSha256:preflightPlanDigest(planValue),root:isolated,checkout,output:join(isolated,'output'),archive:pin(archive),fixture:pin(fixturePath),bundle:pin(bundle),plan:pin(plan),artifact,isolation:{passed:true},packageParity:{before:{passed:true},after:{passed:true}},checks:['install','install-frozen','unit','type','lint','build','package','e2e',...(service==='estimate'?['release-integrity','smoke']:[])].map(name=>({name,exitCode:0}))};
+  const receipt=join(isolated,'input/passed.json');put(receipt,candidate);candidate.receipt=pin(receipt);
+  const facts=collectSourceFacts({sourceRoot:checkout,service,repository:candidate.repository,oldReviewedBaseSha:old,newReviewedBaseSha:base});
+  const approval={schemaVersion:1,kind:'reviewed-source-approval',service,repository:candidate.repository,oldReviewedBaseSha:old,newReviewedBaseSha:base,diffSha256:facts.diffSha256,files:facts.files.map(file=>({...file,purpose:'Exact fixture review'})),fixtureSchemaVersion:2,contractVersion:'1',dependencyOnly:true,approvedBy:'synthetic-owner',approvalRef:'synthetic://review',approvedAt:'2020-01-01',adoptBefore:'2021-01-01',revoked:false};
+  const adoption=adoptSourceBase(approval,facts,'2020-06-01');
+  const candidateBinding=Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,candidate[key]]));
+  const handoff={schemaVersion:1,generation,generationSha256:operationalGenerationDigest(generation),sourceApproval:approval,sourceApprovalSha256:fingerprint(approval),sourceAdoption:adoption,sourceAdoptionSha256:fingerprint(adoption),candidateBinding,candidateReceipt:candidate.receipt};
+  const policy={schemaVersion:1,enabled:true,approvedBy:'synthetic-owner',approvalRef:'synthetic://standing',expiresAt:'2099-01-01',services:[service],stopFile:join(root,'STOP'),maxEvidenceAgeSeconds:3600,rollbackApproved:false,rollbackScope:'code-only',patchWindow:{approvedBy:'synthetic-owner',approvalRef:'synthetic://standing',reason:'Reviewed patch window',minVersion:'0.7.2',maxVersion:'0.7.99',contractVersion:'1',startsAt:'2020-01-01',expiresAt:'2099-01-01',services:[service]}};
+  const input={schemaVersion:1,mode:'standing',attemptId:'candidate-1',idempotencyKey:`ui-0.7.2:${service}`,generationSha256:handoff.generationSha256,executionPath,trustedFiles:trusted,release:released,service:{id:service,appId:service==='estimate'?'abestimate':'jev',origin:service==='estimate'?'https://abestimate.naeil.dev':'https://jev.naeil.dev',routes:[{path:'/',policy:'canonical',renderState:{access:'public'}}],verification:{command:{file:executables.node,args:[],timeoutMs:1000}}},policy,candidate,sourceAdoption:adoption};
+  const config={schemaVersion:1,enabled:true,serviceId:service,appId:input.service.appId,origin:input.service.origin,branch:'rollout/standing',worktree,reviewedSourceRevision:old,pnpmVersion:'10.30.3',executionPath,trustedFiles:trusted,stateDirectory:join(root,'state'),artifactDirectory:join(root,'artifacts'),handoff,
+    ...(service==='estimate'?{executables,bridgePath:bridge,bridgeSha256:trusted[bridge],tsxPath:loader,activation:{schemaVersion:1,enabled:true,serviceId:service,appId:'abestimate',nodePath:executables.node,stopFile:policy.stopFile,stateDirectory:join(root,'native-state'),deploymentRoot:join(root,'deploy'),dataDirectory:join(root,'data'),runtimeEnvironmentSha256:{APP_ORIGIN:hash(input.service.origin),NAEIL_SUPABASE_URL:hash('synthetic URL'),NAEIL_SUPABASE_ANON_KEY:hash('synthetic key')}}}:{nodeExecutable:executables.node,nodeVersion:'synthetic',pnpmExecutable:executables.pnpm,pythonExecutable:'/usr/bin/python3',gitExecutable:'/usr/bin/git',native:{},verificationCommand:{file:executables.node,args:[]}})};
+  const adapterConfigPath=join(root,service+'-config.json'),verificationConfigPath=join(root,'verification-config.json');
+  config.handoff.adapterConfigPath=adapterConfigPath;config.handoff.configurationPaths=[adapterConfigPath,verificationConfigPath].sort();put(verificationConfigPath,{schemaVersion:1,synthetic:'verification-only'});
+  const bindConfig=(selectedConfig=config,selectedInput=input)=>{put(adapterConfigPath,selectedConfig);selectedInput.configReferences=config.handoff.configurationPaths.map(pin);selectedInput.configReferencesSha256=fingerprint(selectedInput.configReferences);};bindConfig();
+  return {root,put,pin,git,candidate,input,config,bindConfig,stage:{worktree,branch:'rollout/standing',reviewedSourceRevision:old,git:'/usr/bin/git',gitSha256:trusted['/usr/bin/git'],executionPath,beforeMutation:()=>validateCandidateHandoff(candidate,input,config)},releaseFor,makeArtifact,approval,facts,archives};
+}
+
+test('one operational generation binds exact distinct consumer contexts without receipt/config cycles',()=>{
+  const common={automationSha256:'a'.repeat(64),stateSchemaVersion:2,trustedFiles:{'/runtime/node':'b'.repeat(64)},executionPath:'/runtime:/usr/bin'};
+  const identity={...common,executionContexts:{estimate:common,jev:{...common,executionPath:'/other:/usr/bin'}}};
+  assert.notEqual(generationDigest(identity.executionContexts.estimate),generationDigest(identity.executionContexts.jev));assert.match(operationalGenerationDigest(identity),/^[a-f0-9]{64}$/);
+  for(const patch of [{automationSha256:'c'.repeat(64)},{stateSchemaVersion:3}])assert.throws(()=>operationalGenerationDigest({...identity,executionContexts:{...identity.executionContexts,jev:{...identity.executionContexts.jev,...patch}}}));
+  assert.throws(()=>operationalGenerationDigest({...identity,candidateReceiptSha256:'d'.repeat(64)}));
+});
+for(const service of ['estimate','jev'])test(`${service}: exact approved handoff transfers retained objects and artifact; invalid records reach no native call`,async t=>{
+  const f=handoffFixture(t,service), events=[], run=service==='estimate'?estimateStanding:jevStanding;
+  assert.equal(validateCandidateHandoff(f.candidate,f.input,f.config),f.candidate);
+  const before=f.git(['rev-parse','HEAD'],f.config.worktree);stageCandidate(f.candidate,f.stage);assert.notEqual(f.git(['rev-parse','HEAD'],f.config.worktree),before);assert.equal(f.git(['rev-parse','HEAD'],f.config.worktree),f.candidate.candidateSourceSha);assertCandidateSource(f.candidate,{...f.stage});
+  const deps={native:async(action,request)=>{events.push(action);if(service==='estimate'){const ref=action==='inspect'?request.config.current:request.config.candidate;return {schemaVersion:1,releaseId:request.releaseId,serviceId:service,idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,action,passed:true,nativeReleaseId:ref.releaseId,artifactId:ref.artifactId,...(action==='inspect'?{mutationAttempted:false}:action==='deploy'?{deploymentId:ref.releaseId}:{activated:true,preservationVerified:true})};}return {schemaVersion:1,releaseId:request.release.releaseId,serviceId:service,idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,action,passed:true,safe:true,activated:action==='activate'};},verify:async request=>({schemaVersion:1,releaseId:request.release.releaseId,serviceId:service,idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,phase:request.phase,passed:true,identity:request.expectedIdentity,archiveSha256:request.release.archive.sha256,referenceSha256:request.release.contract.sha256,accountReferenceSha256:request.release.account.sha256,checkedAt:new Date().toISOString(),routes:request.service.routes.map(route=>({path:route.path,routeKey:routeKey(route),passed:true}))}),command:async()=>{throw new Error('Handoff must never run updater/build commands');},update:async()=>{throw new Error('Handoff must never rerun updater');},onError:error=>{deps.error=error;}};
+  // Baseline adoption is separate. Seed only this synthetic root through the
+  // unchanged adoption path; preserve that predecessor for candidate activation.
+  const baseline=f.makeArtifact('0.7.1','d'.repeat(40),'baseline');baseline.storageRef+='?sha256='+baseline.sha256;
+  const priorRelease=f.releaseFor('0.7.1');const adoptInput={...f.input,mode:'adopt',release:priorRelease,idempotencyKey:`ui-0.7.1:${service}`,attemptId:'adopt'};delete adoptInput.candidate;delete adoptInput.sourceAdoption;
+  const adoptConfig={...f.config};delete adoptConfig.handoff;
+  if(service==='estimate'){adoptConfig.currentBaseline=baseline;adoptConfig.baselineRelease={releaseId:priorRelease.releaseId,version:'0.7.1',sourceRevision:priorRelease.sourceRevision,archiveSha256:priorRelease.archive.sha256,referenceSha256:priorRelease.contract.sha256,accountReferenceSha256:priorRelease.account.sha256};}else adoptConfig.baselineArtifact=baseline;
+  assert.equal((await run(adoptInput,adoptConfig,deps)).state,'production-verified',deps.error?.stack);
+  const baselineBytes=readFileSync(join(f.config.stateDirectory,'baseline.json'));
+  const invalid=[i=>{i.candidate={...i.candidate,candidateSourceSha:'f'.repeat(40)};},i=>{i.sourceAdoption={...i.sourceAdoption,reviewedBaseSha:'f'.repeat(40)};},i=>{i.generationSha256='f'.repeat(64);},i=>{i.policy={...i.policy,expiresAt:'2000-01-01'};},i=>{i.policy={...i.policy,revoked:true};},i=>{i.policy={...i.policy,patchWindow:{...i.policy.patchWindow,maxVersion:'0.7.1'}};},i=>{i.configReferencesSha256='f'.repeat(64);},i=>{i.configReferences=i.configReferences.slice(1);i.configReferencesSha256=fingerprint(i.configReferences);}];
+  for(const [index,mutate]of invalid.entries()){events.length=0;const input=structuredClone(f.input);input.attemptId='invalid-'+index;mutate(input);assert.equal((await run(input,f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);assert.deepEqual(readFileSync(join(f.config.stateDirectory,'baseline.json')),baselineBytes);}
+  for(const path of [join(f.candidate.checkout,'pnpm-lock.yaml'),join(f.candidate.checkout,'tests/check.mjs'),f.candidate.artifact.path,JSON.parse(readFileSync(f.candidate.fixture.path)).expectations.path,...f.config.handoff.configurationPaths,join(f.config.worktree,'tests/check.mjs')]) {
+    const original=readFileSync(path);f.put(path,Buffer.concat([original,Buffer.from('changed')]));events.length=0;
+    assert.equal((await run({...f.input,attemptId:'changed-'+hash(path).slice(0,8)},f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);f.put(path,original);
+  }
+  // A different commit with the exact same tree cannot replace the tested SHA.
+  const sameTree=f.git(['commit-tree',f.candidate.treeSha,'-p',f.candidate.candidateSourceSha,'-m','synthetic same-tree substitution']);
+  f.git(['update-ref','refs/heads/fixture',sameTree]);events.length=0;
+  assert.equal((await run({...f.input,attemptId:'same-tree'},f.config,deps)).state,'gate-failed');assert.deepEqual(events,[]);f.git(['update-ref','refs/heads/fixture',f.candidate.candidateSourceSha]);
+  f.put(join(f.config.stateDirectory,'running.lock'),'synthetic unresolved native attempt');events.length=0;
+  assert.equal((await run({...f.input,attemptId:'uncertain-retry'},f.config,deps)).state,'deferred');assert.deepEqual(events,[]);rmSync(join(f.config.stateDirectory,'running.lock'));
+  if(service==='estimate') {
+    assert.equal((await run({...f.input,attemptId:'missing-prior'},f.config,deps)).state,'review-required');assert.deepEqual(events,[]);
+    f.input.reconciliation={priorAttemptId:'changed-'+hash(join(f.config.worktree,'tests/check.mjs')).slice(0,8)};
+  }
+  events.length=0;const result=await run(f.input,f.config,deps);assert.equal(result.state,'production-verified',deps.error?.stack??result.reason);assert.equal(result.artifact.path,f.candidate.artifact.path);assert(events.includes(service==='estimate'?'deploy':'stage'));assert(events.includes('activate'));
+});
+
+test('an adopted exact base supports a later dependency-only release; unadopted or changed source never does', t=>{
+  const f=handoffFixture(t),old=f.candidate,version='0.7.3';
+  f.put(join(old.checkout,'package.json'),{name:'synthetic',scripts:{test:'node tests/check.mjs'},dependencies:{'@naeil/ui':`file:vendor/naeil-ui-${version}.tgz`}});
+  f.put(join(old.checkout,'pnpm-lock.yaml'),dependencyLock(version,'sha512-'+createHash('sha512').update(f.archives[version]).digest('base64')));f.put(join(old.checkout,`vendor/naeil-ui-${version}.tgz`),f.archives[version]);f.git(['add','.']);f.git(['commit','-qm','later dependency-only patch']);
+  const root=join(f.root,'later');mkdirSync(root,{mode:0o700});mkdirSync(join(root,'input'),{mode:0o700});
+  const release=f.releaseFor(version),flat={releaseId:release.releaseId,version,contractVersion:'1',sourceRevision:release.sourceRevision,archiveSha256:release.archive.sha256,chromeSha256:release.contract.sha256,accountSha256:release.account.sha256};
+  const fixture=join(root,'input/fixture.json');f.put(fixture,{...JSON.parse(readFileSync(old.fixture.path)),release:flat,account:release.account});
+  const archive=join(root,'input/ui.tgz');f.put(archive,f.archives[version]);const bundle=join(root,'input/candidate.bundle');f.git(['bundle','create',bundle,'HEAD']);chmodSync(bundle,0o600);
+  const source=f.git(['rev-parse','HEAD']),checkout=join(root,'checkout');f.git(['clone','-q','--no-hardlinks',old.checkout,checkout],root);
+  const planValue={...JSON.parse(readFileSync(old.plan.path)),release:flat,isolatedRoot:root},plan=join(root,'input/approved-plan.json');f.put(plan,planValue);
+  const candidate={...old,root,checkout,release:flat,candidateSourceSha:source,treeSha:f.git(['rev-parse','HEAD^{tree}']),lockfileSha256:hash(readFileSync(join(old.checkout,'pnpm-lock.yaml'))),fixture:f.pin(fixture),archive:f.pin(archive),bundle:f.pin(bundle),plan:f.pin(plan),preflightPlanSha256:preflightPlanDigest(planValue),artifact:f.makeArtifact(version,source,'later-artifact')};delete candidate.receipt;
+  candidate.artifact.storageRef+='?sha256='+candidate.artifact.sha256;const path=join(root,'input/passed.json');f.put(path,candidate);candidate.receipt=f.pin(path);
+  const config=structuredClone(f.config);config.handoff.candidateReceipt=candidate.receipt;for(const key of Object.keys(config.handoff.candidateBinding))config.handoff.candidateBinding[key]=candidate[key];
+  const request={...f.input,release,candidate};f.bindConfig(config,request);assert.equal(validateCandidateHandoff(candidate,request,config),candidate);
+  const invalid=structuredClone(config);invalid.handoff.sourceAdoption=null;invalid.handoff.sourceAdoptionSha256=fingerprint(null);assert.throws(()=>validateCandidateHandoff(candidate,request,invalid));
+  // Even explicitly rebinding the receipt cannot turn application/script edits
+  // into a dependency-only descendant of the adopted base.
+  f.put(join(old.checkout,'tests/check.mjs'),'// new unapproved test code');f.git(['add','.']);f.git(['commit','-qm','unapproved test source']);assert.throws(()=>assertCandidateSource({...candidate,checkout:old.checkout,candidateSourceSha:f.git(['rev-parse','HEAD']),treeSha:f.git(['rev-parse','HEAD^{tree}'])}),/scope|dependency|harness/i);
+});

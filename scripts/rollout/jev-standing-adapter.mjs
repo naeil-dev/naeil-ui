@@ -1,4 +1,6 @@
 import {copyCodeTree} from './consumer-artifact.mjs';
+import { validateCandidateHandoff } from './source-approval.mjs';
+import { assertCandidateSource, stageCandidate } from './consumer-preflight.mjs';
 /**
  * Main provisions service.adapterOptions.standingConfigPath (owned0600 JSON).
  * NAEIL_ROLLOUT_INPUT/OUTPUT carry JSON files; no shell, credentials or inline code.
@@ -240,7 +242,8 @@ export async function createArtifact(input, config, sourceRevision) {
 
 export async function runStanding(input, config, dependencies = {}) {
   const result = { schemaVersion: 1, releaseId: input?.release?.releaseId, serviceId: input?.service?.id, idempotencyKey: input?.idempotencyKey, attemptId: input?.attemptId, state: 'gate-failed', mutationAttempted: false };
-  let lock, directory, state, uncertain = false, mutated = false, storageFault = false, baseline, artifact;
+  let lock, directory, state, uncertain = false, mutated = false, storageFault = false, baseline, artifact, handoff, staged = false;
+  const stageOptions = () => ({worktree:config.worktree,branch:config.branch,reviewedSourceRevision:config.reviewedSourceRevision,git:gitExecutable(config),executionPath:config.executionPath,gitSha256:config.trustedFiles[gitExecutable(config)]});
   const persist = (path, value) => { try { atomic(path, value); } catch (error) { storageFault = true; throw error; } };
   const save = () => { if (directory) persist(join(directory, 'result.json'), { ...result, checkedAt: new Date().toISOString() }); };
   const gate = () => {
@@ -249,6 +252,7 @@ export async function runStanding(input, config, dependencies = {}) {
     assertFrozen(input.release); activePolicy(input, config);
     if (input.release.account) { assert(isAbsolute(input.release.account.path || '') && digest(readFileSync(input.release.account.path)) === input.release.account.sha256, 'Frozen account reference mismatch'); }
     assert(!stopped(input.policy.stopFile), 'Stop switch active');
+    if(handoff) {validateCandidateHandoff(handoff,input,config);if(staged)assertCandidateSource(handoff,stageOptions());}
   };
   try {
     assert(input?.schemaVersion === 1 && input.service?.id === 'jev' && ['adopt', 'standing'].includes(input.mode), 'Jev standing envelope required');
@@ -259,6 +263,10 @@ export async function runStanding(input, config, dependencies = {}) {
     config = { ...config, executionPath: config.executionPath ?? input.executionPath };
     for (const path of [config.worktree, config.nodeExecutable, config.pnpmExecutable, config.pythonExecutable]) assert(isAbsolute(path || ''), 'Absolute configured path required');
     executable(config.verificationCommand); gate();
+    if(input.candidate !== undefined || input.sourceAdoption !== undefined || (config.handoff || input.generationSha256 !== undefined) && input.mode === 'standing') {
+      assert.equal(input.mode,'standing','Source/candidate adoption does not replace baseline adoption');
+      handoff=validateCandidateHandoff(input.candidate,input,config);
+    }
     state = privateDirectory(config.stateDirectory);
     try { lock = openSync(join(state, 'running.lock'), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600); }
     catch (error) { if (error.code === 'EEXIST') return { ...result, state: 'deferred', reason: 'Existing operation or unresolved native uncertainty' }; throw error; }
@@ -302,9 +310,18 @@ export async function runStanding(input, config, dependencies = {}) {
       assert.equal(baseline.production.referenceSha256, baseline.release.contract.sha256); assert.equal(baseline.production.passed, true);
       assert.deepEqual(baseline.artifact.ui, { version: baseline.release.version, contractVersion: baseline.release.contract.version });
       assert.equal(baseline.artifact.packageSha256, baseline.release.archive.sha256, 'Predecessor UI archive mismatch');
+      if(handoff) {
+        gate();result.mutationAttempted=true;
+        const intent={schemaVersion:1,state:'invoked',candidateReceipt:handoff.receipt,sourceAdoptionSha256:config.handoff.sourceAdoptionSha256,generationSha256:config.handoff.generationSha256,candidateSourceSha:handoff.candidateSourceSha};
+        persist(join(directory,'candidate-stage.json'),intent);save();
+        stageCandidate(handoff,{...stageOptions(),beforeMutation:gate});staged=true;
+        persist(join(directory,'candidate-stage.json'),{...intent,state:'completed'});
+        artifact=handoff.artifact;validateArtifact(artifact);
+      }
       await native('inspect', { artifact: baseline.artifact });
       result.predecessorProduction = await verify('adopt', baseline.artifact, baseline.release);
       await native('inspect', { artifact: baseline.artifact, inspection: 'after-predecessor-verification' });
+      if(!handoff) {
       const command = dependencies.command ?? runCommand;
       const env = cleanEnvironment(config);
       const node = await command(config.nodeExecutable, ['--version'], { env, cwd: config.worktree });
@@ -361,6 +378,9 @@ export async function runStanding(input, config, dependencies = {}) {
       assert.deepEqual(manifest(artifact.standalonePath), read(artifact.manifestPath), 'Artifact code changed during browser gates');
       assert.deepEqual(await packageCheck(), installed, 'Installed UI changed during browser gates');
       await sourceCheck(update.sourceRevision);
+      } else {
+        result.artifact=artifact;result.previousArtifact=baseline.artifact;result.candidateReceipt=handoff.receipt;result.sourceAdoptionSha256=config.handoff.sourceAdoptionSha256;save();gate();
+      }
       await native('stage');
       result.state = 'activation-pending'; save();
       gate(); uncertain = true; result.mutationAttempted = true; save();

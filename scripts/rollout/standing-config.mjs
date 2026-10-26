@@ -5,13 +5,14 @@ import { execFile } from 'node:child_process';
 import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
+import { treeDigest } from './preflight-sandbox.mjs';
 
 export const IDS = ['naeil', 'estimate', 'jev'];
 export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestimate.naeil.dev', jev: 'https://jev.naeil.dev' };
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
+export const AUTOMATION_FILES = ['source-approval.mjs', 'consumer-artifact.mjs', 'consumer-preflight.mjs', 'preflight-sandbox.mjs', 'update-consumer.mjs', 'estimate-standing-adapter.mjs', 'jev-standing-adapter.mjs', 'jev-candidate.mjs', 'standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
 const exec = promisify(execFile);
@@ -27,6 +28,56 @@ export function generationDigest(identity) {
   const trustedFiles=Object.entries(identity.trustedFiles).sort(([a],[b])=>a.localeCompare(b));
   for(const [path,digest] of trustedFiles) assert(isAbsolute(path)&&resolve(path)===path&&HEX.test(digest),'Exact generation trusted file pin required');
   return fingerprint({schemaVersion:1,automationSha256:identity.automationSha256,trustedFiles,executionPath:identity.executionPath,stateSchemaVersion:identity.stateSchemaVersion});
+}
+
+/** One scheduler generation binds the two exact consumer execution contexts.
+ * Candidate generationSha256 remains the digest of its selected context. */
+export function operationalGenerationDigest(identity) {
+  assert.deepEqual(Object.keys(identity).sort(), ['automationSha256','trustedFiles','executionPath','stateSchemaVersion','executionContexts'].sort(), 'Unsupported operational generation identity field');
+  const { executionContexts, ...dispatcher } = identity;
+  const dispatcherSha256 = generationDigest(dispatcher);
+  assert.equal(identity.stateSchemaVersion, 2, 'Standing handoff requires state schema2');
+  assert.deepEqual(Object.keys(executionContexts).sort(), ['estimate','jev'], 'Exact consumer execution contexts required');
+  const contexts = Object.fromEntries(['estimate','jev'].map(service => {
+    const context = executionContexts[service];
+    assert.equal(context.automationSha256, identity.automationSha256, 'Execution context automation differs from operational generation');
+    assert.equal(context.stateSchemaVersion, identity.stateSchemaVersion, 'Execution context state schema differs from operational generation');
+    return [service, generationDigest(context)];
+  }));
+  return fingerprint({ schemaVersion: 1, kind: 'standing-operational-generation', dispatcherSha256, executionContexts: contexts });
+}
+
+/** Runtime trees belong to execution contexts, never assertTrustedFiles' regular
+ * executable/helper inventory. Preserve both checks and their separate scopes. */
+export function assertExecutionContext(context) {
+  generationDigest(context);
+  for (const [path, digest] of Object.entries(context.trustedFiles)) {
+    assert.equal(realpathSync(path), path, 'Canonical execution context path required');
+    const stat = lstatSync(path);
+    assert(!stat.isSymbolicLink() && (stat.isFile() || stat.isDirectory()), 'Pinned execution context file/tree required');
+    assert.equal(stat.isDirectory() ? treeDigest(path) : hash(readFileSync(path)), digest, 'Execution context trusted bytes changed');
+  }
+  return context;
+}
+
+/** Configuration records are authorization inputs, not executable generation
+ * pins. The active pointer binds this manifest alongside the top-level config. */
+export function assertConfigReferences(references, sha256, requiredPaths) {
+  assert(Array.isArray(references) && references.length > 0, 'Exact referenced configuration inventory required');
+  assert(HEX.test(sha256) && fingerprint(references) === sha256, 'Referenced configuration inventory digest mismatch');
+  const paths = references.map(ref => {
+    assert.deepEqual(Object.keys(ref).sort(), ['path','sha256','bytes'].sort(), 'Exact configuration reference required');
+    assert(isAbsolute(ref.path) && resolve(ref.path) === ref.path && HEX.test(ref.sha256) && Number.isSafeInteger(ref.bytes) && ref.bytes > 0 && ref.bytes <= JSON_LIMITS.transport, 'Canonical bounded configuration reference required');
+    return ref.path;
+  });
+  assert.deepEqual(paths, [...new Set(paths)].sort(), 'Sorted unique configuration references required');
+  if (requiredPaths !== undefined) assert.deepEqual(paths, requiredPaths, 'Required adapter/verifier configuration inventory mismatch');
+  for (const ref of references) {
+    const bytes = readPrivateBytes(ref.path, JSON_LIMITS.transport);
+    assert.equal(bytes.length, ref.bytes, 'Referenced configuration byte count changed');
+    assert.equal(hash(bytes), ref.sha256, 'Referenced configuration bytes changed');
+  }
+  return references;
 }
 
 export function automationDigest(root) {
@@ -184,6 +235,15 @@ export function validateConfig(config, { automationRoot } = {}) {
   privateDirectory(config.stateDirectory);
   assert(typeof config.executionPath === 'string' && config.executionPath.split(':').every(value => isAbsolute(value) && resolve(value) === value), 'Reviewed explicit execution PATH required');
   assertTrustedFiles(config.trustedFiles);
+  if (config.generation !== undefined) {
+    assert.equal(config.generationSha256, operationalGenerationDigest(config.generation), 'Operational generation binding mismatch');
+    assert.equal(config.generation.automationSha256, config.automation.sha256, 'Operational automation identity mismatch');
+    assert.equal(config.generation.executionPath, config.executionPath, 'Operational dispatcher PATH mismatch');
+    assert.deepEqual(config.generation.trustedFiles, config.trustedFiles, 'Operational dispatcher trusted closure mismatch');
+    assertConfigReferences(config.configReferences, config.configReferencesSha256);
+    for (const ref of config.configReferences) for (const closure of [config.generation.trustedFiles, ...Object.values(config.generation.executionContexts).map(context => context.trustedFiles)]) assert(Object.keys(closure).every(path => ref.path !== path && !ref.path.startsWith(path + '/')), 'Configuration pins cannot enter executable generation closure');
+    for (const context of Object.values(config.generation.executionContexts)) assertExecutionContext(context);
+  } else assert(config.generationSha256 === undefined, 'Unbound operational generation digest');
   assert.deepEqual(Object.keys(config.services).sort(), [...IDS].sort(), 'Scope must be exactly naeil, estimate and jev');
   for (const id of IDS) {
     const service = config.services[id];
