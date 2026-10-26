@@ -1,0 +1,137 @@
+# Standing rollout A implementation plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Preserve the published 0.7.2 release and prepare a verified, explicitly authorized continuation after fixing state storage, independent expectations, consumer preflight, and generation changes.
+
+**Architecture:** Keep public release identity immutable. Separate small durable control state from immutable evidence, reviewed consumer bases from exact candidates, and offline preparation from operational execution. The existing three-service order and native safety gates remain authoritative.
+
+**Tech Stack:** Node ESM and `node:test`, Playwright, Git, pnpm 10.30.3, existing Estimate Node 24.21.0 and Jev native integration, macOS launchd and sandbox-exec for local operational preparation.
+
+**Spec:** [Standing rollout change management](../specs/2026-10-26-standing-rollout-change-management.md)
+
+Direction A was approved by the owner in this session on 2026-10-26. This approves implementation and isolated validation, not deployment operations. The implementation branch starts at `5d95c236bc1fb13877ad7444e6009ccd1c09eede`; main and PR #26 remain unchanged.
+
+## Global Constraints
+
+- Preserve public 0.7.1/0.7.2 archives, tags, releases and references. No package behavior/API changes are planned.
+- Preserve STOP at `~/.local/share/naeil-ui-rollout/STOP`, mode 0600. Never fake its path or add an ignore-STOP mode to operational code.
+- No main merge, robot install/reinstall, live state/policy edit, reconcile, resume, consumer push, npm/Release/tag change, notifier installation or external message is authorized by this plan.
+- Preserve original consumer clones, Estimate commit `c2407a91e00a2507203e2dbd8f2a505bdfd131b9`, candidates and detached worktrees, and all operations evidence. Consumer changes use new local clones; source objects and candidate artifacts are retained.
+- Only naeil → Estimate → Jev. Keep native ownership/data/marker/ledger checks, route/account/guard tests, exact package parity and frozen independent render references. Never replay uncertain native work.
+- Private settings are read-only; never put their contents, account data or tokens in logs, patches or PRs. Repository fixtures are synthetic or public immutable data.
+- All mutation-capable new operational entrypoints require recorded exact authorization, current trusted bytes, STOP/quiescence where appropriate, and fail closed. Tests run against temporary roots and fake services.
+- `reviewedMigration` retains the original published release tuple and expiration `2026-11-01T21:00:00Z`; do not silently extend it. Source-base adoption is provenance, not release execution authority.
+- Sequential implementation ownership; root reviews/integrates every task. An implementer may not spawn agents. No Paseo restart is needed.
+
+## Review Focus
+
+- State writes larger than their own readers, crash between intent and invocation, and stale reverify attempts: no child launch without a durable bound intent, no automatic replay of uncertain work (Tasks 1, 6).
+- Same-count wrong menus, hidden duplicates and approved local routing overrides: compare independently approved exact content, preserve focus/theme/guard checks (Tasks 2, 3).
+- An apparently isolated test invoking a native script, accessing secrets or connecting to a running app: enforce OS isolation, and fail if isolation cannot be established (Task 4).
+- Equivalent trees with different commits, rebuilt artifacts and expired approvals: exact candidate transfer and explicit revalidation, separate adoption from execution expiration (Tasks 4, 5).
+- Old r5 waking during cutover, active-pointer/journal disagreement, or main moving after site verification: fence the old scheduler and block until exact current evidence is available (Tasks 6, 7).
+
+## Common interfaces and budgets
+
+- Private JSON limits in bytes: control index 262144, individual evidence/transport 2097152, summary/monitor/operator status 262144, offline legacy input 16777216. `atomicJSON(path, value, maxBytes)` checks serialized bytes before opening/writing; default is 2097152, matching `readPrivateJSON`.
+- v2 state has a small atomic root and content-addressed immutable evidence. Long catalogs/history use bounded pages; root size does not grow with receipt payloads or history. Old requests/results and bindings are preserved, never rewritten as new attempts. Pending intent is fsynced before child launch. Recent summaries include at most 20 releases; archived history remains inspectable.
+- Reference object: `{path, sha256, bytes}`. All readers verify regular owned single-link files, canonical path, mode, bound and digest. New evidence stays under its epoch root. Legacy evidence roots use a separately hash-pinned inventory of exact old relative paths/digests/sizes; no arbitrary external-path allowance.
+- Independent expectation schema 1 binds releaseId/version/contract/source/archive/chrome/account digests plus exact locale catalogs and a declared layout. Routing profiles are exact reviewed input; executable callbacks/selectors/commands are not expectation data. Future unsupported versions fail closed.
+- `candidate` binds service/repository, reviewedBaseSha, candidateSourceSha, treeSha, lockfileSha256, release identity, expectation/harness digests, generation digest, artifact reference and completed checks. Candidate commits are created once and transferred by Git object/bundle; no updater rerun after preflight.
+- `sourceApproval` binds exact old/new base, repository/service, reviewed diff digest, allowed file list/purpose, schema/contract, approver/reference and adoption expiration. An adopted exact base can support later dependency-only releases while current execution authorization remains valid.
+- Generation active pointer atomically binds generation ID, code/config digest and state root/epoch. Transition journal records exact old/new pointer, plan digest and phase. A control lock and old-launcher fencing protect the entire transition; STOP alone is insufficient.
+
+### Task 1: Bounded state, offline import and local observation
+
+**Files:** Create `scripts/rollout/standing-state.mjs`, `standing-state.test.mjs`; modify `standing-config.mjs`, `standing-dispatcher.mjs`, `standing-monitor.mjs` and their corresponding tests. Add the new executable module to `AUTOMATION_FILES`.
+
+**Interfaces:** Produce `readStandingState(directory, options = {})`, `writeStandingState(directory, state)`, `importLegacyState({sourcePath, expectedSha256, destination, epochId, evidenceRoot})`, `readOperatorStatus(config)` and `assertEvidencePath(config, path)`. Existing dispatcher in-memory release/service fields may remain; stored v2 root is distinct. `options.allowLegacy` is read-only and bounded at 2 MiB; poll never silently imports a legacy state. Import consumes an exact at-most-16-MiB source snapshot into a new empty private directory, returning a manifest with old hash/new index hash/evidence inventory hash. Record historical arrays as immutable paged history rather than repeatedly hydrating/rewriting all old attempts; latest request/result and latest successful reverification remain directly available to the dispatcher. Export `JSON_LIMITS` for subsequent tasks.
+
+- [ ] Write failing tests for a synthetic 2,926,952-byte legacy state: ordinary reader rejects, offline importer preserves its SHA and every prior binding/attempt, v2 index stays under 262144 bytes and can be read, original absolute receipts validate only through the exact inventory. Reject wrong hash, 16-MiB overflow, symlink, nonempty destination, path escape and changed evidence.
+- [ ] Write failing boundary tests for each JSON budget (limit accepted, limit+1 rejected before replacement), large repetitive reverification/history growth, STOP plus malformed/oversize state, monitor using v2/operator status, and simulated interruption before/after durable intent. Assert adapter calls are zero on any storage failure and interrupted verification is never replayed.
+- [ ] Implement bounded serialization, immutable content-addressed evidence and paged catalogs/history with fsync before root replacement. Avoid changing immutable prior request/result data. Use a validated versioned encoding; reject unknown types/schema, duplicate keys/references, traversal and mismatched bytes. Keep only recent/active monitor dedup entries and archive cleared history without an unbounded JSON list.
+- [ ] Integrate dispatcher state reads/writes and receipt validation. Inspect reports STOP intent and state error separately without invoking adapters; poll may write a bounded operator-status error but must not rewrite unreadable state. Existing healthy v1 needs explicit import before poll. Preserve blocked reason while stopped. Monitor does not depend on hydrating the entire state, does not install or send new notifications, and retains existing documented timing defaults.
+- [ ] Run `node --test scripts/rollout/standing-{config,state,dispatcher,monitor}.test.mjs`; expect all tests to pass. Inspect actual root/evidence bytes in tests, not only return objects. Commit code/tests with a scoped message and record red/green commands.
+
+### Task 2: Independent release expectations and exact menu verification
+
+**Files:** Create `scripts/rollout/release-expectations.mjs`, `release-expectations.test.mjs`, `expectations/0.7.1.json`, `expectations/0.7.2.json`; modify `scripts/verify-ui-production.mjs`, its test, `scripts/rollout/standing-verification.mjs`, its test, and `standing-config.mjs` closure. Add a real browser negative test in the existing test layout if node:test cannot host Playwright cleanly.
+
+**Interfaces:** Produce `loadReleaseExpectations(release, {profile} = {})` (validates frozen tuple and returns immutable normalized data), `expectedProjects(expectations, locale, origin)` and `assertProjectCatalog(actual, expected, layout)`. `checkMenu(page, locale, theme, chrome, expectations)` receives independent expected data. `verifyProduction` resolves/validates expectations once; reference capture is an explicitly separate preparation mode and may not invent standing expected data from live DOM. Routing profile is supplied through reviewed route chrome configuration and included in route binding.
+
+- [ ] Read exact public .7.1/.7.2 release manifests and package source data to author compatibility JSON with approval/source citations. Do not modify those assets. Pin five .7.1 IDs/order/names/URLs/images and the .7.2 `design` entry for ko/en/ja. Document precisely the actual one-column .7.2 layout and supported canonical/consumer routing profiles.
+- [ ] Add failing tests rejecting unknown version/schema, wrong source/archive/reference/account digest, duplicate/empty/missing locale data and unapproved route overrides. Actual DOM negative cases with fixed expected input must reject deletion, addition, reordering, same-count wrong URL/name/image, hidden duplicate and wrong column geometry.
+- [ ] Implement exact extraction/comparison without using observed DOM as expected. Keep theme switching, Escape focus restoration, target size/overflow checks, frozen geometry and account behavior. Preserve existing explicit supported routing overrides using reviewed profiles.
+- [ ] Run relevant Node tests and real Chromium cases for .7.1 and .7.2, both mobile/desktop, locales and themes affected by catalog/layout. Commit data/verifier/tests; record actual browser commands and results.
+
+### Task 3: Explicit Estimate and Jev fixture APIs in preserved local source branches
+
+**Files:** In new local consumer clones only: Estimate `tests/fixtures/standing-ui-reference.mts`, `tests/server/standing-ui-reference.test.ts`, `tests/e2e/shared-header.spec.ts`, `tests/e2e/navigation-composition.spec.ts`; Jev `tests/e2e/shared-chrome.spec.ts`, `tests/e2e/account-control.spec.ts`, new `tests/fixtures/standing-ui-reference.mjs`, new `tests/unit/standing-ui-reference.test.ts` and selected-candidate helper only if needed. Repository `scripts/rollout/jev-candidate.mjs` and tests may gain explicit schema support while retaining exact old-source compatibility. The read-only consumer map records Jev base `e1f1cee27b90bd516b58797b4efadb697ea23a8c`.
+
+**Interfaces:** `NAEIL_UI_STANDING_FIXTURE` provides schema 2 fixture with release tuple, account reference, independent expectations and reviewed routing profile. Standing mode rejects missing/mismatched fixture. Ordinary development uses an explicit reviewed fixture pinned in the consumer source. Existing legacy harness stays available only for its current exact source/fixture hash; new schema must not use string replacement.
+
+- [ ] Create independent local clones from preserved original Git objects. Estimate descends from `c2407a9`; record Jev exact base. Read each repository's instructions before editing. No checkout/reset/stash/push in originals. Record old/new SHA correspondence and exact diff/file hashes privately.
+- [ ] Write meaningful failing fixture-reader tests (missing, digest/schema mismatch, wrong account/catalog), then update only the content-dependent menu expectations. Use an actually present expected project for guard actions. Keep dirty/save/cancel, modified click, navigation, auth/account/busy-lock, keyboard and responsive tests intact.
+- [ ] Implement explicit fixture reading for Jev and remove literal rewriting only on the new approved-source path. Do not call Jev's old freeze-candidate command, which pins .7.1 and writes to shared operations.
+- [ ] Run consumer reader/unit checks available without production access, review the exact source diff, and create local commits. Record source-approval drafts with exact diff digest and sensitive build/ops/script change inventory. Actual full isolated tests are Task 4. Commit only naeil-ui harness changes to this branch; no consumer push.
+
+### Task 4: STOP-safe exact candidate preparation and isolated preflight
+
+**Files:** Create `scripts/rollout/consumer-preflight.mjs`, `consumer-preflight.test.mjs`, `preflight-sandbox.mjs`, `preflight-sandbox.test.mjs`; extract narrowly shared pure candidate/build/packaging helpers from `update-consumer.mjs`, `estimate-standing-adapter.mjs`, `jev-standing-adapter.mjs`, `jev-candidate.mjs` if required, with corresponding tests. Update automation closure. Consumer harness changes stay on their local branches.
+
+**Interfaces:** Produce `prepareCandidate(input, dependencies = {})`, `runPreflight(candidate, config, dependencies = {})`, `assertCandidate(candidate, binding)` and a CLI taking explicit private input/output under an isolated root. It accepts release/source/build/test settings, never a live native config or deployment policy. Result schema 1 is the exact candidate interface above plus check receipts, package file parity and isolation attestation. Failed stages retain evidence but cannot yield a reusable passed receipt.
+
+- [ ] Add failing tests: STOP exists and all stages work in an isolated root; attempted outside writes/private reads/native command and production network access fail; native/operational file writes remain zero. Deny symlink escapes, inherited secrets, unsupported OS sandbox and unapproved executable changes. Never fall back to unsandboxed execution.
+- [ ] Extract the minimal dependency-only transformation from updater without changing operational authorization gates. Prepare one candidate commit, pin tree/lockfile/source, bundle it, and test that subsequent validation never creates another commit. If release bytes are already exact (Estimate), candidate may equal the reviewed base.
+- [ ] Enforce OS sandbox around build/test/package subprocesses with only the isolated checkout/data/cache/output writable. Runtime, credentials, live operations roots and native lifecycle are inaccessible. Dependency download is a separate constrained install stage with scripts disabled; build/E2E use loopback-only networking and temporary ports/data. Explicitly verify sandbox enforcement before consumer execution. Never silently weaken it for convenience.
+- [ ] Run existing pinned unit/type/lint/build commands, compare installed frozen package bytes before/after build, package immutable artifact using existing pure helpers, run the actual selected consumer E2E against that artifact, and retain same-byte source/artifact/fixture receipts. Rebuild invalidates artifact-level test receipts. Collect exit/result hashes, not sensitive test content.
+- [ ] Run Node sandbox/candidate tests, then actual isolated Estimate and Jev preflights from Task 3. Review any failure before changing code/tests. Commit source/tests; save private exact candidate manifests and local consumer commit IDs for the final transition proposal.
+
+### Task 5: Reviewed base adoption and exact candidate handoff to native adapters
+
+**Files:** Create `scripts/rollout/source-approval.mjs`, `source-approval.test.mjs`; modify both standing adapters/tests, `standing-config.mjs` and candidate helper from Task 4.
+
+**Interfaces:** Produce `validateSourceApproval(approval, facts, now)`, `adoptSourceBase(approval, facts, now)` (returns a record; caller owns durable storage) and `validateCandidateHandoff(candidate, request, config)`. Optional request `candidate`/`sourceAdoption` carries exact approved bytes, never authorizes itself. New-generation adapter config binds approved adoption and candidate receipt digests. Existing native `reviewedMigration` request tuple stays unchanged.
+
+- [ ] Add failing tests for expired/unadopted approvals, foreign service/repository, changed scripts/diff/hash, unsupported fixture/contract and unapproved source. An exact base adopted in time is reusable for a later dependency-only patch, but expired/revoked execution authority and out-of-window release still fail.
+- [ ] Verify source ancestry and semantic package/lock/vendor-only delta against adopted base. Reject same-tree/different-SHA candidate substitution, changed lock/artifact/harness/reference, dirty checkout and evidence from another generation. Transfer exact Git objects without invoking updater again; if rebuilding is requested, require fresh package/identity/E2E evidence for new artifact bytes.
+- [ ] Integrate handoff before native mutation while preserving current baseline, predecessor identity, owned locks, Estimate same idempotency key/new attempt with exact priorAttemptId, and existing bridge trust/data gates. Never rewrite native ledger/baseline during base adoption or candidate staging.
+- [ ] Run source/candidate and both adapter suites, including native-call spies on all invalid handoffs and uncertain attempts. Commit verified changes.
+
+### Task 6: Explicit generation continuation, fencing and crash-safe cutover
+
+**Files:** Create `scripts/rollout/standing-transition.mjs`, `standing-transition.test.mjs`, `standing-launcher.mjs`, `standing-launcher.test.mjs`; modify state/config/dispatcher tests and `docs/rollout/standing-rollout.md` operational instructions.
+
+**Interfaces:** Produce `planTransition(input)` (pure reviewable exact diff), `applyTransition(plan, approval, dependencies = {})` (operational, never run on live roots in this task), `readActiveGeneration(controlDirectory)` and `runActiveGeneration(controlDirectory, dependencies = {})`. Plan links old/new automation, authorization, source adoptions, candidate receipts, imported epoch, prior Estimate attempt and verified predecessor. Only exact .7.2 continuation/retry-after-proven-source-gate-failure is implemented; no generic rebind/skip/supersede CLI.
+
+- [ ] Add tests rejecting old scheduler still enabled/registered, any matching dispatcher/adapter/child process, lock/native marker, uncertain/nonterminal ledger, changed public predecessor, expired authorization and changed snapshot/plan digest. Built-in production probes use pinned OS tools; caller booleans are insufficient proof of quiescence. The apply tool does not disable/install launchd itself.
+- [ ] Implement one exclusive control lock, STOP presence check, old-launcher re-entry fencing proof, exact source snapshot check, staged fresh epoch and atomic active pointer binding generation/config/state root. Check fsync barriers and exact immutable references. A phase journal precedes each irreversible transition boundary; retain old pointer/files and all failed attempts. An incomplete transition always prevents polling.
+- [ ] Link source-only failed Estimate attempt to a new generation/authorization/attempt without editing old binding, request or native ledger. The old release/service idempotency key remains; `reconciliation.priorAttemptId` is the original proved failure. Jev remains unstarted; naeil old verified receipt is retained and must be freshly valid before a consumer starts.
+- [ ] Test crashes at every journal/pointer boundary, two competing cutovers, stale worker fence and old-r5 launch attempts. Recovery is explicit, deterministic and leaves STOP intact; no automatic replay or stale-lock deletion. New launcher writes bounded start/end/exit heartbeat independently of dispatcher state and refuses pending transition or mismatched pointer.
+- [ ] Run transition/launcher/state/dispatcher/adapter tests. Document exact prerequisites and which operations still need owner approval. Commit code/tests/docs; do not invoke live transition, install, reconcile or resume.
+
+### Task 7: Exact site continuation and STOP-safe read-only site validation
+
+**Files:** Create `scripts/rollout/site-continuation.mjs`, `site-continuation.test.mjs`; modify `naeil-standing-observer.mjs`, `standing-dispatcher.mjs`, `standing-verification.mjs`, tests and closure.
+
+**Interfaces:** Produce `resolveSiteTarget(release, approval)` and `validateSiteReadOnly(request, options)`. `siteTarget` contains exact source/deployment ID, new source archive/runtime proof and approval digest. Absent approval, only original published target is valid. Read-only verification writes only its separate evidence/session cache and never dispatcher/native state. Original release/siteArchive fields passed to native/Python remain unchanged.
+
+- [ ] Test new SHA without approval, wrong ancestry/full-diff/proof, non-push/wrong-SHA CI, untrusted Git/Vercel provenance, wrong deployment/live identity and expired protected/public evidence. Test cached old request is not reused for a different site target, even when package runtime is identical.
+- [ ] Validate approved exact target consistently in observer, dispatcher result checks, fresh and cached revalidation, and immediately before native dispatch. Preserve old successful receipt; append current site head/evidence. Current site remains original SHA while PRs are unmerged, so no fabricated continuation approval is needed for today's read-only verification.
+- [ ] Add explicit STOP-safe read-only site entrypoint with the same provenance/browser checks and existing approved session refresh behavior. Do not add ignoreStop to operational observer/verifier or pass fake policy to it. Validate session/profile/routes are exact trusted input.
+- [ ] Run observer/site/dispatcher/verification tests, then authorized read-only current-site provenance and protected/public checks when credentials are available. Record gaps truthfully without claiming unit tests prove live behavior. Commit verified changes.
+
+### Task 8: Integration review, operational staging and PR
+
+**Files:** Update `docs/rollout/standing-rollout.md`, relevant `automation.md` reviewedMigration/source/expectation guidance, approved spec status and this plan's completion evidence. Private operations folder holds transition inputs/reports; minimally append the handoff. No private artifacts enter Git.
+
+- [ ] Run `pnpm test:rollout`, `python3 -B scripts/rollout/jev-native.test.py`, `pnpm check:types`, `pnpm lint` and tests affected by new modules. Do not re-run unchanged package/Storybook release qualification merely to repeat existing evidence. Run targeted actual browser negative tests and consumer preflight checks from earlier tasks after any relevant fixes.
+- [ ] Have two independent models review the integrated change and implementation evidence; at least one must assess crash/authorization boundaries. Root verifies every material finding, fixes defects and rechecks affected tests. All preserved old files/commits and STOP mode/hash must still match their recorded values.
+- [ ] Import the exact preserved oversized snapshot into a new private staging directory, produce source approvals and generation plan drafts with real candidate/receipt/automation hashes. Mark unapproved fields and unavailable future main/Vercel proof explicitly. Never put placeholder evidence into an executable approval. A plan is not rollout success.
+- [ ] Push only the naeil-ui feature branch and create a draft PR linked to #27, describing final behavior/limits and actual validation. Do not merge #26/#27/new PR. Watch required checks and fix relevant failures within scope.
+- [ ] Report Korean outcome, why it changed, tests, remaining constraints, artifact locations and the next exact operational approval needed. Include a concrete proposed cutover/resume sequence and current expiry, with STOP remaining. Minimally update private handoff and preserve operations reports.
+
+## Completion boundary
+
+Implementation is complete only when the reviewable code, actual isolated consumer evidence, importer output and exact proposed transition are available, or a specific external blocker is evidenced after independent work is exhausted. Operational completion of .7.2 is a later explicitly approved step; do not describe a draft PR or simulated native tests as a deployment.
