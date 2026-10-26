@@ -8,6 +8,7 @@ import test from 'node:test';
 import { assertServiceResult, inspect, poll, reconcile } from './standing-dispatcher.mjs';
 import { atomicJSON, automationDigest, hash, IDS, invokeJSON, ORIGINS, readPrivateJSON, routeKey, validateConfig } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
+import { readStandingState, writeStandingState } from './standing-state.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -57,7 +58,7 @@ function fixture(t, patches = [1]) {
     const value = JSON.parse(data.get(asset.browser_download_url)); change(value);
     const bytes = Buffer.from(JSON.stringify(value)); data.set(asset.browser_download_url, bytes); asset.size = bytes.length; asset.digest = `sha256:${hash(bytes)}`;
   };
-  return { directory, config, github, invoke, calls, releases, data, changeManifest, state: () => readPrivateJSON(join(stateDirectory, 'state.json')) };
+  return { directory, config, github, invoke, calls, releases, data, changeManifest, state: () => JSON.parse(JSON.stringify(readStandingState(stateDirectory))) };
 }
 
 function success(request) {
@@ -125,7 +126,7 @@ test('native failure stops next service and release; uncertain command never rep
 
 test('crash marker and existing dispatcher lock never cause automatic replay or lock stealing', async t => {
   const f = fixture(t);
-  atomicJSON(join(f.config.stateDirectory, 'state.json'), { schemaVersion: 1, repository: f.config.repository, currentVersion: null, releases: { '1': { releaseId: 'ui-0.7.1', services: { estimate: { state: 'invoking' } } } } });
+  writeStandingState(f.config.stateDirectory, { schemaVersion: 1, repository: f.config.repository, currentVersion: null, releases: { '1': { releaseId: 'ui-0.7.1', services: { estimate: { state: 'invoking', request: { attemptId: 'interrupted-fixture' } } } } } });
   assert.equal((await poll(f.config, f)).reasonCode, 'interrupted-invocation'); assert.equal(f.calls.length, 0);
   const lock = fixture(t), lockPath = join(lock.config.stateDirectory, 'dispatcher.lock'); writeFileSync(lockPath, '{}', { mode: 0o600 });
   await assert.rejects(poll(lock.config, lock)); assert(existsSync(lockPath)); assert.equal(lock.calls.length, 0);
@@ -216,7 +217,7 @@ test('STOP and stale cached production prevent later app dispatch without replay
   const stale = fixture(t), invoke = stale.invoke; let deferred = true;
   stale.invoke = async (command, request) => request.service.id === 'estimate' && deferred ? { ...success(request), state: 'deferred', mutationAttempted: false } : invoke(command, request);
   await poll(stale.config, stale);
-  const state = stale.state(); state.releases['1'].services.naeil.result.production.checkedAt = '2000-01-01T00:00:00Z'; atomicJSON(join(stale.config.stateDirectory, 'state.json'), state);
+  const state = stale.state(); state.releases['1'].services.naeil.result.production.checkedAt = '2000-01-01T00:00:00Z'; writeStandingState(stale.config.stateDirectory, state);
   deferred = false; stale.verify = async (_command, request) => success(request).production;
   assert.equal((await poll(stale.config, stale)).state, 'complete'); assert.equal(stale.calls.length, 3);
 });
@@ -240,7 +241,7 @@ test('F3 regression: stale cached evidence is reverified without replaying the a
   assert.equal((await poll(f.config, f)).state, 'deferred');
   const state = f.state();
   state.releases['1'].services.naeil.result.production.checkedAt = new Date(Date.now() - (f.config.policy.maxEvidenceAgeSeconds + 60) * 1000).toISOString();
-  atomicJSON(join(f.config.stateDirectory, 'state.json'), state);
+  writeStandingState(f.config.stateDirectory, state);
   const prior = structuredClone(state.releases['1'].services.naeil.result);
   f.verify = async (_command, request) => success(request).production;
   const result = await poll(f.config, f);
@@ -277,7 +278,7 @@ for (const status of ['disabled', 'authorization-expired', 'stopped']) test('F8 
   if (status === 'authorization-expired') f.config.policy.expiresAt = '2000-01-01';
   if (status === 'stopped') writeFileSync(f.config.policy.stopFile, 'STOP');
   const first = await poll(f.config, f); assert.equal(first.state, status); assert(first.since); assert(!f.state().blocked);
-  const saved = f.state(); saved.observedAt = '2000-01-01'; atomicJSON(join(f.config.stateDirectory, 'state.json'), saved);
+  const saved = f.state(); saved.observedAt = '2000-01-01'; writeStandingState(f.config.stateDirectory, saved);
   const second = await poll(f.config, f); assert.equal(second.since, first.since); assert.notEqual(f.state().observedAt, saved.observedAt);
   assert.deepEqual(readPrivateJSON(join(f.config.stateDirectory, 'summary.json')), second);
   assert.equal(network, 0); assert.equal(f.calls.length, 0);
@@ -301,7 +302,7 @@ test('F3 fresh identity or binding failure during re-verification blocks without
     const saved = f.state(), prior = saved.releases['1'].services.naeil;
     prior.result.production.checkedAt = '2000-01-01';
     if (failure === 'cached-binding') prior.result.production.accountReferenceSha256 = 'f'.repeat(64);
-    atomicJSON(join(f.config.stateDirectory, 'state.json'), saved);
+    writeStandingState(f.config.stateDirectory, saved);
     let checks = 0;
     f.verify = async (_command, request) => {
       checks++; assert.equal(readPrivateJSON(join(f.config.stateDirectory, 'summary.json')).state, 'cached-evidence-expired');
@@ -325,7 +326,7 @@ test('F3 successive read-only refreshes append receipts and use new private atte
   const path = join(f.config.stateDirectory, 'state.json');
   for (let index = 0; index < 2; index++) {
     const saved = f.state(), prior = saved.releases['1'].services.naeil;
-    (index ? prior.reverifications.at(-1).production : prior.result.production).checkedAt = '2000-01-01'; atomicJSON(path, saved);
+    (index ? prior.reverifications.at(-1).production : prior.result.production).checkedAt = '2000-01-01'; writeStandingState(f.config.stateDirectory, saved);
     assert.equal((await poll(f.config, f)).state, 'deferred');
   }
   const prior = f.state().releases['1'].services.naeil;
@@ -423,4 +424,86 @@ test('F2 reconciliation refuses uncertain, runtime-mutated or conflicting Estima
     await assert.rejects(reconcile(f.config, 'ui-0.7.1', 'estimate', 'retry-pre-mutation', ownerResolution), /Estimate ledger/); assert.deepEqual(readFileSync(path), before);
   }
   atomicJSON(ledger, bound); await reconcile(f.config, 'ui-0.7.1', 'estimate', 'retry-pre-mutation', ownerResolution); assert(!f.state().blocked);
+});
+
+test('STOP intent and malformed/oversize/healthy legacy state errors remain separate without adapter or network calls', async t => {
+  for (const content of ['{broken', ' '.repeat(2097153), JSON.stringify({ schemaVersion: 1, repository: 'naeil-dev/naeil-ui', releases: {} })]) {
+    const f = fixture(t); let network = 0; f.github.releases = async () => { network++; return []; };
+    writeFileSync(f.config.policy.stopFile, 'STOP', { mode: 0o600 });
+    const path = join(f.config.stateDirectory, 'state.json'); writeFileSync(path, content, { mode: 0o600 });
+    const before = readFileSync(path); await assert.rejects(poll(f.config, f), /storage/i);
+    const observation = await inspect(f.config, { fetchImpl: () => { throw Error('No fetch for unreadable state'); } });
+    assert.equal(observation.operatorStatus.intent, 'stopped'); assert(observation.operatorStatus.stateError);
+    const status = readPrivateJSON(join(f.config.stateDirectory, 'operator-status.json'));
+    assert.equal(status.intent, 'stopped'); assert.equal(status.stateError, content.length > 262144 ? 'state-too-large' : 'state-unreadable');
+    assert.deepEqual(readFileSync(path), before); assert.equal(f.calls.length, 0); assert.equal(network, 0);
+  }
+});
+
+test('storage failures before durable intent prevent all adapter calls', async t => {
+  for (const fail of ['evidence-directory', 'root-limit', 'transport-limit']) {
+    const f = fixture(t);
+    if (fail === 'evidence-directory') writeFileSync(join(f.config.stateDirectory, 'evidence'), 'not a directory', { mode: 0o600 });
+    if (fail === 'root-limit') assert.throws(() => writeStandingState(f.config.stateDirectory, { schemaVersion: 1, repository: f.config.repository, releases: {}, blocked: { reasonCode: 'x'.repeat(262144) } }));
+    if (fail === 'transport-limit') { f.config.services.naeil.adapterOptions.padding = 'x'.repeat(2097152); }
+    if (fail !== 'root-limit') await assert.rejects(poll(f.config, f));
+    assert.equal(f.calls.length, 0);
+  }
+});
+
+test('interrupted durable verification intent never replays verifier or any adapter', async t => {
+  const f = fixture(t), original = f.invoke;
+  f.invoke = async (command, request) => request.service.id === 'estimate' ? { ...success(request), state: 'deferred', mutationAttempted: false } : original(command, request);
+  await poll(f.config, f);
+  const saved = f.state(), prior = saved.releases['1'].services.naeil;
+  prior.verificationIntent = { state: 'invoking', request: { ...prior.request, attemptId: 'interrupted-verify' } };
+  writeStandingState(f.config.stateDirectory, saved);
+  let verifies = 0; f.verify = async () => { verifies++; throw Error('Must not run'); };
+  assert.equal((await poll(f.config, f)).reasonCode, 'interrupted-verification');
+  assert.equal((await poll(f.config, f)).reasonCode, 'interrupted-verification');
+  assert.equal(verifies, 0); assert.equal(f.calls.length, 1);
+});
+
+test('crash before root replacement retains bound orphan intent and blocks a later poll', async t => {
+  const f = fixture(t); await poll(f.config, { ...f, github: { ...f.github, releases: async () => [] } });
+  const saved = f.state(); saved.releases['1'] = { releaseId: 'ui-0.7.1', services: { naeil: { state: 'invoking', request: { attemptId: 'orphan', value: 'exact request' } } } };
+  // Force evidence failure after the separately fsynced intent marker.
+  const evidence = join(f.config.stateDirectory, 'evidence'); rmSync(evidence, { recursive: true }); writeFileSync(evidence, 'obstruction', { mode: 0o600 });
+  assert.throws(() => writeStandingState(f.config.stateDirectory, saved), /storage/i);
+  const marker = readPrivateJSON(join(f.config.stateDirectory, 'pending-intent.json'));
+  assert.equal(marker.intents[0].attemptId, 'orphan'); assert.equal(marker.intents[0].requestSha256, hash(Buffer.from(JSON.stringify(saved.releases['1'].services.naeil.request, null, 2) + '\n')));
+  await assert.rejects(poll(f.config, f)); assert.equal(f.calls.length, 0);
+});
+
+test('legacy active reverificationAttempt is never replayed after a restart', async t => {
+  const f = fixture(t);
+  writeStandingState(f.config.stateDirectory, { schemaVersion: 1, repository: f.config.repository, releases: { '1': { releaseId: 'ui-0.7.1', services: { naeil: { state: 'production-verified', reverificationAttempts: [{ state: 'invoking', request: { attemptId: 'old-pending-verify' } }] } } } } });
+  let checks = 0; f.verify = async () => { checks++; };
+  assert.equal((await poll(f.config, f)).reasonCode, 'interrupted-verification'); assert.equal(f.calls.length, 0); assert.equal(checks, 0);
+});
+
+test('malformed pending intent blocks all dispatch even with a readable root', async t => {
+  const f = fixture(t); writeStandingState(f.config.stateDirectory, { schemaVersion: 1, repository: f.config.repository, releases: {} });
+  atomicJSON(join(f.config.stateDirectory, 'pending-intent.json'), { schemaVersion: 99, ignored: true });
+  await assert.rejects(poll(f.config, f), /storage/i); assert.equal(f.calls.length, 0);
+});
+
+test('schema2 completion receipt survives a crash before cursor persistence without replacing bytes or invoking services', async t => {
+  const f = fixture(t); await poll(f.config, f);
+  const path = join(f.config.stateDirectory, 'runs', '1', 'receipt.json'), before = readFileSync(path), receipt = readPrivateJSON(path);
+  assert.equal(receipt.schemaVersion, 2); assert(receipt.evidence.path.startsWith('evidence/')); assert.equal(receipt.evidence.sha256, hash(readFileSync(join(f.config.stateDirectory, receipt.evidence.path))));
+  const state = f.state(), completedAt = state.releases['1'].completedAt; state.currentVersion = null; state.lastState = 'running'; writeStandingState(f.config.stateDirectory, state);
+  const result = await poll(f.config, f); assert.equal(result.currentVersion, '0.7.1'); assert.equal(f.calls.length, 3);
+  assert.equal(f.state().releases['1'].completedAt, completedAt); assert.deepEqual(readFileSync(path), before);
+});
+
+test('a retained completion receipt with different binding/evidence blocks finalization without replacement or calls', async t => {
+  for (const field of ['binding', 'evidence']) {
+    const f = fixture(t); await poll(f.config, f);
+    const path = join(f.config.stateDirectory, 'runs', '1', 'receipt.json'), receipt = readPrivateJSON(path);
+    if (field === 'binding') receipt.binding = 'foreign-binding'; else receipt.evidence = { path: `evidence/${'f'.repeat(64)}.json`, sha256: 'f'.repeat(64), bytes: 10 };
+    atomicJSON(path, receipt); const before = readFileSync(path);
+    const state = f.state(); state.currentVersion = null; writeStandingState(f.config.stateDirectory, state);
+    assert.equal((await poll(f.config, f)).state, 'blocked'); assert.equal(f.calls.length, 3); assert.deepEqual(readFileSync(path), before);
+  }
 });

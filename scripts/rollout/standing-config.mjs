@@ -10,7 +10,7 @@ export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestima
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs'].map(name => `scripts/rollout/${name}`);
+export const AUTOMATION_FILES = ['standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs'].map(name => `scripts/rollout/${name}`);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
 const exec = promisify(execFile);
@@ -46,14 +46,22 @@ export function readPrivateJSON(path, maxBytes = 2 * 1024 * 1024) {
   return JSON.parse(readPrivateBytes(path, maxBytes).toString('utf8'));
 }
 
-export function atomicJSON(path, value) {
+export const JSON_LIMITS = Object.freeze({ controlIndex: 262144, evidence: 2097152, transport: 2097152, summary: 262144, monitor: 262144, operatorStatus: 262144, offlineLegacy: 16777216 });
+
+export function serializeJSON(value, maxBytes = JSON_LIMITS.evidence) {
+  assert(Number.isSafeInteger(maxBytes) && maxBytes > 0, 'Positive JSON bound required');
+  const bytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
+  assert(bytes.length <= maxBytes, 'Serialized JSON exceeds byte limit');
+  return bytes;
+}
+
+export function atomicJSON(path, value, maxBytes = JSON_LIMITS.evidence) {
+  const bytes = serializeJSON(value, maxBytes);
   privateDirectory(dirname(path));
-  if (existsSync(path)) {
-    const stat = lstatSync(path);
-    assert(stat.isFile() && !stat.isSymbolicLink() && stat.nlink === 1 && stat.uid === process.getuid(), 'Unsafe receipt destination');
-  }
+  let destinationStat; try { destinationStat = lstatSync(path); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  if (destinationStat) assert(destinationStat.isFile() && !destinationStat.isSymbolicLink() && destinationStat.nlink === 1 && destinationStat.uid === process.getuid() && (destinationStat.mode & 0o777) === 0o600, 'Unsafe receipt destination');
   const temporary = `${path}.${randomUUID()}.tmp`, fd = openSync(temporary, 'wx', 0o600);
-  try { writeFileSync(fd, `${JSON.stringify(value, null, 2)}\n`); fsyncSync(fd); } finally { closeSync(fd); }
+  try { writeFileSync(fd, bytes); fsyncSync(fd); } catch (error) { try { unlinkSync(temporary); } catch {} throw error; } finally { closeSync(fd); }
   renameSync(temporary, path);
   const directory = openSync(dirname(path), 'r'); try { fsyncSync(directory); } finally { closeSync(directory); }
 }

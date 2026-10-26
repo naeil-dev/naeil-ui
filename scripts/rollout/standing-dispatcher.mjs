@@ -4,6 +4,7 @@ import { existsSync, lstatSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { acquireLock, assertActive, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, validateConfig } from './standing-config.mjs';
+import { assertEvidencePath, JSON_LIMITS, readOperatorStatus, readStandingState, StandingStorageError, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
 import { publicIdentity } from './naeil-standing-observer.mjs';
 import { assertPolicyRelease, GitHub, GitHubUnavailable, materializeRelease, releaseMetadata } from './standing-github.mjs';
 
@@ -27,23 +28,42 @@ export function assertServiceResult(result, request, options = {}) {
 const summaryState = state => ['stopped', 'authorization-expired', 'disabled'].includes(state.lastState) ? state.lastState : state.blocked ? 'blocked' : state.lastState || 'waiting-release';
 
 function publicSummary(state) {
-  return { schemaVersion: 1, scope: 'selected-services', services: IDS, allDiscoveredServicesComplete: false, observedAt: state.observedAt, currentVersion: state.currentVersion, state: summaryState(state), ...(state.since ? { since: state.since } : {}), ...(state.lastReasonCode ? { reasonCode: state.lastReasonCode } : {}), ...(state.blocked ? { blockedRelease: state.blocked.releaseId, blockedService: state.blocked.serviceId || null, reasonCode: state.blocked.reasonCode } : {}), releases: Object.values(state.releases).map(record => ({ version: record.version, releaseId: record.releaseId || null, state: record.state, services: IDS.map(id => ({ id, state: record.services?.[id]?.state || 'not-started', ...(record.services?.[id]?.result?.artifact ? { artifactId: record.services[id].result.artifact.id, sourceRevision: record.services[id].result.artifact.sourceRevision } : {}) })) })) };
+  return { schemaVersion: 1, scope: 'selected-services', services: IDS, allDiscoveredServicesComplete: false, observedAt: state.observedAt, currentVersion: state.currentVersion, state: summaryState(state), ...(state.since ? { since: state.since } : {}), ...(state.lastReasonCode ? { reasonCode: state.lastReasonCode } : {}), ...(state.blocked ? { blockedRelease: state.blocked.releaseId, blockedService: state.blocked.serviceId || null, reasonCode: state.blocked.reasonCode } : {}), releases: Object.values(state.releases).slice(-20).map(record => ({ version: record.version, releaseId: record.releaseId || null, state: record.state, services: IDS.map(id => ({ id, state: record.services?.[id]?.state || 'not-started', ...(record.services?.[id]?.result?.artifact ? { artifactId: record.services[id].result.artifact.id, sourceRevision: record.services[id].result.artifact.sourceRevision } : {}) })) })) };
 }
 
 /** One bounded poll; launchd supplies cadence. Never installs or starts a job. */
 export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON } = {}) {
   validateConfig(config);
   const unlock = acquireLock(config.stateDirectory);
-  const path = join(config.stateDirectory, 'state.json');
   let state;
-  const save = () => atomicJSON(path, state);
-  const finish = () => { state.observedAt = new Date().toISOString(); const status = summaryState(state); if (state.statusState !== status || !state.since) state.since = state.observedAt; state.statusState = status; if (status === 'complete') delete state.since; save(); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary); return summary; };
+  const save = () => writeStandingState(config.stateDirectory, state);
+  const complete = (key, record, release, binding, mode) => {
+    record.state = 'complete'; record.completedAt ||= new Date().toISOString(); save();
+    const evidence = writeStandingEvidence(config.stateDirectory, { schemaVersion: 1, release, record });
+    const receipt = { schemaVersion: 2, scope: 'selected-services', complete: true, allDiscoveredServicesComplete: false, release, binding, mode, evidence, completedAt: record.completedAt };
+    const path = join(config.stateDirectory, 'runs', key, 'receipt.json');
+    if (existsSync(path)) assert.deepEqual(readPrivateJSON(path), receipt, 'Existing completion binding/evidence differs');
+    else atomicJSON(path, receipt);
+    state.currentVersion = release.version; state.lastState = 'complete'; save();
+  };
+  const finish = () => { state.observedAt = new Date().toISOString(); const status = summaryState(state); if (state.statusState !== status || !state.since) state.since = state.observedAt; state.statusState = status; if (status === 'complete') delete state.since; save(); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary, JSON_LIMITS.summary); atomicJSON(join(config.stateDirectory, 'operator-status.json'), readOperatorStatus(config), JSON_LIMITS.operatorStatus); return summary; };
   try {
-    state = existsSync(path) ? readPrivateJSON(path) : { schemaVersion: 1, repository: config.repository, currentVersion: null, releases: {}, createdAt: new Date().toISOString() };
+    try { state = readStandingState(config.stateDirectory) || { schemaVersion: 1, repository: config.repository, currentVersion: null, releases: {}, createdAt: new Date().toISOString() }; }
+    catch (cause) {
+      const status = readOperatorStatus(config); status.stateError ||= 'state-unreadable'; atomicJSON(join(config.stateDirectory, 'operator-status.json'), status, JSON_LIMITS.operatorStatus);
+      throw new StandingStorageError(cause);
+    }
     assert(state.schemaVersion === 1 && state.repository === config.repository, 'Durable state repository/schema mismatch');
     // A process can die after an app accepted work but before output/receipt.
     // That invocation is never retried just because a new poll starts.
     for (const record of Object.values(state.releases)) for (const [id, service] of Object.entries(record.services || {})) if (service.state === 'invoking') { service.state = 'uncertain'; record.state = 'uncertain'; state.blocked = { releaseId: record.releaseId, serviceId: id, reasonCode: 'interrupted-invocation' }; }
+    for (const record of Object.values(state.releases)) for (const [id, service] of Object.entries(record.services || {})) {
+      const latest = service.reverificationAttempts?.at(-1);
+      if (service.verificationIntent || latest?.state === 'invoking') { record.state = 'uncertain'; state.blocked = { releaseId: record.releaseId, serviceId: id, reasonCode: 'interrupted-verification' }; }
+    }
+    if (state.storageIntents?.intents?.length && !state.blocked) {
+      const intent = state.storageIntents.intents[0]; state.blocked = { releaseId: intent.releaseId, serviceId: intent.serviceId, reasonCode: intent.kind === 'verify' ? 'interrupted-verification' : 'interrupted-invocation' };
+    }
     delete state.lastReasonCode;
     const stop = record => { const status = inactiveState(config); if (!status) return false; state.lastState = status; delete state.lastReasonCode; if (record) record.state = 'stopped'; return true; };
     if (stop()) return finish();
@@ -76,6 +96,8 @@ export async function poll(config, { github = new GitHub({ repository: config.re
         const binding = fingerprint({ release, manifestHash: snapshot.manifestHash, automation: config.automation, trustedFiles: config.trustedFiles, executionPath: config.executionPath, policy: config.policy, services: config.services, mode });
         if (record.binding) assert.equal(record.binding, binding, 'Run configuration changed; reconciliation required');
         record.binding = binding; record.mode = mode; save();
+        if (record.state === 'complete') { complete(key, record, release, binding, mode); continue; }
+        assert(!existsSync(join(config.stateDirectory, 'runs', key, 'receipt.json')), 'Completion receipt conflicts with incomplete state');
         if (mode === 'standing') {
           const checks = await github.workflow(release.sourceRevision, '.github/workflows/verify.yml');
           if (['pending', 'cancelled'].includes(checks.state)) { record.state = 'waiting-package-ci'; state.lastState = record.state; state.lastReasonCode = checks.state; return finish(); }
@@ -89,7 +111,6 @@ export async function poll(config, { github = new GitHub({ repository: config.re
             // Revalidate all cached evidence before allowing a later consumer.
             try {
               assertServiceResult(prior.result, prior.request, { allowExpired: true });
-              for (const receipt of prior.reverifications || []) assertProduction(receipt.production, receipt.request, prior.result.artifact, { allowExpired: true });
               const latest = prior.reverifications?.at(-1) || { production: prior.result.production, request: prior.request };
               const expired = Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
               if (expired) {
@@ -100,13 +121,15 @@ export async function poll(config, { github = new GitHub({ repository: config.re
                 const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId); privateDirectory(outputDirectory, true);
                 const request = { ...prior.request, attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
                 const attempt = { state: 'invoking', request, startedAt: new Date().toISOString() };
-                (prior.reverificationAttempts ||= []).push(attempt); save();
+                prior.verificationIntent = attempt; save();
                 const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');
                 assertProduction(production, request, artifact);
                 Object.assign(attempt, { state: 'production-verified', completedAt: new Date().toISOString() });
-                (prior.reverifications ||= []).push({ request, production }); save();
+                (prior.reverificationAttempts ||= []).push(attempt);
+                (prior.reverifications ||= []).push({ request, production }); delete prior.verificationIntent; save();
               } else assertProduction(latest.production, latest.request, prior.result.artifact);
-            } catch {
+            } catch (error) {
+              if (error instanceof StandingStorageError) throw error;
               if (stop(record)) return finish();
               record.state = 'blocked'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: 'cached-evidence-reverification-failed' }; return finish();
             }
@@ -117,7 +140,7 @@ export async function poll(config, { github = new GitHub({ repository: config.re
           const configured = config.services[id], { command, ...service } = configured;
           const directory = join(config.stateDirectory, 'runs', key, id, attemptId); privateDirectory(directory, true);
           const request = { schemaVersion: 1, release, service, policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath, idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
-          if (prior) (record.history ||= []).push({ serviceId: id, prior: structuredClone(prior), resolution: 'retry-deferred', at: new Date().toISOString() });
+          if (prior) (record.history ||= []).push({ serviceId: id, prior: JSON.parse(JSON.stringify(prior)), resolution: 'retry-deferred', at: new Date().toISOString() });
           record.services[id] = { state: 'invoking', attemptId, request, startedAt: new Date().toISOString() };
           record.state = 'running'; save(); // Must precede every child launch.
           let result;
@@ -128,16 +151,13 @@ export async function poll(config, { github = new GitHub({ repository: config.re
             state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: 'command-or-result-uncertain' }; return finish();
           }
           Object.assign(record.services[id], { state: result.state, result, completedAt: new Date().toISOString() });
-          if (result.state === 'deferred') { record.state = 'deferred'; state.lastState = 'deferred'; state.lastReasonCode = result.reasonCode; return finish(); }
+          if (result.state === 'deferred') { record.state = 'deferred'; state.lastState = 'deferred'; if (result.reasonCode !== undefined) state.lastReasonCode = result.reasonCode; else delete state.lastReasonCode; return finish(); }
           if (result.state !== 'production-verified') { record.state = 'failed'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: result.state }; return finish(); }
           save();
         }
-        // Completion receipt precedes the global cursor. Interrupted finalizing
-        // can consume existing verified receipts, without invoking an app again.
-        record.state = 'complete'; record.completedAt = new Date().toISOString();
-        atomicJSON(join(config.stateDirectory, 'runs', key, 'receipt.json'), { schemaVersion: 1, scope: 'selected-services', complete: true, allDiscoveredServicesComplete: false, release, binding, mode, services: record.services, completedAt: record.completedAt });
-        state.currentVersion = release.version; state.lastState = 'complete'; save();
+        complete(key, record, release, binding, mode);
       } catch (error) {
+        if (error instanceof StandingStorageError) throw error;
         if (stop(record)) return finish();
         if (error instanceof GitHubUnavailable) { record.state = 'release-unavailable'; state.lastState = record.state; return finish(); }
         record.state = 'blocked'; state.blocked = { releaseId: record.releaseId || version, reasonCode: 'release-or-config-validation-failed' }; return finish();
@@ -160,10 +180,10 @@ async function liveIdentity(service, fetchImpl) {
   return identity;
 }
 function retainedOutput(config, prior) {
-  const directory = prior.request?.outputDirectory, runs = join(config.stateDirectory, 'runs') + '/';
-  if (typeof directory !== 'string' || resolve(directory) !== directory || !directory.startsWith(runs)) return { exists: false, validates: false };
+  const directory = prior.request?.outputDirectory;
+  if (typeof directory !== 'string' || resolve(directory) !== directory) return { exists: false, validates: false };
   const path = join(directory, 'output.json'), exists = entryExists(path);
-  try { const result = readPrivateJSON(path); assertServiceResult(result, prior.request, { allowExpired: true }); return { exists, validates: true, result }; }
+  try { assertEvidencePath(config, path); const result = readPrivateJSON(path); assertServiceResult(result, prior.request, { allowExpired: true }); return { exists, validates: true, result }; }
   catch { return { exists, validates: false }; }
 }
 function estimateFacts(config, prior) {
@@ -191,9 +211,12 @@ function estimateFacts(config, prior) {
 /** Read-only operational evidence, with no private config or native payloads. */
 export async function inspect(config, { fetchImpl = fetch } = {}) {
   validateConfig(config);
-  const path = join(config.stateDirectory, 'state.json'), state = existsSync(path) ? readPrivateJSON(path) : { releases: {} };
+  const operatorStatus = readOperatorStatus(config);
+  let state;
+  try { state = readStandingState(config.stateDirectory, { allowLegacy: true }) || { releases: {} }; }
+  catch { return { schemaVersion: 1, operatorStatus: { ...operatorStatus, stateError: operatorStatus.stateError || 'state-unreadable' }, blocked: operatorStatus.blocked, releases: [], liveIdentity: {} }; }
   const live = Object.fromEntries(await Promise.all(IDS.map(async id => { try { return [id, await liveIdentity(config.services[id], fetchImpl)]; } catch { return [id, { available: false }]; } })));
-  return { schemaVersion: 1, observedAt: new Date().toISOString(), blocked: state.blocked || null, releases: Object.values(state.releases).map(record => ({ releaseId: record.releaseId || null, version: record.version, state: record.state, services: IDS.map(id => {
+  return { schemaVersion: 1, operatorStatus, observedAt: new Date().toISOString(), blocked: state.blocked || null, releases: Object.values(state.releases).map(record => ({ releaseId: record.releaseId || null, version: record.version, state: record.state, services: IDS.map(id => {
     const prior = record.services?.[id] || {}, retained = retainedOutput(config, prior);
     const result = retained.validates ? retained.result : prior.result;
     return { id, state: prior.state || 'not-started', mutationAttempted: result?.mutationAttempted ?? null, runtimeMutationAttempted: result?.runtimeMutationAttempted ?? null, rollbackState: result?.rollback?.state || null, retainedOutput: { exists: retained.exists, validates: retained.validates }, ...(id === 'estimate' ? { native: estimateFacts(config, prior) } : {}) };
@@ -208,7 +231,7 @@ export async function reconcile(config, releaseId, serviceId, resolution, { appr
   requireReconciliation(typeof approvedBy === 'string' && approvedBy.trim().length > 0 && approvedBy.length <= 200 && typeof reason === 'string' && reason.trim().length > 0 && reason.length <= 2000, 'Recorded approver and reason required');
   const unlock = acquireLock(config.stateDirectory);
   try {
-    const path = join(config.stateDirectory, 'state.json'), state = readPrivateJSON(path), record = Object.values(state.releases).find(record => record.releaseId === releaseId), prior = record?.services?.[serviceId];
+    const state = readStandingState(config.stateDirectory), record = Object.values(state.releases).find(record => record.releaseId === releaseId), prior = record?.services?.[serviceId];
     requireReconciliation(state.blocked?.releaseId === releaseId && state.blocked?.serviceId === serviceId && prior?.request && ['uncertain', 'gate-failed', 'review-required', 'not-deployed', 'activation-pending'].includes(prior.state), 'Resolution must name the currently blocked service invocation');
     const retained = retainedOutput(config, prior);
     let stored;
@@ -231,10 +254,10 @@ export async function reconcile(config, releaseId, serviceId, resolution, { appr
       catch { throw new ReconciliationRefused('Live public identity differs from the previously verified artifact or is unavailable'); }
     }
     const at = new Date().toISOString();
-    (record.history ||= []).push({ serviceId, prior: structuredClone(prior), result: structuredClone(result), resolution, approvedBy, reason, at });
+    (record.history ||= []).push({ serviceId, prior: JSON.parse(JSON.stringify(prior)), result: structuredClone(result), resolution, approvedBy, reason, at });
     record.services[serviceId] = { state: 'deferred', reconciliation: { priorAttemptId: prior.request.attemptId }, reconciledAt: at };
     record.state = 'deferred'; delete state.blocked; state.lastState = 'deferred'; delete state.lastReasonCode; state.since = at; state.statusState = 'deferred'; state.observedAt = at;
-    atomicJSON(path, state); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary); return summary;
+    writeStandingState(config.stateDirectory, state); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary, JSON_LIMITS.summary); atomicJSON(join(config.stateDirectory, 'operator-status.json'), readOperatorStatus(config), JSON_LIMITS.operatorStatus); return summary;
   } finally { unlock(); }
 }
 

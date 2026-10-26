@@ -43,3 +43,19 @@ test('pinned child receives credential key names only for naeil observer rollout
   assert.deepEqual(keys.filter(key => credentials.includes(key)), []);
  });
 });
+
+// Every writer budget uses serialized UTF-8 bytes, including indentation/newline.
+// Rejection must precede even opening the replacement temporary file.
+test('all JSON budgets accept exact boundary and reject limit+1 before replacement', async t => {
+ const { atomicJSON, readPrivateJSON } = await import('./standing-config.mjs');
+ const { JSON_LIMITS } = await import('./standing-state.mjs');
+ const directory = realpathSync(mkdtempSync(join(tmpdir(), 'standing-budgets-')));
+ t.after(() => rmSync(directory, { recursive: true, force: true }));
+ for (const [kind, limit] of Object.entries(JSON_LIMITS)) {
+  const path = join(directory, kind + '.json'), overhead = Buffer.byteLength(JSON.stringify({ value: '' }, null, 2) + '\n');
+  const value = { value: 'x'.repeat(limit - overhead) }; atomicJSON(path, value, limit);
+  assert.equal(readFileSync(path).length, limit); assert.deepEqual(readPrivateJSON(path, limit), value);
+  const before = readFileSync(path); assert.throws(() => atomicJSON(path, { value: value.value + 'x' }, limit), /bound|limit|large/i);
+  assert.deepEqual(readFileSync(path), before);
+ }
+});
