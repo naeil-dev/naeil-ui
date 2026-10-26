@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { closeSync, existsSync, fsyncSync, openSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { atomicJSON, fingerprint, hash, HEX, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
+import { loadReleaseExpectations } from './release-expectations.mjs';
+import { atomicJSON, fingerprint, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
 import { reviewedMigration } from './rollout.mjs';
 
 export class GitHubUnavailable extends Error {
@@ -66,7 +67,8 @@ export class GitHub {
     if (!runs.length || runs[0].status !== 'completed') return { state: 'pending' };
     return { state: ['success', 'cancelled'].includes(runs[0].conclusion) ? runs[0].conclusion : 'failed', id: runs[0].id, attempt: runs[0].run_attempt };
   }
-  async asset(asset) {
+  async asset(asset, { maxBytes = 64 * 1024 * 1024 } = {}) {
+    assert(Number.isSafeInteger(maxBytes) && maxBytes > 0 && maxBytes <= 64 * 1024 * 1024, 'Bounded release asset allowance required');
     const expected = `https://github.com/${this.repository}/releases/download/`;
     let url = new URL(asset.browser_download_url);
     assert(url.href.startsWith(expected) && !url.username && !url.password, 'Unexpected release asset URL');
@@ -75,7 +77,7 @@ export class GitHub {
       assert(url.protocol === 'https:' && origins.has(url.origin) && !url.username && !url.password, 'Unexpected release asset redirect');
       const response = await this.request(url.href, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
       if ([301, 302, 303, 307, 308].includes(response.status)) { assert(response.headers.get('location'), 'Missing asset redirect'); url = new URL(response.headers.get('location'), url); continue; }
-      const bytes = await bounded(response, 64 * 1024 * 1024);
+      const bytes = await bounded(response, maxBytes);
       assert.equal(bytes.length, asset.size, 'Release asset size changed');
       if (asset.digest) assert.equal(asset.digest, `sha256:${hash(bytes)}`, 'GitHub asset digest mismatch');
       return bytes;
@@ -99,15 +101,19 @@ export function assertManifest(release, item) {
   const account = release.account || release.accountReference;
   assert.match(release.siteRuntimeSha256, HEX, 'Exact reviewed site runtime digest required');
   if (release.siteSourceRevision !== release.sourceRevision) assert(release.siteArchive, 'Different reviewed site source requires its independently packed package asset');
-  for (const entry of [release.archive, release.contract, account, ...(release.siteArchive ? [release.siteArchive] : [])]) {
+  for (const entry of [release.archive, release.contract, account, ...(release.siteArchive ? [release.siteArchive] : []), ...(release.expectations ? [release.expectations] : [])]) {
     assert(entry && HEX.test(entry.sha256) && typeof entry.url === 'string', 'Frozen archive/chrome/account inputs required');
     const matches = item.assets.filter(asset => asset.browser_download_url === entry.url);
     assert.equal(matches.length, 1, 'Frozen input must be an exact asset of this published release');
   }
+  if(release.expectations) {
+    const url=new URL(release.expectations.url), prefix=`https://github.com/naeil-dev/naeil-ui/releases/download/v${release.version}/`;
+    assert(url.href.startsWith(prefix) && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(url.href.slice(prefix.length)), 'Version-scoped immutable expectations asset required');
+  }
   // Only data crosses the release boundary. Local paths and action configuration
   // are assigned by the trusted dispatcher, never accepted from an asset.
   const entry = value => ({ sha256: value.sha256, url: value.url, ...(value.version ? { version: value.version } : {}) });
-  return { schemaVersion: 1, releaseId: release.releaseId, version: release.version, previousVersion: release.previousVersion, sourceRevision: release.sourceRevision, siteSourceRevision: release.siteSourceRevision, siteRuntimeSha256: release.siteRuntimeSha256, archive: entry(release.archive), contract: entry(release.contract), account: entry(account), siteArchive: entry(release.siteArchive || release.archive), changes: release.changes };
+  return { schemaVersion: 1, releaseId: release.releaseId, version: release.version, previousVersion: release.previousVersion, sourceRevision: release.sourceRevision, siteSourceRevision: release.siteSourceRevision, siteRuntimeSha256: release.siteRuntimeSha256, archive: entry(release.archive), contract: entry(release.contract), account: entry(account), siteArchive: entry(release.siteArchive || release.archive), ...(release.expectations ? {expectations:entry(release.expectations)} : {}), changes: release.changes };
 }
 
 export function assertPolicyRelease(release, config, currentVersion) {
@@ -146,9 +152,12 @@ export async function materializeRelease(item, config, github, existing) {
   const tagSha = await github.tagRevision(item.tag_name); assert.equal(tagSha, release.sourceRevision, 'Tag moved or does not match package source');
   if (existing?.tagSha) assert.equal(tagSha, existing.tagSha, 'Previously observed release tag moved');
   await github.mainAncestor(tagSha); await github.mainAncestor(release.siteSourceRevision);
-  for (const [kind, entry] of [['archive', release.archive], ['contract', release.contract], ['account', release.account], ['siteArchive', release.siteArchive]]) {
+  for (const [kind, entry] of [['archive', release.archive], ['contract', release.contract], ['account', release.account], ['siteArchive', release.siteArchive], ...(release.expectations ? [['expectations', release.expectations]] : [])]) {
     const asset = item.assets.find(asset => asset.browser_download_url === entry.url);
-    const bytes = await github.asset(asset); assert.equal(hash(bytes), entry.sha256, 'Frozen input digest mismatch');
+    if(kind==='expectations') assert(asset.size<=JSON_LIMITS.evidence,'Expectations asset exceeds byte limit');
+    const bytes = await github.asset(asset, kind === 'expectations' ? { maxBytes: JSON_LIMITS.evidence } : undefined);
+    if(kind==='expectations') assert(bytes.length<=JSON_LIMITS.evidence,'Expectations asset exceeds byte limit');
+    assert.equal(hash(bytes), entry.sha256, 'Frozen input digest mismatch');
     const path = join(directory, ['archive', 'siteArchive'].includes(kind) ? `${kind}.tgz` : `${kind}.json`);
     if (existsSync(path)) assert.equal(hash(readPrivateBytes(path)), entry.sha256, 'Stored frozen asset changed');
     else { const fd = openSync(path, 'wx', 0o600); try { writeFileSync(fd, bytes); fsyncSync(fd); } finally { closeSync(fd); } }
@@ -161,6 +170,11 @@ export async function materializeRelease(item, config, github, existing) {
     assert.equal(value.sourceRevision, release.sourceRevision); assert.equal(value.archiveSha256, release.archive.sha256);
     assert.deepEqual(value.ui, { version: release.version, contractVersion: '1' }); assert(value.cases?.length, 'Reference render cases required');
   }
-  const result = { metadataHash, manifestHash, tagSha, release };
-  atomicJSON(cachedPath, result); return result;
+  const expectations=loadReleaseExpectations(release);
+  const result = { metadataHash, manifestHash, tagSha, expectationsSha256:expectations.sha256, release };
+  if(snapshot?.expectationsSha256 !== undefined) assert.equal(snapshot.expectationsSha256,expectations.sha256,'Frozen snapshot expectations digest mismatch');
+  if(existing?.expectationsSha256 !== undefined) assert.equal(existing.expectationsSha256,expectations.sha256,'Previously observed expectations digest changed');
+  // Historical snapshots are evidence: never rewrite them to add a new gate.
+  if(!snapshot) atomicJSON(cachedPath, result);
+  return result;
 }

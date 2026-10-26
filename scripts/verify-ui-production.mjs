@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
+import { loadReleaseExpectations, expectedProjects, assertProjectCatalog, selectExpectationProfile, assertExpectationChrome } from './rollout/release-expectations.mjs';
 import { assertRouteConfig, routeKey } from './rollout/route-contract.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -114,7 +115,11 @@ export function assertLinks(actual, locale, origin, contract) {
   for (const link of actual.footerLinks.filter(link => link.target === '_blank')) assert(link.rel.includes('noopener') && link.rel.includes('noreferrer'), 'External target needs safe rel');
 }
 
-export async function checkMenu(page, locale, theme, chrome = {}) {
+export async function checkMenu(page, locale, theme, chrome = {}, expectations) {
+  assertExpectationChrome(chrome);
+  assert(expectations, 'Independent project expectations required');
+  const approved = selectExpectationProfile(expectations, chrome.projectProfile);
+  const expected = expectedProjects(approved, locale, page.url());
   // Consumers may own theme controls (and their accessible labels) while the
   // canonical menu and actual theme change remain mandatory.
   const themeLabels = chrome.themeControlLabels ?? labels[locale];
@@ -126,7 +131,24 @@ export async function checkMenu(page, locale, theme, chrome = {}) {
   await trigger.focus(); await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: mobile ? labels[locale].menu : labels[locale].projects, exact: true });
   await dialog.waitFor({ state: 'visible' });
-  assert.equal(await dialog.locator('img[src^="https://naeil.dev/images/"]').count(), 5, 'Canonical project catalog missing');
+  const scope = mobile ? dialog.getByRole('region', {name: labels[locale].projects, exact:true}) : dialog.locator('nav.ui-navigation-menu-grid');
+  assert.equal(await scope.count(), 1, 'Project catalog scope missing or duplicated');
+  const actual = await scope.evaluate((root, mobile) => {
+    const box = root.getBoundingClientRect();
+    const style = getComputedStyle(root);
+    const columns = style.display === 'grid' ? style.gridTemplateColumns.split(/\s+/).filter(Boolean).length : 1;
+    return {x:box.x,width:box.width,columns,declaredColumns:mobile?null:Number(root.closest('[role="dialog"]').dataset.columns),items:[...root.querySelectorAll('a')].map(a=>{
+      const rect=a.getBoundingClientRect(), css=getComputedStyle(a);
+      return {href:a.href,name:a.querySelector('.ui-navigation-title > span')?.textContent.trim(),image:a.querySelector('img')?.src,
+        x:rect.x,y:rect.y,width:rect.width,height:rect.height,visible:rect.width>0 && rect.height>0 && css.visibility==='visible' && css.display!=='none'};
+    })};
+  }, mobile);
+  assertProjectCatalog(actual,expected,{...approved.layout,columns:mobile?approved.layout.mobileColumns:approved.layout.desktopColumns});
+  for(let i=0;i<expected.length;i++) {
+    const link=scope.getByRole('link',{name:expected[i].accessibleName,exact:true});
+    assert.equal(await link.count(),1,`Project ${i} accessible name mismatch`);
+    assert(await link.evaluate((el,index)=>el===el.closest('section,nav').querySelectorAll('a')[index],i),'Project accessible name/order mismatch');
+  }
   const dismiss = async () => {
     await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
     assert(await trigger.evaluate(el => el === document.activeElement), 'Escape did not return focus to navigation trigger');
@@ -154,13 +176,18 @@ export async function createVerificationContext({ browser, route, origin, viewpo
 }
 
 export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true }) {
+  const expectations = loadReleaseExpectations(release);
   const { assertReference, verifyIdentity } = await import('./rollout/rollout.mjs');
   const referenceBytes = readFileSync(referencePath);
   const reference = assertReference(release, referenceBytes);
   assert.equal(reference.ui.version, identity.ui.version, 'Reference release version mismatch');
   assert.equal(reference.ui.contractVersion, identity.ui.contractVersion, 'Reference contract mismatch');
   assert(Array.isArray(routes) && routes.length > 0, 'Nonempty explicit route inventory required');
-  for (const route of routes) assertRouteConfig(route);
+  for (const route of routes) {
+    assertRouteConfig(route);
+    assertExpectationChrome(route.chrome);
+    selectExpectationProfile(expectations, route.chrome?.projectProfile);
+  }
   await verifyIdentity(origin, identity);
   const output = resolve(outputDir); mkdirSync(output, { recursive: true });
   const browser = await chromium.launch(); const results = [];
@@ -189,7 +216,7 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           assert(baseline, `No independent reference for ${locale}/${theme}/${width}/${actual.footerVariant}`);
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, locale, origin, reference.contract);
-          await checkMenu(page, locale, theme, route.chrome);
+          await checkMenu(page, locale, theme, route.chrome, expectations);
           if (checkAccount) await checkAccount({ page, route, locale, width, theme });
           // Capture only shared chrome; never business/family content.
           const name = `${results.length}-${width}-${theme}`;
@@ -206,7 +233,7 @@ export async function verifyProduction({ release, origin, identity, routes, refe
       results.push({ path: route.path, routeKey: routeKey(route), locale: route.locale || null, state: route.state || null, renderState: route.renderState, status: 'production-verified', cases });
     }
     await verifyIdentity(origin, identity);
-    const result = { schemaVersion: 1, referenceSha256: hash(referenceBytes), identity, checkedAt: new Date().toISOString(), routes: results, passed: true };
+    const result = { schemaVersion: 1, referenceSha256: hash(referenceBytes), expectationsSha256: expectations.sha256, identity, checkedAt: new Date().toISOString(), routes: results, passed: true };
     writeFileSync(join(output, 'render-verification.json'), JSON.stringify(result, null, 2));
     return result;
   } finally { await browser.close(); }

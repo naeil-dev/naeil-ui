@@ -3,13 +3,14 @@ import { closeSync, fsyncSync, mkdirSync, openSync, readFileSync, writeFileSync 
 import { basename, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { compareRuntime, runtimeIndex } from './package-runtime.mjs';
-import { hash, REVISION, VERSION } from './standing-config.mjs';
+import { validateReleaseExpectations, loadReleaseExpectations } from './release-expectations.mjs';
+import { hash, JSON_LIMITS, readPrivateBytes, REVISION, VERSION } from './standing-config.mjs';
 import { assertManifest } from './standing-github.mjs';
 
 const origin = version => `https://github.com/naeil-dev/naeil-ui/releases/download/v${version}/`;
 const json = bytes => JSON.parse(bytes.toString('utf8'));
 const encode = value => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
-const names = version => ({ archive: `naeil-ui-${version}.tgz`, siteArchive: `naeil-site-package-${version}.tgz`, contract: `naeil-chrome-${version}.json`, account: `naeil-account-${version}.json` });
+const names = version => ({ archive: `naeil-ui-${version}.tgz`, siteArchive: `naeil-site-package-${version}.tgz`, contract: `naeil-chrome-${version}.json`, account: `naeil-account-${version}.json`, expectations: `naeil-expectations-${version}.json` });
 
 export function assertReference(reference, kind, { version, sourceRevision, archiveSha256 }) {
   assert.equal(reference.schemaVersion, 1, 'Reference schema1 required');
@@ -39,8 +40,19 @@ export function prepareRelease(input) {
   const assetNames = names(version);
   const entries = Object.fromEntries(Object.entries(files).map(([key, bytes]) => [key, { url: origin(version) + assetNames[key], sha256: hash(bytes), ...(key === 'contract' ? { version: '1' } : {}) }]));
   const manifest = { schemaVersion: 1, releaseId: input.releaseId || `naeil-ui-${version}`, version, previousVersion, sourceRevision, siteSourceRevision, siteRuntimeSha256: comparison.runtimeSha256, ...entries, changes: input.changes };
+  if(input.expectationsPath) {
+    files.expectations=readFileSync(input.expectationsPath);
+    assert(files.expectations.length<=JSON_LIMITS.evidence,'Expectations declaration exceeds byte limit');
+    validateReleaseExpectations(json(files.expectations),manifest);
+    manifest.expectations={url:origin(version)+assetNames.expectations,sha256:hash(files.expectations)};
+    entries.expectations=manifest.expectations;
+  } else {
+    // Compatibility only for the exact previously published tuples.
+    loadReleaseExpectations(manifest);
+  }
   assertManifest(manifest, { tag_name: `v${version}`, assets: Object.values(entries).map(entry => ({ browser_download_url: entry.url })) });
-  const verification = { schemaVersion: 1, checkedAt: new Date().toISOString(), packageSourceRevision: sourceRevision, siteSourceRevision, frozenArchiveSha256: entries.archive.sha256, siteArchiveSha256: entries.siteArchive.sha256, siteRuntimeSha256: comparison.runtimeSha256, comparison, siteArchiveIsSeparateEvidence: true, sourceProvenance: 'caller-supplied; verify clean exact-SHA packing, main CI and deployment separately' };
+  const expectationsSha256 = manifest.expectations?.sha256 || loadReleaseExpectations(manifest).sha256;
+  const verification = { schemaVersion: 1, expectationsSha256, checkedAt: new Date().toISOString(), packageSourceRevision: sourceRevision, siteSourceRevision, frozenArchiveSha256: entries.archive.sha256, siteArchiveSha256: entries.siteArchive.sha256, siteRuntimeSha256: comparison.runtimeSha256, comparison, siteArchiveIsSeparateEvidence: true, sourceProvenance: 'caller-supplied; verify clean exact-SHA packing, main CI and deployment separately' };
   // Exclusive directory creation also refuses symlinks and existing empty dirs.
   const directory = resolve(outputDirectory); mkdirSync(directory, { mode: 0o700 });
   const write = (name, bytes) => { const fd = openSync(join(directory, name), 'wx', 0o600); try { writeFileSync(fd, bytes); fsyncSync(fd); } finally { closeSync(fd); } };
@@ -54,7 +66,7 @@ export function prepareRelease(input) {
 export function checkDraft(directory, listing) {
   assert(Array.isArray(listing) && listing.length <= 100, 'Bounded draft asset listing required');
   const manifest = json(readFileSync(join(directory, 'release.json'))), prefix = origin(manifest.version);
-  const entries = ['archive', 'siteArchive', 'contract', 'account'].map(key => manifest[key]);
+  const entries = ['archive', 'siteArchive', 'contract', 'account', ...(manifest.expectations ? ['expectations'] : [])].map(key => manifest[key]);
   for (const entry of entries) {
     assert(entry && entry.url.startsWith(prefix), 'Version-scoped asset URL required');
     const name = entry.url.slice(prefix.length);
@@ -62,6 +74,10 @@ export function checkDraft(directory, listing) {
     assert.equal(hash(readFileSync(join(directory, name))), entry.sha256, 'Local manifest asset digest mismatch');
   }
   assertManifest(manifest, { tag_name: `v${manifest.version}`, assets: listing.map(asset => ({ browser_download_url: asset.url })) });
+  if (manifest.expectations) {
+    const bytes = readPrivateBytes(join(directory, manifest.expectations.url.slice(prefix.length)), JSON_LIMITS.evidence);
+    validateReleaseExpectations(json(bytes), manifest);
+  } else loadReleaseExpectations(manifest);
   const required = [...new Set(entries.map(entry => entry.url.slice(prefix.length))), 'release.json', 'site-runtime-verification.json'];
   for (const name of required) {
     const matches = listing.filter(asset => asset.name === name || asset.url === prefix + name);

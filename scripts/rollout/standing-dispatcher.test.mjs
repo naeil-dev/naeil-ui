@@ -9,6 +9,7 @@ import { assertServiceResult, inspect, poll, reconcile } from './standing-dispat
 import { atomicJSON, automationDigest, hash, IDS, invokeJSON, ORIGINS, readPrivateJSON, routeKey, validateConfig } from './standing-config.mjs';
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 import { readStandingState, writeStandingState } from './standing-state.mjs';
+import {declaration} from './fixtures/reviewed-expectations.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -37,7 +38,9 @@ function fixture(t, patches = [1]) {
     const account = Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'independent-account-render', sourceRevision: source, archiveSha256, ui, cases: [{}] }));
     const url = name => `https://github.com/naeil-dev/naeil-ui/releases/download/v${version}/${name}`;
     const manifest = { schemaVersion: 1, releaseId: `ui-${version}`, version, previousVersion: `0.7.${n - 1}`, sourceRevision: source, siteSourceRevision: site, siteRuntimeSha256: hash(JSON.stringify(runtimeIndex(tar))), archive: { url: url('package.tgz'), sha256: archiveSha256 }, siteArchive: { url: url('site.tgz'), sha256: archiveSha256 }, contract: { version: '1', url: url('chrome.json'), sha256: hash(reference) }, account: { url: url('account.json'), sha256: hash(account) }, changes: n === 1 ? ['api', 'dom', 'fix'] : ['fix'] };
-    const files = { 'package.tgz': tar, 'site.tgz': tar, 'chrome.json': reference, 'account.json': account, 'rollout-manifest.json': Buffer.from(JSON.stringify(manifest)) };
+    const expectations=Buffer.from(JSON.stringify(declaration(manifest)));
+    manifest.expectations={url:url('expectations.json'),sha256:hash(expectations)};
+    const files = { 'expectations.json':expectations, 'package.tgz': tar, 'site.tgz': tar, 'chrome.json': reference, 'account.json': account, 'rollout-manifest.json': Buffer.from(JSON.stringify(manifest)) };
     const assets = Object.entries(files).map(([name, bytes], i) => { data.set(url(name), bytes); return { id: n * 10 + i, name, size: bytes.length, digest: `sha256:${hash(bytes)}`, browser_download_url: url(name) }; });
     releases.push({ id: n, tag_name: `v${version}`, draft: false, prerelease: false, author: { login: 'owner' }, published_at: new Date().toISOString(), assets });
   }
@@ -64,7 +67,7 @@ function fixture(t, patches = [1]) {
 function success(request) {
   const { service, release } = request;
   const artifact = { id: `${service.id}-${release.version}`, sourceRevision: service.id === 'naeil' ? release.siteSourceRevision : 'b'.repeat(40), ui: { version: release.version, contractVersion: '1' }, ...(service.id === 'naeil' ? { platform: { kind: 'vercel-git', deploymentId: 'dpl_fixture' } } : { sha256: 'c'.repeat(64) }) };
-  const production = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production', passed: true, identity: { schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui }, archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, checkedAt: new Date().toISOString(), routes: service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
+  const production = { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production', passed: true, identity: { schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui }, archiveSha256: release.archive.sha256, referenceSha256: release.contract.sha256, accountReferenceSha256: release.account.sha256, expectationsSha256:release.expectations.sha256, checkedAt: new Date().toISOString(), routes: service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
   return { schemaVersion: 1, releaseId: release.releaseId, serviceId: service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, state: 'production-verified', artifact, production };
 }
 

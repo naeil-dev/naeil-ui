@@ -24,7 +24,7 @@ function fixture(t) {
   const outputDirectory = join(directory, 'output'); mkdirSync(outputDirectory, { mode: 0o700 });
   const request = {
     schemaVersion: 1, idempotencyKey: 'ui-0.7.1:naeil', attemptId: 'attempt-fixture', mode: 'adopt', outputDirectory,
-    release: { releaseId: 'ui-0.7.1', version: '0.7.1', sourceRevision: packageSource, siteSourceRevision: siteSource, siteRuntimeSha256: hash(JSON.stringify(runtimeIndex(frozen))), archive: persist('package.tgz', frozen), siteArchive: persist('site.tgz', frozen), contract: { version: '1', ...persist('chrome.json', chrome) }, account: persist('account.json', account) },
+    release: { releaseId: 'naeil-ui-0.7.1', version: '0.7.1', sourceRevision: packageSource, siteSourceRevision: siteSource, siteRuntimeSha256: hash(JSON.stringify(runtimeIndex(frozen))), archive: persist('package.tgz', frozen), siteArchive: persist('site.tgz', frozen), contract: { version: '1', ...persist('chrome.json', chrome) }, account: persist('account.json', account) },
     service: { id: 'naeil', appId: 'naeil', origin: 'https://naeil.dev', observer: { workflowPath: '.github/workflows/verify.yml', environment: 'Production', deploymentCreator: 'vercel[bot]', correlation: 'immutable-url' }, verification: { command: { file: process.execPath, args: ['fixture'], timeoutMs: 1000 }, options: { safe: true } }, routes: [{ path: '/', policy: 'canonical', renderState: { access: 'public' } }, { path: '/en/account', policy: 'canonical', state: 'authenticated', renderState: { access: 'protected', visible: '[data-account]' } }] },
     policy: { enabled: true, approvedBy: 'fixture-owner', approvalRef: 'fixture-approval', stopFile: join(directory, 'STOP'), expiresAt: new Date(Date.now() + 86400000).toISOString(), maxEvidenceAgeSeconds: 3600 },
     trustedFiles: { [helper.path]: helper.sha256 }, executionPath: '/usr/bin:/bin',
@@ -40,7 +40,7 @@ function fixture(t) {
   const fetchImpl = async (url, options) => { calls.push({ kind: 'fetch', url, options }); return json(identity); };
   const verify = async (command, input, path, kind) => {
     verifications.push({ command, input, path, kind });
-    return { schemaVersion: 1, releaseId: input.release.releaseId, serviceId: input.service.id, idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, phase: input.phase, passed: true, identity: structuredClone(identity), archiveSha256: input.release.archive.sha256, referenceSha256: input.release.contract.sha256, accountReferenceSha256: input.release.account.sha256, checkedAt: new Date().toISOString(), routes: input.service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
+    return { schemaVersion: 1, releaseId: input.release.releaseId, serviceId: input.service.id, idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, phase: input.phase, passed: true, identity: structuredClone(identity), archiveSha256: input.release.archive.sha256, referenceSha256: input.release.contract.sha256, accountReferenceSha256: input.release.account.sha256, expectationsSha256: hash(readFileSync(new URL('./expectations/0.7.1.json', import.meta.url))), checkedAt: new Date().toISOString(), routes: input.service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
   };
   return { directory, request, identity, deployment, status, github, fetchImpl, verify, calls, verifications, helper, persist };
 }

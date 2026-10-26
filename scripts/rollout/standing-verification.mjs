@@ -4,6 +4,7 @@ import { mkdir, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { loadReleaseExpectations, selectExpectationProfile, assertExpectationChrome } from './release-expectations.mjs';
 import { verifyProduction } from '../verify-ui-production.mjs';
 import { captureAccountRender } from '../account-render.mjs';
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
@@ -18,6 +19,7 @@ export function validateVerificationRequest(input, config) {
   assert.equal(config.schemaVersion, 1);
   assert(['standing', 'adopt'].includes(input.mode), 'Explicit standing/adopt mode required');
   assert(['adopt', 'production', 'rollback'].includes(input.phase), 'Explicit verification phase required');
+  const expectations=loadReleaseExpectations(input.release);
   const service = config.services?.[input.service?.id];
   assert(service && origins[service.id], 'Locally registered service required');
   assert.equal(service.origin, origins[service.id], 'Canonical production origin required');
@@ -27,6 +29,8 @@ export function validateVerificationRequest(input, config) {
   assert(Array.isArray(input.service.routes) && input.service.routes.length > 0, 'Concrete routes required');
   for (const route of input.service.routes) {
     assertRouteConfig(route);
+    assertExpectationChrome(route.chrome);
+    selectExpectationProfile(expectations,route.chrome?.projectProfile);
     assert(!/[\[\]*]/.test(route.path), 'Concrete production specimen required');
     assert.equal(new URL(route.path, service.origin).origin, service.origin, 'Route escaped service origin');
   }

@@ -1,3 +1,4 @@
+import {loadReleaseExpectations, assertExpectationChrome, selectExpectationProfile} from './release-expectations.mjs';
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -10,7 +11,7 @@ export const ORIGINS = { naeil: 'https://naeil.dev', estimate: 'https://abestima
 export const HEX = /^[a-f0-9]{64}$/;
 export const REVISION = /^[a-f0-9]{40}$/;
 export const VERSION = /^0\.7\.(0|[1-9]\d*)$/;
-export const AUTOMATION_FILES = ['standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs'].map(name => `scripts/rollout/${name}`);
+export const AUTOMATION_FILES = ['standing-state.mjs', 'standing-config.mjs', 'standing-github.mjs', 'standing-dispatcher.mjs', 'naeil-standing-observer.mjs', 'package-runtime.mjs', 'standing-monitor.mjs', 'rollout.mjs', 'route-contract.mjs', 'release-expectations.mjs', 'standing-verification.mjs', 'verification-session.mjs', 'expectations/0.7.1.json', 'expectations/0.7.2.json'].map(name => `scripts/rollout/${name}`).concat(['scripts/verify-ui-production.mjs','scripts/account-render.mjs']);
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const fingerprint = value => hash(JSON.stringify(value));
 const exec = promisify(execFile);
@@ -126,6 +127,9 @@ export function routeKey(route) {
 }
 
 export function assertProduction(production, request, artifact, { allowExpired = false } = {}) {
+  const expectations=loadReleaseExpectations(request.release);
+  assert.equal(production?.expectationsSha256,expectations.sha256,'Production expectationsSha256 mismatch; fresh verification required');
+  for(const route of request.service.routes) {assertExpectationChrome(route.chrome);selectExpectationProfile(expectations,route.chrome?.projectProfile);}
   assert(production?.schemaVersion === 1 && production.passed === true, 'Production verification did not pass');
   for (const [key, expected] of Object.entries({ releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId, phase: request.mode === 'adopt' ? 'adopt' : 'production' })) assert.equal(production[key], expected, `Verification ${key} mismatch`);
   const expected = { schemaVersion: 1, appId: request.service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui };
@@ -174,7 +178,7 @@ export function validateConfig(config, { automationRoot } = {}) {
     assert.equal(service.appId, id === 'estimate' ? 'abestimate' : id);
     commandConfig(service.command);
     assert(service.routes?.length && service.routes.some(route => route.policy !== 'non-ui'), 'Nonempty canonical route inventory required');
-    for (const route of service.routes) assert(typeof route.path === 'string' && route.path.startsWith('/') && !route.path.startsWith('//') && !/[\[\]*]/.test(route.path), 'Concrete local route specimen required');
+    for (const route of service.routes) {assert(typeof route.path === 'string' && route.path.startsWith('/') && !route.path.startsWith('//') && !/[\[\]*]/.test(route.path), 'Concrete local route specimen required');assertExpectationChrome(route.chrome);}
     commandConfig(service.verification?.command);
     for (const command of [service.command, service.verification.command]) for (const path of [command.file, ...command.args.filter(arg => isAbsolute(arg) && /\.(?:[cm]?js|[cm]?ts|py)$/.test(arg))]) assert(config.trustedFiles[path], 'Configured executable/script missing from trusted file closure');
   }

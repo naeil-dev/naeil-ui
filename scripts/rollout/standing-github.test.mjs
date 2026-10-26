@@ -83,3 +83,10 @@ test('F15 latest exact workflow cancellation is rerunnable and never falls back 
   assert.equal((await github.workflow(revision, '.github/workflows/verify.yml')).state, 'success');
   latest.conclusion = 'failure'; assert.equal((await github.workflow(revision, '.github/workflows/verify.yml')).state, 'failed');
 });
+
+test('expectations downloads enforce their own bound while streaming, below the archive allowance',async()=>{
+ const bytes=Buffer.alloc(2097153);
+ const github=new GitHub({fetchImpl:async()=>new Response(bytes)});
+ const asset={browser_download_url:'https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.42/expectations.json',size:bytes.length};
+ await assert.rejects(github.asset(asset,{maxBytes:2097152}),/size limit/);
+});

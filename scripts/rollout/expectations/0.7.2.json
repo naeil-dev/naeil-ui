@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent-project-expectations",
+  "frozen": true,
+  "release": {
+    "releaseId": "naeil-ui-0.7.2",
+    "version": "0.7.2",
+    "contractVersion": "1",
+    "sourceRevision": "40a3928e24cd2f0141be3e605eed0a75260938fd",
+    "archiveSha256": "b7919ed182307c5c3b48515f68567b0e4f51c611c86b7acf8861e769f596e2ec",
+    "chromeSha256": "4600e13950a5a0bdf3c3581d6c331db756da603e890ada43c812c9cbd07dd9d2",
+    "accountSha256": "e5491696d32ed825b90bd79db55cc21ab8ef181e8a2262beb0293d94da8f51ab"
+  },
+  "review": {
+    "approvedBy": "Owner-approved standing rollout A",
+    "approvalRef": "docs/superpowers/specs/2026-10-26-standing-rollout-change-management.md",
+    "sourceCitations": [
+      "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/components/naeil-header-content.ts",
+      "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/components/naeil-header.tsx",
+      "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.2/naeil-chrome-0.7.2.json",
+      "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.2/naeil-account-0.7.2.json"
+    ],
+    "notes": "Canonical localized official URLs; current naeil, Estimate and Jev use this profile. Overrides require a reviewed exact profile in this declaration and route chrome digest binding. Desktop data-columns and actual grid columns are 1; mobile Projects section is one column. IDs are semantic declaration IDs, matched by ordered exact content; existing DOM has no item ID attribute."
+  },
+  "layout": {
+    "desktopColumns": 1,
+    "mobileColumns": 1,
+    "minimumTargetPx": 44,
+    "tolerancePx": 2,
+    "columnGapPx": 8
+  },
+  "locales": {
+    "en": [
+      {
+        "id": "naeilUi",
+        "href": "https://naeil.dev/en/design",
+        "name": "naeil-ui",
+        "accessibleName": "naeil-ui Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+        "image": "https://naeil.dev/images/whale.png"
+      }
+    ],
+    "ko": [
+      {
+        "id": "naeilUi",
+        "href": "https://naeil.dev/ko/design",
+        "name": "naeil-ui",
+        "accessibleName": "naeil-ui 미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+        "image": "https://naeil.dev/images/whale.png"
+      }
+    ],
+    "ja": [
+      {
+        "id": "naeilUi",
+        "href": "https://naeil.dev/ja/design",
+        "name": "naeil-ui",
+        "accessibleName": "naeil-ui ミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn",
+        "image": "https://naeil.dev/images/whale.png"
+      }
+    ]
+  },
+  "profiles": {}
+}
