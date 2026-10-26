@@ -1,15 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { prepareCandidate, runPreflight, assertCandidate, preflightPlanDigest } from './consumer-preflight.mjs';
+import { gzipSync } from 'node:zlib';
+import { prepareCandidate, runPreflight, assertCandidate, preflightPlanDigest, offlineInstallArgs } from './consumer-preflight.mjs';
 import { treeDigest, treeManifest } from './preflight-sandbox.mjs';
 import { automationDigest, generationDigest, hash } from './standing-config.mjs';
+import { assertDependencyDelta } from './update-consumer.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 import { dependencyLock } from './fixtures/dependency-lock.mjs';
@@ -50,6 +52,55 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
 import {createHash} from 'node:crypto';
 function awaitHash512(bytes){return createHash('sha512').update(bytes).digest('base64');}
 const candidateBinding=c=>Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,c[key]]));
+function offlineArchive(name,version,dependencies={}) {
+ const chunks=[];
+ for(const [path,value] of Object.entries({'package.json':JSON.stringify({name,version,dependencies,exports:{'.':'./dist/index.js'}}),'dist/index.js':'export const synthetic = true;','README.md':'exact frozen docs'})) {
+  const bytes=Buffer.from(value),header=Buffer.alloc(512);header.write(`package/${path}`);header.write('0000644\0',100);header.write(`${bytes.length.toString(8).padStart(11,'0')}\0`,124);header.fill(32,148,156);header.write('0',156);header.write(`${[...header].reduce((sum,byte)=>sum+byte).toString(8).padStart(6,'0')}\0 `,148);chunks.push(header,bytes,Buffer.alloc((512-bytes.length%512)%512));
+ }
+ return gzipSync(Buffer.concat([...chunks,Buffer.alloc(1024)]));
+}
+function offlineFixture(t,pnpm) {
+ const f=setup(t,{update:true,service:'jev'}),source=f.input.sourceRoot,store=join(f.root,'prepared-bundle');mkdirSync(store,{mode:0o700});
+ assert.equal(hash(readFileSync(pnpm)),'e7499b13968f344210a03c50efa23139eba1207ee8a3ec0e3e44e0d35a4fb2ea');
+ const pin=path=>({path,sha256:hash(readFileSync(path)),bytes:readFileSync(path).length});f.config.pnpm=pin(pnpm);f.input.generation.trustedFiles[pnpm]=f.config.pnpm.sha256;
+ const registryArchive=join(f.root,'offline-fixture-1.0.0.tgz');writeFileSync(registryArchive,offlineArchive('offline-fixture','1.0.0'),{mode:0o600});
+ const env={PATH:`${join(f.config.node,'..') }:/usr/bin:/bin`,HOME:f.root,XDG_CACHE_HOME:join(f.root,'setup-cache'),npm_config_userconfig:'/dev/null',npm_config_globalconfig:'/dev/null',CI:'1'};
+ execFileSync(f.config.node,[pnpm,'store','add',registryArchive,'--store-dir',store],{cwd:source,env});
+ for(const name of fs.readdirSync(join(store,'v10')))if(name.startsWith('file+'))rmSync(join(store,'v10',name),{recursive:true});
+ const integrity='sha512-'+awaitHash512(readFileSync(registryArchive));const hex=createHash('sha512').update(readFileSync(registryArchive)).digest('hex');const indexDir=join(store,'v10/index',hex.slice(0,2));const localIndex=fs.readdirSync(indexDir).find(name=>name.startsWith(hex.slice(2,64)+'-')&&name.endsWith('.json'));assert(localIndex,'Pinned pnpm did not seed synthetic content index');
+ fs.copyFileSync(join(indexDir,localIndex),join(indexDir,`${hex.slice(2,64)}-offline-fixture@1.0.0.json`));
+ const metadataDir=join(store,'metadata-v1.3/registry.npmjs.org');mkdirSync(metadataDir,{recursive:true,mode:0o700});const metadata=join(metadataDir,'offline-fixture.json');writeFileSync(metadata,JSON.stringify({name:'offline-fixture',versions:{'1.0.0':{name:'offline-fixture',version:'1.0.0',dist:{tarball:'https://registry.npmjs.org/offline-fixture/-/offline-fixture-1.0.0.tgz',integrity}}},'dist-tags':{latest:'1.0.0'}}));
+ const pkg=JSON.parse(readFileSync(join(source,'package.json')));pkg.dependencies['offline-fixture']='^1.0.0';writeFileSync(join(source,'package.json'),JSON.stringify(pkg));
+ execFileSync(f.config.node,[pnpm,'install','--no-frozen-lockfile','--ignore-scripts','--offline','--store-dir',store,'--cache-dir',store,'--package-import-method=copy'],{cwd:source,env});
+ for(const name of fs.readdirSync(join(store,'v10')))if(name.startsWith('file+')||name==='projects')rmSync(join(store,'v10',name),{recursive:true});
+ f.git(['add','package.json','pnpm-lock.yaml']);f.git(['commit','--amend','--no-edit']);f.input.reviewedBaseSha=f.git(['rev-parse','HEAD']);
+ const archive=offlineArchive('@naeil/ui','0.7.42',{'offline-fixture':'^1.0.0'});writeFileSync(f.input.archive.path,archive);f.input.archive=pin(f.input.archive.path);f.input.release.archiveSha256=f.input.archive.sha256;
+ const accountPath=join(f.root,'account.json'),account=JSON.parse(readFileSync(accountPath));account.archiveSha256=f.input.archive.sha256;writeFileSync(accountPath,JSON.stringify(account));f.input.release.accountSha256=hash(readFileSync(accountPath));
+ const expectationsPath=join(f.root,'expectations.json');writeFileSync(expectationsPath,JSON.stringify(declaration({...f.input.release,archive:{sha256:f.input.archive.sha256},contract:{version:'1',sha256:f.input.release.chromeSha256},account:{sha256:f.input.release.accountSha256}})));
+ const fixture=JSON.parse(readFileSync(f.input.fixture.path));fixture.release=f.input.release;fixture.account=pin(accountPath);fixture.expectations=pin(expectationsPath);writeFileSync(f.input.fixture.path,JSON.stringify(fixture));f.input.fixture=pin(f.input.fixture.path);
+ f.config.dependencyStore={path:store,sha256:treeDigest(store)};f.input.generation.trustedFiles[store]=f.config.dependencyStore.sha256;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ return {...f,store,metadata,env};
+}
+test('pinned pnpm resolves an existing registry package only from the approved offline bundle cache',{skip:process.platform!=='darwin'?'actual macOS sandbox required':!process.env.NAEIL_TEST_PNPM_10_30_3?'set NAEIL_TEST_PNPM_10_30_3 to exact pinned pnpm.cjs':false},async t=>{
+ const f=offlineFixture(t,process.env.NAEIL_TEST_PNPM_10_30_3),sourceHead=f.input.reviewedBaseSha;
+ const makeRoot=(name,metadata)=>{
+  const root=join(f.root,name),checkout=join(root,'checkout'),store=join(root,'cache/store');mkdirSync(join(checkout,'vendor'),{recursive:true});fs.cpSync(f.store,store,{recursive:true});if(!metadata)fs.rmSync(join(store,'metadata-v1.3'),{recursive:true});
+  const pkg=JSON.parse(readFileSync(join(f.input.sourceRoot,'package.json')));pkg.dependencies['@naeil/ui']='file:vendor/naeil-ui-0.7.42.tgz';writeFileSync(join(checkout,'package.json'),JSON.stringify(pkg));
+  fs.copyFileSync(join(f.input.sourceRoot,'pnpm-lock.yaml'),join(checkout,'pnpm-lock.yaml'));fs.copyFileSync(f.input.archive.path,join(checkout,'vendor/naeil-ui-0.7.42.tgz'));
+  return {root,checkout};
+ };
+ const env={...f.env,XDG_CACHE_HOME:join(f.root,'unrelated-empty-cache')},missingRoot=makeRoot('content-only',false);
+ const run=(root,checkout,unchanged)=>spawnSync(f.config.node,offlineInstallArgs(f.config.pnpm.path,root,unchanged),{cwd:checkout,env,encoding:'utf8'});
+ const missing=run(missingRoot.root,missingRoot.checkout,false);assert.equal(missing.status,1);assert.match(missing.stdout+missing.stderr,/ERR_PNPM_NO_OFFLINE_META/);
+ const approved=makeRoot('metadata-bundle',true),before={packageJSON:readFileSync(join(f.input.sourceRoot,'package.json')),lockfile:readFileSync(join(f.input.sourceRoot,'pnpm-lock.yaml'))};
+ const updated=run(approved.root,approved.checkout,false);assert.equal(updated.status,0,updated.stdout+updated.stderr);
+ const frozen=run(approved.root,approved.checkout,true);assert.equal(frozen.status,0,frozen.stdout+frozen.stderr);
+ assertDependencyDelta(before,{packageJSON:readFileSync(join(approved.checkout,'package.json')),lockfile:readFileSync(join(approved.checkout,'pnpm-lock.yaml'))});
+ assert.equal(JSON.parse(readFileSync(join(approved.checkout,'node_modules/@naeil/ui/package.json'))).version,'0.7.42');
+ assert.equal(JSON.parse(readFileSync(join(approved.checkout,'node_modules/offline-fixture/package.json'))).version,'1.0.0');
+ assert.equal(treeDigest(f.store),f.config.dependencyStore.sha256);assert.equal(f.git(['rev-parse','HEAD']),sourceHead);assert.equal(f.git(['status','--porcelain']),'');
+ t.diagnostic(JSON.stringify({contentOnlyExit:missing.status,contentOnlyStdoutSha256:hash(missing.stdout),updateExit:updated.status,updateStdoutSha256:hash(updated.stdout),frozenExit:frozen.status,frozenStdoutSha256:hash(frozen.stdout),bundleSha256:treeDigest(f.store)}));
+});
 test('prepared dependency store preserves exact modes and internal links under umask 077',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  if(process.umask()!==0o077) {
   const env={PATH:'/usr/bin:/bin',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',COPYFILE_DISABLE:'1'};

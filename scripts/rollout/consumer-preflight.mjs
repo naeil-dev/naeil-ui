@@ -140,6 +140,11 @@ function copyPreparedStore(source,destination) {
  modes(source,destination);
 }
 
+export function offlineInstallArgs(pnpm,root,unchanged) {
+ const store=join(root,'cache','store');
+ return [pnpm,'install',unchanged?'--frozen-lockfile':'--no-frozen-lockfile','--ignore-scripts','--offline','--store-dir',store,'--cache-dir',store,'--package-import-method=copy'];
+}
+
 export async function prepareCandidate(input,dependencies={}) {
  assert.deepEqual(dependencies,{},'Preflight enforcement cannot be replaced by injected command runners');configured(input);
  const config=input.config,root=input.isolatedRoot;
@@ -170,7 +175,7 @@ export async function prepareCandidate(input,dependencies={}) {
   if(!target.unchanged) {const path=join(checkout,target.vendor);if(existsSync(path))assert.equal(hash(readFileSync(path)),input.release.archiveSha256,'Existing frozen archive differs');else writeFileSync(path,readFileSync(archive),{flag:'wx'});writeFileSync(join(checkout,'package.json'),target.packageJSON);}
   // Only offline script-disabled installation is supported. A missing prepared store
   // is a failure; no consumer or production network access is added to make it pass.
-  const installArgs=[config.pnpm.path,'install',target.unchanged?'--frozen-lockfile':'--no-frozen-lockfile','--ignore-scripts','--offline','--store-dir',join(root,'cache','store'),'--package-import-method=copy'];
+  const installArgs=offlineInstallArgs(config.pnpm.path,root,target.unchanged);
   const checks=[await stage(installSandbox,{file:config.node,args:installArgs,timeoutMs:1800000},output,'install')];
   checks.push(await stage(installSandbox,{file:config.node,args:[...installArgs.filter(arg=>arg!=='--no-frozen-lockfile'&&arg!=='--frozen-lockfile'),'--frozen-lockfile'],timeoutMs:1800000},output,'install-frozen'));
   assertDependencyDelta(before,{packageJSON:await sourceBytes(input,root,'package.json'),lockfile:await sourceBytes(input,root,'pnpm-lock.yaml')});
