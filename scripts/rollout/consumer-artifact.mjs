@@ -61,8 +61,24 @@ export function inspectJevArchive(archive, manifest, sourceRevision, release) {
  const tar=gunzipSync(archive,{maxOutputLength:1073741824}),seen=new Set(),directories=new Set(),contents=new Map(),links=new Map();
  let offset=0,pending=null,ended=false;
  const pax=bytes=>{
-  const values={};let position=0;
-  while(position<bytes.length){const space=bytes.indexOf(32,position);assert(space>position,'Invalid PAX length');const digits=bytes.subarray(position,space).toString();assert(/^[1-9]\d*$/.test(digits),'Invalid PAX length');const length=Number(digits),end=position+length;assert(Number.isSafeInteger(length)&&end<=bytes.length&&end>space+2&&bytes[end-1]===10,'Truncated PAX field');const record=bytes.subarray(space+1,end-1).toString('utf8'),equal=record.indexOf('=');assert(equal>0,'Invalid PAX record');const key=record.slice(0,equal),value=record.slice(equal+1);assert(['path','linkpath','mtime','LIBARCHIVE.xattr.com.apple.provenance','SCHILY.xattr.com.apple.provenance'].includes(key)&&!Object.hasOwn(values,key)&&!value.includes('\0'),'Unsupported/duplicate PAX field');if(key==='mtime')assert(/^-?\d+(?:\.\d+)?$/.test(value),'Invalid PAX time');values[key]=value;position=end;}
+  const values={},decoder=new TextDecoder('utf-8',{fatal:true,ignoreBOM:true});let position=0;
+  while(position<bytes.length){
+   const space=bytes.indexOf(32,position);assert(space>position,'Invalid PAX length');const digits=bytes.subarray(position,space).toString();assert(/^[1-9]\d*$/.test(digits),'Invalid PAX length');
+   const length=Number(digits),end=position+length;assert(Number.isSafeInteger(length)&&end<=bytes.length&&end>space+2&&bytes[end-1]===10,'Truncated PAX field');
+   const record=bytes.subarray(space+1,end-1),equal=record.indexOf(61);assert(equal>0,'Invalid PAX record');
+   const key=decoder.decode(record.subarray(0,equal));assert(['path','linkpath','mtime','LIBARCHIVE.xattr.com.apple.provenance','SCHILY.xattr.com.apple.provenance'].includes(key)&&!Object.hasOwn(values,key),'Unsupported/duplicate PAX field');
+   if(key.startsWith('LIBARCHIVE.xattr.')||key.startsWith('SCHILY.xattr.')){
+    // Retained BSD tar provenance values are opaque binary, including NUL.
+    // Discard their bytes; only presence matters for duplicate detection.
+    values[key]=true;
+   }else{
+    const value=decoder.decode(record.subarray(equal+1));assert(!value.includes('\0'),'Invalid PAX authority field');
+    if(key==='mtime')assert(/^-?\d+(?:\.\d+)?$/.test(value),'Invalid PAX time');
+    else assert(value.length>0,'Empty PAX path/linkpath');
+    values[key]=value;
+   }
+   position=end;
+  }
   return values;
  };
  while(offset+512<=tar.length){
