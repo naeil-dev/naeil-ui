@@ -58,5 +58,50 @@
       }
     ]
   },
-  "profiles": {}
+  "profiles": {
+    "naeil-next-intl-en-default": {
+      "review": {
+        "approvedBy": "Owner-approved standing rollout A implementation review",
+        "approvalRef": "docs/superpowers/specs/2026-10-26-standing-rollout-change-management.md",
+        "sourceCitations": [
+          "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/i18n/config.ts",
+          "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/i18n/routing.ts",
+          "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/components/nav-wrapper.tsx",
+          "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/components/ui/navigation.tsx",
+          "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/components/naeil-header-content.ts",
+          "https://github.com/naeil-dev/naeil-ui/blob/40a3928e24cd2f0141be3e605eed0a75260938fd/src/components/naeil-header.tsx"
+        ],
+        "notes": "Standing rollout A implementation review only. The cited source uses default en with localePrefix as-needed: en /design, ko /ko/design, ja /ja/design. Source-adoption and operational approvals remain unissued; route inputs must select this exact profile ID and digest."
+      },
+      "locales": {
+        "en": [
+          {
+            "id": "naeilUi",
+            "href": "https://naeil.dev/design",
+            "name": "naeil-ui",
+            "accessibleName": "naeil-ui Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+            "image": "https://naeil.dev/images/whale.png"
+          }
+        ],
+        "ko": [
+          {
+            "id": "naeilUi",
+            "href": "https://naeil.dev/ko/design",
+            "name": "naeil-ui",
+            "accessibleName": "naeil-ui 미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+            "image": "https://naeil.dev/images/whale.png"
+          }
+        ],
+        "ja": [
+          {
+            "id": "naeilUi",
+            "href": "https://naeil.dev/ja/design",
+            "name": "naeil-ui",
+            "accessibleName": "naeil-ui ミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn",
+            "image": "https://naeil.dev/images/whale.png"
+          }
+        ]
+      }
+    }
+  }
 }

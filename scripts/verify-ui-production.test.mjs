@@ -153,6 +153,54 @@ test('fixed independently declared catalogs pass both releases, locales, themes 
   } finally {await browser.close()}
 });
 
+test('naeil next-intl profile binds real menu hrefs without accepting canonical or content drift', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const projectProfile = {
+    id: 'naeil-next-intl-en-default', sha256: '62582d03fdc065939b818ce3252aa37537b874c982693793c64ccc72ae1a2928',
+  };
+  const release = compatibility('0.7.2'), expectations = loadReleaseExpectations(release);
+  // Refuse a missing declaration before launching the synthetic browser.
+  loadReleaseExpectations(release, { profile: projectProfile });
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext();
+    await context.route('**/*', route => route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(500);
+    const chrome = { themeControlLabels: { light: 'Theme', dark: 'Theme' }, projectProfile };
+    const render = async (locale, mobile, theme = 'light') => {
+      await page.setViewportSize({ width: mobile ? 390 : 1440, height: 900 });
+      await page.setContent(catalogHTML({ version: '0.7.2', locale, mobile, theme }), { waitUntil: 'domcontentloaded' });
+      const root = page.locator(mobile ? 'section' : '.ui-navigation-menu-grid');
+      if (locale === 'en') await root.locator('a').evaluate(link => link.href = 'https://naeil.dev/design');
+      return root;
+    };
+    for (const locale of ['en', 'ko', 'ja']) for (const mobile of [false, true]) for (const theme of ['light', 'dark']) {
+      await render(locale, mobile, theme);
+      await checkMenu(page, locale, theme, chrome, expectations);
+    }
+    for (const mobile of [false, true]) {
+      await render('en', mobile);
+      await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: chrome.themeControlLabels }, expectations), /Project 0 href mismatch/);
+      const mutations = [
+        [root => root.querySelector('a').href = 'https://naeil.dev/en/design', /Project 0 href mismatch/],
+        [root => root.querySelector('.ui-navigation-title > span').textContent = 'Wrong name', /Project 0 name mismatch/],
+        [root => root.querySelector('img').src = 'https://naeil.dev/images/fish.png', /Project 0 image mismatch/],
+        [root => root.querySelector('a').setAttribute('aria-label', 'Wrong accessible name'), /Project 0 accessible name mismatch/],
+      ];
+      for (const [mutate, reason] of mutations) {
+        const root = await render('en', mobile); await root.evaluate(mutate);
+        await assert.rejects(checkMenu(page, 'en', 'light', chrome, expectations), reason);
+      }
+      for (const locale of ['ko', 'ja']) {
+        const root = await render(locale, mobile);
+        await root.locator('a').evaluate(link => link.href = 'https://naeil.dev/design');
+        await assert.rejects(checkMenu(page, locale, 'light', chrome, expectations), /Project 0 href mismatch/);
+      }
+    }
+    await context.close();
+  } finally { await browser.close(); }
+});
+
 test('real DOM rejects deletion/addition/reordering, same-count wrong content, hidden duplicates and wrong geometry', async () => {
   const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
   const browser=await chromium.launch();
