@@ -4,7 +4,7 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { atomicJSON, hash, readPrivateJSON } from './standing-config.mjs';
-import { assertEvidencePath, importLegacyState, JSON_LIMITS, readStandingState, writeStandingState } from './standing-state.mjs';
+import { assertEvidencePath, importLegacyState, JSON_LIMITS, readStandingEvidence, readStandingState, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
 
 function fixture(t) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-state-'))); chmodSync(root, 0o700);
@@ -119,4 +119,57 @@ test('dangling state symlinks and evidence with an old mismatched digest fail cl
   const sourcePath = join(f.root, 'source.json'), state = { ...initial(), reference: { path: receipt, sha256: '0'.repeat(64) } };
   const bytes = Buffer.from(JSON.stringify(state)); writeFileSync(sourcePath, bytes, { mode: 0o600 });
   assert.throws(() => importLegacyState({ sourcePath, expectedSha256: hash(bytes), destination: join(f.root, 'import'), epochId: 'epoch', evidenceRoot: f.old }));
+});
+
+
+test('offline import preserves native artifact tuples without reading or inventorying their binary paths', t => {
+  const f = fixture(t), reference = join(f.old, 'chrome.json'); atomicJSON(reference, { schemaVersion: 1, frozen: true });
+  // Missing external binaries and a non-private in-root binary prove that
+  // artifact data is preserved without attempting any file read.
+  const external = id => ({ id: `${id}-artifact`, sourceRevision: 'a'.repeat(40), path: join(f.root, `${id}-native`, 'artifact.tar'), sha256: 'b'.repeat(64), ui: { version: '0.7.2', contractVersion: '1' } });
+  const internal = { ...external('estimate-old'), path: join(f.old, 'native-binary.tar') };
+  writeFileSync(internal.path, Buffer.alloc(2097153), { mode: 0o644 });
+  const estimate = external('estimate'), jev = external('jev');
+  const state = initial(); state.releases['2'] = {
+    binding: 'unchanged-original-binding',
+    services: {
+      estimate: { request: { referencePath: reference }, result: { artifact: estimate }, reverifications: [{ request: { artifact: estimate, referencePath: reference }, production: { passed: true } }] },
+      jev: { result: { artifact: jev } },
+    },
+    history: [{ serviceId: 'estimate', prior: { result: { artifact: internal } }, result: { artifact: internal } }],
+  };
+  const sourcePath = join(f.root, 'legacy.json'), bytes = Buffer.from(JSON.stringify(state)); writeFileSync(sourcePath, bytes, { mode: 0o600 });
+  importLegacyState({ sourcePath, expectedSha256: hash(bytes), destination: f.destination, epochId: 'native-artifacts', evidenceRoot: f.old });
+  assert.deepEqual(materialize(readStandingState(f.destination)), state);
+  assert.deepEqual(readFileSync(join(f.destination, 'legacy-source.json')), bytes);
+  assert.equal(assertEvidencePath({ stateDirectory: f.destination }, reference), reference);
+  for (const path of [estimate.path, jev.path, internal.path]) assert.throws(() => assertEvidencePath({ stateDirectory: f.destination }, path));
+  const index = readPrivateJSON(join(f.destination, 'state.json')), inventory = readStandingEvidence(f.destination, index.legacy.inventory);
+  assert.deepEqual(inventory.files.map(file => file.path), ['chrome.json']);
+});
+
+test('state depth boundary accepts readable nodes and rejects deeper saves before changing the prior root', t => {
+  for (const wrap of [value => ({ child: value }), value => [value]]) {
+    const f = fixture(t); mkdirSync(f.destination, { mode: 0o700 }); writeStandingState(f.destination, initial());
+    let nested = 'leaf'; for (let n = 0; n < 126; n++) nested = wrap(nested);
+    const accepted = { ...initial(), nested }; writeStandingState(f.destination, accepted);
+    assert.deepEqual(materialize(readStandingState(f.destination)), accepted);
+    const path = join(f.destination, 'state.json'), before = readFileSync(path), files = readdirSync(join(f.destination, 'evidence'));
+    assert.throws(() => writeStandingState(f.destination, { ...initial(), nested: wrap(nested) }), error => /JSON nesting exceeds bound/.test(error.cause?.message));
+    assert.deepEqual(readFileSync(path), before); assert.deepEqual(readdirSync(join(f.destination, 'evidence')), files);
+    assert.deepEqual(materialize(readStandingState(f.destination)), accepted);
+  }
+});
+
+test('immutable evidence depth boundary accepts readable nodes and rejects deeper values without writes', t => {
+  for (const wrap of [value => ({ child: value }), value => [value]]) {
+    const f = fixture(t); mkdirSync(f.destination, { mode: 0o700 }); writeStandingState(f.destination, initial());
+    let accepted = 'leaf'; for (let n = 0; n < 127; n++) accepted = wrap(accepted);
+    const reference = writeStandingEvidence(f.destination, accepted);
+    assert.deepEqual(readStandingEvidence(f.destination, reference), accepted);
+    const path = join(f.destination, 'state.json'), before = readFileSync(path), files = readdirSync(join(f.destination, 'evidence'));
+    assert.throws(() => writeStandingEvidence(f.destination, wrap(accepted)), error => /JSON nesting exceeds bound/.test(error.cause?.message));
+    assert.deepEqual(readFileSync(path), before); assert.deepEqual(readdirSync(join(f.destination, 'evidence')), files);
+    assert.deepEqual(readStandingEvidence(f.destination, reference), accepted);
+  }
 });

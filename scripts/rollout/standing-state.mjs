@@ -1,15 +1,18 @@
 import assert from 'node:assert/strict';
 import { closeSync, fsyncSync, lstatSync, openSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
-import { atomicJSON, hash, HEX, inactiveState, JSON_LIMITS, privateDirectory, readPrivateBytes, serializeJSON } from './standing-config.mjs';
+import { atomicJSON, hash, HEX, IDS, inactiveState, JSON_LIMITS, privateDirectory, readPrivateBytes, serializeJSON } from './standing-config.mjs';
 
 export { JSON_LIMITS };
 export class StandingStorageError extends Error { constructor(cause) { super('Standing storage failed; no dispatch permitted', { cause }); this.code = 'standing-storage-failed'; } }
 const entryExists = path => { try { lstatSync(path); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } };
 const histories = new WeakMap(), HISTORY = new Set(['history', 'reverifications', 'reverificationAttempts']);
+// Inline logical values gain one level inside an evidence node's `value`
+// field. Reserve that level before any writer can replace a readable root.
+const MAX_JSON_DEPTH = 128, MAX_VALUE_DEPTH = MAX_JSON_DEPTH - 1;
 const exact = (value, keys) => assert(value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).sort().join(',') === [...keys].sort().join(','), 'Unknown storage fields/type');
 function validateValue(value, active = new Set(), depth = 0) {
-  assert(depth <= 128, 'JSON nesting exceeds bound');
+  assert(depth <= MAX_VALUE_DEPTH, 'JSON nesting exceeds bound');
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
   if (typeof value === 'number') { assert(Number.isFinite(value), 'Finite JSON number required'); return; }
   assert(typeof value === 'object' && (Array.isArray(value) || Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null), 'Unsupported JSON value type');
@@ -31,7 +34,7 @@ export function parseStandingJSON(bytes) {
   const ws = () => { while (/\s/.test(text[i] || '') && i < text.length) i++; };
   function string() { const start = i++; while (i < text.length) { const c = text[i++]; if (c === '\\') i++; else if (c === '"') return JSON.parse(text.slice(start, i)); } throw Error('Invalid JSON string'); }
   function value(depth = 0) {
-    assert(depth <= 128, 'JSON nesting exceeds bound'); ws();
+    assert(depth <= MAX_JSON_DEPTH, 'JSON nesting exceeds bound'); ws();
     if (text[i] === '"') { string(); return; }
     if (text[i] === '{' || text[i] === '[') {
       const object = text[i++] === '{', end = object ? '}' : ']', keys = new Set(); ws();
@@ -152,7 +155,7 @@ function encode(directory, value, key = '') {
   return putNode(directory, { type: 'object', entries: entries.map(([name, item]) => [name, encode(directory, item, name)]) });
 }
 function decode(directory, ref, depth = 0) {
-  assert(depth < 128, 'Evidence nesting exceeds bound');
+  assert(depth < MAX_JSON_DEPTH, 'Evidence nesting exceeds bound');
   const node = readNode(directory, ref), next = ref => decode(directory, ref, depth + 1);
   if (node.type === 'json') { exact(node, ['schemaVersion', 'type', 'value']); return node.value; }
   if (node.type === 'history') return historyArray(directory, node);
@@ -275,12 +278,22 @@ export function importLegacyState({ sourcePath, expectedSha256, destination, epo
     if (optional && !entryExists(path)) return;
     const data = readPrivateBytes(path, JSON_LIMITS.evidence); if (expectedSha256 !== undefined) { assert(HEX.test(expectedSha256), 'Invalid old evidence digest'); assert.equal(hash(data), expectedSha256, 'Old evidence digest changed'); } files.set(rel, { path: rel, sha256: hash(data), bytes: data.length });
   }
-  function visit(value) {
+  function visit(value, serviceId = null, role = 'data') {
     if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item, serviceId, role === 'history' ? 'history-entry' : 'data');
+      return;
+    }
+    if (role === 'history-entry' && IDS.includes(value.serviceId)) serviceId = value.serviceId;
     for (const [key, item] of Object.entries(value)) {
+      // Native artifacts are opaque provenance tuples, not dispatcher receipt
+      // files. Preserve their values without stat/read/inventory privileges,
+      // including copies in verifier requests and archived service attempts.
+      if (key === 'artifact' && ['estimate', 'jev'].includes(serviceId) && ['request', 'result'].includes(role)) continue;
       if ((key === 'referencePath' || (key === 'path' && Object.hasOwn(value, 'sha256'))) && typeof item === 'string' && isAbsolute(item)) add(item, false, key === 'path' ? value.sha256 : undefined);
       if (key === 'outputDirectory' && typeof item === 'string') { if (item !== evidenceRoot) contained(evidenceRoot, item); privateDirectory(item); for (const file of ['input.json', 'output.json', 'invocation/input.json', 'invocation/output.json']) add(join(item, file), true); }
-      visit(item);
+      if (role === 'services' && IDS.includes(key)) visit(item, key, 'service');
+      else visit(item, serviceId, ['services', 'history', 'request', 'result'].includes(key) ? key : 'data');
     }
   }
   visit(state);
