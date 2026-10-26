@@ -11,7 +11,7 @@ import { assertServiceResult } from './standing-dispatcher.mjs';
 import { publicIdentity } from './naeil-standing-observer.mjs';
 import { validateCandidateHandoff } from './source-approval.mjs';
 import { reviewedMigration } from './rollout.mjs';
-import { inspectEstimateRelease, inspectJevStandalone } from './consumer-artifact.mjs';
+import { inspectEstimateRelease, inspectJevArchive, inspectJevStandalone } from './consumer-artifact.mjs';
 
 const exact = (value, keys) => assert(value && !Array.isArray(value) && Object.keys(value).sort().join(',') === [...keys].sort().join(','), 'Unsupported transition fields');
 const canonical = path => typeof path === 'string' && isAbsolute(path) && resolve(path) === path;
@@ -158,7 +158,8 @@ function historicalArtifact(artifact, service) {
   const manifestBytes=readFileSync(manifestPath),manifest=JSON.parse(manifestBytes);
   assert.equal(service==='jev'?hash(sortedJSON(manifest)):hash(manifestBytes),artifact.manifestSha256,'Historical artifact manifest changed');
   const release={version:artifact.ui.version,contractVersion:artifact.ui.contractVersion,archiveSha256:artifact.packageSha256};
-  const inspected=service==='estimate'?inspectEstimateRelease(artifact.directory,artifact.sourceRevision,release):inspectJevStandalone(artifact.standalonePath,artifact.sourceRevision,release);
+  const inspected=service==='estimate'?inspectEstimateRelease(artifact.directory,artifact.sourceRevision,release):artifact.standalonePath?inspectJevStandalone(artifact.standalonePath,artifact.sourceRevision,release):inspectJevArchive(readFileSync(artifact.path),manifest,artifact.sourceRevision,release);
+  if(service==='jev')assert.equal(inspected.buildId,artifact.buildId,'Historical Jev BUILD_ID changed');
   assert.equal(inspected.identity.artifactId,artifact.id);assert.deepEqual(inspected.manifest,manifest,'Historical native code inventory changed');
   return manifest;
 }

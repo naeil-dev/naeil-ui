@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path';
 import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, operationalGenerationDigest, ORIGINS, readPrivateJSON } from './standing-config.mjs';
 import { codeManifest } from './consumer-artifact.mjs';
 import { readStandingState } from './standing-state.mjs';
+import { syntheticJevArchive } from './fixtures/jev-archive.mjs';
 
 const automationRoot = resolve(new URL('../..', import.meta.url).pathname);
 function fixture(t) {
@@ -353,4 +354,18 @@ test('T7 every unbound malformed symlink or regular file in the native ui- names
     await assert.rejects(() => api.applyTransition(plan, approval(plan), f.deps)); assert(!existsSync(f.newState));
     for (const { path, bytes } of retained) assert.deepEqual(readFileSync(path), bytes);
   }
+});
+
+test('T7 original Jev archive-and-manifest baseline needs no extracted standalone tree and remains byte exact', async t => {
+  const api = await load(), f = fixture(t), ref = f.input.nativeEvidence.jev.baseline, baseline = readPrivateJSON(ref.path), artifact = baseline.artifact;
+  const archived = syntheticJevArchive(baseline.production.identity);
+  writeFileSync(artifact.path, archived.bytes, { mode: 0o600 }); atomicJSON(artifact.manifestPath, archived.manifest);
+  artifact.sha256 = hash(archived.bytes); artifact.storageRef = 'synthetic://' + artifact.sha256;
+  artifact.manifestSha256 = hash(JSON.stringify(archived.manifest, (_key, value) => value && typeof value === 'object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort()) : value));
+  artifact.buildId = 'synthetic-build'; rmSync(artifact.standalonePath, { recursive: true }); delete artifact.standalonePath;
+  atomicJSON(ref.path, baseline); f.input.nativeEvidence.jev.baseline = fileReference(ref.path);
+  const before = [ref.path, artifact.path, artifact.manifestPath].map(path => ({ path, bytes: readFileSync(path) }));
+  const plan = api.planTransition(f.input); await api.applyTransition(plan, approval(plan), f.deps);
+  for (const { path, bytes } of before) assert.deepEqual(readFileSync(path), bytes);
+  assert(!Object.hasOwn(readPrivateJSON(ref.path).artifact, 'standalonePath'));
 });
