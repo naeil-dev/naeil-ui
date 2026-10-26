@@ -80,10 +80,11 @@ test('STOP-safe synthetic candidate E2E uses retained artifact, package bytes, s
  }catch(error){f.retainFailure(error);throw error;}
 });
 test('dependency-only candidate is committed once; validation never creates another commit',{skip:process.platform!=='darwin'?'actual macOS sandbox required; unsupported OS is fail-closed':false},async t=>{
- const f=setup(t,{update:true});const c=await prepareCandidate(f.input);assert.notEqual(c.candidateSourceSha,c.reviewedBaseSha);
+ const f=setup(t,{update:true});try {const c=await prepareCandidate(f.input);assert.notEqual(c.candidateSourceSha,c.reviewedBaseSha);
  const result=await runPreflight(c,f.config);assert.equal(result.candidateSourceSha,c.candidateSourceSha);
  const changed=execFileSync('/usr/bin/git',['diff-tree','--no-commit-id','--name-only','-r',c.candidateSourceSha],{cwd:c.checkout,encoding:'utf8'}).trim().split('\n').sort();
  assert.deepEqual(changed,['package.json','pnpm-lock.yaml','vendor/naeil-ui-0.7.42.tgz']);
+ }catch(error){f.retainFailure(error);throw error;}
 });
 
 test('an exact approved dependency-only source HEAD can reuse its adopted base in a fresh isolated preparation',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
@@ -113,11 +114,12 @@ test('candidate cannot redirect retained output outside isolated root or substit
 });
 
 test('synthetic Jev selected standalone keeps exact native manifest/archive/receipt and immutable E2E bytes',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t,{service:'jev'});const candidate=await prepareCandidate(f.input);const result=await runPreflight(candidate,f.config);
+ const f=setup(t,{service:'jev'});try {const candidate=await prepareCandidate(f.input);const result=await runPreflight(candidate,f.config);
  assertCandidate(result,{...candidateBinding(result),service:'jev',repository:'naeil-dev/jev',candidateSourceSha:candidate.candidateSourceSha,generationSha256:candidate.generationSha256});
  assert.equal(result.artifact.standalonePath,result.artifact.directory);assert.match(result.artifact.sha256,/^[a-f0-9]{64}$/);
  const manifest=JSON.parse(readFileSync(result.artifact.manifestPath));const expected=hash(JSON.stringify(Object.fromEntries(Object.entries(manifest).sort().map(([key,value])=>[key,Object.fromEntries(Object.entries(value).sort())]))));
  assert.equal(result.artifact.manifestSha256,expected);
+ }catch(error){f.retainFailure(error);throw error;}
 });
 
 test('unsupported OS CLI refuses before creating its isolated root or launching consumer code',t=>{
@@ -145,10 +147,11 @@ test('Estimate requires its release integrity gate before creating a candidate c
 });
 
 test('failed Estimate release integrity cannot select an artifact or issue a passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);f.config.releaseIntegrity.args=['-e','process.exit(1)'];f.input.approval.planSha256=preflightPlanDigest(f.input);
- const candidate=await prepareCandidate(f.input).catch(error=>{t.diagnostic(error.cause?.stack??error.stack);throw error;});await assert.rejects(()=>runPreflight(candidate,f.config),/preflight failed/i);
+ const f=setup(t);try {f.config.releaseIntegrity.args=['-e','process.exit(1)'];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const candidate=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(candidate,f.config),error=>{if(!error.cause?.message.startsWith('Isolated stage failed: release-integrity'))throw error;return /preflight failed/i.test(error.message);});
  const check=JSON.parse(readFileSync(join(candidate.root,'input/receipts/release-integrity.json')));assert.equal(check.exitCode,1);
  assert(!existsSync(join(candidate.root,'artifact/selected/receipt.json')));assert(!existsSync(join(candidate.root,'input/passed.json')));
+ }catch(error){f.retainFailure(error);throw error;}
 });
 
 test('post-consumer Git filter cannot launch an outside synthetic marker',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
@@ -165,9 +168,10 @@ test('post-consumer Git filter cannot launch an outside synthetic marker',{skip:
 });
 
 test('consumer cannot write real Git metadata and redirecting .git cannot select host filters',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);f.config.checks[0].args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const pointer=fs.readFileSync('.git','utf8').trim();assert(pointer.startsWith('gitdir: '));const dir=path.resolve(pointer.slice(8));for(const file of ['config','info/attributes'])assert.throws(()=>fs.appendFileSync(path.join(dir,file),'bad'),e=>['EPERM','EACCES'].includes(e.code));fs.writeFileSync('.git','gitdir: ../outside-git');"];f.input.approval.planSha256=preflightPlanDigest(f.input);
- const c=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(c,f.config),/preflight failed/i);
+ const f=setup(t);try {f.config.checks[0].args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const pointer=fs.readFileSync('.git','utf8').trim();assert(pointer.startsWith('gitdir: '));const dir=path.resolve(pointer.slice(8));for(const file of ['config','info/attributes'])assert.throws(()=>fs.appendFileSync(path.join(dir,file),'bad'),e=>['EPERM','EACCES'].includes(e.code));fs.writeFileSync('.git','gitdir: ../outside-git');"];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const c=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(c,f.config),error=>{if(!error.cause?.message.startsWith('Immutable Git directory pointer changed'))throw error;return /preflight failed/i.test(error.message);});
  const unit=JSON.parse(readFileSync(join(c.root,'input/receipts/unit.json')));assert.equal(unit.exitCode,0);
+ }catch(error){f.retainFailure(error);throw error;}
 });
 
 test('source lock symlink is rejected without any parent read of its synthetic outside target',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{

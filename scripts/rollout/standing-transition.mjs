@@ -117,6 +117,14 @@ function immutable(path, bytes) {
   const fd = openSync(path,'wx',0o600); try { writeFileSync(fd,bytes); fsyncSync(fd); } finally { closeSync(fd); } syncDirectory(resolve(path,'..')); return fileReference(path,Math.max(JSON_LIMITS.evidence,bytes.length));
 }
 const immutableJSON = (path,value) => immutable(path,serializeJSON(value,JSON_LIMITS.controlIndex));
+const CONTROL_STREAM_LIMIT = 1024 * 1024;
+/** Raw archival leaves include exact empty streams; shared JSON references do not. */
+export function readArchivedControlStream(ref) {
+  exact(ref,['path','sha256','bytes']);
+  assert(typeof ref.sha256==='string'&&HEX.test(ref.sha256)&&Number.isSafeInteger(ref.bytes)&&ref.bytes>=0&&ref.bytes<=CONTROL_STREAM_LIMIT,'Bounded archival stream reference required');
+  const bytes=readPrivateBytes(ref.path,CONTROL_STREAM_LIMIT);
+  assert.equal(bytes.length,ref.bytes,'Archived stream byte count changed');assert.equal(hash(bytes),ref.sha256,'Archived stream bytes changed');return bytes;
+}
 const pointerNow = directory => pathExists(join(directory,'active.json')) ? readPrivateJSON(join(directory,'active.json'),JSON_LIMITS.controlIndex) : null;
 function assertHistoricalNaeil(service,release) {
   const {request,result} = service || {};
@@ -497,8 +505,22 @@ export async function archiveTransitionLock(plan,approval,authorization,dependen
     assertAbsentProcesses(probePlan,processes.stdout,lock.pid);
     guard();const transitions=privateDirectory(join(plan.controlDirectory,'transitions'),true),directory=privateDirectory(join(transitions,plan.planSha256),true);syncDirectory(plan.controlDirectory);syncDirectory(transitions);
     guard();const authorizationRef=immutableJSON(join(directory,'lock-archive-approval-'+fingerprint(authorization)+'.json'),authorization);
-    guard();const proofRef=immutableJSON(join(directory,'lock-archive-proof-'+authorization.controlLock.sha256+'.json'),{schemaVersion:1,authorization:authorizationRef,controlLock:authorization.controlLock,journal:authorization.journal,acquisition:lock.acquisition,quiescence:proof,ownerPid:lock.pid,ownerProcessInventory:{tool:tool.path,sha256:tool.sha256,args:['-axo','pid=,ppid=,command='],code:processes.code,stdout:processes.stdout,stderr:processes.stderr},ownerProcessInventorySha256:hash(processes.stdout),ownerAbsent:true});
+    const archiveId=fingerprint(authorization),prefix=join(directory,'lock-archive-'+archiveId+'-'),streams=[],records=[];
+    const retainStream=(name,value)=>{
+      guard();const bytes=Buffer.from(value,'utf8');assert(bytes.length<=CONTROL_STREAM_LIMIT,'Bounded archival stream required');
+      const ref=immutable(prefix+name+'.raw',bytes);readArchivedControlStream(ref);streams.push(ref);return ref;
+    };
+    const retainJSON=(name,value,limit)=>{
+      guard();const ref=immutable(prefix+name+'.json',serializeJSON(value,limit));readExactReference(ref,limit);records.push([ref,limit]);return ref;
+    };
+    const acquisitionRef=retainJSON('acquisition',lock.acquisition,JSON_LIMITS.controlIndex);
+    const quiescenceRef=retainJSON('quiescence',{...proof,facts:proof.facts.map(({stdout,stderr,...fact},index)=>({...fact,stdout:retainStream('quiescence-'+index+'-stdout',stdout),stderr:retainStream('quiescence-'+index+'-stderr',stderr)}))},JSON_LIMITS.evidence);
+    const ownerRef=retainJSON('owner',{tool:tool.path,sha256:tool.sha256,args:['-axo','pid=,ppid=,command='],code:processes.code,stdout:retainStream('owner-stdout',processes.stdout),stderr:retainStream('owner-stderr',processes.stderr)},JSON_LIMITS.controlIndex);
+    guard();const proofRef=immutableJSON(join(directory,'lock-archive-proof-'+archiveId+'.json'),{schemaVersion:2,authorization:authorizationRef,controlLock:authorization.controlLock,journal:authorization.journal,acquisition:acquisitionRef,quiescence:quiescenceRef,ownerPid:lock.pid,ownerProcessInventory:ownerRef,ownerProcessInventorySha256:hash(processes.stdout),ownerAbsent:true});
     guard();readExactReference(authorizationRef,JSON_LIMITS.controlIndex);readExactReference(proofRef,JSON_LIMITS.controlIndex);
+    for(const [ref,limit]of records)readExactReference(ref,limit);
+    for(const ref of streams)readArchivedControlStream(ref);
+    guard();
     const destination=join(directory,'archived-control-lock-'+authorization.controlLock.sha256+'.json');assert(!pathExists(destination),'Control lock already archived');
     renameSync(authorization.controlLock.path,destination);lockRenamed=true;syncDirectory(directory);syncDirectory(plan.controlDirectory);
     const result={schemaVersion:1,controlLock:fileReference(destination,JSON_LIMITS.controlIndex),authorization:authorizationRef,proof:proofRef};archiveComplete=true;return result;

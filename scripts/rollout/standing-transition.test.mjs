@@ -5,7 +5,7 @@ import { once } from 'node:events';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, operationalGenerationDigest, ORIGINS, readPrivateJSON, releaseIdentityDigest, routeKey } from './standing-config.mjs';
+import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, JSON_LIMITS, operationalGenerationDigest, ORIGINS, readExactReference, readPrivateJSON, releaseIdentityDigest, routeKey, serializeJSON } from './standing-config.mjs';
 import { codeManifest } from './consumer-artifact.mjs';
 import { readStandingState, writeStandingState } from './standing-state.mjs';
 import { syntheticJevArchive } from './fixtures/jev-archive.mjs';
@@ -15,8 +15,8 @@ import { runtimeIndex } from './package-runtime.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 
 const automationRoot = resolve(new URL('../..', import.meta.url).pathname);
-function fixture(t) {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-transition-'))); chmodSync(root, 0o700); t.after(() => rmSync(root, { recursive: true, force: true }));
+function fixture(t, parent = tmpdir()) {
+  const root = realpathSync(mkdtempSync(join(parent, 'standing-transition-'))); chmodSync(root, 0o700); if(parent === tmpdir())t.after(() => rmSync(root, { recursive: true, force: true }));else t.diagnostic('Retained synthetic fixture: '+root);
   const directory = name => { const path = join(root, name); mkdirSync(path, { mode: 0o700 }); return path; };
   const controlDirectory = directory('control'), oldState = directory('old'), newState = join(root, 'epoch2'), nativeState = directory('native'), nativeMarkers = directory('native-markers'), jevState = directory('jev-state'), jevBase = directory('jev-native');
   mkdirSync(join(nativeState,'keys'),{mode:0o700}); mkdirSync(join(jevBase,'releases'),{mode:0o700});
@@ -106,10 +106,115 @@ function preservedFiles(root) {
 }
 function assertArchivePreserved(before, archived, f) {
   for (const [path, bytes] of before) assert.deepEqual(readFileSync(path === join(f.controlDirectory, 'control.lock') ? archived.controlLock.path : path), bytes, path);
-  const proof = readPrivateJSON(archived.proof.path); assert.deepEqual(proof.authorization, archived.authorization); assert.equal(proof.ownerAbsent, true);
-  assert(proof.ownerProcessInventory.stdout.includes('/synthetic/unrelated')); assert(proof.quiescence.facts.every(fact => typeof fact.stdout === 'string' && typeof fact.stderr === 'string'));
+  const { index, quiescence, owner } = readArchiveProof(archived); assert.deepEqual(index.authorization, archived.authorization); assert.equal(index.ownerAbsent, true);
+  assert(readFileSync(owner.stdout.path, 'utf8').includes('/synthetic/unrelated'));
+  for (const fact of [...quiescence.facts, owner]) for (const stream of ['stdout', 'stderr']) { const ref = fact[stream], bytes = readFileSync(ref.path); assert.equal(bytes.length, ref.bytes); assert.equal(hash(bytes), ref.sha256); }
   assert(!existsSync(join(f.controlDirectory, 'control.lock'))); assert(!existsSync(join(f.controlDirectory, 'control-archive.lock')));
 }
+
+function unrelatedInventory(bytes, label, rows = 1, fill = 'x') {
+  return Array.from({ length: rows }, (_, index) => {
+    const prefix = (1000 + index) + ' 1 /synthetic/unrelated-' + label + ' ';
+    return prefix + fill.repeat(bytes / rows - Buffer.byteLength(prefix) - 1) + '\n';
+  }).join('');
+}
+function readArchiveProof(archived) {
+  const index = JSON.parse(readExactReference(archived.proof, 262144)); assert.equal(index.schemaVersion, 2);
+  return { index, acquisition: JSON.parse(readExactReference(index.acquisition, 262144)), quiescence: JSON.parse(readExactReference(index.quiescence, JSON_LIMITS.evidence)), owner: JSON.parse(readExactReference(index.ownerProcessInventory, 262144)) };
+}
+function archiveObservations(f, first, last) {
+  const execute = f.deps.execute, observed = []; let processQueries = 0;
+  f.deps.execute = async (file, args) => {
+    const result = file === f.tools.ps.path ? { code: 0, stdout: ++processQueries === 1 ? first : last, stderr: '' } : await execute(file, args);
+    observed.push({ file, args, result }); return result;
+  };
+  return observed;
+}
+async function assertArchiveStreams(api, archived, observed) {
+  const saved = readArchiveProof(archived), facts = [...saved.quiescence.facts, saved.owner]; assert.equal(facts.length, observed.length);
+  for (const [index, fact] of facts.entries()) {
+    const expected = observed[index]; assert.equal(fact.path || fact.tool, expected.file); assert.deepEqual(fact.args, expected.args); assert.equal(fact.code, expected.result.code);
+    for (const stream of ['stdout', 'stderr']) {
+      const bytes = Buffer.from(expected.result[stream]), ref = fact[stream]; assert.equal(ref.bytes, bytes.length); assert.equal(ref.sha256, hash(bytes));
+      assert.deepEqual(api.readArchivedControlStream(ref), bytes); assert.equal((await import('node:fs')).lstatSync(ref.path).mode & 0o777, 0o600);
+    }
+  }
+  assert(Buffer.byteLength(readFileSync(archived.proof.path)) <= 262144); return saved;
+}
+
+test('IF2 bounded raw archival evidence preserves both 160000-byte inventories outside the control index in every journal phase', async t => {
+  const api = await load();
+  for (const phase of ['absent', 'incomplete', 'completed']) await t.test(phase, async st => {
+    const f = fixture(st, process.env.STANDING_IF2_CASE_ROOT), history = nativeHistory(f), plan = api.planTransition(f.input), approved = approval(plan);
+    if (phase === 'completed') await api.applyTransition(plan, approved, f.deps);
+    if (phase === 'incomplete') await assert.rejects(() => api.applyTransition(plan, approved, { ...f.deps, afterBoundary: name => { if(name === 'journal-prepared')throw Error('synthetic prepared boundary'); } }), /synthetic prepared boundary/);
+    syntheticDeadLease(f, phase === 'completed' ? activeAcquisition(f) : { kind: 'standing-transition-acquisition', plan, approval: approved });
+    const lock = readPrivateJSON(join(f.controlDirectory, 'control.lock')), authorization = archiveAuthorization(f, plan, approved, phase === 'completed' ? archiveCurrent(f, history) : null), before = preservedFiles(f.root);
+    const first = unrelatedInventory(160000, 'first', 500), last = unrelatedInventory(160000, 'last', 500), observed = archiveObservations(f, first, last);
+    const archived = await api.archiveTransitionLock(plan, approved, authorization, f.deps), saved = await assertArchiveStreams(api, archived, observed);
+    assert.deepEqual(saved.acquisition, lock.acquisition); assert.notEqual(saved.quiescence.facts.find(fact => fact.tool === 'ps').stdout.path, saved.owner.stdout.path);
+    for (const [path, bytes] of before) assert.deepEqual(readFileSync(path === authorization.controlLock.path ? archived.controlLock.path : path), bytes);
+    assert(!existsSync(authorization.controlLock.path)); assert(!existsSync(join(f.controlDirectory, 'control-archive.lock')));
+  });
+});
+
+test('IF2 raw stream leaves accept the exact 1MiB byte bound despite JSON escaping and reject either over-bound inventory before rename', async t => {
+  const api = await load(), limit = 1048576;
+  for (const cause of ['exact', 'quiescence-over', 'owner-over']) await t.test(cause, async st => {
+    const f = fixture(st, process.env.STANDING_IF2_CASE_ROOT), plan = api.planTransition(f.input), approved = approval(plan);
+    syntheticDeadLease(f, { kind: 'standing-transition-acquisition', plan, approval: approved });
+    const authorization = archiveAuthorization(f, plan, approved), before = preservedFiles(f.root);
+    const first = unrelatedInventory(limit + (cause === 'quiescence-over' ? 1 : 0), 'first', 1, '\u0001'), last = unrelatedInventory(limit + (cause === 'owner-over' ? 1 : 0), 'last', 1, '\u0001');
+    assert(Buffer.byteLength(JSON.stringify(first)) > 6 * 1024 * 1024 - 1024);
+    const observed = archiveObservations(f, first, last);
+    if (cause === 'exact') {
+      const archived = await api.archiveTransitionLock(plan, approved, authorization, f.deps), saved = await assertArchiveStreams(api, archived, observed);
+      assert.equal(saved.owner.stdout.bytes, limit); assert.equal(saved.owner.stderr.bytes, 0);
+      assert.throws(() => api.readArchivedControlStream({ ...saved.owner.stdout, bytes: limit + 1 }), /Bounded/);
+      assert.throws(() => api.readArchivedControlStream({ ...saved.owner.stdout, sha256: '0'.repeat(64) }), /changed/);
+      assert.throws(() => api.readArchivedControlStream({ ...saved.owner.stdout, bytes: limit - 1 }), /changed/);
+      for (const [path, bytes] of before) assert.deepEqual(readFileSync(path === authorization.controlLock.path ? archived.controlLock.path : path), bytes);
+    } else {
+      await assert.rejects(() => api.archiveTransitionLock(plan, approved, authorization, f.deps), /Bounded/); assertArchivalRefused(before, f);
+    }
+  });
+});
+
+test('IF2 an exact maximum control-lock acquisition remains a separate bounded leaf rather than overflowing the archival index', async t => {
+  const api = await load(), f = fixture(t, process.env.STANDING_IF2_CASE_ROOT), plan = api.planTransition(f.input), approved = approval(plan), lockPath = join(f.controlDirectory, 'control.lock');
+  const acquisition = { kind: 'standing-transition-acquisition', plan, approval: approved }; syntheticDeadLease(f, acquisition);
+  approved.approvalRef += 'x'.repeat(262144 - fileReference(lockPath).bytes); syntheticDeadLease(f, acquisition); assert.equal(fileReference(lockPath).bytes, 262144);
+  const authorization = archiveAuthorization(f, plan, approved), before = preservedFiles(f.root), observed = archiveObservations(f, unrelatedInventory(160000, 'first', 500), unrelatedInventory(160000, 'last', 500));
+  const archived = await api.archiveTransitionLock(plan, approved, authorization, f.deps), saved = await assertArchiveStreams(api, archived, observed);
+  assert.deepEqual(saved.acquisition, acquisition); assert(serializeJSON(acquisition, 262144).length > 200000); assert(readFileSync(archived.proof.path).length < 16384);
+  for (const [path, bytes] of before) assert.deepEqual(readFileSync(path === lockPath ? archived.controlLock.path : path), bytes);
+});
+test('IF2 fresh exact archival authorization preserves partial prior evidence and archives in its own namespace', async t => {
+  const api = await load(), { default: fs } = await import('node:fs'), { syncBuiltinESMExports } = await import('node:module');
+  for (const boundary of ['owner-stream', 'final-proof']) await t.test(boundary, async st => {
+  const f = fixture(st, process.env.STANDING_IF2_CASE_ROOT), plan = api.planTransition(f.input), approved = approval(plan);
+  syntheticDeadLease(f, { kind: 'standing-transition-acquisition', plan, approval: approved });
+  const authorization = archiveAuthorization(f, plan, approved), before = preservedFiles(f.root), directory = join(f.controlDirectory, 'transitions', plan.planSha256);
+  archiveObservations(f, unrelatedInventory(320, 'prior-first'), unrelatedInventory(320, 'prior-owner'));
+  const original = { openSync: fs.openSync, closeSync: fs.closeSync, fsyncSync: fs.fsyncSync }, descriptors = new Map(); let injected = false;
+  fs.openSync = (path, ...args) => { const fd = original.openSync(path, ...args); descriptors.set(fd, path); return fd; };
+  fs.closeSync = fd => { descriptors.delete(fd); return original.closeSync(fd); };
+  fs.fsyncSync = fd => { const path = String(descriptors.get(fd)); if (!injected && (boundary === 'owner-stream' ? path.endsWith('-owner-stdout.raw') : path.includes('/lock-archive-proof-'))) { injected = true; throw Error('synthetic partial archival storage failure'); } return original.fsyncSync(fd); };
+  syncBuiltinESMExports();
+  try { await assert.rejects(() => api.archiveTransitionLock(plan, approved, authorization, f.deps), /synthetic partial archival storage failure/); }
+  finally { Object.assign(fs, original); syncBuiltinESMExports(); }
+  assert(injected); assert(existsSync(authorization.controlLock.path)); assert(!existsSync(join(f.controlDirectory, 'control-archive.lock')));
+  for (const [path, bytes] of before) assert.deepEqual(readFileSync(path), bytes);
+  const partial = preservedFiles(directory); assert([...partial.keys()].some(path => path.endsWith('-quiescence.json')));
+  assert.equal([...partial.keys()].some(path => path.includes('/lock-archive-proof-')), boundary === 'final-proof');
+  const fresh = { ...authorization, approvalRef: authorization.approvalRef + '/fresh-explicit-attempt' }; assert.notEqual(fingerprint(fresh), fingerprint(authorization));
+  const observed = archiveObservations(f, unrelatedInventory(320, 'fresh-first'), unrelatedInventory(320, 'fresh-owner'));
+  const archived = await api.archiveTransitionLock(plan, approved, fresh, f.deps), saved = await assertArchiveStreams(api, archived, observed);
+  assert.deepEqual(readPrivateJSON(archived.authorization.path), fresh); assert.deepEqual(saved.index.authorization, archived.authorization);
+  for (const [path, bytes] of partial) assert.deepEqual(readFileSync(path), bytes, 'Prior partial archival evidence was overwritten');
+  for (const [path, bytes] of before) assert.deepEqual(readFileSync(path === authorization.controlLock.path ? archived.controlLock.path : path), bytes);
+  });
+});
 function terminalProgress(f, plan, ids) {
   const state = readStandingState(f.newState), record = state.releases['2'], pointerSha256 = fileReference(join(f.controlDirectory, 'active.json')).sha256;
   for (const id of ids) {
@@ -192,15 +297,20 @@ test('IF1 archival fsyncs exact authorization and raw proof before rename and re
     const f = fixture(t), history = nativeHistory(f), plan = api.planTransition(f.input), approved = approval(plan);
     await api.applyTransition(plan, approved, f.deps); syntheticDeadLease(f, activeAcquisition(f));
     const authorization = archiveAuthorization(f, plan, approved, archiveCurrent(f, history)), before = preservedFiles(f.root), lockPath = authorization.controlLock.path;
-    const directory = join(f.controlDirectory, 'transitions', plan.planSha256), authorizationPath = join(directory, 'lock-archive-approval-' + fingerprint(authorization) + '.json'), proofPath = join(directory, 'lock-archive-proof-' + authorization.controlLock.sha256 + '.json');
+    const directory = join(f.controlDirectory, 'transitions', plan.planSha256), authorizationPath = join(directory, 'lock-archive-approval-' + fingerprint(authorization) + '.json'), proofPath = join(directory, 'lock-archive-proof-' + fingerprint(authorization) + '.json');
     const original = { openSync: fs.openSync, closeSync: fs.closeSync, fsyncSync: fs.fsyncSync, renameSync: fs.renameSync }, descriptors = new Map(), synced = []; let renamed = false, archived;
     fs.openSync = (path, ...args) => { const fd = original.openSync(path, ...args); descriptors.set(fd, path); return fd; };
     fs.closeSync = fd => { descriptors.delete(fd); return original.closeSync(fd); };
     fs.fsyncSync = fd => { if (storageFailure && renamed && descriptors.get(fd) === directory) throw Error('synthetic post-rename storage failure'); synced.push(descriptors.get(fd)); return original.fsyncSync(fd); };
     fs.renameSync = (source, destination) => {
       if (source === lockPath) {
-        assert.deepEqual(readPrivateJSON(authorizationPath), authorization); assert.equal(readPrivateJSON(proofPath).ownerAbsent, true);
-        assert(synced.includes(authorizationPath) && synced.includes(proofPath)); assert(synced.lastIndexOf(directory) > synced.lastIndexOf(proofPath), 'The proof directory must be durable before moving ownership');
+        assert.deepEqual(readPrivateJSON(authorizationPath), authorization);
+        const { index, acquisition, quiescence, owner } = readArchiveProof({ proof: fileReference(proofPath) }); assert.equal(index.ownerAbsent, true); assert.deepEqual(acquisition, readPrivateJSON(source).acquisition);
+        const refs = [index.authorization, index.acquisition, index.quiescence, index.ownerProcessInventory];
+        for (const fact of [...quiescence.facts, owner]) for (const stream of ['stdout', 'stderr']) { const ref = fact[stream]; api.readArchivedControlStream(ref); refs.push(ref); }
+        assert(synced.includes(proofPath));
+        for (const ref of refs) assert(synced.includes(ref.path) && synced.lastIndexOf(ref.path) < synced.lastIndexOf(proofPath), 'Every referenced leaf must be durable before the index');
+        assert(synced.lastIndexOf(directory) > synced.lastIndexOf(proofPath), 'The proof directory must be durable before moving ownership');
         original.renameSync(source, destination); renamed = true; return;
       }
       return original.renameSync(source, destination);

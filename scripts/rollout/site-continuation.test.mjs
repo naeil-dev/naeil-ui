@@ -115,9 +115,11 @@ test('T7 standalone refuses unbound config/session/routes/target/approval and st
 });
 
 test('T7 standalone refuses protected/public evidence that expires during final provenance awaits', async t => {
-  const { validateSiteReadOnly } = await api(), f = fixture(t), now = Date.now(); let calls = 0;
-  f.github.mainAncestor = async () => { if (++calls === 2) t.mock.method(Date, 'now', () => now + 301_000); };
+  const { validateSiteReadOnly } = await api(), f = fixture(t), verify = f.verify; let calls = 0, verifiedAt;
+  f.verify = async (...args) => { const receipt = await verify(...args); verifiedAt = Date.parse(receipt.checkedAt); return receipt; };
+  f.github.mainAncestor = async () => { if (++calls === 2) { assert(Number.isFinite(verifiedAt)); t.mock.method(Date, 'now', () => verifiedAt + (f.request.maxEvidenceAgeSeconds + 1) * 1000); } };
   await assert.rejects(() => validateSiteReadOnly(f.request, { ...f, authorization: f.authorizationRef }), /Stale production/);
+  assert.equal(calls, 2);
   assert(!existsSync(join(f.request.outputDirectory, 'result.json')));
 });
 

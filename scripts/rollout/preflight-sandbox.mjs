@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { constants, closeSync, existsSync, fstatSync, lstatSync, openSync, readSync, readFileSync, readdirSync, readlinkSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { createServer } from 'node:net';
+import net from 'node:net';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const HEX = /^[a-f0-9]{64}$/;
@@ -11,6 +11,32 @@ const under = (path, root) => path === root || path.startsWith(root + sep);
 const canonical = path => typeof path === 'string' && isAbsolute(path) && resolve(path) === path && realpathSync(path) === path;
 const quote = value => JSON.stringify(value);
 export const ROLE_PORTS = Object.freeze({ estimateAuth:42481, estimateHttp:42482, estimateE2E:2480, estimateSmoke:2481, estimateContender:42483, jevIdentity:42484, jevE2E:2467 });
+
+/** A TCP handshake alone is insufficient: drain the exact owned reply and FIN. */
+export function connectCanary(port,host) {
+  return new Promise(resolveResult=>{
+    const socket=net.connect({port,host});let settled=false,reply=Buffer.alloc(0);
+    const finish=result=>{if(settled)return;settled=true;clearTimeout(timer);if(result!=='connected')socket.destroy();resolveResult(result);};
+    const timer=setTimeout(()=>finish('timeout'),1500);
+    socket.once('connect',()=>{socket.end();socket.resume();});
+    socket.on('data',bytes=>{if(settled)return;if(reply.length+bytes.length>9)return finish('unexpected-reply');reply=Buffer.concat([reply,bytes]);});
+    socket.once('end',()=>finish(reply.equals(Buffer.from('synthetic'))?'connected':'unexpected-reply'));
+    socket.once('error',error=>finish(error.code||'socket-error'));
+    socket.once('close',()=>finish('closed'));
+  });
+}
+
+/** Both owned listeners retain socket failures instead of losing the probe. */
+export function createCanaryServer() {
+  let errorCode=null,closing;
+  const server=net.createServer(socket=>{
+    const timer=setTimeout(()=>{errorCode??='timeout';socket.destroy();},1500);
+    socket.once('error',error=>{errorCode??=error.code||'socket-error';});
+    socket.once('close',()=>clearTimeout(timer));
+    socket.end('synthetic');
+  });
+  return {server,get errorCode(){return errorCode;},close(){return closing??=new Promise(resolveClose=>server.close(resolveClose));}};
+}
 
 /** Consumer-controlled source bytes are read inside the sandbox with this bounded
  * descriptor reader. NOFOLLOW/NONBLOCK reject links and special files before I/O. */
@@ -147,7 +173,7 @@ export async function verifySandbox(sandbox,{outsideRead,immutableFile,nativeExe
   assert(spec.readOnly.some(root=>under(immutableFile,root)),'Immutable input canary required');
   assert(![...spec.writable,...spec.readOnly,...(spec.readable??[]).map(e=>e.path)].some(root=>under(outsideRead,root)||under(nativeExecutable,root)),'Outside synthetic probes must be inaccessible');
   const artifactCanary=join(spec.readOnly[1],'isolation-artifact-canary');if(!existsSync(artifactCanary))writeFileSync(artifactCanary,'immutable-synthetic-artifact',{mode:0o600,flag:'wx'});
-  const outsideServer=createServer(socket=>socket.end('synthetic'));
+  const outside=createCanaryServer(),outsideServer=outside.server;
   await new Promise((resolveReady,reject)=>{outsideServer.once('error',reject);outsideServer.listen(0,'127.0.0.1',resolveReady);});
   const forbiddenPort=outsideServer.address().port;
   const unrelated=spawn(spec.runtime,['-e',"process.on('SIGTERM',()=>process.exit(42));console.log('ready');setInterval(()=>{},1000)"],{env:sanitizedEnvironment({executionPath:spec.executionPath,tmp:spec.writable[2],cache:spec.writable[3]}),stdio:['ignore','pipe','pipe']});
@@ -155,7 +181,7 @@ export async function verifySandbox(sandbox,{outsideRead,immutableFile,nativeExe
   const port=Object.values(spec.endpoints.roles)[0];
   const code=`
   const fs=require('node:fs'),cp=require('node:child_process'),net=require('node:net');
-  const checks=[];function ok(name,passed){checks.push({name,passed:passed===true});}
+  const checks=[];function ok(name,passed,errorCode){checks.push({name,passed:passed===true,...(errorCode?{errorCode}:{})});}
   function denied(fn){try{fn();return false;}catch(e){return ['EPERM','EACCES'].includes(e.code);}}
   ok('allowed-write',(fs.writeFileSync(${quote(join(spec.writable[1],'sandbox-canary'))},'synthetic'),true));
   ok('outside-read',denied(()=>fs.readFileSync(${quote(outsideRead)})));
@@ -168,24 +194,29 @@ export async function verifySandbox(sandbox,{outsideRead,immutableFile,nativeExe
   const unapproved=cp.spawnSync('/usr/bin/true',[]);ok('unapproved-exec',!!unapproved.error&&['EPERM','EACCES'].includes(unapproved.error.code));
   ok('sanitized-environment',!process.env.PREFLIGHT_SYNTHETIC_SECRET&&!process.env.NODE_OPTIONS&&!process.env.SSH_AUTH_SOCK);
   ok('unrelated-signal',denied(()=>process.kill(${unrelated.pid},'SIGTERM')));
-  function connect(port,host){return new Promise(resolve=>{const s=net.connect({port,host});s.once('connect',()=>{s.destroy();resolve('connected')});s.once('error',e=>resolve(e.code));setTimeout(()=>{s.destroy();resolve('timeout')},1500).unref();});}
+  ${connectCanary.toString()}
+  ${createCanaryServer.toString()}
   (async()=>{
     const owned=cp.spawn(process.execPath,['-e',"console.log('ready');setInterval(()=>{},1000)"],{stdio:['ignore','pipe','pipe']});
     owned.stdout.once('data',()=>owned.kill('SIGTERM'));
     ok('own-child-cleanup',await new Promise(r=>{owned.once('error',()=>r(false));owned.once('close',(code,signal)=>r(signal==='SIGTERM'));}));
-    ok('outside-listener', ['EPERM','EACCES'].includes(await connect(${forbiddenPort},'127.0.0.1')));
-    ok('external-network', ['EPERM','EACCES'].includes(await connect(443,'192.0.2.1')));
+    ok('outside-listener', ['EPERM','EACCES'].includes(await connectCanary(${forbiddenPort},'127.0.0.1')));
+    ok('external-network', ['EPERM','EACCES'].includes(await connectCanary(443,'192.0.2.1')));
     const bind=await new Promise(r=>{const s=net.createServer();s.once('error',e=>r(e.code));s.listen(${forbiddenPort},'127.0.0.1',()=>s.close(()=>r('bound')));});ok('unapproved-bind',['EPERM','EACCES'].includes(bind));
-    const s=net.createServer(c=>c.end('synthetic'));await new Promise((r,j)=>{s.once('error',j);s.listen(${port},'127.0.0.1',r)});
-    ok('exact-loopback',await connect(${port},'127.0.0.1')==='connected');await new Promise(r=>s.close(r));
+    const listener=createCanaryServer(),s=listener.server;await new Promise((r,j)=>{s.once('error',j);s.listen(${port},'127.0.0.1',r)});
+    const communication=await connectCanary(${port},'127.0.0.1');await listener.close();
+    ok('exact-loopback',communication==='connected'&&!listener.errorCode,listener.errorCode||(communication==='connected'?null:communication));
     console.log(JSON.stringify(checks));process.exitCode=checks.every(c=>c.passed)?0:1;
   })().catch(()=>process.exitCode=1);`;
   try {
     await new Promise((ready,reject)=>{const timer=setTimeout(()=>reject(new Error('Synthetic signal canary failed to start')),5000);unrelated.once('error',error=>{clearTimeout(timer);reject(error);});unrelated.stdout.once('data',()=>{clearTimeout(timer);ready();});});
     const result=await executeSandbox(sandbox,{file:spec.runtime,args:['-e',code],timeoutMs:15000});
+    await outside.close();
     let checks;try{checks=JSON.parse(result.stdout);}catch{throw new Error(`Sandbox enforcement probe failed (exit ${result.exitCode}; output ${result.stdoutSha256}; error ${result.stderrSha256})`);}
-    assert.equal(result.exitCode,0,`Sandbox boundary denied incorrectly: ${checks.filter(c=>!c.passed).map(c=>c.name).join(', ')}`);
-    assert(checks.length===15&&checks.every(c=>c.passed)&&unrelated.exitCode===null&&unrelated.signalCode===null,'All sandbox boundaries must be proven before consumer execution');
+    if(outside.errorCode){const check=checks.find(c=>c.name==='outside-listener');assert(check,'Outside listener proof required');check.passed=false;check.errorCode=outside.errorCode;}
+    const failures=checks.filter(c=>!c.passed).map(c=>c.name+(c.errorCode?':'+c.errorCode:'')).join(', ');
+    assert.equal(result.exitCode,0,`Sandbox boundary denied incorrectly: ${failures}`);
+    assert(checks.length===15&&checks.every(c=>c.passed)&&unrelated.exitCode===null&&unrelated.signalCode===null,'All sandbox boundaries must be proven before consumer execution: '+failures);
     return {schemaVersion:1,passed:true,profileSha256:sandbox.profileSha256,networkSha256:sandbox.networkSha256,runtimeSha256:spec.executables[spec.runtime],checks,stdoutSha256:result.stdoutSha256,stderrSha256:result.stderrSha256};
-  } finally {unrelated.kill('SIGKILL');await unrelatedClosed;await new Promise(resolveClose=>outsideServer.close(resolveClose));}
+  } finally {unrelated.kill('SIGKILL');await unrelatedClosed;await outside.close();}
 }

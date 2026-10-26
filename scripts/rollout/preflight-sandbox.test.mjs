@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawn, execFileSync } from 'node:child_process';
+import cp from 'node:child_process';
+import net from 'node:net';
+import { syncBuiltinESMExports } from 'node:module';
 import { createSandbox, verifySandbox, executeSandbox, networkManifest, sanitizedEnvironment, readBoundedSource } from './preflight-sandbox.mjs';
 const hash = b => createHash('sha256').update(b).digest('hex');
 const node = process.platform==='darwin'?'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node':realpathSync(process.execPath);
@@ -18,6 +21,55 @@ function setup(t) {
   const spec={schemaVersion:1,root,writable:['checkout','output','tmp','cache'].map(p=>join(root,p)),readOnly:[join(root,'input'),join(root,'artifact')],executables:{[node]:hash(readFileSync(node)), '/usr/bin/sandbox-exec':process.platform==='darwin'?hash(readFileSync('/usr/bin/sandbox-exec')):'a'.repeat(64)},runtime:node,readable:[],executionPath:node.slice(0,node.lastIndexOf('/')),endpoints:networkManifest('estimate')};
   return {root,spec,secret,immutable,native};
 }
+test('IF2 canary client drains the exact reply and waits for peer end after its graceful half-close', async t=>{
+ const api=await import('./preflight-sandbox.mjs');let accepted,clientEnded;const ended=new Promise(resolve=>{clientEnded=resolve;});
+ const server=net.createServer({allowHalfOpen:true},socket=>{accepted=socket;socket.on('error',()=>{});socket.once('end',clientEnded);});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(async()=>{accepted?.destroy();await new Promise(resolve=>server.close(resolve));});
+ let settled=false;const pending=api.connectCanary(server.address().port,'127.0.0.1').then(result=>{settled=true;return result;});
+ await ended;assert.equal(settled,false,'A TCP connection alone must not prove canary communication');
+ accepted.write('syn');await new Promise(resolve=>setImmediate(resolve));assert.equal(settled,false);accepted.end('thetic');assert.equal(await pending,'connected');
+});
+test('IF2 canary client refuses wrong replies, reset connections and a silent peer within the original bound', async t=>{
+ const api=await import('./preflight-sandbox.mjs');
+ for(const mode of ['wrong','reset','silent'])await t.test(mode,async st=>{
+  const sockets=new Set(),server=net.createServer({allowHalfOpen:true},socket=>{sockets.add(socket);socket.on('error',()=>{});socket.once('close',()=>sockets.delete(socket));if(mode==='wrong')socket.end('wrong');if(mode==='reset')socket.resetAndDestroy();});
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));st.after(async()=>{for(const socket of sockets)socket.destroy();await new Promise(resolve=>server.close(resolve));});
+  const started=Date.now(),result=await api.connectCanary(server.address().port,'127.0.0.1');assert.notEqual(result,'connected');
+  if(mode==='wrong')assert.equal(result,'unexpected-reply');if(mode==='silent'){assert.equal(result,'timeout');assert(Date.now()-started<3000,'The original1500ms deadline must bound cleanup');}
+ });
+});
+test('IF2 owned canary listener records accepted-socket resets and closes its connections', async()=>{
+ const api=await import('./preflight-sandbox.mjs'),listener=api.createCanaryServer();
+ await new Promise(resolve=>listener.server.listen(0,'127.0.0.1',resolve));
+ listener.server.once('connection',socket=>socket.destroy(Object.assign(new Error('synthetic accepted reset'),{code:'ECONNRESET'})));
+ await api.connectCanary(listener.server.address().port,'127.0.0.1');await listener.close();
+ assert.equal(listener.errorCode,'ECONNRESET','A delivered reply must not erase a recorded accepted-socket failure');
+});
+test('IF2 actual enforcement refuses wrong canary replies and retains named accepted-socket failure evidence',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ for(const mode of ['wrong','reset'])await t.test(mode,async st=>{
+  const {spec,secret,immutable,native}=setup(st),original=cp.spawn;let injected=0;
+  cp.spawn=(file,args,...rest)=>{
+   const index=args.findIndex(value=>typeof value==='string'&&value.includes('const checks=[]'));
+   if(file==='/usr/bin/sandbox-exec'&&index>=0){
+    args=[...args];args[index]=`const canaryNet=require('node:net'),originalCanaryServer=canaryNet.createServer;canaryNet.createServer=function(listener,...args){if(typeof listener!=='function')return originalCanaryServer.call(this,listener,...args);return originalCanaryServer.call(this,socket=>{const end=socket.end.bind(socket);socket.end=()=>${mode==='wrong'?"end('wrong')":"socket.destroy(Object.assign(new Error('synthetic accepted reset'),{code:'ECONNRESET'}))"};listener(socket);},...args);};\n`+args[index];injected++;
+   }
+   return original(file,args,...rest);
+  };syncBuiltinESMExports();
+  try{await assert.rejects(()=>verifySandbox(createSandbox(spec),{outsideRead:secret,immutableFile:immutable,nativeExecutable:native}),mode==='wrong'?/exact-loopback/:/exact-loopback.*ECONNRESET/);assert.equal(injected,1);}
+  finally{cp.spawn=original;syncBuiltinESMExports();}
+ });
+});
+test('IF2 actual enforcement refuses a recorded outside-listener socket failure even when sandbox denials pass',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const {spec,secret,immutable,native}=setup(t),original=net.createServer;let client;
+ net.createServer=(...args)=>{
+  const server=original(...args);
+  server.once('connection',socket=>socket.destroy(Object.assign(new Error('synthetic outside accepted reset'),{code:'ECONNRESET'})));
+  server.once('listening',()=>{client=net.connect({port:server.address().port,host:'127.0.0.1'});client.on('error',()=>{});client.resume();client.end();});
+  return server;
+ };
+ try{await assert.rejects(()=>verifySandbox(createSandbox(spec),{outsideRead:secret,immutableFile:immutable,nativeExecutable:native}),/outside-listener:ECONNRESET/);}
+ finally{net.createServer=original;client?.destroy();}
+});
 test('unsupported OS fails before filesystem or consumer access',()=>{assert.throws(()=>createSandbox({}, {platform:'linux'}),/macOS/);});
 test('bounded source reader refuses outside links, oversized files and FIFO without blocking',t=>{
  const {root,secret}=setup(t),path=join(root,'checkout','source');writeFileSync(path,'safe');assert.equal(readBoundedSource(path,join(root,'checkout')).toString(),'safe');
