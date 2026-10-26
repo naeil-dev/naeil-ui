@@ -203,7 +203,10 @@ function validateNativeEvidence(plan,config,adapters,original) {
     else assert.equal(entry.rollbackTransaction,null,'Unexpected nested rollback history');
     assert(!pathExists(join(directory,'transaction.next.json'))&&!pathExists(join(directory,'rollback','transaction.next.json')),'Incomplete native transaction write remains');
   }
-  const actual=readdirSync(root).map(name=>{assert(/^[A-Za-z0-9._-]+$/.test(name),'Unknown native transaction path');const directory=join(root,name);privateDirectory(directory);return directory;}).sort();
+  // Both native producers reserve releases/ui-${attemptId}. Other retained
+  // backups/manual artifacts are not transaction evidence and are never read.
+  // Inspect every prefix candidate, including malformed names/files/symlinks.
+  const actual=readdirSync(root).filter(name=>name.startsWith('ui-')).map(name=>{assert(/^ui-[A-Za-z0-9._-]+$/.test(name),'Unknown native transaction path');const directory=join(root,name);privateDirectory(directory);return directory;}).sort();
   assert.deepEqual([...seen].sort(),actual,'Unknown/unbound Jev transaction history prohibits transition');
 }
 async function prerequisites(plan, approval, dependencies, assertAuthority = () => {}) {

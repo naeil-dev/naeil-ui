@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, operationalGenerationDigest, ORIGINS, readPrivateJSON } from './standing-config.mjs';
@@ -317,4 +317,40 @@ test('the unchanged original migration expiry bounds continuation and old-r5 re-
 
 test('historical recovered and rolled-back Jev transactions need exact safe native output and verified predecessor evidence',async t=>{
  const api=await load();for(const phase of ['recovered','rolled-back']){const f=fixture(t);addJevHistory(f,phase);const plan=api.planTransition(f.input);await api.applyTransition(plan,approval(plan),f.deps);assert.equal(readPrivateJSON(f.input.nativeEvidence.jev.transactions[0].transaction.path).phase,phase);}
+});
+
+function retainedJevMaterial(f) {
+  const root = join(f.root, 'jev-native/releases'), paths = [];
+  for (const [name, mode] of [['backup-one.env', 0o600], ['backup-two.txt', 0o600], ['manual-script.sh', 0o644], ['manual-script.old', 0o644]]) {
+    const path = join(root, name); writeFileSync(path, 'synthetic retained bytes ' + name, { mode }); paths.push(path);
+  }
+  const directory = join(root, '20261017-shared-session'); mkdirSync(directory, { mode: 0o700 });
+  const path = join(directory, 'manual-artifact.txt'); writeFileSync(path, 'synthetic manual shared-session artifact', { mode: 0o600 }); paths.push(path);
+  return paths.map(path => ({ path, bytes: readFileSync(path) }));
+}
+test('T7 Jev producer namespace preserves unrelated retained files and manual artifacts with empty or terminal native history', async t => {
+  const api = await load();
+  for (const history of [false, true]) {
+    const f = fixture(t), retained = retainedJevMaterial(f);
+    if (history) addJevHistory(f);
+    const plan = api.planTransition(f.input);
+    await api.applyTransition(plan, approval(plan), f.deps);
+    for (const { path, bytes } of retained) assert.deepEqual(readFileSync(path), bytes);
+    assert.equal(readPrivateJSON(join(f.controlDirectory, 'transition.json')).phase, 'completed');
+    assert(f.events.every(event => ['handoff', f.tools.launchctl.path, f.tools.ps.path, f.tools.lsof.path].includes(event[0])));
+  }
+});
+test('T7 every unbound malformed symlink or regular file in the native ui- namespace still blocks', async t => {
+  const api = await load();
+  for (const cause of ['unbound', 'malformed', 'file', 'symlink', 'uncertain']) {
+    const f = fixture(t), retained = retainedJevMaterial(f), root = join(f.root, 'jev-native/releases');
+    if (cause === 'unbound') mkdirSync(join(root, 'ui-unbound'), { mode: 0o700 });
+    if (cause === 'malformed') mkdirSync(join(root, 'ui-'), { mode: 0o700 });
+    if (cause === 'file') writeFileSync(join(root, 'ui-file'), '{}', { mode: 0o600 });
+    if (cause === 'symlink') symlinkSync(join(root, '20261017-shared-session'), join(root, 'ui-link'));
+    if (cause === 'uncertain') addJevHistory(f, 'uncertain');
+    const plan = api.planTransition(f.input);
+    await assert.rejects(() => api.applyTransition(plan, approval(plan), f.deps)); assert(!existsSync(f.newState));
+    for (const { path, bytes } of retained) assert.deepEqual(readFileSync(path), bytes);
+  }
 });
