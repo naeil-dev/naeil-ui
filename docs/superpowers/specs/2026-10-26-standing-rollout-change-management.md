@@ -2,6 +2,8 @@
 
 상태: 사용자가 2026-10-26 A 방향의 구현·격리 검증을 승인했다. 구현은 별도 브랜치에서 진행 중이다. 운영 설치·정책/state 전환·재개·main 머지는 별도 승인 대상이며, STOP을 유지한다.
 
+구현 검토에서 확인한 남은 범위: 첫 실행 세대는 정확한 0.7.2와 한 번의 Estimate 후속 시도에 묶인다. §6의 채택된 소스 기록 재사용과 후속 candidate 준비는 구현했지만, §6·§12의 다음 dependency-only 릴리스를 실제 worker로 실행하는 절차는 아직 충족하지 않았다. 현재 승인 기간 안의 0.7.3도 이 세대로 자동 배포할 수 없다. 이 요구를 삭제하거나 완료로 간주하지 않으며, 새 candidate·config·generation·attempt를 결합하는 별도 후속 절차가 필요하다. 이번 0.7.2 복구 수정에서 기존 실행 제한을 완화하지 않는다.
+
 기준: main `40a3928e24cd2f0141be3e605eed0a75260938fd`, 설치된 r5는 PR [#26](https://github.com/naeil-dev/naeil-ui/pull/26)의 `f2bef4b8f66831c07a4f601ae8ceeece41ebc408`이다. 기존 [standing 설계](2026-10-23-standing-ui-release.md), [운영 지침](../../rollout/standing-rollout.md), [reviewedMigration 설명](../../rollout/automation.md#proposed-policy-pending-approval)을 대체하는 구현이 아니라 다음 변경의 제안이다. 시각은 별도 표기 없으면 UTC다.
 
 ## 1. 결론과 승인할 범위
