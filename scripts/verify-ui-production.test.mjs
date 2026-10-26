@@ -208,3 +208,73 @@ test('immutable 0.7.1/0.7.2 source components pass Chromium catalog checks in ev
     }
   } finally {await browser.close()}
 });
+
+test('I1 rejects hidden and aria-hidden whole mobile Projects sections while ignoring unrelated links', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    page.setDefaultTimeout(500);
+    await page.route('**/*', route => route.abort());
+    for (const version of ['0.7.1', '0.7.2']) for (const locale of ['en', 'ko', 'ja']) for (const theme of ['light', 'dark']) for (const hiding of ['hidden', 'aria-hidden']) {
+      await page.setContent(catalogHTML({ version, locale, theme, mobile: true }), { waitUntil: 'domcontentloaded' });
+      await page.locator('section').evaluate((section, hiding) => {
+        const duplicate = section.cloneNode(true);
+        if (hiding === 'hidden') duplicate.hidden = true;
+        else duplicate.setAttribute('aria-hidden', 'true');
+        section.after(duplicate);
+      }, hiding);
+      assert.equal(await page.locator('nav.ui-navigation-mobile-links > section').count(), 2);
+      await assert.rejects(checkMenu(page, locale, theme, { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, loadReleaseExpectations(compatibility(version))), /Project catalog scope.*duplicated/);
+    }
+  } finally { await browser.close(); }
+});
+
+test('I2 rejects responsive image source substitutions even without currentSrc, retaining offline ordinary src', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    page.setDefaultTimeout(500);
+    await page.route('**/*', route => route.abort());
+    for (const version of ['0.7.1', '0.7.2']) for (const mobile of [false, true]) {
+      const expectations = loadReleaseExpectations(compatibility(version));
+      // A failed/blocked ordinary image may have no currentSrc. Its exact src
+      // remains sufficient only when there is no alternate source declaration.
+      await page.setContent(catalogHTML({ version, mobile }), { waitUntil: 'domcontentloaded' });
+      await page.locator('img').first().evaluate(image => Object.defineProperty(image, 'currentSrc', { get: () => '' }));
+      await checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, expectations);
+      for (const kind of ['srcset', 'picture']) for (const emptyCurrentSrc of [false, true]) {
+        await page.setContent(catalogHTML({ version, mobile }), { waitUntil: 'domcontentloaded' });
+        const fallback = await page.locator('img').first().getAttribute('src');
+        await page.locator('img').first().evaluate((image, { kind, emptyCurrentSrc }) => {
+          if (kind === 'srcset') image.setAttribute('srcset', 'https://naeil.dev/images/fish.png 1x');
+          else {
+            const picture = document.createElement('picture'), source = document.createElement('source');
+            source.srcset = 'https://naeil.dev/images/fish.png 1x';
+            image.before(picture); picture.append(source, image);
+          }
+          if (emptyCurrentSrc) Object.defineProperty(image, 'currentSrc', { get: () => '' });
+        }, { kind, emptyCurrentSrc });
+        assert.equal(await page.locator('img').first().getAttribute('src'), fallback);
+        await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, expectations), /Project.*image/i);
+      }
+    }
+  } finally { await browser.close(); }
+});
+
+test('I2 independently compares nonempty selected image metadata with the exact declared URL', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    page.setDefaultTimeout(500);
+    await page.route('**/*', route => route.abort());
+    await page.setContent(catalogHTML({ version: '0.7.2', mobile: true }), { waitUntil: 'domcontentloaded' });
+    // Controlled DOM metadata input isolates the selected-URL comparison from
+    // the separate unsupported-srcset/picture gate; no image is downloaded.
+    await page.locator('img').evaluate(image => Object.defineProperty(image, 'currentSrc', { get: () => 'https://naeil.dev/images/fish.png' }));
+    assert.equal(await page.locator('img').getAttribute('src'), 'https://naeil.dev/images/whale.png');
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, loadReleaseExpectations(compatibility('0.7.2'))), /Project 0 selected image mismatch/);
+  } finally { await browser.close(); }
+});

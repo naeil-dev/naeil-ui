@@ -131,20 +131,28 @@ export async function checkMenu(page, locale, theme, chrome = {}, expectations) 
   await trigger.focus(); await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: mobile ? labels[locale].menu : labels[locale].projects, exact: true });
   await dialog.waitFor({ state: 'visible' });
-  const scope = mobile ? dialog.getByRole('region', {name: labels[locale].projects, exact:true}) : dialog.locator('nav.ui-navigation-menu-grid');
+  // Role locators omit hidden/aria-hidden regions. Count structural catalog
+  // implementations first, including duplicates, without taking unrelated links.
+  const scope = mobile
+    ? dialog.locator(`nav.ui-navigation-mobile-links section[aria-label="${labels[locale].projects}"]`)
+    : dialog.locator('nav.ui-navigation-menu-grid');
   assert.equal(await scope.count(), 1, 'Project catalog scope missing or duplicated');
+  // Schema 1 declares one exact image URL, not responsive source candidates.
+  // Reject alternate declarations even when offline currentSrc is empty.
+  assert.equal(await scope.locator('img[srcset], picture source').count(), 0, 'Project alternate image source declarations are unsupported');
   const actual = await scope.evaluate((root, mobile) => {
     const box = root.getBoundingClientRect();
     const style = getComputedStyle(root);
     const columns = style.display === 'grid' ? style.gridTemplateColumns.split(/\s+/).filter(Boolean).length : 1;
     return {x:box.x,width:box.width,columns,declaredColumns:mobile?null:Number(root.closest('[role="dialog"]').dataset.columns),items:[...root.querySelectorAll('a')].map(a=>{
-      const rect=a.getBoundingClientRect(), css=getComputedStyle(a);
-      return {href:a.href,name:a.querySelector('.ui-navigation-title > span')?.textContent.trim(),image:a.querySelector('img')?.src,
+      const rect=a.getBoundingClientRect(), css=getComputedStyle(a), image=a.querySelector('img');
+      return {href:a.href,name:a.querySelector('.ui-navigation-title > span')?.textContent.trim(),image:image?.src, selectedImage:image?.currentSrc,
         x:rect.x,y:rect.y,width:rect.width,height:rect.height,visible:rect.width>0 && rect.height>0 && css.visibility==='visible' && css.display!=='none'};
     })};
   }, mobile);
   assertProjectCatalog(actual,expected,{...approved.layout,columns:mobile?approved.layout.mobileColumns:approved.layout.desktopColumns});
   for(let i=0;i<expected.length;i++) {
+    if (actual.items[i].selectedImage) assert.equal(actual.items[i].selectedImage, expected[i].image, `Project ${i} selected image mismatch`);
     const link=scope.getByRole('link',{name:expected[i].accessibleName,exact:true});
     assert.equal(await link.count(),1,`Project ${i} accessible name mismatch`);
     assert(await link.evaluate((el,index)=>el===el.closest('section,nav').querySelectorAll('a')[index],i),'Project accessible name/order mismatch');
