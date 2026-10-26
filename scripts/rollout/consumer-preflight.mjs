@@ -63,6 +63,7 @@ function configured(input) {
  return input;
 }
 function git(config,root,args,{raw=false}={}) {
+ if(args[0]!=='clone') {const result=handoffGit(root,args,{git:'/usr/bin/git',executionPath:config.executionPath,gitSha256:config.executables['/usr/bin/git']}).toString();return raw?result:result.trim();}
  assert.equal(hash(readFileSync('/usr/bin/git')),config.executables['/usr/bin/git'],'Pinned Git bytes changed');
  const result=execFileSync('/usr/bin/git',['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','commit.gpgsign=false',...args],{cwd:root,encoding:'utf8',env:sanitizedEnvironment({executionPath:config.executionPath,tmp:root,cache:root}),stdio:['ignore','pipe','pipe'],maxBuffer:2097152});return raw?result:result.trim();
 }
@@ -262,10 +263,46 @@ export function assertCandidate(candidate,binding) {
  return candidate;
 }
 
-function handoffGit(root, args, {git='/usr/bin/git', executionPath='/usr/bin:/bin', gitSha256} = {}) {
+// Only inert clone identity/ref metadata may enter host Git. Parse bounded bytes
+// from stdin outside any repository with includes disabled BEFORE status, fetch,
+// checkout, or even repository discovery can consult local executable settings.
+const HANDOFF_CONFIG = new Map([
+ ['core.repositoryformatversion',value=>value==='0'],['core.bare',value=>value==='false'],
+ ...['filemode','logallrefupdates','ignorecase','precomposeunicode'].map(key=>['core.'+key,value=>/^(true|false)$/.test(value)]),
+ ...['user.name','user.email','remote.origin.url','remote.origin.fetch','remote.origin.pushurl'].map(key=>[key,()=>true])
+]);
+function handoffMetadata(root,expected) {
+ const pointer=join(root,'.git'),stat=lstatSync(pointer),directory=expected??(stat.isDirectory()?pointer:join(dirname(root),'git'));
+ if(directory===pointer)assert(stat.isDirectory()&&!stat.isSymbolicLink(),'Dedicated Git metadata directory required');
+ else {
+  assert.equal(directory,join(dirname(root),'git'),'Protected sibling Git metadata required');
+  assert.equal(readBoundedSource(pointer,root,4096).toString(),`gitdir: ${directory}\n`,'Immutable Git directory pointer changed');
+ }
+ assert(realpathSync(directory)===directory&&lstatSync(directory).isDirectory(),'Canonical Git metadata required');
+ for(const name of ['commondir','config.worktree'])assert(!lstatSync(join(directory,name),{throwIfNoEntry:false}),'Alternate Git metadata/configuration refused');
+ const info=join(directory,'info');
+ if(lstatSync(info,{throwIfNoEntry:false})) {
+  assert(realpathSync(info)===info&&lstatSync(info).isDirectory(),'Canonical Git info directory required');
+  assert(!lstatSync(join(info,'attributes'),{throwIfNoEntry:false}),'Unreviewed local Git attributes refused');
+ }
+ return directory;
+}
+
+/** Internal exact object reader/transfer; source facts share the same boundary. */
+export function handoffGit(root, args, {git='/usr/bin/git', executionPath='/usr/bin:/bin', gitSha256, gitDirectory, maxBuffer=2097152} = {}) {
  assert.equal(realpathSync(root),root,'Canonical handoff checkout required');assert.equal(realpathSync(git),git,'Canonical handoff Git required');
  assert(HEX.test(gitSha256)&&hash(readFileSync(git))===gitSha256,'Pinned handoff Git bytes changed');
- try {return execFileSync(git,['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','commit.gpgsign=false','-c','diff.external=','-c','protocol.allow=never','-c','protocol.file.allow=always',...args],{cwd:root,env:{PATH:executionPath,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',GIT_OPTIONAL_LOCKS:'0'},maxBuffer:2097152,stdio:['ignore','pipe','pipe']});}
+ const directory=handoffMetadata(root,gitDirectory),config=readBoundedSource(join(directory,'config'),directory,JSON_LIMITS.controlIndex);
+ const env={PATH:executionPath,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_SYSTEM:'/dev/null',GIT_CONFIG_GLOBAL:'/dev/null',GIT_ATTR_NOSYSTEM:'1',GIT_NO_REPLACE_OBJECTS:'1',GIT_OPTIONAL_LOCKS:'0'};
+ try {
+  const entries=execFileSync(git,['config','--no-includes','--file','-','--null','--list'],{cwd:'/',env,input:config,maxBuffer:2097152,stdio:['pipe','pipe','pipe']}).toString().split('\0');
+  assert.equal(entries.pop(),'','Complete Git config records required');
+  for(const entry of entries) {
+   const newline=entry.indexOf('\n'),key=newline<0?entry:entry.slice(0,newline),value=newline<0?'':entry.slice(newline+1);
+   assert(HANDOFF_CONFIG.get(key)?.(value)||/^branch\.[a-zA-Z0-9_./-]+\.(remote|merge)$/.test(key),'Unreviewed local/included Git configuration refused');
+  }
+  return execFileSync(git,['--git-dir='+directory,'--work-tree='+root,'-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','core.attributesFile=/dev/null','-c','commit.gpgsign=false','-c','diff.external=','-c','maintenance.auto=false','-c','gc.auto=0','-c','fetch.writeCommitGraph=false','-c','submodule.recurse=false','-c','protocol.allow=never','-c','protocol.file.allow=always',...args],{cwd:root,env,maxBuffer,stdio:['ignore','pipe','pipe']});
+ }
  catch {throw new Error('Exact candidate Git transfer/inspection refused');}
 }
 
@@ -292,8 +329,9 @@ export function assertDependencySource(root, reviewedBaseSha, sourceSha, setting
 export function assertCandidateSource(candidate, options = {}) {
  const plan=JSON.parse(checkedReference(candidate.plan));
  const gitPath=options.git??plan.config.git??'/usr/bin/git', executionPath=options.executionPath??plan.generation.executionPath;
- const settings={git:gitPath,executionPath,gitSha256:options.gitSha256??plan.generation.trustedFiles[gitPath]};
- const checkout=options.worktree??candidate.checkout, git=args=>handoffGit(checkout,args,settings).toString().trim();
+ const checkout=options.worktree??candidate.checkout;
+ const settings={git:gitPath,executionPath,gitSha256:options.gitSha256??plan.generation.trustedFiles[gitPath],gitDirectory:options.worktree?join(checkout,'.git'):join(candidate.root,'git')};
+ const git=args=>handoffGit(checkout,args,settings).toString().trim();
  assert.equal(git(['status','--porcelain','--untracked-files=normal']),'','Dirty candidate checkout refused');
  assert.equal(git(['rev-parse','HEAD']),candidate.candidateSourceSha,'Exact candidate commit changed; same-tree substitution prohibited');
  assert.equal(git(['rev-parse','HEAD^{tree}']),candidate.treeSha,'Candidate tree changed');
@@ -321,7 +359,7 @@ export function assertCandidateSource(candidate, options = {}) {
 export function stageCandidate(candidate, {worktree,branch,reviewedSourceRevision,git='/usr/bin/git',executionPath,gitSha256,beforeMutation}) {
  assert.equal(typeof beforeMutation,'function','Caller authorization/STOP/trust boundary required before source mutation');
  checkedReference(candidate.bundle,67108864);assertCandidateSource(candidate);
- const settings={git,executionPath,gitSha256}, run=args=>handoffGit(worktree,args,settings).toString().trim();
+ const settings={git,executionPath,gitSha256,gitDirectory:join(worktree,'.git')}, run=args=>handoffGit(worktree,args,settings).toString().trim();
  assert.equal(run(['status','--porcelain','--untracked-files=normal']),'','Dirty execution checkout refused');
  assert.equal(run(['branch','--show-current']),branch,'Dedicated standing branch required');
  run(['merge-base','--is-ancestor',reviewedSourceRevision,'HEAD']);

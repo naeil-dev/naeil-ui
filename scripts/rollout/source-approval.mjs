@@ -1,11 +1,10 @@
 /** Source provenance is deliberately separate from release execution authority.
  * These functions never persist an adoption, rewrite a ledger, or call native. */
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
-import { assertCandidate, assertCandidateSource } from './consumer-preflight.mjs';
+import { join, resolve } from 'node:path';
+import { assertCandidate, assertCandidateSource, handoffGit } from './consumer-preflight.mjs';
 import { assertConfigReferences, assertExecutionContext, assertTrustedFiles, automationDigest, fingerprint, generationDigest, hash, HEX, operationalGenerationDigest, readPrivateJSON, REVISION } from './standing-config.mjs';
 
 const repositories = { estimate:'naeil-dev/abestimate', jev:'naeil-dev/jev' };
@@ -17,11 +16,11 @@ const AUTOMATION_ROOT = resolve(fileURLToPath(new URL('../../', import.meta.url)
 
 /** Read-only Git object facts. Local clone origins are transport provenance,
  * never the canonical repository identity supplied by the reviewed config. */
-export function collectSourceFacts({sourceRoot, service, repository, oldReviewedBaseSha, newReviewedBaseSha}) {
+export function collectSourceFacts({sourceRoot, service, repository, oldReviewedBaseSha, newReviewedBaseSha, gitDirectory}) {
   scope({service,repository}); assert.equal(realpathSync(sourceRoot),sourceRoot,'Canonical reviewed source root required');
   assert(REVISION.test(oldReviewedBaseSha) && REVISION.test(newReviewedBaseSha),'Exact old/new source commits required');
   const git = args => {
-    try { return execFileSync('/usr/bin/git',['-c','core.hooksPath=/dev/null','-c','core.fsmonitor=false','-c','diff.external=','-c','commit.gpgsign=false',...args],{cwd:sourceRoot,env:{PATH:'/usr/bin:/bin',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',GIT_OPTIONAL_LOCKS:'0'},maxBuffer:16777216,stdio:['ignore','pipe','pipe']}); }
+    try { return handoffGit(sourceRoot,args,{gitSha256:hash(readFileSync('/usr/bin/git')),gitDirectory,maxBuffer:16777216}); }
     catch { throw new Error('Reviewed source Git facts/ancestry unavailable'); }
   };
   git(['merge-base','--is-ancestor',oldReviewedBaseSha,newReviewedBaseSha]);
@@ -113,7 +112,7 @@ export function validateCandidateHandoff(candidate, request, config) {
   assert(h.sourceAdoption?.kind === 'adopted-source-base','Configured adopted source record required');
   assert.equal(candidate.reviewedBaseSha,h.sourceAdoption.reviewedBaseSha,'Unapproved candidate source base');
   assert.equal(config.reviewedSourceRevision,h.sourceApproval.oldReviewedBaseSha,'Source approval does not extend the existing reviewed base');
-  const facts = collectSourceFacts({sourceRoot:candidate.checkout,service,repository:candidate.repository,oldReviewedBaseSha:h.sourceApproval.oldReviewedBaseSha,newReviewedBaseSha:candidate.reviewedBaseSha});
+  const facts = collectSourceFacts({sourceRoot:candidate.checkout,service,repository:candidate.repository,oldReviewedBaseSha:h.sourceApproval.oldReviewedBaseSha,newReviewedBaseSha:candidate.reviewedBaseSha,gitDirectory:join(candidate.root,'git')});
   validateSourceAdoption(h.sourceApproval,h.sourceAdoption,facts);
   assertCandidateSource(candidate);
   const policy = request.policy, window = policy?.patchWindow, now = Date.now(), patch = version => /^0\.7\.(0|[1-9]\d*)$/.test(version || '') ? Number(version.split('.')[2]) : NaN;

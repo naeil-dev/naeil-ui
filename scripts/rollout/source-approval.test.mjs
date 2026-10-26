@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, chmodSync } from 'node:fs';
+import fs, { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, chmodSync, existsSync, utimesSync, cpSync, symlinkSync } from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { collectSourceFacts, validateSourceApproval, adoptSourceBase, validateSourceAdoption, validateCandidateHandoff } from './source-approval.mjs';
@@ -119,6 +120,71 @@ function handoffFixture(t, service='estimate') {
   return {root,put,pin,git,candidate,input,config,bindConfig,stage:{worktree,branch:'rollout/standing',reviewedSourceRevision:old,git:'/usr/bin/git',gitSha256:trusted['/usr/bin/git'],executionPath,beforeMutation:()=>validateCandidateHandoff(candidate,input,config)},releaseFor,makeArtifact,approval,facts,archives};
 }
 
+// Identity-preserving filters expose execution that exact source hashes miss.
+function filterProbe(f, checkout, {included=false, clean=true}={}) {
+  const marker=join(f.root,'filter-executions.jsonl'),helper=join(f.root,'unreviewed-filter.cjs'),attributes=join(f.root,'external-attributes');
+  f.put(helper,`const fs=require('node:fs');fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(process.argv[2])+'\\n');process.stdout.write(fs.readFileSync(0));`);
+  f.put(attributes,'* filter=unreviewed\n');
+  const quote=value=>"'"+value.replaceAll("'","'\\''")+"'",command=quote(process.execPath)+' '+quote(helper);
+  const config=`[core]\n attributesFile = ${JSON.stringify(attributes)}\n[filter "unreviewed"]\n required = true\n clean = ${JSON.stringify(clean?command+' clean':'/bin/cat')}\n smudge = ${JSON.stringify(command+' smudge')}\n`;
+  if(included) {const path=join(f.root,'included-config');f.put(path,config);f.git(['config','include.path',path],checkout);}
+  else f.put(join(checkout===f.candidate.checkout?join(f.candidate.root,'git'):join(checkout,'.git'),'config'),readFileSync(join(checkout===f.candidate.checkout?join(f.candidate.root,'git'):join(checkout,'.git'),'config'),'utf8')+config);
+  // Force a real clean-filter check even though its output matches the index.
+  utimesSync(join(checkout,'package.json'),new Date(),new Date(Date.now()+2000));
+  return ()=>existsSync(marker)?readFileSync(marker,'utf8').trim().split('\n').map(line=>JSON.parse(line)):[];
+}
+
+for(const target of ['retained','execution'])for(const included of [false,true])test(`handoff Git rejects ${target} ${included?'included':'local'} clean/smudge configuration before any unpinned command`,t=>{
+  const f=handoffFixture(t),checkout=target==='retained'?f.candidate.checkout:f.config.worktree,executions=filterProbe(f,checkout,{included});
+  let error,callbacks=0,executionsBeforeCallback=[];
+  try {
+    if(target==='retained')validateCandidateHandoff(f.candidate,f.input,f.config);
+    else stageCandidate(f.candidate,{...f.stage,beforeMutation:()=>{callbacks++;executionsBeforeCallback.push(...executions());f.stage.beforeMutation();}});
+  } catch(caught) {error=caught;}
+  t.diagnostic(JSON.stringify({rejected:!!error,executions:executions(),executionsBeforeCallback,callbacks}));
+  assert.deepEqual(executions(),[],'Unpinned filter ran during handoff inspection/staging');
+  assert(error,'Unreviewed repository configuration must fail closed');
+  assert.equal(callbacks,0,'Unsafe execution config must be refused before source-stage authorization');
+});
+
+test('handoff Git rejects an identity-preserving smudge command before exact fast-forward',t=>{
+  const f=handoffFixture(t),before=f.git(['rev-parse','HEAD'],f.config.worktree),executions=filterProbe(f,f.config.worktree,{clean:false});let error;
+  assert.equal(validateCandidateHandoff(f.candidate,f.input,f.config),f.candidate);
+  try {stageCandidate(f.candidate,f.stage);}catch(caught){error=caught;}
+  t.diagnostic(JSON.stringify({rejected:!!error,executions:executions(),exactCandidateSha:f.git(['rev-parse','HEAD'],f.config.worktree)===f.candidate.candidateSourceSha}));
+  assert.deepEqual(executions(),[],'Unpinned identity-preserving smudge command executed');assert(error,'Unsafe smudge configuration must be rejected');
+  assert.equal(f.git(['rev-parse','HEAD'],f.config.worktree),before,'Rejected configuration changed execution HEAD');
+});
+
+test('handoff Git rechecks configuration after each source-stage authorization callback',t=>{
+  for(const poisonAt of [1,2]) {
+    const f=handoffFixture(t);let callbacks=0,error,executions=()=>[];const before=f.git(['rev-parse','HEAD'],f.config.worktree);
+    try {stageCandidate(f.candidate,{...f.stage,beforeMutation:()=>{f.stage.beforeMutation();if(++callbacks===poisonAt)executions=filterProbe(f,f.config.worktree);}});}catch(caught){error=caught;}
+    assert.deepEqual(executions(),[],'Changed config executed a filter after authorization');assert(error,'Changed config must be rejected at the next Git invocation');
+    assert.equal(callbacks,poisonAt);assert.equal(f.git(['rev-parse','HEAD'],f.config.worktree),before);
+  }
+});
+
+test('handoff Git refuses other command-producing options and conditional includes',t=>{
+  const f=handoffFixture(t),config=join(f.candidate.root,'git/config'),original=readFileSync(config);
+  for(const [key,value]of [['core.sshCommand','/unreviewed/ssh'],['credential.helper','!/unreviewed/credentials'],['remote.origin.uploadpack','/unreviewed/upload-pack'],['filter.arbitrary.process','/unreviewed/process'],['diff.arbitrary.textconv','/unreviewed/textconv'],['merge.arbitrary.driver','/unreviewed/merge'],['includeIf.gitdir:/.path','/unreviewed/include'],['extensions.worktreeConfig','true']]) {
+    f.put(config,original);f.git(['config',key,value]);assert.throws(()=>validateCandidateHandoff(f.candidate,f.input,f.config),undefined,key+' must fail closed');
+  }
+});
+
+for(const boundary of ['pointer','directory','commondir','config-link'])test(`handoff Git preserves protected metadata boundary: ${boundary}`,t=>{
+  const f=handoffFixture(t),metadata=join(f.candidate.root,'git'),outside=join(f.root,'outside-metadata'),pointer=join(f.candidate.checkout,'.git');
+  cpSync(metadata,outside,{recursive:true});
+  if(boundary==='pointer')f.put(pointer,`gitdir: ${outside}\n`);
+  if(boundary==='directory'){rmSync(pointer);cpSync(metadata,pointer,{recursive:true});}
+  if(boundary==='commondir')f.put(join(metadata,'commondir'),outside+'\n');
+  if(boundary==='config-link'){rmSync(join(metadata,'config'));symlinkSync(join(outside,'config'),join(metadata,'config'));}
+  let outsideOpens=0,error;const original=fs.openSync;
+  fs.openSync=function(path,...args){if(String(path).startsWith(outside+'/'))outsideOpens++;return original.call(this,path,...args);};syncBuiltinESMExports();
+  try{validateCandidateHandoff(f.candidate,f.input,f.config);}catch(caught){error=caught;}finally{fs.openSync=original;syncBuiltinESMExports();}
+  assert.equal(outsideOpens,0,'Parent opened metadata beyond the protected Git root');assert(error,'Substituted Git metadata must fail closed');
+});
+
 test('one operational generation binds exact distinct consumer contexts without receipt/config cycles',()=>{
   const common={automationSha256:'a'.repeat(64),stateSchemaVersion:2,trustedFiles:{'/runtime/node':'b'.repeat(64)},executionPath:'/runtime:/usr/bin'};
   const identity={...common,executionContexts:{estimate:common,jev:{...common,executionPath:'/other:/usr/bin'}}};
@@ -166,7 +232,7 @@ test('an adopted exact base supports a later dependency-only release; unadopted 
   const release=f.releaseFor(version),flat={releaseId:release.releaseId,version,contractVersion:'1',sourceRevision:release.sourceRevision,archiveSha256:release.archive.sha256,chromeSha256:release.contract.sha256,accountSha256:release.account.sha256};
   const fixture=join(root,'input/fixture.json');f.put(fixture,{...JSON.parse(readFileSync(old.fixture.path)),release:flat,account:release.account});
   const archive=join(root,'input/ui.tgz');f.put(archive,f.archives[version]);const bundle=join(root,'input/candidate.bundle');f.git(['bundle','create',bundle,'HEAD']);chmodSync(bundle,0o600);
-  const source=f.git(['rev-parse','HEAD']),checkout=join(root,'checkout');f.git(['clone','-q','--no-hardlinks',old.checkout,checkout],root);
+  const source=f.git(['rev-parse','HEAD']),checkout=join(root,'checkout');f.git(['clone','-q','--no-hardlinks','--separate-git-dir='+join(root,'git'),old.checkout,checkout],root);
   const planValue={...JSON.parse(readFileSync(old.plan.path)),release:flat,isolatedRoot:root},plan=join(root,'input/approved-plan.json');f.put(plan,planValue);
   const candidate={...old,root,checkout,release:flat,candidateSourceSha:source,treeSha:f.git(['rev-parse','HEAD^{tree}']),lockfileSha256:hash(readFileSync(join(old.checkout,'pnpm-lock.yaml'))),fixture:f.pin(fixture),archive:f.pin(archive),bundle:f.pin(bundle),plan:f.pin(plan),preflightPlanSha256:preflightPlanDigest(planValue),artifact:f.makeArtifact(version,source,'later-artifact')};delete candidate.receipt;
   candidate.artifact.storageRef+='?sha256='+candidate.artifact.sha256;const path=join(root,'input/passed.json');f.put(path,candidate);candidate.receipt=f.pin(path);
@@ -175,5 +241,5 @@ test('an adopted exact base supports a later dependency-only release; unadopted 
   const invalid=structuredClone(config);invalid.handoff.sourceAdoption=null;invalid.handoff.sourceAdoptionSha256=fingerprint(null);assert.throws(()=>validateCandidateHandoff(candidate,request,invalid));
   // Even explicitly rebinding the receipt cannot turn application/script edits
   // into a dependency-only descendant of the adopted base.
-  f.put(join(old.checkout,'tests/check.mjs'),'// new unapproved test code');f.git(['add','.']);f.git(['commit','-qm','unapproved test source']);assert.throws(()=>assertCandidateSource({...candidate,checkout:old.checkout,candidateSourceSha:f.git(['rev-parse','HEAD']),treeSha:f.git(['rev-parse','HEAD^{tree}'])}),/scope|dependency|harness/i);
+  f.put(join(old.checkout,'tests/check.mjs'),'// new unapproved test code');f.git(['add','.']);f.git(['commit','-qm','unapproved test source']);assert.throws(()=>assertCandidateSource({...candidate,root:old.root,checkout:old.checkout,candidateSourceSha:f.git(['rev-parse','HEAD']),treeSha:f.git(['rev-parse','HEAD^{tree}'])}),/scope|dependency|harness/i);
 });

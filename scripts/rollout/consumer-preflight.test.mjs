@@ -47,6 +47,19 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
 import {createHash} from 'node:crypto';
 function awaitHash512(bytes){return createHash('sha512').update(bytes).digest('base64');}
 const candidateBinding=c=>Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,c[key]]));
+for(const included of [false,true])test(`preparation rejects ${included?'included':'local'} source filters before its first host inspection`,{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t),source=f.input.sourceRoot,marker=join(f.root,'source-filter-marker'),helper=join(f.root,'source-filter.cjs'),attributes=join(f.root,'source-attributes');
+ writeFileSync(helper,`const fs=require('node:fs');fs.appendFileSync(${JSON.stringify(marker)},'clean\\n');process.stdout.write(fs.readFileSync(0));`);
+ writeFileSync(attributes,'* filter=sourceprobe\n');const quote=value=>"'"+value.replaceAll("'","'\\''")+"'";
+ const config=`[core]\n attributesFile = ${JSON.stringify(attributes)}\n[filter "sourceprobe"]\n clean = ${JSON.stringify(quote(process.execPath)+' '+quote(helper))}\n required = true\n`;
+ if(included){const path=join(f.root,'source-include');writeFileSync(path,config);f.git(['config','include.path',path]);}
+ else fs.appendFileSync(join(source,'.git/config'),config);
+ fs.utimesSync(join(source,'package.json'),new Date(),new Date(Date.now()+2000));
+ let error;try{await prepareCandidate(f.input);}catch(caught){error=caught;}
+ const executions=existsSync(marker)?readFileSync(marker,'utf8').trim().split('\n'):[];t.diagnostic(JSON.stringify({rejected:!!error,executions}));
+ assert.deepEqual(executions,[],'Initial preparation status launched an unpinned source filter');assert(error,'Unreviewed source config must fail before checkout');assert(!existsSync(f.input.isolatedRoot));
+ assert.equal(f.git(['rev-parse','HEAD']),f.input.reviewedBaseSha);
+});
 test('generation is separate from config/authorization/candidate receipts and rejects extra identities',()=>{
  const value={automationSha256:'a'.repeat(64),trustedFiles:{'/runtime/node':'b'.repeat(64)},executionPath:'/runtime:/usr/bin',stateSchemaVersion:2};
  assert.match(generationDigest(value),/^[a-f0-9]{64}$/);
@@ -131,7 +144,7 @@ test('Estimate requires its release integrity gate before creating a candidate c
 
 test('failed Estimate release integrity cannot select an artifact or issue a passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t);f.config.releaseIntegrity.args=['-e','process.exit(1)'];f.input.approval.planSha256=preflightPlanDigest(f.input);
- const candidate=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(candidate,f.config),/preflight failed/i);
+ const candidate=await prepareCandidate(f.input).catch(error=>{t.diagnostic(error.cause?.stack??error.stack);throw error;});await assert.rejects(()=>runPreflight(candidate,f.config),/preflight failed/i);
  const check=JSON.parse(readFileSync(join(candidate.root,'input/receipts/release-integrity.json')));assert.equal(check.exitCode,1);
  assert(!existsSync(join(candidate.root,'artifact/selected/receipt.json')));assert(!existsSync(join(candidate.root,'input/passed.json')));
 });
