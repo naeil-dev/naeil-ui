@@ -98,10 +98,28 @@ export async function probeQuiescence(plan, dependencies = {}, assertAuthority =
   };
   const target = `gui/${q.uid}/${q.label}`, printed = await invoke('launchctl',['print',target]);
   const diagnostic = `Could not find service "${q.label}" in domain for user gui: ${q.uid}`;
-  assert(printed.code === 113 && printed.stdout.trim() === '' && printed.stderr.trim() === diagnostic, 'Old scheduler remains registered or absence is unproven');
+  assert(printed.code === 113 && printed.stdout.trim() === '' && [diagnostic, `Bad request.\n${diagnostic}`].includes(printed.stderr.trim()), 'Old scheduler remains registered or absence is unproven');
   const disabled = await invoke('launchctl',['print-disabled',`gui/${q.uid}`]);
-  const escaped = q.label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), matches = [...disabled.stdout.matchAll(new RegExp(`"${escaped}"\\s*=>\\s*(true|false)`, 'g'))];
-  assert(disabled.code === 0 && disabled.stderr === '' && matches.length === 1 && matches[0][1] === 'true', 'Old launcher disabled override must remain explicit');
+  const escaped = q.label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), lines = disabled.stdout.trim().split('\n');
+  const inline = lines.length === 1 ? lines[0].match(/^disabled services = \{([^\r\n]*)\}$/) : null;
+  // Only complete keys at entry positions are opaque. Inspect values and any
+  // malformed remainder so a later quote cannot hide an unterminated target key.
+  const targetMention = new RegExp(`(^|[^A-Za-z0-9._-])${escaped}(?=$|[^A-Za-z0-9._-])`);
+  const targetLines = (inline ? [inline[1]] : lines.slice(1,-1)).filter(line => {
+    let remainder = line;
+    for (;;) {
+      const key = remainder.match(/^[ \t]*"([^"]*)"[ \t]*=>/);
+      if (!key) return targetMention.test(remainder);
+      if (key[1] === q.label) return true;
+      remainder = remainder.slice(key[0].length);
+      const value = remainder.match(/^[ \t]*(?:"[^"]*"|[^ \t"]+)/);
+      if (!value) return targetMention.test(remainder);
+      if (targetMention.test(value[0])) return true;
+      remainder = remainder.slice(value[0].length);
+    }
+  });
+  const targetOverride = new RegExp(`^[ \\t]*"${escaped}"[ \\t]*=>[ \\t]*(true|disabled)[ \\t]*$`);
+  assert(disabled.code === 0 && disabled.stderr === '' && (inline || lines[0]?.trim() === 'disabled services = {' && lines.at(-1)?.trim() === '}') && targetLines.length === 1 && targetOverride.test(targetLines[0]), 'Old launcher disabled override must remain explicit');
   const processes = await invoke('ps',['-axo','pid=,ppid=,command=']); assert(processes.code === 0 && processes.stderr === '', 'Process inventory unavailable');
   assertAbsentProcesses(plan,processes.stdout);
   for (const root of q.stateRoots) {

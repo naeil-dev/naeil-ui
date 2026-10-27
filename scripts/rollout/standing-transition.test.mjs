@@ -491,6 +491,150 @@ test('I1: unsupported transport metadata and any altered native output refuse co
   }
 });
 
+// Only the OS command boundary is synthetic: the exported production probe
+// still checks pinned files, private roots, process/handle results and markers.
+function quiescenceFixture(t, printed, disabled) {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'standing-quiescence-')));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const state = join(root, 'state'); mkdirSync(state, { mode: 0o700 });
+  const tools = Object.fromEntries(['launchctl', 'ps', 'lsof'].map(name => {
+    const path = join(root, name); writeFileSync(path, 'synthetic pinned ' + name, { mode: 0o700 });
+    return [name, { path, sha256: hash(readFileSync(path)) }];
+  }));
+  const plan = { quiescence: { uid: 4242, label: 'invalid.synthetic.rollout', tools, stateRoots: [state], absentPaths: [join(state, 'dispatcher.lock'), join(state, 'operation.json')] } };
+  const dependencies = { platform: 'darwin', execute: async (file, args) => {
+    if (file === tools.launchctl.path) {
+      if (args[0] === 'print') { assert.deepEqual(args, ['print', 'gui/4242/invalid.synthetic.rollout']); return printed; }
+      assert.deepEqual(args, ['print-disabled', 'gui/4242']); return disabled;
+    }
+    if (file === tools.ps.path) { assert.deepEqual(args, ['-axo', 'pid=,ppid=,command=']); return { code: 0, stdout: '42 1 /synthetic/unrelated\n', stderr: '' }; }
+    assert.equal(file, tools.lsof.path); assert.deepEqual(args, ['-nP', '-Fpcn', '+D', state]);
+    return { code: 1, stdout: '', stderr: '' };
+  } };
+  return { root, state, tools, plan, dependencies };
+}
+const missingScheduler = { code: 113, stdout: '', stderr: 'Could not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' };
+const disabledScheduler = { code: 0, stdout: 'disabled services = {\n "invalid.synthetic.rollout" => true\n}\n', stderr: '' };
+
+test('quiescence accepts exact macOS missing-service and disabled override forms', async t => {
+  const { probeQuiescence } = await load();
+  for (const [name, printed, disabled] of [
+    ['bare/true', missingScheduler, disabledScheduler],
+    ['existing inline/true', missingScheduler, { code: 0, stdout: 'disabled services = { "invalid.synthetic.rollout" => true }', stderr: '' }],
+    ['inline/disabled', missingScheduler, { code: 0, stdout: 'disabled services = { "invalid.synthetic.rollout" => disabled }\n', stderr: '' }],
+    ['bare/disabled', missingScheduler, { code: 0, stdout: 'disabled services = {\n\t"invalid.synthetic.rollout" => disabled\n}\n', stderr: '' }],
+    ['prefixed/true', { code: 113, stdout: '', stderr: 'Bad request.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }, disabledScheduler],
+    ['prefixed/disabled pinned shape', { code: 113, stdout: '', stderr: 'Bad request.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }, { code: 0, stdout: 'disabled services = {\n\t"unrelated.service" => enabled\n\t"invalid.synthetic.rollout" => disabled\n}\n', stderr: '' }],
+    ['whitespace stdout and outer diagnostic trim', { code: 113, stdout: ' \t\n', stderr: '\n  Bad request.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n\t' }, disabledScheduler],
+    ['unrelated service values need no interpretation', missingScheduler, { code: 0, stdout: 'disabled services = {\n "invalid.synthetic.rollout.helper" => unknown\n "other.service" => future-value\n "invalid.synthetic.rollout" => true\n}\n', stderr: '' }],
+    ['unrelated quoted names remain opaque', missingScheduler, { code: 0, stdout: 'disabled services = {\n "helper/invalid.synthetic.rollout" => unknown\n "invalid.synthetic.rollout?other" => future-value\n "invalid.synthetic.rollout" => true\n}\n', stderr: '' }],
+    ['multiple unrelated quoted names remain opaque on one line', missingScheduler, { code: 0, stdout: 'disabled services = {\n "other.service" => enabled "helper/invalid.synthetic.rollout" => unknown\n "invalid.synthetic.rollout" => true\n}\n', stderr: '' }],
+  ]) await t.test(name, async st => {
+    const f = quiescenceFixture(st, printed, disabled);
+    const proof = await probeQuiescence(f.plan, f.dependencies);
+    assert.equal(proof.schemaVersion, 1); assert.deepEqual(proof.facts.map(fact => fact.tool), ['launchctl', 'launchctl', 'ps', 'lsof']);
+  });
+});
+
+test('quiescence refuses uncertain or wrong-identity missing-service diagnostics', async t => {
+  const { probeQuiescence } = await load();
+  for (const [name, response] of [
+    ['registered', { code: 0, stdout: 'registered', stderr: '' }],
+    ['arbitrary exit', { ...missingScheduler, code: 1 }],
+    ['other missing exit', { ...missingScheduler, code: 114 }],
+    ['missing diagnostic', { ...missingScheduler, stderr: '' }],
+    ['arbitrary diagnostic', { ...missingScheduler, stderr: 'unknown error\n' }],
+    ['wrong uid', { ...missingScheduler, stderr: 'Bad request.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4243\n' }],
+    ['wrong label', { ...missingScheduler, stderr: 'Bad request.\nCould not find service "other.synthetic.rollout" in domain for user gui: 4242\n' }],
+    ['partial label', { ...missingScheduler, stderr: 'Could not find service "invalid.synthetic.rollout.helper" in domain for user gui: 4242\n' }],
+    ['nonempty stdout', { ...missingScheduler, stdout: 'registered\n' }],
+    ['unknown prefix', { ...missingScheduler, stderr: 'Warning.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }],
+    ['repeated prefix', { ...missingScheduler, stderr: 'Bad request.\nBad request.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }],
+    ['same-line prefix', { ...missingScheduler, stderr: 'Bad request. Could not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }],
+    ['blank line in prefix', { ...missingScheduler, stderr: 'Bad request.\n\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }],
+    ['diagnostic suffix', { ...missingScheduler, stderr: 'Could not find service "invalid.synthetic.rollout" in domain for user gui: 4242\nextra\n' }],
+  ]) await t.test(name, async st => {
+    const f = quiescenceFixture(st, response, disabledScheduler);
+    await assert.rejects(() => probeQuiescence(f.plan, f.dependencies), /absence is unproven/);
+  });
+});
+
+test('quiescence requires one complete exact target override and refuses ambiguous output', async t => {
+  const { probeQuiescence } = await load();
+  for (const [name, stdout] of [
+    ['false', 'disabled services = {\n "invalid.synthetic.rollout" => false\n}\n'],
+    ['enabled', 'disabled services = {\n "invalid.synthetic.rollout" => enabled\n}\n'],
+    ['absent', 'disabled services = {\n "other.service" => true\n}\n'],
+    ['partial label', 'disabled services = {\n "invalid.synthetic.rollout.helper" => true\n}\n'],
+    ['wrong label', 'disabled services = {\n "other.synthetic.rollout" => disabled\n}\n'],
+    ['true suffix', 'disabled services = {\n "invalid.synthetic.rollout" => trueish\n}\n'],
+    ['disabled suffix', 'disabled services = {\n "invalid.synthetic.rollout" => disabledish\n}\n'],
+    ['value suffix', 'disabled services = {\n "invalid.synthetic.rollout" => true extra\n}\n'],
+    ['value comment', 'disabled services = {\n "invalid.synthetic.rollout" => true # disabled\n}\n'],
+    ['quoted true', 'disabled services = {\n "invalid.synthetic.rollout" => "true"\n}\n'],
+    ['quoted disabled', 'disabled services = {\n "invalid.synthetic.rollout" => "disabled"\n}\n'],
+    ['duplicate true', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "invalid.synthetic.rollout" => true\n}\n'],
+    ['duplicate disabled', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "invalid.synthetic.rollout" => disabled\n}\n'],
+    ['duplicate unknown', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "invalid.synthetic.rollout" => unknown\n}\n'],
+    ['duplicate missing value', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "invalid.synthetic.rollout" =>\n}\n'],
+    ['duplicate malformed arrow', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "invalid.synthetic.rollout" = disabled\n}\n'],
+    ['duplicate unquoted key', 'disabled services = {\n "invalid.synthetic.rollout" => true\n invalid.synthetic.rollout => disabled\n}\n'],
+    ['duplicate unterminated key', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "invalid.synthetic.rollout => disabled\n}\n'],
+    ['duplicate same line', 'disabled services = {\n "invalid.synthetic.rollout" => true "invalid.synthetic.rollout" => disabled\n}\n'],
+    ['unrelated first key hides duplicate unknown', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "other.service" => enabled "invalid.synthetic.rollout" => unknown\n}\n'],
+    ['unrelated first key hides duplicate missing value', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "other.service" => enabled "invalid.synthetic.rollout" =>\n}\n'],
+    ['unrelated first key hides duplicate malformed arrow', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "other.service" => enabled "invalid.synthetic.rollout" = disabled\n}\n'],
+    ['unrelated first key hides duplicate unquoted key', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "other.service" => enabled invalid.synthetic.rollout => unknown\n}\n'],
+    ['unrelated first key hides duplicate unterminated key', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "other.service" => enabled "invalid.synthetic.rollout => unknown\n}\n'],
+    ['unrelated first key hides unterminated target before quoted value', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "other.service" => enabled "invalid.synthetic.rollout => "unknown"\n}\n'],
+    ['prefix hides unterminated target before quoted value', 'disabled services = {\n "invalid.synthetic.rollout" => true\n prefix "invalid.synthetic.rollout => "unknown"\n}\n'],
+    ['unrelated opaque first key hides duplicate unknown', 'disabled services = {\n "invalid.synthetic.rollout" => true\n "helper/invalid.synthetic.rollout" => enabled "invalid.synthetic.rollout" => unknown\n}\n'],
+    ['inline false', 'disabled services = { "invalid.synthetic.rollout" => false }'],
+    ['inline enabled', 'disabled services = { "invalid.synthetic.rollout" => enabled }'],
+    ['inline value suffix', 'disabled services = { "invalid.synthetic.rollout" => true extra }'],
+    ['inline quoted value', 'disabled services = { "invalid.synthetic.rollout" => "true" }'],
+    ['inline duplicate unknown', 'disabled services = { "invalid.synthetic.rollout" => true "invalid.synthetic.rollout" => unknown }'],
+    ['inline duplicate missing value', 'disabled services = { "invalid.synthetic.rollout" => true "invalid.synthetic.rollout" => }'],
+    ['inline duplicate malformed arrow', 'disabled services = { "invalid.synthetic.rollout" => true "invalid.synthetic.rollout" = disabled }'],
+    ['inline output prefix', 'untrusted disabled services = { "invalid.synthetic.rollout" => true }'],
+    ['inline output suffix', 'disabled services = { "invalid.synthetic.rollout" => true } untrusted'],
+    ['unquoted key', 'disabled services = {\n invalid.synthetic.rollout => true\n}\n'],
+    ['line prefix', 'disabled services = {\n prefix "invalid.synthetic.rollout" => true\n}\n'],
+    ['output prefix', 'untrusted\ndisabled services = {\n "invalid.synthetic.rollout" => true\n}\n'],
+    ['output suffix', 'disabled services = {\n "invalid.synthetic.rollout" => true\n}\nuntrusted\n'],
+    ['missing envelope', ' "invalid.synthetic.rollout" => true\n'],
+    ['missing closing brace', 'disabled services = {\n "invalid.synthetic.rollout" => true\n'],
+  ]) await t.test(name, async st => {
+    const f = quiescenceFixture(st, missingScheduler, { code: 0, stdout, stderr: '' });
+    await assert.rejects(() => probeQuiescence(f.plan, f.dependencies), /disabled override/);
+  });
+  for (const [name, response] of [
+    ['disabled command failure', { ...disabledScheduler, code: 1 }],
+    ['disabled stderr whitespace', { ...disabledScheduler, stderr: '\n' }],
+    ['disabled stderr diagnostic', { ...disabledScheduler, stderr: 'warning' }],
+  ]) await t.test(name, async st => {
+    const f = quiescenceFixture(st, missingScheduler, response);
+    await assert.rejects(() => probeQuiescence(f.plan, f.dependencies), /disabled override/);
+  });
+});
+
+test('quiescence compatibility preserves worker, open-handle, marker, private-mode and trust refusal', async t => {
+  const { probeQuiescence } = await load();
+  for (const [cause, error] of [['worker', /process remains/], ['open-handle', /Open state\/native handle/], ['lock', /lock or marker/], ['marker', /lock or marker/], ['mode', /0700/], ['tool', /Trusted executable/], ['authority', /synthetic authority revoked/]]) await t.test(cause, async st => {
+    const f = quiescenceFixture(st, { code: 113, stdout: '', stderr: 'Bad request.\nCould not find service "invalid.synthetic.rollout" in domain for user gui: 4242\n' }, { code: 0, stdout: 'disabled services = {\n "invalid.synthetic.rollout" => disabled\n}\n', stderr: '' });
+    const original = f.dependencies.execute;
+    f.dependencies.execute = async (file, args) => {
+      if (cause === 'worker' && file === f.tools.ps.path) return { code: 0, stdout: '61 1 node standing-dispatcher.mjs poll synthetic.json\n', stderr: '' };
+      if (cause === 'open-handle' && file === f.tools.lsof.path) return { code: 0, stdout: 'p61\ncnative-child\nnopen\n', stderr: '' };
+      return original(file, args);
+    };
+    if (cause === 'lock' || cause === 'marker') writeFileSync(f.plan.quiescence.absentPaths[cause === 'lock' ? 0 : 1], '{}', { mode: 0o600 });
+    if (cause === 'mode') { const path = join(f.root, 'public-state'); mkdirSync(path, { mode: 0o755 }); f.plan.quiescence.stateRoots = [path]; }
+    if (cause === 'tool') writeFileSync(f.tools.launchctl.path, 'changed pinned bytes');
+    await assert.rejects(() => probeQuiescence(f.plan, f.dependencies, () => { if (cause === 'authority') throw Error('synthetic authority revoked'); }), error);
+  });
+});
+
 test('quiescence rejects registration, enabled override, matching process/open file, lock, marker and uncertain ledger', async t => {
   const api = await load();
   for (const cause of ['registered','enabled','arbitrary-exit','process','open-file','lock','marker','ledger','runtime']) {
@@ -670,7 +814,7 @@ test('Jev history refuses nonterminal, unknown, unbound, changed-artifact and fo
 test('actual SIGKILL retains control ownership and exact owner-authorized lock archival is required before recovery',async t=>{
   const api=await load();for(const killBoundary of ['journal-imported','active-pointer','journal-completed']) {const f=fixture(t),history=nativeHistory(f),plan=api.planTransition(f.input),approved=approval(plan);
   const transfer=f.put('synthetic-child.json',{plan,approved,identities:f.identities,tools:f.tools});
-  const script=`import {readPrivateJSON} from ${JSON.stringify(new URL('./standing-config.mjs',import.meta.url).href)};import {applyTransition} from ${JSON.stringify(new URL('./standing-transition.mjs',import.meta.url).href)};const f=readPrivateJSON(process.argv[1]);const ids=['naeil','estimate','jev'];const origins={naeil:'https://naeil.dev',estimate:'https://abestimate.naeil.dev',jev:'https://jev.naeil.dev'};await applyTransition(f.plan,f.approved,{platform:'darwin',execute:async(file,args)=>file===f.tools.launchctl.path?(args[0]==='print'?{code:113,stdout:'',stderr:'Could not find service "invalid.synthetic.rollout" in domain for user gui: 4242\\n'}:{code:0,stdout:'disabled services = { "invalid.synthetic.rollout" => true }',stderr:''}):file===f.tools.ps.path?{code:0,stdout:'42 1 /synthetic/unrelated\\n',stderr:''}:{code:1,stdout:'',stderr:''},fetchImpl:async url=>({status:200,headers:new Headers({'content-type':'application/json'}),body:[Buffer.from(JSON.stringify(f.identities[ids.find(id=>url.startsWith(origins[id]))]))]}),validateHandoff:()=>{},afterBoundary:name=>{if(name===process.argv[2])process.kill(process.pid,'SIGKILL');}});`;
+  const script=`import {readPrivateJSON} from ${JSON.stringify(new URL('./standing-config.mjs',import.meta.url).href)};import {applyTransition} from ${JSON.stringify(new URL('./standing-transition.mjs',import.meta.url).href)};const f=readPrivateJSON(process.argv[1]);const ids=['naeil','estimate','jev'];const origins={naeil:'https://naeil.dev',estimate:'https://abestimate.naeil.dev',jev:'https://jev.naeil.dev'};await applyTransition(f.plan,f.approved,{platform:'darwin',execute:async(file,args)=>file===f.tools.launchctl.path?(args[0]==='print'?{code:113,stdout:'',stderr:'Could not find service "invalid.synthetic.rollout" in domain for user gui: 4242\\n'}:{code:0,stdout:'disabled services = { \"invalid.synthetic.rollout\" => true }',stderr:''}):file===f.tools.ps.path?{code:0,stdout:'42 1 /synthetic/unrelated\\n',stderr:''}:{code:1,stdout:'',stderr:''},fetchImpl:async url=>({status:200,headers:new Headers({'content-type':'application/json'}),body:[Buffer.from(JSON.stringify(f.identities[ids.find(id=>url.startsWith(origins[id]))]))]}),validateHandoff:()=>{},afterBoundary:name=>{if(name===process.argv[2])process.kill(process.pid,'SIGKILL');}});`;
   const child=spawn(process.execPath,['--input-type=module','--eval',script,transfer.path,killBoundary],{stdio:['ignore','ignore','pipe'],env:{PATH:'/usr/bin:/bin'}});let errors='';child.stderr.on('data',bytes=>{errors+=bytes;});const [code,signal]=await once(child,'exit');assert.equal(signal,'SIGKILL',errors);assert.equal(code,null);
   const lock=fileReference(join(f.controlDirectory,'control.lock')),lockBytes=readFileSync(lock.path),journal=fileReference(join(f.controlDirectory,'transition.json'));
   const recovery={schemaVersion:1,kind:'standing-transition-recovery-approval',planSha256:plan.planSha256,approvalSha256:fingerprint(approved),journal,phase:readPrivateJSON(journal.path).phase,pointerSha256:existsSync(join(f.controlDirectory,'active.json'))?fileReference(join(f.controlDirectory,'active.json')).sha256:null,approvedBy:'synthetic-owner',approvalRef:'synthetic://recover-killed-process',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false};
