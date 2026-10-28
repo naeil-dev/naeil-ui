@@ -1,5 +1,6 @@
 """Synthetic code/storage/lifecycle tests. No installed Jev paths are used."""
 import importlib.util
+from contextlib import closing
 import json
 import os
 from pathlib import Path
@@ -24,16 +25,43 @@ class NativeTests(unittest.TestCase):
 
     def tearDown(self): self.temp.cleanup()
 
+    def test_local_execution_accepts_exact_release_without_expiry_policy_or_migration(self):
+        request = {'schemaVersion': 1, 'mode': 'local', 'action': 'deploy', 'planSha256': 'a' * 64, 'service': {'id': 'jev'}, 'release': {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'contract': {'version': '1'}, 'changes': ['dom']}, 'config': {'privateFiles': 'metadata-only'}}
+        n.execution_gate(request)
+        for key, value in [('policy', {}), ('generationSha256', 'b' * 64), ('planSha256', 'bad')]:
+            with self.subTest(key=key), self.assertRaises(n.Refusal): n.execution_gate({**request, key: value})
+        with self.assertRaises(n.Refusal): n.execution_gate({**request, 'release': {**request['release'], 'version': '0.8.0'}})
+
+    def test_local_runtime_checks_protected_metadata_without_reading_private_contents(self):
+        config = self.native_config(); config['privateFiles'] = 'metadata-only'
+        original = Path.read_text
+        def read(path, *args, **kwargs):
+            self.assertNotIn(str(path), [config['envPath'], config['passwordPath']], 'Protected runtime contents were read')
+            return original(path, *args, **kwargs)
+        with patch.object(n.Native, 'command', return_value=SimpleNamespace(returncode=0, stdout=config['nodeVersion'])), patch.object(Path, 'read_text', read):
+            n.Native(config).static()
+            changed = json.loads(json.dumps(config)); changed['envMetadata'][1] += 1
+            with self.assertRaises(n.Refusal): n.Native(changed).static()
+
+    def test_local_stop_during_native_activation_completes_the_known_transaction(self):
+        ops, release, record = self.setup_swap(); stop = self.root / 'STOP'
+        backup = ops.backup
+        def changed(directory, name):
+            backup(directory, name); stop.touch()
+        ops.backup = changed
+        n.activate_transaction(ops, release, record)
+        self.assertTrue(stop.exists()); self.assertEqual(record['phase'], 'active')
+
     def test_wal_backup_has_independent_restorable_snapshot(self):
         source = self.root / 'state.sqlite'
-        with sqlite3.connect(source) as c:
+        with closing(sqlite3.connect(source)) as c:
             c.execute('PRAGMA journal_mode=WAL')
             c.execute('CREATE TABLE calls(id TEXT)')
             c.execute('INSERT INTO calls VALUES (?)', ('fictional',))
             c.commit()
             result = n.backup_verified(source, self.root / 'snapshot.sqlite', self.root / 'proof.sqlite')
             self.assertEqual(result['tableCounts'], {'calls': 1})
-            with sqlite3.connect((self.root / 'snapshot.sqlite').as_uri() + '?mode=ro&immutable=1', uri=True) as b:
+            with closing(sqlite3.connect((self.root / 'snapshot.sqlite').as_uri() + '?mode=ro&immutable=1', uri=True)) as b:
                 self.assertEqual(b.execute('SELECT id FROM calls').fetchall(), [('fictional',)])
 
     def test_backup_never_overwrites_existing_destination(self):
@@ -172,7 +200,7 @@ class NativeTests(unittest.TestCase):
         env = base / 'server.env'; env.write_text('NAEIL_SUPABASE_URL=https://project.example.test\nNAEIL_SUPABASE_ANON_KEY=fictional-key\nAPP_ORIGIN=https://jev.naeil.dev\nJEV_DATA_DB=' + str(base / 'state.sqlite') + '\n'); env.chmod(0o600)
         password = base / 'password.json'; password.write_text('fictional-unused'); password.chmod(0o600)
         db = base / 'state.sqlite'
-        with sqlite3.connect(db) as c: c.execute('CREATE TABLE leases(id TEXT)')
+        with closing(sqlite3.connect(db)) as c: c.execute('CREATE TABLE leases(id TEXT)'); c.commit()
         db.chmod(0o600)
         retained = base / 'releases/current'; (retained / 'previous-app').mkdir(parents=True)
         paths = [retained, retained / 'previous-app']
@@ -238,7 +266,7 @@ class NativeTests(unittest.TestCase):
             with patch.object(ops, 'command', return_value=SimpleNamespace(returncode=0, stdout='p123\n')) as command:
                 with self.assertRaises(n.Deferred): ops.idle()
                 self.assertEqual(command.call_args.args[0], ['/usr/sbin/lsof', '-nP', '-a', '-p', '123', '-iTCP', '-sTCP:ESTABLISHED', '-Fp'])
-            with sqlite3.connect(config['databasePath']) as c: c.execute('INSERT INTO leases VALUES (?)', ('fixture',))
+            with closing(sqlite3.connect(config['databasePath'])) as c: c.execute('INSERT INTO leases VALUES (?)', ('fixture',)); c.commit()
             with patch.object(ops, 'command', return_value=SimpleNamespace(returncode=1, stdout='')):
                 with self.assertRaises(n.Deferred): ops.idle()
 
@@ -295,6 +323,41 @@ class NativeTests(unittest.TestCase):
             for name in ['online', 'stopped']:
                 self.assertTrue((transaction / (name + '-restore-proof.sqlite')).is_file())
 
+    def test_local_deploy_and_rollback_ignore_revoked_approval_and_unavailable_release(self):
+        config = self.native_config(); config['privateFiles'] = 'metadata-only'
+        old = self.artifact('0.7.1', 'old'); new = self.artifact('0.7.2', 'new')
+        base = Path(config['baseDirectory']); (base / 'app').rmdir(); n.extract_code(Path(old['path']), base / 'app', n.artifact_manifest(old))
+        frozen = self.root / 'ui.tgz'; frozen.write_bytes(b'synthetic frozen UI'); new['packageSha256'] = n.sha(frozen.read_bytes())
+        release = {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'previousVersion': '0.7.1', 'contract': {'version': '1'}, 'archive': {'path': str(frozen), 'sha256': new['packageSha256']}, 'changes': ['dom']}
+        chrome = self.root / 'chrome.json'; chrome.write_bytes(b'synthetic chrome'); release['contract'].update(path=str(chrome), sha256=n.sha(chrome.read_bytes()))
+        request = {'schemaVersion': 1, 'mode': 'local', 'action': 'deploy', 'planSha256': 'a' * 64, 'release': release, 'service': {'id': 'jev'}, 'config': config, 'artifact': new, 'previousArtifact': old, 'attemptId': 'local-1', 'idempotencyKey': 'ui-0.7.2:jev', 'transactionDirectory': str(base / 'releases/ui-local-1')}
+        class SyntheticNative(n.Native):
+            def command(self, args): return SimpleNamespace(returncode=0, stdout=config['nodeVersion'])
+            def ownership(self): return 123
+            def idle(self): pass
+            def preflight(self): self.static()
+            def stop(self, **kwargs): pass
+            def start(self): self.static()
+            def health(self, identity):
+                self.assert_identity = json.loads((self.app / 'public/.well-known/naeil-ui.json').read_text())
+                n.require(self.assert_identity == identity, 'synthetic-identity')
+            def ensure_running(self, identity): self.health(identity)
+        with patch.object(n, 'Native', SyntheticNative):
+            with patch.object(SyntheticNative, 'preflight', side_effect=n.Deferred('synthetic-busy')):
+                with self.assertRaises(n.Deferred): n.native_action(request)
+            self.assertEqual(json.loads((Path(request['transactionDirectory']) / 'transaction.json').read_text())['phase'], 'staged')
+            self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual(n.code_manifest(base / 'app'), n.artifact_manifest(new))
+            # Neither release discovery nor the candidate archive is needed to restore
+            # the exact transaction predecessor. All failed/original code is retained.
+            frozen.unlink(); chrome.unlink(); Path(new['path']).unlink(); (self.root / 'STOP').touch()
+            request['action'] = 'rollback'
+            changed = json.loads(json.dumps(request)); changed['previousArtifact']['id'] = 'foreign'
+            with self.assertRaises(n.Refusal): n.native_action(changed)
+            self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual(n.code_manifest(base / 'app'), n.artifact_manifest(old))
+            self.assertTrue((Path(request['transactionDirectory']) / 'rollback/previous-app').is_dir())
+
     def test_native_private_transport_echoes_action_binding_and_generic_errors(self):
         request = {**policy_request(self.root), 'attemptId': 'attempt-1', 'idempotencyKey': 'release:jev', 'action': 'inspect'}
         incoming, outgoing = self.root / 'input.json', self.root / 'output.json'
@@ -305,6 +368,168 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(output['attemptId'], request['attemptId']); self.assertEqual(output['releaseId'], request['release']['releaseId'])
         self.assertEqual(output['action'], 'inspect'); self.assertTrue(output['safe']); self.assertFalse(output['passed'])
         self.assertNotIn('credential-or-provider-detail', outgoing.read_text())
+
+    def local_transaction(self):
+        config = self.native_config(); config['privateFiles'] = 'metadata-only'
+        old = self.artifact('0.7.1', 'old'); new = self.artifact('0.7.2', 'new')
+        base = Path(config['baseDirectory']); (base / 'app').rmdir(); n.extract_code(Path(old['path']), base / 'app', n.artifact_manifest(old))
+        archive, contract = self.root / 'ui.tgz', self.root / 'chrome.json'
+        archive.write_bytes(b'frozen synthetic UI'); contract.write_bytes(b'frozen chrome'); new['packageSha256'] = n.sha(archive.read_bytes())
+        release = {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'previousVersion': '0.7.1', 'contract': {'version': '1', 'path': str(contract), 'sha256': n.sha(contract.read_bytes())}, 'archive': {'path': str(archive), 'sha256': new['packageSha256']}, 'changes': ['dom']}
+        request = {'schemaVersion': 1, 'mode': 'local', 'action': 'deploy', 'planSha256': 'a' * 64, 'release': release, 'service': {'id': 'jev'}, 'config': config, 'artifact': new, 'previousArtifact': old, 'attemptId': 'local-1', 'idempotencyKey': 'ui-0.7.2:jev', 'transactionDirectory': str(base / 'releases/ui-local-1')}
+        events, control = [], {'busy': False, 'fail_start': False}
+        class SyntheticNative(n.Native):
+            def command(self, args): return SimpleNamespace(returncode=0, stdout=config['nodeVersion'])
+            def ownership(self): return 123
+            def idle(self):
+                if control['busy']: raise n.Deferred('synthetic-busy')
+            def preflight(self): self.static()
+            def stop(self, **kwargs): events.append('stop')
+            def start(self):
+                events.append('start'); self.static()
+                if control['fail_start']: control['fail_start'] = False; raise n.Refusal('synthetic-start-failed')
+            def health(self, expected): n.require(json.loads((self.app / 'public/.well-known/naeil-ui.json').read_text()) == expected, 'synthetic-served-identity')
+            def ensure_running(self, expected): self.health(expected)
+        return request, SyntheticNative, events, control
+
+    def test_local_rollback_busy_retry_retains_each_attempt_and_never_reuses_backup_paths(self):
+        request, platform, events, control = self.local_transaction()
+        with patch.object(n, 'Native', platform):
+            n.native_action(request); request['action'] = 'rollback'; control['busy'] = True
+            with self.assertRaises(n.Deferred): n.native_action(request)
+            transaction = Path(request['transactionDirectory']); first = (transaction / 'rollback/transaction.json').read_bytes()
+            self.assertTrue((transaction / 'rollback/online-state.sqlite').exists())
+            control['busy'] = False
+            self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual((transaction / 'rollback/transaction.json').read_bytes(), first)
+            self.assertTrue((transaction / 'rollback-2/online-state.sqlite').exists())
+            self.assertEqual((Path(request['config']['baseDirectory']) / 'app/server.js').read_text(), 'old')
+            self.assertEqual(events.count('stop'), 2)
+
+    def test_local_deploy_retries_after_online_backup_without_overwriting_prior_attempt_evidence(self):
+        request, platform, events, control = self.local_transaction()
+        control['busy'] = True
+        with patch.object(n, 'Native', platform):
+            with self.assertRaises(n.Deferred): n.native_action(request)
+            transaction = Path(request['transactionDirectory'])
+            original = {path.name: (path.read_bytes(), path.stat().st_ino, path.stat().st_mtime_ns) for path in transaction.glob('online-*')}
+            self.assertEqual(set(original), {'online-state.sqlite', 'online-restore-proof.sqlite', 'online-backup.json'})
+            failed_evidence = transaction / 'prior-refusal.json'; failed_evidence.write_text('preserve original failed attempt\n')
+            self.assertEqual(events, [])
+            # A second busy observation occurs after another independent real
+            # SQLite backup; neither deferral may overwrite the original proof.
+            with self.assertRaises(n.Deferred): n.native_action(request)
+            second = {path.name: path.read_bytes() for path in (transaction / 'backup-attempt-2').glob('online-*')}
+            self.assertEqual(set(second), set(original))
+            control['busy'] = False
+            self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual(events, ['stop', 'start'])
+            self.assertEqual((Path(request['config']['baseDirectory']) / 'app/server.js').read_text(), 'new')
+            for name, expected in original.items():
+                path = transaction / name
+                self.assertEqual((path.read_bytes(), path.stat().st_ino, path.stat().st_mtime_ns), expected)
+            for name, expected in second.items(): self.assertEqual((transaction / 'backup-attempt-2' / name).read_bytes(), expected)
+            self.assertEqual(failed_evidence.read_text(), 'preserve original failed attempt\n')
+            completed = transaction / 'backup-attempt-3'
+            self.assertEqual(n.private_json(transaction / 'transaction.json')['backupAttempts'], ['backup-attempt-2', 'backup-attempt-3'])
+            for name in ['online', 'stopped']:
+                self.assertTrue((completed / f'{name}-restore-proof.sqlite').is_file())
+                with closing(n.readonly(completed / f'{name}-state.sqlite')) as snapshot:
+                    self.assertEqual(snapshot.execute('PRAGMA integrity_check').fetchall(), [('ok',)])
+
+    def test_local_rollback_recovered_failure_has_candidate_proof_and_can_retry_explicitly(self):
+        request, platform, events, control = self.local_transaction()
+        incoming, outgoing = self.root / 'input.json', self.root / 'output.json'
+        with patch.object(n, 'Native', platform):
+            n.native_action(request); request['action'] = 'rollback'; control['fail_start'] = True; n.write_private(incoming, request)
+            with patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}): n.main()
+            result = n.private_json(outgoing)
+            self.assertEqual(result['outcome'], 'failed'); self.assertTrue(result['safe']); self.assertTrue(result['recovered'])
+            self.assertEqual(result['phase'], 'recovered'); self.assertEqual(result['artifact'], request['artifact'])
+            transaction = Path(request['transactionDirectory']); first = (transaction / 'rollback/transaction.json').read_bytes()
+            self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual((transaction / 'rollback/transaction.json').read_bytes(), first)
+            self.assertTrue((transaction / 'rollback/failed-app').is_dir()); self.assertTrue((transaction / 'rollback-2/previous-app').is_dir())
+            self.assertEqual(events.count('stop'), 4)
+
+    def test_local_transaction_inspection_and_predecessor_reconciliation_need_no_artifact_or_release_files(self):
+        request, platform, events, control = self.local_transaction()
+        with patch.object(n, 'Native', platform):
+            n.native_action(request); request['action'] = 'rollback'; n.native_action(request)
+            transaction = Path(request['transactionDirectory']); record = n.private_json(transaction / 'transaction.json'); n.record_phase(transaction, record, 'active')
+            for artifact in [request['artifact'], request['previousArtifact']]:
+                Path(artifact['path']).unlink(); Path(artifact['manifestPath']).unlink()
+            for key in ['archive', 'contract']: Path(request['release'][key]['path']).unlink()
+            before = list(events)
+            with patch.object(n, 'artifact_manifest', side_effect=AssertionError('archive must not be opened')), patch.object(n, 'frozen_release', side_effect=AssertionError('release must not be opened')):
+                inspect = {**request, 'action': 'inspect-transaction', 'inspectionArtifact': request['previousArtifact']}
+                result = n.native_action(inspect); self.assertTrue(result['passed']); self.assertIn('transaction.json', result['journal'])
+                self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual(events, before); self.assertEqual(n.private_json(transaction / 'transaction.json')['phase'], 'rolled-back')
+            with self.assertRaises(n.Refusal): n.native_action({**inspect, 'inspectionArtifact': {**request['previousArtifact'], 'id': 'foreign'}})
+
+    def test_unknown_rollback_needs_exact_fresh_reconciliation_and_preserves_failed_journal(self):
+        request, platform, events, control = self.local_transaction()
+        with patch.object(n, 'Native', platform):
+            n.native_action(request); request['action'] = 'rollback'; control['busy'] = True
+            with self.assertRaises(n.Deferred): n.native_action(request)
+            transaction = Path(request['transactionDirectory']); uncertain = n.private_json(transaction / 'rollback/transaction.json'); n.record_phase(transaction / 'rollback', uncertain, 'uncertain'); control['busy'] = False
+            before = list(events)
+            with self.assertRaises(n.Uncertain): n.native_action(request)
+            self.assertEqual(events, before)
+            inspection = n.native_action({**request, 'action': 'inspect-transaction', 'inspectionArtifact': request['artifact']})
+            proof = {'schemaVersion': 1, 'kind': 'rollback-reconciliation', 'planSha256': request['planSha256'], 'releaseId': request['release']['releaseId'], 'serviceId': 'jev', 'transactionId': request['attemptId'], 'stage': 'rollback-inspect', 'status': 'observed', 'artifact': request['artifact'], 'nativeInspection': inspection}
+            proof_path = self.root / 'reconciliation.json'; n.write_private(proof_path, proof); reference = {'path': str(proof_path), 'sha256': n.sha(proof_path.read_bytes())}
+            changed = {**request, 'rollbackReconciliation': {**reference, 'sha256': 'b' * 64}}
+            with self.assertRaises(n.Refusal): n.native_action(changed)
+            self.assertTrue(n.native_action({**request, 'rollbackReconciliation': reference})['activated'])
+            self.assertEqual(n.private_json(transaction / 'rollback/transaction.json')['phase'], 'uncertain')
+            self.assertTrue((transaction / 'rollback-2/transaction.json').exists()); self.assertEqual(events.count('stop'), 2)
+
+    def check_reconciled_deployment_rollback_retry(self, failure):
+        request, platform, events, control = self.local_transaction()
+        with patch.object(n, 'Native', platform):
+            n.native_action(request)
+            transaction = Path(request['transactionDirectory']); record = n.private_json(transaction / 'transaction.json'); n.record_phase(transaction, record, 'starting')
+            original = (transaction / 'transaction.json').read_bytes()
+            for artifact in [request['artifact'], request['previousArtifact']]:
+                Path(artifact['path']).unlink(); Path(artifact['manifestPath']).unlink()
+            for key in ['archive', 'contract']: Path(request['release'][key]['path']).unlink()
+            request['action'] = 'rollback'
+            inspection = n.native_action({**request, 'action': 'inspect-transaction', 'inspectionArtifact': request['artifact']})
+            proof = {'schemaVersion': 1, 'kind': 'rollback-reconciliation', 'planSha256': request['planSha256'], 'releaseId': request['release']['releaseId'], 'serviceId': 'jev', 'transactionId': request['attemptId'], 'stage': 'rollback-inspect', 'status': 'observed', 'artifact': request['artifact'], 'nativeInspection': inspection}
+            path = self.root / 'reconciliation.json'; n.write_private(path, proof)
+            control[failure] = True
+            with self.assertRaises(n.Refusal): n.native_action({**request, 'rollbackReconciliation': {'path': str(path), 'sha256': n.sha(path.read_bytes())}})
+            prior = (transaction / 'rollback/transaction.json').read_bytes()
+            self.assertEqual(n.private_json(transaction / 'rollback/transaction.json')['phase'], 'staged' if failure == 'busy' else 'recovered')
+            control['busy'] = False
+            self.assertTrue(n.native_action(request)['activated'])
+            self.assertEqual((transaction / 'rollback/transaction.json').read_bytes(), prior)
+            self.assertEqual((transaction / ('deploy-uncertain-' + n.sha(original) + '.json')).read_bytes(), original)
+            self.assertEqual((Path(request['config']['baseDirectory']) / 'app/server.js').read_text(), 'old')
+
+    def test_reconciled_deploy_can_retry_a_proven_staged_rollback_without_new_recovery_proof(self):
+        self.check_reconciled_deployment_rollback_retry('busy')
+
+    def test_reconciled_deploy_can_retry_a_proven_recovered_rollback_without_new_recovery_proof(self):
+        self.check_reconciled_deployment_rollback_retry('fail_start')
+
+    def test_local_native_transport_distinguishes_recovered_failure_from_unknown_result(self):
+        incoming, outgoing = self.root / 'input.json', self.root / 'output.json'
+        transaction = self.root / 'transaction'; transaction.mkdir(); n.write_private(transaction / 'transaction.json', {'phase': 'recovered'})
+        previous = {'id': 'before', 'sourceRevision': 'a' * 40, 'ui': {'version': '0.7.1', 'contractVersion': '1'}}
+        request = {'schemaVersion': 1, 'mode': 'local', 'action': 'deploy', 'attemptId': 'attempt-1', 'idempotencyKey': 'release:jev', 'planSha256': 'a' * 64, 'release': {'releaseId': 'ui-0.7.2'}, 'service': {'id': 'jev'}, 'previousArtifact': previous, 'transactionDirectory': str(transaction)}
+        n.write_private(incoming, request)
+        failure = n.Refusal('private provider detail'); failure.recovered_identity = n.public_identity(request['service'], previous)
+        with patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}), patch.object(n, 'native_action', side_effect=failure):
+            n.main()
+        output = n.private_json(outgoing); self.assertEqual(output['outcome'], 'failed'); self.assertTrue(output['safe'])
+        self.assertEqual(output['artifact'], previous); self.assertTrue(output['recovered'])
+        self.assertEqual(output['phase'], 'recovered'); self.assertNotIn('private provider detail', outgoing.read_text()); outgoing.unlink()
+        with patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}), patch.object(n, 'native_action', side_effect=n.Uncertain('provider detail')):
+            n.main()
+        output = n.private_json(outgoing); self.assertEqual(output['outcome'], 'unknown'); self.assertFalse(output['safe'])
 
 
 class Fake:

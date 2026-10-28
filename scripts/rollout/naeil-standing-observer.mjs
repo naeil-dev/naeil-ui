@@ -5,20 +5,23 @@ import { assertActive, assertGenerationExecution, assertGenerationFence, assertP
 import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 import { compareRuntime, runtimeIndex } from './package-runtime.mjs';
 import { requestSiteTarget } from './site-continuation.mjs';
+import { requireHTTP, verificationFetch, verificationBody } from './verification-error.mjs';
 
 async function boundedJSON(response, maximum) {
   const chunks = []; let length = 0;
-  for await (const chunk of response.body) {
-    length += chunk.length; assert(length <= maximum, 'Observation response exceeds bound'); chunks.push(chunk);
-  }
+  await verificationBody(async () => {
+    for await (const chunk of response.body) {
+      length += chunk.length; assert(length <= maximum, 'Observation response exceeds bound'); chunks.push(chunk);
+    }
+  }, 'site-provenance');
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
 export async function publicIdentity(origin, fetchImpl) {
   const url = new URL('/.well-known/naeil-ui.json', origin);
   assert.equal(url.protocol, 'https:');
-  const response = await fetchImpl(url.href, { redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(15000), headers: { 'cache-control': 'no-cache' } });
-  assert.equal(response.status, 200, 'Public identity unavailable');
+  const response = await verificationFetch(url.href, { redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(15000), headers: { 'cache-control': 'no-cache' } }, { stage: 'site-identity', fetchImpl });
+  requireHTTP(response, 'site-identity');
   assert.match(response.headers.get('content-type') || '', /application\/json/);
   return boundedJSON(response, 4096);
 }
@@ -59,8 +62,8 @@ async function correlate(deployment, identity, observer, fetchImpl, github) {
   assert.equal(options.tokenEnvironment, 'NAEIL_STANDING_VERCEL_TOKEN', 'Fixed private read-only Vercel credential source required');
   const token = process.env.NAEIL_STANDING_VERCEL_TOKEN;
   assert(token && /^dpl_[A-Za-z0-9]+$/.test(identity.artifactId), 'Private Vercel reader and exact deployment ID required');
-  const response = await fetchImpl(`https://api.vercel.com/v13/deployments/${identity.artifactId}?teamId=${options.teamId}`, { redirect: 'error', signal: AbortSignal.timeout(30000), headers: { authorization: `Bearer ${token}` } });
-  assert.equal(response.status, 200, 'Vercel deployment correlation unavailable');
+  const response = await verificationFetch(`https://api.vercel.com/v13/deployments/${identity.artifactId}?teamId=${options.teamId}`, { redirect: 'error', signal: AbortSignal.timeout(30000), headers: { authorization: `Bearer ${token}` } }, { stage: 'site-provenance', fetchImpl });
+  requireHTTP(response, 'site-provenance');
   // Authenticated API objects are never returned or persisted as evidence.
   const remote = await boundedJSON(response, 2 * 1024 * 1024);
   assert(remote.id === identity.artifactId && remote.projectId === options.projectId && remote.ownerId === options.teamId && remote.readyState === 'READY' && remote.target === 'production', 'Vercel project/owner/deployment mismatch');

@@ -3,6 +3,7 @@ import { constants } from 'node:fs';
 import { open, lstat, realpath, mkdir, rename, rmdir } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { VerificationError } from './verification-error.mjs';
 
 export async function assertPrivateDirectory(path) {
   assert(isAbsolute(path) && resolve(path) === path && await realpath(path) === path, 'Canonical private directory required');
@@ -42,7 +43,7 @@ function supabaseOrigin(url) {
 function assertSession(session, userId, now, minimumValidityMs) {
   assert(session && typeof session.access_token === 'string' && session.access_token.length > 0 && typeof session.refresh_token === 'string' && session.refresh_token.length > 0, 'Verification session missing');
   assert.equal(session.user?.id, userId, 'Verification account mismatch');
-  assert(Number.isFinite(session.expires_at) && session.expires_at * 1000 > now + minimumValidityMs, 'Verification session expiry too near');
+  if (!Number.isFinite(session.expires_at) || session.expires_at * 1000 <= now + minimumValidityMs) throw new VerificationError('session-refresh', 'session-expiry-insufficient', { manualRecovery: true });
 }
 
 /** A refresh is a credential rotation. An interrupted/ambiguous rotation leaves
@@ -53,7 +54,7 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   assert(typeof config.anonKey === 'string' && config.anonKey && typeof config.userId === 'string' && config.userId, 'Pinned verification account/config required');
   await readPrivateJson(config.stateFile);
   const lock = `${config.stateFile}.refresh-lock`;
-  beforeWrite({operation:'mkdir',path:lock}); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new Error('Verification refresh pending/locked; reconciliation required'); }
+  beforeWrite({operation:'mkdir',path:lock}); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new VerificationError('session-refresh', 'session-refresh-locked', { manualRecovery: true }); }
   // Read only after obtaining the lock; another completed refresh may have
   // rotated the token between the initial permission check and lock creation.
   const prior = await readPrivateJson(config.stateFile);
@@ -69,15 +70,18 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
       headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: prior.refresh_token }),
     });
-  } catch { throw new Error('Verification session refresh uncertain; reconciliation required'); }
-  assert(response.ok, 'Verification session refresh rejected; reconciliation required');
+  } catch (error) { throw new VerificationError('session-refresh', 'session-refresh-uncertain', { timeout: ['AbortError', 'TimeoutError'].includes(error.name), manualRecovery: true }); }
+  if (!response.ok) throw new VerificationError('session-refresh', [400, 401, 403].includes(response.status) ? 'auth-required' : 'session-refresh-rejected', { status: response.status, manualRecovery: true });
   let next;
-  try { next = await response.json(); } catch { throw new Error('Verification session response invalid'); }
-  assertSession(next, config.userId, now, minimumValidityMs);
-  await writePrivateJson(config.stateFile, next, { beforeWrite });
-  // Retain the consumed marker as an audit record, without credential data.
-  beforeWrite({operation:'rename',path:`${lock}/pending.json`,destination:`${config.stateFile}.last-refresh.json`}); await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
-  beforeWrite({operation:'rmdir',path:lock}); await rmdir(lock);
+  try { next = await response.json(); } catch { throw new VerificationError('session-refresh', 'session-response-invalid', { manualRecovery: true }); }
+  try { assertSession(next, config.userId, now, minimumValidityMs); }
+  catch (error) { if (error instanceof VerificationError) throw error; throw new VerificationError('session-refresh', 'session-response-invalid', { manualRecovery: true }); }
+  try {
+    await writePrivateJson(config.stateFile, next, { beforeWrite });
+    // Retain the consumed marker as an audit record, without credential data.
+    beforeWrite({operation:'rename',path:`${lock}/pending.json`,destination:`${config.stateFile}.last-refresh.json`}); await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
+    beforeWrite({operation:'rmdir',path:lock}); await rmdir(lock);
+  } catch { throw new VerificationError('session-refresh', 'session-persistence-uncertain', { manualRecovery: true }); }
   return next;
 }
 

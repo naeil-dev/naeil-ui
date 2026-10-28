@@ -1,4 +1,5 @@
 import { assertRouteConfig, routeKey } from './route-contract.mjs';
+import { requireHTTP, verificationFetch, verificationBody } from './verification-error.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -150,10 +151,10 @@ export async function verifyIdentity(origin, expected) {
   assert(['https:', 'http:'].includes(url.protocol), 'HTTP origin required');
   assert(!url.username && !url.password, 'Public identity origin must not embed credentials');
   if (url.protocol === 'http:') assert(['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname), 'Production identity requires HTTPS');
-  const response = await fetch(url, { redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(15000), headers: { 'cache-control': 'no-cache' } });
-  assert.equal(response.status, 200, 'Production identity HTTP status mismatch');
+  const response = await verificationFetch(url, { redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(15000), headers: { 'cache-control': 'no-cache' } });
+  requireHTTP(response, 'production-identity');
   assert.match(response.headers.get('content-type') || '', /application\/json/, 'Production identity is not JSON');
-  const body = await response.text(); assert(body.length <= 4096, 'Production identity exceeds public identity size limit');
+  const body = await verificationBody(() => response.text(), 'production-identity'); assert(body.length <= 4096, 'Production identity exceeds public identity size limit');
   const actual = JSON.parse(body); assertIdentity(actual, expected); return actual;
 }
 

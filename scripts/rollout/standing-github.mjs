@@ -4,20 +4,23 @@ import { join } from 'node:path';
 import { loadReleaseExpectations } from './release-expectations.mjs';
 import { atomicJSON, fingerprint, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
 import { reviewedMigration } from './rollout.mjs';
+import { verificationFetch, verificationBody } from './verification-error.mjs';
 
 export class GitHubUnavailable extends Error {
-  constructor() { super('Trusted release service unavailable before dispatch'); this.name = 'GitHubUnavailable'; }
+  constructor(diagnostic = {}) { super('Trusted release service unavailable before dispatch'); this.name = 'GitHubUnavailable'; Object.assign(this, { stage: 'release-discovery', reasonCode: 'release-service-unavailable', retryable: true, status: null, timeout: false }, diagnostic); }
 }
 
 async function bounded(response, maximum) {
-  if ([401, 403, 408, 429].includes(response.status) || response.status >= 500) throw new GitHubUnavailable();
+  if ([401, 403, 408, 429].includes(response.status) || response.status >= 500) throw new GitHubUnavailable({ status: response.status, retryable: response.status !== 401, reasonCode: response.status === 401 ? 'auth-required' : 'release-service-unavailable' });
   assert(response.ok, 'Trusted HTTPS request failed');
   const chunks = []; let length = 0;
-  for await (const chunk of response.body) {
-    length += chunk.length;
-    if (length > maximum) throw new Error('Trusted response exceeds size limit');
-    chunks.push(chunk);
-  }
+  await verificationBody(async () => {
+    for await (const chunk of response.body) {
+      length += chunk.length;
+      assert(length <= maximum, 'Trusted response exceeds size limit');
+      chunks.push(chunk);
+    }
+  }, 'release-discovery');
   return Buffer.concat(chunks);
 }
 
@@ -26,7 +29,7 @@ export class GitHub {
     assert.equal(repository, 'naeil-dev/naeil-ui'); this.repository = repository; this.fetch = fetchImpl; this.token = token;
   }
   async request(url, options) {
-    try { return await this.fetch(url, options); } catch { throw new GitHubUnavailable(); }
+    try { return await verificationFetch(url, options, { stage: 'release-discovery', fetchImpl: this.fetch }); } catch (error) { throw new GitHubUnavailable({ timeout: error.timeout }); }
   }
   async api(path) {
     const comparePrefix = `/repos/${this.repository}/compare/main...`;

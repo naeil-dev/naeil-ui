@@ -185,6 +185,7 @@ export async function createVerificationContext({ browser, route, origin, viewpo
 }
 
 export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true, beforeAction = () => {}, beforeWrite = () => {} }) {
+  const { requireHTTP, VerificationError } = await import('./rollout/verification-error.mjs');
   const expectations = loadReleaseExpectations(release);
   const { assertReference, verifyIdentity } = await import('./rollout/rollout.mjs');
   const referenceBytes = readFileSync(referencePath);
@@ -210,8 +211,12 @@ export async function verifyProduction({ release, origin, identity, routes, refe
         beforeAction(); const page = await context.newPage();
         try {
           beforeAction(); await context.addInitScript(value => { localStorage.setItem('theme', value); localStorage.setItem('naeil-theme', value); }, theme);
-          beforeAction(); const response = await page.goto(new URL(route.path, origin).href);
-          assert(response?.ok(), `Route HTTP failure: ${route.path}`);
+          beforeAction();
+          let response;
+          try { response = await page.goto(new URL(route.path, origin).href); }
+          catch (error) { throw new VerificationError('production-route', error.name === 'TimeoutError' ? 'network-timeout' : 'network-unavailable', { timeout: error.name === 'TimeoutError', retryable: true }); }
+          requireHTTP(response, 'production-route');
+          if (route.renderState.access === 'protected' && /\/(?:en\/|ja\/|ko\/)?login(?:[/?]|$)/.test(new URL(page.url()).pathname)) throw new VerificationError('production-route', 'auth-required');
           assertRouteDestination(page.url(), route, origin);
           await assertRouteState(page, route);
           const locale = route.locale || await page.locator('html').getAttribute('lang');

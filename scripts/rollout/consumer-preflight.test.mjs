@@ -15,6 +15,9 @@ import { assertDependencyDelta } from './update-consumer.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 import { dependencyLock } from './fixtures/dependency-lock.mjs';
+import { createLocalConsumers, localCandidateProof, readLocalCandidate } from './local-consumers.mjs';
+import { runLocal, approvalFor, finalizePlan } from './local-runner.mjs';
+import { syntheticJevArchive } from './fixtures/jev-archive.mjs';
 const node='/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node';
 function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
  const node=service==='estimate'?'/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node':'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node';
@@ -52,6 +55,54 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
 import {createHash} from 'node:crypto';
 function awaitHash512(bytes){return createHash('sha512').update(bytes).digest('base64');}
 const candidateBinding=c=>Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,c[key]]));
+for(const service of ['estimate','jev'])test(`local ${service} preflight reuses exact source/tool inputs without generation or staged approvals`,{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t,{service,update:true});f.input.kind='local-consumer-preflight';delete f.input.generation;delete f.input.approval;
+ try {
+  const prepared=await prepareCandidate(f.input),candidate=await runPreflight(prepared,f.config);
+  const binding=candidateBinding(candidate);delete binding.generationSha256;binding.executionSha256=candidate.executionSha256;
+  assert.equal(candidate.passed,true);assert.match(candidate.executionSha256,/^[a-f0-9]{64}$/);assert(!Object.hasOwn(candidate,'generationSha256'));
+  assertCandidate(candidate,binding);assert.equal(f.git(['status','--porcelain']),'');assert.equal(readFileSync(join(f.root,'STOP'),'utf8'),'standing remains stopped');
+  const proof=localCandidateProof(candidate.receipt);assert.deepEqual(readLocalCandidate(candidate.receipt),candidate);
+  assert(!JSON.stringify(proof).includes('generation'));assert.equal(proof.consumerInputsSha256,localCandidateProof(candidate).consumerInputsSha256);
+  const changed={...binding,executionSha256:'a'.repeat(64)};assert.throws(()=>assertCandidate(candidate,changed),/executionSha256 mismatch/);
+ }catch(error){f.retainFailure(error);throw error;}
+});
+test('retained Jev candidate enters the new runner once and rolls back independently of STOP/approval/release discovery',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t,{service:'jev',update:true}),chrome=join(f.root,'chrome.json');writeFileSync(chrome,'synthetic chrome reference',{mode:0o600});f.input.release.chromeSha256=hash(readFileSync(chrome));
+ const fixture=JSON.parse(readFileSync(f.input.fixture.path));fixture.release=f.input.release;
+ const expectations=fixture.expectations.path;writeFileSync(expectations,JSON.stringify(declaration({...f.input.release,archive:{sha256:f.input.release.archiveSha256},contract:{version:'1',sha256:f.input.release.chromeSha256},account:{sha256:f.input.release.accountSha256}})));
+ fixture.expectations.sha256=hash(readFileSync(expectations));fixture.expectations.bytes=readFileSync(expectations).length;
+ writeFileSync(f.input.fixture.path,JSON.stringify(fixture));f.input.fixture.sha256=hash(readFileSync(f.input.fixture.path));f.input.fixture.bytes=readFileSync(f.input.fixture.path).length;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const candidate=await runPreflight(await prepareCandidate(f.input),f.config),proof=localCandidateProof(candidate.receipt);
+ assert(!Object.hasOwn(proof.candidateBinding,'generationSha256'));
+ const source='d'.repeat(40),identity={schemaVersion:1,appId:'jev',artifactId:'synthetic-previous',sourceRevision:source,ui:{version:'0.7.41',contractVersion:'1'}};
+ const previous=syntheticJevArchive(identity),previousPath=join(f.root,hash(previous.bytes)+'.tar.gz'),manifestPath=join(f.root,'previous-manifest.json');writeFileSync(previousPath,previous.bytes,{mode:0o600});writeFileSync(manifestPath,JSON.stringify(previous.manifest),{mode:0o600});
+ const before={immutable:true,id:identity.artifactId,sourceRevision:source,ui:identity.ui,packageSha256:'d'.repeat(64),sha256:hash(previous.bytes),path:previousPath,storageRef:'file://'+previousPath,manifestPath,manifestSha256:hash(JSON.stringify(Object.fromEntries(Object.entries(previous.manifest).sort().map(([key,value])=>[key,Object.fromEntries(Object.entries(value).sort())])))),buildId:'synthetic-build'};
+ const nativeHelper=fileURLToPath(new URL('./jev-native.py',import.meta.url)),python=realpathSync(process.execPath);
+ const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:nativeHelper,sha256:hash(readFileSync(nativeHelper))},executionPath:'/usr/bin:/bin',config:{baseDirectory:f.root,privateFiles:'metadata-only'}};
+ const release={releaseId:f.input.release.releaseId,version:f.input.release.version,previousVersion:'0.7.41',sourceRevision:f.input.release.sourceRevision,archive:f.input.archive,contract:{version:'1',path:chrome,sha256:f.input.release.chromeSha256},account:fixture.account};
+ const draft={schemaVersion:1,release,services:[{id:'jev',mode:'deploy',currentArtifact:before,consumer:{candidate:candidate.receipt,candidateBinding:proof.candidateBinding,native}}]};
+ const plan=finalizePlan(draft,{jev:{previousArtifact:before,candidateArtifact:candidate.artifact,consumerInputsSha256:proof.consumerInputsSha256}}),config={plan,stateDirectory:join(f.root,'new-state'),lockFile:join(f.root,'machine.lock'),stopFile:join(f.root,'new-STOP'),approvalFile:join(f.root,'new-approval.json')};
+ const failedConfig={...config,stateDirectory:join(f.root,'recovered-state'),lockFile:join(f.root,'recovered.lock'),stopFile:join(f.root,'recovered-STOP'),approvalFile:join(f.root,'recovered-approval.json')};writeFileSync(failedConfig.approvalFile,JSON.stringify(approvalFor(plan)),{mode:0o600});
+ const recovered=createLocalConsumers({native(action,request){
+  const binding={schemaVersion:1,releaseId:release.releaseId,serviceId:'jev',attemptId:request.attemptId,idempotencyKey:request.idempotencyKey,planSha256:request.planSha256,action};
+  return action==='deploy'?{...binding,passed:false,safe:true,outcome:'failed',phase:'recovered',recovered:true,artifact:before}:{...binding,passed:true,safe:true};
+ }});
+ const recoveredState=await runLocal(failedConfig,{...recovered,validateRelease:async()=>({passed:true}),verify:async()=>{throw Error('Recovered deploy must not enter verification');}});
+ assert.equal(recoveredState.status,'rolled-back');assert.equal(recoveredState.transactions[recoveredState.services.jev.transactionId].native.status,'failed');assert(!existsSync(failedConfig.lockFile));
+ writeFileSync(config.approvalFile,JSON.stringify(approvalFor(plan)),{mode:0o600});let live=before,deployments=0,rollbacks=0;
+ const adapters=createLocalConsumers({native(action,request){
+  if(action==='inspect')assert.deepEqual(request.artifact,live);
+  else if(action==='deploy'){deployments++;live=request.artifact;writeFileSync(config.stopFile,'stop',{mode:0o600});}
+  else {rollbacks++;assert.deepEqual(request.previousArtifact,before);live=request.previousArtifact;}
+  return {schemaVersion:1,releaseId:release.releaseId,serviceId:'jev',attemptId:request.attemptId,idempotencyKey:request.idempotencyKey,planSha256:request.planSha256,action,passed:true,safe:true,activated:action!=='inspect'};
+ }}),deps={...adapters,validateRelease:async()=>({passed:true}),verify:async()=>({passed:true})};
+ const state=await runLocal(config,deps);assert.equal(state.status,'stopped');assert.equal(deployments,1);assert.equal(live.id,candidate.artifact.id);
+ const tx=state.transactions[state.services.jev.transactionId];assert.equal(tx.native.status,'complete');assert.notEqual(tx.prepared.native.helper.path,nativeHelper);
+ fs.unlinkSync(config.approvalFile);fs.unlinkSync(candidate.artifact.path);fs.unlinkSync(release.archive.path);fs.unlinkSync(chrome);
+ const rolledBack=await runLocal(config,deps,{command:'rollback',transactionId:tx.id});assert.equal(rolledBack.services.jev.status,'rolled-back');assert.equal(rollbacks,1);assert.deepEqual(live,before);
+ assert.equal(f.git(['status','--porcelain']),'');
+});
 function offlineArchive(name,version,dependencies={}) {
  const chunks=[];
  for(const [path,value] of Object.entries({'package.json':JSON.stringify({name,version,dependencies,exports:{'.':'./dist/index.js'}}),'dist/index.js':'export const synthetic = true;','README.md':'exact frozen docs'})) {

@@ -11,6 +11,7 @@ import { assertGenerationVerification, assertGenerationFence, fingerprint, readE
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
 import { requestSiteTarget, assertSiteArtifact } from './site-continuation.mjs';
 import { readPrivateJson, writePrivateJson, assertPrivateDirectory, renewVerificationSession, sessionCookies } from './verification-session.mjs';
+import { requireHTTP, verificationFetch } from './verification-error.mjs';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const origins = { naeil: 'https://naeil.dev', estimate: 'https://abestimate.naeil.dev', jev: 'https://jev.naeil.dev' };
@@ -23,10 +24,11 @@ export function validateVerificationRequest(input, config) {
   return validateVerificationData(input, config);
 }
 
-function validateVerificationData(input, config, standalone = false) {
+function validateVerificationData(input, config, standalone = false, local = false) {
   assert.equal(input.schemaVersion, 1);
   assert.equal(config.schemaVersion, 1);
-  if (standalone) assert(input.kind === 'standing-site-read-only' && input.mode === undefined && input.phase === 'site-read-only', 'Explicit standalone verification scope required');
+  if (local) assert(input.kind === 'local-rollout-verification' && input.mode === undefined && ['production', 'rollback'].includes(input.phase), 'Explicit local verification scope required');
+  else if (standalone) assert(input.kind === 'standing-site-read-only' && input.mode === undefined && input.phase === 'site-read-only', 'Explicit standalone verification scope required');
   else {
     assert(['standing', 'adopt'].includes(input.mode), 'Explicit standing/adopt mode required');
     assert(['adopt', 'production', 'rollback'].includes(input.phase), 'Explicit verification phase required');
@@ -54,7 +56,12 @@ function validateVerificationData(input, config, standalone = false) {
   for (const key of ['idempotencyKey', 'attemptId']) assert(typeof input[key] === 'string' && input[key] && input[key].length <= 200, 'Attempt binding required');
   const identity = { schemaVersion: 1, appId: service.appId, artifactId: input.artifact.id, sourceRevision: input.artifact.sourceRevision, ui: input.artifact.ui };
   if (input.expectedIdentity) assert.deepEqual(input.expectedIdentity, identity, 'Expected identity differs from artifact');
-  if (input.service.id === 'naeil') assertSiteArtifact(input, input.artifact);
+  if (input.service.id === 'naeil' && !local) assertSiteArtifact(input, input.artifact);
+  if (input.service.id === 'naeil' && local) {
+    assert.deepEqual(input.artifact, input.service.artifact, 'Local site artifact differs from release plan');
+    assert.equal(input.artifact.platform?.kind, 'vercel-git', 'Existing Git/Vercel provenance required');
+    assert.equal(input.artifact.platform.deploymentId, input.artifact.id, 'Site platform deployment mismatch');
+  }
   return identity;
 }
 
@@ -100,8 +107,8 @@ async function anonymousBoundaries(service, beforeAction, fetchImpl) {
   for (const probe of service.anonymousBoundaries || []) {
     const url = new URL(probe.path, service.origin);
     assert.equal(url.origin, service.origin, 'Boundary origin escape');
-    beforeAction(); const response = await fetchImpl(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000), cache: 'no-store' });
-    assert.equal(response.status, probe.status, 'Anonymous boundary status changed');
+    beforeAction(); const response = await verificationFetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15_000), cache: 'no-store' }, { stage: 'anonymous-boundary', fetchImpl });
+    requireHTTP(response, 'anonymous-boundary', probe.status);
     if (probe.centralLogin) {
       const location = new URL(response.headers.get('location'), service.origin);
       assert.equal(location.origin, 'https://naeil.dev', 'Central login origin changed');
@@ -116,6 +123,14 @@ async function anonymousBoundaries(service, beforeAction, fetchImpl) {
 export async function verifyStanding(input, config, dependencies = {}) {
   const identity = validateVerificationRequest(input, config);
   return verifyData(input, config, identity, { beforeWrite: () => assertGenerationFence(input), beforeAction: () => assertGenerationVerification(input) }, dependencies);
+}
+
+/** Local runner supplies cheap STOP checks; authority is checked at stage boundaries. */
+export async function verifyLocalProduction(input, config, hooks, dependencies = {}) {
+  assert(typeof hooks?.beforeAction === 'function' && typeof hooks?.beforeWrite === 'function', 'Local verification hooks required');
+  assert(input.policy === undefined && input.generationFence === undefined && input.generationSha256 === undefined, 'Local verifier must not carry legacy authority');
+  hooks.beforeAction();
+  return verifyData(input, config, validateVerificationData(input, config, false, true), hooks, dependencies);
 }
 
 /** The standalone caller supplies its exact non-operational approval guards.
@@ -148,7 +163,7 @@ async function verifyData(input, config, identity, { beforeAction, beforeWrite }
   assert.deepEqual(reference.ui, identity.ui);
   const boundaries = await anonymousBoundaries(service,beforeAction,boundaryFetch);
   const needsSession = service.routes.some(route => route.renderState.access === 'protected');
-  const verificationTimeoutMs = input.service.verification?.command?.timeoutMs ?? 20 * 60_000;
+  const verificationTimeoutMs = input.kind === 'local-rollout-verification' ? input.verificationTimeoutMs : input.service.verification?.command?.timeoutMs ?? 20 * 60_000;
   assert(Number.isSafeInteger(verificationTimeoutMs) && verificationTimeoutMs > 0 && verificationTimeoutMs <= 3 * 60 * 60_000, 'Bounded verification timeout required');
   // Finish before Supabase SSR/browser auto-refresh can rotate an unpersisted
   // cookie. The subprocess deadline is the upper bound for the entire check.
