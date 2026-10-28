@@ -123,7 +123,8 @@ export function NaeilHeader({
   const brandDestination = brandHref ?? resolveHref("/");
   const BrandLink = brandLinkComponent ?? Link;
   const { onClick: onBrandClick, ...brandProps } = brandLinkProps ?? {};
-  const toolbar = <div data-app-toolbar className="naeil-header-controls">
+  const toolbar = <div data-app-toolbar className="naeil-header-controls"
+    data-naeil-chrome={toolbarSlot === undefined ? "" : undefined} lang={toolbarSlot === undefined ? locale : undefined}>
     {toolbarSlot !== undefined ? toolbarSlot : <>
       <NaeilHeaderThemeControl locale={locale} />
       {onLocaleChange && <NaeilHeaderLocaleControl locale={locale} onLocaleChange={onLocaleChange} />}

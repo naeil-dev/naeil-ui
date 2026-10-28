@@ -543,18 +543,21 @@
   font-family: "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
   font-size: 16px;
   font-weight: 400;
-  line-height: 25px;
+  line-height: 1.5625;
   letter-spacing: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-:root [data-naeil-chrome] :is(.ui-navigation-link, .ui-control) {
+:root [data-naeil-chrome] .ui-navigation-link:not([data-app-toolbar] *):not([data-app-brand]),
+:root [data-naeil-chrome] .naeil-header-login,
+:root [data-naeil-chrome][data-app-toolbar] > [data-slot="button"]:first-child,
+:root [data-naeil-chrome][data-app-toolbar] > [data-slot="select-trigger"]:nth-child(2) {
   font-family: inherit;
   font-size: 16px;
-  line-height: 25px;
+  line-height: 1.5625;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] :is(.ui-navigation-title, .naeil-header-login, [data-slot="button"]) {
+:root [data-naeil-chrome] :is(.ui-navigation-title, .naeil-header-login) {
   font-weight: 500;
 }
 :root [data-naeil-chrome] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
@@ -562,7 +565,7 @@
 }
 :root [data-naeil-chrome] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
   font-size: 14px;
-  line-height: 21.875px;
+  line-height: 1.5625;
   letter-spacing: normal;
 }
 :root [data-naeil-chrome] :is(.ui-navigation-group-label, .ui-site-footer-label) {
@@ -599,7 +602,8 @@
   line-height: 20px;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] [data-slot="button"] {
+:root [data-naeil-chrome][data-app-toolbar] > [data-slot="button"]:first-child {
+  font-weight: 500;
   line-height: 24px;
 }
 [data-naeil-chrome]:lang(ja),
