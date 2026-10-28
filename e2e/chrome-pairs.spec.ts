@@ -4,6 +4,7 @@ import { dirname } from "node:path";
 
 const base = "http://127.0.0.1:6008";
 const properties = ["color", "background-color", "border-color", "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "opacity", "-webkit-font-smoothing", "-moz-osx-font-smoothing", "padding", "gap", "min-height"];
+type EntryMeasurement = { active: boolean; metrics: Record<string, unknown>; raw: unknown };
 async function prepare(page: Page, side: string, query: string, state: string, home = false) {
   await page.goto(`${base}/${side}/index.html?${query}${home ? "&profile=home" : ""}${state === "current" ? `&current=${home ? "/" : "/design"}` : ""}`);
   await page.locator("header").waitFor();
@@ -18,6 +19,7 @@ async function prepare(page: Page, side: string, query: string, state: string, h
   }
   if (state === "account") await scope.locator("[data-naeil-account-trigger]").click();
   if (state === "locale") await scope.getByRole("combobox").click();
+  if (home && process.env.NAEIL_UI_P3_MUTATION === "title-offset") await page.addStyleTag({ content: '[data-slot="navigation-popover"] .ui-navigation-title { margin-top: 8px; }' });
   if (state !== "hover") await page.mouse.move(page.viewportSize()!.width / 2, 850);
   await page.evaluate(async () => {
     await document.fonts.ready;
@@ -46,17 +48,29 @@ async function snapshot(page: Page, home = false) {
     }
     function common() {
       const result: Record<string, unknown> = {};
-      for (const selector of ["header", ".ui-navigation-frame", "header svg[data-naeil-brand]", ".naeil-header-controls", ".naeil-header-controls > *", ".ui-site-footer-frame", ".ui-site-footer-brand", "footer svg[data-naeil-brand]", ".ui-site-footer-description", ".ui-site-footer-label", ".ui-site-footer-link", '[data-slot="navigation-sheet"]', ".ui-navigation-sheet-heading", '[data-slot="navigation-sheet"] h2', '[data-slot="navigation-popover"]', '[data-naeil-account-menu]', '[data-slot="dropdown-menu-label"]', '[data-slot="dropdown-menu-label"] > span', '[data-slot="dropdown-menu-item"]', '[data-slot="select-content"]', '[data-slot="select-item"]']) {
+      const mobile = !!document.querySelector(".ui-navigation-toggle")?.getBoundingClientRect().width;
+      for (const selector of ["header", ".ui-navigation-frame", "header svg[data-naeil-brand]", ".naeil-header-controls", ".naeil-header-controls > *", ".ui-site-footer-frame", ".ui-site-footer-brand", "footer svg[data-naeil-brand]", ".ui-site-footer-description", ".ui-site-footer-label", ".ui-site-footer-link", '[data-slot="navigation-sheet"]', ".ui-navigation-sheet-heading", '[data-slot="navigation-sheet"] h2', ".ui-navigation-group-label", '[data-slot="navigation-popover"]', '[data-naeil-account-menu]', '[data-slot="dropdown-menu-label"]', '[data-slot="dropdown-menu-label"] > span', '[data-slot="dropdown-menu-item"]', '[data-slot="select-content"]', '[data-slot="select-item"]']) {
         const elements = [...document.querySelectorAll(selector)].filter(visible);
         result[selector] = elements.map(e => {
-          const isToolbar = !!e.closest(".naeil-header-controls");
           const footer = e.closest("footer");
-          const origin = isToolbar ? e.parentElement?.closest(".naeil-header-controls") : footer;
+          const toolbar = e.closest(".naeil-header-controls");
+          const portal = e.closest('[data-naeil-account-menu], [data-slot="select-content"]');
+          const origin = toolbar && toolbar !== e ? toolbar : portal && portal !== e ? portal : footer;
           const box: Partial<ReturnType<typeof rect>> = rect(e, origin || undefined);
-          // D1: sheet menu data moves the toolbar and dependent portal Y.
-          if ((isToolbar && getComputedStyle(document.querySelector(".ui-navigation-toggle")!).display !== "none") || e.matches('[data-slot="select-content"], [data-naeil-account-menu], [data-slot="dropdown-menu-label"], [data-slot="dropdown-menu-label"] > span, [data-slot="dropdown-menu-item"], [data-slot="select-item"]')) delete box.y;
-          // D1: menu width/height and wrapping derive from its actual entries.
-          if (e.matches('[data-slot="navigation-popover"]')) { delete box.height; delete box.width; delete box.x; }
+          // Only the mobile menu's height may move these anchors. Keep local
+          // child geometry and desktop portal Y intact.
+          if (mobile && toolbar === e) box.y = e.getBoundingClientRect().y - document.querySelector(".ui-navigation-mobile-links")!.getBoundingClientRect().bottom;
+          if (mobile && portal === e) {
+            const anchor = document.querySelector(e.matches("[data-naeil-account-menu]") ? '.ui-navigation-mobile-toolbar [data-naeil-account-trigger]' : '.ui-navigation-mobile-toolbar [role="combobox"]')!;
+            // Radix rounds the portal to device pixels; subtract the equally
+            // rounded actual anchor so fractional data-driven menu heights cancel.
+            box.y = e.getBoundingClientRect().y - Math.round(anchor.getBoundingClientRect().y * devicePixelRatio) / devicePixelRatio;
+          }
+          // D1/D2/D3 change the popover's anchor X and data-derived total size.
+          if (e.matches('[data-slot="navigation-popover"]')) {
+            box.x = e.getBoundingClientRect().x - document.querySelector(".ui-navigation-desktop > button")!.getBoundingClientRect().x;
+            delete box.height; delete box.width;
+          }
           // D4 adds a footer row but leaves the common content and its origin intact.
           if (e.matches(".ui-site-footer-frame")) delete box.height;
           return { box, style: style(e) };
@@ -66,6 +80,32 @@ async function snapshot(page: Page, home = false) {
         const e = [...document.querySelectorAll(selector)].find(visible);
         result[name] = e ? { style: style(e), height: ["trigger", "flat", "icon"].includes(name) ? e.getBoundingClientRect().height : undefined } : null;
       }
+      const baseline = (element: Element, origin: Element) => {
+        const container = element.matches(".ui-navigation-title") ? element.querySelector(":scope > span")! : element;
+        const probe = document.createElement("span");
+        probe.style.cssText = "display:inline-block;width:0;height:0;padding:0;margin:0;border:0;vertical-align:baseline";
+        container.prepend(probe);
+        const y = probe.getBoundingClientRect().y - origin.getBoundingClientRect().y;
+        probe.remove(); return y;
+      };
+      result.entries = [...document.querySelectorAll(".ui-navigation-entry")].filter(visible).map(entry => {
+        const copy = entry.querySelector(".ui-navigation-copy")!;
+        const title = entry.querySelector(".ui-navigation-title")!;
+        const description = entry.querySelector(".ui-navigation-description");
+        const icon = entry.querySelector(".ui-navigation-icon");
+        const copyBox = rect(copy, entry), titleBox = rect(title, copy);
+        return {
+          active: entry.getAttribute("aria-current") === "page",
+          metrics: {
+            entry: { style: style(entry), width: mobile ? entry.getBoundingClientRect().width : undefined, verticalInset: entry.getBoundingClientRect().height - Math.max(copy.getBoundingClientRect().height, icon?.getBoundingClientRect().height || 0) },
+            copy: { x: copyBox.x, y: copyBox.y, style: style(copy) },
+            title: { x: titleBox.x, y: titleBox.y, baseline: baseline(title, copy), style: style(title) },
+            description: description ? { x: rect(description, copy).x, gapAfterTitle: description.getBoundingClientRect().y - title.getBoundingClientRect().bottom, baseline: baseline(description, description), style: style(description) } : null,
+            icon: icon ? { box: rect(icon, entry), style: style(icon) } : null,
+          },
+          raw: { entry: rect(entry), copy: rect(copy), title: rect(title), description: description ? rect(description) : null, icon: icon ? rect(icon) : null },
+        };
+      });
       return result;
     }
     return { common: common() };
@@ -98,18 +138,35 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
     await page.setViewportSize({ width, height: 900 });
     const query = `locale=${locale}&theme=${theme}&auth=${auth}`;
     const mobile = width <= 806;
-    const states = ["closed", "current", "focus", ...(mobile ? ["sheet"] : ["hover", "popover"]), ...(auth === "in" ? ["account"] : []), "locale"];
+    // Cache real B1 normal entries before current entries; Home's extra normal
+    // rows then use an actual normal-state B1 render, never fabricated values.
+    const states = ["closed", ...(mobile ? ["sheet"] : []), "current", "focus", ...(mobile ? [] : ["hover", "popover"]), ...(auth === "in" ? ["account"] : []), "locale"];
     const failures: string[] = [];
+    const entryReferences = new Map<boolean, { state: string; metrics: Record<string, unknown> }>();
     await record(info, "identity", { ...JSON.parse(readFileSync("test-results/chrome-fixtures/identity.json", "utf8")), browser: page.context().browser()?.version(), viewport: { width, height: 900 }, locale, theme, auth, css: "globals.css", dpr: await page.evaluate(() => devicePixelRatio), fonts: "local PretendardVariable.woff2; Noto Sans JP 400/500/600 subsets", review: "Human review required. Candidate renders are not expected baselines." });
     for (const state of states) {
       await prepare(page, "baseline", query, state);
       const baseline = await snapshot(page); await evidence(page, info, `${state}-B1`, baseline);
+      const { entries: baselineEntries, ...baselineCommon } = baseline.common;
+      for (const entry of baselineEntries as EntryMeasurement[]) entryReferences.set(entry.active, { state, metrics: entry.metrics });
       await prepare(page, "candidate", query, state);
       const candidate = await snapshot(page); await evidence(page, info, `${state}-default`, candidate);
       compare(baseline, candidate, `${state}.default`, failures);
       await prepare(page, "candidate", query, state, true);
       const home = await snapshot(page, true); await evidence(page, info, `${state}-Home`, home);
-      compare(baseline.common, home.common, `${state}.Home`, failures);
+      const { entries: homeEntries, ...homeCommon } = home.common;
+      const matched = (homeEntries as EntryMeasurement[]).map(entry => {
+        const reference = entryReferences.get(entry.active);
+        expect(reference, `${state}: B1 entry for active=${entry.active}`).toBeDefined();
+        return reference!;
+      });
+      const pair = {
+        reference: { ...baselineCommon, entries: matched.map(entry => entry.metrics) },
+        actual: { ...homeCommon, entries: (homeEntries as EntryMeasurement[]).map(entry => entry.metrics) },
+        B1EntryStates: matched.map(entry => entry.state),
+      };
+      await record(info, `${state}-Home-pair`, pair);
+      compare(pair.reference, pair.actual, `${state}.Home`, failures);
       expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${state} overflow`).toBe(true);
       const targets = await page.locator("header button, header a, [data-slot='navigation-sheet'] button, [data-slot='navigation-sheet'] a").evaluateAll(es => es.filter(e => e.getBoundingClientRect().width).map(e => ({ width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height })));
       for (const target of targets) expect.soft(target.height).toBeGreaterThanOrEqual(44);
@@ -121,14 +178,18 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
 
 for (const profile of ["canonical", "site", "estimate", "jev", "compat-routing", "compat-slots", "legacy-empty"]) for (const css of ["globals", "split"]) {
   test(`P1 omitted props, default ${profile}/${css} profile preserves B1`, async ({ page }, info) => {
+    test.setTimeout(120000);
     const failures: string[] = [];
     for (const width of [390, 1440, 2560]) {
       await page.setViewportSize({ width, height: 900 });
       for (const auth of ["in", "out", "busy"]) {
         const query = `profile=${profile}&css=${css}&locale=ja&auth=${auth}`;
-        await prepare(page, "baseline", query, "closed"); const baseline = await snapshot(page);
-        await prepare(page, "candidate", query, "closed"); const candidate = await snapshot(page);
-        compare(baseline, candidate, `${width}/${auth}`, failures);
+        for (const state of ["closed", ...(width === 390 ? ["sheet"] : profile === "legacy-empty" ? [] : ["popover"])]) {
+          const name = `${width}-${auth}-${state}`;
+          await prepare(page, "baseline", query, state); const baseline = await snapshot(page); await evidence(page, info, `${name}-B1`, baseline);
+          await prepare(page, "candidate", query, state); const candidate = await snapshot(page); await evidence(page, info, `${name}-default`, candidate);
+          compare(baseline, candidate, `${width}/${auth}/${state}`, failures);
+        }
       }
     }
     await record(info, "pair-differences", failures);
@@ -148,4 +209,22 @@ test("P1 empty-menu omitted props retain the observed B1 resize behavior", async
   await record(info, "B1-empty-menu-behavior", rows);
   expect(rows[0].sheetCount).toBe(1);
   expect(rows[1].sheetCount).toBe(rows[0].sheetCount);
+});
+
+test("P3 mutation guard detects an 8px title offset with identical Home data", async ({ page }, info) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await prepare(page, "candidate", "locale=en&theme=light&auth=in", "popover", true);
+  const before = await snapshot(page, true); await evidence(page, info, "mutation-before", before);
+  const beforeY = await page.locator('[data-slot="navigation-popover"] .ui-navigation-title').first().evaluate(e => e.getBoundingClientRect().y);
+  await page.addStyleTag({ content: '[data-slot="navigation-popover"] .ui-navigation-title { margin-top: 8px; }' });
+  const after = await snapshot(page, true); await evidence(page, info, "mutation-after", after);
+  const afterY = await page.locator('[data-slot="navigation-popover"] .ui-navigation-title').first().evaluate(e => e.getBoundingClientRect().y);
+  await record(info, "mutation-offset", { beforeY, afterY, delta: afterY - beforeY });
+  expect(afterY - beforeY).toBe(8);
+  const differences = compare(
+    (before.common.entries as EntryMeasurement[]).map(entry => entry.metrics),
+    (after.common.entries as EntryMeasurement[]).map(entry => entry.metrics),
+  );
+  await record(info, "mutation-differences", differences);
+  expect(differences.length).toBeGreaterThan(0);
 });
