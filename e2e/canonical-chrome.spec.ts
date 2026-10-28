@@ -35,6 +35,11 @@ async function mobile(page: Page, query = "") {
   await expect(sheet(page)).toBeVisible();
 }
 
+const textTypography = (page: Page) => page.locator('[data-naeil-chrome], [data-naeil-chrome] *').evaluateAll(es => es.filter(e => e.getBoundingClientRect().width && [...e.childNodes].some(n => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())).map(e => {
+  const c = getComputedStyle(e);
+  return { text: e.textContent, family: c.fontFamily, size: c.fontSize, weight: c.fontWeight, line: c.lineHeight, spacing: c.letterSpacing, smoothing: c.getPropertyValue("-webkit-font-smoothing") };
+}));
+
 test("P2 Home data, accessible brand and one status outside the link", async ({ page }, info) => {
   for (const locale of ["ko", "en", "ja"]) for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -76,7 +81,7 @@ for (const css of ["globals", "split"]) for (const locale of ["ko", "en", "ja"])
     try {
       await open(reference, `locale=${locale}&css=${css}`);
       await open(page, `locale=${locale}&css=${css}&hostile`);
-      const text = async (p: Page) => p.locator('header, footer, header *, footer *, [data-slot="navigation-sheet"], [data-slot="navigation-sheet"] *, [data-naeil-account-menu], [data-naeil-account-menu] *, [data-slot="select-content"], [data-slot="select-content"] *').evaluateAll(es => es.filter(e => e.getBoundingClientRect().width && [...e.childNodes].some(n => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())).map(e => { const c = getComputedStyle(e); return { text: e.textContent, family: c.fontFamily, size: c.fontSize, weight: c.fontWeight, line: c.lineHeight, spacing: c.letterSpacing, smoothing: c.getPropertyValue("-webkit-font-smoothing") }; }));
+      const text = textTypography;
       expect(await text(page)).toEqual(await text(reference));
       for (const p of [reference, page]) await toggle(p).click();
       expect(await text(page)).toEqual(await text(reference));
@@ -108,6 +113,39 @@ for (const css of ["globals", "split"]) for (const locale of ["ko", "en", "ja"])
           return { before, after, matches };
         });
         expect(result.matches).toBe(0); expect(result.after).toEqual(result.before);
+        await page.keyboard.press("Escape"); await settled(page);
+      }
+    } finally { await reference.close(); }
+  });
+}
+
+for (const css of ["globals", "split"]) for (const order of ["before", "after"]) {
+  test(`P4 R3 hostile typography ${css}/${order} preserves owned text and body host values`, async ({ page, context }, info) => {
+    test.setTimeout(60000);
+    const reference = await context.newPage();
+    const hostile = ':root[data-dashboard-v2] :is([role="menuitem"], [role="option"], [role="dialog"]), :root[data-dashboard-v2] :is(a, button, h2, h3, p) { font-size: 23px; line-height: 2; font-weight: 700; letter-spacing: 3px; font-family: serif; }';
+    try {
+      for (const locale of ["ko", "en", "ja"]) {
+        for (const p of [reference, page]) { await p.setViewportSize({ width: 1440, height: 900 }); await open(p, `profile=home&css=${css}&locale=${locale}`); }
+        await page.evaluate(() => document.documentElement.setAttribute("data-dashboard-v2", ""));
+        const style = await page.addStyleTag({ content: hostile });
+        if (order === "before") await style.evaluate(element => document.head.prepend(element));
+        expect.soft(await textTypography(page), `${locale} header/footer`).toEqual(await textTypography(reference));
+        for (const p of [reference, page]) { await p.getByRole("button", { name: "AI", exact: true }).focus(); await p.keyboard.press("Enter"); await settled(p); }
+        expect.soft(await textTypography(page), `${locale} popover`).toEqual(await textTypography(reference));
+        for (const p of [reference, page]) { await p.keyboard.press("Escape"); await settled(p); await p.setViewportSize({ width: 390, height: 900 }); await toggle(p).click(); await settled(p); }
+        expect.soft(await textTypography(page), `${locale} sheet`).toEqual(await textTypography(reference));
+        for (const selector of ["[data-naeil-account-trigger]", '[role="combobox"]']) {
+          for (const p of [reference, page]) { await sheet(p).locator(selector).click(); await settled(p); }
+          expect.soft(await textTypography(page), `${locale} ${selector}`).toEqual(await textTypography(reference));
+          for (const p of [reference, page]) { await p.keyboard.press("Escape"); await settled(p); }
+        }
+        for (const p of [reference, page]) { await p.keyboard.press("Escape"); await settled(p); }
+        await page.getByRole("button", { name: "Body menu", exact: true }).click();
+        const item = page.getByTestId("body-menu").getByRole("menuitem");
+        const values = await item.evaluate(e => { const c = getComputedStyle(e); return { size: c.fontSize, line: c.lineHeight, weight: c.fontWeight, spacing: c.letterSpacing, family: c.fontFamily, chrome: !!e.closest("[data-naeil-chrome]") }; });
+        await record(info, `${locale}-body-host`, values);
+        expect(values).toEqual({ size: "23px", line: "46px", weight: "700", spacing: "3px", family: "serif", chrome: false });
         await page.keyboard.press("Escape"); await settled(page);
       }
     } finally { await reference.close(); }

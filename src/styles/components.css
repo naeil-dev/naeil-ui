@@ -538,11 +538,12 @@
 
 
 /* Canonical chrome owns final typography. Unlayered, marker-scoped rules also
-   beat host-compiled utilities; the host's body and ordinary portals stay local. */
-[data-naeil-chrome] {
+   beat supported (0,3,0) host rules even when loaded later. Body portals stay local. */
+html:root [data-naeil-chrome][lang] {
   /* Keep the base :lang(ja) fallback local while slot font utilities still win. */
   --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
-  font-family: "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+  --naeil-chrome-font: "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+  font-family: var(--naeil-chrome-font);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5625;
@@ -550,67 +551,77 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-:root [data-naeil-chrome] .ui-navigation-link:not([data-app-toolbar] *):not([data-app-brand]),
-:root [data-naeil-chrome] .naeil-header-login,
-:root [data-naeil-chrome][data-app-toolbar] > [data-slot="button"]:first-child,
-:root [data-naeil-chrome][data-app-toolbar] > [data-slot="select-trigger"]:nth-child(2) {
-  font-family: inherit;
+html:root [data-naeil-chrome][lang] .ui-navigation-link:not([data-app-toolbar] *):not([data-app-brand]),
+html:root [data-naeil-chrome][lang] .naeil-header-login,
+html:root [data-naeil-chrome][lang] .naeil-header-account-trigger,
+html:root [data-naeil-chrome][lang] .ui-navigation-title,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="select-trigger"]:nth-child(2) {
+  font-family: var(--naeil-chrome-font);
   font-size: 16px;
+  font-weight: 400;
   line-height: 1.5625;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] :is(.ui-navigation-title, .naeil-header-login) {
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-title, .naeil-header-login) {
   font-weight: 500;
 }
-:root [data-naeil-chrome] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
+html:root [data-naeil-chrome][lang] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
   font-weight: 600;
 }
-:root [data-naeil-chrome] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
+  font-family: var(--naeil-chrome-font);
   font-size: 14px;
+  font-weight: 400;
   line-height: 1.5625;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] :is(.ui-navigation-group-label, .ui-site-footer-label) {
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-group-label, .ui-site-footer-label) {
   font-weight: 600;
 }
-:root [data-naeil-chrome] .ui-navigation-sheet-heading > h2 {
+html:root [data-naeil-chrome][lang] .ui-navigation-sheet-heading > h2 {
+  font-family: var(--naeil-chrome-font);
   font-size: 20px;
   font-weight: 600;
   line-height: 28px;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] :is([data-slot="select-item"], [data-slot="dropdown-menu-item"]) {
-  font-family: inherit;
+html:root [data-naeil-chrome][lang] :is([data-slot="select-item"], [data-slot="dropdown-menu-item"]) {
+  font-family: var(--naeil-chrome-font);
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] [data-slot="dropdown-menu-label"] {
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] {
+  font-family: var(--naeil-chrome-font);
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] [data-slot="dropdown-menu-label"] > .text-base {
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-base {
+  font-family: var(--naeil-chrome-font);
   font-size: 16px;
   font-weight: 500;
   line-height: 24px;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome] [data-slot="dropdown-menu-label"] > .text-sm {
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-sm {
+  font-family: var(--naeil-chrome-font);
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
   letter-spacing: normal;
 }
-:root [data-naeil-chrome][data-app-toolbar] > [data-slot="button"]:first-child {
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child {
   font-weight: 500;
   line-height: 24px;
 }
-[data-naeil-chrome]:lang(ja),
-:root [data-naeil-locale-menu] :lang(ja) {
-  font-family: "Noto Sans JP", "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+html:root [data-naeil-chrome][lang]:lang(ja),
+html:root [data-naeil-locale-menu][lang] :lang(ja) {
+  --naeil-chrome-font: "Noto Sans JP", "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+  font-family: var(--naeil-chrome-font);
 }
 
 .naeil-header-brand-row {
@@ -619,16 +630,19 @@
   gap: 8px;
   width: max-content;
 }
-:root [data-naeil-chrome] .naeil-header-brand-suffix {
+html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
+  font-family: var(--naeil-chrome-font);
   margin-inline-start: 4px;
   font-size: 14px;
   font-weight: 400;
   line-height: 21.875px;
+  letter-spacing: normal;
   white-space: nowrap;
   transform: translateY(1px);
 }
 @supports (text-box-trim: trim-both) {
-  :root [data-naeil-chrome] .naeil-header-brand-suffix {
+  html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
+  font-family: var(--naeil-chrome-font);
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
     transform: none;
