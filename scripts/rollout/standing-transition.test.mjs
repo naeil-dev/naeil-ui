@@ -5,9 +5,9 @@ import { once } from 'node:events';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, JSON_LIMITS, operationalGenerationDigest, ORIGINS, readExactReference, readPrivateJSON, releaseIdentityDigest, routeKey, serializeJSON } from './standing-config.mjs';
+import { assertGenerationFence, atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, JSON_LIMITS, operationalGenerationDigest, ORIGINS, readActiveGeneration, readExactReference, readPrivateJSON, releaseIdentityDigest, routeKey, serializeJSON } from './standing-config.mjs';
 import { codeManifest } from './consumer-artifact.mjs';
-import { readStandingState, writeStandingState } from './standing-state.mjs';
+import { assertEvidencePath, readStandingState, standingEpochInventory, writeStandingState } from './standing-state.mjs';
 import { syntheticJevArchive } from './fixtures/jev-archive.mjs';
 import { syntheticSite } from './fixtures/site-continuation.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
@@ -932,4 +932,258 @@ test('T7 transition current-site observation accepts only the original identity 
     } else { await assert.rejects(() => api.applyTransition(plan, approval(plan), f.deps)); assert(!existsSync(f.newState)); }
     assert.deepEqual(readFileSync(f.input.old.snapshot.path), before); assert(existsSync(f.stopFile));
   });
+});
+
+async function rebindFixture(t, changeState = () => {}) {
+  const api=await load(),f=fixture(t),first=api.planTransition(f.input),firstApproval=approval(first);
+  await api.applyTransition(first,firstApproval,f.deps);
+  const previous=readActiveGeneration(f.controlDirectory),oldState=f.newState,newState=join(f.root,'epoch3'),state=readStandingState(oldState),record=state.releases['2'];
+  const outputDirectory=join(oldState,'runs/2/naeil/reverify-interrupted');mkdirSync(outputDirectory,{recursive:true,mode:0o700});
+  const service={...f.config.services.naeil};delete service.command;
+  const request={...record.services.naeil.request,service,policy:f.config.policy,trustedFiles:f.config.trustedFiles,executionPath:f.config.executionPath,generationSha256:f.config.generationSha256,configReferences:f.config.configReferences,configReferencesSha256:f.config.configReferencesSha256,generationFence:{controlDirectory:f.controlDirectory,pointerSha256:previous.pointerSha256},attemptId:'interrupted-read-only',phase:'production',outputDirectory};
+  atomicJSON(join(outputDirectory,'input.json'),request);
+  record.services.naeil.verificationIntent={state:'invoking',request,startedAt:'2026-10-27T21:13:23Z'};
+  state.blocked={releaseId:f.input.release.releaseId,serviceId:'naeil',reasonCode:'interrupted-verification'};record.state='uncertain';state.lastState='stopped';
+  changeState(state,record,{...f,oldState,previous});
+  writeStandingState(oldState,state,{...f.config,generationFence:{controlDirectory:f.controlDirectory,pointerSha256:previous.pointerSha256}});
+  const snapshot=join(f.root,'rebind-snapshot.json');writeFileSync(snapshot,readFileSync(join(oldState,'state.json')),{mode:0o600});
+  const config=structuredClone(f.config);config.stateDirectory=newState;config.generationControl={controlDirectory:f.controlDirectory,generationId:'synthetic-rebind',epochId:'synthetic-rebound-epoch'};
+  config.executionPath='/bin:/usr/bin';config.generation.executionPath=config.executionPath;config.generationSha256=operationalGenerationDigest(config.generation);
+  config.services.naeil.verification.command.timeoutMs=2400000;
+  const journal=readPrivateJSON(join(f.controlDirectory,'transition.json'));
+  const input={...f.input,kind:'standing-generation-rebind',oldPointer:previous.pointer,predecessor:{pointer:fileReference(join(f.controlDirectory,'active.json')),journal:fileReference(join(f.controlDirectory,'transition.json')),plan:journal.plan,approval:journal.approval},old:{generationId:previous.pointer.generationId,automationSha256:f.config.automation.sha256,config:previous.pointer.config,stateDirectory:oldState,snapshot:fileReference(snapshot),evidenceRoot:oldState,inventory:f.put('schema2-inventory.json',standingEpochInventory(oldState)),pendingIntent:existsSync(join(oldState,'pending-intent.json'))?fileReference(join(oldState,'pending-intent.json')):null},next:{generationId:config.generationControl.generationId,generationSha256:config.generationSha256,config:f.put('rebind-config.json',config),configReferencesSha256:config.configReferencesSha256,stateDirectory:newState,epochId:config.generationControl.epochId},estimate:{...f.input.estimate,newAttemptId:'estimate-rebound-attempt'},quiescence:{...f.input.quiescence,stateRoots:[oldState,...f.input.quiescence.stateRoots.filter(path=>path!==f.oldState)],absentPaths:[join(oldState,'dispatcher.lock'),...f.input.quiescence.absentPaths.filter(path=>!path.startsWith(f.oldState+'/')),join(newState,'dispatcher.lock'),join(newState,'pending-intent.json')]}};
+  return {...f,api,input,config,newState,oldState,previous,request,deps:{...f.deps,validateHandoff:(_candidate,request)=>{assert.equal(request.generationSha256,config.generationSha256);}}};
+}
+function rebindApproval(plan) {
+  return {schemaVersion:1,kind:'standing-generation-rebind-approval',previousPointerSha256:plan.predecessor.pointer.sha256,planSha256:plan.planSha256,releaseSha256:releaseIdentityDigest(plan.release),generationSha256:plan.next.generationSha256,approvedBy:'synthetic-owner',approvalRef:'synthetic://rebind',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false};
+}
+function exactRecovery(f,plan,approved) {
+  const journal=fileReference(join(f.controlDirectory,'transition.json'));
+  return {schemaVersion:1,kind:'standing-transition-recovery-approval',planSha256:plan.planSha256,approvalSha256:fingerprint(approved),journal,phase:readPrivateJSON(journal.path).phase,pointerSha256:fileReference(join(f.controlDirectory,'active.json')).sha256,approvedBy:'synthetic-owner',approvalRef:'synthetic://rebind-recovery',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false};
+}
+
+test('B rebind rejects reuse of the predecessor epoch ID during planning and admission',async t=>{
+  const f=await rebindFixture(t),plan=f.api.planTransition(f.input);
+  f.input.next.epochId=f.previous.pointer.epochId;
+  assert.throws(()=>f.api.planTransition(f.input),/distinct.*epoch/i);
+  plan.next.epochId=f.previous.pointer.epochId;
+  const body={...plan};delete body.planSha256;plan.planSha256=fingerprint(body);
+  await assert.rejects(()=>f.api.applyTransition(plan,rebindApproval(plan),f.deps),/distinct.*epoch/i);
+  assert(!existsSync(f.newState));assert.deepEqual(readActiveGeneration(f.controlDirectory).pointer,f.previous.pointer);
+});
+
+test('B rebind repairs retained epoch metadata after a crash between the two state writes',async t=>{
+  const {default:fs}=await import('node:fs'),{syncBuiltinESMExports}=await import('node:module');
+  for(const metadata of ['predecessor-epoch','missing-inventory','wrong-inventory'])await t.test(metadata,async st=>{
+    const f=await rebindFixture(st),plan=f.api.planTransition(f.input),approved=rebindApproval(plan),old=preservedFiles(f.oldState),rename=fs.renameSync;
+    let interrupted=false;
+    fs.renameSync=(from,to)=>{
+      rename(from,to);
+      if(to===join(f.newState,'state.json')&&!interrupted&&readPrivateJSON(to).observation.lastState==='deferred') {
+        interrupted=true;throw Error('synthetic crash between state writes');
+      }
+    };
+    syncBuiltinESMExports();
+    try {await assert.rejects(()=>f.api.applyTransition(plan,approved,f.deps),error=>error.cause?.message==='synthetic crash between state writes');}
+    finally {fs.renameSync=rename;syncBuiltinESMExports();}
+    assert(interrupted);
+    const path=join(f.newState,'state.json'),root=readPrivateJSON(path);
+    assert.equal(root.epochId,f.previous.pointer.epochId);assert.equal(root.epochs,undefined);
+    if(metadata!=='predecessor-epoch') {
+      root.epochId=plan.next.epochId;
+      if(metadata==='wrong-inventory')root.epochs=[{evidenceRoot:f.oldState,sourceSha256:plan.old.snapshot.sha256,inventory:root.state}];
+      atomicJSON(path,root);
+    }
+    await f.api.recoverTransition(plan,approved,exactRecovery(f,plan,approved),f.deps);
+    assert.equal(readActiveGeneration(f.controlDirectory).pointer.epochId,plan.next.epochId);
+    assert.doesNotThrow(()=>assertEvidencePath(f.config,join(f.request.outputDirectory,'input.json')));
+    const state=readStandingState(f.newState);assert.equal(state.releases['2'].history.filter(entry=>entry.resolution==='generation-rebind-verify-only').length,1);
+    for(const [path,bytes]of old)assert.deepEqual(readFileSync(path),bytes);
+    assert(!existsSync(join(f.newState,'pending-intent.json')));
+  });
+});
+
+test('B rebind imports exact schema2 bytes and retains predecessor chain, verify intent, native ledgers and STOP',async t=>{
+  for(const reasonCode of ['interrupted-verification','cached-evidence-reverification-failed'])await t.test(reasonCode,async st=>{
+    const f=await rebindFixture(st,(state,record)=>{state.blocked.reasonCode=reasonCode;record.state=reasonCode==='interrupted-verification'?'uncertain':'blocked';});
+    const plan=f.api.planTransition(f.input),approved=rebindApproval(plan),old=preservedFiles(f.oldState),native=preservedFiles(join(f.root,'native')),stop=readFileSync(f.stopFile),predecessorBytes=Object.fromEntries(Object.entries(plan.predecessor).map(([name,ref])=>[name,readFileSync(ref.path)]));
+    const result=await f.api.applyTransition(plan,approved,f.deps);assert.equal(result.phase,'completed');
+    const active=readActiveGeneration(f.controlDirectory),state=readStandingState(f.newState),record=state.releases['2'],directory=join(f.controlDirectory,'transitions',plan.planSha256);
+    assert.equal(active.pointer.generationId,'synthetic-rebind');assert.equal(active.approval.kind,approved.kind);assert(!state.blocked);assert.equal(record.state,'deferred');assert(!existsSync(join(f.newState,'pending-intent.json')));
+    assert(!record.services.naeil.verificationIntent);assert(record.services.naeil.continuation.requiresFreshVerification);assert.equal(record.services.naeil.continuation.planSha256,plan.planSha256);assert.equal(record.services.naeil.continuation.authorizationSha256,fingerprint(approved));
+    assert.equal(record.services.estimate.authorizedAttemptId,plan.estimate.newAttemptId);assert.equal(record.generationContinuation.releaseSha256,releaseIdentityDigest(plan.release));
+    const history=record.history.find(entry=>entry.resolution==='generation-rebind-verify-only');assert.deepEqual(history.prior.verificationIntent.request,f.request);assert.deepEqual(history.pendingIntent,plan.old.pendingIntent);
+    for(const [name,bytes]of Object.entries(predecessorBytes))assert.deepEqual(readFileSync(join(directory,'predecessor-'+name+'.json')),bytes);
+    assert.deepEqual(readFileSync(join(directory,'historical-pending-intent.json')),readFileSync(plan.old.pendingIntent.path));
+    assert.deepEqual(readFileSync(join(f.newState,'imported-root.json')),readFileSync(plan.old.snapshot.path));
+    for(const [path,bytes]of old)assert.deepEqual(readFileSync(path),bytes);
+    for(const [path,bytes]of native)assert.deepEqual(readFileSync(path),bytes);
+    assert.deepEqual(readFileSync(f.stopFile),stop);assert.equal((await import('node:fs')).lstatSync(f.stopFile).mode&0o777,0o600);
+    assert.doesNotThrow(()=>assertGenerationFence({...f.config,generationFence:{controlDirectory:f.controlDirectory,pointerSha256:active.pointerSha256}}));
+    assert.doesNotThrow(()=>assertEvidencePath(f.config,join(f.request.outputDirectory,'input.json')));
+    const copied=readPrivateJSON(plan.old.inventory.path);for(const ref of copied.evidence)assert.deepEqual(readFileSync(join(f.newState,'evidence',ref.path.split('/').at(-1))),readFileSync(ref.path));
+    const {runActiveGeneration}=await import('./standing-launcher.mjs');
+    const stopped=await runActiveGeneration(f.controlDirectory,{dispatcher:{github:{releases:async()=>assert.fail('STOP must prevent release IO')},invoke:async()=>assert.fail('STOP dispatched native work'),verify:async()=>assert.fail('STOP dispatched a verifier')}});
+    assert.equal(stopped.state,'stopped');assert(!readStandingState(f.newState).blocked);assert(!existsSync(join(f.newState,'pending-intent.json')));
+    assert(f.events.filter(([file])=>file===f.tools.launchctl.path).every(([,args])=>['print','print-disabled'].includes(args[0])));
+    await assert.rejects(()=>f.api.applyTransition(plan,approved,f.deps));
+  });
+});
+
+test('B rebind retains a deferred Estimate request/result with an exact dispatcher prerequisite receipt',async t=>{
+  for(const change of ['none','path','digest','length'])await t.test(change,async st=>{
+    let prerequisite,request,result;
+    const create=()=>rebindFixture(st,(_state,record,f)=>{
+      const siteRequest={...record.services.naeil.verificationIntent.request,attemptId:'fresh-before-deferral'};
+      const production={...record.services.naeil.result.production,attemptId:siteRequest.attemptId,checkedAt:'2026-10-27T20:00:00Z'},artifact=record.services.naeil.result.artifact;
+      const proof={schemaVersion:1,kind:'standing-current-naeil-verification',generationSha256:f.config.generationSha256,pointerSha256:f.previous.pointerSha256,releaseSha256:releaseIdentityDigest(f.input.release),request:siteRequest,artifact,production};
+      mkdirSync(join(f.oldState,'prerequisites'),{mode:0o700});
+      prerequisite=f.put('epoch2/prerequisites/naeil-'+fingerprint(proof)+'.json',proof);
+      const ref={...prerequisite};
+      if(change==='path')ref.path=f.put('epoch2/prerequisites/unowned.json',proof).path;
+      if(change==='digest')ref.sha256='0'.repeat(64);if(change==='length')ref.bytes++;
+      const service={...f.config.services.estimate};delete service.command;
+      const attemptId=record.services.estimate.authorizedAttemptId,outputDirectory=join(f.oldState,'runs/2/estimate',attemptId),adapter=readPrivateJSON(service.adapterOptions.standingConfigPath);
+      mkdirSync(outputDirectory,{recursive:true,mode:0o700});
+      request={schemaVersion:1,release:f.input.release,service,policy:f.config.policy,adapterOptions:service.adapterOptions,trustedFiles:f.config.trustedFiles,executionPath:f.config.generation.executionContexts.estimate.executionPath,generationSha256:f.config.generationSha256,generationFence:siteRequest.generationFence,configReferences:f.config.configReferences,configReferencesSha256:f.config.configReferencesSha256,naeilPrerequisite:ref,candidate:{...readPrivateJSON(adapter.handoff.candidateReceipt.path),receipt:adapter.handoff.candidateReceipt},sourceAdoption:adapter.handoff.sourceAdoption,idempotencyKey:f.input.estimate.idempotencyKey,attemptId,mode:'standing',outputDirectory,reconciliation:record.services.estimate.reconciliation};
+      result={schemaVersion:1,releaseId:request.release.releaseId,serviceId:'estimate',idempotencyKey:request.idempotencyKey,attemptId,state:'deferred',mutationAttempted:false,runtimeMutationAttempted:false};
+      atomicJSON(join(outputDirectory,'input.json'),request);atomicJSON(join(outputDirectory,'output.json'),result);
+      record.services.estimate={state:'deferred',attemptId,request,result};
+      const ledger=f.input.estimate.ledger.path;
+      writeFileSync(ledger+'.history-11111111-1111-4111-8111-111111111111',readFileSync(ledger),{mode:0o600});
+      atomicJSON(ledger,{attemptId,idempotencyKey:request.idempotencyKey,state:'deferred',mutationAttempted:false,runtimeMutationAttempted:false});
+      f.input.estimate.priorAttemptId=attemptId;f.input.estimate.ledger=fileReference(ledger);
+    });
+    if(change!=='none'){await assert.rejects(create,/Epoch receipt|Epoch prerequisite/);return;}
+    const f=await create(),plan=f.api.planTransition(f.input),old=preservedFiles(f.oldState);
+    await f.api.applyTransition(plan,rebindApproval(plan),f.deps);
+    const retained=readStandingState(f.newState).releases['2'].history.find(entry=>entry.resolution==='generation-rebind-deferred');
+    assert.deepEqual(retained.prior.request,request);assert.deepEqual(retained.prior.result,result);
+    assert.deepEqual(readPrivateJSON(plan.old.inventory.path).receipts.find(ref=>ref.path===prerequisite.path),prerequisite);
+    assert.equal(assertEvidencePath(f.config,prerequisite.path),prerequisite.path);
+    for(const [path,bytes]of old)assert.deepEqual(readFileSync(path),bytes);
+    const bytes=readFileSync(prerequisite.path);
+    writeFileSync(prerequisite.path,Buffer.concat([bytes,Buffer.from(' ')]));assert.throws(()=>assertEvidencePath(f.config,prerequisite.path),/size changed/);
+    const changed=Buffer.from(bytes);changed[0]=32;writeFileSync(prerequisite.path,changed);assert.throws(()=>assertEvidencePath(f.config,prerequisite.path),/digest changed/);
+  });
+});
+
+test('B rebind refuses every unrelated blocked, uncertain, invoking and runtime-mutated state before import',async t=>{
+  const cases={
+    'blocked-other-service':state=>{state.blocked.serviceId='estimate';},
+    'blocked-other-reason':state=>{state.blocked.reasonCode='site-revision-not-approved';},
+    'uncertain-non-verify':(_state,record)=>{record.services.naeil.state='uncertain';},
+    'naeil-runtime-mutation':(_state,record)=>{record.services.naeil.runtimeMutationAttempted=true;},
+    'other-release-uncertain':state=>{state.releases.other={releaseId:'unrelated',state:'uncertain',services:{}};},
+    'native-runtime-history':(_state,record)=>{record.history.push({serviceId:'estimate',prior:{state:'gate-failed',result:{runtimeMutationAttempted:true}}});},
+    'estimate-invoking':(_state,record)=>{record.services.estimate.state='invoking';record.services.estimate.request={attemptId:'unexpected-native'};},
+    'estimate-uncertain':(_state,record)=>{record.services.estimate.state='uncertain';},
+    'estimate-runtime-mutated':(_state,record)=>{record.services.estimate.result={runtimeMutationAttempted:true};},
+    'estimate-direct-runtime-mutation':(_state,record)=>{record.services.estimate.runtimeMutationAttempted=true;},
+    'estimate-source-mutated':(_state,record)=>{record.services.estimate.result={mutationAttempted:true,runtimeMutationAttempted:false};},
+    'jev-invoking':(_state,record)=>{record.services.jev={state:'invoking',request:{attemptId:'unexpected-jev'}};},
+    'jev-runtime-mutated':(_state,record)=>{record.services.jev={state:'not-started',result:{runtimeMutationAttempted:true}};},
+    'jev-direct-runtime-mutation':(_state,record)=>{record.services.jev={state:'not-started',runtimeMutationAttempted:true};},
+    'missing-verify-intent':(_state,record)=>{delete record.services.naeil.verificationIntent;},
+    'other-verify':(_state,record)=>{record.services.estimate.verificationIntent={state:'invoking',request:{attemptId:'unexpected-native'}};},
+    'changed-verify-service':(_state,record)=>{record.services.naeil.verificationIntent.request.service.verification={command:{file:'/unapproved/native',args:[],timeoutMs:1000}};},
+    'unbound-invoking-history':(_state,record)=>{record.services.naeil.reverificationAttempts=[{state:'invoking',request:{attemptId:'other-verify'}}];}
+  };
+  for(const [name,change]of Object.entries(cases))await t.test(name,async st=>{
+    const f=await rebindFixture(st,change),plan=f.api.planTransition(f.input),old=readFileSync(join(f.controlDirectory,'active.json')),journal=readFileSync(join(f.controlDirectory,'transition.json'));
+    await assert.rejects(()=>f.api.applyTransition(plan,rebindApproval(plan),f.deps));assert(!existsSync(f.newState));assert.deepEqual(readFileSync(join(f.controlDirectory,'active.json')),old);assert.deepEqual(readFileSync(join(f.controlDirectory,'transition.json')),journal);
+  });
+});
+
+test('B rebind refuses non-completed/mismatched predecessors, lost STOP, changed bytes and invalid approval bindings',async t=>{
+  for(const cause of ['non-completed','pointer-journal','old-pointer-digest','plan-digest','release-digest','generation-digest','expired','revoked','STOP-missing','STOP-mode','predecessor-plan','predecessor-approval','predecessor-journal','snapshot','inventory','pending-intent','new-lock','new-intent','unknown-native-ledger','unknown-native-attempt'])await t.test(cause,async st=>{
+    const f=await rebindFixture(st),plan=f.api.planTransition(f.input),approved=rebindApproval(plan);
+    if(cause==='non-completed')atomicJSON(plan.predecessor.journal.path,{...readPrivateJSON(plan.predecessor.journal.path),phase:'prepared'});
+    if(cause==='pointer-journal')atomicJSON(plan.predecessor.pointer.path,{...plan.oldPointer,epochId:'foreign'});
+    if(cause==='old-pointer-digest')approved.previousPointerSha256='0'.repeat(64);
+    if(cause==='plan-digest')approved.planSha256='0'.repeat(64);
+    if(cause==='release-digest')approved.releaseSha256='0'.repeat(64);
+    if(cause==='generation-digest')approved.generationSha256='0'.repeat(64);
+    if(cause==='expired')approved.expiresAt='2001-01-01';if(cause==='revoked')approved.revoked=true;
+    if(cause==='STOP-missing')rmSync(f.stopFile);if(cause==='STOP-mode')chmodSync(f.stopFile,0o644);
+    if(cause.startsWith('predecessor-'))writeFileSync(plan.predecessor[cause.slice('predecessor-'.length)].path,'changed\n');
+    if(cause==='snapshot')writeFileSync(plan.old.snapshot.path,'changed\n');
+    if(cause==='inventory')writeFileSync(plan.old.inventory.path,'changed\n');
+    if(cause==='pending-intent')atomicJSON(plan.old.pendingIntent.path,{schemaVersion:1,intents:[{...readPrivateJSON(plan.old.pendingIntent.path).intents[0],kind:'rollout'}]});
+    if(cause==='new-lock'||cause==='new-intent'){mkdirSync(f.newState,{mode:0o700});atomicJSON(join(f.newState,cause==='new-lock'?'dispatcher.lock':'pending-intent.json'),{foreign:true});}
+    if(cause==='unknown-native-ledger')atomicJSON(join(f.root,'native/keys',hash('foreign-native-key')+'.json'),{state:'invoked',idempotencyKey:'foreign-native-key',attemptId:'foreign'});
+    if(cause==='unknown-native-attempt'){const path=join(f.root,'native/attempts/foreign');mkdirSync(path,{recursive:true,mode:0o700});atomicJSON(join(path,'result.json'),{state:'activation-pending'});}
+    const pointer=readFileSync(join(f.controlDirectory,'active.json')),journal=readFileSync(join(f.controlDirectory,'transition.json'));
+    await assert.rejects(()=>f.api.applyTransition(plan,approved,f.deps));assert.deepEqual(readFileSync(join(f.controlDirectory,'active.json')),pointer);assert.deepEqual(readFileSync(join(f.controlDirectory,'transition.json')),journal);
+  });
+});
+
+test('B every predecessor/import/journal/pointer boundary recovers the exact rebind without replay or predecessor writes',async t=>{
+  for(const boundary of ['control-acquired','predecessor-pointer','predecessor-journal','predecessor-plan','predecessor-approval','predecessor-retained','journal-prepared','import-complete','import-root','journal-imported','journal-continuation-intent','continuation-state','generation-binding','journal-validated','journal-cutover-intent','active-pointer','journal-cutover'])await t.test(boundary,async st=>{
+    const f=await rebindFixture(st),plan=f.api.planTransition(f.input),approved=rebindApproval(plan),old=preservedFiles(f.oldState);
+    await assert.rejects(()=>f.api.applyTransition(plan,approved,{...f.deps,afterBoundary:name=>{if(name===boundary)throw Error('synthetic rebind crash');}}),/synthetic rebind crash/);
+    const imported=existsSync(join(f.newState,'imported-root.json'))?readFileSync(join(f.newState,'imported-root.json')):null;
+    if(!boundary.startsWith('predecessor-')&&boundary!=='control-acquired')assert.throws(()=>readActiveGeneration(f.controlDirectory));
+    await f.api.recoverTransition(plan,approved,exactRecovery(f,plan,approved),f.deps);
+    assert.equal(readActiveGeneration(f.controlDirectory).pointer.generationId,'synthetic-rebind');
+    if(imported)assert.deepEqual(readFileSync(join(f.newState,'imported-root.json')),imported);
+    const state=readStandingState(f.newState);assert.equal(state.releases['2'].history.filter(entry=>entry.resolution==='generation-rebind-verify-only').length,1);
+    for(const [path,bytes]of old)assert.deepEqual(readFileSync(path),bytes);assert(!existsSync(join(f.newState,'pending-intent.json')));assert(existsSync(f.stopFile));
+  });
+});
+
+test('B active reader and generation fences reject each tampered immutable predecessor copy',async t=>{
+  for(const name of ['pointer','journal','plan','approval'])await t.test(name,async st=>{
+    const f=await rebindFixture(st),plan=f.api.planTransition(f.input);await f.api.applyTransition(plan,rebindApproval(plan),f.deps);
+    const active=readActiveGeneration(f.controlDirectory),path=join(f.controlDirectory,'transitions',plan.planSha256,'predecessor-'+name+'.json');writeFileSync(path,'changed\n');
+    assert.throws(()=>readActiveGeneration(f.controlDirectory),/changed/);assert.throws(()=>assertGenerationFence({...f.config,generationFence:{controlDirectory:f.controlDirectory,pointerSha256:active.pointerSha256}}),/changed/);
+  });
+});
+
+test('B lock archival supports prejournal, incomplete and completed rebind without replaying a phase',async t=>{
+  for(const boundary of ['control-acquired','journal-imported','active-pointer','journal-completed'])await t.test(boundary,async st=>{
+    const f=await rebindFixture(st),plan=f.api.planTransition(f.input),approved=rebindApproval(plan);
+    await assert.rejects(()=>f.api.applyTransition(plan,approved,{...f.deps,afterBoundary:name=>{if(name===boundary)throw Error('synthetic rebind owner exit');}}),/synthetic rebind owner exit/);
+    syntheticDeadLease(f,{kind:'standing-transition-acquisition',plan,approval:approved});
+    const current=boundary==='journal-completed'?{state:fileReference(join(f.newState,'state.json')),binding:fileReference(join(f.newState,'generation-binding.json')),validatedRoot:fileReference(join(f.controlDirectory,'transitions',plan.planSha256,'validated-root.json'))}:null;
+    const authorization=archiveAuthorization(f,plan,approved,current),before=preservedFiles(f.root);
+    const archived=await f.api.archiveTransitionLock(plan,approved,authorization,f.deps);assertArchivePreserved(before,archived,f);
+    if(boundary!=='journal-completed')await f.api.recoverTransition(plan,approved,exactRecovery(f,plan,approved),f.deps);
+    assert.equal(readActiveGeneration(f.controlDirectory).pointer.generationId,'synthetic-rebind');
+  });
+});
+
+test('B reader verifies two rebinds back to continuation and retains both epochs receipt inventories',async t=>{
+  const f=await rebindFixture(t),first=f.api.planTransition(f.input);await f.api.applyTransition(first,rebindApproval(first),f.deps);
+  const previous=readActiveGeneration(f.controlDirectory),state=readStandingState(f.newState),record=state.releases['2'],outputDirectory=join(f.newState,'runs/2/naeil/reverify-second');mkdirSync(outputDirectory,{recursive:true,mode:0o700});
+  const service={...f.config.services.naeil};delete service.command;
+  const request={...f.request,service,executionPath:f.config.executionPath,attemptId:'second-interrupted-verify',generationSha256:f.config.generationSha256,generationFence:{controlDirectory:f.controlDirectory,pointerSha256:previous.pointerSha256},outputDirectory};
+  atomicJSON(join(outputDirectory,'input.json'),request);record.services.naeil.verificationIntent={state:'invoking',request};record.state='uncertain';state.blocked={releaseId:first.release.releaseId,serviceId:'naeil',reasonCode:'interrupted-verification'};
+  writeStandingState(f.newState,state,{...f.config,generationFence:request.generationFence});
+  const snapshot=join(f.root,'second-snapshot.json');writeFileSync(snapshot,readFileSync(join(f.newState,'state.json')),{mode:0o600});
+  const config=structuredClone(f.config),newState=join(f.root,'epoch4');config.stateDirectory=newState;config.generationControl={controlDirectory:f.controlDirectory,generationId:'synthetic-rebind-second',epochId:'rebound-second'};
+  const journal=readPrivateJSON(join(f.controlDirectory,'transition.json'));
+  const input={...f.input,oldPointer:previous.pointer,predecessor:{pointer:fileReference(join(f.controlDirectory,'active.json')),journal:fileReference(join(f.controlDirectory,'transition.json')),plan:journal.plan,approval:journal.approval},old:{...f.input.old,generationId:previous.pointer.generationId,config:previous.pointer.config,stateDirectory:f.newState,evidenceRoot:f.newState,snapshot:fileReference(snapshot),inventory:f.put('second-inventory.json',standingEpochInventory(f.newState)),pendingIntent:fileReference(join(f.newState,'pending-intent.json'))},next:{...f.input.next,generationId:config.generationControl.generationId,epochId:config.generationControl.epochId,stateDirectory:newState,config:f.put('second-rebind-config.json',config)},estimate:{...f.input.estimate,newAttemptId:'estimate-second-rebound'},quiescence:{...f.input.quiescence,stateRoots:[f.newState,...f.input.quiescence.stateRoots.filter(path=>path!==f.oldState)],absentPaths:[join(f.newState,'dispatcher.lock'),...f.input.quiescence.absentPaths.filter(path=>!path.startsWith(f.oldState+'/')&&!path.startsWith(f.newState+'/')),join(newState,'dispatcher.lock'),join(newState,'pending-intent.json')]}};
+  const plan=f.api.planTransition(input);await f.api.applyTransition(plan,rebindApproval(plan),f.deps);
+  assert.equal(readActiveGeneration(f.controlDirectory).pointer.generationId,'synthetic-rebind-second');
+  assert.doesNotThrow(()=>assertEvidencePath(config,join(f.request.outputDirectory,'input.json')));assert.doesNotThrow(()=>assertEvidencePath(config,join(outputDirectory,'input.json')));
+  writeFileSync(join(f.controlDirectory,'transitions',first.planSha256,'predecessor-plan.json'),'tampered original continuation copy\n');
+  assert.throws(()=>readActiveGeneration(f.controlDirectory),/changed/);
+});
+
+test('B rebind authority loss across a probe retains the control lease and last completed boundary',async t=>{
+ for(const cause of ['approval','schema2-source','native-ledger'])await t.test(cause,async st=>{
+  const f=await rebindFixture(st),plan=f.api.planTransition(f.input),approved=rebindApproval(plan),execute=f.deps.execute;let retained;
+  await assert.rejects(()=>f.api.applyTransition(plan,approved,{...f.deps,execute:async(file,args)=>{
+    const result=await execute(file,args);
+    if(!retained&&existsSync(join(f.controlDirectory,'transition.json'))&&readPrivateJSON(join(f.controlDirectory,'transition.json')).planSha256===plan.planSha256) {
+      retained={pointer:readFileSync(join(f.controlDirectory,'active.json')),journal:readFileSync(join(f.controlDirectory,'transition.json'))};
+      if(cause==='approval')approved.revoked=true;
+      if(cause==='schema2-source')atomicJSON(join(f.oldState,'state.json'),{changed:true});
+      if(cause==='native-ledger')atomicJSON(plan.estimate.ledger.path,{state:'invoked'});
+    }
+    return result;
+  }}),cause==='approval'?/rebind authorization/:/changed|differs/);
+  assert(retained);assert(existsSync(join(f.controlDirectory,'control.lock')));assert.deepEqual(readFileSync(join(f.controlDirectory,'active.json')),retained.pointer);assert.deepEqual(readFileSync(join(f.controlDirectory,'transition.json')),retained.journal);assert(existsSync(f.stopFile));
+ });
 });

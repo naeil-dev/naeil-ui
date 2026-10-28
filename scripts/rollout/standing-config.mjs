@@ -101,11 +101,26 @@ export function operationalConfigurationPaths(config) {
   return [...new Set(paths)].sort();
 }
 
+// Per-action guards re-pin ~700 browser/runtime files; rehashing them on every
+// browser action exceeded the 20-minute verification deadline. Reuse a digest
+// only while dev/inode/size/mtime/ctime (ns) are unchanged: any write, rename or
+// chmod moves ctime, which an unprivileged process cannot set back.
+// ponytail: in-process metadata cache; full rehash if a threat model needs root-level tamper detection.
+const digestCache = new Map();
+export function fileDigest(path, stat = lstatSync(path, { bigint: true })) {
+  const key = [stat.dev, stat.ino, stat.size, stat.mtimeNs, stat.ctimeNs].join(':'), cached = digestCache.get(path);
+  if (cached?.key === key) return cached.sha256;
+  const sha256 = hash(readFileSync(path)), after = lstatSync(path, { bigint: true });
+  // Only cache bytes read while metadata stayed fixed.
+  if ([after.dev, after.ino, after.size, after.mtimeNs, after.ctimeNs].join(':') === key) digestCache.set(path, { key, sha256 });
+  return sha256;
+}
+
 export function automationDigest(root) {
   return fingerprint(AUTOMATION_FILES.map(path => {
-    const file = join(root, path), stat = lstatSync(file);
-    assert(stat.isFile() && !stat.isSymbolicLink() && stat.nlink === 1, 'Automation must consist of regular reviewed files');
-    return { path, sha256: hash(readFileSync(file)) };
+    const file = join(root, path), stat = lstatSync(file, { bigint: true });
+    assert(stat.isFile() && !stat.isSymbolicLink() && stat.nlink === 1n, 'Automation must consist of regular reviewed files');
+    return { path, sha256: fileDigest(file, stat) };
   }));
 }
 
@@ -171,12 +186,12 @@ export function assertTrustedFiles(files) {
   assert(files && !Array.isArray(files) && Object.keys(files).length > 0, 'Explicit trusted executable/helper closure required');
   for (const [path, sha256] of Object.entries(files)) {
     assert(isAbsolute(path) && realpathSync(path) === path && HEX.test(sha256), 'Canonical pinned trusted file required');
-    const stat = lstatSync(path);
+    const stat = lstatSync(path, { bigint: true });
     // macOS sealed system command stubs are intentionally hard linked. Their
     // canonical file bytes remain pinned; private inputs/receipts stay single
     // linked so credentials and downloaded assets cannot be aliased.
     assert(stat.isFile() && !stat.isSymbolicLink(), 'Trusted code must be a regular file');
-    assert.equal(hash(readFileSync(path)), sha256, 'Trusted executable/helper bytes changed');
+    assert.equal(fileDigest(path, stat), sha256, 'Trusted executable/helper bytes changed');
   }
 }
 
@@ -366,6 +381,60 @@ export function activeControlAcquisition(directory) {
   return { kind: 'standing-active-generation-acquisition', pointer: fileReference(join(directory, 'active.json'), JSON_LIMITS.controlIndex), journal: fileReference(join(directory, 'transition.json'), JSON_LIMITS.controlIndex) };
 }
 
+/** Historical chains validate retained bytes, without re-executing old code or
+ * requiring historical approvals to remain within their execution window. */
+export function readGenerationTransition(controlDirectory, pointer, journal, seen = new Set()) {
+  assert(!seen.has(pointer.transitionPlanSha256) && seen.size < 64, 'Cyclic or overlong generation predecessor chain');
+  seen.add(pointer.transitionPlanSha256);
+  exactFields(journal,['schemaVersion','planSha256','approvalSha256','plan','approval','oldPointer','newPointer','phase','imported','validatedState','proof'],'Unsupported transition journal');
+  assert.equal(journal.schemaVersion,1,'Unsupported transition journal schema');
+  assert.equal(journal.phase,'completed','Incomplete transition prohibits polling');
+  assert.equal(journal.planSha256,pointer.transitionPlanSha256,'Active pointer/transition journal disagree');
+  assert.deepEqual(journal.newPointer,pointer,'Active pointer/transition journal disagree');
+  const plan=JSON.parse(readExactReference(journal.plan,JSON_LIMITS.controlIndex)), approval=JSON.parse(readExactReference(journal.approval,JSON_LIMITS.controlIndex));
+  const {planSha256,...body}=plan, rebind=plan.kind==='standing-generation-rebind';
+  assert((rebind||plan.kind==='standing-0.7.2-continuation')&&plan.release.version==='0.7.2','Only exact continuation or generation rebind may run');
+  assert.equal(planSha256,fingerprint(body),'Retained transition plan digest changed');
+  assert.equal(planSha256,pointer.transitionPlanSha256,'Retained transition plan differs from active pointer');
+  assert.equal(fingerprint(approval),pointer.authorizationSha256,'Active continuation approval changed');
+  assert.equal(journal.approvalSha256,pointer.authorizationSha256,'Active continuation approval/journal mismatch');
+  assert(approval.schemaVersion===1&&approval.revoked===false&&approval.approvedBy?.trim()&&approval.approvalRef?.trim(),'Recorded unrevoked generation approval required');
+  assert.equal(approval.planSha256,planSha256);assert.equal(approval.generationSha256,pointer.generationSha256);
+  assert.equal(approval.releaseSha256,releaseIdentityDigest(plan.release));
+  assert.deepEqual(plan.next,{generationId:pointer.generationId,generationSha256:pointer.generationSha256,config:pointer.config,configReferencesSha256:pointer.configReferencesSha256,stateDirectory:pointer.stateDirectory,epochId:pointer.epochId},'Active pointer differs from exact approved plan');
+  if(rebind) {
+    assert.equal(approval.kind,'standing-generation-rebind-approval','Exact rebind approval required');
+    assert.deepEqual(journal.oldPointer,plan.oldPointer,'Rebind journal predecessor pointer changed');
+    const previous=readRebindPredecessor(plan,true,seen);
+    assert.equal(approval.previousPointerSha256,plan.predecessor.pointer.sha256,'Rebind predecessor pointer digest changed');
+    assert.equal(releaseIdentityDigest(previous.plan.release),releaseIdentityDigest(plan.release),'Rebind published release changed');
+  } else {
+    assert(approval.kind==='standing-continuation-approval'&&approval.action==='continue-0.7.2-after-source-gate-failure','Recorded continuation approval required');
+    assert.equal(approval.previousApprovalSha256,plan.previousApprovalSha256);assert.equal(approval.successorOf,plan.previousApprovalSha256);assert.equal(approval.priorAttemptId,plan.estimate.priorAttemptId);assert.equal(approval.attemptId,plan.estimate.newAttemptId);
+  }
+  return {plan,approval};
+}
+
+/** After journal replacement the pointer/journal use byte-exact retained copies.
+ * Chain validation still reads original predecessor plan/approval paths and
+ * generation config files; keep those transition directories/files in place. */
+export function readRebindPredecessor(plan, retained = false, seen = new Set()) {
+  exactFields(plan.predecessor,['pointer','journal','plan','approval'],'Exact predecessor references required');
+  const directory=join(plan.controlDirectory,'transitions',plan.planSha256);
+  const bytes=Object.fromEntries(Object.entries(plan.predecessor).map(([name,ref])=>[name,readExactReference(retained?{...ref,path:join(directory,'predecessor-'+name+'.json')}:ref,JSON_LIMITS.controlIndex)]));
+  const pointer=JSON.parse(bytes.pointer),journal=JSON.parse(bytes.journal);
+  assert.deepEqual(pointer,plan.oldPointer,'Predecessor pointer changed');
+  assert.deepEqual(journal.plan,plan.predecessor.plan,'Predecessor journal/plan reference changed');
+  assert.deepEqual(journal.approval,plan.predecessor.approval,'Predecessor journal/approval reference changed');
+  const previous=readGenerationTransition(plan.controlDirectory,pointer,journal,seen);
+  assert.deepEqual(JSON.parse(bytes.plan),previous.plan,'Retained predecessor plan changed');
+  assert.deepEqual(JSON.parse(bytes.approval),previous.approval,'Retained predecessor approval changed');
+  assert.deepEqual({generationId:plan.old.generationId,automationSha256:plan.old.automationSha256,config:plan.old.config,stateDirectory:plan.old.stateDirectory},{generationId:pointer.generationId,automationSha256:JSON.parse(readExactReference(pointer.config)).automation.sha256,config:pointer.config,stateDirectory:pointer.stateDirectory},'Rebind old generation differs from predecessor');
+  assert.equal(plan.old.evidenceRoot,pointer.stateDirectory,'Rebind evidence root differs from predecessor epoch');
+  assert.equal(releaseIdentityDigest(previous.plan.release),releaseIdentityDigest(plan.release),'Rebind published release changed');
+  return {...previous,pointer,journal};
+}
+
 /** The pointer is authority for exact config bytes; request manifests alone are not. */
 export function readActiveGeneration(controlDirectory) {
   privateDirectory(controlDirectory);
@@ -376,22 +445,7 @@ export function readActiveGeneration(controlDirectory) {
   const journalPath = join(controlDirectory, 'transition.json');
   assert(pathExists(journalPath), 'Completed approved transition journal required');
   const journal = readPrivateJSON(journalPath, JSON_LIMITS.controlIndex);
-  exactFields(journal,['schemaVersion','planSha256','approvalSha256','plan','approval','oldPointer','newPointer','phase','imported','validatedState','proof'],'Unsupported transition journal');
-  assert.equal(journal.schemaVersion,1,'Unsupported transition journal schema');
-  assert.equal(journal.phase, 'completed', 'Incomplete transition prohibits polling');
-  assert.equal(journal.planSha256, pointer.transitionPlanSha256, 'Active pointer/transition journal disagree');
-  assert.deepEqual(journal.newPointer, pointer, 'Active pointer/transition journal disagree');
-  const plan=JSON.parse(readExactReference(journal.plan,JSON_LIMITS.controlIndex)),approval=JSON.parse(readExactReference(journal.approval,JSON_LIMITS.controlIndex));
-  const {planSha256,...planBody}=plan;
-  assert(plan.kind==='standing-0.7.2-continuation'&&plan.release.version==='0.7.2','Only exact approved0.7.2 continuation may run');
-  assert.equal(planSha256,fingerprint(planBody),'Retained transition plan digest changed');
-  assert.equal(planSha256,pointer.transitionPlanSha256,'Retained transition plan differs from active pointer');
-  assert.equal(fingerprint(approval),pointer.authorizationSha256,'Active continuation approval changed');
-  assert.equal(journal.approvalSha256,pointer.authorizationSha256,'Active continuation approval/journal mismatch');
-  assert(approval.schemaVersion===1&&approval.kind==='standing-continuation-approval'&&approval.action==='continue-0.7.2-after-source-gate-failure'&&approval.revoked===false&&approval.approvedBy?.trim()&&approval.approvalRef?.trim(),'Recorded unrevoked continuation approval required');
-  assert.equal(approval.planSha256,planSha256); assert.equal(approval.generationSha256,pointer.generationSha256);
-  assert.equal(approval.previousApprovalSha256,plan.previousApprovalSha256);assert.equal(approval.successorOf,plan.previousApprovalSha256);assert.equal(approval.releaseSha256,releaseIdentityDigest(plan.release));assert.equal(approval.priorAttemptId,plan.estimate.priorAttemptId);assert.equal(approval.attemptId,plan.estimate.newAttemptId);
-  assert.deepEqual(plan.next,{generationId:pointer.generationId,generationSha256:pointer.generationSha256,config:pointer.config,configReferencesSha256:pointer.configReferencesSha256,stateDirectory:pointer.stateDirectory,epochId:pointer.epochId},'Active pointer differs from exact approved plan');
+  const {plan,approval}=readGenerationTransition(controlDirectory,pointer,journal);
   const config = JSON.parse(readExactReference(pointer.config));
   assert.equal(config.generationSha256, pointer.generationSha256, 'Active generation/config mismatch');
   assert.equal(config.stateDirectory, pointer.stateDirectory, 'Active state root mismatch');

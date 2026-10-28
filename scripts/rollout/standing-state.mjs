@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { closeSync, fsyncSync, lstatSync, openSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
-import { assertGenerationFence, atomicJSON, hash, HEX, IDS, inactiveState, JSON_LIMITS, privateDirectory, readPrivateBytes, serializeJSON } from './standing-config.mjs';
+import { isDeepStrictEqual } from 'node:util';
+import { assertGenerationFence, atomicJSON, fileReference, hash, HEX, IDS, inactiveState, JSON_LIMITS, privateDirectory, readExactReference, readPrivateBytes, serializeJSON } from './standing-config.mjs';
 
 export { JSON_LIMITS };
 export class StandingStorageError extends Error { constructor(cause) { super('Standing storage failed; no dispatch permitted', { cause }); this.code = 'standing-storage-failed'; } }
@@ -191,7 +192,7 @@ function readIntent(directory) {
 function readRoot(directory) {
   privateDirectory(directory);
   const root = readJSON(join(directory, 'state.json'), JSON_LIMITS.controlIndex);
-  exact(root, ['schemaVersion', 'encodingVersion', 'epochId', 'state', 'legacy', 'observation']);
+  exact(root, ['schemaVersion', 'encodingVersion', 'epochId', 'state', 'legacy', 'observation', ...(root.epochs ? ['epochs'] : [])]);
   assert(root.schemaVersion === 2 && root.encodingVersion === 1 && /^[A-Za-z0-9_-]{1,100}$/.test(root.epochId), 'Unsupported standing state encoding/schema');
   assertReference(root.state);
   exact(root.observation, ['observedAt', 'lastState', 'blocked']);
@@ -201,6 +202,15 @@ function readRoot(directory) {
     exact(root.legacy, ['evidenceRoot', 'inventory', 'sourceSha256']);
     assert(typeof root.legacy.evidenceRoot === 'string' && isAbsolute(root.legacy.evidenceRoot) && resolve(root.legacy.evidenceRoot) === root.legacy.evidenceRoot && HEX.test(root.legacy.sourceSha256), 'Invalid legacy evidence root');
     assertReference(root.legacy.inventory);
+  }
+  if(root.epochs) {
+    assert(Array.isArray(root.epochs)&&root.epochs.length>0&&root.epochs.length<=64,'Bounded retained epoch inventory required');
+    const seen=new Set();
+    for(const epoch of root.epochs) {
+      exact(epoch,['evidenceRoot','inventory','sourceSha256']);
+      assert(isAbsolute(epoch.evidenceRoot)&&resolve(epoch.evidenceRoot)===epoch.evidenceRoot&&HEX.test(epoch.sourceSha256)&&!seen.has(epoch.evidenceRoot),'Invalid/duplicate retained epoch');
+      seen.add(epoch.evidenceRoot);assertReference(epoch.inventory);
+    }
   }
   return root;
 }
@@ -246,6 +256,7 @@ export function writeStandingState(directory, state, config) {
     const path = join(directory, 'state.json'), old = entryExists(path) ? readRoot(directory) : null;
     const observation = { observedAt: state.observedAt || null, lastState: state.lastState || null, blocked: state.blocked || null };
     const index = { schemaVersion: 2, encodingVersion: 1, epochId: old?.epochId || 'initial', state: { path: `evidence/${'0'.repeat(64)}.json`, sha256: '0'.repeat(64), bytes: 1 }, legacy: old?.legacy || null, observation };
+    if(old?.epochs)index.epochs=old.epochs;
     serializeJSON(index, JSON_LIMITS.controlIndex);
     const intents = intentsFor(state), marker = join(directory, 'pending-intent.json');
     // This marker binds the exact request before any invoking evidence/index is
@@ -267,14 +278,104 @@ export function assertEvidencePath(config, path) {
   const root = readRoot(config.stateDirectory);
   const current = join(config.stateDirectory, 'runs');
   if (path.startsWith(current + '/')) { contained(current, path); readPrivateBytes(path, JSON_LIMITS.evidence); return path; }
-  assert(root.legacy, 'Evidence is outside current epoch');
-  exact(root.legacy, ['evidenceRoot', 'inventory', 'sourceSha256']); privateDirectory(root.legacy.evidenceRoot);
-  const rel = contained(root.legacy.evidenceRoot, path), inventory = decode(config.stateDirectory, root.legacy.inventory);
+  const retained=[...(root.epochs||[]),...(root.legacy?[root.legacy]:[])].find(epoch=>path.startsWith(epoch.evidenceRoot+'/'));
+  assert(retained, 'Evidence is outside current/retained epochs');
+  exact(retained, ['evidenceRoot', 'inventory', 'sourceSha256']); privateDirectory(retained.evidenceRoot);
+  const rel = contained(retained.evidenceRoot, path), inventory = decode(config.stateDirectory, retained.inventory);
   assert(inventory.schemaVersion === 1 && Array.isArray(inventory.files), 'Invalid legacy inventory');
   const seen = new Set(); let expected;
-  for (const item of inventory.files) { exact(item, ['path', 'sha256', 'bytes']); assert(!seen.has(item.path), 'Duplicate inventory reference'); seen.add(item.path); assert.equal(contained(root.legacy.evidenceRoot, join(root.legacy.evidenceRoot, item.path)), item.path, 'Noncanonical inventory path'); if (item.path === rel) expected = item; }
+  for (const item of inventory.files) { exact(item, ['path', 'sha256', 'bytes']); assert(!seen.has(item.path), 'Duplicate inventory reference'); seen.add(item.path); assert.equal(contained(retained.evidenceRoot, join(retained.evidenceRoot, item.path)), item.path, 'Noncanonical inventory path'); if (item.path === rel) expected = item; }
   assert(expected && HEX.test(expected.sha256) && expected.bytes <= JSON_LIMITS.evidence, 'Evidence not in exact legacy inventory');
   const bytes = readPrivateBytes(path, JSON_LIMITS.evidence); assert.equal(bytes.length, expected.bytes, 'Legacy evidence size changed'); assert.equal(hash(bytes), expected.sha256, 'Legacy evidence digest changed'); return path;
+}
+
+/** Read-only planning inventory. Only dispatcher receipts inside this epoch are
+ * read; native artifacts and previously inventoried epochs stay in place. */
+export function standingEpochInventory(directory) {
+  const state=readStandingState(directory), evidence=join(directory,'evidence'), receipts=new Map();
+  privateDirectory(evidence);
+  const files=readdirSync(evidence).sort().map(name=>{
+    assert(/^[a-f0-9]{64}\.json$/.test(name),'Unknown schema2 evidence entry');
+    const ref=fileReference(join(evidence,name),JSON_LIMITS.evidence);assert.equal(name,ref.sha256+'.json','Schema2 evidence bytes changed');return ref;
+  });
+  const add=(path,expected)=>{
+    if(typeof path!=='string'||!path.startsWith(directory+'/'))return;
+    const rel=contained(directory,path),prerequisite=/^prerequisites\/naeil-[a-f0-9]{64}\.json$/.test(rel);
+    assert(path.startsWith(join(directory,'runs')+'/')||prerequisite,'Epoch receipt must remain under runs or dispatcher prerequisites');
+    const ref=fileReference(path,JSON_LIMITS.evidence);
+    if(prerequisite)assert.deepEqual(expected,ref,'Epoch prerequisite path/digest/byte count changed');
+    receipts.set(path,ref);
+  };
+  const visit=value=>{
+    if(!value||typeof value!=='object')return;
+    if(Array.isArray(value)){for(const item of value)visit(item);return;}
+    for(const [key,item]of Object.entries(value)) {
+      if(key==='referencePath'||key==='path'&&Object.hasOwn(value,'sha256'))add(item,key==='path'?value:undefined);
+      if(key==='outputDirectory'&&typeof item==='string'&&item.startsWith(directory+'/')) {
+        assert(item.startsWith(join(directory,'runs')+'/'),'Epoch output must remain under runs');privateDirectory(item);
+        for(const name of ['input.json','output.json','invocation/input.json','invocation/output.json'])if(entryExists(join(item,name)))add(join(item,name));
+      }
+      visit(item);
+    }
+  };
+  visit(state);
+  return {schemaVersion:1,evidence:files,receipts:[...receipts.values()].sort((a,b)=>a.path.localeCompare(b.path))};
+}
+
+export function validateStandingEpochSource({sourcePath,expectedSha256,evidenceRoot,inventory,pendingIntent}) {
+  const source=readPrivateBytes(sourcePath,JSON_LIMITS.controlIndex);assert.equal(hash(source),expectedSha256,'Schema2 snapshot changed');
+  assert.deepEqual(readPrivateBytes(join(evidenceRoot,'state.json'),JSON_LIMITS.controlIndex),source,'Live schema2 state differs from pinned snapshot');
+  const root=readRoot(evidenceRoot);assert.deepEqual(root,parseStandingJSON(source),'Schema2 source index mismatch');
+  const expected=parseStandingJSON(readExactReference(inventory,JSON_LIMITS.evidence));
+  assert.deepEqual(standingEpochInventory(evidenceRoot),expected,'Schema2 evidence/receipt inventory changed');
+  const marker=join(evidenceRoot,'pending-intent.json');
+  if(pendingIntent){assert.equal(pendingIntent.path,marker);readExactReference(pendingIntent,JSON_LIMITS.controlIndex);}
+  else assert(!entryExists(marker),'Unapproved pending intent appeared');
+  return {source,root,inventory:expected};
+}
+
+/** Import schema2 objects byte for byte. The original index is an immutable
+ * recovery boundary; epoch/provenance changes happen only in the next phase. */
+export function importStandingEpoch(input) {
+  const {source,inventory}=validateStandingEpochSource(input),{destination,epochId,expectedSha256}=input;
+  if(entryExists(destination)){privateDirectory(destination);assert.equal(readdirSync(destination).length,0,'Schema2 import requires empty destination');}
+  privateDirectory(destination,true);privateDirectory(join(destination,'evidence'),true);
+  atomicJSON(join(destination,'import-incomplete.json'),{schemaVersion:1,sourceSha256:expectedSha256,epochId},JSON_LIMITS.controlIndex);
+  const copy=(path,bytes)=>{const fd=openSync(path,'wx',0o600);try{writeFileSync(fd,bytes);fsyncSync(fd);}finally{closeSync(fd);}syncDirectory(resolve(path,'..'));};
+  for(const ref of inventory.evidence)copy(join(destination,'evidence',ref.path.split('/').at(-1)),readExactReference(ref,JSON_LIMITS.evidence));
+  copy(join(destination,'state.json'),source);copy(join(destination,'imported-root.json'),source);
+  const manifest={schemaVersion:1,kind:'standing-schema2-import',oldSha256:expectedSha256,oldBytes:source.length,epochId,inventory:input.inventory,pendingIntent:input.pendingIntent};
+  atomicJSON(join(destination,'import-manifest.json'),manifest,JSON_LIMITS.controlIndex);
+  unlinkSync(join(destination,'import-incomplete.json'));syncDirectory(destination);return manifest;
+}
+
+export function validateStandingEpochImport(input) {
+  const {source,inventory}=validateStandingEpochSource(input),{destination}=input;privateDirectory(destination);
+  assert(!entryExists(join(destination,'import-incomplete.json')),'Incomplete schema2 import requires explicit review; evidence retained');
+  assert.deepEqual(readPrivateBytes(join(destination,'imported-root.json'),JSON_LIMITS.controlIndex),source,'Imported schema2 root changed');
+  const manifest=readJSON(join(destination,'import-manifest.json'),JSON_LIMITS.controlIndex);
+  assert.deepEqual(manifest,{schemaVersion:1,kind:'standing-schema2-import',oldSha256:input.expectedSha256,oldBytes:source.length,epochId:input.epochId,inventory:input.inventory,pendingIntent:input.pendingIntent},'Schema2 import manifest changed');
+  for(const ref of inventory.evidence)assert.deepEqual(readPrivateBytes(join(destination,'evidence',ref.path.split('/').at(-1)),JSON_LIMITS.evidence),readExactReference(ref,JSON_LIMITS.evidence),'Imported schema2 evidence changed');
+  readStandingEvidence(destination,parseStandingJSON(source).state);return manifest;
+}
+
+function reboundReceiptInventory(input) {
+  const inventory=parseStandingJSON(readExactReference(input.inventory,JSON_LIMITS.evidence));
+  return {schemaVersion:1,files:inventory.receipts.map(ref=>({...ref,path:contained(input.evidenceRoot,ref.path)}))};
+}
+export function hasReboundStandingState(input) {
+  const root=readRoot(input.destination),old=readJSON(join(input.destination,'imported-root.json'),JSON_LIMITS.controlIndex),epoch=root.epochs?.at(-1);
+  return root.epochId===input.epochId&&epoch?.evidenceRoot===input.evidenceRoot&&epoch.sourceSha256===input.expectedSha256
+    &&isDeepStrictEqual(root.epochs.slice(0,-1),old.epochs||[])
+    &&isDeepStrictEqual(decode(input.destination,epoch.inventory),reboundReceiptInventory(input));
+}
+export function writeReboundStandingState(input,state) {
+  validateStandingEpochImport(input);
+  writeStandingState(input.destination,state);
+  const root=readRoot(input.destination),old=parseStandingJSON(readPrivateBytes(join(input.destination,'imported-root.json'),JSON_LIMITS.controlIndex));
+  root.epochId=input.epochId;
+  root.epochs=[...(old.epochs||[]),{evidenceRoot:input.evidenceRoot,inventory:encode(input.destination,reboundReceiptInventory(input)),sourceSha256:input.expectedSha256}];
+  atomicJSON(join(input.destination,'state.json'),root,JSON_LIMITS.controlIndex);return root;
 }
 export function importLegacyState({ sourcePath, expectedSha256, destination, epochId, evidenceRoot }) {
   assert(HEX.test(expectedSha256) && /^[A-Za-z0-9_-]{1,100}$/.test(epochId), 'Exact source hash/epoch required');

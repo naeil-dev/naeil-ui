@@ -8,12 +8,27 @@ import { createServer } from 'node:http';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, existsSync } from 'node:fs';
 import { packageStandalone } from './naeil-adapter.mjs';
-import { aggregate, assertReference, digest, policyGate, runService, verifyIdentity, validateRelease, validateReleaseEvent } from './rollout.mjs';
+import { aggregate, assertMigrationFollowup, assertReference, digest, policyGate, reviewedMigration, runService, verifyIdentity, validateRelease, validateReleaseEvent } from './rollout.mjs';
+import { fingerprint, releaseIdentityDigest } from './standing-config.mjs';
 
 const sha = 'a'.repeat(64);
 const revision = 'b'.repeat(40);
 const release = { schemaVersion: 1, releaseId: 'ui-0.6.1', version: '0.6.1', previousVersion: '0.6.0', sourceRevision: revision, archive: { url: 'https://example.com/naeil-ui-0.6.1.tgz', sha256: sha }, contract: { version: '1', path: 'reference.json', sha256: sha }, changes: [] };
 const service = { id: 'example', origin: 'https://example.com', routes: [{ path: '/', policy: 'shared', renderState: { access: 'public' } }], deployment: { adapterId: 'example' }, ui: { adoption: 'adopted' } };
+
+test('B separate migration follow-up binds supersedes, release, generation and attempts without extending native authority',()=>{
+  const exact={...release,version:'0.7.2',previousVersion:'0.7.1',siteSourceRevision:'c'.repeat(40),changes:['dom']};
+  const previous={releaseId:exact.releaseId,version:exact.version,sourceRevision:exact.sourceRevision,siteSourceRevision:exact.siteSourceRevision,archiveSha256:exact.archive.sha256,contractSha256:exact.contract.sha256,changes:exact.changes,services:['naeil','estimate','jev'],approvedBy:'original-owner',approvalRef:'synthetic://original',reason:'original published migration',expiresAt:'2001-01-01'};
+  const scope={generationSha256:'1'.repeat(64),attempts:{estimate:'estimate-rebound',jev:'jev-rebound'}};
+  const record={schemaVersion:1,kind:'standing-migration-followup-approval',previousApprovalSha256:fingerprint(previous),releaseSha256:releaseIdentityDigest(exact),generationSha256:scope.generationSha256,attempts:scope.attempts,services:previous.services,supersedes:fingerprint(previous),approvedBy:'owner',approvalRef:'synthetic://followup',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false},before=JSON.stringify(previous);
+  assert.equal(assertMigrationFollowup(exact,previous,record,scope),record);assert.equal(JSON.stringify(previous),before);
+  assert.equal(reviewedMigration(exact,{id:'jev'},{reviewedMigration:previous,migrationFollowup:record}),false,'Review-only follow-up must not bypass the native original expiry gate');
+  const relocated={...exact,archive:{...exact.archive,path:'/another-epoch/package.tgz'}};assert.doesNotThrow(()=>assertMigrationFollowup(relocated,previous,record,scope));
+  for(const change of [value=>{value.expiresAt='2001-01-01';},value=>{value.revoked=true;},value=>{value.releaseSha256='0'.repeat(64);},value=>{delete value.supersedes;},value=>{value.supersedes='0'.repeat(64);},value=>{value.previousApprovalSha256='0'.repeat(64);},value=>{value.generationSha256='2'.repeat(64);},value=>{value.attempts.estimate='foreign';},value=>{value.services=['jev'];},value=>{value.approvedAt='2099-01-01';}]) {
+    const invalid=structuredClone(record);change(invalid);assert.throws(()=>assertMigrationFollowup(exact,previous,invalid,scope));
+  }
+  assert.throws(()=>assertMigrationFollowup({...exact,changes:['guard']},previous,record,scope));
+});
 const patchWindow = { minVersion: '0.6.1', maxVersion: '0.6.9', contractVersion: '1', services: ['example'], approvedBy: 'owner', approvalRef: 'patch-window-1', reason: 'Bounded same-contract fixes', startsAt: '2026-01-01', expiresAt: '2099-01-01' };
 const policy = { schemaVersion: 1, enabled: true, approvedBy: 'owner', approvalRef: 'approval-1', patchWindow, expiresAt: '2099-01-01T00:00:00.000Z', services: ['example'], stopFile: '/nonexistent/rollout-stop', maxEvidenceAgeSeconds: 3600, rollbackApproved: true, rollbackScope: 'code-only' };
 const adapter = { runner: ['ubuntu-latest'], cwd: '/tmp', commands: Object.fromEntries(['update', 'test', 'build', 'package', 'deploy', 'activate', 'rollback'].map(step => [step, { file: process.execPath, args: ['adapter.mjs', step] }])) };
