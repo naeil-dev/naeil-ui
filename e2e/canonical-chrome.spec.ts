@@ -171,39 +171,76 @@ for (const mode of ["controlled", "observer", "uncontrolled"]) {
 }
 
 for (const mode of ["controlled", "observer", "uncontrolled"]) {
-  test(`P5 empty navigation closes at desktop (${mode})`, async ({ page }, info) => {
-    await mobile(page, `mode=${mode}&empty`);
-    await page.setViewportSize({ width: 1440, height: 900 }); await settled(page);
-    await record(info, "empty-navigation", {
-      navigation: await page.locator(".ui-navigation-desktop").evaluate(e => ({ display: getComputedStyle(e).display, width: e.getBoundingClientRect().width, children: e.children.length })),
-      sheetCount: await sheet(page).count(), transitions: await page.getByTestId("transitions").textContent(),
-    });
-    await expect(sheet(page)).toBeHidden();
+  test(`P5 empty navigation retains B1 desktop behavior and dismissal callbacks (${mode})`, async ({ page }, info) => {
+    const rows = [];
+    for (const side of ["baseline", "candidate"]) {
+      await page.setViewportSize({ width: 390, height: 900 });
+      await open(page, side === "baseline" ? "profile=legacy-empty" : `profile=home&mode=${mode}&empty`, side);
+      const transitions: boolean[] = [];
+      for (const dismissal of ["Escape", "close", "overlay", "route"]) {
+        await page.setViewportSize({ width: 390, height: 900 });
+        await toggle(page).click(); await expect(sheet(page)).toBeVisible(); transitions.push(true);
+        await page.setViewportSize({ width: 1440, height: 900 }); await settled(page);
+        await expect(sheet(page)).toBeVisible();
+        expect(await page.locator(".ui-navigation-desktop").evaluate(e => e.getBoundingClientRect().width)).toBe(0);
+        if (side === "candidate" && mode !== "uncontrolled") await expect(page.getByTestId("transitions")).toHaveText(JSON.stringify(transitions));
+        if (dismissal === "Escape") await page.keyboard.press("Escape");
+        else if (dismissal === "close") await sheet(page).locator(".ui-navigation-sheet-heading button").click();
+        else if (dismissal === "overlay") await page.locator('[data-slot="navigation-overlay"]').click({ position: { x: 1, y: 400 } });
+        else await page.getByTestId("route").evaluate(e => (e as HTMLButtonElement).click());
+        await expect(sheet(page)).toBeHidden(); await settled(page); transitions.push(false);
+        if (side === "candidate" && mode !== "uncontrolled") await expect(page.getByTestId("transitions")).toHaveText(JSON.stringify(transitions));
+      }
+      rows.push({ side, transitions, callbacks: JSON.parse(await page.getByTestId("transitions").textContent() || "[]") });
+    }
+    await record(info, "empty-navigation", { mode, rows });
+    expect(rows[1].transitions).toEqual(rows[0].transitions);
+    expect(rows[1].callbacks).toEqual(mode === "uncontrolled" ? [] : rows[0].transitions);
   });
 }
 
 for (const reducedMotion of ["no-preference", "reduce"] as const) for (const resize of [false, true]) {
-  test(`P5 dirty guard focus, cancel/discard/fail/retry ${reducedMotion}/desktop=${resize}`, async ({ page }) => {
+  test(`P5 dirty guard focus, cancel/discard/fail/retry ${reducedMotion}/desktop=${resize}`, async ({ page }, info) => {
     await page.emulateMedia({ reducedMotion });
     const guard = page.getByTestId("guard");
+    const rowAccount = page.locator("header [data-naeil-account-trigger]");
     const logout = async () => {
+      await page.setViewportSize({ width: 390, height: 900 });
       await toggle(page).click(); await sheet(page).locator("[data-naeil-account-trigger]").click();
       await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click();
       await expect(guard).toBeVisible(); await expect(sheet(page)).toBeHidden(); await settled(page);
       await expect(page.getByRole("dialog")).toHaveCount(1);
       expect(await guard.evaluate(e => e.contains(document.activeElement))).toBe(true);
       for (let i = 0; i < 5; i++) { await page.keyboard.press("Tab"); expect(await guard.evaluate(e => e.contains(document.activeElement))).toBe(true); }
+      if (resize) {
+        await page.setViewportSize({ width: 1440, height: 900 }); await settled(page);
+        await expect(rowAccount).toBeVisible();
+        expect(await guard.evaluate(e => e.contains(document.activeElement))).toBe(true);
+      }
     };
     await page.setViewportSize({ width: 390, height: 900 }); await open(page, "profile=home");
     await logout();
-    if (resize) await page.setViewportSize({ width: 1440, height: 900 });
     await guard.getByRole("button", { name: "Cancel", exact: true }).click(); await settled(page);
     await expect(page.getByTestId("requests")).toHaveText("0"); await expect(page.getByTestId("notice")).toHaveText("draft retained");
-    await expect(resize ? page.locator("header [data-naeil-account-trigger]") : toggle(page)).toBeFocused();
-    await page.setViewportSize({ width: 390, height: 900 }); await logout();
+    if (resize) {
+      const active = await page.evaluate(() => {
+        const e = document.activeElement!;
+        return { tag: e.tagName, chrome: !!e.closest("[data-naeil-chrome]"), visible: !!e.getBoundingClientRect().width && !!e.getBoundingClientRect().height };
+      });
+      expect(active.chrome && !active.visible).toBe(false);
+      await expect(rowAccount).toBeVisible();
+      // Probe focusability only; choosing this desktop fallback is Home-owned.
+      await rowAccount.focus(); await expect(rowAccount).toBeFocused();
+      await record(info, "desktop-focus-boundary", { activeAfterCancel: active, rowVisible: true, rowFocusable: true, fallbackOwner: "Home (contract rev 4)" });
+    } else await expect(toggle(page)).toBeFocused();
+    await logout();
     await guard.getByRole("button", { name: "Discard", exact: true }).dblclick(); await expect(page.getByTestId("requests")).toHaveText("1");
-    await toggle(page).click(); await sheet(page).locator("[data-naeil-account-trigger]").click(); await expect(page.getByRole("menuitem")).toHaveAttribute("data-disabled", "");
-    await page.keyboard.press("Escape"); await settled(page); await page.keyboard.press("Escape"); await settled(page);
-    await page.getByTestId("fail").click(); await logout(); await guard.getByRole("button", { name: "Discard", exact: true }).click(); await expect(page.getByTestId("requests")).toHaveText("2");
+    if (resize) await rowAccount.click();
+    else { await toggle(page).click(); await sheet(page).locator("[data-naeil-account-trigger]").click(); }
+    await expect(page.getByRole("menuitem")).toHaveAttribute("data-disabled", "");
+    await page.keyboard.press("Escape"); await settled(page);
+    if (!resize) { await page.keyboard.press("Escape"); await settled(page); }
+    await page.getByTestId("fail").click(); await expect(page.getByTestId("notice")).toHaveText("failed; retry allowed");
+    await logout(); await guard.getByRole("button", { name: "Discard", exact: true }).click(); await expect(page.getByTestId("requests")).toHaveText("2");
   });
 }
