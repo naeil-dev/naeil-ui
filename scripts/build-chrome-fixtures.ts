@@ -24,11 +24,18 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
     const output = join(chromeOutput, name); mkdirSync(output, { recursive: true });
     const source = !candidate && name === "candidate";
     const bundle = await build({ entryPoints: ["scripts/fixtures/chrome/app.tsx"], bundle: true, write: false, format: "iife", platform: "browser", define: { "process.env.NODE_ENV": '"production"' },
+      nodePaths: [resolve("node_modules")],
       alias: Object.fromEntries(["naeil-header", "naeil-footer", "ui"].map(entry => [`@naeil/ui/${entry}`, resolve(root, source ? `src/components/${entry === "ui" ? "ui/index.ts" : `${entry}.tsx`}` : `dist/components/${entry === "ui" ? "ui/index" : entry}.js`)])),
     });
     writeFileSync(join(output, "app.js"), bundle.outputFiles[0].contents);
     for (const path of ["globals", "split"]) for (const hostile of [false, true]) {
-      const imports = path === "globals" ? `@import "${resolve(root, "src/styles/globals.css")}";` : `@import "tailwindcss"; @import "tw-animate-css"; @import "${resolve(root, "src/styles/theme.css")}"; @import "${resolve(root, "src/styles/components.css")}"; @custom-variant dark (&:is(.dark *)); @layer base { * { @apply border-border; } body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }`;
+      // An extracted archive has no node_modules. Resolve build dependencies
+      // from this checker, while reading both public CSS paths from the archive.
+      const dependencies = `@import "${resolve("node_modules/tailwindcss/index.css")}"; @import "${resolve("node_modules/tw-animate-css/dist/tw-animate.css")}";`;
+      const imports = path === "globals" ? readFileSync(resolve(root, "src/styles/globals.css"), "utf8")
+        .replace('@import "tailwindcss";', dependencies).replace('@import "tw-animate-css";', "")
+        .replace('"./theme.css"', JSON.stringify(resolve(root, "src/styles/theme.css"))).replace('"./components.css"', JSON.stringify(resolve(root, "src/styles/components.css")))
+        : `${dependencies} @import "${resolve(root, "src/styles/theme.css")}"; @import "${resolve(root, "src/styles/components.css")}"; @custom-variant dark (&:is(.dark *)); @layer base { * { @apply border-border; } body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }`;
       const css = await postcss([tailwind()]).process(`${imports}\n@source "${resolve(root, source ? "src" : "dist")}";\n${hostile ? readFileSync("scripts/fixtures/chrome/host.css", "utf8") : ""}`, { from: resolve("scripts/chrome-fixture.css") });
       writeFileSync(join(output, `${path}${hostile ? "-hostile" : ""}.css`), css.css);
     }
