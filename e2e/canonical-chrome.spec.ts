@@ -284,7 +284,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) for (const res
 }
 
 for (const reducedMotion of ["no-preference", "reduce"] as const) {
-  for (const lifecycle of ["reopen", "unmount", "race", "timer-reopen", "timer-unmount"]) {
+  for (const lifecycle of ["plain", "reopen", "unmount", "race", "rerender", "timer-reopen", "timer-unmount"]) {
     test(`P5 R1 ${lifecycle} cancels stale logout or completes one closing flow (${reducedMotion})`, async ({ page }, info) => {
       await page.emulateMedia({ reducedMotion });
       await mobile(page, `boundary&lifecycle=${lifecycle}`);
@@ -297,6 +297,18 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
         }, control);
       }
       await sheet(page).locator("[data-naeil-account-trigger]").click();
+      if (lifecycle === "race") await page.getByRole("menuitem", { name: "로그아웃", exact: true }).evaluate(element => {
+        // Race an external close after the selection is accepted, rather than
+        // unmounting the item in click capture before its handler can run.
+        element.addEventListener("menu.itemSelect", () => queueMicrotask(() => {
+          document.querySelector<HTMLButtonElement>('[data-testid="force-close"]')!.click();
+        }), { once: true });
+      });
+      if (lifecycle === "rerender") await page.locator("[data-naeil-account-menu]").evaluate(element => {
+        element.addEventListener("focusScope.autoFocusOnUnmount", () => {
+          document.querySelector<HTMLButtonElement>('[data-testid="rerender"]')!.click();
+        }, { once: true });
+      });
       await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click(); await settled(page);
       const observation = async () => ({
         sheet: await sheet(page).count(), header: await page.locator("header").count(),
@@ -309,10 +321,11 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
         await page.keyboard.press("Escape"); await settled(page); await expect(sheet(page)).toBeHidden();
       }
       await record(info, "lifecycle", { lifecycle, reducedMotion, afterSelection, afterDismissal: await observation() });
-      if (lifecycle === "race") {
+      if (lifecycle === "plain" || lifecycle === "race" || lifecycle === "rerender") {
         await expect(page.getByTestId("logout-calls")).toHaveText("1");
         await expect(page.getByTestId("guard")).toBeVisible();
         await expect(page.getByRole("dialog")).toHaveCount(1);
+        expect(await page.getByTestId("guard").evaluate(e => e.contains(document.activeElement))).toBe(true);
       } else {
         if (lifecycle.endsWith("unmount")) await expect(page.locator("header")).toHaveCount(0);
         await expect(page.getByTestId("logout-calls")).toHaveText("0");
@@ -339,5 +352,47 @@ for (const policy of ["reject", "delay"]) {
       await page.keyboard.press("Escape"); await settled(page);
       await expect(page.getByTestId("transitions")).toHaveText("[true,false,false,true,false]");
     }
+  });
+}
+
+for (const reducedMotion of ["no-preference", "reduce"] as const) {
+  test(`P5 R1 delayed parent acceptance preserves the selected action ${reducedMotion}`, async ({ page }, info) => {
+    await page.emulateMedia({ reducedMotion });
+    await mobile(page, "policy=delay");
+    await sheet(page).locator("[data-naeil-account-trigger]").click();
+    await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click(); await settled(page);
+    await expect(sheet(page)).toBeVisible();
+    await expect(page.getByTestId("logout-calls")).toHaveText("0");
+    await page.getByTestId("force-close").evaluate(e => (e as HTMLButtonElement).click()); await settled(page);
+    await record(info, "delayed-action", { reducedMotion, transitions: await page.getByTestId("transitions").textContent(), calls: await page.getByTestId("logout-calls").textContent() });
+    await expect(sheet(page)).toBeHidden();
+    await expect(page.getByTestId("logout-calls")).toHaveText("1");
+    await expect(page.getByTestId("guard")).toBeVisible();
+    await expect(page.getByRole("dialog")).toHaveCount(1);
+    expect(await page.getByTestId("guard").evaluate(e => e.contains(document.activeElement))).toBe(true);
+  });
+}
+
+for (const reducedMotion of ["no-preference", "reduce"] as const) for (const cancel of ["sheet-request", "account-reopen"]) {
+  test(`P5 R1 delayed selection cancelled by ${cancel} ${reducedMotion}`, async ({ page }, info) => {
+    await page.emulateMedia({ reducedMotion });
+    await mobile(page, "policy=delay");
+    await sheet(page).locator("[data-naeil-account-trigger]").click();
+    await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click(); await settled(page);
+    await expect(sheet(page)).toBeVisible();
+    await expect(page.locator("[data-naeil-account-menu]")).toBeHidden();
+    if (cancel === "sheet-request") await page.keyboard.press("Escape");
+    else {
+      await sheet(page).locator("[data-naeil-account-trigger]").click();
+      await expect(page.locator("[data-naeil-account-menu]")).toBeVisible();
+      await page.keyboard.press("Escape");
+    }
+    await settled(page);
+    await expect(page.getByTestId("transitions")).toHaveText(cancel === "sheet-request" ? "[true,false,false]" : "[true,false]");
+    await page.getByTestId("force-close").evaluate(e => (e as HTMLButtonElement).click()); await settled(page);
+    await record(info, "delayed-cancel", { reducedMotion, cancel, transitions: await page.getByTestId("transitions").textContent(), calls: await page.getByTestId("logout-calls").textContent() });
+    await expect(sheet(page)).toBeHidden();
+    await expect(page.getByTestId("logout-calls")).toHaveText("0");
+    await expect(page.getByTestId("guard")).toBeHidden();
   });
 }

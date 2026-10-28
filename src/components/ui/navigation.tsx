@@ -61,7 +61,18 @@ const NativeLink = React.forwardRef<HTMLAnchorElement, NavigationLinkProps>(
 
 // Controlled-sheet actions can leave the sheet entirely (for example a host
 // confirmation). Run them after both closing layers have released their focus.
-export const NavigationSheetAction = React.createContext<((action: () => void) => void) | undefined>(undefined);
+export const NavigationSheetAction = React.createContext<((action: () => void) => {
+  menuClosed: () => void;
+  cancel: () => void;
+}) | undefined>(undefined);
+
+interface PendingSheetAction {
+  action: () => void;
+  sheet: HTMLDivElement | null;
+  menuClosed: boolean;
+  sheetClosed: boolean;
+  timer?: ReturnType<typeof setTimeout>;
+}
 
 function DesktopGroup({
   item,
@@ -216,11 +227,27 @@ export function Navigation({
   const [internalOpen, setInternalOpen] = React.useState(false);
   const mobileOpen = controlledOpen ?? internalOpen;
   const state = React.useRef({ open: mobileOpen, controlled: controlledOpen !== undefined, onChange: onMobileOpenChange });
+  const mounted = React.useRef(false);
+  const pendingAction = React.useRef<PendingSheetAction | undefined>(undefined);
+  const cancelAction = React.useCallback(() => {
+    clearTimeout(pendingAction.current?.timer);
+    pendingAction.current = undefined;
+  }, []);
   React.useLayoutEffect(() => {
+    const reopening = mobileOpen && !state.current.open;
     state.current = { open: mobileOpen, controlled: controlledOpen !== undefined, onChange: onMobileOpenChange };
-  }, [mobileOpen, controlledOpen, onMobileOpenChange]);
-  const setMobileOpen = React.useCallback((next: boolean) => {
+    if (reopening) cancelAction();
+  });
+  React.useLayoutEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; cancelAction(); };
+  }, [cancelAction]);
+  const setMobileOpen = React.useCallback((next: boolean, owner?: PendingSheetAction) => {
+    if (next) cancelAction();
     if (next === state.current.open) return;
+    // A later dismissal replaces a pending selection; the selection's own
+    // close request must survive a parent that accepts it asynchronously.
+    if (pendingAction.current !== owner) cancelAction();
     // Controlled requests compare against the committed prop, even when a
     // parent rejects or delays accepting an earlier request.
     if (!state.current.controlled) {
@@ -228,12 +255,30 @@ export function Navigation({
       setInternalOpen(next);
     }
     state.current.onChange?.(next);
-  }, []);
+  }, [cancelAction]);
   const chrome = "data-naeil-chrome" in props ? { "data-naeil-chrome": "", lang: props.lang } : {};
   const [openGroup, setOpenGroup] = React.useState<string | null>(null);
   const trigger = React.useRef<HTMLButtonElement>(null);
   const desktop = React.useRef<HTMLElement>(null);
-  const pendingAction = React.useRef<(() => void) | undefined>(undefined);
+  const sheetContent = React.useRef<HTMLDivElement>(null);
+  function settleAction(flow: PendingSheetAction) {
+    if (!mounted.current || pendingAction.current !== flow || state.current.open ||
+      !flow.menuClosed || !flow.sheetClosed || flow.timer !== undefined) return;
+    // FocusScope close events precede remaining layer cleanup. This task is
+    // owned by this closing flow, and cannot survive a reopen or unmount.
+    flow.timer = setTimeout(() => {
+      flow.timer = undefined;
+      if (!mounted.current || pendingAction.current !== flow) return;
+      if (state.current.open) { cancelAction(); return; }
+      if (!flow.menuClosed || !flow.sheetClosed) return;
+      const target = [trigger.current, desktop.current?.parentElement?.querySelector<HTMLElement>(".ui-navigation-toolbar [data-naeil-account-trigger]")]
+        .find(element => element?.isConnected && element.getBoundingClientRect().width && element.getBoundingClientRect().height);
+      cancelAction();
+      if (!target) return;
+      target.focus();
+      flow.action();
+    }, 0);
+  }
   const previousHref = React.useRef(currentHref);
   React.useEffect(() => {
     if (previousHref.current === currentHref) return;
@@ -359,19 +404,19 @@ export function Navigation({
               />
               <Dialog.Content
                 {...chrome}
+                // Retain the closing DOM owner after Radix clears the live ref;
+                // a menu selection can race the sheet's external dismissal.
+                ref={element => { if (element) sheetContent.current = element; }}
                 data-slot="navigation-sheet"
                 className="ui-navigation-sheet ui-popup"
                 aria-describedby={undefined}
                 onCloseAutoFocus={(event) => {
-                  if (pendingAction.current) {
+                  if (controlledOpen !== undefined && (!mounted.current || state.current.open)) { event.preventDefault(); return; }
+                  const flow = pendingAction.current;
+                  if (flow && event.target === flow.sheet) {
                     event.preventDefault();
-                    const action = pendingAction.current;
-                    pendingAction.current = undefined;
-                    const target = trigger.current?.getBoundingClientRect().width
-                      ? trigger.current : desktop.current?.parentElement?.querySelector<HTMLElement>(".ui-navigation-toolbar [data-naeil-account-trigger]");
-                    // FocusScope's close event precedes the remaining Radix
-                    // layer cleanup. Start the next modal on the next task.
-                    setTimeout(() => { target?.focus(); action(); }, 0);
+                    flow.sheetClosed = true;
+                    settleAction(flow);
                     return;
                   }
                   if (
@@ -418,8 +463,21 @@ export function Navigation({
                 {(mobileToolbar ?? toolbar) && (
                   <div className="ui-navigation-mobile-toolbar">
                     <NavigationSheetAction.Provider value={controlledOpen === undefined ? undefined : action => {
-                      pendingAction.current = action;
-                      setMobileOpen(false);
+                      if (!mounted.current) return { menuClosed: () => {}, cancel: () => {} };
+                      cancelAction();
+                      const flow: PendingSheetAction = { action, sheet: sheetContent.current, menuClosed: false, sheetClosed: false };
+                      pendingAction.current = flow;
+                      return {
+                        menuClosed: () => {
+                          if (!mounted.current || pendingAction.current !== flow) return;
+                          flow.menuClosed = true;
+                          // Preserve B1's layer cleanup order before closing
+                          // the sheet; both completion events still belong here.
+                          setMobileOpen(false, flow);
+                          settleAction(flow);
+                        },
+                        cancel: () => { if (pendingAction.current === flow) cancelAction(); },
+                      };
                     }}>
                       {mobileToolbar ?? toolbar}
                     </NavigationSheetAction.Provider>

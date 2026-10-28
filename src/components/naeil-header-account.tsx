@@ -35,11 +35,13 @@ const NativeLink: NavigationLinkComponent = props => <a {...props} />;
 export function NaeilHeaderAccountControl({ locale, account, Link = NativeLink }: NaeilHeaderAccountControlProps) {
   const text = labels[locale];
   const handoff = useContext(NavigationSheetAction);
-  const pendingAction = useRef<(() => void) | undefined>(undefined);
+  const pendingAction = useRef<{ menu: HTMLDivElement | null; menuClosed: () => void; cancel: () => void } | undefined>(undefined);
   if (account.status === "signed-out") {
     return <Link href={account.loginHref} className="ui-navigation-link ui-focus naeil-header-login" data-naeil-account-state="signed-out">{text.login}</Link>;
   }
-  return <DropdownMenu>
+  return <DropdownMenu onOpenChange={open => {
+    if (open) { pendingAction.current?.cancel(); pendingAction.current = undefined; }
+  }}>
     <DropdownMenuTrigger asChild>
       <button type="button" className="ui-focus naeil-header-account-trigger"
         data-naeil-account-trigger data-naeil-account-state="signed-in"
@@ -49,11 +51,13 @@ export function NaeilHeaderAccountControl({ locale, account, Link = NativeLink }
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" className="w-56 max-w-[calc(100vw-2rem)]" data-naeil-account-menu data-naeil-chrome="" lang={locale}
       onCloseAutoFocus={event => {
-        if (!pendingAction.current || !handoff) return;
+        const flow = pendingAction.current;
+        if (!flow || event.target !== flow.menu) return;
         event.preventDefault();
-        const action = pendingAction.current;
-        pendingAction.current = undefined;
-        handoff(action);
+        // Keep the cancellation handle while a controlled parent delays the
+        // sheet close; reopening this menu must invalidate that selection.
+        flow.menu = null;
+        flow.menuClosed();
       }}>
       <DropdownMenuLabel className="flex min-w-0 flex-col font-normal">
         <span className="truncate text-base font-medium">{account.displayName || text.account}</span>
@@ -61,10 +65,13 @@ export function NaeilHeaderAccountControl({ locale, account, Link = NativeLink }
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuItem className="min-h-11" disabled={account.busy}
-        onSelect={() => {
+        onSelect={event => {
           if (account.busy) return;
-          if (handoff) pendingAction.current = account.onLogout;
-          else account.onLogout();
+          if (handoff) {
+            const menu = (event.target as Element).closest<HTMLDivElement>("[data-naeil-account-menu]");
+            if (!menu?.isConnected) return;
+            pendingAction.current = { ...handoff(account.onLogout), menu };
+          } else account.onLogout();
         }}>
         {account.busy ? text.busy : text.logout}
       </DropdownMenuItem>

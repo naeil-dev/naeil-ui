@@ -77,7 +77,7 @@ function App() {
   };
   return <>
     {!mounted ? null : profile === "generic" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} /> :
-      <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={lifecycle === "race" ? <span onClickCapture={event => { if ((event.target as Element).closest('[role="menuitem"]')) setOpen(false); }}>{account}</span> : profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
+      <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
         {...(home ? { showProjects: false, showBlog: false, appNavigation: query.has("empty") ? [] : appNavigation, brandSuffix: "Home", brandHref: "/", brandLinkProps: { "aria-label": "Naeil Home" }, statusSlot: <span data-testid="readiness" role="status" aria-label="Ready" style={{ display: "block", width: 8, height: 8, borderRadius: "50%", background: "green" }} /> } : {})}
         {...sheetProps}
         {...(profile === "legacy-empty" ? { showProjects: false, showBlog: false } : {})}
@@ -96,6 +96,7 @@ function App() {
         <button data-testid="force-open" onClick={() => flushSync(() => setOpen(true))}>Set open</button>
         <button data-testid="force-close" onClick={() => flushSync(() => setOpen(false))}>Accept close</button>
         <button data-testid="unmount" onClick={() => flushSync(() => setMounted(false))}>Unmount header</button>
+        <button data-testid="rerender" onClick={() => flushSync(() => setNotice("rerendered"))}>Rerender consumer</button>
       </div>}
       <Select defaultValue="ko"><SelectTrigger aria-label="Body language"><SelectValue /></SelectTrigger><SelectContent data-testid="body-select">
         <SelectItem value="ko" lang="ko">한국어</SelectItem><SelectItem value="en" lang="en">English</SelectItem><SelectItem value="ja" lang="ja">日本語</SelectItem>
