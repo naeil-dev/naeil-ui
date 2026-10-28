@@ -540,6 +540,8 @@
 /* Canonical chrome owns final typography. Unlayered, marker-scoped rules also
    beat host-compiled utilities; the host's body and ordinary portals stay local. */
 [data-naeil-chrome] {
+  /* Keep the base :lang(ja) fallback local while slot font utilities still win. */
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
   font-family: "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
   font-size: 16px;
   font-weight: 400;
@@ -607,7 +609,7 @@
   line-height: 24px;
 }
 [data-naeil-chrome]:lang(ja),
-:root [data-naeil-chrome] :lang(ja) {
+:root [data-naeil-locale-menu] :lang(ja) {
   font-family: "Noto Sans JP", "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
 }
 

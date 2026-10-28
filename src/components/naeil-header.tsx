@@ -131,14 +131,13 @@ export function NaeilHeader({
       {authSlot && <><div aria-hidden="true" className="naeil-header-separator" />{authSlot}</>}
     </>}
   </div>;
+  const logo = <Logo variant="horizontal" size={28} className="block" label={null} />;
   const brand = <BrandLink href={brandDestination} data-app-brand aria-label={brandSlot == null ? ".naeil" : undefined} {...brandProps}
     onClick={event => {
       onBrandClick?.(event);
       onNavigate?.(event, { id: "brand", href: brandDestination, label: ".naeil" });
     }}>
-    {brandSlot ?? <><Logo variant="horizontal" size={28} className="block" label={null} />
-      {brandSuffix && <span className="naeil-header-brand-suffix">{brandSuffix}</span>}
-    </>}
+    {brandSlot ?? (brandSuffix ? <>{logo}<span className="naeil-header-brand-suffix">{brandSuffix}</span></> : logo)}
   </BrandLink>;
   return (
     <Navigation {...props} data-global-header data-naeil-header data-naeil-chrome="" lang={locale}
