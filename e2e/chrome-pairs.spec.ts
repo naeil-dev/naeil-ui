@@ -113,7 +113,7 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
   });
 }
 
-for (const profile of ["canonical", "estimate", "jev"]) for (const css of ["globals", "split"]) {
+for (const profile of ["canonical", "site", "estimate", "jev", "compat-routing", "compat-slots", "legacy-empty"]) for (const css of ["globals", "split"]) {
   test(`P1 omitted props, default ${profile}/${css} profile preserves B1`, async ({ page }, info) => {
     const failures: string[] = [];
     for (const width of [390, 1440, 2560]) {
