@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, truncateSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { atomicJSON, hash, readPrivateJSON } from './standing-config.mjs';
+import { atomicJSON, fileReference, hash, readPrivateJSON } from './standing-config.mjs';
 import { assertEvidencePath, importLegacyState, JSON_LIMITS, readStandingEvidence, readStandingState, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
 import * as stateAPI from './standing-state.mjs';
 
@@ -15,6 +15,37 @@ function fixture(t) {
 }
 const initial = () => ({ schemaVersion: 1, repository: 'naeil-dev/naeil-ui', releases: {} });
 const materialize = value => JSON.parse(JSON.stringify(value));
+
+test('schema2 epoch inventory admits every dispatcher receipt family without collecting unrelated files',async t=>{
+  for(const name of ['runs/2/receipt.json','runs/2/naeil/attempt/input.json','runs/2/naeil/reverify-attempt/invocation/output.json','runs/2/naeil/attempt/verification/command/input.json','runs/2/naeil/attempt/verification/render-verification.json','prerequisites/naeil-'+ 'a'.repeat(64)+'.json',...['archive.tgz','siteArchive.tgz','contract.json','account.json','expectations.json','snapshot.json'].map(name=>'releases/2/'+name)])await t.test(name,st=>{
+    const f=fixture(st),path=join(f.old,name);mkdirSync(join(path,'..'),{recursive:true,mode:0o700});atomicJSON(path,{synthetic:true});
+    const ref=fileReference(path),state=initial();state.receipt=name.startsWith('releases/')?{path,sha256:ref.sha256,url:'https://synthetic.invalid/asset'}:ref;
+    writeFileSync(join(f.old,'unreferenced.json'),'unreferenced',{mode:0o644});
+    writeStandingState(f.old,state);
+    assert.deepEqual(stateAPI.standingEpochInventory(f.old).receipts,[ref]);
+  });
+});
+
+test('schema2 epoch inventory rejects unknown families, escapes and mismatched pinned digest or byte count',async t=>{
+  for(const cause of ['unknown','release-id','release-name','run-service','run-name','monitor','digest','length','escape'])await t.test(cause,st=>{
+    const f=fixture(st),names={unknown:'other/input.json','release-id':'releases/not-a-number/archive.tgz','release-name':'releases/2/other.tgz','run-service':'runs/2/unknown/attempt/input.json','run-name':'runs/2/naeil/attempt/other.json',monitor:'monitor-history/'+ 'a'.repeat(64)+'.json'};
+    const path=join(f.old,names[cause]||'runs/2/naeil/attempt/input.json');mkdirSync(join(path,'..'),{recursive:true,mode:0o700});atomicJSON(path,{synthetic:true});
+    const ref=fileReference(path),state=initial();
+    if(cause==='digest')ref.sha256='0'.repeat(64);if(cause==='length')ref.bytes++;if(cause==='escape')ref.path=f.old+'/runs/2/naeil/attempt/../../../../outside.json';
+    state.receipt=ref;writeStandingState(f.old,state);
+    assert.throws(()=>stateAPI.standingEpochInventory(f.old),/Epoch receipt|digest|byte count|Canonical|escape/i);
+  });
+});
+
+test('schema2 release archives permit exactly 64MiB while JSON receipts retain the 2MiB bound',t=>{
+  const f=fixture(t),path=join(f.old,'releases/2/archive.tgz');mkdirSync(join(path,'..'),{recursive:true,mode:0o700});writeFileSync(path,'x',{mode:0o600});
+  truncateSync(path,64*1024*1024);
+  const ref=fileReference(path,64*1024*1024),state=initial();state.receipt={path,sha256:ref.sha256};writeStandingState(f.old,state);
+  assert.deepEqual(stateAPI.standingEpochInventory(f.old).receipts,[ref]);
+  truncateSync(path,64*1024*1024+1);assert.throws(()=>stateAPI.standingEpochInventory(f.old),/bounded/i);
+  const json=join(f.old,'releases/2/contract.json');writeFileSync(json,Buffer.alloc(JSON_LIMITS.evidence+1),{mode:0o600});state.receipt={path:json,sha256:hash(readFileSync(json))};writeStandingState(f.old,state);
+  assert.throws(()=>stateAPI.standingEpochInventory(f.old),/bounded/i);
+});
 
 test('completed imports are validated and reused without conversion; conflicting roots retain all evidence', t => {
   const f = fixture(t), sourcePath = join(f.root, 'legacy.json'), output = join(f.old, 'output.json');

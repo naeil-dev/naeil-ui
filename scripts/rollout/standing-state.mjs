@@ -274,6 +274,15 @@ function contained(root, path) {
   assert(typeof path === 'string' && isAbsolute(path) && resolve(path) === path, 'Canonical absolute evidence path required');
   const rel = relative(root, path); assert(rel && !rel.startsWith('../') && !isAbsolute(rel), 'Evidence path escape'); return rel;
 }
+// Match materializeRelease's 64MiB download bound without increasing JSON limits.
+const RELEASE_ARCHIVE_LIMIT = 64 * 1024 * 1024;
+function epochReceiptLimit(path) {
+  if(/^releases\/[1-9]\d*\/(?:archive|siteArchive)\.tgz$/.test(path))return RELEASE_ARCHIVE_LIMIT;
+  assert(/^releases\/[1-9]\d*\/(?:contract|account|expectations|snapshot)\.json$/.test(path)
+    ||/^prerequisites\/naeil-[a-f0-9]{64}\.json$/.test(path)
+    ||/^runs\/[1-9]\d*\/(?:receipt\.json|(?:naeil|estimate|jev)\/[A-Za-z0-9._-]{1,109}\/(?:(?:invocation|verification(?:\/command)?)\/)?(?:input|output|receipt|render-verification)\.json)$/.test(path),'Epoch receipt is outside dispatcher path families');
+  return JSON_LIMITS.evidence;
+}
 export function assertEvidencePath(config, path) {
   const root = readRoot(config.stateDirectory);
   const current = join(config.stateDirectory, 'runs');
@@ -285,11 +294,12 @@ export function assertEvidencePath(config, path) {
   assert(inventory.schemaVersion === 1 && Array.isArray(inventory.files), 'Invalid legacy inventory');
   const seen = new Set(); let expected;
   for (const item of inventory.files) { exact(item, ['path', 'sha256', 'bytes']); assert(!seen.has(item.path), 'Duplicate inventory reference'); seen.add(item.path); assert.equal(contained(retained.evidenceRoot, join(retained.evidenceRoot, item.path)), item.path, 'Noncanonical inventory path'); if (item.path === rel) expected = item; }
-  assert(expected && HEX.test(expected.sha256) && expected.bytes <= JSON_LIMITS.evidence, 'Evidence not in exact legacy inventory');
-  const bytes = readPrivateBytes(path, JSON_LIMITS.evidence); assert.equal(bytes.length, expected.bytes, 'Legacy evidence size changed'); assert.equal(hash(bytes), expected.sha256, 'Legacy evidence digest changed'); return path;
+  const limit=(root.epochs||[]).includes(retained)?epochReceiptLimit(rel):JSON_LIMITS.evidence;
+  assert(expected && HEX.test(expected.sha256) && Number.isSafeInteger(expected.bytes) && expected.bytes > 0 && expected.bytes <= limit, 'Evidence not in exact legacy inventory');
+  const bytes = readPrivateBytes(path, limit); assert.equal(bytes.length, expected.bytes, 'Legacy evidence size changed'); assert.equal(hash(bytes), expected.sha256, 'Legacy evidence digest changed'); return path;
 }
 
-/** Read-only planning inventory. Only dispatcher receipts inside this epoch are
+/** Read-only planning inventory. Only dispatcher receipts/assets inside this epoch are
  * read; native artifacts and previously inventoried epochs stay in place. */
 export function standingEpochInventory(directory) {
   const state=readStandingState(directory), evidence=join(directory,'evidence'), receipts=new Map();
@@ -300,11 +310,19 @@ export function standingEpochInventory(directory) {
   });
   const add=(path,expected)=>{
     if(typeof path!=='string'||!path.startsWith(directory+'/'))return;
-    const rel=contained(directory,path),prerequisite=/^prerequisites\/naeil-[a-f0-9]{64}\.json$/.test(rel);
-    assert(path.startsWith(join(directory,'runs')+'/')||prerequisite,'Epoch receipt must remain under runs or dispatcher prerequisites');
-    const ref=fileReference(path,JSON_LIMITS.evidence);
-    if(prerequisite)assert.deepEqual(expected,ref,'Epoch prerequisite path/digest/byte count changed');
+    const rel=contained(directory,path),limit=epochReceiptLimit(rel),ref=receipts.get(path)||fileReference(path,limit);
+    if(rel.startsWith('prerequisites/'))assert.deepEqual(expected,ref,'Epoch prerequisite path/digest/byte count changed');
+    else if(expected) {
+      assert.equal(ref.sha256,expected.sha256,'Epoch receipt digest changed');
+      if(Object.hasOwn(expected,'bytes'))assert.equal(ref.bytes,expected.bytes,'Epoch receipt byte count changed');
+    }
     receipts.set(path,ref);
+    // A referenced release binds its cache snapshot, never arbitrary siblings.
+    const release=rel.match(/^releases\/([1-9]\d*)\//);
+    if(release&&!rel.endsWith('/snapshot.json')) {
+      const snapshot=join(directory,'releases',release[1],'snapshot.json');
+      if(!receipts.has(snapshot)&&entryExists(snapshot))add(snapshot);
+    }
   };
   const visit=value=>{
     if(!value||typeof value!=='object')return;

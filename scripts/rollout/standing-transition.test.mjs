@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { assertGenerationFence, atomicJSON, automationDigest, fileReference, fingerprint, generationDigest, hash, IDS, JSON_LIMITS, operationalGenerationDigest, ORIGINS, readActiveGeneration, readExactReference, readPrivateJSON, releaseIdentityDigest, routeKey, serializeJSON } from './standing-config.mjs';
@@ -15,7 +15,7 @@ import { runtimeIndex } from './package-runtime.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 
 const automationRoot = resolve(new URL('../..', import.meta.url).pathname);
-function fixture(t, parent = tmpdir()) {
+function fixture(t, parent = tmpdir(), releaseAssets = {}) {
   const root = realpathSync(mkdtempSync(join(parent, 'standing-transition-'))); chmodSync(root, 0o700); if(parent === tmpdir())t.after(() => rmSync(root, { recursive: true, force: true }));else t.diagnostic('Retained synthetic fixture: '+root);
   const directory = name => { const path = join(root, name); mkdirSync(path, { mode: 0o700 }); return path; };
   const controlDirectory = directory('control'), oldState = directory('old'), newState = join(root, 'epoch2'), nativeState = directory('native'), nativeMarkers = directory('native-markers'), jevState = directory('jev-state'), jevBase = directory('jev-native');
@@ -26,6 +26,7 @@ function fixture(t, parent = tmpdir()) {
   const context = { automationSha256, trustedFiles, executionPath: '/usr/bin:/bin', stateSchemaVersion: 2 };
   const generation = { ...context, executionContexts: { estimate: context, jev: { ...context, executionPath: '/bin:/usr/bin' } } }, generationSha256 = operationalGenerationDigest(generation);
   const release = { schemaVersion: 1, releaseId: 'synthetic-0.7.2', version: '0.7.2', previousVersion: '0.7.1', sourceRevision: 'a'.repeat(40), siteSourceRevision: 'b'.repeat(40), archive: { sha256: 'c'.repeat(64) }, siteArchive: { sha256: 'd'.repeat(64) }, contract: { version: '1', sha256: 'e'.repeat(64) }, account: { sha256: 'f'.repeat(64) }, changes: ['dom'] };
+  for(const [kind,bytes]of Object.entries(releaseAssets))release[kind]={...release[kind],sha256:hash(bytes),url:'https://synthetic.invalid/'+kind};
   release.expectations = put('old/expectations.json', declaration(release));
   const migration = { releaseId: release.releaseId, version: release.version, sourceRevision: release.sourceRevision, siteSourceRevision: release.siteSourceRevision, archiveSha256: release.archive.sha256, contractSha256: release.contract.sha256, changes: release.changes, services: IDS, approvedBy: 'historical-owner', approvalRef: 'synthetic://original', reason: 'original exact release', expiresAt: '2026-11-01T21:00:00Z' };
   const policy = { schemaVersion: 1, enabled: true, approvedBy: 'synthetic-owner', approvalRef: 'synthetic://current', expiresAt: '2099-01-01', services: IDS, stopFile, maxEvidenceAgeSeconds: 3600, rollbackScope: 'code-only', rollbackApproved: true, reviewedMigration: migration, patchWindow: { approvedBy: 'synthetic-owner', approvalRef: 'synthetic://window', reason: 'synthetic patch window', minVersion: '0.7.2', maxVersion: '0.7.2', contractVersion: '1', startsAt: '2020-01-01', expiresAt: '2099-01-01', services: IDS } };
@@ -934,8 +935,8 @@ test('T7 transition current-site observation accepts only the original identity 
   });
 });
 
-async function rebindFixture(t, changeState = () => {}) {
-  const api=await load(),f=fixture(t),first=api.planTransition(f.input),firstApproval=approval(first);
+async function rebindFixture(t, changeState = () => {}, releaseAssets = {}) {
+  const api=await load(),f=fixture(t,tmpdir(),releaseAssets),first=api.planTransition(f.input),firstApproval=approval(first);
   await api.applyTransition(first,firstApproval,f.deps);
   const previous=readActiveGeneration(f.controlDirectory),oldState=f.newState,newState=join(f.root,'epoch3'),state=readStandingState(oldState),record=state.releases['2'];
   const outputDirectory=join(oldState,'runs/2/naeil/reverify-interrupted');mkdirSync(outputDirectory,{recursive:true,mode:0o700});
@@ -1066,6 +1067,59 @@ test('B rebind retains a deferred Estimate request/result with an exact dispatch
     writeFileSync(prerequisite.path,Buffer.concat([bytes,Buffer.from(' ')]));assert.throws(()=>assertEvidencePath(f.config,prerequisite.path),/size changed/);
     const changed=Buffer.from(bytes);changed[0]=32;writeFileSync(prerequisite.path,changed);assert.throws(()=>assertEvidencePath(f.config,prerequisite.path),/digest changed/);
   });
+});
+
+test('B real interruption layout retains release assets, prerequisite and run receipts with archive-sized bounds',async t=>{
+  const assets={archive:Buffer.alloc(JSON_LIMITS.evidence+1,97),siteArchive:Buffer.from('synthetic site archive'),contract:Buffer.from('{"synthetic":"contract"}\n'),account:Buffer.from('{"synthetic":"account"}\n')};
+  let release,prerequisite,snapshot,unreferenced;
+  const f=await rebindFixture(t,(_state,record,previous)=>{
+    const directory=join(previous.oldState,'releases/2');mkdirSync(directory,{recursive:true,mode:0o700});
+    release=structuredClone(previous.input.release);
+    for(const [kind,bytes]of Object.entries(assets)) {
+      const path=join(directory,kind+(['archive','siteArchive'].includes(kind)?'.tgz':'.json'));
+      writeFileSync(path,bytes,{mode:0o600});release[kind].path=path;
+      assert(!Object.hasOwn(release[kind],'bytes'),'Materialized manifest references have no byte count');
+    }
+    release.expectations={...release.expectations,path:join(directory,'expectations.json')};
+    writeFileSync(release.expectations.path,readFileSync(previous.input.release.expectations.path),{mode:0o600});
+    record.metadataHash='6'.repeat(64);record.tagSha=release.sourceRevision;
+    snapshot=join(directory,'snapshot.json');atomicJSON(snapshot,{metadataHash:record.metadataHash,manifestHash:'7'.repeat(64),tagSha:record.tagSha,expectationsSha256:release.expectations.sha256,release});
+    const intent=record.services.naeil.verificationIntent.request;
+    intent.release=release;intent.referencePath=release.contract.path;atomicJSON(join(intent.outputDirectory,'input.json'),intent);
+    const historical={...intent,attemptId:'previous-current-verification',outputDirectory:join(previous.oldState,'runs/2/naeil/previous-current-verification')};
+    mkdirSync(historical.outputDirectory,{recursive:true,mode:0o700});atomicJSON(join(historical.outputDirectory,'input.json'),historical);
+    const production={...record.services.naeil.result.production,attemptId:historical.attemptId},artifact=record.services.naeil.result.artifact;
+    record.services.naeil.reverifications=[{request:historical,production}];
+    const proof={schemaVersion:1,kind:'standing-current-naeil-verification',generationSha256:previous.config.generationSha256,pointerSha256:previous.previous.pointerSha256,releaseSha256:releaseIdentityDigest(release),request:historical,artifact,production};
+    mkdirSync(join(previous.oldState,'prerequisites'),{mode:0o700});prerequisite=previous.put('epoch2/prerequisites/naeil-'+fingerprint(proof)+'.json',proof);
+    const service={...previous.config.services.estimate};delete service.command;
+    const attemptId=record.services.estimate.authorizedAttemptId,outputDirectory=join(previous.oldState,'runs/2/estimate',attemptId),adapter=readPrivateJSON(service.adapterOptions.standingConfigPath);
+    const request={...intent,service,adapterOptions:service.adapterOptions,executionPath:previous.config.generation.executionContexts.estimate.executionPath,naeilPrerequisite:prerequisite,candidate:{...readPrivateJSON(adapter.handoff.candidateReceipt.path),receipt:adapter.handoff.candidateReceipt},sourceAdoption:adapter.handoff.sourceAdoption,idempotencyKey:release.releaseId+':estimate',attemptId,outputDirectory};delete request.phase;delete request.referencePath;
+    const result={schemaVersion:1,releaseId:release.releaseId,serviceId:'estimate',idempotencyKey:request.idempotencyKey,attemptId,state:'deferred',mutationAttempted:false,runtimeMutationAttempted:false};
+    mkdirSync(outputDirectory,{recursive:true,mode:0o700});atomicJSON(join(outputDirectory,'input.json'),request);atomicJSON(join(outputDirectory,'output.json'),result);
+    record.history.push({serviceId:'estimate',prior:{state:'deferred',request,result}});
+    unreferenced=join(directory,'unreferenced.json');writeFileSync(unreferenced,'unreferenced',{mode:0o644});
+  },assets);
+  const plan=f.api.planTransition(f.input),old=preservedFiles(f.oldState);
+  await f.api.applyTransition(plan,rebindApproval(plan),f.deps);
+  const refs=readPrivateJSON(plan.old.inventory.path).receipts,paths=[...['archive','siteArchive','contract','account','expectations'].map(kind=>release[kind].path),snapshot,prerequisite.path,join(f.request.outputDirectory,'input.json')];
+  assert.equal(readActiveGeneration(f.controlDirectory).pointer.generationId,'synthetic-rebind');
+  for(const path of paths){assert(refs.some(ref=>ref.path===path));assert.equal(assertEvidencePath(f.config,path),path);}
+  assert(refs.find(ref=>ref.path===release.archive.path).bytes>JSON_LIMITS.evidence);
+  assert(!refs.some(ref=>ref.path===unreferenced));assert.throws(()=>assertEvidencePath(f.config,unreferenced));
+  for(const [path,bytes]of old)assert.deepEqual(readFileSync(path),bytes);
+  for(const change of ['size','digest','symlink','hardlink','mode'])await t.test(change,()=>{
+    const path=release.archive.path,bytes=readFileSync(path),alias=join(f.root,'archive-alias');
+    try {
+      if(change==='size')writeFileSync(path,Buffer.concat([bytes,Buffer.from('x')]));
+      if(change==='digest'){const changed=Buffer.from(bytes);changed[0]^=255;writeFileSync(path,changed);}
+      if(change==='symlink'){writeFileSync(alias,bytes,{mode:0o600});rmSync(path);symlinkSync(alias,path);}
+      if(change==='hardlink')linkSync(path,alias);
+      if(change==='mode')chmodSync(path,0o644);
+      assert.throws(()=>standingEpochInventory(f.oldState));assert.throws(()=>assertEvidencePath(f.config,path));
+    } finally {rmSync(alias,{force:true});rmSync(path,{force:true});writeFileSync(path,bytes,{mode:0o600});}
+  });
+  assert.throws(()=>assertEvidencePath(f.config,f.oldState+'/releases/2/../../../outside.json'),/Canonical|escape/);
 });
 
 test('B rebind refuses every unrelated blocked, uncertain, invoking and runtime-mutated state before import',async t=>{

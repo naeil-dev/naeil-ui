@@ -26,7 +26,7 @@ A는 automation bytes를 바꾸므로 새 operational generation이 필요하다
 | 상태 | 새 epoch 디렉터리에 현재 epoch의 schema2 state/evidence를 byte-exact로 import한다. 이전 epoch는 읽기 전용으로 보존한다. |
 | 이전 journal | 새 plan 디렉터리에 immutable 사본을 남긴 뒤 `transition.json`을 새 journal로 교체한다. 이전 plan/approval/pointer 사슬은 `predecessor` 참조로 검증한다. |
 | 차단 해소 | 허용 범위는 하나뿐이다. naeil의 verify-only 중단(`cached-evidence-reverification-failed`, 이후 poll이 남은 verify `pending-intent.json`을 보고 재분류한 `uncertain`/`interrupted-verification` 포함)이고, Estimate/Jev가 `deferred`/`not-started`(runtime mutation 없음)인 경우다. 기록과 intent는 history에 보존하고 naeil은 fresh 검증을 요구한다. 그 밖의 blocked/uncertain/runtime-mutated 상태는 거부한다. |
-| quiescence | 기존 probe를 그대로 쓴다. STOP 유지, launcher `bootout`으로 label 미등록, ps/lsof/marker 부재, control lock 단일 보유. 완료 후 같은 plist를 bootstrap한다(설치 파일 변경 없음). |
+| quiescence | 기존 probe를 그대로 쓴다. STOP 유지, launcher `disable`과 `bootout`(label 미등록 code 113과 명시적 disabled override 둘 다), ps/lsof/marker 부재, control lock 단일 보유. launcher는 자기 automation root가 active config와 같아야 하고 이전 generation의 reader는 rebind kind를 거부하므로, 완료 후에는 이전 plist를 보존하고 새 automation root를 가리키는 plist를 설치해 bootstrap·enable한다. apply가 완료되지 않았다면 이전 plist만 다시 bootstrap한다. |
 | 승인 | 새 kind `standing-generation-rebind-approval`. 이전 pointer digest, plan digest, release digest, 새 generation, 승인자/근거/기간/revoked를 결합한다. |
 | launcher/reader | `readActiveGeneration`이 continuation과 rebind 두 kind만 허용하고 predecessor 사슬을 검증한다. |
 | timeout | naeil 검증 `timeoutMs`를 40분으로 올려 여유를 둔다. 세션 조건(제한시간+5분 < 토큰 수명)을 지킨다. |
@@ -58,7 +58,7 @@ reader는 continuation 또는 rebind 두 kind만 받고 최대 64개의 predeces
 1. B 구현과 단위 테스트(rebind 정상, 각 거부 사유, interruption/recovery, reader 사슬 검증, 후속 migration 승인). 전체 `test:rollout` PASS.
 2. 독립 Spec/Quality 리뷰.
 3. 새 generation으로 Estimate(실제 12단계·E2E)와 Jev(실제 10단계) 재검증. 이전 v8 결과는 승계하지 않는다.
-4. 정확한 rebind plan·config·packet과 명령/복구 경계를 작성하고 owner 승인(site, rebind, launcher bootout/bootstrap, migration 후속 승인).
+4. 정확한 rebind plan·config·packet과 명령/복구 경계를 작성하고 owner 승인(site, rebind, launcher disable·bootout, 새 plist 설치·bootstrap, migration 후속 승인).
 5. rebind → STOP 유지 poll 확인 → 별도 resume 승인 → naeil → Estimate → Jev.
 
 A2(0.7.3+ 자동 실행)는 계속 Important/unmet/deferred/not waived다. merge·push·npm·외부 알림은 별도 지시 없이 하지 않는다.
