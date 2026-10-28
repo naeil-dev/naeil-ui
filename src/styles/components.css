@@ -621,6 +621,13 @@
   white-space: nowrap;
   transform: translateY(1px);
 }
+@supports (text-box-trim: trim-both) {
+  :root [data-naeil-chrome] .naeil-header-brand-suffix {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    transform: none;
+  }
+}
 
 @keyframes ui-reveal {
   from {

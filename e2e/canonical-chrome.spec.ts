@@ -22,9 +22,9 @@ async function mobile(page: Page, query = "") {
 }
 
 test("P2 Home data, accessible brand and one status outside the link", async ({ page }) => {
-  for (const width of [390, 1440]) {
+  for (const locale of ["ko", "en", "ja"]) for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    await open(page, "profile=home&current=/keys");
+    await open(page, `profile=home&current=/keys&locale=${locale}`);
     await expect(page.locator("[data-app-brand]")).toHaveAccessibleName("Naeil Home");
     await expect(page.getByTestId("readiness")).toHaveCount(1);
     expect(await page.getByTestId("readiness").evaluate(e => !!e.closest("a"))).toBe(false);
@@ -43,7 +43,7 @@ test("P2 Home data, accessible brand and one status outside the link", async ({ 
       const ink = context.measureText("Home");
       return { centerDelta: baseline + (ink.actualBoundingBoxDescent - ink.actualBoundingBoxAscent) / 2 - wordmarkCenter, gap: label.getBoundingClientRect().x - svg.getBoundingClientRect().right, fontSize: css.fontSize };
     });
-    expect(qualifier.fontSize).toBe("14px"); expect(qualifier.gap).toBe(4); expect(Math.abs(qualifier.centerDelta)).toBeLessThanOrEqual(.25);
+    expect(qualifier.fontSize).toBe("14px"); expect(qualifier.gap).toBe(4); expect(Math.abs(qualifier.centerDelta), `${locale}/${width} qualifier ink center`).toBeLessThanOrEqual(.25);
     if (width === 390) await toggle(page).click();
     const scope = width === 390 ? sheet(page) : page.locator("header");
     await expect(scope.getByRole(width === 390 ? "heading" : "button", { name: "AI", exact: true })).toBeVisible();
