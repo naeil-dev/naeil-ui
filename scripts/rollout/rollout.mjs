@@ -31,6 +31,32 @@ export const reviewedMigration = (release, service, policy) => {
     && migration.siteSourceRevision === release.siteSourceRevision && migration.archiveSha256 === release.archive?.sha256 && migration.contractSha256 === release.contract?.sha256 && Array.isArray(migration.changes) && migration.changes.join() === release.changes.join() && migration.services?.includes(service.id));
 };
 
+/** Review-only follow-up record validation. This deliberately grants no native
+ * authority: jev-native.py policy_gate independently requires the unchanged
+ * original reviewedMigration expiry. Enabling renewal needs a reviewed native
+ * protocol change; never synthesize a replacement published migration tuple. */
+export function assertMigrationFollowup(release, previousApproval, record, scope) {
+  const fields=['schemaVersion','kind','previousApprovalSha256','releaseSha256','generationSha256','attempts','services','supersedes','approvedBy','approvalRef','approvedAt','expiresAt','revoked'];
+  assert(record&&!Array.isArray(record)&&Object.keys(record).sort().join(',')===fields.sort().join(','),'Exact migration follow-up fields required');
+  assert(record.schemaVersion===1&&record.kind==='standing-migration-followup-approval'&&record.revoked===false,'Unrevoked migration follow-up approval required');
+  assert.equal(record.previousApprovalSha256,fingerprint(previousApproval),'Previous migration approval digest changed');
+  assert.equal(record.supersedes,record.previousApprovalSha256,'Explicit migration approval supersedes relation required');
+  for(const key of ['releaseId','version','sourceRevision','siteSourceRevision'])assert.equal(previousApproval[key],release[key],'Previous migration release identity changed');
+  assert.equal(previousApproval.archiveSha256,release.archive?.sha256);assert.equal(previousApproval.contractSha256,release.contract?.sha256);assert.deepEqual(previousApproval.changes,release.changes);
+  assert(previousApproval.revoked!==true&&previousApproval.approvedBy?.trim()&&previousApproval.approvalRef?.trim()&&previousApproval.reason?.trim(),'Recorded previous migration approval required');
+  const identity=structuredClone(release);
+  for(const key of ['archive','siteArchive','contract','account','expectations'])if(identity[key])delete identity[key].path;
+  assert.equal(record.releaseSha256,fingerprint(identity),'Follow-up exact release digest changed');
+  assert(HEX.test(record.generationSha256)&&record.generationSha256===scope.generationSha256,'Follow-up generation scope changed');
+  assert.deepEqual(record.attempts,scope.attempts,'Follow-up attempt scope changed');
+  assert.deepEqual(record.services,['naeil','estimate','jev'],'Exact follow-up service scope required');
+  assert.deepEqual(previousApproval.services,record.services,'Previous migration service scope changed');
+  assert(record.attempts&&Object.keys(record.attempts).length>0&&Object.keys(record.attempts).every(id=>record.services.includes(id))&&Object.values(record.attempts).every(value=>typeof value==='string'&&/^[A-Za-z0-9._-]{1,100}$/.test(value)),'Explicit bounded attempt scope required');
+  assert(record.approvedBy?.trim()&&record.approvalRef?.trim()&&Date.parse(record.approvedAt)<=Date.now()&&Date.parse(record.expiresAt)>Date.now()&&Date.parse(record.approvedAt)<Date.parse(record.expiresAt),'Current bounded migration follow-up approval required');
+  assert(Date.parse(record.expiresAt)>Date.parse(previousApproval.expiresAt),'Follow-up expiry must supersede the previous migration window');
+  return record;
+}
+
 export function validateRelease(release) {
   assert.equal(release.schemaVersion, 1, 'Unsupported release schema');
   assert.match(release.releaseId, ID, 'Invalid release id');

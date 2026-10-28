@@ -10,7 +10,10 @@ import { syncBuiltinESMExports } from 'node:module';
 import { assertConfigReferences, fingerprint } from './standing-config.mjs';
 import { assertGenerationExecution, assertGenerationVerification } from './standing-config.mjs';
 import { atomicJSON, fileReference, routeKey } from './standing-config.mjs';
-import { resolveSiteTarget } from './site-continuation.mjs';
+import { resolveSiteTarget, validateSiteReadOnly } from './site-continuation.mjs';
+import { automationDigest } from './standing-config.mjs';
+import { runtimeIndex } from './package-runtime.mjs';
+import { syntheticArchive } from './fixtures/release.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 
 const credentials = ['GH_TOKEN', 'GITHUB_TOKEN', 'NAEIL_STANDING_VERCEL_TOKEN'];
@@ -150,4 +153,50 @@ for(const cause of ['standalone','standalone-phase','unfenced','foreign-control'
  else if(cause==='target')nested.siteTarget={...resolveSiteTarget(nested.release),sourceRevision:'f'.repeat(40)};
  else if(!['standalone','unfenced'].includes(cause))delete nested[cause];
  assert.throws(()=>assertGenerationExecution(f.bind(proof)));
+});
+
+test('trusted-file digest cache reuses unchanged bytes and rehashes after any change', () => {
+ const root = realpathSync(mkdtempSync(join(tmpdir(), 'naeil-digest-cache-'))), file = join(root, 'tool');
+ const read = fs.readFileSync; let reads = 0;
+ fs.readFileSync = (path, ...args) => { if (path === file) reads++; return read(path, ...args); };
+ syncBuiltinESMExports();
+ try {
+  writeFileSync(file, 'one', { mode: 0o600 });
+  const pins = { [file]: hash('one') };
+  assertTrustedFiles(pins); assert.equal(reads, 1);
+  assertTrustedFiles(pins); assert.equal(reads, 1, 'Unchanged metadata must reuse the cached digest');
+  writeFileSync(file, 'two');
+  assert.throws(() => assertTrustedFiles(pins), /bytes changed/); assert.equal(reads, 2);
+  writeFileSync(file, 'one');
+  assertTrustedFiles(pins); assert.equal(reads, 3);
+  fs.chmodSync(file, 0o700);
+  assertTrustedFiles(pins); assert.equal(reads, 4, 'chmod must re-read even when bytes are unchanged');
+  writeFileSync(join(root, 'swap'), 'one', { mode: 0o700 }); fs.renameSync(join(root, 'swap'), file);
+  assertTrustedFiles(pins); assert.equal(reads, 5, 'rename must re-read even when bytes are unchanged');
+ } finally { fs.readFileSync = read; syncBuiltinESMExports(); rmSync(root, { recursive: true, force: true }); }
+});
+
+test('B site-continuation uses the configured 40-minute deadline instead of the 20-minute default',async t=>{
+ for(const elapsed of [25*60_000,2400001])await t.test(String(elapsed),async st=>{
+  const root=realpathSync(mkdtempSync(join(tmpdir(),'site-configured-deadline-')));fs.chmodSync(root,0o700);st.after(()=>rmSync(root,{recursive:true,force:true}));
+  for(const name of ['inputs','evidence','session'])mkdirSync(join(root,name),{mode:0o700});
+  const put=(name,value)=>{const path=join(root,name);atomicJSON(path,value);return fileReference(path);};
+  const tar=syntheticArchive('0.7.2'),persist=name=>{const path=join(root,'inputs',name);writeFileSync(path,tar,{mode:0o600});return{path,sha256:hash(tar)};};
+  const release={schemaVersion:1,releaseId:'synthetic-0.7.2',version:'0.7.2',previousVersion:'0.7.1',sourceRevision:'a'.repeat(40),siteSourceRevision:'b'.repeat(40),siteRuntimeSha256:hash(JSON.stringify(runtimeIndex(tar))),archive:persist('package.tgz'),siteArchive:persist('site.tgz'),contract:{version:'1',...put('inputs/chrome.json',{})},account:put('inputs/account.json',{})};
+  release.expectations=put('inputs/expectations.json',declaration(release));
+  const service={id:'naeil',appId:'naeil',origin:'https://naeil.dev',routes:[{path:'/en',locale:'en',policy:'shared',renderState:{access:'public'}},{path:'/en/account',locale:'en',policy:'shared',renderState:{access:'protected',visible:'[data-synthetic]'}}],observer:{workflowPath:'.github/workflows/verify.yml',environment:'Production',deploymentCreator:'vercel[bot]',correlation:'immutable-url'},verification:{command:{file:realpathSync(process.execPath),args:['never-spawned'],timeoutMs:2400000}}};
+  const identity={schemaVersion:1,appId:'naeil',artifactId:'dpl_Synthetic',sourceRevision:release.siteSourceRevision,ui:{version:'0.7.2',contractVersion:'1'}},request={schemaVersion:1,kind:'standing-site-read-only',release,service,idempotencyKey:'synthetic:site-read-only',attemptId:'configured-timeout',expectedIdentity:identity,outputDirectory:join(root,'evidence/configured-timeout'),referencePath:release.contract.path,maxEvidenceAgeSeconds:300};
+  const session={supabaseUrl:'https://synthetic.supabase.co',anonKey:'synthetic-public',userId:'synthetic-user',stateFile:join(root,'session/cache.json')};put('session/cache.json',{user:{id:session.userId},refresh_token:'synthetic-fixture-only'});
+  const config={schemaVersion:1,evidenceRoot:join(root,'evidence'),session,services:{naeil:service}},node=realpathSync(process.execPath),automationRoot=realpathSync(new URL('../..',import.meta.url).pathname);
+  const authorization=put('inputs/approval.json',{schemaVersion:1,kind:'standing-site-read-only-approval',input:put('inputs/request.json',request),verificationConfig:put('inputs/config.json',config),workspaceDirectory:root,automation:{root:automationRoot,sha256:automationDigest(automationRoot)},trustedFiles:{[node]:hash(readFileSync(node))},approvedBy:'synthetic-owner',approvalRef:'synthetic://deadline',approvedAt:'2020-01-01',expiresAt:'2099-01-01',revoked:false});
+  const started=Date.now();let clock=started;st.mock.method(Date,'now',()=>clock);
+  const github={mainAncestor:async()=>{},workflow:async()=>({state:'success',id:10}),pages:async path=>path.endsWith('/statuses')?[{id:12,state:'success',created_at:new Date(clock).toISOString(),creator:{login:'vercel[bot]'},environment_url:'https://synthetic.vercel.app'}]:[{id:11,sha:identity.sourceRevision,environment:'Production',creator:{login:'vercel[bot]'}}]};
+  const verify=async(input,_config,hooks)=>{
+   clock=started+elapsed;hooks.beforeAction();
+   return {schemaVersion:1,passed:true,releaseId:release.releaseId,serviceId:'naeil',idempotencyKey:request.idempotencyKey,attemptId:request.attemptId,phase:'site-read-only',identity,checkedAt:new Date(clock).toISOString(),archiveSha256:release.archive.sha256,referenceSha256:release.contract.sha256,accountReferenceSha256:release.account.sha256,expectationsSha256:release.expectations.sha256,siteTargetSha256:fingerprint(input.siteTarget),routes:service.routes.map(route=>({path:route.path,routeKey:routeKey(route),passed:true}))};
+  };
+  const run=()=>validateSiteReadOnly(request,{authorization,github,fetchImpl:async()=>Response.json(identity),verify});
+  if(elapsed<service.verification.command.timeoutMs)assert.equal((await run()).state,'production-verified');
+  else await assert.rejects(run,/deadline expired/);
+ });
 });

@@ -5,8 +5,8 @@ import { closeSync, fsyncSync, lstatSync, openSync, readFileSync, readdirSync, r
 import { homedir } from 'node:os';
 import { isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
-import { acquireControlLock, assertConfigReferences, assertGenerationFence, assertTrustedFiles, atomicJSON, fileReference, fingerprint, generationDigest, hash, HEX, IDS, JSON_LIMITS, operationalGenerationDigest, pathExists, privateDirectory, readActiveGeneration, readExactReference, readPrivateBytes, readPrivateJSON, releaseIdentityDigest, serializeJSON, syncDirectory, validateConfig } from './standing-config.mjs';
-import { importLegacyState, parseStandingJSON, readStandingEvidence, readStandingState, validateCompletedImport, writeStandingState } from './standing-state.mjs';
+import { acquireControlLock, assertConfigReferences, assertGenerationFence, assertTrustedFiles, atomicJSON, fileReference, fingerprint, generationDigest, hash, HEX, IDS, JSON_LIMITS, operationalGenerationDigest, pathExists, privateDirectory, readActiveGeneration, readExactReference, readPrivateBytes, readPrivateJSON, readRebindPredecessor, releaseIdentityDigest, serializeJSON, syncDirectory, validateConfig } from './standing-config.mjs';
+import { hasReboundStandingState, importLegacyState, importStandingEpoch, parseStandingJSON, readStandingEvidence, readStandingState, validateCompletedImport, validateStandingEpochImport, validateStandingEpochSource, writeReboundStandingState, writeStandingState } from './standing-state.mjs';
 import { assertServiceResult } from './standing-dispatcher.mjs';
 import { checkSiteProvenance, publicIdentity } from './naeil-standing-observer.mjs';
 import { resolveSiteTarget } from './site-continuation.mjs';
@@ -19,14 +19,26 @@ const canonical = path => typeof path === 'string' && isAbsolute(path) && resolv
 const exec = promisify(execFile);
 const PHASES = ['prepared','imported','continuation-intent','validated','cutover-intent','cutover','completed'];
 const snapshotJSON = ref => parseStandingJSON(readExactReference(ref, JSON_LIMITS.offlineLegacy));
+const isRebind = plan => plan.kind === 'standing-generation-rebind';
+const importInputFor = plan => ({sourcePath:plan.old.snapshot.path,expectedSha256:plan.old.snapshot.sha256,destination:plan.next.stateDirectory,epochId:plan.next.epochId,evidenceRoot:plan.old.evidenceRoot,...(isRebind(plan)?{inventory:plan.old.inventory,pendingIntent:plan.old.pendingIntent}:{})});
 function validateInput(input) {
-  exact(input, ['schemaVersion','kind','controlDirectory','stopFile','oldPointer','old','next','release','previousApprovalSha256','sourceHandoffs','estimate','predecessors','nativeEvidence','quiescence']);
-  assert(input.schemaVersion === 1 && input.kind === 'standing-0.7.2-continuation', 'Only explicit0.7.2 continuation is supported');
+  const rebind=isRebind(input);
+  exact(input, ['schemaVersion','kind','controlDirectory','stopFile','oldPointer','old','next','release','previousApprovalSha256','sourceHandoffs','estimate','predecessors','nativeEvidence','quiescence',...(rebind?['predecessor']:[])]);
+  assert(input.schemaVersion === 1 && (rebind||input.kind === 'standing-0.7.2-continuation'), 'Only explicit0.7.2 continuation or rebind is supported');
   assert(input.release.version === '0.7.2' && input.release.previousVersion === '0.7.1' && input.release.contract.version === '1', 'Exact published0.7.2 contract1 release required');
   for (const path of [input.controlDirectory,input.stopFile,input.old.stateDirectory,input.old.evidenceRoot,input.next.stateDirectory]) assert(canonical(path), 'Canonical transition path required');
   assert(input.controlDirectory !== input.old.stateDirectory && input.controlDirectory !== input.next.stateDirectory && !input.controlDirectory.startsWith(input.old.stateDirectory + '/') && !input.controlDirectory.startsWith(input.next.stateDirectory + '/'), 'Control directory must be outside both epochs');
   assert(input.next.stateDirectory !== input.old.stateDirectory && !input.next.stateDirectory.startsWith(input.old.stateDirectory + '/') && !input.old.stateDirectory.startsWith(input.next.stateDirectory + '/'), 'Fresh separate state epoch required');
-  exact(input.old, ['generationId','automationSha256','config','stateDirectory','snapshot','evidenceRoot']);
+  exact(input.old, ['generationId','automationSha256','config','stateDirectory','snapshot','evidenceRoot',...(rebind?['inventory','pendingIntent']:[])]);
+  if(rebind) {
+    exact(input.predecessor,['pointer','journal','plan','approval']);
+    assert(input.oldPointer&&input.oldPointer.stateDirectory===input.old.stateDirectory,'Current completed predecessor pointer required');
+    assert.notEqual(input.next.epochId,input.oldPointer.epochId,'Rebind requires a distinct predecessor/successor epoch ID');
+    assert.equal(input.predecessor.pointer.path,join(input.controlDirectory,'active.json'));
+    assert.equal(input.predecessor.journal.path,join(input.controlDirectory,'transition.json'));
+    assert(input.quiescence.absentPaths.includes(join(input.next.stateDirectory,'dispatcher.lock'))&&input.quiescence.absentPaths.includes(join(input.next.stateDirectory,'pending-intent.json')),'New epoch lock/intent fences required');
+    assert(!input.quiescence.absentPaths.includes(join(input.old.stateDirectory,'pending-intent.json'))||input.old.pendingIntent===null,'Retained verify intent cannot be an absent-path probe');
+  }
   exact(input.next, ['generationId','generationSha256','config','configReferencesSha256','stateDirectory','epochId']);
   for (const value of [input.previousApprovalSha256,input.old.automationSha256,input.next.generationSha256,input.next.configReferencesSha256]) assert(HEX.test(value), 'Exact transition identities required');
   assert(input.old.generationId !== input.next.generationId && /^[A-Za-z0-9_-]{1,100}$/.test(input.next.generationId) && /^[A-Za-z0-9_-]{1,100}$/.test(input.next.epochId), 'New exact generation/epoch required');
@@ -48,6 +60,7 @@ export function planTransition(input) {
   validateInput(input);
   const value = structuredClone(input);
   const changes = { oldGeneration: value.old.generationId, newGeneration: value.next.generationId, oldAutomationSha256: value.old.automationSha256, newGenerationSha256: value.next.generationSha256, oldConfig: value.old.config, newConfig: value.next.config, importedSnapshot: value.old.snapshot, sourceHandoffs: value.sourceHandoffs, priorEstimateAttemptId: value.estimate.priorAttemptId, newEstimateAttemptId: value.estimate.newAttemptId, preserveBinding: true, preserveHistoricalNaeil: true, freshNaeilRequired: true, jevUnstarted: true, nativeLedgerWrites: false, stopRemains: true };
+  if(isRebind(value))Object.assign(changes,{predecessor:value.predecessor,preserveSchema2Bytes:true,resolveOnlyNaeilVerification:true});
   const plan = { ...value, changes }; return { ...plan, planSha256: fingerprint(plan) };
 }
 
@@ -56,6 +69,12 @@ function assertPlan(plan) {
   assert.deepEqual(planTransition(input), plan, 'Exact transition plan/digest changed'); assert(HEX.test(planSha256)); return input;
 }
 function assertApproval(plan, approval) {
+  if(isRebind(plan)) {
+    exact(approval,['schemaVersion','kind','previousPointerSha256','planSha256','releaseSha256','generationSha256','approvedBy','approvalRef','approvedAt','expiresAt','revoked']);
+    assert(approval.schemaVersion===1&&approval.kind==='standing-generation-rebind-approval'&&approval.revoked===false,'Recorded exact rebind authorization required');
+    for(const [key,value]of Object.entries({previousPointerSha256:plan.predecessor.pointer.sha256,planSha256:plan.planSha256,releaseSha256:releaseIdentityDigest(plan.release),generationSha256:plan.next.generationSha256}))assert.equal(approval[key],value,'Rebind authorization identity mismatch: '+key);
+    assert(approval.approvedBy?.trim()&&approval.approvalRef?.trim()&&Date.parse(approval.approvedAt)<=Date.now()&&Date.parse(approval.expiresAt)>Date.now()&&Date.parse(approval.approvedAt)<Date.parse(approval.expiresAt),'Current bounded unrevoked rebind approval required');return;
+  }
   exact(approval, ['schemaVersion','kind','action','planSha256','previousApprovalSha256','releaseSha256','generationSha256','priorAttemptId','attemptId','successorOf','approvedBy','approvalRef','approvedAt','expiresAt','revoked']);
   assert(approval.schemaVersion === 1 && approval.kind === 'standing-continuation-approval' && approval.action === 'continue-0.7.2-after-source-gate-failure' && approval.revoked === false, 'Recorded exact continuation authorization required');
   for (const [key,value] of Object.entries({ planSha256: plan.planSha256, previousApprovalSha256: plan.previousApprovalSha256, successorOf: plan.previousApprovalSha256, releaseSha256: releaseIdentityDigest(plan.release), generationSha256: plan.next.generationSha256, priorAttemptId: plan.estimate.priorAttemptId, attemptId: plan.estimate.newAttemptId })) assert.equal(approval[key], value, 'Continuation authorization identity mismatch: ' + key);
@@ -157,6 +176,7 @@ function assertHistoricalNaeil(service,release) {
   assert.deepEqual(production.identity,{schemaVersion:1,appId:request.service.appId,artifactId:artifact.id,sourceRevision:artifact.sourceRevision,ui:artifact.ui},'Historical naeil identity mismatch');
 }
 function originalState(plan, ledgerRef = plan.estimate.ledger) {
+  if(isRebind(plan))return rebindState(plan,ledgerRef);
   assert.equal(hash(readPrivateBytes(join(plan.old.stateDirectory,'state.json'),JSON_LIMITS.offlineLegacy)),plan.old.snapshot.sha256,'Live legacy state differs from pinned snapshot');
   const state = snapshotJSON(plan.old.snapshot), record = Object.values(state.releases || {}).find(record=>record.releaseId === plan.release.releaseId);
   assert(state.schemaVersion === 1 && state.repository === 'naeil-dev/naeil-ui' && state.currentVersion === '0.7.1' && record?.version === '0.7.2' && HEX.test(record.binding), 'Exact blocked0.7.2 legacy snapshot required');
@@ -177,6 +197,57 @@ function originalState(plan, ledgerRef = plan.estimate.ledger) {
   for(const release of Object.values(state.releases))for(const service of Object.values(release.services || {}))assert(!['invoking','uncertain','activation-pending'].includes(service.state)&&!service.verificationIntent,'Uncertain/nonterminal legacy work prohibits transition');
   const ledger=JSON.parse(readExactReference(ledgerRef));
   assert(ledger.attemptId === plan.estimate.priorAttemptId && ledger.idempotencyKey === plan.estimate.idempotencyKey && ledger.state === 'gate-failed' && ledger.mutationAttempted === true && ledger.runtimeMutationAttempted === false,'Uncertain/native-mutated/unbound Estimate ledger prohibits continuation');
+  return {state,record};
+}
+function rebindPredecessor(plan) {
+  const retained=Object.keys(plan.predecessor).every(name=>pathExists(join(plan.controlDirectory,'transitions',plan.planSha256,'predecessor-'+name+'.json')));
+  return readRebindPredecessor(plan,retained);
+}
+function rebindState(plan,ledgerRef) {
+  validateStandingEpochSource(importInputFor(plan));
+  const previous=rebindPredecessor(plan),state=readStandingState(plan.old.stateDirectory),records=Object.values(state.releases).filter(record=>record.releaseId===plan.release.releaseId),record=records[0];
+  assert(state.repository==='naeil-dev/naeil-ui'&&state.currentVersion==='0.7.1'&&records.length===1&&record.version==='0.7.2'&&HEX.test(record.binding),'Exact incomplete schema2 release required for rebind');
+  const blocked=state.blocked;
+  assert(blocked?.releaseId===plan.release.releaseId&&blocked.serviceId==='naeil'&&['cached-evidence-reverification-failed','interrupted-verification'].includes(blocked.reasonCode),'Only blocked naeil verify-only interruption may rebind');
+  assert(['blocked','uncertain','stopped'].includes(record.state),'Only the stopped/blocked verify-only release may rebind');
+  const continuation=record.generationContinuation,naeil=record.services?.naeil;
+  assert(continuation?.planSha256===previous.plan.planSha256&&continuation.authorizationSha256===fingerprint(previous.approval)&&continuation.generationSha256===previous.pointer.generationSha256&&continuation.originalBinding===record.binding&&continuation.releaseSha256===releaseIdentityDigest(plan.release),'Predecessor release provenance changed');
+  assertHistoricalNaeil(naeil,plan.release);
+  const provenance=naeil.continuation;
+  assert(provenance?.planSha256===previous.plan.planSha256&&provenance.authorizationSha256===fingerprint(previous.approval)&&provenance.generationSha256===previous.pointer.generationSha256&&provenance.requiresFreshVerification===true&&provenance.historicalRequestSha256===fingerprint(naeil.request)&&provenance.historicalResultSha256===fingerprint(naeil.result),'Predecessor naeil provenance changed');
+  const intent=naeil.verificationIntent,marker=state.storageIntents;
+  assert(plan.old.pendingIntent&&intent?.state==='invoking'&&intent.request?.service.id==='naeil'&&intent.request.mode==='standing'&&intent.request.phase==='production'&&!intent.request.kind&&!intent.request.reverification,'Retained read-only naeil verification intent required');
+  const request=intent.request;
+  assert.equal(request.generationSha256,previous.pointer.generationSha256,'Verification intent generation changed');
+  assert.deepEqual(request.generationFence,{controlDirectory:plan.controlDirectory,pointerSha256:plan.predecessor.pointer.sha256},'Verification intent pointer changed');
+  assert.equal(releaseIdentityDigest(request.release),releaseIdentityDigest(plan.release),'Verification intent release changed');
+  assert.equal(request.idempotencyKey,plan.release.releaseId+':naeil');
+  assert.notEqual(request.attemptId,naeil.request.attemptId,'Fresh read-only attempt required');
+  const oldConfig=JSON.parse(readExactReference(plan.old.config)),oldService={...oldConfig.services.naeil};delete oldService.command;
+  assert.deepEqual(request.service,oldService,'Verification intent service differs from the predecessor config');
+  for(const key of ['policy','trustedFiles','executionPath','configReferences','configReferencesSha256'])assert.deepEqual(request[key],oldConfig[key],'Verification intent authority changed: '+key);
+  assert(!intent.mutationAttempted&&!intent.runtimeMutationAttempted&&!naeil.runtimeMutationAttempted&&!naeil.result.runtimeMutationAttempted,'Only read-only verification may rebind');
+  assert.deepEqual(marker,{schemaVersion:1,intents:[{releaseId:plan.release.releaseId,serviceId:'naeil',kind:'verify',attemptId:request.attemptId,requestSha256:hash(serializeJSON(request))}]},'Only one exactly bound naeil verify pending intent may rebind');
+  const estimate=record.services.estimate,jev=record.services.jev;
+  assert(estimate?.state==='deferred'&&(!jev||jev.state==='not-started'&&!jev.request&&!jev.result&&!jev.mutationAttempted&&!jev.runtimeMutationAttempted),'Estimate must be deferred and Jev not-started without runtime mutation');
+  assert(!estimate.verificationIntent&&!estimate.mutationAttempted&&!estimate.runtimeMutationAttempted&&!estimate.result?.runtimeMutationAttempted&&!estimate.result?.mutationAttempted,'Runtime-mutated Estimate cannot rebind');
+  if(estimate.request){assert.equal(estimate.request.service.id,'estimate');assert.equal(estimate.request.generationSha256,previous.pointer.generationSha256);assert.deepEqual(estimate.request.generationFence,request.generationFence);assertServiceResult(estimate.result,estimate.request,{allowExpired:true});assert.equal(estimate.result.state,'deferred');assert.equal(estimate.result.runtimeMutationAttempted,false,'Proven non-mutating Estimate deferral required');}
+  else assert(!estimate.result,'Unbound Estimate result cannot rebind');
+  assert.equal(estimate.authorizedAttemptId||estimate.request?.attemptId,previous.plan.estimate.newAttemptId,'Deferred Estimate attempt changed');
+  assert.notEqual(plan.estimate.newAttemptId,previous.plan.estimate.newAttemptId,'Rebind requires a distinct unused Estimate attempt');
+  const ledger=JSON.parse(readExactReference(ledgerRef));
+  assert(ledger.idempotencyKey===plan.estimate.idempotencyKey&&ledger.attemptId===plan.estimate.priorAttemptId&&ledger.runtimeMutationAttempted===false&&(ledger.state==='gate-failed'&&ledger.mutationAttempted===true||ledger.state==='deferred'&&ledger.mutationAttempted===false),'Uncertain/runtime-mutated Estimate ledger prohibits rebind');
+  assert.equal(plan.estimate.priorAttemptId,estimate.request?.attemptId||previous.plan.estimate.priorAttemptId,'Exact retained Estimate predecessor attempt required');
+  for(const entry of record.history||[])if(['estimate','jev'].includes(entry.serviceId))assert(!entry.prior?.runtimeMutationAttempted&&!entry.prior?.result?.runtimeMutationAttempted&&!['invoking','uncertain','activation-pending'].includes(entry.prior?.state),'Native runtime-mutated/uncertain history requires explicit reconciliation');
+  for(const other of Object.values(state.releases)) {
+    assert(other===record||!['uncertain','invoking','running','blocked','activation-pending'].includes(other.state),'Other nonterminal release prohibits rebind');
+    for(const [id,service]of Object.entries(other.services||{})) {
+    assert(IDS.includes(id),'Unknown service work prohibits rebind');
+    assert(!['invoking','uncertain','activation-pending'].includes(service.state),'Invoking/uncertain non-verify work prohibits rebind');
+    assert(!service.verificationIntent||(other===record&&id==='naeil'),'Other verification work prohibits rebind');
+    assert(!service.reverificationAttempts?.some(attempt=>attempt.state==='invoking'),'Unbound invoking verification history prohibits rebind');
+    }
+  }
   return {state,record};
 }
 const sortedJSON = value => JSON.stringify(value, (_key, entry) => entry && typeof entry === 'object' && !Array.isArray(entry) ? Object.fromEntries(Object.keys(entry).sort().map(key => [key,entry[key]])) : entry);
@@ -265,7 +336,7 @@ function transitionContext(plan, approval, dependencies) {
   assert(config.enabled===true&&config.policy.enabled===true&&Date.parse(config.policy.expiresAt)>Date.now(),'Current standing execution authorization required');
   for(const id of IDS)assert(reviewedMigration(plan.release,{id},config.policy),'Original exact reviewedMigration expired or changed; continuation cannot extend authorization');
   const window=config.policy.patchWindow;assert(Date.parse(window.startsAt)<=Date.now()&&Date.parse(window.expiresAt)>Date.now()&&Number(window.minVersion.split('.')[2])<=2&&Number(window.maxVersion.split('.')[2])>=2,'Current exact patch window required');
-  assert.equal(oldConfig.automation.sha256,plan.old.automationSha256,'Old automation identity changed'); assertTrustedFiles(oldConfig.trustedFiles);
+  assert.equal(oldConfig.automation.sha256,plan.old.automationSha256,'Old automation identity changed'); if(!isRebind(plan))assertTrustedFiles(oldConfig.trustedFiles);
   assert.equal(config.generationSha256,plan.next.generationSha256); assert.equal(operationalGenerationDigest(config.generation),plan.next.generationSha256);
   assert.equal(config.stateDirectory,plan.next.stateDirectory); assert.deepEqual(config.generationControl,{controlDirectory:plan.controlDirectory,generationId:plan.next.generationId,epochId:plan.next.epochId});
   assert.equal(config.configReferencesSha256,plan.next.configReferencesSha256); assertConfigReferences(config.configReferences,plan.next.configReferencesSha256);
@@ -284,9 +355,13 @@ function transitionContext(plan, approval, dependencies) {
   const requiredRoots=[plan.old.stateDirectory,estimate.stateDirectory,estimate.activation?.stateDirectory,jev.stateDirectory,join(jev.native?.baseDirectory || '', 'releases')];
   assert(requiredRoots.every(path=>canonical(path)&&plan.quiescence.stateRoots.includes(path)),'Native/dispatcher state roots cannot be omitted from OS proof');
   const absent=[join(plan.old.stateDirectory,'dispatcher.lock'),join(plan.old.stateDirectory,'pending-intent.json'),join(estimate.stateDirectory,'running.lock'),join(estimate.activation.stateDirectory,'operation.json'),join(jev.stateDirectory,'running.lock')];
-  assert(absent.every(path=>plan.quiescence.absentPaths.includes(path)),'Native lock/marker fence inventory cannot be omitted');
+  assert(absent.filter(path=>!isRebind(plan)||path!==join(plan.old.stateDirectory,'pending-intent.json')).every(path=>plan.quiescence.absentPaths.includes(path)),'Native lock/marker fence inventory cannot be omitted');
   assert.equal(plan.estimate.ledger.path,join(estimate.stateDirectory,'keys',hash(plan.estimate.idempotencyKey)+'.json'),'Exact native Estimate ledger path required');
   return {config,adapters};
+}
+function quiescencePlan(plan) {
+  if(!isRebind(plan)||!pathExists(plan.next.stateDirectory))return plan;
+  return {...plan,quiescence:{...plan.quiescence,stateRoots:[...new Set([...plan.quiescence.stateRoots,plan.next.stateDirectory])]}};
 }
 async function observeIdentities(plan,config,identities,dependencies,assertAuthority) {
   for(const id of IDS) {
@@ -307,8 +382,9 @@ async function prerequisites(plan, approval, dependencies, assertAuthority = () 
   assertAuthority();
   const {config,adapters}=transitionContext(plan,approval,dependencies),original=originalState(plan);
   validateNativeEvidence(plan,config,adapters,original);
+  if(isRebind(plan))validateEstimateInventory(plan,adapters.estimate,original,JSON.parse(readExactReference(plan.nativeEvidence.estimate.baseline)),{ledger:plan.estimate.ledger},original.record.services.estimate);
   await observeIdentities(plan,config,plan.predecessors,dependencies,assertAuthority);assertAuthority();
-  const proof=await probeQuiescence(plan,dependencies,assertAuthority,retainRaw);assertAuthority();
+  const proof=await probeQuiescence(quiescencePlan(plan),dependencies,assertAuthority,retainRaw);assertAuthority();
   return {config,...original,proof};
 }
 
@@ -379,6 +455,7 @@ function validateEstimateInventory(plan,adapter,original,baseline,current,servic
 // Completed-generation archival is an observation of exact terminal evidence.
 // It cannot run transition phases, replay a child, or repair a native record.
 function completedArchiveState(plan,approval,journal,current,config,adapters) {
+  if(isRebind(plan))return completedRebindArchiveState(plan,approval,journal,current,config,adapters);
   exact(current,['state','binding','validatedRoot','history','estimate','jev']);
   exact(current.history,['estimateLedger','estimateBaseline','jevBaseline']);
   exact(current.estimate,['baseline','ledger','priorLedger','result','dispatches']);
@@ -457,6 +534,27 @@ function completedArchiveState(plan,approval,journal,current,config,adapters) {
   return identities;
 }
 
+function completedRebindArchiveState(plan,approval,journal,current,config,adapters) {
+  exact(current,['state','binding','validatedRoot']);
+  const directory=join(plan.controlDirectory,'transitions',plan.planSha256),original=originalState(plan),active=readActiveGeneration(plan.controlDirectory);
+  assert.deepEqual(active.plan,plan);assert.deepEqual(active.approval,approval);
+  assert.equal(current.state.path,join(plan.next.stateDirectory,'state.json'));readExactReference(current.state,JSON_LIMITS.controlIndex);
+  assert.equal(current.binding.path,join(plan.next.stateDirectory,'generation-binding.json'));
+  assert.deepEqual(JSON.parse(readExactReference(current.binding)),{schemaVersion:1,controlDirectory:plan.controlDirectory,generationSha256:plan.next.generationSha256,epochId:plan.next.epochId});
+  assert.equal(current.validatedRoot.path,join(directory,'validated-root.json'));sameRetainedBytes(current.validatedRoot,journal.validatedState);
+  validateStandingEpochImport(importInputFor(plan));
+  const state=readStandingState(plan.next.stateDirectory),record=Object.values(state.releases).find(record=>record.releaseId===plan.release.releaseId);
+  assert(!state.blocked&&!state.storageIntents,'Completed rebind native/verification progress requires explicit reconciliation');
+  assert.equal(record?.generationContinuation?.planSha256,plan.planSha256);assert.equal(record.generationContinuation.authorizationSha256,fingerprint(approval));
+  assert.deepEqual(record.services.naeil.request,original.record.services.naeil.request);assert.deepEqual(record.services.naeil.result,original.record.services.naeil.result);
+  assert(record.services.naeil.continuation.requiresFreshVerification&&!record.services.naeil.verificationIntent,'Pending rebind verification requires reconciliation');
+  assert(record.services.estimate.state==='deferred'&&!record.services.estimate.request&&record.services.estimate.authorizedAttemptId===plan.estimate.newAttemptId&&!record.services.jev?.request,'Completed rebind native progress requires explicit reconciliation');
+  for(const release of Object.values(state.releases))for(const service of Object.values(release.services||{}))assert(!['invoking','uncertain','activation-pending'].includes(service.state)&&!service.verificationIntent,'Nonterminal rebind work requires reconciliation');
+  validateNativeEvidence(plan,config,adapters,original);
+  validateEstimateInventory(plan,adapters.estimate,original,JSON.parse(readExactReference(plan.nativeEvidence.estimate.baseline)),{ledger:plan.estimate.ledger},record.services.estimate);
+  return plan.predecessors;
+}
+
 /** Explicit evidence-preserving prerequisite after real process death. This
  * never runs implicitly in apply/recover/launcher and never guesses stale age. */
 export async function archiveTransitionLock(plan,approval,authorization,dependencies={}) {
@@ -480,6 +578,12 @@ export async function archiveTransitionLock(plan,approval,authorization,dependen
       assert(!pathExists(plan.next.stateDirectory)||privateDirectory(plan.next.stateDirectory)&&readdirSync(plan.next.stateDirectory).length===0,'Conflicting successor epoch requires reconciliation');
     } else {
       assert.equal(authorization.journal.path,journalPath);journal=parseStandingJSON(readExactReference(authorization.journal,JSON_LIMITS.controlIndex));
+      if(isRebind(plan)&&journal.phase==='completed'&&journal.planSha256===plan.oldPointer.transitionPlanSha256) {
+        readRebindPredecessor(plan);assert.equal(authorization.current,null,'Prejournal rebind cannot claim successor evidence');
+        assert.deepEqual(pointerNow(plan.controlDirectory),plan.oldPointer,'Prejournal rebind pointer changed');
+        assert(!pathExists(plan.next.stateDirectory)||privateDirectory(plan.next.stateDirectory)&&readdirSync(plan.next.stateDirectory).length===0,'Conflicting successor epoch requires reconciliation');
+        journal=null;
+      } else {
       exact(journal,['schemaVersion','planSha256','approvalSha256','plan','approval','oldPointer','newPointer','phase','imported','validatedState','proof']);
       assert(journal.schemaVersion===1&&journal.planSha256===plan.planSha256&&journal.approvalSha256===fingerprint(approval)&&PHASES.includes(journal.phase),'Exact transition journal required');
       const directory=join(plan.controlDirectory,'transitions',plan.planSha256);
@@ -490,6 +594,7 @@ export async function archiveTransitionLock(plan,approval,authorization,dependen
       assert((fingerprint(pointer)===fingerprint(plan.oldPointer)&&journal.phase!=='completed')||(['cutover-intent','cutover','completed'].includes(journal.phase)&&fingerprint(pointer)===fingerprint(journal.newPointer)),'Journal/pointer phase mismatch');
       assert(journal.proof?.path?.startsWith(directory+'/proof-'),'Bound retained transition proof required');readExactReference(journal.proof,JSON_LIMITS.controlIndex);
       if(journal.phase!=='completed')assert.equal(authorization.current,null,'Incomplete transition cannot claim active terminal state');
+      }
     }
     if(lock.acquisition.kind==='standing-transition-acquisition') {
       exact(lock.acquisition,['kind','plan','approval']);assert.deepEqual(lock.acquisition,{kind:'standing-transition-acquisition',plan,approval},'Control acquisition plan/approval changed');
@@ -566,8 +671,11 @@ async function apply(plan,approval,recovery,dependencies) {
     if(recovery) {
       assertRecoveryApproval(plan,approval,recoveryAuthority);
       assert.equal(recovery.journal.path,journalPath); readExactReference(recovery.journal,JSON_LIMITS.controlIndex);
-      assert(journal&&journal.phase===recovery.phase&&journal.phase!=='completed','Exact incomplete recovery phase required');
+      assert(journal&&journal.phase===recovery.phase&&(journal.phase!=='completed'||isRebind(plan)&&journal.planSha256===plan.oldPointer.transitionPlanSha256),'Exact incomplete recovery phase required');
       assert.equal(pathExists(join(plan.controlDirectory,'active.json'))?fileReference(join(plan.controlDirectory,'active.json')).sha256:null,recovery.pointerSha256,'Recovery pointer changed');
+      if(journal.phase==='completed'){readRebindPredecessor(plan);journal=null;}
+    } else if(isRebind(plan)&&journal?.phase==='completed') {
+      readRebindPredecessor(plan);assert.deepEqual(pointerNow(plan.controlDirectory),plan.oldPointer,'Rebind requires the exact current predecessor');journal=null;
     } else assert(!journal,'Existing transition requires explicit exact recovery; no automatic replay');
     if(journal) { assert.equal(journal.planSha256,plan.planSha256); assert.equal(journal.approvalSha256,fingerprint(approval)); assert(PHASES.includes(journal.phase)); }
     const current=pointerNow(plan.controlDirectory), newPointer={schemaVersion:1,generationId:plan.next.generationId,generationSha256:plan.next.generationSha256,config:plan.next.config,configReferencesSha256:plan.next.configReferencesSha256,stateDirectory:plan.next.stateDirectory,epochId:plan.next.epochId,authorizationSha256:fingerprint(approval),transitionPlanSha256:plan.planSha256};
@@ -581,7 +689,7 @@ async function apply(plan,approval,recovery,dependencies) {
     }
     // Recovery pins the admission journal/pointer once. Our own subsequent
     // durable progression gets a new exact reference, never renewed authority.
-    let journalRef=journal?fileReference(journalPath,JSON_LIMITS.controlIndex):null;
+    let journalRef=pathExists(journalPath)?fileReference(journalPath,JSON_LIMITS.controlIndex):null;
     const pointerPath=join(plan.controlDirectory,'active.json');
     let pointerRef=pathExists(pointerPath)?fileReference(pointerPath,JSON_LIMITS.controlIndex):null, recoveryRef;
     const authorityConfig=JSON.parse(readExactReference(plan.next.config));
@@ -595,6 +703,10 @@ async function apply(plan,approval,recovery,dependencies) {
           if(recoveryRef)readExactReference(recoveryRef,JSON_LIMITS.controlIndex);
         }
         readExactReference(plan.next.config); readPrivateBytes(plan.stopFile,JSON_LIMITS.controlIndex);
+        if(isRebind(plan)) {
+          rebindPredecessor(plan);validateStandingEpochSource(importInputFor(plan));readExactReference(plan.estimate.ledger);
+          for(const id of ['estimate','jev'])readExactReference(plan.nativeEvidence[id].baseline);
+        }
         if(authorityConfig.services.naeil.siteContinuationApproval)resolveSiteTarget(plan.release,authorityConfig.services.naeil.siteContinuationApproval);
         assert.equal(lstatSync(plan.stopFile).mode&0o777,0o600,'STOP must remain0600');
         assert(authorityConfig.enabled===true&&authorityConfig.policy.enabled===true&&Date.parse(authorityConfig.policy.expiresAt)>Date.now(),'Current standing execution authorization required');
@@ -610,37 +722,53 @@ async function apply(plan,approval,recovery,dependencies) {
     const checked=await prerequisites(plan,approval,dependencies,guard);guard();
     const transitions=privateDirectory(join(plan.controlDirectory,'transitions'),true), directory=privateDirectory(join(transitions,plan.planSha256),true); syncDirectory(plan.controlDirectory); syncDirectory(transitions);
     const planRef=immutableJSON(join(directory,'plan.json'),plan), approvalRef=immutableJSON(join(directory,'approval.json'),approval); immutableJSON(join(directory,'old-pointer.json'),plan.oldPointer);
+    if(isRebind(plan)) {
+      for(const [name,ref]of Object.entries(plan.predecessor)){guard();const path=join(directory,'predecessor-'+name+'.json');immutable(path,readExactReference(pathExists(path)?{...ref,path}:ref,JSON_LIMITS.controlIndex));await boundary('predecessor-'+name);}
+      guard();immutable(join(directory,'historical-state.json'),readExactReference(plan.old.snapshot,JSON_LIMITS.controlIndex));
+      guard();immutable(join(directory,'historical-inventory.json'),readExactReference(plan.old.inventory,JSON_LIMITS.evidence));
+      if(plan.old.pendingIntent){guard();immutable(join(directory,'historical-pending-intent.json'),readExactReference(plan.old.pendingIntent,JSON_LIMITS.controlIndex));}
+      await boundary('predecessor-retained');
+    }
     if(recoveryAuthority) { guard(); recoveryRef=immutableJSON(join(directory,'recovery-'+fingerprint(recoveryAuthority)+'.json'),recoveryAuthority); }
     for(const [name,ref]of [['estimate-ledger',plan.estimate.ledger],['estimate-baseline',plan.nativeEvidence.estimate.baseline],['jev-baseline',plan.nativeEvidence.jev.baseline]]) {guard();immutable(join(directory,'historical-'+name+'.json'),readExactReference(ref));}
     const phase=async name=>{
       guard(); assertConfigReferences(checked.config.configReferences,plan.next.configReferencesSha256);
       originalState(plan); readExactReference(plan.old.config);
-      const proof=await probeQuiescence(plan,dependencies,guard);guard();
+      const proof=await probeQuiescence(quiescencePlan(plan),dependencies,guard);guard();
       journal={schemaVersion:1,planSha256:plan.planSha256,approvalSha256:fingerprint(approval),plan:planRef,approval:approvalRef,oldPointer:plan.oldPointer,newPointer,phase:name,imported:journal?.imported||null,validatedState:journal?.validatedState||null,proof:immutableJSON(join(directory,'proof-'+name+'-'+fingerprint(proof)+'.json'),proof)};
       guard();immutableJSON(join(directory,'phase-'+name+'-'+fingerprint(journal)+'.json'),journal); guard();atomicJSON(journalPath,journal,JSON_LIMITS.controlIndex);journalRef=fileReference(journalPath,JSON_LIMITS.controlIndex);await boundary('journal-'+name);
     };
     if(!journal)await phase('prepared');
-    const importInput={sourcePath:plan.old.snapshot.path,expectedSha256:plan.old.snapshot.sha256,destination:plan.next.stateDirectory,epochId:plan.next.epochId,evidenceRoot:plan.old.evidenceRoot}, importedRootPath=join(plan.next.stateDirectory,'imported-root.json');
+    const importInput=importInputFor(plan), importedRootPath=join(plan.next.stateDirectory,'imported-root.json');
+    const validateImport=()=>isRebind(plan)?validateStandingEpochImport(importInput):validateCompletedImport(importInput,{importedRootPath:pathExists(importedRootPath)?importedRootPath:join(plan.next.stateDirectory,'state.json')});
     if(journal.phase==='prepared') {
       await prerequisites(plan,approval,dependencies,guard);guard();
-      if(pathExists(plan.next.stateDirectory)&&readdirSync(plan.next.stateDirectory).length)validateCompletedImport(importInput,{importedRootPath:pathExists(importedRootPath)?importedRootPath:join(plan.next.stateDirectory,'state.json')});
-      else importLegacyState(importInput);
+      if(pathExists(plan.next.stateDirectory)&&readdirSync(plan.next.stateDirectory).length)validateImport();
+      else if(isRebind(plan))importStandingEpoch(importInput);else importLegacyState(importInput);
       await boundary('import-complete');
       immutable(importedRootPath,readPrivateBytes(join(plan.next.stateDirectory,'state.json'),JSON_LIMITS.controlIndex)); await boundary('import-root');
       journal.imported={manifest:fileReference(join(plan.next.stateDirectory,'import-manifest.json')),root:fileReference(importedRootPath)};await phase('imported');
     }
-    assert(journal.imported,'Completed exact imported epoch required');readExactReference(journal.imported.root,JSON_LIMITS.controlIndex);readExactReference(journal.imported.manifest,JSON_LIMITS.controlIndex);validateCompletedImport(importInput,{importedRootPath});
+    assert(journal.imported,'Completed exact imported epoch required');readExactReference(journal.imported.root,JSON_LIMITS.controlIndex);readExactReference(journal.imported.manifest,JSON_LIMITS.controlIndex);validateImport();
     if(['imported','continuation-intent'].includes(journal.phase)) {
       if(journal.phase==='imported')await phase('continuation-intent');
       await prerequisites(plan,approval,dependencies,guard);guard();
       const imported=readPrivateJSON(importedRootPath),state=readStandingEvidence(plan.next.stateDirectory,imported.state),record=Object.values(state.releases).find(record=>record.releaseId===plan.release.releaseId),prior=record.services.estimate;
       const provenance={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:plan.next.generationSha256,historicalRequestSha256:fingerprint(record.services.naeil.request),historicalResultSha256:fingerprint(record.services.naeil.result),requiresFreshVerification:true};
+      if(isRebind(plan)) {
+        (record.history||=[]).push({serviceId:'naeil',prior:JSON.parse(JSON.stringify(record.services.naeil)),pendingIntent:plan.old.pendingIntent,blocked:state.blocked,priorGenerationContinuation:record.generationContinuation,resolution:'generation-rebind-verify-only',planSha256:plan.planSha256,authorizationSha256:fingerprint(approval)});
+        delete record.services.naeil.verificationIntent;
+        // Preserve old heads as history; every rebind requires a new verifier
+        // receipt even if generation bytes happened to remain identical.
+        delete record.services.naeil.siteHead;delete record.services.naeil.reverifications;
+      }
       record.services.naeil.continuation=provenance;
-      (record.history||=[]).push({serviceId:'estimate',prior:structuredClone(prior),resolution:'generation-continuation-source-only',planSha256:plan.planSha256,authorizationSha256:fingerprint(approval)});
+      (record.history||=[]).push({serviceId:'estimate',prior:JSON.parse(JSON.stringify(prior)),resolution:isRebind(plan)?'generation-rebind-deferred':'generation-continuation-source-only',planSha256:plan.planSha256,authorizationSha256:fingerprint(approval)});
       record.services.estimate={state:'deferred',reconciliation:{priorAttemptId:plan.estimate.priorAttemptId},authorizedAttemptId:plan.estimate.newAttemptId};
       record.generationContinuation={schemaVersion:1,planSha256:plan.planSha256,authorizationSha256:fingerprint(approval),generationSha256:plan.next.generationSha256,originalBinding:record.binding,releaseSha256:releaseIdentityDigest(plan.release)}; record.state='deferred'; delete state.blocked; state.lastState='deferred';
       const currentState=readStandingState(plan.next.stateDirectory);
-      if(fingerprint(currentState)!==fingerprint(state)) { assert.equal(fingerprint(currentState),fingerprint(readStandingEvidence(plan.next.stateDirectory,imported.state)),'Partially continued epoch conflicts; retained for review'); guard();writeStandingState(plan.next.stateDirectory,state); }
+      if(fingerprint(currentState)!==fingerprint(state)) { assert.equal(fingerprint(currentState),fingerprint(readStandingEvidence(plan.next.stateDirectory,imported.state)),'Partially continued epoch conflicts; retained for review'); guard();if(isRebind(plan))writeReboundStandingState(importInput,state);else writeStandingState(plan.next.stateDirectory,state); }
+      else if(isRebind(plan)&&!hasReboundStandingState(importInput)){guard();writeReboundStandingState(importInput,state);}
       await boundary('continuation-state');
       validateConfig(checked.config); journal.validatedState=fileReference(join(plan.next.stateDirectory,'state.json'));
       guard();immutable(join(directory,'validated-root.json'),readExactReference(journal.validatedState,JSON_LIMITS.controlIndex));
