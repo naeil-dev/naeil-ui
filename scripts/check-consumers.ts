@@ -1,4 +1,5 @@
 import { checkConsumerBrowser } from "./check-consumer-browser";
+import { buildChromeFixtures, chromeOutput } from "./build-chrome-fixtures";
 import { assertConsumerVersion } from "./consumer-version";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -125,6 +126,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: 'ja', variant: 'compact'}));
 export const release = uiRelease;
 export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: createElement(NaeilHeaderAccountControl, {locale: 'ja', account: {status: 'signed-in', onLogout: () => {}}}) }));
+export const home = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ko', showProjects: false, showBlog: false, appNavigation: [{id:'ai',label:'AI',items:[{id:'keys',label:'API keys',href:'/keys'}]},{id:'console',label:'Console',href:'/console'}], brandSuffix:'Home', brandLinkProps:{'aria-label':'Naeil Home'}, statusSlot:createElement('span', {'data-home-status':true}, 'Ready'), mobileOpen:false, onMobileOpenChange:()=>{} }));
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
 export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
 `,
@@ -147,6 +149,11 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(result.header, /https:\/\/naeil.dev\/ja\/blog/);
   assert.match(result.header, /プロジェクト/);
   assert.match(result.header, /data-naeil-account-trigger/);
+  assert.match(result.home, /naeil-header-brand-suffix/);
+  assert.match(result.home, /aria-label="Naeil Home"/);
+  assert.match(result.home, /data-home-status/);
+  assert.match(result.home, /href="\/console"/);
+  assert.match(result.home, /data-naeil-chrome/);
   assert.match(result.html, /Consumer action/);
   assert.match(result.html, /aria-busy="true"/);
   assert.match(result.html, /h-8/);
@@ -193,6 +200,23 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   console.log(
     "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",
   );
+  if (process.env.NAEIL_UI_BASELINE_CONSUMERS === "1") {
+    // Use the existing fixtures unchanged for B1, rather than inventing a
+    // second compatibility app. buildChromeFixtures verifies the pinned SRI.
+    await buildChromeFixtures();
+    const baselineArchive = join(chromeOutput, "baseline/ui-0.7.2.tgz");
+    const baselineReact = fixture("react-baseline", resolve("examples/react"), baselineArchive);
+    run(baselineReact, "npm", ["run", "build"]);
+    await checkConsumerBrowser(baselineReact);
+    const baselineNext = fixture("next-baseline", resolve("scripts/fixtures/next"), baselineArchive);
+    run(baselineNext, "npm", ["run", "build"]);
+    const baselineHeader = readFileSync(join(baselineNext, ".next/server/app/header.html"), "utf8");
+    const normalize = (html: string) => html.match(/<header\b[\s\S]*?<\/header>/)![0]
+      .replace(/\s(?:data-naeil-chrome|lang|data-naeil-ui-version)="[^"]*"/g, "")
+      .replace(/radix-[\w-]+|_r_[\w]+_|_R_[\w]+_/g, "GENERATED_ID");
+    assert.equal(normalize(headerHtml), normalize(baselineHeader), "Next packed header DOM differs from B1 after contract normalization");
+    console.log("B1 React/Next registry-archive fixtures: PASS (clean production builds, React browser, normalized Next header DOM; paired geometry is in e2e/chrome-pairs.spec.ts)");
+  }
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }

@@ -17,7 +17,7 @@
 @layer base {
   body { @apply bg-background text-foreground font-sans text-sm; }
 }
-:root[data-dashboard-v2] body { font-size: 16px; line-height: 1.5625; }
+:root[data-dashboard-v2] body { font-size: 16px; line-height: 1.5625; -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; }
 :root[data-dashboard-v2] :is([role="dialog"], [role="menu"]) { font-size: 16px; }
 :root[data-dashboard-v2] [role="menuitem"]:not([data-naeil-account-menu] *) { min-height: 40px; font-size: 16px; }
 :root[data-dashboard-v2] [role="dialog"] label { font-size: 16px; }

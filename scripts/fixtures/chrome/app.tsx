@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages -- React-only packed fixture. */
 import React, { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Dialog } from "radix-ui";
@@ -64,7 +65,7 @@ function App() {
         {...(profile === "jev" ? { projects: [{ id: "custom", label: "Custom project", href: "/custom", description: "Consumer description", badge: <span>Badge</span>, active: true, target: "_blank" as const, external: true }], translations: { projects: "Tools", blog: "Journal", project: (key: string) => key }, resolveHref: (path: string) => `/local${path}`, brandSlot: <span>Consumer brand</span>, brandLinkProps: { "aria-label": "Consumer home" }, brandLinkComponent: (props: React.ComponentProps<"a"> & { href: string }) => <a data-custom-brand {...props} />, toolbarSlot: <button>Consumer toolbar</button> } : {})}
       />}
     <main className="ui-app-frame" style={{ paddingTop: 100, minHeight: 360 }}>
-      <button data-testid="route" onClick={() => setHref("/keys")}>Route change</button>
+      <button data-testid="route" onClick={() => setHref("/route-change")}>Route change</button>
       <button data-testid="fail" onClick={() => { locked.current = false; setBusy(false); setNotice("failed; retry allowed"); }}>Fail request</button>
       <output data-testid="transitions">{JSON.stringify(transitions)}</output>
       <output data-testid="requests">{requests}</output><p data-testid="notice">{notice}</p>

@@ -20,8 +20,8 @@ export default defineConfig({
     command: "tsx scripts/serve-storybook.ts",
     url: "http://127.0.0.1:6007",
     reuseExistingServer: !process.env.CI,
-    stdout: "ignore",
-    stderr: "ignore",
+    stdout: "ignore" as const,
+    stderr: "ignore" as const,
   }]), {
     command: "tsx scripts/build-chrome-fixtures.ts && NAEIL_UI_PREVIEW_PORT=6008 tsx scripts/serve-storybook.ts test-results/chrome-fixtures",
     url: "http://127.0.0.1:6008/identity.json",
