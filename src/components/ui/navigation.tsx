@@ -221,8 +221,12 @@ export function Navigation({
   }, [mobileOpen, controlledOpen, onMobileOpenChange]);
   const setMobileOpen = React.useCallback((next: boolean) => {
     if (next === state.current.open) return;
-    state.current.open = next;
-    if (!state.current.controlled) setInternalOpen(next);
+    // Controlled requests compare against the committed prop, even when a
+    // parent rejects or delays accepting an earlier request.
+    if (!state.current.controlled) {
+      state.current.open = next;
+      setInternalOpen(next);
+    }
     state.current.onChange?.(next);
   }, []);
   const chrome = "data-naeil-chrome" in props ? { "data-naeil-chrome": "", lang: props.lang } : {};
