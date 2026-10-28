@@ -7,7 +7,7 @@ import { Logo } from "./logo";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Navigation, type NavigationLink, type NavigationLinkComponent, type NavigationLinkProps, type NavigationProps } from "./ui/navigation";
+import { Navigation, type NavigationItem, type NavigationLink, type NavigationLinkComponent, type NavigationLinkProps, type NavigationProps } from "./ui/navigation";
 import { cn } from "../lib/utils";
 import { uiRelease } from "../lib/ui-release";
 import { headerContent, headerLocales, headerLocaleNames, headerProjects, type NaeilHeaderLocale } from "./naeil-header-content";
@@ -21,6 +21,12 @@ export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items
   resolveHref?: (path: string) => string;
   brandHref?: string;
   brandSlot?: ReactNode;
+  /** Ignored when brandSlot replaces the complete brand content. */
+  brandSuffix?: string;
+  /** After the brand link, outside it; rendered once at every width. */
+  statusSlot?: ReactNode;
+  /** Product menu data, after catalog/blog and before flat subNav links. */
+  appNavigation?: NavigationItem[];
   brandLinkProps?: Omit<NavigationLinkProps, "href" | "children">;
   /** Omit when the application does not support changing its UI language. */
   onLocaleChange?: (locale: NaeilHeaderLocale) => void;
@@ -74,7 +80,7 @@ export function NaeilHeaderLocaleControl({ locale, onLocaleChange }: {
         aria-label={headerContent[locale].locale.switchLabel}>
         <SelectValue>{locale.toUpperCase()}</SelectValue>
       </SelectTrigger>
-      <SelectContent align="end">
+      <SelectContent align="end" data-naeil-chrome="" data-naeil-locale-menu="" lang={locale}>
         {headerLocales.map((value) => (
           <SelectItem key={value} value={value} className="min-h-11" lang={value}>{headerLocaleNames[value]}</SelectItem>
         ))}
@@ -88,7 +94,7 @@ const NativeLink: NavigationLinkComponent = (props) => <a {...props} />;
 /** One complete, opt-in branded composition shared by naeil.dev and applications. */
 export function NaeilHeader({
   locale, resolveHref = path => `https://naeil.dev/${locale}${path === "/" ? "" : path}`,
-  brandHref, brandSlot, brandLinkProps, brandLinkComponent,
+  brandHref, brandSlot, brandSuffix, statusSlot, appNavigation, brandLinkProps, brandLinkComponent,
   onLocaleChange, authSlot, toolbarSlot, projects, projectsExternal = false, translations, showProjects = true, showBlog = true,
   subNav, currentProjectKey, currentProjectHref, labels, Link = NativeLink,
   currentHref, onNavigate, className, containerClassName, ...props
@@ -124,20 +130,24 @@ export function NaeilHeader({
       {authSlot && <><div aria-hidden="true" className="naeil-header-separator" />{authSlot}</>}
     </>}
   </div>;
+  const brand = <BrandLink href={brandDestination} data-app-brand aria-label={brandSlot == null ? ".naeil" : undefined} {...brandProps}
+    onClick={event => {
+      onBrandClick?.(event);
+      onNavigate?.(event, { id: "brand", href: brandDestination, label: ".naeil" });
+    }}>
+    {brandSlot ?? <><Logo variant="horizontal" size={28} className="block" label={null} />
+      {brandSuffix && <span className="naeil-header-brand-suffix">{brandSuffix}</span>}
+    </>}
+  </BrandLink>;
   return (
-    <Navigation {...props} data-global-header data-naeil-header
+    <Navigation {...props} data-global-header data-naeil-header data-naeil-chrome="" lang={locale}
       data-naeil-ui-version={uiRelease.version} data-naeil-ui-contract={uiRelease.contractVersion}
       Link={Link} currentHref={currentHref} onNavigate={onNavigate}
-      brand={<BrandLink href={brandDestination} data-app-brand aria-label={brandSlot == null ? ".naeil" : undefined} {...brandProps}
-        onClick={event => {
-          onBrandClick?.(event);
-          onNavigate?.(event, { id: "brand", href: brandDestination, label: ".naeil" });
-        }}>
-        {brandSlot ?? <Logo variant="horizontal" size={28} className="block" label={null} />}
-      </BrandLink>}
+      brand={statusSlot != null ? <div className="naeil-header-brand-row">{brand}{statusSlot}</div> : brand}
       items={[
         ...(showProjects ? [{ id: "projects", label: translations?.projects ?? content.nav.projects, items: projectLinks, columns: projectLinks.length > 1 ? 2 as const : 1 as const }] : []),
         ...(showBlog ? [{ id: "blog", label: translations?.blog ?? content.nav.blog, href: resolveHref("/blog"), external: projectsExternal }] : []),
+        ...(appNavigation ?? []),
         ...(subNav ?? []).map(item => ({ ...item, id: item.href })),
       ]}
       labels={labels ?? { navigation: content.nav.navigation, menu: content.nav.menu, close: content.nav.closeMenu }}

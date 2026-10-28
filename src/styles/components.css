@@ -536,6 +536,92 @@
   }
 }
 
+
+/* Canonical chrome owns final typography. Unlayered, marker-scoped rules also
+   beat host-compiled utilities; the host's body and ordinary portals stay local. */
+[data-naeil-chrome] {
+  font-family: "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+:root [data-naeil-chrome] :is(.ui-navigation-link, .ui-control) {
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 25px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] :is(.ui-navigation-title, .naeil-header-login, [data-slot="button"]) {
+  font-weight: 500;
+}
+:root [data-naeil-chrome] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
+  font-weight: 600;
+}
+:root [data-naeil-chrome] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
+  font-size: 14px;
+  line-height: 21.875px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] :is(.ui-navigation-group-label, .ui-site-footer-label) {
+  font-weight: 600;
+}
+:root [data-naeil-chrome] .ui-navigation-sheet-heading > h2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] :is([data-slot="select-item"], [data-slot="dropdown-menu-item"]) {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] [data-slot="dropdown-menu-label"] {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] [data-slot="dropdown-menu-label"] > .text-base {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] [data-slot="dropdown-menu-label"] > .text-sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+:root [data-naeil-chrome] [data-slot="button"] {
+  line-height: 24px;
+}
+[data-naeil-chrome]:lang(ja),
+:root [data-naeil-chrome] :lang(ja) {
+  font-family: "Noto Sans JP", "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+}
+
+.naeil-header-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+}
+:root [data-naeil-chrome] .naeil-header-brand-suffix {
+  margin-inline-start: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21.875px;
+  white-space: nowrap;
+  transform: translateY(1px);
+}
+
 @keyframes ui-reveal {
   from {
     opacity: 0;

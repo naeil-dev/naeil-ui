@@ -42,6 +42,8 @@ export interface NavigationProps extends Omit<
   toolbar?: React.ReactNode;
   mobileToolbar?: React.ReactNode;
   mobileFooter?: React.ReactNode;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
   /** Use the same product-owned frame class on header, footer and main. */
   containerClassName?: string;
   /** Preserve modified clicks; applications may preventDefault for client routing/guards. */
@@ -57,6 +59,10 @@ const NativeLink = React.forwardRef<HTMLAnchorElement, NavigationLinkProps>(
   },
 );
 
+// Controlled-sheet actions can leave the sheet entirely (for example a host
+// confirmation). Run them after both closing layers have released their focus.
+export const NavigationSheetAction = React.createContext<((action: () => void) => void) | undefined>(undefined);
+
 function DesktopGroup({
   item,
   active,
@@ -64,6 +70,7 @@ function DesktopGroup({
   anotherGroupOpen,
   onOpenChange,
   children,
+  chrome,
 }: {
   item: NavigationGroup;
   active: boolean;
@@ -71,6 +78,7 @@ function DesktopGroup({
   anotherGroupOpen: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
+  chrome: React.HTMLAttributes<HTMLDivElement>;
 }) {
   const hoverOpened = React.useRef(false);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -153,6 +161,7 @@ function DesktopGroup({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
+          {...chrome}
           ref={panel}
           data-slot="navigation-popover"
           className="ui-navigation-popover ui-popup"
@@ -197,19 +206,37 @@ export function Navigation({
   toolbar,
   mobileToolbar,
   mobileFooter,
+  mobileOpen: controlledOpen,
+  onMobileOpenChange,
   containerClassName,
   onNavigate,
   className,
   ...props
 }: NavigationProps) {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const mobileOpen = controlledOpen ?? internalOpen;
+  const state = React.useRef({ open: mobileOpen, controlled: controlledOpen !== undefined, onChange: onMobileOpenChange });
+  React.useLayoutEffect(() => {
+    state.current = { open: mobileOpen, controlled: controlledOpen !== undefined, onChange: onMobileOpenChange };
+  }, [mobileOpen, controlledOpen, onMobileOpenChange]);
+  const setMobileOpen = React.useCallback((next: boolean) => {
+    if (next === state.current.open) return;
+    state.current.open = next;
+    if (!state.current.controlled) setInternalOpen(next);
+    state.current.onChange?.(next);
+  }, []);
+  const chrome = "data-naeil-chrome" in props ? { "data-naeil-chrome": "", lang: props.lang } : {};
   const [openGroup, setOpenGroup] = React.useState<string | null>(null);
   const trigger = React.useRef<HTMLButtonElement>(null);
   const desktop = React.useRef<HTMLElement>(null);
+  const pendingAction = React.useRef<(() => void) | undefined>(undefined);
+  const previousHref = React.useRef(currentHref);
   React.useEffect(() => {
+    if (previousHref.current === currentHref) return;
+    previousHref.current = currentHref;
     setMobileOpen(false);
     setOpenGroup(null);
-  }, [currentHref]);
+  }, [currentHref, setMobileOpen]);
   // Container width, rather than viewport width, determines which navigation is visible.
   React.useEffect(() => {
     const element = desktop.current;
@@ -220,11 +247,11 @@ export function Navigation({
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [setMobileOpen]);
 
   const active = (item: NavigationLink) =>
     item.active ?? (!item.external && item.href === currentHref);
-  function link(item: NavigationLink, close?: () => void, entry = false) {
+  function link(item: NavigationLink, close?: "mobile" | "group", entry = false) {
     const Component = item.external ? NativeLink : Link;
     return (
       <Component
@@ -245,8 +272,10 @@ export function Navigation({
             !event.ctrlKey &&
             !event.shiftKey &&
             !event.altKey
-          )
-            close?.();
+          ) {
+            if (close === "mobile") setMobileOpen(false);
+            else if (close === "group") setOpenGroup(null);
+          }
         }}
       >
         {item.icon && (
@@ -289,6 +318,7 @@ export function Navigation({
             {items.map((item) =>
               "items" in item ? (
                 <DesktopGroup
+                  chrome={chrome}
                   key={item.id}
                   item={item}
                   active={item.items.some(active)}
@@ -301,7 +331,7 @@ export function Navigation({
                   }
                 >
                   {item.items.map((child) =>
-                    link(child, () => setOpenGroup(null), true),
+                    link(child, "group", true),
                   )}
                 </DesktopGroup>
               ) : (
@@ -324,10 +354,22 @@ export function Navigation({
                 className="ui-navigation-overlay ui-popup"
               />
               <Dialog.Content
+                {...chrome}
                 data-slot="navigation-sheet"
                 className="ui-navigation-sheet ui-popup"
                 aria-describedby={undefined}
                 onCloseAutoFocus={(event) => {
+                  if (pendingAction.current) {
+                    event.preventDefault();
+                    const action = pendingAction.current;
+                    pendingAction.current = undefined;
+                    const target = trigger.current?.getBoundingClientRect().width
+                      ? trigger.current : desktop.current?.parentElement?.querySelector<HTMLElement>(".ui-navigation-toolbar [data-naeil-account-trigger]");
+                    // FocusScope's close event precedes the remaining Radix
+                    // layer cleanup. Start the next modal on the next task.
+                    setTimeout(() => { target?.focus(); action(); }, 0);
+                    return;
+                  }
                   if (
                     trigger.current &&
                     trigger.current.getBoundingClientRect().width === 0
@@ -361,17 +403,22 @@ export function Navigation({
                           {item.label}
                         </h3>
                         {item.items.map((child) =>
-                          link(child, () => setMobileOpen(false), true),
+                          link(child, "mobile", true),
                         )}
                       </section>
                     ) : (
-                      link(item, () => setMobileOpen(false))
+                      link(item, "mobile")
                     ),
                   )}
                 </nav>
                 {(mobileToolbar ?? toolbar) && (
                   <div className="ui-navigation-mobile-toolbar">
-                    {mobileToolbar ?? toolbar}
+                    <NavigationSheetAction.Provider value={controlledOpen === undefined ? undefined : action => {
+                      pendingAction.current = action;
+                      setMobileOpen(false);
+                    }}>
+                      {mobileToolbar ?? toolbar}
+                    </NavigationSheetAction.Provider>
                   </div>
                 )}
                 {mobileFooter && (
