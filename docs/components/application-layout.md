@@ -1,6 +1,6 @@
 # Application frame and shared navigation/footer
 
-This maintained guide covers **published and registry-verified @naeil/ui 0.7.1**, combining canonical footer/release identity and shared account presentation with the published 0.6.0 frame. Install exact `@naeil/ui@0.7.1` from npm; hosted Docs and service activation have separate receipts. See [release identities and status](../package-release.md#publication-and-deployment) and [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
+The published registry baseline is **@naeil/ui 0.7.2**; the new Home profile is an **unpublished 0.8.0 candidate**. Install exact `@naeil/ui@0.7.2` for published consumers; hosted Docs and service activation have separate receipts. See [release identities and status](../package-release.md#publication-and-deployment) and [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
 
 ## Choose the shared composition first
 
@@ -8,7 +8,8 @@ This maintained guide covers **published and registry-verified @naeil/ui 0.7.1**
 | --- | --- |
 | The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
 | Owned-service login/account/logout presentation | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header` in `authSlot` |
-| A product's own menu | `Navigation` from `@naeil/ui/ui` |
+| Owned naeil service with product menu data (0.8.0 candidate) | Complete `NaeilHeader`, with `appNavigation`, catalog/blog hidden, optional `brandSuffix` and `statusSlot` |
+| A different product menu without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
 | Owned naeil service footer | `NaeilFooter` from `@naeil/ui/naeil-footer` |
 | Different product footer or explicit content override | `SiteFooter` from `@naeil/ui/ui` |
 | An existing Next/next-intl consumer | Keep its `Nav` / `Footer` adapters |
@@ -78,7 +79,7 @@ export function ApplicationLayout({ children, locale, Link, currentHref,
 
 `NaeilHeader` is fixed; reserve its 65px height and account for it in sticky areas and focus/anchor scroll margins. Default destinations are official naeil.dev URLs. Preserve routing/unsaved-change guards using the [header contract](naeil-header.md) and [footer interception contract](naeil-footer.md); a Link adapter must handle absolute official and GitHub destinations as well as local routes. Only pass `onLocaleChange` when the application supports its complete language set.
 
-For a different product menu, use the [generic Navigation composition](navigation.md) with the same main/footer structure. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the installed header, narrow form and SiteFooter together.
+For owned naeil product navigation, keep the whole header and pass menu data through `appNavigation`; see the [Home profile and host conditions](naeil-header.md#host-typography-and-mobile-handoff-080-candidate). `mobileOpen`/`onMobileOpenChange` can coordinate the sheet with a consumer confirmation, while busy state and request locking remain above the header. For a different product menu without canonical chrome, use the [generic Navigation composition](navigation.md) with the same main/footer structure. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the installed header, narrow form and SiteFooter together.
 
 ## Deliberate overrides
 
@@ -119,7 +120,7 @@ Owned-service checks also verify canonical header/footer destinations, rendered 
 
 A blanket ban on `<header>`, `<nav>` or `<footer>` would also reject valid section landmarks and adapters. Review the root composition and its rendered output instead. This repository checks packed React/Next examples; external applications still need their own upgrades, adapter migrations and CI. Publication and deployment are separate work.
 
-See [canonical footer content and save interception](naeil-footer.md). Version 0.7.1 includes package/contract identity from the unpublished 0.7.0 candidate; registry publication, hosted Docs and per-service operational rollout have separate receipts.
+See [canonical footer content and save interception](naeil-footer.md). Version 0.7.2 includes package/contract identity; registry publication, hosted Docs and per-service operational rollout have separate receipts.
 
 ## Shared naeil.dev login (services on `*.naeil.dev`)
 

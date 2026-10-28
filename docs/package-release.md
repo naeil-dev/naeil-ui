@@ -1,6 +1,6 @@
 # Package verification and release policy
 
-**0.7.1 published and registry-verified — 2026-10-23.** Current registry baseline: **0.7.1**. This first published 0.7.x release includes canonical footer/release identity from the unpublished 0.7.0 candidate, plus shared account presentation. The owner authorized publication and the selected three-service continuous rollout; hosted Docs and standing activation require separate receipts. The completed [0.6.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) remains evidence for its published application frame. Verified 0.5.0, 0.4.0 and 0.3.0 evidence remains dated history. UI v2 names a design generation, not an npm major. Future breaking changes require an explicit migration and version decision. Version-scoped installation is in the [README](../README.md#use-the-ui).
+**Published baseline: 0.7.2** (`40a3928`, registry archive SHA-256 `b7919ed182307c5c3b48515f68567b0e4f51c611c86b7acf8861e769f596e2ec`, 139 files). **0.8.0 is an unpublished candidate** adding the canonical Home menu/brand/status/controlled-sheet API and package-owned chrome typography. Contract version stays `1` only while every existing invariant passes. The historical 0.7.1 publication and immutable archive below remain unchanged. UI v2 names a design generation, not an npm major. Hosted Docs and per-service activation retain separate receipts. Version-scoped installation is in the [README](../README.md#use-the-ui).
 
 ## Architecture
 
@@ -8,7 +8,7 @@ One repository contains the shared package and the separate Next.js brand/exampl
 
 Owned services use `@naeil/ui/naeil-footer` for the canonical localized destinations in full/compact variants; generic SiteFooter and legacy Footer retain their APIs. Footer navigation adapters preserve application save/flush decisions and modified-click behavior. `@naeil/ui/release` is server-safe metadata; it contains no application artifact, credential or environment. Applications compile their own allowlisted artifact/source identity. See [the footer contract](components/naeil-footer.md). Current coordinator policy, selected services, activation and recovery evidence are maintained in the [rollout records](https://github.com/naeil-dev/naeil-ui/tree/main/docs/rollout); historical disabled-policy statements describe their dated checkpoints. Publishing a package, creating an update PR or merging it never establishes complete consumer rollout. Home Console is outside the selected shared-UI rollout.
 
-Website tools remain development dependencies so maintainers can develop both products. npm tarball consumers install only component runtime dependencies and their host React/ReactDOM. Build entries, package exports and packed checks constrain the public boundary. There is no bundled website action, Supabase helper, Three/hero/cursor module, blog engine or full application message catalog. The opt-in header includes only its three header dictionaries and canonical project catalog. Its five decorative images reference official `https://naeil.dev/images/*.png` URLs and require network access; no image bytes are bundled, and unresolved artwork redistribution provenance remains in [third-party notices](../THIRD_PARTY_NOTICES.md).
+Website tools remain development dependencies so maintainers can develop both products. npm tarball consumers install only component runtime dependencies and their host React/ReactDOM. Build entries, package exports and packed checks constrain the public boundary. There is no bundled website action, Supabase helper, Three/hero/cursor module, blog engine or full application message catalog. The opt-in header includes only its three header dictionaries and canonical project catalog. Its 0.7.2 default catalog contains naeil-ui and references the official `https://naeil.dev/images/whale.png` URL and require network access; no image bytes are bundled, and unresolved artwork redistribution provenance remains in [third-party notices](../THIRD_PARTY_NOTICES.md).
 
 ## Checks
 
@@ -119,6 +119,15 @@ The procedure preserves the distinction between preparation and external verific
 npm publication, GitHub Releases, main merge and hosted Docs are distinct operations. Production deployment of the brand website remains a separate scope; shared-package checks do not clear unknown site-art or fetched-site-font provenance.
 
 `vercel.json` disables Git deployments only for `feat/public-ui-readiness`. Other branches retain Vercel's default behavior, so merging or pushing another branch requires a separate deployment decision. The automatic GitHub Actions checks are verification-only; enabling repository workflows is not evidence of a hosted site or approved release.
+
+
+### Manual exact-archive preparation for 0.8.0
+
+The standing `scripts/rollout/prepare-release.mjs` accepts consecutive stable 0.7.x releases only. Do not change rollout policy, `release.json` or the chrome contract to admit 0.8.0. Use the manual release procedure above: complete P1–P7 from the `docs/superpowers/specs/2026-10-28-canonical-home-chrome.md` acceptance contract, freeze the exact source SHA/archive, then run boundary and clean React/Next checks with `NAEIL_UI_EXPECTED_ARCHIVE_SHA256`. The paired browser gate accepts `NAEIL_UI_CHROME_PACKAGE=/absolute/extracted/package` to exercise that exact archive, alongside SHA-512-pinned B1. It retains numeric differences and screenshots for human review; new renders never replace expectations automatically.
+
+The candidate adds `appNavigation`, `brandSuffix`, `statusSlot` and controlled/observer sheet props; see [NaeilHeader](components/naeil-header.md) for supported host CSS and consumer-supplied fonts. Default catalog/blog/legacy overrides must remain equivalent to B1. Home uses the complete default toolbar and full footer. A source rollback must revert adapter, CSS and manifest/lock together; pin-only rollback cannot support the new API.
+
+Package publication, tag, GitHub Release, main merge and Home deployment each require separate explicit approval. naeil.dev imports this repository's source, so a main merge upgrades its default header to 0.8.0 and is held until the owner approves that site impact and timing. Estimate/Jev stay on 0.7.2, and STOP remains. A prepared archive or local gate result grants no publication or rollout authority.
 
 ## Storybook preview artifact
 
