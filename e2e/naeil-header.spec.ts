@@ -112,8 +112,8 @@ test("desktop hover bridges the portal gap and keyboard navigation intercepts th
   await expect(panel.locator('a[href="/design"]')).toHaveAttribute("aria-current", "page");
 });
 
-test("mobile touch, focus trap, locale selection and reduced-motion dismissal", async ({ browser, browserName }) => {
-  const context = await browser.newContext({ baseURL: "http://127.0.0.1:6007", viewport: { width: 390, height: 900 }, hasTouch: browserName !== "firefox", reducedMotion: "reduce" });
+test("mobile touch, focus trap, locale selection and reduced-motion dismissal", async ({ browser, browserName, baseURL }) => {
+  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 900 }, hasTouch: browserName !== "firefox", reducedMotion: "reduce" });
   const page = await context.newPage();
   try {
     await open(page, "dark");
