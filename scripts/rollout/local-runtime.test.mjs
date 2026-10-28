@@ -67,3 +67,15 @@ test('machine lock cannot be released while a registered child process still run
   child.kill('SIGKILL'); await once(child, 'exit'); lease.release();
   assert.equal(existsSync(path), false);
 });
+
+test('a gated child never runs when its parent ends before durable registration', async t => {
+  const directory = fixture(t), source = new URL('./local-runtime.mjs', import.meta.url).href;
+  // The parent exits inside registration (the reviewed crash window) or registers normally.
+  const parent = (marker, register) => `import { execFile } from 'node:child_process'; import { promisify } from 'node:util'; import { GATE, startRegistered } from ${JSON.stringify(source)};
+const pending = promisify(execFile)('/bin/sh', [...GATE, '/usr/bin/touch', ${JSON.stringify(marker)}], { detached: true });
+startRegistered(pending, () => { ${register ? '' : 'process.exit(0);'} }); await pending;`;
+  const crashed = join(directory, 'crashed'), registered = join(directory, 'registered');
+  for (const [marker, register] of [[crashed, false], [registered, true]]) { const child = spawn(process.execPath, ['--input-type=module', '-e', parent(marker, register)]); await once(child, 'exit'); }
+  await new Promise(resolve => setTimeout(resolve, 300));
+  assert.equal(existsSync(crashed), false); assert.equal(existsSync(registered), true);
+});

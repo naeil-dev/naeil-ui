@@ -40,10 +40,10 @@ function supabaseOrigin(url) {
   return parsed;
 }
 
-function assertSession(session, userId, now, minimumValidityMs) {
+function assertSession(session, userId) {
   assert(session && typeof session.access_token === 'string' && session.access_token.length > 0 && typeof session.refresh_token === 'string' && session.refresh_token.length > 0, 'Verification session missing');
   assert.equal(session.user?.id, userId, 'Verification account mismatch');
-  if (!Number.isFinite(session.expires_at) || session.expires_at * 1000 <= now + minimumValidityMs) throw new VerificationError('session-refresh', 'session-expiry-insufficient', { manualRecovery: true });
+  assert(Number.isFinite(session.expires_at), 'Verification session expiry missing');
 }
 
 /** A refresh is a credential rotation. An interrupted/ambiguous rotation leaves
@@ -53,6 +53,7 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   assert(Number.isSafeInteger(minimumValidityMs) && minimumValidityMs >= 5 * 60_000, 'Bounded verification session lifetime required');
   assert(typeof config.anonKey === 'string' && config.anonKey && typeof config.userId === 'string' && config.userId, 'Pinned verification account/config required');
   await readPrivateJson(config.stateFile);
+  beforeAction();
   const lock = `${config.stateFile}.refresh-lock`;
   beforeWrite({operation:'mkdir',path:lock}); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new VerificationError('session-refresh', 'session-refresh-locked', { manualRecovery: true }); }
   // Read only after obtaining the lock; another completed refresh may have
@@ -63,7 +64,6 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   // No secret is ever written into the operation marker or error message.
   await writePrivateJson(`${lock}/pending.json`, { startedAt: new Date(now).toISOString(), phase: 'refresh-requested' }, { beforeWrite });
   let response;
-  beforeAction();
   try {
     response = await fetchImpl(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(20_000),
@@ -74,14 +74,15 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   if (!response.ok) throw new VerificationError('session-refresh', [400, 401, 403].includes(response.status) ? 'auth-required' : 'session-refresh-rejected', { status: response.status, manualRecovery: true });
   let next;
   try { next = await response.json(); } catch { throw new VerificationError('session-refresh', 'session-response-invalid', { manualRecovery: true }); }
-  try { assertSession(next, config.userId, now, minimumValidityMs); }
-  catch (error) { if (error instanceof VerificationError) throw error; throw new VerificationError('session-refresh', 'session-response-invalid', { manualRecovery: true }); }
+  try { assertSession(next, config.userId); }
+  catch { throw new VerificationError('session-refresh', 'session-response-invalid', { manualRecovery: true }); }
   try {
     await writePrivateJson(config.stateFile, next, { beforeWrite });
     // Retain the consumed marker as an audit record, without credential data.
     beforeWrite({operation:'rename',path:`${lock}/pending.json`,destination:`${config.stateFile}.last-refresh.json`}); await rename(`${lock}/pending.json`, `${config.stateFile}.last-refresh.json`);
     beforeWrite({operation:'rmdir',path:lock}); await rmdir(lock);
   } catch { throw new VerificationError('session-refresh', 'session-persistence-uncertain', { manualRecovery: true }); }
+  if (next.expires_at * 1000 <= now + minimumValidityMs) throw new VerificationError('session-refresh', 'session-expiry-insufficient');
   return next;
 }
 

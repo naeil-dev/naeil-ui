@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const core = await import('./local-runner.mjs').catch(() => ({}));
+const { readReceipt } = await import('./local-runtime.mjs');
 function fixture(t, services = [{ id: 'naeil', mode: 'verify-only' }, { id: 'jev', mode: 'deploy' }]) {
   const directory = realpathSync(mkdtempSync(join(tmpdir(), 'local-runner-')));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -268,6 +269,7 @@ test('rejected verifier with a running child retains ownership and cannot retry 
   const state = await core.runLocal(config, deps);
   assert.equal(state.status, 'manual-recovery'); assert.equal(state.failure.reasonCode, 'child-recovery-required');
   assert(existsSync(config.lockFile)); assert.equal(JSON.parse(readFileSync(config.lockFile)).children.length, 1);
+  await assert.rejects(() => core.runLocal(config, deps, { command: 'verify', serviceId: 'naeil', recoverVerification: true }), error => error.reasonCode === 'machine-busy');
   child.kill('SIGKILL'); await once(child, 'exit');
 });
 
@@ -347,4 +349,130 @@ for (const operation of ['rollback', 'deploy']) for (const current of ['previous
   assert.equal(recovered.status, current === 'mixed' ? 'manual-recovery' : 'rolled-back');
   assert.equal(existsSync(config.lockFile), current === 'mixed');
   assert.equal(JSON.parse(readFileSync(currentPath)).id, current === 'mixed' ? 'mixed' : 'previous');
+});
+
+for (const cancellation of ['stop-requested', 'approval-revoked']) test(`R1 final ${cancellation} preserves every completed service`, async t => {
+  const { directory, config } = fixture(t), deps = system(directory);
+  deps.verify = async ({ service }) => {
+    if (service.id === 'jev') {
+      if (cancellation === 'stop-requested') writeFileSync(config.stopFile, 'stop');
+      else unlinkSync(config.approvalFile);
+    }
+    return { passed: true };
+  };
+  const state = await core.runLocal(config, deps);
+  assert.equal(state.status, 'stopped'); assert.equal(state.failure.reasonCode, cancellation);
+  for (const record of Object.values(state.services)) { assert.equal(record.status, 'production-verified'); assert(record.verifiedAt); assert.equal(record.failure, null); }
+  const failures = readdirSync(join(config.stateDirectory, 'attempts')).map(name => JSON.parse(readFileSync(join(config.stateDirectory, 'attempts', name)))).filter(value => value.status === 'failed');
+  assert.equal(failures.at(-1).serviceId, null);
+});
+
+for (const id of ['naeil', 'jev']) test(`R3 explicit verification recovery resumes only ${id} and preserves its original failure`, async t => {
+  const { directory, config } = fixture(t), deps = system(directory); let verifies = 0;
+  deps.verify = async ({ service }) => { if (service.id === id) throw Object.assign(Error('private verifier body'), { stage: 'session-refresh', reasonCode: 'session-refresh-locked', manualRecovery: true }); return { passed: true }; };
+  const first = await core.runLocal(config, deps), failure = first.services[id].failure, priorReceipt = first.lastReceipt;
+  const original = Object.fromEntries(readdirSync(join(config.stateDirectory, 'attempts')).map(name => [name, readFileSync(join(config.stateDirectory, 'attempts', name))]));
+  assert.equal(first.status, 'manual-recovery'); assert.equal(existsSync(config.lockFile), false);
+  const next = { ...deps, prepare() { assert.fail('verification recovery cannot prepare'); }, deploy() { assert.fail('verification recovery cannot deploy'); }, rollback() { assert.fail('verification recovery cannot rollback'); }, verify: async ({ service }) => { assert.equal(service.id, id); verifies++; return { passed: true }; } };
+  for (const options of [{}, { retryHeld: true }, { command: 'verify', serviceId: id }]) assert.equal((await core.runLocal(config, next, options)).status, 'manual-recovery');
+  assert.equal(verifies, 0);
+  const recovered = await core.runLocal(config, next, { command: 'verify', serviceId: id, recoverVerification: true });
+  assert.equal(recovered.services[id].status, 'production-verified'); assert.equal(verifies, 1);
+  assert.deepEqual(recovered.transactions, first.transactions);
+  const receipts = readdirSync(join(config.stateDirectory, 'attempts')).map(name => JSON.parse(readFileSync(join(config.stateDirectory, 'attempts', name))));
+  const recovery = receipts.filter(value => value.kind === 'verification-recovery'); assert.equal(recovery.length, 1);
+  assert.equal(recovery[0].serviceId, id); assert.deepEqual(recovery[0].priorFailure, failure); assert.deepEqual(recovery[0].priorReceipt, priorReceipt);
+  assert.deepEqual(readReceipt(config.stateDirectory, priorReceipt).failure, failure);
+  for (const [name, bytes] of Object.entries(original)) assert.deepEqual(readFileSync(join(config.stateDirectory, 'attempts', name)), bytes);
+  assert.doesNotMatch(JSON.stringify(receipts), /private verifier body/);
+  if (id === 'naeil') { assert.equal(recovered.services.jev.status, 'not-started'); assert.equal(Object.keys(recovered.transactions).length, 0); }
+  else assert.equal(recovered.status, 'production-verified');
+});
+
+test('R3 recovery flag rejects ambiguous command and selector combinations before state creation', async t => {
+  const { directory, config } = fixture(t), deps = system(directory);
+  for (const options of [{}, { command: 'verify' }, { command: 'run', serviceId: 'jev' }, { command: 'prepare', serviceId: 'jev' }, { command: 'rollback', transactionId: 'fake' }, { command: 'status' }, { command: 'verify', serviceId: 'jev', retryHeld: true }]) {
+    await assert.rejects(() => core.runLocal(config, deps, { ...options, recoverVerification: true }), /recover|verif|sequential/i);
+  }
+  assert.equal(existsSync(config.stateDirectory), false);
+});
+
+test('R3 recovery refuses non-session failures, other manual services and incomplete native deployments', async t => {
+  for (const variant of ['ready', 'wrong-service', 'other-manual', 'native-intent', 'no-deployment', 'identity', 'stop', 'child', 'lock', 'transaction', 'wrong-stage']) {
+    const { directory, config } = fixture(t), deps = system(directory);
+    deps.verify = async () => { throw Object.assign(Error(), { stage: 'session-refresh', reasonCode: 'session-refresh-locked', manualRecovery: true }); };
+    const state = await core.runLocal(config, deps);
+    let id = 'naeil';
+    if (variant === 'ready') { state.status = 'ready'; state.services.naeil.status = 'not-started'; }
+    if (variant === 'wrong-service') id = 'jev';
+    if (variant === 'other-manual') Object.assign(state.services.jev, { status: 'manual-recovery', failure: state.failure });
+    if (variant === 'native-intent') state.transactions.fake = { id: 'fake', serviceId: 'jev', native: { operation: 'deploy', status: 'intent' } };
+    if (variant === 'no-deployment') { id = 'jev'; state.services.naeil.status = 'production-verified'; Object.assign(state.services.jev, { status: 'manual-recovery', failure: state.failure }); }
+    const reasons = { identity: 'identity-mismatch', stop: 'stop-requested', child: 'child-recovery-required', lock: 'lock-recovery-required', transaction: 'transaction-binding-mismatch' };
+    if (reasons[variant]) state.services.naeil.failure = state.failure = { ...state.failure, reasonCode: reasons[variant] };
+    if (variant === 'wrong-stage') state.services.naeil.failure = state.failure = { ...state.failure, stage: 'deploy' };
+    core.writeLocalState(config.stateDirectory, state);
+    let calls = 0;
+    const result = await core.runLocal(config, { ...deps, verify: async () => { calls++; return { passed: true }; }, deploy() { assert.fail('native recovery authority'); } }, { command: 'verify', serviceId: id, recoverVerification: true }).catch(error => { assert.match(error.message, /recover|verif/i); return null; });
+    assert.equal(calls, 0, variant);
+    if (result) assert.notEqual(result.status, 'production-verified', variant);
+    const receipts = readdirSync(join(config.stateDirectory, 'attempts')).map(name => JSON.parse(readFileSync(join(config.stateDirectory, 'attempts', name))));
+    if (variant !== 'no-deployment') assert.equal(receipts.filter(value => value.kind === 'verification-recovery').length, 0, variant);
+  }
+});
+
+for (const mode of ['throw', 'return']) for (const outcome of ['not-started', 'recovered']) test(`E native ${mode} ${outcome} preserves safe stage/status/timeout diagnostics`, async t => {
+  const { directory, config } = fixture(t, [{ id: 'jev', mode: 'deploy' }]), deps = system(directory);
+  config.retry.maxAttempts = 1;
+  deps.deploy = async ({ plan, service, transaction }) => {
+    const result = { outcome: outcome === 'recovered' ? 'failed' : outcome, reasonCode: 'native-http-status', stage: 'native-identity-http', status: 503, timeout: true, retryable: true };
+    if (outcome === 'recovered') Object.assign(result, { recovered: true, artifact: transaction.previousArtifact, receipt: { schemaVersion: 1, releaseId: plan.release.releaseId, serviceId: service.id, attemptId: transaction.id, planSha256: core.planDigest(plan), action: 'deploy', safe: true, passed: false, outcome: 'failed', phase: 'recovered' } });
+    if (mode === 'throw') throw Object.assign(Error('private native body'), result);
+    return result;
+  };
+  const state = await core.runLocal(config, deps);
+  assert.equal(state.failure.stage, 'native-identity-http'); assert.equal(state.failure.status, 503); assert.equal(state.failure.timeout, true);
+  assert.deepEqual(state.services.jev.failure, state.failure); assert.equal(state.services.jev.stage, 'native-identity-http');
+  const receipts = readdirSync(join(config.stateDirectory, 'attempts')).map(name => JSON.parse(readFileSync(join(config.stateDirectory, 'attempts', name))));
+  assert(receipts.some(value => value.failure?.stage === 'native-identity-http' && value.failure.status === 503 && value.failure.timeout === true));
+  assert.doesNotMatch(JSON.stringify(receipts), /private native body/);
+  assert.equal(existsSync(config.lockFile), false);
+});
+
+test('R3 recovery records its receipt before STOP and retains normal inspect identity checks', async t => {
+  for (const stopped of [false, true]) {
+    const artifact = { id: 'previous', sourceRevision: 'b'.repeat(40), sha256: '1'.repeat(64) };
+    const { directory, config } = fixture(t, [{ id: 'naeil', mode: 'verify-only', artifact }]), deps = system(directory);
+    deps.verify = async () => { throw Object.assign(Error(), { stage: 'production-verify', reasonCode: 'session-rotation-uncertain', manualRecovery: true }); };
+    const first = await core.runLocal(config, deps);
+    if (stopped) writeFileSync(config.stopFile, 'stop');
+    deps.inspect = async () => ({ artifact: { ...artifact, id: 'foreign' } });
+    deps.verify = async () => assert.fail('recovery cannot bypass STOP or identity');
+    const state = await core.runLocal(config, deps, { command: 'verify', serviceId: 'naeil', recoverVerification: true });
+    assert.equal(state.failure.reasonCode, stopped ? 'stop-requested' : 'identity-mismatch');
+    const receipts = readdirSync(join(config.stateDirectory, 'attempts')).map(name => JSON.parse(readFileSync(join(config.stateDirectory, 'attempts', name))));
+    const recovery = receipts.find(value => value.kind === 'verification-recovery');
+    assert(recovery); assert.deepEqual(recovery.priorFailure, first.failure);
+    assert.equal(Object.keys(state.transactions).length, 0);
+  }
+});
+
+test('status reads state without the machine lock while another owner holds it', async t => {
+  const { directory, config } = fixture(t);
+  await core.runLocal(config, system(directory), { command: 'prepare' });
+  const { acquireMachineLock } = await import('./local-runtime.mjs'), lease = acquireMachineLock(config.lockFile);
+  try {
+    const before = readFileSync(join(config.stateDirectory, 'state.json'));
+    assert.equal((await core.runLocal(config, {}, { command: 'status' })).services.jev.status, 'prepared');
+    assert.deepEqual(readFileSync(join(config.stateDirectory, 'state.json')), before);
+  } finally { lease.release(); }
+});
+
+test('verify before deployment reports nothing to verify without holding the later approved run', async t => {
+  const { directory, config } = fixture(t), deps = system(directory);
+  const verified = await core.runLocal(config, deps, { command: 'verify' });
+  assert.equal(verified.status, 'ready'); assert.equal(verified.services.jev.status, 'not-started'); assert.equal(verified.services.naeil.status, 'production-verified');
+  const skipped = readdirSync(join(config.stateDirectory, 'attempts')).map(name => JSON.parse(readFileSync(join(config.stateDirectory, 'attempts', name)))).filter(item => item.status === 'skipped');
+  assert.deepEqual(skipped.map(item => [item.serviceId, item.reasonCode]), [['jev', 'no-deployment-to-verify']]);
+  assert.equal((await core.runLocal(config, deps)).status, 'production-verified');
 });

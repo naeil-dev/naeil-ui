@@ -12,11 +12,12 @@ import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, mkdtempSync, openSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
 import { assertCandidate, assertCandidateSource } from './consumer-preflight.mjs';
 import { inspectEstimateRelease, inspectJevArchive } from './consumer-artifact.mjs';
 import { treeDigest } from './preflight-sandbox.mjs';
-import { digest as planDigest, readReceipt } from './local-runtime.mjs';
+import { digest as planDigest, GATE, readReceipt, startRegistered } from './local-runtime.mjs';
 
 const exec=promisify(execFile),HEX=/^[a-f0-9]{64}$/,REVISION=/^[a-f0-9]{40}$/,ID=/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -89,7 +90,7 @@ export function localCandidateProof(value) {
  const proof={...binding,sourceHeadSha:candidate.sourceHeadSha??candidate.reviewedBaseSha,executionInputs:{node:input.config.node,git:input.config.git??'/usr/bin/git',pnpm:input.config.pnpm,executables:input.config.executables,readable:input.config.readable??[],executionPath:input.config.executionPath},artifact:candidate.artifact};
  return {candidateBinding:binding,consumerInputsSha256:planDigest(proof)};
 }
-function candidateFor(plan,service) {
+export function candidateFor(plan,service) {
  const candidate=readLocalCandidate(service.consumer?.candidate);
  assert(candidate,'Passed isolated consumer candidate required');
  const proof=localCandidateProof(candidate);assert.deepEqual(proof.candidateBinding,service.consumer?.candidateBinding,'Exact independently approved consumer inputs changed');
@@ -128,6 +129,10 @@ function nativeEnvironment(native) {
  const env={PATH:native.executionPath,NODE_PATH:'',NODE_OPTIONS:'',PYTHONDONTWRITEBYTECODE:'1'};
  for(const key of ['HOME','TMPDIR','LANG','LC_ALL'])if(process.env[key])env[key]=process.env[key];return env;
 }
+/** Transactions retained by the adfc995 Jev helper (0.7.2 acceptance) recover
+ * with this exact reviewed helper after the retained bytes are verified. The
+ * pair is fixed in code; no config, plan or state can name another helper. */
+export const RECOVERY_HELPERS={'5eab8ff610b28705113d7e6ebcf9cea6c498510302e459077ceb9dd43f85a843':{path:fileURLToPath(new URL('./jev-native.py',import.meta.url)),sha256:'984e1cefb1eeacb2348f3aa484e0f91d0b8514868de1cebaccb47a9887c7229a'}};
 async function transport(action,request,native,context) {
  const {directory}=context;
  const root=mkdtempSync(join(directory,`native-${action}-`)),input=join(root,'input.json'),output=join(root,'output.json');
@@ -135,8 +140,8 @@ async function transport(action,request,native,context) {
  const timeout=native.timeoutMs??180000;assert(Number.isSafeInteger(timeout)&&timeout>0&&timeout<=30*60*1000,'Bounded native timeout required');
  try {
   const jev=request.service.id==='jev';
-  const pending=exec(jev?native.pythonExecutable:native.nodeExecutable,jev?['-B',native.helper.path]:[native.helper.path],{cwd:jev?native.config.baseDirectory:native.config.deploymentRoot,env:{...nativeEnvironment(native),NAEIL_ROLLOUT_INPUT:input,NAEIL_ROLLOUT_OUTPUT:output},shell:false,detached:true,encoding:'utf8',timeout,maxBuffer:1024*1024});
-  if(pending.child.pid)context.registerChild?.(pending.child,{processGroup:true});
+  const pending=exec('/bin/sh',[...GATE,jev?native.pythonExecutable:native.nodeExecutable,...(jev?['-B',native.helper.path]:[native.helper.path])],{cwd:jev?native.config.baseDirectory:native.config.deploymentRoot,env:{...nativeEnvironment(native),NAEIL_ROLLOUT_INPUT:input,NAEIL_ROLLOUT_OUTPUT:output},shell:false,detached:true,encoding:'utf8',timeout,maxBuffer:1024*1024});
+  startRegistered(pending,context.registerChild);
   await pending;
   return JSON.parse(privateBytes(output,4*1024*1024));
  }catch(error){throw fail('native-transport-uncertain',['inspect','inspect-transaction'].includes(action)?'not-started':'unknown',{timeout:error.killed===true||error.code==='ETIMEDOUT'});}
@@ -149,6 +154,11 @@ async function invoke(action,context,native,artifact,dependencies) {
   request=nativeRequest(context,native,action,artifact);
   assert.equal(hash(executableBytes(context.service.id==='jev'?native.pythonExecutable:native.nodeExecutable)),context.service.id==='jev'?native.pythonSha256:native.nodeSha256,'Retained native interpreter changed');
   assert.equal(hash(publicBytes(native.helper.path,1024*1024)),native.helper.sha256,'Retained native helper changed');
+  const recovery=['rollback','inspect-transaction'].includes(action)&&context.service.id==='jev'&&(dependencies.recoveryHelpers??RECOVERY_HELPERS)[native.helper.sha256];
+  if(recovery) {
+   assert.equal(hash(publicBytes(recovery.path,1024*1024)),recovery.sha256,'Reviewed recovery helper changed');
+   request.recoveryHelper={retainedSha256:native.helper.sha256,sha256:recovery.sha256};native={...native,helper:recovery};
+  }
  }catch{throw fail('native-input-mismatch');}
  let response;
  try {response=await (dependencies.native?dependencies.native(action,request):transport(action,request,native,context));}

@@ -406,6 +406,219 @@ class NativeTests(unittest.TestCase):
             self.assertEqual((Path(request['config']['baseDirectory']) / 'app/server.js').read_text(), 'old')
             self.assertEqual(events.count('stop'), 2)
 
+    def incomplete_stage(self, failure):
+        request, platform, events, _ = self.local_transaction()
+        incoming, outgoing = self.root / 'input.json', self.root / 'output.json'; n.write_private(incoming, request)
+        extract = n.extract_code
+        def interrupted(archive, destination, manifest):
+            if failure == 'extract-absent': raise n.Refusal('synthetic-stage-interrupted')
+            if failure == 'extract':
+                destination.mkdir(); (destination / 'server.js').write_text('incomplete stage'); raise n.Refusal('synthetic-stage-interrupted')
+            extract(archive, destination, manifest)
+            if failure == 'identity': n.write_private(destination / 'public/.well-known/naeil-ui.json', {'artifactId': 'wrong-stage'})
+            else: (destination / '.next/BUILD_ID').write_text('wrong-stage-build')
+        with patch.object(n, 'Native', platform), patch.object(n, 'extract_code', interrupted), patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}):
+            n.main()
+        first = n.private_json(outgoing); self.assertFalse(first['passed']); self.assertTrue(first['safe']); self.assertEqual(first['outcome'], 'not-started'); self.assertEqual(first['phase'], 'preparing')
+        self.assertEqual(events, [])
+        return request, platform, events, incoming, outgoing
+
+    def check_incomplete_stage_retry(self, failure):
+        request, platform, events, incoming, outgoing = self.incomplete_stage(failure)
+        transaction = Path(request['transactionDirectory']); staged = transaction / 'staged-app'; app = Path(request['config']['baseDirectory']) / 'app'
+        record = n.private_json(transaction / 'transaction.json'); binding = n.transaction_binding(record)
+        partial = {str(path.relative_to(staged)): (path.read_bytes(), path.stat().st_ino, path.stat().st_mtime_ns) for path in staged.rglob('*') if path.is_file()}
+        self.assertEqual(n.code_manifest(app), record['before'])
+        with patch.object(n, 'Native', platform), patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}): n.main()
+        result = n.private_json(outgoing); self.assertTrue(result['passed'], result); self.assertEqual(result['outcome'], 'completed')
+        self.assertEqual(n.code_manifest(app), record['after']); self.assertEqual(events, ['stop', 'start'])
+        final = n.private_json(transaction / 'transaction.json'); self.assertEqual(final['phase'], 'active'); self.assertEqual(n.transaction_binding(final), binding)
+        for name, expected in partial.items():
+            path = transaction / 'staged-app-incomplete-1' / name
+            self.assertEqual((path.read_bytes(), path.stat().st_ino, path.stat().st_mtime_ns), expected)
+        self.assertEqual(n.code_manifest(transaction / 'previous-app'), record['before'])
+
+    def test_local_deploy_retries_incomplete_extraction_preserving_partial_stage(self): self.check_incomplete_stage_retry('extract')
+    def test_local_deploy_retries_failed_staged_identity_preserving_partial_stage(self): self.check_incomplete_stage_retry('identity')
+    def test_local_deploy_retries_failed_staged_build_preserving_partial_stage(self): self.check_incomplete_stage_retry('build')
+    def test_local_deploy_retries_staging_failure_before_directory_creation(self): self.check_incomplete_stage_retry('extract-absent')
+
+    def check_preparing_stage_refusal(self, failure):
+        request, platform, events, incoming, outgoing = self.incomplete_stage('extract')
+        transaction = Path(request['transactionDirectory']); staged = transaction / 'staged-app'
+        journal = (transaction / 'transaction.json').read_bytes(); partial = (staged / 'server.js').read_bytes()
+        if failure == 'code': (Path(request['config']['baseDirectory']) / 'app/server.js').write_text('changed predecessor')
+        if failure == 'binding': request['planSha256'] = 'b' * 64; n.write_private(incoming, request)
+        if failure == 'collision': (transaction / 'staged-app-incomplete-1').write_text('existing evidence')
+        with patch.object(n, 'Native', platform), patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}): n.main()
+        result = n.private_json(outgoing); self.assertFalse(result['passed']); self.assertEqual(result['outcome'], 'not-started')
+        self.assertEqual(result['reasonCode'], {'code': 'predecessor-code-changed', 'binding': 'transaction-plan-binding', 'collision': 'incomplete-stage-exists'}[failure])
+        self.assertEqual((transaction / 'transaction.json').read_bytes(), journal); self.assertEqual((staged / 'server.js').read_bytes(), partial); self.assertEqual(events, [])
+        if failure == 'collision': self.assertEqual((transaction / 'staged-app-incomplete-1').read_text(), 'existing evidence')
+
+    def test_preparing_stage_retry_refuses_changed_live_code(self): self.check_preparing_stage_refusal('code')
+    def test_preparing_stage_retry_refuses_changed_transaction_binding(self): self.check_preparing_stage_refusal('binding')
+    def test_preparing_stage_retry_refuses_preservation_name_collision(self): self.check_preparing_stage_refusal('collision')
+
+    def test_incomplete_stage_retry_never_restarts_staged_or_later_phases(self):
+        request, platform, events, incoming, outgoing = self.incomplete_stage('extract')
+        transaction = Path(request['transactionDirectory']); record = n.private_json(transaction / 'transaction.json')
+        with patch.object(n, 'Native', platform), patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}):
+            for phase in ['staged', 'stopping', 'stopped', 'swapping', 'starting', 'active', 'recovered', 'rolled-back', 'uncertain']:
+                with self.subTest(phase=phase):
+                    n.record_phase(transaction, record, phase); journal = (transaction / 'transaction.json').read_bytes(); n.main()
+                    self.assertFalse(n.private_json(outgoing)['passed']); self.assertEqual(events, [])
+                    self.assertEqual((transaction / 'transaction.json').read_bytes(), journal)
+                    self.assertEqual((transaction / 'staged-app/server.js').read_text(), 'incomplete stage')
+                    self.assertFalse((transaction / 'staged-app-incomplete-1').exists())
+
+    def test_repeated_staging_failures_preserve_each_partial_tree_before_success(self):
+        request, platform, events, incoming, outgoing = self.incomplete_stage('extract')
+        transaction = Path(request['transactionDirectory']); original = (transaction / 'staged-app/server.js').stat().st_ino
+        def interrupted(archive, destination, manifest):
+            destination.mkdir(); (destination / 'server.js').write_text('second incomplete stage'); raise n.Refusal('synthetic-stage-interrupted')
+        with patch.object(n, 'Native', platform), patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}):
+            with patch.object(n, 'extract_code', interrupted): n.main()
+            self.assertEqual(n.private_json(outgoing)['outcome'], 'not-started'); self.assertEqual(events, [])
+            second = (transaction / 'staged-app/server.js').stat().st_ino; n.main(); self.assertTrue(n.private_json(outgoing)['passed'])
+        for index, text, inode in [(1, 'incomplete stage', original), (2, 'second incomplete stage', second)]:
+            preserved = transaction / f'staged-app-incomplete-{index}/server.js'
+            self.assertEqual(preserved.read_text(), text); self.assertEqual(preserved.stat().st_ino, inode)
+        self.assertEqual(events, ['stop', 'start'])
+
+    def completed_transaction(self):
+        request, _, events, control = self.local_transaction()
+        control.update(running=True, registered=True, failure=None, connections=False, foreign=False)
+        health_checks = []
+        class Platform(n.Native):
+            def command(self, args):
+                if args == [self.config['nodeExecutable'], '--version']: return SimpleNamespace(returncode=0, stdout=self.config['nodeVersion'])
+                if args[0] == '/usr/sbin/lsof': return SimpleNamespace(returncode=0 if control['connections'] else 1, stdout='p123\n' if control['connections'] else '')
+                if args[:2] == ['/bin/launchctl', 'bootout']:
+                    events.append('stop'); control.update(running=False, registered=False)
+                elif args[:2] == ['/bin/launchctl', 'bootstrap']:
+                    events.append('start'); control.update(running=True, registered=True)
+                else: raise AssertionError('Unexpected synthetic command')
+                return SimpleNamespace(returncode=0, stdout='')
+            def listener(self):
+                if control['running']: self.owned_process(123); return 123
+                return None
+            def job(self): return control['registered'], 123 if control['running'] else None
+            def app_pids(self): return [999] if control['foreign'] else [123] if control['running'] else []
+            def owned_process(self, pid): n.require(pid == 123 and not control['foreign'], 'synthetic-foreign-process')
+            def health(self, expected):
+                health_checks.append(expected['artifactId']); self.ownership()
+                actual = json.loads((self.app / 'public/.well-known/naeil-ui.json').read_text())
+                n.require(not control['failure'] or actual['artifactId'] != request['artifact']['id'], 'synthetic-' + str(control['failure']))
+                n.require(actual == expected, 'synthetic-served-identity')
+        with patch.object(n, 'Native', Platform), patch.object(n.time, 'sleep'):
+            self.assertTrue(n.native_action(request)['activated'])
+        return request, Platform, events, control, health_checks
+
+    def check_unhealthy_rollback(self, failure, registered=True):
+        request, platform, events, control, checks = self.completed_transaction()
+        transaction = Path(request['transactionDirectory']); base = Path(request['config']['baseDirectory'])
+        record = n.private_json(transaction / 'transaction.json'); binding = n.transaction_binding(record)
+        with closing(n.readonly(Path(request['config']['databasePath']))) as conn: before = n.fingerprint(conn)
+        original = {path.name: path.read_bytes() for path in transaction.glob('*') if path.is_file()}
+        for artifact in [request['artifact'], request['previousArtifact']]:
+            Path(artifact['path']).unlink(); Path(artifact['manifestPath']).unlink(); shutil.rmtree(Path(artifact['path']).parent / 'standalone')
+        for key in ['archive', 'contract']: Path(request['release'][key]['path']).unlink()
+        (self.root / 'STOP').touch(); self.assertFalse((self.root / 'approval.json').exists())
+        control['failure'] = failure
+        if failure == 'crashed': control.update(running=False, registered=registered)
+        checks.clear()
+        with patch.object(n, 'Native', platform), patch.object(n.time, 'sleep'):
+            self.assertTrue(n.native_action({**request, 'action': 'rollback'})['activated'])
+        restored = n.private_json(transaction / 'transaction.json')
+        self.assertEqual(restored['phase'], 'rolled-back'); self.assertEqual(n.transaction_binding(restored), binding)
+        self.assertEqual(n.code_manifest(base / 'app'), record['before'])
+        self.assertEqual((base / 'app/.next/BUILD_ID').read_text(), request['previousArtifact']['buildId'])
+        self.assertEqual(json.loads((base / 'app/public/.well-known/naeil-ui.json').read_text()), record['previousIdentity'])
+        self.assertEqual(checks, [request['previousArtifact']['id']]); self.assertEqual(events, ['stop', 'start'] + (['stop'] if registered else []) + ['start'])
+        for name, raw in original.items():
+            if name != 'transaction.json': self.assertEqual((transaction / name).read_bytes(), raw)
+        for name in ['online', 'stopped']:
+            self.assertEqual(n.private_json(transaction / f'rollback/{name}-backup.json'), before)
+            for suffix in ['state.sqlite', 'restore-proof.sqlite']:
+                with closing(n.readonly(transaction / f'rollback/{name}-{suffix}')) as conn: self.assertEqual(n.fingerprint(conn), before)
+        with closing(n.readonly(Path(request['config']['databasePath']))) as conn: self.assertEqual(n.fingerprint(conn), before)
+
+    def test_completed_rollback_restores_previous_when_candidate_health_is_503(self): self.check_unhealthy_rollback('health-503')
+    def test_completed_rollback_restores_previous_when_candidate_serves_wrong_identity(self): self.check_unhealthy_rollback('served-identity')
+    def test_completed_rollback_restores_previous_after_crash_with_registered_job(self): self.check_unhealthy_rollback('crashed')
+    def test_completed_rollback_restores_previous_after_crash_without_job(self): self.check_unhealthy_rollback('crashed', registered=False)
+
+    def check_completed_rollback_refusal(self, failure):
+        request, platform, events, control, _ = self.completed_transaction()
+        transaction = Path(request['transactionDirectory']); app = Path(request['config']['baseDirectory']) / 'app'
+        control['failure'] = 'health-503'
+        if failure == 'code': (app / 'server.js').write_text('tampered code')
+        if failure == 'mixed-build': (app / '.next/BUILD_ID').write_text(request['previousArtifact']['buildId'])
+        if failure == 'identity': n.write_private(app / 'public/.well-known/naeil-ui.json', {'artifactId': 'foreign'})
+        if failure == 'retained-code': (transaction / 'previous-app/server.js').write_text('tampered predecessor')
+        if failure == 'foreign': control['foreign'] = True
+        if failure == 'crashed-foreign': control.update(running=False, foreign=True)
+        if failure == 'config': request['config']['unbound'] = True
+        if failure == 'metadata': request['config']['envMetadata'][1] += 1
+        if failure == 'journal': request['planSha256'] = 'b' * 64
+        if failure == 'unknown-deploy':
+            record = n.private_json(transaction / 'transaction.json'); n.record_phase(transaction, record, 'starting')
+        before = list(events)
+        with patch.object(n, 'Native', platform), patch.object(n.time, 'sleep'):
+            with self.assertRaises(n.Refusal): n.native_action({**request, 'action': 'rollback'})
+        self.assertEqual(events, before); self.assertFalse((transaction / 'rollback/previous-app').exists())
+
+    def test_unhealthy_rollback_refuses_changed_candidate_code(self): self.check_completed_rollback_refusal('code')
+    def test_unhealthy_rollback_refuses_mixed_build(self): self.check_completed_rollback_refusal('mixed-build')
+    def test_unhealthy_rollback_refuses_changed_identity_file(self): self.check_completed_rollback_refusal('identity')
+    def test_unhealthy_rollback_refuses_changed_retained_predecessor(self): self.check_completed_rollback_refusal('retained-code')
+    def test_unhealthy_rollback_refuses_foreign_live_process(self): self.check_completed_rollback_refusal('foreign')
+    def test_unhealthy_rollback_refuses_foreign_app_process_without_listener(self): self.check_completed_rollback_refusal('crashed-foreign')
+    def test_unhealthy_rollback_refuses_changed_config_binding(self): self.check_completed_rollback_refusal('config')
+    def test_unhealthy_rollback_refuses_changed_protected_metadata(self): self.check_completed_rollback_refusal('metadata')
+    def test_unhealthy_rollback_refuses_changed_journal_binding(self): self.check_completed_rollback_refusal('journal')
+    def test_unknown_deploy_rollback_still_requires_healthy_candidate(self): self.check_completed_rollback_refusal('unknown-deploy')
+
+    def test_unhealthy_rollback_busy_retry_preserves_prior_attempt_and_backups(self):
+        request, platform, events, control, _ = self.completed_transaction()
+        request['action'] = 'rollback'; control.update(failure='health-503', connections=True)
+        with patch.object(n, 'Native', platform), patch.object(n.time, 'sleep'):
+            with self.assertRaises(n.Deferred): n.native_action(request)
+            transaction = Path(request['transactionDirectory']); prior = (transaction / 'rollback/transaction.json').read_bytes()
+            self.assertEqual(events, ['stop', 'start']); control['connections'] = False
+            self.assertTrue(n.native_action(request)['activated'])
+        self.assertEqual((transaction / 'rollback/transaction.json').read_bytes(), prior)
+        self.assertTrue((transaction / 'rollback-2/stopped-restore-proof.sqlite').is_file())
+
+    def test_crashed_rollback_still_defers_for_database_leases(self):
+        request, platform, events, control, _ = self.completed_transaction(); control.update(running=False)
+        with closing(sqlite3.connect(request['config']['databasePath'])) as conn:
+            conn.execute('INSERT INTO leases VALUES (?)', ('synthetic-active-lease',)); conn.commit()
+        with patch.object(n, 'Native', platform), patch.object(n.time, 'sleep'):
+            with self.assertRaises(n.Deferred): n.native_action({**request, 'action': 'rollback'})
+        self.assertEqual(events, ['stop', 'start'])
+
+    def test_unknown_rollback_still_requires_healthy_candidate_and_preserves_journal(self):
+        request, platform, events, control, _ = self.completed_transaction(); request['action'] = 'rollback'
+        transaction = Path(request['transactionDirectory'])
+        with patch.object(n, 'Native', platform), patch.object(n.time, 'sleep'):
+            control['connections'] = True
+            with self.assertRaises(n.Deferred): n.native_action(request)
+            recovery = n.private_json(transaction / 'rollback/transaction.json'); n.record_phase(transaction / 'rollback', recovery, 'uncertain')
+            prior = (transaction / 'rollback/transaction.json').read_bytes(); control.update(connections=False, failure='health-503')
+            with self.assertRaises(n.Refusal): n.native_action(request)
+        self.assertEqual((transaction / 'rollback/transaction.json').read_bytes(), prior); self.assertEqual(events, ['stop', 'start'])
+
+    def test_completed_rollback_requires_restored_previous_health_and_identity(self):
+        request, platform, events, control, checks = self.completed_transaction(); health = platform.health
+        def fail_previous(ops, expected):
+            health(ops, expected); n.require(expected['artifactId'] != request['previousArtifact']['id'], 'synthetic-previous-unhealthy')
+        with patch.object(n, 'Native', platform), patch.object(platform, 'health', fail_previous), patch.object(n.time, 'sleep'):
+            with self.assertRaises(n.Refusal): n.native_action({**request, 'action': 'rollback'})
+        self.assertIn(request['previousArtifact']['id'], checks)
+        self.assertNotEqual(n.private_json(Path(request['transactionDirectory']) / 'transaction.json')['phase'], 'rolled-back')
+
     def test_local_deploy_retries_after_online_backup_without_overwriting_prior_attempt_evidence(self):
         request, platform, events, control = self.local_transaction()
         control['busy'] = True

@@ -127,6 +127,13 @@ export function acquireMachineLock(path) {
     },
   };
 }
+/** A child program is exec'd only after its process group is durably registered.
+ * If the parent ends first, stdin closes and this gate exits without running it. */
+export const GATE = ['-c', 'IFS= read -r go && [ "$go" = go ] && exec "$0" "$@"'];
+export function startRegistered(pending, registerChild) {
+  try { if (pending.child.pid) registerChild?.(pending.child, { processGroup: true }); pending.child.stdin.end('go\n'); }
+  catch (error) { pending.child.stdin.end(); pending.catch(() => {}); throw error; }
+}
 function processAlive(pid) { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; } }
 function childAlive(child) { return processAlive(child.pid) || (child.processGroup && processAlive(-child.pid)); }
 /** Explicit operator recovery only. This never steals a live owner/worker lock;

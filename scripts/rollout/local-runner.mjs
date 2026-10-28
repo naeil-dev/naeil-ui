@@ -95,12 +95,14 @@ export function classifyFailure(error, stage) {
   return { category: stopped ? 'stopped' : manual ? 'manual-recovery' : auth ? 'auth-required' : transient ? 'retryable' : 'held', failure: { stage, reasonCode, status, timeout, retryable: transient } };
 }
 function optionsFor(options) {
-  const keys = new Set(['command', 'serviceId', 'transactionId', 'retryHeld']);
+  const keys = new Set(['command', 'serviceId', 'transactionId', 'retryHeld', 'recoverVerification']);
   assert(Object.keys(options).every(key => keys.has(key)), 'Unsupported command option/artifact');
   const command = options.command || 'run'; assert(['prepare', 'status', 'run', 'verify', 'rollback'].includes(command), 'Unsupported local command');
   assert(command !== 'run' || options.serviceId === undefined, 'Sequential native run cannot select one service');
   if (options.serviceId !== undefined) assert(IDS.includes(options.serviceId), 'Unknown service');
   if (options.retryHeld !== undefined) assert(typeof options.retryHeld === 'boolean', 'Explicit retry flag required');
+  if (options.recoverVerification !== undefined) assert(typeof options.recoverVerification === 'boolean', 'Explicit verification recovery flag required');
+  assert(!options.recoverVerification || (command === 'verify' && options.serviceId !== undefined && !options.retryHeld), 'Verification recovery requires verify with an explicit service and no retry flag');
   if (command === 'rollback') assert(typeof options.transactionId === 'string' && options.transactionId.length > 0, 'Exact transaction required for rollback');
   return { ...options, command };
 }
@@ -117,20 +119,21 @@ function frozen(value) { const result = structuredClone(value); const freeze = i
  * never process/DOM/session output. A rejected native call is unknown by default. */
 export async function runLocal(config, dependencies = {}, rawOptions = {}) {
   const options = optionsFor(rawOptions); validatePaths(config);
+  // Status never takes the machine lock or writes; state.json is replaced atomically.
+  if (options.command === 'status') return readLocalState(config.stateDirectory);
   const lease = acquireMachineLock(config.lockFile);
   let state, plan;
   try {
-    if (options.command === 'status' || options.command === 'rollback') {
+    if (options.command === 'rollback') {
       state = readLocalState(config.stateDirectory); plan = readJSON(join(config.stateDirectory, 'plan.json'));
     } else { plan = frozen(validatePlan(config.plan)); state = initialize({ ...config, plan }); }
-    if (options.command === 'status') return state;
     const save = () => writeLocalState(config.stateDirectory, state);
     const receipt = value => appendReceipt(config.stateDirectory, { planSha256: state.planSha256, releaseId: state.releaseId, ...value });
     const markFailure = (error, stage, service) => {
       const classified = classifyFailure(error, stage);
       state.status = classified.category; state.failure = classified.failure;
-      if (service) Object.assign(state.services[service.id], { status: state.status, stage, failure: state.failure });
-      receipt({ stage, serviceId: service?.id || null, status: 'failed', failure: state.failure, category: state.status }); save(); return classified;
+      if (service) Object.assign(state.services[service.id], { status: state.status, stage: state.failure.stage, failure: state.failure });
+      state.lastReceipt = receipt({ stage, serviceId: service?.id || null, status: 'failed', failure: state.failure, category: state.status }); save(); return classified;
     };
     const boundary = stage => {
       if (options.command === 'rollback') return;
@@ -181,8 +184,8 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
       try { result = await required(operation)(context(service, { ...transaction, ...callbackFields })); }
       catch (error) {
         // Only a proven pre-launch rejection can be repeated automatically.
-        if (error?.outcome === 'not-started' && !lease.hasRunningChildren()) result = { outcome: 'not-started', reasonCode: error.reasonCode, status: error.status, timeout: error.timeout, retryable: error.retryable };
-        else if (error?.outcome === 'failed' && error.recovered === true) result = { outcome: 'failed', recovered: true, reasonCode: error.reasonCode, artifact: error.artifact, receipt: error.receipt };
+        if (error?.outcome === 'not-started' && !lease.hasRunningChildren()) result = { outcome: 'not-started', reasonCode: error.reasonCode, stage: error.stage, status: error.status, timeout: error.timeout, retryable: error.retryable };
+        else if (error?.outcome === 'failed' && error.recovered === true) result = { outcome: 'failed', recovered: true, reasonCode: error.reasonCode, stage: error.stage, status: error.status, timeout: error.timeout, retryable: error.retryable, artifact: error.artifact, receipt: error.receipt };
         else { markFailure(new LocalRolloutError('native-outcome-unknown'), operation, service); return false; }
       }
       if (lease.hasRunningChildren()) { markFailure(new LocalRolloutError('native-outcome-unknown'), operation, service); return false; }
@@ -191,17 +194,17 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
         const proof = result.receipt;
         const expected = { schemaVersion: 1, releaseId: state.releaseId, serviceId: service.id, attemptId: transaction.id, planSha256: state.planSha256, action: operation, safe: true, passed: false, outcome: 'failed', phase: 'recovered' };
         if (proof && Object.entries(expected).every(([key, value]) => proof[key] === value)) {
+          const failure = classifyFailure(new LocalRolloutError(result.reasonCode || `native-${operation}-recovered`, { stage: result.stage, status: result.status, timeout: result.timeout, retryable: result.retryable }), operation).failure;
           transaction.native.status = 'failed'; transaction.native.recovered = true; transaction.native.artifact = result.artifact;
-          transaction.native.resultReceipt = receipt({ kind: 'native-result', stage: operation, status: 'recovered', serviceId: service.id, transactionId: transaction.id, artifact: result.artifact, recovery: expected, intentReceipt: transaction.native.intentReceipt });
-          const failure = classifyFailure(new LocalRolloutError(result.reasonCode || `native-${operation}-recovered`), operation).failure;
+          transaction.native.resultReceipt = receipt({ kind: 'native-result', stage: operation, status: 'recovered', serviceId: service.id, transactionId: transaction.id, artifact: result.artifact, recovery: expected, failure, intentReceipt: transaction.native.intentReceipt });
           const status = operation === 'deploy' ? 'rolled-back' : 'held';
-          Object.assign(state.services[service.id], { status, failure }); state.status = status; state.failure = failure; save(); lease.allowRelease(); return false;
+          Object.assign(state.services[service.id], { status, stage: failure.stage, failure }); state.status = status; state.failure = failure; save(); lease.allowRelease(); return false;
         }
       }
       if (result?.outcome === 'not-started') {
         transaction.native.status = 'not-started';
         transaction.native.resultReceipt = receipt({ kind: 'native-result', stage: operation, status: 'not-started', serviceId: service.id, transactionId: transaction.id });
-        markFailure(new LocalRolloutError(result.reasonCode || 'native-not-started', { status: result.status, timeout: result.timeout, retryable: result.retryable }), operation, service); lease.allowRelease(); return false;
+        markFailure(new LocalRolloutError(result.reasonCode || 'native-not-started', { stage: result.stage, status: result.status, timeout: result.timeout, retryable: result.retryable }), operation, service); lease.allowRelease(); return false;
       }
       if (result?.outcome !== 'completed' || !result.artifact || !same(result.artifact, target)) {
         markFailure(new LocalRolloutError('native-outcome-unknown'), operation, service); return false;
@@ -248,11 +251,19 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
     }
     const unresolved = Object.values(state.transactions).find(transaction => transaction.native?.status === 'intent');
     if (unresolved) { markFailure(new LocalRolloutError('native-outcome-unknown'), unresolved.native.operation, plan.services.find(service => service.id === unresolved.serviceId)); return state; }
-    if (state.status === 'manual-recovery') return state;
+    if (options.recoverVerification) {
+      const record = state.services[options.serviceId], failure = record?.failure;
+      const reasons = ['session-refresh-locked', 'session-refresh-uncertain', 'session-rotation-uncertain', 'ambiguous-session-rotation', 'session-persistence-uncertain', 'session-response-invalid', 'session-refresh-rejected'];
+      assert(state.status === 'manual-recovery' && record?.status === 'manual-recovery' && Object.values(state.services).filter(service => service.status === 'manual-recovery').length === 1 && same(state.failure, failure), 'Verification recovery requires the sole matching manual service failure');
+      assert(['verify', 'production-verify', 'session-refresh'].includes(failure.stage) && (reasons.includes(failure.reasonCode) || (failure.stage === 'session-refresh' && failure.reasonCode === 'auth-required')), 'Verification recovery requires a session/verification failure');
+    } else if (state.status === 'manual-recovery') return state;
     if (['held', 'auth-required'].includes(state.status) && options.command === 'run' && !options.retryHeld) return state;
     if (options.serviceId) assert(plan.services.some(service => service.id === options.serviceId), 'Service outside release plan');
     let currentService = null;
     try {
+      if (options.recoverVerification) {
+        state.lastReceipt = receipt({ kind: 'verification-recovery', serviceId: options.serviceId, priorFailure: classifyFailure(state.services[options.serviceId].failure, 'verify').failure, priorReceipt: state.lastReceipt || null }); save();
+      }
       await safeStage('release-integrity', null, null, async ctx => { validateAssets(plan.release); const value = await required('validateRelease')(ctx); assert(value?.passed === true, 'Release integrity result required'); return value; });
       for (const service of plan.services) {
         if (options.serviceId && options.serviceId !== service.id) continue;
@@ -297,7 +308,11 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
           }
         }
         if (options.command === 'prepare') continue;
-        if (service.mode === 'deploy' && (transaction?.native?.operation !== 'deploy' || transaction.native.status !== 'complete')) fail('deployment-not-complete', { stage: 'verify' });
+        if (service.mode === 'deploy' && (transaction?.native?.operation !== 'deploy' || transaction.native.status !== 'complete')) {
+          // Read-only verify reports the absent deployment without latching the release.
+          if (options.command === 'verify') { receipt({ stage: 'verify', serviceId: service.id, status: 'skipped', reasonCode: 'no-deployment-to-verify' }); continue; }
+          fail('deployment-not-complete', { stage: 'verify' });
+        }
         const inspected = await safeStage('inspect', service, transaction, required('inspect'));
         assertArtifact(inspected?.artifact);
         const expected = service.mode === 'deploy' ? transaction.candidateArtifact : service.artifact || service.currentArtifact;
@@ -306,6 +321,7 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
         const verification = await safeStage('verify', service, transaction, async ctx => { const result = await required('verify')(ctx); assert(result?.passed === true, 'Production verification result required'); if (result.artifact && !same(result.artifact, inspected.artifact)) fail('identity-mismatch'); return result; });
         record.status = 'production-verified'; record.verifiedAt = now(); record.verification = verification; record.failure = null; save();
       }
+      currentService = null;
       boundary(options.command);
       const held = Object.values(state.services).find(service => ['held', 'auth-required', 'manual-recovery'].includes(service.status));
       state.failure = held?.failure || null;

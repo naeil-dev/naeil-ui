@@ -139,15 +139,17 @@ async function currentPointer(config,artifact) {
  const current=join(config.deploymentRoot,'current'),destination=join(config.deploymentRoot,'releases',artifact.releaseId);
  check((await lstat(current)).isSymbolicLink()&&await realpath(current)===destination,'native-current-pointer-mismatch');await verifyRelease(artifact,destination);
 }
-async function owned(config,artifact,probe) {
+async function owned(config,artifact,probe,allowStopped=false) {
  const job=probe?.job,processIdentity=probe?.process;
+ if(allowStopped&&(!job||job.label===config.label&&job.pid===null)&&await stopped(config,{...probe,job:null},true))return null;
  // This persistent application lock is an ownership record, not an auth file.
  // Only its pid is used. Its opaque nonce is never required, retained or output.
  const lock=JSON.parse(await bytes(join(config.dataDirectory,'.estimate.lock.json'),4096));
  check(job&&processIdentity&&Number.isSafeInteger(job.pid)&&job.pid>0&&job.pid===processIdentity.pid&&job.pid===lock.pid&&job.label===config.label&&processIdentity.uid===config.uid&&processIdentity.executable===config.nodePath&&processIdentity.cwd===join(config.deploymentRoot,'releases',artifact.releaseId,'app')&&typeof processIdentity.start==='string'&&processIdentity.start.length>0&&Array.isArray(probe.listeners)&&probe.listeners.length===1&&probe.listeners[0]===job.pid,'native-process-ownership-mismatch');
+ if(allowStopped)equal(probe.appPids,[job.pid],'native-process-ownership-mismatch');
  return job.pid;
 }
-async function stopped(config,probe) {return !probe.job&&!probe.process&&!probe.oldProcessAlive&&Array.isArray(probe.listeners)&&probe.listeners.length===0&&!await exists(join(config.dataDirectory,'.estimate.lock.json'));}
+async function stopped(config,probe,requireAppProcesses=false) {return !probe.job&&!probe.process&&!probe.oldProcessAlive&&Array.isArray(probe.listeners)&&probe.listeners.length===0&&(!requireAppProcesses||isDeepStrictEqual(probe.appPids,[]))&&!await exists(join(config.dataDirectory,'.estimate.lock.json'));}
 async function until(config,fn,reasonCode,platform) {
  const deadline=Date.now()+config.timeoutMs;let lastError;
  do {
@@ -269,14 +271,18 @@ export async function runEstimateNative(request,injectedPlatform) {
    marker={...marker,status:'complete',phase:'verified',reconciliation:alreadyRestored,result};await atomic(markerPath,marker);return result;
   }
   const before=request.action==='deploy'?binding.previousArtifact:binding.candidateArtifact,target=request.action==='deploy'?binding.candidateArtifact:binding.previousArtifact;
+  // A completed deploy permits rollback from bound disk/process evidence even
+  // when HTTP is broken. Unresolved attempts still require healthy inspection.
+  const completedRollback=request.action==='rollback'&&(!prior||prior.status==='not-started')&&(await record(join(request.transactionDirectory,'deploy.json'))).status==='complete';
   await currentPointer(config,before);const from=await verifyRelease(before,join(config.deploymentRoot,'releases',before.releaseId));
   if(request.action==='deploy')await stage(config,target);
   const to=await verifyRelease(target,join(config.deploymentRoot,'releases',target.releaseId));await codeCompatibility(from,to);await phase('staged');
-  const first=await platform.probe(),oldPid=await owned(config,before,first);await healthy(platform);await publicIdentity(platform,before);
+  const first=await platform.probe(undefined,completedRollback),oldPid=await owned(config,before,first,completedRollback);
+  if(!completedRollback){await healthy(platform);await publicIdentity(platform,before);}
   marker.oldPid=oldPid;const baseline=await capture(config,request.transactionDirectory,request.action+(attempt===1?'':'-'+attempt));await phase('captured');
   await currentPointer(config,before);await verifyRelease(target,join(config.deploymentRoot,'releases',target.releaseId));
-  const second=await platform.probe(oldPid);await owned(config,before,second);equal(second.process,first.process,'native-process-identity-drift');await sameSnapshot(config,baseline);
-  mutating=true;await phase('stop-requested');await platform.bootout();await until(config,async()=>stopped(config,await platform.probe(oldPid)),'native-natural-stop-timeout',platform);
+  const second=await platform.probe(oldPid,completedRollback);await owned(config,before,second,completedRollback);equal(second.process,first.process,'native-process-identity-drift');await sameSnapshot(config,baseline);
+  mutating=true;await phase('stop-requested');if(second.job)await platform.bootout();await until(config,async()=>stopped(config,await platform.probe(oldPid,completedRollback),completedRollback),'native-natural-stop-timeout',platform);
   await phase('stopped');await sameSnapshot(config,baseline);await currentPointer(config,before);
   await phase('switch-requested');await switchCurrent(config,target);await phase('switched');await sameSnapshot(config,baseline);
   await phase('bootstrap-requested');await platform.bootstrap();await until(config,async()=>healthy(platform),'native-readiness-timeout',platform);
@@ -292,8 +298,6 @@ export async function runEstimateNative(request,injectedPlatform) {
   return result;
  }finally{if(markerOwned)activeMarkers.delete(markerPath);if(mutationReserved)activeMutations.delete(request.transactionDirectory);}
 }
-
-export function createEstimateNative({platform}={}) {return async(action,request)=>runEstimateNative({...request,action},platform);}
 
 function actualPlatform(config) {check(process.platform==='darwin'&&process.version==='v24.21.0','native-platform-runtime-mismatch');return createEstimatePlatform(config);}
 /** Only PID/status/label and process ownership metadata leave these commands.
@@ -320,7 +324,7 @@ export function createEstimatePlatform(config,{execute=exec,fetchImpl=fetch}={})
   try{return JSON.parse(raw);}catch{throw fault('native-public-response-invalid',{status:response.status,stage});}
  }
  return {
-  async probe(oldPid) {
+  async probe(oldPid,includeAppProcesses=false) {
    const rows=(await command('/bin/launchctl',['list'])).trim().split('\n').map(line=>line.trim().split(/\s+/)).filter(row=>row[2]===config.label);
    check(rows.length<=1&&rows.every(row=>row.length===3&&/^(?:-|[1-9]\d*)$/.test(row[0])&&/^-?\d+$/.test(row[1])),'native-launchd-job-mismatch');
    const listenersText=await command('/usr/sbin/lsof',['-nP',`-iTCP:${config.port}`,'-sTCP:LISTEN','-t'],{absent:true});
@@ -336,7 +340,16 @@ export function createEstimatePlatform(config,{execute=exec,fetchImpl=fetch}={})
      const start=(await command('/bin/ps',['-p',String(pid),'-o','lstart='])).trim();processIdentity={pid,uid,executable:config.nodePath,cwd:cwd[0],start};
     }
    }
-   return {job,process:processIdentity,listeners,oldProcessAlive:oldPid?alive(oldPid):Boolean(processIdentity)};
+   let appPids;
+   if(includeAppProcesses) {
+    const cwdText=await command('/usr/sbin/lsof',['-a','-u',String(config.uid),'-d','cwd','-Fpn'],{absent:true});let pid=null;const pids=[];
+    for(const row of cwdText.split('\n')) {
+     if(row.startsWith('p')){check(/^[1-9]\d*$/.test(row.slice(1)),'native-process-ownership-mismatch');pid=Number(row.slice(1));}
+     else if(row.startsWith('n')&&within(row.slice(1),join(config.deploymentRoot,'releases'))){check(pid!==null,'native-process-ownership-mismatch');pids.push(pid);}
+    }
+    appPids=[...new Set(pids)].sort((a,b)=>a-b);
+   }
+   return {job,process:processIdentity,listeners,oldProcessAlive:oldPid?alive(oldPid):Boolean(processIdentity),...(includeAppProcesses?{appPids}:{})};
   },
   async bootout(){await command('/bin/launchctl',['bootout',domain,config.plistFile]);},
   async bootstrap(){await command('/bin/launchctl',['bootstrap',domain,config.plistFile]);},

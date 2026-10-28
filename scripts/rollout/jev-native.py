@@ -294,6 +294,7 @@ class Native:
         require(self.base.is_dir() and self.base.stat().st_uid == os.getuid(), 'native-base-owner')
         self.database_identity = config['databaseIdentity']
         self.retained = config['preserveDirectoryIdentities']
+        self.allow_unhealthy = False
         require(set(self.retained) == set(config['preserveDirectories']) and len(self.retained) >= 2, 'retained-path-pins-required')
 
     def command(self, args):
@@ -380,10 +381,15 @@ class Native:
         return pid
 
     def idle(self):
-        pid = self.ownership()
-        sockets = self.command(['/usr/sbin/lsof', '-nP', '-a', '-p', str(pid), '-iTCP', '-sTCP:ESTABLISHED', '-Fp'])
-        require(sockets.returncode in (0, 1), 'socket-inspection')
-        if sockets.returncode != 1 or sockets.stdout.strip(): raise Deferred('app-connections-busy')
+        if self.allow_unhealthy and self.listener() is None:
+            registered, pid = self.job(); pids = self.app_pids()
+            require(pids == ([pid] if registered and pid is not None else []), 'unowned-app-process')
+            if pid is not None: self.owned_process(pid)
+        else: pid = self.ownership()
+        if pid is not None:
+            sockets = self.command(['/usr/sbin/lsof', '-nP', '-a', '-p', str(pid), '-iTCP', '-sTCP:ESTABLISHED', '-Fp'])
+            require(sockets.returncode in (0, 1), 'socket-inspection')
+            if sockets.returncode != 1 or sockets.stdout.strip(): raise Deferred('app-connections-busy')
         with closing(readonly(self.db)) as conn:
             count = conn.execute('SELECT count(*) FROM leases').fetchone()[0]
         if count: raise Deferred('app-leases-busy')
@@ -463,7 +469,7 @@ def activate_transaction(ops, release, record, guard=lambda: None):
             require(not backup_directory.exists() and not backup_directory.is_symlink(), 'backup-attempt-exists')
             private_directory(backup_directory); attempts.append(name); record_phase(release, record, 'staged')
         ops.backup(backup_directory, 'online'); guard(); ops.preflight(); ops.idle(); guard()
-        record_phase(release, record, 'stopping'); stopped = True; ops.stop()
+        record_phase(release, record, 'stopping'); stopped = True; ops.stop(allow_unhealthy=getattr(ops, 'allow_unhealthy', False))
         record_phase(release, record, 'stopped'); ops.backup(backup_directory, 'stopped')
         guard(); ops.static()
         require(code_manifest(ops.app) == record['before'] and code_manifest(staged) == record['after'], 'code-changed-while-stopping')
@@ -537,7 +543,7 @@ def transaction_journal(release, record):
     return result
 
 
-def inspect_transaction(request, ops, release, record):
+def inspect_transaction(request, ops, release, record, require_health=True):
     artifact = request.get('inspectionArtifact')
     require(artifact in [record['previousArtifact'], record['artifact']], 'transaction-inspection-artifact')
     expected = record['before'] if artifact == record['previousArtifact'] else record['after']
@@ -546,7 +552,8 @@ def inspect_transaction(request, ops, release, record):
     require(json.loads((ops.app / 'public/.well-known/naeil-ui.json').read_text()) == identity, 'transaction-inspection-identity')
     require((ops.app / '.next/BUILD_ID').read_text().strip() == artifact['buildId'], 'transaction-inspection-build')
     journal = transaction_journal(release, record)
-    ops.ownership(); ops.health(identity); ops.preserved()
+    if require_health: ops.ownership(); ops.health(identity)
+    ops.preserved()
     require(code_manifest(ops.app) == expected and transaction_journal(release, record) == journal, 'transaction-inspection-drift')
     return {'schemaVersion': 1, 'passed': True, 'safe': True, 'action': 'inspect-transaction', 'planSha256': request['planSha256'], 'releaseId': record['releaseId'], 'serviceId': 'jev', 'attemptId': request['attemptId'], 'idempotencyKey': request['idempotencyKey'], 'artifact': artifact, 'journal': journal, 'identity': identity}
 
@@ -572,7 +579,8 @@ def local_rollback(request, ops, release, record):
         inspect_transaction({**request, 'inspectionArtifact': record['previousArtifact']}, ops, release, record)
         if record['phase'] != 'rolled-back': record_phase(release, record, 'rolled-back')
         return
-    inspect_transaction({**request, 'inspectionArtifact': record['artifact']}, ops, release, record)
+    completed = record['phase'] == 'active' and (not recovery or recovery['phase'] in ['staged', 'recovered'])
+    inspect_transaction({**request, 'inspectionArtifact': record['artifact']}, ops, release, record, require_health=not completed)
     proof = None
     # A bound staged/recovered attempt already established that no unresolved
     # mutation remains, even if the original deployment journal was incomplete.
@@ -602,6 +610,9 @@ def local_rollback(request, ops, release, record):
     if proof: recovery['reconciliation'] = proof
     record_phase(rollback, recovery, 'preparing'); shutil.copytree(retained, rollback / 'staged-app', symlinks=True)
     require(code_manifest(rollback / 'staged-app') == record['before'], 'rollback-staged-predecessor-changed')
+    # Only a completed deployment permits an unhealthy candidate to be stopped.
+    # Preflight still proves process ownership, idle sockets and database leases.
+    ops.allow_unhealthy = completed
     record_phase(rollback, recovery, 'staged'); activate_transaction(ops, rollback, recovery)
     record_phase(release, record, 'rolled-back')
 
@@ -649,6 +660,20 @@ def native_action(request):
         record = {'schemaVersion': 1, 'releaseId': request['release']['releaseId'], 'serviceId': 'jev', 'idempotencyKey': request['idempotencyKey'], 'attemptId': request['attemptId'], 'configSha256': sha(canonical(request['config'])), 'releaseFingerprint': release_fingerprint(request['release']), 'phase': 'preparing', 'before': before, 'after': manifest, 'identity': expected_identity, 'previousIdentity': public_identity(request['service'], previous), 'artifact': artifact, 'previousArtifact': previous}
         if local: record['planSha256'] = request['planSha256']
         record_phase(release, record, 'preparing')
+    if reuse_staged:
+        release, record = transaction_record(request, ops)
+        if record['phase'] == 'preparing':
+            require(code_manifest(ops.app) == record['before'], 'predecessor-code-changed'); ops.ownership()
+            require(record['after'] == manifest and record['identity'] == expected_identity, 'staging-artifact-binding')
+            staged = release / 'staged-app'
+            if staged.exists() or staged.is_symlink():
+                require(staged.is_dir() and not staged.is_symlink(), 'real-stage-directory')
+                attempts = record.setdefault('incompleteStages', [])
+                require(isinstance(attempts, list) and len(attempts) < 1000 and attempts == [f'staged-app-incomplete-{index + 1}' for index in range(len(attempts))], 'incomplete-stage-binding')
+                name = f'staged-app-incomplete-{len(attempts) + 1}'; preserved = release / name
+                require(not preserved.exists() and not preserved.is_symlink(), 'incomplete-stage-exists')
+                staged.rename(preserved); attempts.append(name); record_phase(release, record, 'preparing')
+    if action in ['stage', 'deploy'] and (not reuse_staged or record['phase'] == 'preparing'):
         extract_code(Path(artifact['path']), release / 'staged-app', manifest)
         require(json.loads((release / 'staged-app/public/.well-known/naeil-ui.json').read_text()) == expected_identity, 'staged-identity')
         require((release / 'staged-app/.next/BUILD_ID').read_text().strip() == artifact['buildId'], 'staged-build')

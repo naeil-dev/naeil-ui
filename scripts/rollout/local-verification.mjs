@@ -1,12 +1,12 @@
 /** The child owns session access. Parent sees only bounded, sanitized receipts. */
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { promisify } from 'node:util';
-import { hash, immutableJSON, readJSON, privateDirectory, LocalRolloutError } from './local-runtime.mjs';
+import { entryExists as stopped, GATE, hash, immutableJSON, readJSON, privateDirectory, LocalRolloutError, startRegistered } from './local-runtime.mjs';
 import { verifyLocalProduction } from './standing-verification.mjs';
 import { readPrivateJson } from './verification-session.mjs';
 import { loadReleaseExpectations } from './release-expectations.mjs';
@@ -14,7 +14,6 @@ import { routeKey } from './route-contract.mjs';
 
 const exec = promisify(execFile);
 const script = fileURLToPath(import.meta.url);
-function stopped(path) { try { lstatSync(path); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } }
 export function assertLocalVerification(result, request, startedAt) {
   const { release, service, artifact } = request;
   assert(result?.schemaVersion === 1 && result.passed === true, 'Production verification did not pass');
@@ -45,8 +44,8 @@ export function createLocalVerifier(config) {
     for (const name of ['HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'TMPDIR']) if (process.env[name]) env[name] = process.env[name];
     const startedAt = Date.now();
     try {
-      const pending = exec(selected.nodeExecutable, [script], { cwd: dirname(script), env, detached: true, timeout: timeoutMs, maxBuffer: 4096 });
-      if (registerChild && pending.child?.pid) registerChild(pending.child, { processGroup: true });
+      const pending = exec('/bin/sh', [...GATE, selected.nodeExecutable, script], { cwd: dirname(script), env, detached: true, timeout: timeoutMs, maxBuffer: 4096 });
+      startRegistered(pending, registerChild);
       await pending;
     }
     catch (error) {
