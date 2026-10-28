@@ -1,0 +1,24 @@
+/* P4: copied verbatim from Home index.css:52-67, dashboard-v2.css:11,79-82.
+   Source 5b39c839; no chrome.css repair is included. */
+@theme {
+  --text-xs--line-height: 1.4;
+  --text-sm--line-height: 1.5;
+  --text-base--line-height: 1.5;
+  --text-lg--line-height: 1.4;
+  --text-xl--line-height: 1.3;
+}
+@theme inline {
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-a1: var(--a1);
+  --font-sans: "Pretendard Variable", Pretendard, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Geist Sans", -apple-system, system-ui, sans-serif;
+}
+@layer base {
+  body { @apply bg-background text-foreground font-sans text-sm; }
+}
+:root[data-dashboard-v2] body { font-size: 16px; line-height: 1.5625; }
+:root[data-dashboard-v2] :is([role="dialog"], [role="menu"]) { font-size: 16px; }
+:root[data-dashboard-v2] [role="menuitem"]:not([data-naeil-account-menu] *) { min-height: 40px; font-size: 16px; }
+:root[data-dashboard-v2] [role="dialog"] label { font-size: 16px; }
+:root[data-dashboard-v2] [role="dialog"] p { font-size: 14px; }

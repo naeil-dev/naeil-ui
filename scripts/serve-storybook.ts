@@ -18,4 +18,4 @@ createServer((request, response) => {
     if (request.method === "HEAD") response.end();
     else createReadStream(file).pipe(response);
   } catch { response.writeHead(404).end(); }
-}).listen(6007, "127.0.0.1", () => console.log("Storybook artifact: http://127.0.0.1:6007"));
+}).listen(Number(process.env.NAEIL_UI_PREVIEW_PORT || 6007), "127.0.0.1", () => console.log("Preview artifact server ready"));

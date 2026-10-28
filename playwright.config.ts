@@ -16,11 +16,16 @@ export default defineConfig({
     { name: "firefox", use: { browserName: "firefox" } },
     { name: "webkit", use: { browserName: "webkit" } },
   ],
-  webServer: {
+  webServer: [...(process.env.NAEIL_UI_CHROME_ONLY ? [] : [{
     command: "tsx scripts/serve-storybook.ts",
     url: "http://127.0.0.1:6007",
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",
     stderr: "ignore",
-  },
+  }]), {
+    command: "tsx scripts/build-chrome-fixtures.ts && NAEIL_UI_PREVIEW_PORT=6008 tsx scripts/serve-storybook.ts test-results/chrome-fixtures",
+    url: "http://127.0.0.1:6008/identity.json",
+    reuseExistingServer: false,
+    timeout: 120000,
+  }],
 });
