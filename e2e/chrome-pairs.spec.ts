@@ -18,9 +18,15 @@ async function prepare(page: Page, side: string, query: string, state: string, h
   }
   if (state === "account") await scope.locator("[data-naeil-account-trigger]").click();
   if (state === "locale") await scope.getByRole("combobox").click();
+  if (state !== "hover") await page.mouse.move(page.viewportSize()!.width / 2, 850);
   await page.evaluate(async () => {
     await document.fonts.ready;
-    await Promise.all(document.getAnimations().filter(a => a.effect?.getComputedTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})));
+    for (;;) {
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const animations = document.getAnimations().filter(a => a.playState !== "finished" && a.effect?.getComputedTiming().iterations !== Infinity);
+      if (!animations.length) break;
+      await Promise.all(animations.map(a => a.finished.catch(() => {})));
+    }
   });
 }
 
@@ -129,3 +135,17 @@ for (const profile of ["canonical", "site", "estimate", "jev", "compat-routing",
     expect(failures).toEqual([]);
   });
 }
+
+test("P1 empty-menu omitted props retain the observed B1 resize behavior", async ({ page }, info) => {
+  const rows = [];
+  for (const side of ["baseline", "candidate"]) {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await prepare(page, side, "profile=legacy-empty&locale=en", "sheet");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    rows.push({ side, sheetCount: await page.locator('[data-slot="navigation-sheet"]').count(), navigation: await page.locator(".ui-navigation-desktop").evaluate(e => ({ display: getComputedStyle(e).display, width: e.getBoundingClientRect().width, children: e.children.length })) });
+  }
+  await record(info, "B1-empty-menu-behavior", rows);
+  expect(rows[0].sheetCount).toBe(1);
+  expect(rows[1].sheetCount).toBe(rows[0].sheetCount);
+});

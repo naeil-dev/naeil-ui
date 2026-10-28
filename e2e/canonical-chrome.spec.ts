@@ -1,4 +1,12 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type TestInfo } from "@playwright/test";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
+
+async function record(info: TestInfo, name: string, value: unknown) {
+  const path = info.outputPath(`${name}.json`);
+  mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(value, null, 2));
+  await info.attach(name, { path, contentType: "application/json" });
+}
 
 const base = "http://127.0.0.1:6008";
 async function open(page: Page, query = "", side = "candidate") {
@@ -9,7 +17,13 @@ async function open(page: Page, query = "", side = "candidate") {
 async function settled(page: Page) {
   await page.evaluate(async () => {
     await document.fonts.ready;
-    await Promise.all(document.getAnimations().filter(a => a.effect?.getComputedTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})));
+    // Mount/focus changes can start a transition on the next frame in WebKit.
+    for (;;) {
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const animations = document.getAnimations().filter(a => a.playState !== "finished" && a.effect?.getComputedTiming().iterations !== Infinity);
+      if (!animations.length) break;
+      await Promise.all(animations.map(a => a.finished.catch(() => {})));
+    }
   });
 }
 const sheet = (page: Page) => page.locator('[data-slot="navigation-sheet"]');
@@ -21,7 +35,7 @@ async function mobile(page: Page, query = "") {
   await expect(sheet(page)).toBeVisible();
 }
 
-test("P2 Home data, accessible brand and one status outside the link", async ({ page }) => {
+test("P2 Home data, accessible brand and one status outside the link", async ({ page }, info) => {
   for (const locale of ["ko", "en", "ja"]) for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await open(page, `profile=home&current=/keys&locale=${locale}`);
@@ -43,6 +57,7 @@ test("P2 Home data, accessible brand and one status outside the link", async ({ 
       const ink = context.measureText("Home");
       return { centerDelta: baseline + (ink.actualBoundingBoxDescent - ink.actualBoundingBoxAscent) / 2 - wordmarkCenter, gap: label.getBoundingClientRect().x - svg.getBoundingClientRect().right, fontSize: css.fontSize };
     });
+    await record(info, `${locale}-${width}-qualifier`, qualifier);
     expect(qualifier.fontSize).toBe("14px"); expect(qualifier.gap).toBe(4); expect(Math.abs(qualifier.centerDelta), `${locale}/${width} qualifier ink center`).toBeLessThanOrEqual(.25);
     if (width === 390) await toggle(page).click();
     const scope = width === 390 ? sheet(page) : page.locator("header");
@@ -103,11 +118,11 @@ test("P4 Japanese locale supplies its own stack when document is English", async
   await mobile(page, "locale=ja&documentLang=en");
   for (const root of ["header", "footer", '[data-slot="navigation-sheet"]']) {
     await expect(page.locator(root)).toHaveAttribute("lang", "ja");
-    await expect(page.locator(root)).toHaveCSS("font-family", /^"Noto Sans JP"/);
+    await expect(page.locator(root)).toHaveCSS("font-family", /^"?Noto Sans JP"?/);
   }
   for (const selector of ["[data-naeil-account-trigger]", '[role="combobox"]']) {
     await sheet(page).locator(selector).click();
-    await expect(page.locator('[data-naeil-chrome][role="menu"], [data-naeil-locale-menu]')).toHaveCSS("font-family", /^"Noto Sans JP"/);
+    await expect(page.locator('[data-naeil-chrome][role="menu"], [data-naeil-locale-menu]')).toHaveCSS("font-family", /^"?Noto Sans JP"?/);
     await page.keyboard.press("Escape"); await settled(page);
   }
 });
@@ -131,8 +146,14 @@ for (const mode of ["controlled", "observer", "uncontrolled"]) {
     }
     await sheet(page).locator('a[href="/keys"]').click({ modifiers: ["ControlOrMeta"] });
     await expect(sheet(page)).toBeVisible();
+    // WebKit's test shell follows middle links in this tab. Suppress only the
+    // browser navigation; the real event still reaches the component handlers.
+    await sheet(page).locator('a[href="/keys"]').evaluate(link => {
+      for (const type of ["click", "auxclick"]) link.addEventListener(type, event => { if ((event as MouseEvent).button !== 0) event.preventDefault(); });
+    });
     await sheet(page).locator('a[href="/keys"]').click({ button: "middle" });
     await expect(sheet(page)).toBeVisible();
+    if (mode !== "uncontrolled") await expect(page.getByTestId("transitions")).toHaveText("[true]");
     await page.keyboard.press("Escape"); await expect(sheet(page)).toBeHidden();
     if (mode !== "uncontrolled") await expect(page.getByTestId("transitions")).toHaveText("[true,false]");
     await expect(toggle(page)).toBeFocused();
@@ -146,6 +167,18 @@ for (const mode of ["controlled", "observer", "uncontrolled"]) {
     await toggle(page).click(); await page.getByTestId("route").evaluate(e => (e as HTMLButtonElement).click()); await expect(sheet(page)).toBeHidden();
     await page.getByTestId("route").click();
     if (mode !== "uncontrolled") await expect(page.getByTestId("transitions")).toHaveText("[true,false,true,false,true,false,true,false,true,false,true,false]");
+  });
+}
+
+for (const mode of ["controlled", "observer", "uncontrolled"]) {
+  test(`P5 empty navigation closes at desktop (${mode})`, async ({ page }, info) => {
+    await mobile(page, `mode=${mode}&empty`);
+    await page.setViewportSize({ width: 1440, height: 900 }); await settled(page);
+    await record(info, "empty-navigation", {
+      navigation: await page.locator(".ui-navigation-desktop").evaluate(e => ({ display: getComputedStyle(e).display, width: e.getBoundingClientRect().width, children: e.children.length })),
+      sheetCount: await sheet(page).count(), transitions: await page.getByTestId("transitions").textContent(),
+    });
+    await expect(sheet(page)).toBeHidden();
   });
 }
 
