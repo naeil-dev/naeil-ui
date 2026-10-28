@@ -40,7 +40,7 @@ async function snapshot(page: Page, home = false) {
       const nodes = roots.flatMap(root => [root, ...root.querySelectorAll("*")].filter(visible).map(e => ({ tag: e.tagName, slot: e.getAttribute("data-slot"), text: [...e.childNodes].filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent).join(""), rect: rect(e, root), style: style(e) })));
       const html = roots.map(root => { const clone = root.cloneNode(true) as Element; for (const e of [clone, ...clone.querySelectorAll("*")]) { const marked = e.hasAttribute("data-naeil-chrome"); for (const a of [...e.attributes]) {
         if ((["data-naeil-chrome", "data-naeil-locale-menu", "data-naeil-ui-version"].includes(a.name) || (a.name === "lang" && marked))) e.removeAttribute(a.name);
-        else e.setAttribute(a.name, a.value.replace(/radix-[\w-]+|_r_[\w]+_|_R_[\w]+_/g, "GENERATED_ID"));
+        else e.setAttribute(a.name, a.value.replace(/radix-(?:_r_[\w]+_|_R_[\w]+_)/g, "GENERATED_ID"));
       } } return clone.outerHTML; });
       return { nodes, html, common: common() };
     }

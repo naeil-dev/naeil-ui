@@ -213,7 +213,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     const baselineHeader = readFileSync(join(baselineNext, ".next/server/app/header.html"), "utf8");
     const normalize = (html: string) => html.match(/<header\b[\s\S]*?<\/header>/)![0]
       .replace(/\s(?:data-naeil-chrome|lang|data-naeil-ui-version)="[^"]*"/g, "")
-      .replace(/radix-[\w-]+|_r_[\w]+_|_R_[\w]+_/g, "GENERATED_ID");
+      .replace(/radix-(?:_r_[\w]+_|_R_[\w]+_)/g, "GENERATED_ID");
     assert.equal(normalize(headerHtml), normalize(baselineHeader), "Next packed header DOM differs from B1 after contract normalization");
     console.log("B1 React/Next registry-archive fixtures: PASS (clean production builds, React browser, normalized Next header DOM; paired geometry is in e2e/chrome-pairs.spec.ts)");
   }
