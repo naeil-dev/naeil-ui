@@ -127,6 +127,8 @@ The standing `scripts/rollout/prepare-release.mjs` accepts consecutive stable 0.
 
 The candidate adds `appNavigation`, `brandSuffix`, `statusSlot` and controlled/observer sheet props; see [NaeilHeader](components/naeil-header.md) for supported host CSS and consumer-supplied fonts. Default catalog/blog/legacy overrides must remain equivalent to B1. Home uses the complete default toolbar and full footer. A source rollback must revert adapter, CSS and manifest/lock together; pin-only rollback cannot support the new API.
 
+The shipped guide records the B1 empty-menu desktop limitation, controlled-mobile asynchronous account/focus handoff versus desktop/uncontrolled selection-time behavior, and Home's confirmation-owned desktop cancel fallback. Compatibility comparisons normalize only the contract markers/language/release identity and Radix-generated IDs; SVG/Logo and consumer IDs stay exact. Source or guide corrections require a new archive and exact-archive gates; earlier candidate digests are historical evidence.
+
 Package publication, tag, GitHub Release, main merge and Home deployment each require separate explicit approval. naeil.dev imports this repository's source, so a main merge upgrades its default header to 0.8.0 and is held until the owner approves that site impact and timing. Estimate/Jev stay on 0.7.2, and STOP remains. A prepared archive or local gate result grants no publication or rollout authority.
 
 ## Storybook preview artifact

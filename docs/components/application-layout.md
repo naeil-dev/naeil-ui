@@ -81,6 +81,8 @@ export function ApplicationLayout({ children, locale, Link, currentHref,
 
 For owned naeil product navigation, keep the whole header and pass menu data through `appNavigation`; see the [Home profile and host conditions](naeil-header.md#host-typography-and-mobile-handoff-080-candidate). `mobileOpen`/`onMobileOpenChange` can coordinate the sheet with a consumer confirmation, while busy state and request locking remain above the header. For a different product menu without canonical chrome, use the [generic Navigation composition](navigation.md) with the same main/footer structure. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the installed header, narrow form and SiteFooter together.
 
+An empty desktop menu preserves B1's limitation: resizing alone leaves the sheet open; Escape/close/overlay/route change dismiss it. Controlled-mobile account callbacks wait for both closing layers and their focus handoff; desktop and uncontrolled-mobile account callbacks retain B1's selection-time behavior. A consumer confirmation owns cancellation focus, including a visible desktop account fallback after resize.
+
 ## Deliberate overrides
 
 Apply overrides on a common ancestor or document root so header, main and footer inherit them together. Explicit `containerClassName` overrides still work. Do not give each route its own header cap or gutter.
