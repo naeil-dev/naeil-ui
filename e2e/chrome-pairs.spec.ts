@@ -1,5 +1,6 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 
 const base = "http://127.0.0.1:6008";
 const properties = ["color", "background-color", "border-color", "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "opacity", "-webkit-font-smoothing", "-moz-osx-font-smoothing", "padding", "gap", "min-height"];
@@ -74,8 +75,15 @@ function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): 
 }
 
 async function evidence(page: Page, info: TestInfo, name: string, measurements: unknown) {
-  await info.attach(`${name}.json`, { body: JSON.stringify(measurements, null, 2), contentType: "application/json" });
-  await info.attach(`${name}.png`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+  await record(info, name, measurements);
+  const path = info.outputPath(`${name}.png`);
+  await page.screenshot({ fullPage: true, path });
+  await info.attach(`${name}.png`, { path, contentType: "image/png" });
+}
+async function record(info: TestInfo, name: string, measurements: unknown) {
+  const path = info.outputPath(`${name}.json`);
+  mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(measurements, null, 2));
+  await info.attach(`${name}.json`, { path, contentType: "application/json" });
 }
 
 for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) for (const width of [320, 390, 806, 807, 1440, 1920]) for (const auth of ["in", "out"]) {
@@ -86,7 +94,7 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
     const mobile = width <= 806;
     const states = ["closed", "current", "focus", ...(mobile ? ["sheet"] : ["hover", "popover"]), ...(auth === "in" ? ["account"] : []), "locale"];
     const failures: string[] = [];
-    await info.attach("identity.json", { body: JSON.stringify({ ...JSON.parse(readFileSync("test-results/chrome-fixtures/identity.json", "utf8")), browser: page.context().browser()?.version(), viewport: { width, height: 900 }, locale, theme, auth, css: "globals.css", dpr: await page.evaluate(() => devicePixelRatio), fonts: "local PretendardVariable.woff2; Noto Sans JP 400 subsets", review: "Human review required. Candidate renders are not expected baselines." }), contentType: "application/json" });
+    await record(info, "identity", { ...JSON.parse(readFileSync("test-results/chrome-fixtures/identity.json", "utf8")), browser: page.context().browser()?.version(), viewport: { width, height: 900 }, locale, theme, auth, css: "globals.css", dpr: await page.evaluate(() => devicePixelRatio), fonts: "local PretendardVariable.woff2; Noto Sans JP 400/500/600 subsets", review: "Human review required. Candidate renders are not expected baselines." });
     for (const state of states) {
       await prepare(page, "baseline", query, state);
       const baseline = await snapshot(page); await evidence(page, info, `${state}-B1`, baseline);
@@ -100,7 +108,7 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
       const targets = await page.locator("header button, header a, [data-slot='navigation-sheet'] button, [data-slot='navigation-sheet'] a").evaluateAll(es => es.filter(e => e.getBoundingClientRect().width).map(e => ({ width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height })));
       for (const target of targets) expect.soft(target.height).toBeGreaterThanOrEqual(44);
     }
-    await info.attach("pair-differences.json", { body: JSON.stringify(failures, null, 2), contentType: "application/json" });
+    await record(info, "pair-differences", failures);
     expect(failures).toEqual([]);
   });
 }
@@ -117,7 +125,7 @@ for (const profile of ["canonical", "estimate", "jev"]) for (const css of ["glob
         compare(baseline, candidate, `${width}/${auth}`, failures);
       }
     }
-    await info.attach("pair-differences.json", { body: JSON.stringify(failures, null, 2), contentType: "application/json" });
+    await record(info, "pair-differences", failures);
     expect(failures).toEqual([]);
   });
 }

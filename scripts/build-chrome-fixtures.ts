@@ -37,8 +37,15 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
   const fontRoot = join(chromeOutput, "fonts"); mkdirSync(fontRoot, { recursive: true });
   cpSync("node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2", join(fontRoot, "PretendardVariable.woff2"));
   cpSync("node_modules/@fontsource/noto-sans-jp/files", join(fontRoot, "jp"), { recursive: true });
-  const japanese = readFileSync("node_modules/@fontsource/noto-sans-jp/400.css", "utf8").replaceAll("./files/", "/fonts/jp/");
+  const japanese = [400, 500, 600].map(weight => readFileSync(`node_modules/@fontsource/noto-sans-jp/${weight}.css`, "utf8").replaceAll("./files/", "/fonts/jp/")).join("\n");
   writeFileSync(join(chromeOutput, "fonts.css"), `@font-face{font-family:'Pretendard Variable';font-weight:100 900;src:url('/fonts/PretendardVariable.woff2') format('woff2')}\n${japanese}`);
-  writeFileSync(join(chromeOutput, "identity.json"), JSON.stringify({ candidate: candidate || "source", source: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), baselineSha256: createHash("sha256").update(readFileSync(archive)).digest("hex") }, null, 2));
+  const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
+  const fontPaths = ["/fonts/PretendardVariable.woff2", ...[...japanese.matchAll(/url\(([^)]+\.woff2)\)/g)].map(match => match[1])];
+  writeFileSync(join(chromeOutput, "identity.json"), JSON.stringify({
+    candidate: candidate || "source", source: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), baselineSha256: hash(archive),
+    archiveSha256: process.env.NAEIL_UI_EXPECTED_ARCHIVE_SHA256 || null,
+    fontFiles: Object.fromEntries(fontPaths.map(file => [file, hash(join(chromeOutput, file))])),
+    fixtureFiles: Object.fromEntries(["scripts/fixtures/chrome/app.tsx", "scripts/fixtures/chrome/host.css"].map(file => [file, hash(file)])),
+  }, null, 2));
 }
 if (process.argv[1]?.endsWith("build-chrome-fixtures.ts")) await buildChromeFixtures();
