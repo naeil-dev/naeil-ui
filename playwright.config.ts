@@ -1,12 +1,14 @@
 import { defineConfig } from "@playwright/test";
 
+const previewPort = Number(process.env.NAEIL_UI_STORYBOOK_PORT || 6007);
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:6007",
+    baseURL: `http://127.0.0.1:${previewPort}`,
     viewport: { width: 1440, height: 1000 },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
@@ -17,8 +19,8 @@ export default defineConfig({
     { name: "webkit", use: { browserName: "webkit" } },
   ],
   webServer: [...(process.env.NAEIL_UI_CHROME_ONLY ? [] : [{
-    command: "tsx scripts/serve-storybook.ts",
-    url: "http://127.0.0.1:6007",
+    command: `NAEIL_UI_PREVIEW_PORT=${previewPort} tsx scripts/serve-storybook.ts`,
+    url: `http://127.0.0.1:${previewPort}`,
     reuseExistingServer: !process.env.CI,
     stdout: "ignore" as const,
     stderr: "ignore" as const,
