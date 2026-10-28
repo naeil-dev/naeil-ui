@@ -244,3 +244,62 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) for (const res
     await logout(); await guard.getByRole("button", { name: "Discard", exact: true }).click(); await expect(page.getByTestId("requests")).toHaveText("2");
   });
 }
+
+for (const reducedMotion of ["no-preference", "reduce"] as const) {
+  for (const lifecycle of ["reopen", "unmount", "race", "timer-reopen", "timer-unmount"]) {
+    test(`P5 R1 ${lifecycle} cancels stale logout or completes one closing flow (${reducedMotion})`, async ({ page }, info) => {
+      await page.emulateMedia({ reducedMotion });
+      await mobile(page, `boundary&lifecycle=${lifecycle}`);
+      if (lifecycle.startsWith("timer-")) {
+        const control = lifecycle === "timer-reopen" ? "force-open" : "unmount";
+        await sheet(page).evaluate((element, control) => {
+          element.addEventListener("focusScope.autoFocusOnUnmount", () => {
+            document.querySelector<HTMLButtonElement>(`[data-testid="${control}"]`)!.click();
+          }, { once: true });
+        }, control);
+      }
+      await sheet(page).locator("[data-naeil-account-trigger]").click();
+      await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click(); await settled(page);
+      const observation = async () => ({
+        sheet: await sheet(page).count(), header: await page.locator("header").count(),
+        logoutCalls: await page.getByTestId("logout-calls").textContent(),
+        transitions: await page.getByTestId("transitions").textContent(), guard: await page.getByTestId("guard").count(),
+      });
+      const afterSelection = await observation();
+      if (lifecycle.endsWith("reopen")) {
+        await expect(sheet(page)).toBeVisible();
+        await page.keyboard.press("Escape"); await settled(page); await expect(sheet(page)).toBeHidden();
+      }
+      await record(info, "lifecycle", { lifecycle, reducedMotion, afterSelection, afterDismissal: await observation() });
+      if (lifecycle === "race") {
+        await expect(page.getByTestId("logout-calls")).toHaveText("1");
+        await expect(page.getByTestId("guard")).toBeVisible();
+        await expect(page.getByRole("dialog")).toHaveCount(1);
+      } else {
+        if (lifecycle.endsWith("unmount")) await expect(page.locator("header")).toHaveCount(0);
+        await expect(page.getByTestId("logout-calls")).toHaveText("0");
+        await expect(page.getByTestId("guard")).toBeHidden();
+      }
+    });
+  }
+}
+
+for (const policy of ["reject", "delay"]) {
+  test(`P5 R2 controlled ${policy} uses committed props with a stable callback`, async ({ page }, info) => {
+    await mobile(page, `policy=${policy}`);
+    await page.keyboard.press("Escape"); await settled(page); await expect(sheet(page)).toBeVisible();
+    await expect(page.getByTestId("transitions")).toHaveText("[true,false]");
+    await sheet(page).locator(".ui-navigation-sheet-heading button").click(); await settled(page);
+    await record(info, "controlled-requests", { policy, sheetVisible: await sheet(page).isVisible(), requests: await page.getByTestId("transitions").textContent() });
+    await expect(sheet(page)).toBeVisible();
+    await expect(page.getByTestId("transitions")).toHaveText("[true,false,false]");
+    if (policy === "delay") {
+      await page.getByTestId("force-close").evaluate(e => (e as HTMLButtonElement).click()); await settled(page);
+      await expect(sheet(page)).toBeHidden();
+      await expect(page.getByTestId("transitions")).toHaveText("[true,false,false]");
+      await toggle(page).click(); await expect(sheet(page)).toBeVisible();
+      await page.keyboard.press("Escape"); await settled(page);
+      await expect(page.getByTestId("transitions")).toHaveText("[true,false,false,true,false]");
+    }
+  });
+}

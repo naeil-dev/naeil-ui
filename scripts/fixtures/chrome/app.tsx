@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- React-only packed fixture. */
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
 import { Dialog } from "radix-ui";
 import { ThemeProvider } from "next-themes";
 import { KeyRound, LayoutDashboard, Network, Shuffle } from "lucide-react";
@@ -30,23 +31,41 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [requests, setRequests] = useState(0);
   const [notice, setNotice] = useState("draft retained");
+  const [mounted, setMounted] = useState(true);
+  const [logoutCalls, setLogoutCalls] = useState(0);
   const locked = useRef(false);
+  const reopened = useRef(false);
   const opener = useRef<HTMLElement | null>(null);
   const home = query.get("profile") === "home";
   const mode = query.get("mode") || "controlled";
+  const lifecycle = query.get("lifecycle");
+  const policy = query.get("policy");
+  const boundary = query.has("boundary") || !!lifecycle || !!policy;
+  const controlledChange = useCallback((next: boolean) => {
+    setTransitions(values => [...values, next]);
+    if (!next && (policy === "reject" || policy === "delay")) return;
+    if (!next && lifecycle === "unmount") { setMounted(false); return; }
+    if (!next && lifecycle === "reopen" && !reopened.current) {
+      reopened.current = true; setOpen(true); return;
+    }
+    setOpen(next);
+  }, [lifecycle, policy]);
   const signedOut = query.get("auth") === "out";
   const profile = query.get("profile");
   const account = <NaeilHeaderAccountControl locale={locale} account={signedOut ? { status: "signed-out", loginHref: profile === "jev" ? `/login?lang=${locale}` : profile === "site" ? "/login?next=%2F" : "/login" } : {
     status: "signed-in", ...(profile === "estimate" || profile === "jev" ? {} : { displayName: "Example account", email: "account@example.invalid" }), busy: busy || query.get("auth") === "busy",
     onLogout: () => {
       if (!home) return;
+      setLogoutCalls(value => value + 1);
       setOpen(false);
       setGuard(true);
     },
   }} />;
   const sheetProps = home ? {
     ...(mode === "controlled" ? { mobileOpen: open } : {}),
-    ...(mode === "uncontrolled" ? {} : { onMobileOpenChange: (next: boolean) => { setOpen(next); setTransitions(values => [...values, next]); } }),
+    ...(mode === "uncontrolled" ? {} : { onMobileOpenChange: boundary
+      ? (policy ? controlledChange : (next: boolean) => controlledChange(next))
+      : (next: boolean) => { setOpen(next); setTransitions(values => [...values, next]); } }),
   } : {};
   const navigate = (event: React.MouseEvent<HTMLAnchorElement>, item: { href: string }) => {
     if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -57,8 +76,8 @@ function App() {
     locked.current = true; setGuard(false); setBusy(true); setRequests(value => value + 1); setNotice("pending");
   };
   return <>
-    {profile === "generic" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} /> :
-      <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
+    {!mounted ? null : profile === "generic" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} /> :
+      <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={lifecycle === "race" ? <span onClickCapture={event => { if ((event.target as Element).closest('[role="menuitem"]')) setOpen(false); }}>{account}</span> : profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
         {...(home ? { showProjects: false, showBlog: false, appNavigation: query.has("empty") ? [] : appNavigation, brandSuffix: "Home", brandHref: "/", brandLinkProps: { "aria-label": "Naeil Home" }, statusSlot: <span data-testid="readiness" role="status" aria-label="Ready" style={{ display: "block", width: 8, height: 8, borderRadius: "50%", background: "green" }} /> } : {})}
         {...sheetProps}
         {...(profile === "legacy-empty" ? { showProjects: false, showBlog: false } : {})}
@@ -72,6 +91,12 @@ function App() {
       <button data-testid="fail" onClick={() => { locked.current = false; setBusy(false); setNotice("failed; retry allowed"); }}>Fail request</button>
       <output data-testid="transitions">{JSON.stringify(transitions)}</output>
       <output data-testid="requests">{requests}</output><p data-testid="notice">{notice}</p>
+      {boundary && <div>
+        <output data-testid="logout-calls">{logoutCalls}</output>
+        <button data-testid="force-open" onClick={() => flushSync(() => setOpen(true))}>Set open</button>
+        <button data-testid="force-close" onClick={() => flushSync(() => setOpen(false))}>Accept close</button>
+        <button data-testid="unmount" onClick={() => flushSync(() => setMounted(false))}>Unmount header</button>
+      </div>}
       <Select defaultValue="ko"><SelectTrigger aria-label="Body language"><SelectValue /></SelectTrigger><SelectContent data-testid="body-select">
         <SelectItem value="ko" lang="ko">한국어</SelectItem><SelectItem value="en" lang="en">English</SelectItem><SelectItem value="ja" lang="ja">日本語</SelectItem>
       </SelectContent></Select>
