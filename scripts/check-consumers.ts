@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   readdirSync,
@@ -47,6 +48,23 @@ function fixture(name: string, source: string, tarball: string) {
     "--package-lock=false",
   ]);
   return cwd;
+}
+function recordBuild(name: string, cwd: string, tarball: string) {
+  const output = process.env.NAEIL_UI_CONSUMER_EVIDENCE;
+  if (!output) return;
+  mkdirSync(output, { recursive: true });
+  const next = existsSync(join(cwd, ".next/BUILD_ID"));
+  const files = next ? [".next/BUILD_ID", ".next/server/app/header.html", ".next/server/app/index.html"]
+    : readdirSync(join(cwd, "dist/assets")).filter(file => /\.(css|js|woff2)$/.test(file)).map(file => `dist/assets/${file}`);
+  const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
+  writeFileSync(join(output, `${name}.json`), JSON.stringify({
+    source: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+    archiveSha256: hash(tarball), node: process.version,
+    buildId: next ? readFileSync(join(cwd, ".next/BUILD_ID"), "utf8").trim() : "Vite content-addressed assets below",
+    packages: Object.fromEntries(["@naeil/ui", "react", "react-dom", "radix-ui", ...(next ? ["next", "next-intl"] : [])].map(pkg => [pkg, JSON.parse(readFileSync(join(cwd, "node_modules", pkg, "package.json"), "utf8")).version])),
+    files: Object.fromEntries(files.map(file => [file, hash(join(cwd, file))])),
+    svgIds: next ? [...readFileSync(join(cwd, ".next/server/app/header.html"), "utf8").matchAll(/(?:id|clip-path)="(naeil-[^"]+|url\(#naeil-[^"]+)"/g)].map(match => match[1]) : undefined,
+  }, null, 2));
 }
 try {
   const packed = JSON.parse(
@@ -170,6 +188,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   );
 
   await checkConsumerBrowser(core);
+  recordBuild("candidate-react", core, tarball);
 
   const next = fixture("next", resolve("scripts/fixtures/next"), tarball);
   for (const name of [
@@ -200,6 +219,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   console.log(
     "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",
   );
+  recordBuild("candidate-next", next, tarball);
   if (process.env.NAEIL_UI_BASELINE_CONSUMERS === "1") {
     // Use the existing fixtures unchanged for B1, rather than inventing a
     // second compatibility app. buildChromeFixtures verifies the pinned SRI.
@@ -208,8 +228,10 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     const baselineReact = fixture("react-baseline", resolve("examples/react"), baselineArchive);
     run(baselineReact, "npm", ["run", "build"]);
     await checkConsumerBrowser(baselineReact);
+    recordBuild("baseline-react", baselineReact, baselineArchive);
     const baselineNext = fixture("next-baseline", resolve("scripts/fixtures/next"), baselineArchive);
     run(baselineNext, "npm", ["run", "build"]);
+    recordBuild("baseline-next", baselineNext, baselineArchive);
     const baselineHeader = readFileSync(join(baselineNext, ".next/server/app/header.html"), "utf8");
     const normalize = (html: string) => html.match(/<header\b[\s\S]*?<\/header>/)![0]
       .replace(/\s(?:data-naeil-chrome|lang|data-naeil-ui-version)="[^"]*"/g, "")
