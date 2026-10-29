@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type Browser } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 
 const selectors = ["body", ".ui-navigation-frame", "main.ui-app-frame", ".ui-site-footer-frame", '[data-testid="frame-reading"]', '[data-testid="frame-fluid"]', '[data-testid="frame-fixed"]'];
 
@@ -16,7 +18,7 @@ export async function frameState(page: Page) {
       scrollHeight: root.scrollHeight, scrollY, gutter: getComputedStyle(root).scrollbarGutter,
       margin: body.marginRight, padding: body.paddingRight, overflow: body.overflowY,
       removed: body.getPropertyValue("--removed-body-scroll-bar-size").trim(), lock: document.body.getAttribute("data-scroll-locked"),
-      fonts: document.fonts.status, theme: root.className,
+      fonts: document.fonts.status, theme: root.className, lang: root.lang, headerLang: document.querySelector("header")?.getAttribute("lang"),
       boxes: Object.fromEntries(selectors.map(selector => {
         const element = document.querySelector(selector), rect = element?.getBoundingClientRect();
         return [selector, rect ? { x: rect.x, width: rect.width, padding: getComputedStyle(element!).paddingInlineStart } : null];
@@ -25,6 +27,29 @@ export async function frameState(page: Page) {
   }, selectors);
 }
 type State = Awaited<ReturnType<typeof frameState>>;
+
+export async function scrollbarLaunch(page: Page, browser: Browser, browserName: string) {
+  const mode = process.env.NAEIL_UI_SCROLLBAR_MODE;
+  let argv: string[] | undefined;
+  if (browserName === "chromium") {
+    const cdp = await browser.newBrowserCDPSession();
+    argv = (await cdp.send("Browser.getBrowserCommandLine")).arguments;
+    await cdp.detach();
+  }
+  let wrapper;
+  if (mode) {
+    assert.equal(browserName, "chromium", "Mode jobs require the validated Chromium recipe");
+    assert(!argv!.includes("--hide-scrollbars"));
+    assert(argv!.includes(mode === "classic" ? "Always" : "WhenScrolling"));
+    const path = `${process.env.NAEIL_UI_SCROLLBAR_WRAPPERS}/chromium-${mode}.sh`, contents = readFileSync(path, "utf8");
+    wrapper = { path, contents, sha256: createHash("sha256").update(contents).digest("hex") };
+  }
+  await page.setContent('<!doctype html><style>html{scrollbar-gutter:stable}body{margin:0}main{height:3000px}</style><main></main>');
+  const probe = await frameState(page);
+  if (mode) assert.equal(probe.scrollbar, mode === "classic" ? 15 : 0, "Actual mode probe");
+  assert.equal(probe.available, page.viewportSize()!.width - probe.scrollbar, "Long stable root probe");
+  return { browser: browser.version(), mode: mode || "default engine", argv, probe, wrapper };
+}
 
 export function stableFrame(before: State, after: State) {
   for (const [selector, box] of Object.entries(before.boxes)) {
@@ -37,6 +62,7 @@ export function stableFrame(before: State, after: State) {
 }
 
 export async function settleFrame(page: Page) {
+  await expect(page.locator("header .naeil-header-controls > button").first()).toBeEnabled();
   await page.evaluate(async () => {
     await document.fonts.ready;
     for (const animation of document.getAnimations()) {
@@ -83,9 +109,7 @@ export async function exercisePageFrame(page: Page, record: (name: string, data:
   await record("length-and-router", states);
 }
 
-export async function exerciseFrameLocks(page: Page, record: (name: string, data: unknown) => Promise<void>) {
-  await settleFrame(page);
-  const before = await assertRootFrame(page);
+export async function startFrameSampling(page: Page) {
   // Sample ordinary content/fixed anchors through animations, not moving modal panels.
   // Plain browser source also works under tsx, whose named-function helpers
   // are otherwise captured by evaluate serialization in clean consumer checks.
@@ -102,6 +126,103 @@ export async function exerciseFrameLocks(page: Page, record: (name: string, data
       requestAnimationFrame(sample);
     }; sample();
   })();` });
+}
+
+export async function finishFrameSampling(page: Page, before: State, record: (name: string, data: unknown) => Promise<void>, states: unknown) {
+  if (page.isClosed()) return;
+  const samples = await page.evaluate(() => {
+    const target = window as unknown as { frameSampling: boolean; frameSamples: Record<string, { x: number; width: number }>[] };
+    target.frameSampling = false; return target.frameSamples;
+  });
+  await record("locks-and-animation-frames", { states, samples });
+  assert(samples.length > 0, "Animation sampling must run");
+  for (const sample of samples) for (const [selector, box] of Object.entries(sample)) {
+    const original = before.boxes[selector]; if (!original) continue;
+    for (const key of ["x", "width"] as const) assert(Math.abs(original[key] - box[key]) <= .01, `Animation ${selector}.${key}: ${original[key]} -> ${box[key]}`);
+  }
+}
+
+function unlockedBody(before: State, state: State) {
+  for (const key of ["lock", "margin", "padding", "removed", "overflow"] as const) assert.equal(state[key], before[key], `Unlocked body ${key}`);
+}
+
+async function backgroundWheel(page: Page, blocked: boolean) {
+  const before = await page.evaluate(() => scrollY);
+  await page.mouse.move(8, 850); await page.mouse.wheel(0, 200);
+  if (blocked) {
+    await page.waitForTimeout(80);
+    assert.equal(await page.evaluate(() => scrollY), before, "Background wheel must remain blocked");
+  } else {
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before);
+    await page.evaluate(y => scrollTo(0, y), before); await settleFrame(page);
+  }
+}
+
+export async function checkJapaneseToolbar(page: Page, profile: string) {
+  await settleFrame(page);
+  const state = await assertRootFrame(page), sheet = page.locator('[data-slot="navigation-sheet"]');
+  const controls = page.locator('.ui-navigation-mobile-toolbar .naeil-header-controls');
+  const height = (await controls.boundingBox())!.height;
+  assert.equal(height, profile === "site" && state.scrollbar === 15 ? 104 : 44);
+  const targets = controls.locator("button, a, [role=combobox]");
+  const count = await targets.count();
+  const clipped = await controls.evaluate(element => {
+    const sheet = element.closest('[data-slot="navigation-sheet"]')!.getBoundingClientRect();
+    return [...element.querySelectorAll("button, a, [role=combobox]")].some(control => {
+      const box = control.getBoundingClientRect();
+      if (box.height < 44 || box.left < sheet.left || box.right > sheet.right || box.bottom > sheet.bottom) return true;
+      const walker = document.createTreeWalker(control, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim()) continue;
+        const range = document.createRange(); range.selectNodeContents(node); const text = range.getBoundingClientRect();
+        if (text.left < box.left - .01 || text.right > box.right + .01 || text.top < box.top - .01 || text.bottom > box.bottom + .01) return true;
+      }
+      return false;
+    });
+  });
+  assert(!clipped, "Wrapped toolbar controls/text must fit inside the sheet");
+  await sheet.focus();
+  for (const key of ["Tab", "Shift+Tab"]) {
+    const reached = new Set<number>();
+    const current = await targets.evaluateAll(elements => elements.findIndex(element => element === document.activeElement));
+    if (current >= 0) reached.add(current);
+    for (let step = 0; step < 40 && reached.size < count; step++) {
+      await page.keyboard.press(key);
+      const index = await targets.evaluateAll(elements => elements.findIndex(element => element === document.activeElement));
+      if (index >= 0) reached.add(index);
+    }
+    assert.equal(reached.size, count, `${key} must reach every toolbar control`);
+  }
+  return { profile, height, state };
+}
+
+export async function exerciseHomeHandoff(page: Page, record: (name: string, data: unknown) => Promise<void>) {
+  await settleFrame(page); const before = await assertRootFrame(page), states: State[] = [];
+  await startFrameSampling(page);
+  try {
+    await page.locator(".ui-navigation-toggle").click(); await settleFrame(page);
+    await page.locator('[data-slot="navigation-sheet"] [data-naeil-account-trigger]').click(); await settleFrame(page);
+    states.push(await frameState(page)); stableFrame(before, states.at(-1)!);
+    await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click();
+    const guard = page.getByTestId("guard"); await expect(guard).toBeVisible(); await settleFrame(page);
+    await expect(page.getByRole("dialog")).toHaveCount(1);
+    assert(await guard.evaluate(e => e.contains(document.activeElement)), "Confirmation owns focus");
+    states.push(await frameState(page)); stableFrame(before, states.at(-1)!);
+    assert.equal(states.at(-1)!.lock, "1");
+    await backgroundWheel(page, true);
+    await guard.getByRole("button", { name: "Cancel", exact: true }).click(); await settleFrame(page);
+    await expect.poll(() => page.locator("body").getAttribute("data-scroll-locked")).toBe(null);
+    states.push(await frameState(page)); stableFrame(before, states.at(-1)!); unlockedBody(before, states.at(-1)!);
+    if (before.scrollHeight > page.viewportSize()!.height) await backgroundWheel(page, false);
+  } finally { await finishFrameSampling(page, before, record, states); }
+}
+
+export async function exerciseFrameLocks(page: Page, record: (name: string, data: unknown) => Promise<void>) {
+  await settleFrame(page);
+  const before = await assertRootFrame(page);
+  const scrollable = before.scrollHeight > page.viewportSize()!.height;
+  if (scrollable) await backgroundWheel(page, false);
+  await startFrameSampling(page);
   const states: Record<string, unknown> = { before };
   const check = async (label: string, locked: boolean) => {
     await settleFrame(page);
@@ -109,7 +230,7 @@ export async function exerciseFrameLocks(page: Page, record: (name: string, data
     if (locked) {
       assert(state.lock !== null && Number(state.lock) > 0, `${label}: actual lock`);
       assert.equal(state.margin, "0px"); assert.equal(state.removed, "0px"); assert.equal(state.overflow, "hidden");
-    }
+    } else unlockedBody(before, state);
     states[label] = state;
     if (label === "0-dialog-open") await record("dialog-open", state);
   };
@@ -122,10 +243,7 @@ export async function exerciseFrameLocks(page: Page, record: (name: string, data
           assert(await dialog.evaluate(e => e.contains(document.activeElement)), "Modal focus must stay in the dialog");
           await page.keyboard.press("Tab");
           assert(await dialog.evaluate(e => e.contains(document.activeElement)), "Tab must stay in the dialog");
-          const scrollBefore = await page.evaluate(() => scrollY);
-          await page.mouse.move(8, 850); await page.mouse.wheel(0, 200);
-          await page.waitForTimeout(80);
-          assert.equal(await page.evaluate(() => scrollY), scrollBefore, "Background wheel must remain blocked");
+          await backgroundWheel(page, true);
           const scroll = page.getByTestId("dialog-scroll"); await scroll.hover(); await page.mouse.wheel(0, 200);
           await expect.poll(() => scroll.evaluate(e => e.scrollTop)).toBeGreaterThan(0);
           await dialog.getByRole("button", { name: "Nested dialog", exact: true }).click();
@@ -134,6 +252,7 @@ export async function exerciseFrameLocks(page: Page, record: (name: string, data
           await page.getByRole("button", { name: "Close nested", exact: true }).click();
           await expect(page.locator("body")).toHaveAttribute("data-scroll-locked", "1");
           await check(`${repeat}-nested-close`, true);
+          await backgroundWheel(page, true);
         }
         await page.keyboard.press("Escape");
         await expect.poll(() => page.locator("body").getAttribute("data-scroll-locked")).toBe(null);
@@ -165,16 +284,9 @@ export async function exerciseFrameLocks(page: Page, record: (name: string, data
         }
       }
       await check(`${repeat}-all-closed`, false);
+      if (scrollable) await backgroundWheel(page, false);
     }
   } finally {
-    const samples = await page.evaluate(() => {
-      const target = window as unknown as { frameSampling: boolean; frameSamples: Record<string, { x: number; width: number }>[] };
-      target.frameSampling = false; return target.frameSamples;
-    });
-    await record("locks-and-animation-frames", { states, samples });
-    for (const sample of samples) for (const [selector, box] of Object.entries(sample)) {
-      const original = before.boxes[selector]; if (!original) continue;
-      for (const key of ["x", "width"] as const) assert(Math.abs(original[key] - box[key]) <= .01, `Animation ${selector}.${key}: ${original[key]} -> ${box[key]}`);
-    }
+    await finishFrameSampling(page, before, record, states);
   }
 }

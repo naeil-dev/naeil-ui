@@ -1,6 +1,11 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { frameState, scrollbarLaunch } from "../scripts/page-frame-browser";
+
+test.beforeEach(async ({ page, browser, browserName }, info) => {
+  await record(info, "launch-and-probe", await scrollbarLaunch(page, browser, browserName));
+});
 
 const base = "http://127.0.0.1:6008";
 const properties = ["color", "background-color", "border-color", "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "opacity", "-webkit-font-smoothing", "-moz-osx-font-smoothing", "padding", "gap", "min-height"];
@@ -122,6 +127,11 @@ function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): 
 
 async function evidence(page: Page, info: TestInfo, name: string, measurements: unknown) {
   await record(info, name, measurements);
+  const frame = await frameState(page), mode = process.env.NAEIL_UI_SCROLLBAR_MODE;
+  if (mode) expect(frame.scrollbar).toBe(mode === "classic" ? 15 : 0);
+  expect(frame.gutter).toBe("stable");
+  expect(frame.available).toBe(page.viewportSize()!.width - frame.scrollbar);
+  await record(info, `${name}-page-frame`, frame);
   const path = info.outputPath(`${name}.png`);
   const guard = await snapshot(page);
   await page.screenshot({ path });

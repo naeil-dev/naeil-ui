@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- React-only packed fixture. */
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
 import { Dialog } from "radix-ui";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider, useTheme } from "next-themes";
 import { KeyRound, LayoutDashboard, Network, Shuffle } from "lucide-react";
 import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale } from "@naeil/ui/naeil-header";
 import { NaeilFooter } from "@naeil/ui/naeil-footer";
@@ -12,7 +12,6 @@ import { Button, Navigation, Select, SelectTrigger, SelectValue, SelectContent, 
 const query = new URLSearchParams(location.search);
 const initialLocale = (query.get("locale") || "ko") as NaeilHeaderLocale;
 document.documentElement.lang = query.get("documentLang") || initialLocale;
-document.documentElement.className = query.get("theme") || "light";
 if (query.has("hostile")) document.documentElement.setAttribute("data-dashboard-v2", "");
 
 const appNavigation = [{ id: "ai", label: "AI", columns: 1 as const, items: [
@@ -23,6 +22,9 @@ const appNavigation = [{ id: "ai", label: "AI", columns: 1 as const, items: [
 ] }, { id: "console", label: "Console", href: "/console" }];
 
 function App() {
+  const { setTheme } = useTheme();
+  // Keep the requested theme in provider state, without forcing a root class.
+  useEffect(() => { setTheme(query.get("theme") || "light"); }, [setTheme]);
   const [long, setLong] = useState(query.has("long"));
   const [locale, setLocale] = useState(initialLocale);
   const [href, setHref] = useState(query.get("current") || "/absent");
@@ -129,4 +131,4 @@ function App() {
       </Dialog.Content></Dialog.Portal></Dialog.Root>
   </>;
 }
-createRoot(document.getElementById("root")!).render(<ThemeProvider attribute="class" forcedTheme={query.get("theme") || "light"}><App /></ThemeProvider>);
+createRoot(document.getElementById("root")!).render(<ThemeProvider attribute="class" defaultTheme={query.get("theme") || "light"} enableSystem={false}><App /></ThemeProvider>);

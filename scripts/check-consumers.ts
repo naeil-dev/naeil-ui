@@ -81,14 +81,24 @@ function prepareFrameConsumer(cwd: string, framework: "react" | "next", css: "gl
   mkdirSync(join(cwd, base), { recursive: true });
   const imports = css === "globals" ? '@import "@naeil/ui/globals.css";'
     : '@import "tailwindcss"; @import "tw-animate-css"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark (&:is(.dark *)); @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
-  writeFileSync(join(cwd, base, "frame.css"), `${imports}\n@source "${join(cwd, "node_modules/@naeil/ui/dist")}";`);
   const fonts = ['import "pretendard/dist/web/variable/pretendardvariable.css";', ...[400, 500, 600].map(weight => `import "@fontsource/noto-sans-jp/${weight}.css";`)].join("\n");
-  writeFileSync(join(cwd, base, "frame-app.tsx"), `"use client";\n${fonts}\nimport "./frame.css";\n${readFileSync("scripts/fixtures/chrome/app.tsx", "utf8")}`);
+  const app = readFileSync("scripts/fixtures/chrome/app.tsx", "utf8");
+  for (const control of ["", "-theme", "-js"]) {
+    const folder = framework === "react" ? "src" : `app/frame${control}`;
+    mkdirSync(join(cwd, folder), { recursive: true });
+    const style = control === "-theme" ? '@import "@naeil/ui/theme.css"; body { margin: 0; }'
+      : control === "-js" ? 'body { margin: 0; }' : `${imports}\n@source "${join(cwd, "node_modules/@naeil/ui/dist")}";`;
+    writeFileSync(join(cwd, folder, `frame${control}.css`), style);
+    writeFileSync(join(cwd, folder, `frame${control}-app.tsx`), `"use client";\n${fonts}\nimport "./frame${control}.css";\n${app}`);
+    if (framework === "react") {
+      writeFileSync(join(cwd, `frame${control}.html`), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(new URLSearchParams(location.search).has("optout"))document.documentElement.setAttribute("data-naeil-scrollbar-gutter","auto")</script></head><body><div id="root"></div><script type="module" src="/src/frame${control}-app.tsx"></script></body></html>`);
+    } else {
+      writeFileSync(join(cwd, folder, "page.tsx"), `"use client"; import {useEffect} from "react"; export default function Frame(){useEffect(()=>{void import("./frame${control}-app")},[]);return <div id="root"/>}`);
+    }
+  }
   if (framework === "react") {
-    writeFileSync(join(cwd, "frame.html"), '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(new URLSearchParams(location.search).has("optout"))document.documentElement.setAttribute("data-naeil-scrollbar-gutter","auto")</script></head><body><div id="root"></div><script type="module" src="/src/frame-app.tsx"></script></body></html>');
-    writeFileSync(join(cwd, "frame.vite.config.mjs"), 'import {mergeConfig} from "vite"; import base from "./vite.config.mjs"; export default mergeConfig(base,{build:{outDir:"frame-dist",rollupOptions:{input:"frame.html"}}});');
+    writeFileSync(join(cwd, "frame.vite.config.mjs"), 'import {mergeConfig} from "vite"; import base from "./vite.config.mjs"; export default mergeConfig(base,{build:{outDir:"frame-dist",rollupOptions:{input:["frame.html","frame-theme.html","frame-js.html"]}}});');
   } else {
-    writeFileSync(join(cwd, base, "page.tsx"), '"use client"; import {useEffect} from "react"; export default function Frame(){useEffect(()=>{void import("./frame-app")},[]);return <div id="root"/>}');
     writeFileSync(join(cwd, "postcss.config.mjs"), 'export default {plugins:{"@tailwindcss/postcss":{}}};');
   }
 }

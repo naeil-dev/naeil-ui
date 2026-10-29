@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 
 const require = createRequire(import.meta.url);
@@ -74,6 +74,7 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
     baseline08Sha256: hash(archive08), comparisonPolicySha256: hash(join(chromeOutput, "frame-policy.css")),
     fontFiles: Object.fromEntries(fontPaths.map(file => [file, hash(join(chromeOutput, file))])),
     fixtureFiles: Object.fromEntries(["scripts/fixtures/chrome/app.tsx", "scripts/fixtures/chrome/host.css"].map(file => [file, hash(file)])),
+    compiledFiles: Object.fromEntries(["candidate", "baseline", "baseline08"].flatMap(name => readdirSync(join(chromeOutput, name)).filter(file => /\.(css|js|html)$/.test(file)).map(file => [`${name}/${file}`, hash(join(chromeOutput, name, file))]))),
   }, null, 2));
 }
 if (process.argv[1]?.endsWith("build-chrome-fixtures.ts")) await buildChromeFixtures();

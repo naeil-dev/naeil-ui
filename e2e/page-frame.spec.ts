@@ -1,26 +1,19 @@
-import { test, expect } from "@playwright/test";
-import { frameState, stableFrame, settleFrame, exercisePageFrame, exerciseFrameLocks } from "../scripts/page-frame-browser";
-import { readFileSync } from "node:fs";
-import { createHash } from "node:crypto";
+import { test, expect, type TestInfo } from "@playwright/test";
+import { frameState, stableFrame, settleFrame, exercisePageFrame, exerciseFrameLocks, exerciseHomeHandoff, checkJapaneseToolbar, scrollbarLaunch } from "../scripts/page-frame-browser";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
+
+// Persist passing JSON/PNG bodies even with the list reporter (no HTML report).
+async function artifact(info: TestInfo, name: string, value: { body: string | Buffer; contentType: string }) {
+  const path = info.outputPath(`${name}.${value.contentType === "image/png" ? "png" : "json"}`);
+  mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, value.body);
+  await info.attach(name, { path, contentType: value.contentType });
+}
 
 test.beforeEach(async ({ page, browser, browserName }, info) => {
-  const mode = process.env.NAEIL_UI_SCROLLBAR_MODE;
-  if (mode && browserName !== "chromium") test.skip();
-  let argv: string[] | undefined;
-  if (browserName === "chromium") {
-    const cdp = await browser.newBrowserCDPSession();
-    argv = (await cdp.send("Browser.getBrowserCommandLine")).arguments;
-    await cdp.detach();
-  }
-  if (mode) {
-    expect(argv).not.toContain("--hide-scrollbars");
-    expect(argv).toContain(mode === "classic" ? "Always" : "WhenScrolling");
-  }
-  await page.setContent('<!doctype html><style>html{scrollbar-gutter:stable}body{margin:0}main{height:3000px}</style><main></main>');
-  const probe = await frameState(page);
-  if (mode) expect(probe.scrollbar).toBe(mode === "classic" ? 15 : 0);
-  expect(probe.available).toBe(page.viewportSize()!.width - probe.scrollbar);
-  await info.attach("launch-and-probe", { contentType: "application/json", body: JSON.stringify({ browser: browser.version(), mode: mode || "default engine", argv, probe, fixtureIdentity: JSON.parse(readFileSync("test-results/chrome-fixtures/identity.json", "utf8")), wrapperSha256: mode ? createHash("sha256").update(readFileSync(`${process.env.NAEIL_UI_SCROLLBAR_WRAPPERS}/chromium-${mode}.sh`)).digest("hex") : null }) });
+  await artifact(info, "launch-and-probe", { contentType: "application/json", body: JSON.stringify({
+    ...await scrollbarLaunch(page, browser, browserName), fixtureIdentity: JSON.parse(readFileSync("test-results/chrome-fixtures/identity.json", "utf8")),
+  }) });
 });
 
 test("root reservation prevents short to long anchor motion", async ({ page }) => {
@@ -38,9 +31,9 @@ for (const css of ["globals", "split"]) for (const locale of ["ko", "en", "ja"])
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&css=${css}&locale=${locale}&theme=${theme}&auth=in`);
     await expect(page.locator("html")).toHaveClass(new RegExp(theme));
-    await exercisePageFrame(page, async (name, data) => { await info.attach(name, { body: JSON.stringify(data), contentType: "application/json" }); });
+    await exercisePageFrame(page, async (name, data) => { await artifact(info, name, { body: JSON.stringify(data), contentType: "application/json" }); });
     const before = await frameState(page);
-    await info.attach("viewport", { body: await page.screenshot(), contentType: "image/png" });
+    await artifact(info, "viewport", { body: await page.screenshot(), contentType: "image/png" });
     stableFrame(before, await frameState(page));
   });
 }
@@ -58,7 +51,7 @@ for (const css of ["globals", "split"]) {
       expect(before.boxes.body!.width - open.boxes.body!.width).toBe(before.scrollbar);
       expect(() => stableFrame(before, open)).toThrow();
     }
-    await info.attach("intentional-failure", { body: JSON.stringify({ before, open }), contentType: "application/json" });
+    await artifact(info, "intentional-failure", { body: JSON.stringify({ before, open }), contentType: "application/json" });
   });
 
   test(`G1 opt-out and false-support branch ${css}`, async ({ page }, info) => {
@@ -76,11 +69,11 @@ for (const css of ["globals", "split"]) {
       await expect.poll(() => page.locator("body").getAttribute("data-scroll-locked")).toBe(null);
       rows.push({ control, note: "false guard is fixture branch coverage, not a real unsupported engine", before, open, closed: await frameState(page) });
     }
-    await info.attach("controls", { contentType: "application/json", body: JSON.stringify(rows) });
+    await artifact(info, "controls", { contentType: "application/json", body: JSON.stringify(rows) });
   });
 
-  test(`G2 actual container breakpoint ${css}`, async ({ page }, info) => {
-    await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&css=${css}`);
+  for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) test(`G2 actual container breakpoint ${css}/${locale}/${theme}`, async ({ page }, info) => {
+    await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&css=${css}&locale=${locale}&theme=${theme}`);
     let low = 768, high = 880;
     while (high - low > 1) {
       const width = Math.floor((low + high) / 2); await page.setViewportSize({ width, height: 900 });
@@ -92,7 +85,7 @@ for (const css of ["globals", "split"]) {
       await exercisePageFrame(page, async (name, data) => { rows.push({ width, name, data }); });
       expect(await page.locator(".ui-navigation-toggle").isVisible()).toBe(width === low);
     }
-    await info.attach("container-boundary", { contentType: "application/json", body: JSON.stringify(rows) });
+    await artifact(info, "container-boundary", { contentType: "application/json", body: JSON.stringify(rows) });
   });
 }
 
@@ -104,9 +97,9 @@ for (const css of ["globals", "split"]) for (const width of [320, 390, 1440, 192
     await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ reducedMotion: motion });
     await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&css=${css}&locale=${locale}&theme=${theme}&auth=${auth}${long ? "&long" : ""}`);
     await exerciseFrameLocks(page, async (name, data) => {
-      await info.attach(name, { contentType: "application/json", body: JSON.stringify(data) });
+      await artifact(info, name, { contentType: "application/json", body: JSON.stringify(data) });
       if (name === "dialog-open") {
-        const before = await frameState(page); await info.attach(name, { contentType: "image/png", body: await page.screenshot() }); stableFrame(before, await frameState(page));
+        const before = await frameState(page); await artifact(info, name, { contentType: "image/png", body: await page.screenshot() }); stableFrame(before, await frameState(page));
       }
     });
   });
@@ -119,39 +112,21 @@ for (const theme of ["light", "dark"]) for (const long of [false, true]) {
     for (const profile of ["site", "home", "login-gate"]) {
       await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&locale=ja&theme=${theme}&auth=${profile === "home" ? "in" : "out"}&profile=${profile}${long ? "&long" : ""}`);
       await page.locator(".ui-navigation-toggle").click(); await settleFrame(page);
-      const state = await frameState(page), controls = page.locator('.ui-navigation-mobile-toolbar .naeil-header-controls');
-      const height = (await controls.boundingBox())!.height;
-      expect(height).toBe(profile === "site" && state.scrollbar === 15 ? 104 : 44);
-      for (const control of await controls.locator("button, a, [role=combobox]").all()) {
-        expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-        await control.focus(); await expect(control).toBeFocused();
-      }
-      const before = await frameState(page); await info.attach(`${profile}-viewport`, { body: await page.screenshot(), contentType: "image/png" }); stableFrame(before, await frameState(page));
-      heights.push({ profile, height, state });
+      const toolbar = await checkJapaneseToolbar(page, profile);
+      const before = await frameState(page); await artifact(info, `${profile}-viewport`, { body: await page.screenshot(), contentType: "image/png" }); stableFrame(before, await frameState(page));
+      heights.push(toolbar);
     }
-    await info.attach("F3", { body: JSON.stringify(heights), contentType: "application/json" });
+    await artifact(info, "F3", { body: JSON.stringify(heights), contentType: "application/json" });
   });
 }
 
-for (const css of ["globals", "split"]) for (const motion of ["reduce", "no-preference"] as const) {
-  test(`G3 Home sheet to confirmation ${css}/${motion}`, async ({ page }, info) => {
+for (const css of ["globals", "split"]) for (const motion of ["reduce", "no-preference"] as const) for (const long of [false, true]) {
+  test(`G3 Home sheet to confirmation ${css}/${motion}/${long}`, async ({ page }, info) => {
     await page.setViewportSize({ width: 390, height: 900 }); await page.emulateMedia({ reducedMotion: motion });
-    await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&long&profile=home&locale=ko&css=${css}`);
-    await settleFrame(page); const before = await frameState(page);
-    const states = [];
-    await page.locator(".ui-navigation-toggle").click(); await settleFrame(page);
-    stableFrame(before, await frameState(page));
-    await page.locator('[data-slot="navigation-sheet"] [data-naeil-account-trigger]').click(); await settleFrame(page);
-    states.push(await frameState(page)); stableFrame(before, states[0]);
-    await page.getByRole("menuitem", { name: "로그아웃", exact: true }).click();
-    const guard = page.getByTestId("guard"); await expect(guard).toBeVisible(); await settleFrame(page);
-    await expect(page.getByRole("dialog")).toHaveCount(1);
-    expect(await guard.evaluate(e => e.contains(document.activeElement))).toBe(true);
-    states.push(await frameState(page)); stableFrame(before, states[1]);
-    await guard.getByRole("button", { name: "Cancel", exact: true }).click(); await settleFrame(page);
-    await expect.poll(() => page.locator("body").getAttribute("data-scroll-locked")).toBe(null);
-    states.push(await frameState(page)); stableFrame(before, states[2]);
-    await info.attach("handoff", { contentType: "application/json", body: JSON.stringify({ before, states }) });
+    await page.goto(`http://127.0.0.1:6008/candidate/index.html?frame&profile=home&locale=ko&css=${css}${long ? "&long" : ""}`);
+    await exerciseHomeHandoff(page, async (name, data) => {
+      await artifact(info, name, { contentType: "application/json", body: JSON.stringify(data) });
+    });
   });
 }
 

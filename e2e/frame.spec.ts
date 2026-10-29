@@ -1,3 +1,6 @@
+import { scrollbarLaunch } from "../scripts/page-frame-browser";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { test, expect } from "@playwright/test";
 
 const cases = [320, 390, 768, 1440, 1920, 2560];
@@ -59,4 +62,11 @@ test("narrow content and consumer overrides keep navigation and footer aligned",
   await frame.evaluate(element => element.classList.add("max-w-7xl", "px-0"));
   expect((await frame.boundingBox())!.width).toBe(1280);
   expect(await frame.evaluate(element => getComputedStyle(element).paddingInlineStart)).toBe("0px");
+});
+
+
+test.beforeEach(async ({ page, browser, browserName }, info) => {
+  const path = info.outputPath("launch-and-probe.json");
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(await scrollbarLaunch(page, browser, browserName), null, 2));
 });

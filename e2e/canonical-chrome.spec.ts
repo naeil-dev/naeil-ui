@@ -1,3 +1,4 @@
+import { scrollbarLaunch } from "../scripts/page-frame-browser";
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -396,3 +397,8 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) for (const can
     await expect(page.getByTestId("guard")).toBeHidden();
   });
 }
+
+
+test.beforeEach(async ({ page, browser, browserName }, info) => {
+  await record(info, "launch-and-probe", await scrollbarLaunch(page, browser, browserName));
+});
