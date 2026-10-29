@@ -182,7 +182,9 @@ export async function checkJapaneseToolbar(page: Page, profile: string) {
   });
   assert(!clipped, "Wrapped toolbar controls/text must fit inside the sheet");
   await sheet.focus();
-  for (const key of ["Tab", "Shift+Tab"]) {
+  // macOS WebKit requires Option+Tab to include buttons in sequential navigation.
+  const keys = page.context().browser()?.browserType().name() === "webkit" ? ["Alt+Tab", "Alt+Shift+Tab"] : ["Tab", "Shift+Tab"];
+  for (const key of keys) {
     const reached = new Set<number>();
     const current = await targets.evaluateAll(elements => elements.findIndex(element => element === document.activeElement));
     if (current >= 0) reached.add(current);
