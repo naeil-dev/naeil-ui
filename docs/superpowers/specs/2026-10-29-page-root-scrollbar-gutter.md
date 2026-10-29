@@ -1,6 +1,6 @@
 # Acceptance contract — page-root scrollbar reservation (0.9.0)
 
-Status: **rev 1** (2026-10-29) — B1 contract only, proposed for owner adoption before B2 implementation. Starting source: `47e55e9d37f5c5e63657e6d540b5a0e9d22d385e`, branch `feat/page-root-scrollbar-gutter` (0.8.0 source plus the [Home chrome contract, rev 6](2026-10-28-canonical-home-chrome.md)). The owner's 2026-10-29 option ① keeps Home's existing root reservation and requires comparisons under matching scrollbar conditions. This contract specifies the separate shared-frame step. It grants no publication, push, tag, merge, consumer upgrade or deployment approval.
+Status: **rev 1, adopted 2026-10-29** — owner-approved B2 implementation and verification scope, explicitly including the components.css default/opt-out and naeil.dev's Japanese 320px classic login wrap (F3). Starting source: `47e55e9d37f5c5e63657e6d540b5a0e9d22d385e`, branch `feat/page-root-scrollbar-gutter` (0.8.0 source plus the [Home chrome contract, rev 6](2026-10-28-canonical-home-chrome.md)). The owner's 2026-10-29 option ① keeps Home's existing root reservation and requires comparisons under matching scrollbar conditions. This contract specifies the separate shared-frame step. It grants no publication, push, tag, merge, consumer upgrade or deployment approval.
 
 ## 1. Baselines and authority
 

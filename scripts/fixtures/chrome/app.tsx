@@ -7,7 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { KeyRound, LayoutDashboard, Network, Shuffle } from "lucide-react";
 import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale } from "@naeil/ui/naeil-header";
 import { NaeilFooter } from "@naeil/ui/naeil-footer";
-import { Button, Navigation, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@naeil/ui/ui";
+import { Button, Navigation, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Dialog as BodyDialog, DialogTrigger, DialogContent, DialogTitle, DialogClose } from "@naeil/ui/ui";
 
 const query = new URLSearchParams(location.search);
 const initialLocale = (query.get("locale") || "ko") as NaeilHeaderLocale;
@@ -23,6 +23,7 @@ const appNavigation = [{ id: "ai", label: "AI", columns: 1 as const, items: [
 ] }, { id: "console", label: "Console", href: "/console" }];
 
 function App() {
+  const [long, setLong] = useState(query.has("long"));
   const [locale, setLocale] = useState(initialLocale);
   const [href, setHref] = useState(query.get("current") || "/absent");
   const [open, setOpen] = useState(false);
@@ -36,7 +37,8 @@ function App() {
   const locked = useRef(false);
   const reopened = useRef(false);
   const opener = useRef<HTMLElement | null>(null);
-  const home = query.get("profile") === "home";
+  const loginGate = query.get("profile") === "login-gate";
+  const home = query.get("profile") === "home" || loginGate;
   const mode = query.get("mode") || "controlled";
   const lifecycle = query.get("lifecycle");
   const policy = query.get("policy");
@@ -50,7 +52,7 @@ function App() {
     }
     setOpen(next);
   }, [lifecycle, policy]);
-  const signedOut = query.get("auth") === "out";
+  const signedOut = query.get("auth") === "out" || loginGate;
   const profile = query.get("profile");
   const account = <NaeilHeaderAccountControl locale={locale} account={signedOut ? { status: "signed-out", loginHref: profile === "jev" ? `/login?lang=${locale}` : profile === "site" ? "/login?next=%2F" : "/login" } : {
     status: "signed-in", ...(profile === "estimate" || profile === "jev" ? {} : { displayName: "Example account", email: "account@example.invalid" }), busy: busy || query.get("auth") === "busy",
@@ -77,8 +79,8 @@ function App() {
   };
   return <>
     {!mounted ? null : profile === "generic" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} /> :
-      <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
-        {...(home ? { showProjects: false, showBlog: false, appNavigation: query.has("empty") ? [] : appNavigation, brandSuffix: "Home", brandHref: "/", brandLinkProps: { "aria-label": "Naeil Home" }, statusSlot: <span data-testid="readiness" role="status" aria-label="Ready" style={{ display: "block", width: 8, height: 8, borderRadius: "50%", background: "green" }} /> } : {})}
+      <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={loginGate ? undefined : profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
+        {...(home ? { showProjects: false, showBlog: false, appNavigation: query.has("empty") || loginGate ? [] : appNavigation, brandSuffix: "Home", brandHref: "/", brandLinkProps: { "aria-label": "Naeil Home" }, statusSlot: loginGate ? undefined : <span data-testid="readiness" role="status" aria-label="Ready" style={{ display: "block", width: 8, height: 8, borderRadius: "50%", background: "green" }} /> } : {})}
         {...sheetProps}
         {...(profile === "legacy-empty" ? { showProjects: false, showBlog: false } : {})}
         {...(profile === "site" ? { resolveHref: (path: string) => path } : {})}
@@ -86,7 +88,15 @@ function App() {
         {...(profile === "compat-routing" ? { currentProjectKey: "naeilUi", currentProjectHref: "/workspace", projectsExternal: true, subNav: [{ label: "Settings", href: "/settings" }] } : {})}
         {...(profile === "compat-slots" ? { projects: [{ id: "custom", label: "Custom project", href: "/custom", description: "Consumer description", badge: <span>Badge</span>, active: true, target: "_blank" as const, external: true }], translations: { projects: "Tools", blog: "Journal", project: (key: string) => key }, resolveHref: (path: string) => `/local${path}`, brandSlot: <span className="font-mono" style={{ fontSize: 13 }}>Consumer brand</span>, brandLinkProps: { "aria-label": "Consumer home" }, brandLinkComponent: (props: React.ComponentProps<"a"> & { href: string }) => <a data-custom-brand {...props} />, toolbarSlot: <Button size="xs" className="font-semibold font-mono">Consumer toolbar</Button> } : {})}
       />}
-    <main className="ui-app-frame" style={{ paddingTop: 100, minHeight: 360 }}>
+    <main className="ui-app-frame" style={{ paddingTop: 100, minHeight: query.has("frame") && long ? 3000 : 360 }}>
+      {query.has("frame") && <>
+        <button data-testid="length" onClick={() => setLong(value => !value)}>Toggle page length</button>
+        <a data-testid="route-long" href="?route=long" onClick={event => { event.preventDefault(); history.pushState({}, "", "?route=long"); setLong(true); }}>Long route</a>
+        <a data-testid="route-short" href="?route=short" onClick={event => { event.preventDefault(); history.pushState({}, "", "?route=short"); setLong(false); }}>Short route</a>
+        <section data-ui-layout="settings" data-testid="frame-reading">Centered content</section>
+        <section data-ui-layout="fluid" data-testid="frame-fluid">Fluid content</section>
+        <aside data-testid="frame-fixed" style={{ position: "fixed", top: 70, right: "var(--removed-body-scroll-bar-size, 0px)", width: 44 }}>Fixed</aside>
+      </>}
       <button data-testid="route" onClick={() => setHref("/route-change")}>Route change</button>
       <button data-testid="fail" onClick={() => { locked.current = false; setBusy(false); setNotice("failed; retry allowed"); }}>Fail request</button>
       <output data-testid="transitions">{JSON.stringify(transitions)}</output>
@@ -102,9 +112,14 @@ function App() {
         <SelectItem value="ko" lang="ko">한국어</SelectItem><SelectItem value="en" lang="en">English</SelectItem><SelectItem value="ja" lang="ja">日本語</SelectItem>
       </SelectContent></Select>
       <DropdownMenu><DropdownMenuTrigger>Body menu</DropdownMenuTrigger><DropdownMenuContent data-testid="body-menu"><DropdownMenuItem>Body action</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
-      <Dialog.Root><Dialog.Trigger>Body dialog</Dialog.Trigger><Dialog.Portal><Dialog.Content data-testid="body-dialog" aria-describedby={undefined}><Dialog.Title>Body title</Dialog.Title><p>Body paragraph</p><Dialog.Close>Close body</Dialog.Close></Dialog.Content></Dialog.Portal></Dialog.Root>
+      <BodyDialog><DialogTrigger>Body dialog</DialogTrigger><DialogContent data-testid="body-dialog" aria-describedby={undefined}>
+        <DialogTitle>Body title</DialogTitle><p>Body paragraph</p>
+        <div data-testid="dialog-scroll" style={{ overflow: "auto", height: 80 }}><div style={{ height: 600 }}>Scrollable dialog content</div></div>
+        <BodyDialog><DialogTrigger>Nested dialog</DialogTrigger><DialogContent data-testid="nested-dialog" aria-describedby={undefined}><DialogTitle>Nested title</DialogTitle><DialogClose>Close nested</DialogClose></DialogContent></BodyDialog>
+        <DialogClose>Close body</DialogClose>
+      </DialogContent></BodyDialog>
     </main>
-    <NaeilFooter locale={locale} variant={profile === "estimate" ? "compact" : "full"} onNavigate={navigate} meta={home ? "Version 1.0" : undefined} />
+    {!loginGate && <NaeilFooter locale={locale} variant={profile === "estimate" ? "compact" : "full"} onNavigate={navigate} meta={home ? "Version 1.0" : undefined} />}
     {/* Home modal's exact opener capture/restore behavior, without package hooks. */}
     <Dialog.Root open={guard} onOpenChange={setGuard}><Dialog.Portal><Dialog.Overlay style={{ position: "fixed", inset: 0, zIndex: 80, background: "#0008" }} />
       <Dialog.Content data-testid="guard" aria-describedby={undefined} style={{ position: "fixed", inset: "25% 16px auto", zIndex: 81, background: "white", padding: 24 }}

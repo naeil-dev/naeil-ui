@@ -79,7 +79,12 @@ export async function checkConsumerBrowser(root: string) {
           return { x: rect.x, width: rect.width, gutter: parseFloat(getComputedStyle(element).paddingInlineStart) };
         }));
         assert.equal(frames.length, 3, "Packed application must render the shared header, main frame and footer");
-        const expected = width === 1920 ? { width: 1600, gutter: 40 } : width === 390 ? { width: 390, gutter: 16 } : { width: 1440, gutter: 34.56 };
+        const basis = await page.evaluate(() => {
+          const probe = document.createElement("div"); probe.style.cssText = "position:fixed;left:-10000px;width:100vw;height:0";
+          document.body.append(probe); const vw = probe.getBoundingClientRect().width; probe.remove();
+          return { available: document.documentElement.getBoundingClientRect().width, vw };
+        });
+        const expected = { width: Math.min(basis.available, 1600), gutter: Math.min(40, Math.max(16, basis.vw * .024)) };
         for (const frame of frames) {
           assert(Math.abs(frame.width - expected.width) < 0.1, "Packed application frame width drift");
           assert(Math.abs(frame.gutter - expected.gutter) < 0.1, "Packed application gutter drift");

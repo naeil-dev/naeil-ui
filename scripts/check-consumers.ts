@@ -1,9 +1,11 @@
 import { checkConsumerBrowser } from "./check-consumer-browser";
+import { checkFrameConsumer } from "./check-frame-consumer";
 import { buildChromeFixtures, chromeOutput } from "./build-chrome-fixtures";
 import { assertConsumerVersion } from "./consumer-version";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
 import {
   cpSync,
   existsSync,
@@ -54,17 +56,41 @@ function recordBuild(name: string, cwd: string, tarball: string) {
   if (!output) return;
   mkdirSync(output, { recursive: true });
   const next = existsSync(join(cwd, ".next/BUILD_ID"));
-  const files = next ? [".next/BUILD_ID", ".next/server/app/header.html", ".next/server/app/index.html"]
+  const files = next ? [".next/BUILD_ID", ".next/server/app/header.html", ".next/server/app/index.html", ...(existsSync(join(cwd, ".next/static/css")) ? readdirSync(join(cwd, ".next/static/css")).map(file => `.next/static/css/${file}`) : [])]
     : readdirSync(join(cwd, "dist/assets")).filter(file => /\.(css|js|woff2)$/.test(file)).map(file => `dist/assets/${file}`);
+  if (!next && existsSync(join(cwd, "frame-dist/assets"))) files.push(...readdirSync(join(cwd, "frame-dist/assets")).filter(file => /\.(css|js|woff2)$/.test(file)).map(file => `frame-dist/assets/${file}`));
+  const consumerRequire = createRequire(join(cwd, "package.json"));
+  const radixRequire = createRequire(consumerRequire.resolve("radix-ui"));
+  const dialogRequire = createRequire(radixRequire.resolve("@radix-ui/react-dialog"));
+  const removeRequire = createRequire(dialogRequire.resolve("react-remove-scroll"));
   const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
   writeFileSync(join(output, `${name}.json`), JSON.stringify({
     source: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
     archiveSha256: hash(tarball), node: process.version,
     buildId: next ? readFileSync(join(cwd, ".next/BUILD_ID"), "utf8").trim() : "Vite content-addressed assets below",
     packages: Object.fromEntries(["@naeil/ui", "react", "react-dom", "radix-ui", ...(next ? ["next", "next-intl"] : [])].map(pkg => [pkg, JSON.parse(readFileSync(join(cwd, "node_modules", pkg, "package.json"), "utf8")).version])),
+    lockDependencies: { removeScroll: dialogRequire("react-remove-scroll/package.json").version, removeScrollBar: removeRequire("react-remove-scroll-bar/package.json").version },
     files: Object.fromEntries(files.map(file => [file, hash(join(cwd, file))])),
     svgIds: next ? [...readFileSync(join(cwd, ".next/server/app/header.html"), "utf8").matchAll(/(?:id|clip-path)="(naeil-[^"]+|url\(#naeil-[^"]+)"/g)].map(match => match[1]) : undefined,
   }, null, 2));
+}
+
+// Build in each independently installed consumer, using that consumer's toolchain.
+function prepareFrameConsumer(cwd: string, framework: "react" | "next", css: "globals" | "split") {
+  const base = framework === "react" ? "src" : "app/frame";
+  mkdirSync(join(cwd, base), { recursive: true });
+  const imports = css === "globals" ? '@import "@naeil/ui/globals.css";'
+    : '@import "tailwindcss"; @import "tw-animate-css"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark (&:is(.dark *)); @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
+  writeFileSync(join(cwd, base, "frame.css"), `${imports}\n@source "${join(cwd, "node_modules/@naeil/ui/dist")}";`);
+  const fonts = ['import "pretendard/dist/web/variable/pretendardvariable.css";', ...[400, 500, 600].map(weight => `import "@fontsource/noto-sans-jp/${weight}.css";`)].join("\n");
+  writeFileSync(join(cwd, base, "frame-app.tsx"), `"use client";\n${fonts}\nimport "./frame.css";\n${readFileSync("scripts/fixtures/chrome/app.tsx", "utf8")}`);
+  if (framework === "react") {
+    writeFileSync(join(cwd, "frame.html"), '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(new URLSearchParams(location.search).has("optout"))document.documentElement.setAttribute("data-naeil-scrollbar-gutter","auto")</script></head><body><div id="root"></div><script type="module" src="/src/frame-app.tsx"></script></body></html>');
+    writeFileSync(join(cwd, "frame.vite.config.mjs"), 'import {mergeConfig} from "vite"; import base from "./vite.config.mjs"; export default mergeConfig(base,{build:{outDir:"frame-dist",rollupOptions:{input:"frame.html"}}});');
+  } else {
+    writeFileSync(join(cwd, base, "page.tsx"), '"use client"; import {useEffect} from "react"; export default function Frame(){useEffect(()=>{void import("./frame-app")},[]);return <div id="root"/>}');
+    writeFileSync(join(cwd, "postcss.config.mjs"), 'export default {plugins:{"@tailwindcss/postcss":{}}};');
+  }
 }
 try {
   const packed = JSON.parse(
@@ -189,6 +215,13 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
 
   await checkConsumerBrowser(core);
   recordBuild("candidate-react", core, tarball);
+  for (const css of ["globals", "split"] as const) {
+    prepareFrameConsumer(core, "react", css);
+    run(core, join(core, "node_modules/.bin/tsc"), ["--noEmit"]);
+    run(core, join(core, "node_modules/.bin/vite"), ["build", "--config", "frame.vite.config.mjs"]);
+    await checkFrameConsumer(core, "react", css);
+    recordBuild(`candidate-react-${css}`, core, tarball);
+  }
 
   const next = fixture("next", resolve("scripts/fixtures/next"), tarball);
   for (const name of [
@@ -220,6 +253,12 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",
   );
   recordBuild("candidate-next", next, tarball);
+  for (const css of ["globals", "split"] as const) {
+    prepareFrameConsumer(next, "next", css);
+    run(next, "npm", ["run", "build"]);
+    await checkFrameConsumer(next, "next", css);
+    recordBuild(`candidate-next-${css}`, next, tarball);
+  }
   if (process.env.NAEIL_UI_BASELINE_CONSUMERS === "1") {
     // Use the existing fixtures unchanged for B1, rather than inventing a
     // second compatibility app. buildChromeFixtures verifies the pinned SRI.

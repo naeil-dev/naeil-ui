@@ -1,6 +1,13 @@
 import { defineConfig } from "@playwright/test";
 
 const previewPort = Number(process.env.NAEIL_UI_STORYBOOK_PORT || 6007);
+const scrollbarMode = process.env.NAEIL_UI_SCROLLBAR_MODE;
+if (scrollbarMode && !["classic", "overlay"].includes(scrollbarMode)) throw new Error("Expected classic or overlay scrollbar mode");
+const scrollbarLaunch = scrollbarMode ? {
+  channel: "chromium",
+  executablePath: `${process.env.NAEIL_UI_SCROLLBAR_WRAPPERS}/chromium-${scrollbarMode}.sh`,
+  ignoreDefaultArgs: ["--hide-scrollbars"],
+} : { ignoreDefaultArgs: ["--hide-scrollbars"] };
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,7 +21,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
-    { name: "chromium", use: { browserName: "chromium" } },
+    { name: "chromium", use: { browserName: "chromium", launchOptions: { ...scrollbarLaunch, args: ["--enable-automation"] } } },
     { name: "firefox", use: { browserName: "firefox" } },
     { name: "webkit", use: { browserName: "webkit" } },
   ],

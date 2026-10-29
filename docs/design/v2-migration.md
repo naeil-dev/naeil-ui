@@ -2,21 +2,21 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-**0.7.1 npm 게시·registry 검증 완료 — 2026-10-23.** 현재 게시된 기준 버전은 **0.7.1**이다. 이 유지보수 안내는 canonical `NaeilFooter`, `NaeilHeaderAccountControl`, `/release` 식별자와 기존 1600px 프레임을 함께 다룬다. 0.7.0은 미게시 후보이며, 처음 게시된 0.7.x 버전은 0.7.1이다. 독립된 새 React/Next registry 설치에서 동결 파일 139개와 타입·프로덕션 빌드·브라우저 검증이 통과했다. hosted Docs와 상시 배포 활성화는 별도 실행 기록으로 확인한다. UI v2는 디자인 세대 이름이며 npm 2.0을 뜻하지 않는다. 동결 패키지 소스·archive, 별도 검토한 Docs 소스와 실제 게시·배포 결과는 [릴리스 정책](../package-release.md#publication-and-deployment)에서 구분한다.
+**정확한 0.8.0 npm 게시·archive 일치 검증 완료 — 2026-10-29.** registry 태그는 `latest=0.7.2`, `next=0.8.0`이며 0.8.0 archive는 동결된 139파일과 일치한다. Home API는 0.8.0에 포함된다. 현재 소스의 **0.9.0은 미게시 후보**이며 root 예약 기본값을 추가한다. hosted Docs와 소비 서비스 배포는 별도 기록이다. [릴리스 정책](../package-release.md#publication-and-deployment)을 따른다.
 
 ## 시작하기
 
 React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui` 또는 선택적 `/naeil-header`·`/naeil-footer`를 사용한다. API 키와 Next.js는 필요 없다. 검증한 registry 버전을 고정해 설치한다.
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.7.1
+pnpm add --save-exact @naeil/ui@0.8.0
 ```
 
-registry의 0.7.1 archive는 동결 릴리스 archive와 바이트가 일치한다. archive에 포함된 안내는 준비 시점의 기록이므로 현재 설치에는 이 유지보수 안내를 따른다. 로컬 개발에서는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 `/tmp/naeil-ui-0.7.1.tgz`를 설치한다. 현재 소스의 개발용 pack은 동결 릴리스 archive와 다르므로 게시 파일을 대체하지 않는다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
+registry의 0.8.0 archive는 동결 릴리스 archive와 바이트가 일치한다. archive에 포함된 안내는 준비 시점의 기록이므로 현재 설치에는 이 유지보수 안내를 따른다. 로컬 개발에서는 저장소에서 `pnpm build:pkg`와 `npm pack --ignore-scripts --pack-destination /tmp`를 실행하고 현재 미게시 후보인 `/tmp/naeil-ui-0.9.0.tgz`를 설치한다. 현재 소스의 개발용 pack은 동결 릴리스 archive와 다르므로 게시 파일을 대체하지 않는다. [독립 React 예제](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react)와 [검증/릴리스 정책](../package-release.md)을 참고한다.
 
 공통 UI 소비에는 Supabase, 21st 또는 다른 API 키가 필요하지 않다. React/ReactDOM 19는 소비 앱의 peer이며, Next 15/16과 next-intl 4는 호환 경로에 필요한 선택적 peer다. next-themes 0.4와 tailwind-merge 3은 공통 런타임 의존성으로 설치된다. 사이트의 Supabase·MDX·Three 의존성과 코드는 공통 소비 경계에서 제외했다.
 
-버전을 생략한 설치는 registry의 latest 태그를 따른다. 2026-10-23에 latest는 0.7.1로 확인했다. 검증한 버전을 유지하려면 0.7.1을 명시한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
+버전을 생략한 설치는 registry의 latest 태그를 따른다. 2026-10-29에 latest는 0.7.2, next는 0.8.0으로 확인했다. Home API를 사용하려면 검증한 0.8.0을 명시한다. 업그레이드 전에 [변경 기록](../../CHANGELOG.md)을 확인한다.
 
 Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 불러온다.
 
@@ -28,6 +28,8 @@ Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 �
 ```
 
 이미 Tailwind와 기본 스타일을 구성한 앱은 `@naeil/ui/theme.css`와 `@naeil/ui/components.css`를 함께 불러올 수 있다. 컴포넌트 CSS에는 크기·포커스·밀도·포털·reduced-motion 규칙이 있으므로 theme.css만으로 전체 v2 모양이 완성되지는 않는다.
+
+0.9.0 후보부터 두 CSS 경로의 `components.css`가 `html { scrollbar-gutter: stable }`과 Radix 이중 보상 제거를 제공한다. classic은 한쪽 공간을 예약하고 overlay는 0px이다. `<html data-naeil-scrollbar-gutter="auto">`를 첫 paint 전에 선언하면 root 예약과 lock 보정을 함께 끈다. theme-only/JS-only는 문서 정책을 바꾸지 않는다. 본문 바깥 여백/custom scroller/helper class는 별도 소비자 통합이나 opt-out이 필요하다. [채택된 계약](https://github.com/naeil-dev/naeil-ui/blob/7540fcd96205f88fc5b1a3dc3ca4a9ad8f31efc8/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md)과 [layout guide](../components/application-layout.md)의 비교·fallback·일본어 320px F3 wrap 규칙을 따른다.
 
 ```tsx
 import { Button, Input, Select, SelectTrigger, SelectValue,

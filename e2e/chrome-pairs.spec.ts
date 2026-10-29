@@ -123,7 +123,9 @@ function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): 
 async function evidence(page: Page, info: TestInfo, name: string, measurements: unknown) {
   await record(info, name, measurements);
   const path = info.outputPath(`${name}.png`);
-  await page.screenshot({ fullPage: true, path });
+  const guard = await snapshot(page);
+  await page.screenshot({ path });
+  expect(await snapshot(page), "Viewport capture must preserve geometry and computed styles").toEqual(guard);
   await info.attach(`${name}.png`, { path, contentType: "image/png" });
 }
 async function record(info: TestInfo, name: string, measurements: unknown) {
@@ -137,7 +139,8 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
     test.setTimeout(120000);
     await page.setViewportSize({ width, height: 900 });
     const query = `locale=${locale}&theme=${theme}&auth=${auth}`;
-    const mobile = width <= 806;
+    await prepare(page, "candidate", query, "closed");
+    const mobile = await page.locator(".ui-navigation-toggle").isVisible();
     // Cache real B1 normal entries before current entries; Home's extra normal
     // rows then use an actual normal-state B1 render, never fabricated values.
     const states = ["closed", ...(mobile ? ["sheet"] : []), "current", "focus", ...(mobile ? [] : ["hover", "popover"]), ...(auth === "in" ? ["account"] : []), "locale"];
@@ -152,8 +155,16 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
       await prepare(page, "candidate", query, state);
       const candidate = await snapshot(page); await evidence(page, info, `${state}-default`, candidate);
       compare(baseline, candidate, `${state}.default`, failures);
+      await prepare(page, "baseline08", query, state);
+      const baseline08 = await snapshot(page); await evidence(page, info, `${state}-0.8.0`, baseline08);
+      compare(baseline08, candidate, `${state}.0.8.0`, failures);
       await prepare(page, "candidate", query, state, true);
       const home = await snapshot(page, true); await evidence(page, info, `${state}-Home`, home);
+      await prepare(page, "baseline08", query, state, true);
+      const home08 = await snapshot(page, true); await evidence(page, info, `${state}-Home-0.8.0`, home08);
+      compare(home08, home, `${state}.Home-0.8.0`, failures);
+      // Remaining product assertions must inspect the candidate, not the reference.
+      await prepare(page, "candidate", query, state, true);
       const { entries: homeEntries, ...homeCommon } = home.common;
       const matched = (homeEntries as EntryMeasurement[]).map(entry => {
         const reference = entryReferences.get(entry.active);
@@ -167,7 +178,7 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
       };
       await record(info, `${state}-Home-pair`, pair);
       compare(pair.reference, pair.actual, `${state}.Home`, failures);
-      expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${state} overflow`).toBe(true);
+      expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width)), `${state} overflow`).toBe(true);
       const targets = await page.locator("header button, header a, [data-slot='navigation-sheet'] button, [data-slot='navigation-sheet'] a").evaluateAll(es => es.filter(e => e.getBoundingClientRect().width).map(e => ({ width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height })));
       for (const target of targets) expect.soft(target.height).toBeGreaterThanOrEqual(44);
     }

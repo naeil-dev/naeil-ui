@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 — page-root scrollbar reservation (candidate)
+
+- Reserve one classic scrollbar gutter at the document root through both package CSS paths; overlay scrollbars reserve no space. The root `data-naeil-scrollbar-gutter="auto"` opt-out disables reservation and shared lock correction together.
+- Remove duplicate Radix body margin/gap compensation under the reserved root without changing scroll prevention, modal focus or cleanup. Preserve all frame, typography and spacing tokens.
+- Document the existing Japanese 320px classic signed-out login toolbar wrap, repair comparison capture ordering and verify real clean React/Next CSS consumers against frozen 0.8.0. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/7540fcd96205f88fc5b1a3dc3ca4a9ad8f31efc8/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md). Publication, tags, main/site merge and consumer deployments require separate approval.
+
 ## 0.7.2 — retired project catalog (candidate)
 
 - Narrow the canonical `NaeilHeader` project catalog to naeil-ui. Content Collector, PKM, Sustainability Analyzer and Baby Agent are retired from naeil.dev; their site pages move to `src/app/_archive/` and old URLs temporarily redirect to the project list. The project menu uses one column for a single entry. `projects`, `translations` and `currentProjectKey` overrides are unchanged.

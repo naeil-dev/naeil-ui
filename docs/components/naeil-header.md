@@ -1,6 +1,6 @@
 # NaeilHeader — branded whole-header composition
 
-The published registry baseline is **@naeil/ui 0.7.2**. This guide also describes the **unpublished 0.8.0 candidate** APIs below. Install exact `@naeil/ui@0.7.2` for the published API; the new Home props require the reviewed 0.8.0 archive. Hosted Docs and service activation have separate receipts. See [release identities and publication status](../package-release.md#publication-and-deployment). Import this opt-in React-only entry when an application inherits the actual naeil.dev header. Generic `Navigation` from `/ui` remains available for different product menus.
+Exact **@naeil/ui 0.8.0 is published** (registry `next`; `latest=0.7.2` verified 2026-10-29). These Home APIs are available in that exact version. The **0.9.0 candidate** adds shared root reservation and remains unpublished. Hosted Docs and service activation have separate receipts. See [release identities](../package-release.md#publication-and-deployment).
 
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
@@ -71,16 +71,16 @@ This entry requires no Next.js, next-intl, site session/auth backend, full appli
 
 Verify actual packed consumption, Storybook behavior and rendered comparisons at matching viewport/language/theme. Source imports alone do not prove visual parity. Native Safari, devices, assistive technology, full OAuth and unresolved accessibility observations retain the [documented support limits](../design/public-ui-support.md).
 
-Pair owned-service headers with [NaeilFooter](naeil-footer.md). The 0.7.2 source is `40a3928e24cd2f0141be3e605eed0a75260938fd`. Both 0.7.2 and the 0.8.0 candidate emit package version and chrome contract `1`; archive identities, maintained guidance and hosted Docs remain separate evidence.
+Pair owned-service headers with [NaeilFooter](naeil-footer.md). The 0.7.2 source is `40a3928e24cd2f0141be3e605eed0a75260938fd`. Both 0.7.2 and 0.8.0 emit package version and chrome contract `1`; archive identities, maintained guidance and hosted Docs remain separate evidence.
 
 
-## Host typography and mobile handoff (0.8.0 candidate)
+## Host typography and mobile handoff (0.8.0)
 
 Import either `globals.css` or `theme.css` plus `components.css`, and register the installed `dist` with Tailwind `@source`. Header/footer roots and the actual navigation popover, sheet, account menu and locale menu Content elements carry `data-naeil-chrome` and `lang=locale`; the locale Select Content also carries `data-naeil-locale-menu`. Generic Navigation/Select/DropdownMenu do not acquire these markers. Do not identify chrome by option text or by the presence of a Japanese body option.
 
 Marker-and-language-scoped final typography uses a package-local font stack and explicit sizes, weights, line heights, letter spacing and smoothing. It supports a host `@theme` / `@theme inline` with different text tokens/font stacks and unlayered element/role rules at Home's specificity, including `(0,3,0)` `:root[attr] [role="menuitem"]` and Home's `[role="dialog"] p` rules. Host rules can load before or after either supported package CSS entry; owned text declarations outrank them. Rules with `!important` or IDs aimed at chrome are outside this guarantee. Ordinary body Select/menu/dialog typography remains host-owned; custom slot content remains consumer-owned. Font files are still consumer-supplied; Japanese chrome and portals use Noto Sans JP even when the document language differs.
 
-A controlled mobile sheet defers its shared account action until the account menu and sheet finish closing and restore a surviving header control. The consumer still owns dirty state, confirmation, logout, busy state and the request lock; `onLogout` must tolerate this asynchronous handoff. When a confirmation saves its opener, its restoration policy must also handle a viewport change hiding that opener. Verify normal and reduced motion, cancellation after a desktop transition, pending requests, reopen and retry in the actual application; the candidate's unresolved acceptance gates are not a production guarantee.
+A controlled mobile sheet defers its shared account action until the account menu and sheet finish closing and restore a surviving header control. The consumer still owns dirty state, confirmation, logout, busy state and the request lock; `onLogout` must tolerate this asynchronous handoff. When a confirmation saves its opener, its restoration policy must also handle a viewport change hiding that opener. Verify normal and reduced motion, cancellation after a desktop transition, pending requests, reopen and retry in the actual application; package verification does not replace actual product acceptance.
 
 The empty-menu desktop exception is intentional B1 compatibility: a zero-width desktop navigation cannot signal the crossing, so the sheet stays open. Escape, its close button, the overlay or a `currentHref` change still close it. Home owns the confirmation's desktop cancel fallback to the visible row account trigger; the package supplies a visible, focusable control and does not implement the confirmation's restoration policy.
 
@@ -94,3 +94,9 @@ The empty-menu desktop exception is intentional B1 compatibility: a zero-width d
 ```
 
 Keep the default theme/locale/separator/account toolbar for this profile; `toolbarSlot` is a compatibility override, not the Home migration path. Omitting all new props preserves the 0.7.2 canonical profile, apart from markers, language correction, release identity and Radix-generated IDs. SVG/Logo IDs and consumer-supplied IDs are not normalized away. See the `docs/superpowers/specs/2026-10-28-canonical-home-chrome.md` acceptance contract for gates and the four allowed Home differences.
+
+## Page-root frame policy (0.9.0 candidate)
+
+Both supported CSS paths obtain the stable root rule and scoped Radix duplicate-compensation correction from `components.css`. Theme-only and JS-only imports do not set document scrolling. Declare `<html data-naeil-scrollbar-gutter="auto">` before first paint to disable both pieces for a custom policy. See [application layout](application-layout.md) for custom-body/scroller/helper-class limits, fallback and the [adopted contract](https://github.com/naeil-dev/naeil-ui/blob/7540fcd96205f88fc5b1a3dc3ca4a9ad8f31efc8/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md) for required probes and capture ordering.
+
+Keep frame/toolbar tokens unchanged. The Japanese signed-out canonical login toolbar at 320px is 104px tall under a 15px classic reservation and 44px with overlay. The owner's F3 decision accepts this wrap on naeil.dev itself. Home Workspace uses the shared account control/full footer; its signed-out LoginGate omits the auth slot/separator and footer (F1/F2). Neither Home profile is required to wrap. D1–D4 and the exact F3 auth-composition boundary remain; compare matching roots and auth-slot compositions before applying tolerances.
