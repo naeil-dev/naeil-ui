@@ -29,7 +29,9 @@ Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 �
 
 이미 Tailwind와 기본 스타일을 구성한 앱은 `@naeil/ui/theme.css`와 `@naeil/ui/components.css`를 함께 불러올 수 있다. 컴포넌트 CSS에는 크기·포커스·밀도·포털·reduced-motion 규칙이 있으므로 theme.css만으로 전체 v2 모양이 완성되지는 않는다.
 
-0.9.0 후보부터 두 CSS 경로의 `components.css`가 `html { scrollbar-gutter: stable }`과 Radix 이중 보상 제거를 제공한다. classic은 한쪽 공간을 예약하고 overlay는 0px이다. `<html data-naeil-scrollbar-gutter="auto">`를 첫 paint 전에 선언하면 root 예약과 lock 보정을 함께 끈다. theme-only/JS-only는 문서 정책을 바꾸지 않는다. 본문 바깥 여백/custom scroller/helper class는 별도 소비자 통합이나 opt-out이 필요하다. [채택된 계약](https://github.com/naeil-dev/naeil-ui/blob/7540fcd96205f88fc5b1a3dc3ca4a9ad8f31efc8/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md)과 [layout guide](../components/application-layout.md)의 비교·fallback·일본어 320px F3 wrap 규칙을 따른다.
+0.9.0 후보부터 두 CSS 경로의 `components.css`가 `html { scrollbar-gutter: stable }`과 Radix 이중 보상 제거를 제공한다. classic은 한쪽 공간을 예약하고 overlay는 0px이다. `<html data-naeil-scrollbar-gutter="auto">`를 첫 paint 전에 선언하면 root 예약과 lock 보정을 함께 끈다. theme-only/JS-only는 문서 정책을 바꾸지 않는다. 본문 바깥 여백/custom scroller/helper class는 별도 소비자 통합이나 opt-out이 필요하다. [채택된 계약](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md)과 [layout guide](../components/application-layout.md)의 비교·fallback·일본어 320px F3 wrap 규칙을 따른다.
+
+CSS import를 `layer(ui)` 같은 named layer로 감싸지 않는다. 그러면 dependency의 unlayered `--removed-body-scroll-bar-size`가 이겨 classic에서 15px로 남을 수 있다. opt-out 후 `@layer base { html { scrollbar-gutter: stable; } }`는 패키지 attribute selector보다 약하므로, layer 밖에 `html[data-naeil-scrollbar-gutter="auto"] { scrollbar-gutter: stable; }`를 쓰거나 패키지 import 뒤의 같은 base layer에서 이 attribute selector를 쓴다. 이때 lock 보상은 소비자가 책임진다. Classic modal scrim은 예약된 gutter 띠를 덮지 않으며, 0.9.0에서 scrim 스타일을 바꾸지 않는다. 자세한 예시와 적용 범위는 [layout guide](../components/application-layout.md#width-contract)를 따른다.
 
 ```tsx
 import { Button, Input, Select, SelectTrigger, SelectValue,

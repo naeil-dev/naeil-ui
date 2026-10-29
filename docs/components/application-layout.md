@@ -29,7 +29,7 @@ Choose one header per application frame. Supply menu data, links, route guards, 
 
 Use `.ui-app-frame` on main. Shared header/footer already apply the frame internally; **do not wrap them in another padded frame**. Put purpose-specific sections inside main. At 1920px the default frame has 1520px available after its 40px gutters. Small screens shrink the frame and reduce gutters to at least 16px. A narrow form must not constrain or move navigation.
 
-The **0.9.0 candidate** supplies `html { scrollbar-gutter: stable }` once in `components.css`, reached by `globals.css` or `theme.css + components.css`. Classic mode reserves one browser-sized gutter on short and long pages; overlay mode reserves none. The shared lock correction removes duplicate Radix body right-margin/gap compensation and retains its scroll prevention, focus and nested cleanup. Keep header/main/footer and their ordinary content horizontally stable. Compare matching root policies and measure before any fullPage capture. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/7540fcd96205f88fc5b1a3dc3ca4a9ad8f31efc8/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md).
+The **0.9.0 candidate** supplies `html { scrollbar-gutter: stable }` once in `components.css`, reached by `globals.css` or `theme.css + components.css`. Classic mode reserves one browser-sized gutter on short and long pages; overlay mode reserves none. The shared lock correction removes duplicate Radix body right-margin/gap compensation and retains its scroll prevention, focus and nested cleanup. Keep header/main/footer and their ordinary content horizontally stable. Compare matching root policies and measure before any fullPage capture. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md).
 
 For a different document policy, declare this on the root **before first paint**:
 
@@ -38,6 +38,19 @@ For a different document policy, declare this on the root **before first paint**
 ```
 
 This sets `scrollbar-gutter: auto` and disables the shared lock correction together. Apply custom root/scroller CSS only after opting out; changing only gutter CSS leaves an unsupported compensation combination. The default full-page profile has zero body margin/outer padding; no new body reset is supplied. Nonzero body edge spacing, custom scroll locks and react-remove-scroll-bar helper classes need consumer integration or opt-out. Theme-only and JS-only imports do not set root policy. Unsupported engines keep Radix's original compensation.
+
+Import `globals.css`, or the split `theme.css` and `components.css`, without an enclosing named layer (`@import "@naeil/ui/components.css";`, not `@import "@naeil/ui/components.css" layer(ui);`). The package already declares its own layers. Wrapping the import in a named layer lets the dependency's unlayered `--removed-body-scroll-bar-size` win: it can remain 15px in classic mode even though the important margin correction still wins. Elements using that variable can then shift.
+
+After opting out, a plain `@layer base { html { scrollbar-gutter: stable; } }` loses to the package's more specific root attribute selector in the same layer. Write the custom rule outside any layer, for example:
+
+```css
+/* The root has data-naeil-scrollbar-gutter="auto"; this policy owns its lock integration. */
+html[data-naeil-scrollbar-gutter="auto"] { scrollbar-gutter: stable; }
+```
+
+Alternatively, use that attribute selector in `@layer base` after the package import, so equal specificity resolves to the later consumer rule. The shared lock correction stays disabled in either case; the consumer owns matching compensation.
+
+In classic mode, a fixed modal scrim covers the page's available width, leaving the reserved gutter strip undimmed (15px in the measured macOS Chromium profile). This is expected with a reserved root; 0.9.0 leaves the scrim styles unchanged. Overlay mode has no reserved strip. A full-viewport scrim redesign is outside this release.
 
 Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter the centered 1600px frame starts at 152.5px on both short and long pages (overlay: 160px). Japanese signed-out canonical login content at width 320 has 257px inside the 305px classic sheet; its 261px toolbar wraps to 104px. Overlay remains 44px. Preserve all labels, 44px targets and keyboard access. Home Workspace/account and LoginGate/no-login-slot retain their 44px toolbars; this specific F3 profile difference is documented, not a new Home chrome exception.
 

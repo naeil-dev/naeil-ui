@@ -1,12 +1,22 @@
 # Changelog
 
-## 0.9.0 — page-root scrollbar reservation (candidate)
+## 0.9.0 — page-root scrollbar reservation
 
 - Reserve one classic scrollbar gutter at the document root through both package CSS paths; overlay scrollbars reserve no space. The root `data-naeil-scrollbar-gutter="auto"` opt-out disables reservation and shared lock correction together.
 - Remove duplicate Radix body margin/gap compensation under the reserved root without changing scroll prevention, modal focus or cleanup. Preserve all frame, typography and spacing tokens.
-- Document the existing Japanese 320px classic signed-out login toolbar wrap, repair comparison capture ordering and verify real clean React/Next CSS consumers against frozen 0.8.0. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/7540fcd96205f88fc5b1a3dc3ca4a9ad8f31efc8/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md). Publication, tags, main/site merge and consumer deployments require separate approval.
+- Document the existing Japanese 320px classic signed-out login toolbar wrap, repair comparison capture ordering and verify real clean React/Next CSS consumers against frozen 0.8.0. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md). Publication, tags, main/site merge and consumer deployments require separate approval.
 
-## 0.7.2 — retired project catalog (candidate)
+## 0.8.0 — canonical Home chrome (published 2026-10-28)
+
+Published to npm with dist-tag `next`; `latest` remained 0.7.2 at the 2026-10-29 verification. Frozen source/tag: `3f708e27d05212af7f7a5be769f13f871e8d10c7`; archive SHA-256: `6feb5a8cd50265ace584a0855432683b4127119377e08235282eaebd27081084` (139 files). Hosted Docs and service deployments require separate receipts; see the [release policy](docs/package-release.md#publication-and-deployment).
+
+- Add `appNavigation`, `brandSuffix` and `statusSlot` for complete owned-service header compositions, plus controlled/observer mobile-sheet state on NaeilHeader and Navigation.
+- Isolate canonical chrome typography from host styles and preserve mobile account/confirmation focus handoffs. Keep existing imports, slots, default catalog and consumer routing/save guards.
+- Retain chrome contract version 1 and verify the Home Workspace/LoginGate profiles against the canonical 0.7.2 baseline. See [NaeilHeader](docs/components/naeil-header.md) for API and compatibility limits.
+
+## 0.7.2 — retired project catalog (published)
+
+Published to npm; `latest=0.7.2` at the 2026-10-29 verification. Source/tag: `40a3928e24cd2f0141be3e605eed0a75260938fd`. Registry, hosted Docs and service activation remain separate receipts.
 
 - Narrow the canonical `NaeilHeader` project catalog to naeil-ui. Content Collector, PKM, Sustainability Analyzer and Baby Agent are retired from naeil.dev; their site pages move to `src/app/_archive/` and old URLs temporarily redirect to the project list. The project menu uses one column for a single entry. `projects`, `translations` and `currentProjectKey` overrides are unchanged.
 - Release class `dom`: the standing worker adopts it only through an owner-approved `reviewedMigration` of this exact release; ordinary fix-only patches are unaffected.
