@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import { writeFileSync } from 'node:fs';
+import { realpathSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runLocal, approvalFor, classifyFailure, finalizePlan, planDigest } from './local-runner.mjs';
@@ -67,4 +67,5 @@ export async function main(args = process.argv.slice(2)) {
   console.log(JSON.stringify({ releaseId: state.releaseId, status: state.status, failure: state.failure, ...(command === 'status' ? { machineLock: entryExists(config.lockFile) } : {}), ...(unverified.length ? { unverified } : {}), services: Object.fromEntries(Object.entries(state.services).map(([id, service]) => [id, { status: service.status, transactionId: service.transactionId, artifactId: service.artifact?.id, failure: service.failure }])) }, null, 2));
   if (['held', 'auth-required', 'manual-recovery', 'retryable'].includes(state.status) || unverified.length) process.exitCode = 1;
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch(error => { const result = classifyFailure(error, 'command'); console.error(JSON.stringify({ status: result.category, failure: result.failure })); process.exitCode = 1; });
+// Compare real paths: a symlinked invocation must run, never exit 0 silently.
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main().catch(error => { const result = classifyFailure(error, 'command'); console.error(JSON.stringify({ status: result.category, failure: result.failure })); process.exitCode = 1; });

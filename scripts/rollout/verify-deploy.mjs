@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { assertReference, verifyIdentity } from './rollout.mjs';
@@ -23,4 +23,5 @@ export async function main(args = process.argv.slice(2)) {
   await verifyIdentity(flags['--origin'], expected);
   console.log(JSON.stringify({ status: 'production-verified', ...result }, null, 2));
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch(error => { console.error(`Deployment verification failed: ${error.message}`); process.exitCode = 1; });
+// Compare real paths: a symlinked invocation must run, never exit 0 silently.
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main().catch(error => { console.error(`Deployment verification failed: ${error.message}`); process.exitCode = 1; });

@@ -176,6 +176,11 @@ test('0.7.2 legacy Jev transactions recover an unhealthy completed candidate onl
  const completed=readdirSync(f.directory).filter(name=>name.startsWith('native-rollback-')&&JSON.parse(readFileSync(join(f.directory,name,'output.json'))).passed===true);assert.equal(completed.length,1);
  const input=JSON.parse(readFileSync(join(f.directory,completed[0],'input.json')));
  assert.deepEqual(input.recoveryHelper,{retainedSha256:retained.sha256,sha256:recoveryHelpers[retained.sha256].sha256});
+ // Recovery inspection of the restored predecessor also runs through the pinned helper.
+ const inspected=await consumer.createLocalConsumers({recoveryHelpers}).inspect({...f.context,transaction:{...f.transaction,inspectionArtifact:f.before}});
+ assert.deepEqual(inspected.artifact,f.before);
+ const inspection=readdirSync(f.directory).filter(name=>name.startsWith('native-inspect-transaction-'));assert.equal(inspection.length,1);
+ assert.deepEqual(JSON.parse(readFileSync(join(f.directory,inspection[0],'input.json'))).recoveryHelper,input.recoveryHelper);
  // Retained helper bytes are never rewritten; the native journal records the rollback.
  assert.equal(hash(readFileSync(retained.path)),retained.sha256);assert.equal(JSON.parse(readFileSync(join(f.request.transactionDirectory,'transaction.json'))).phase,'rolled-back');
 });
