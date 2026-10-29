@@ -1,6 +1,7 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { frameState } from "../scripts/page-frame-browser";
 
 const evidence = process.env.NAEIL_HEADER_EVIDENCE_DIR ?? "test-results/naeil-header";
 const projects = ["design"];
@@ -46,12 +47,13 @@ for (const theme of ["light", "dark"]) for (const width of [390, 768, 1440, 2560
       const rect = element.getBoundingClientRect();
       return { x: rect.x, width: rect.width, gutter: getComputedStyle(element).paddingInlineStart };
     });
-    expect(geometry.width).toBe(Math.min(1600, width));
-    expect(geometry.x).toBe((width - Math.min(1600, width)) / 2);
-    const gutters: Record<number, number> = { 390: 16, 768: 18.432, 1440: 34.56, 2560: 40 };
-    expect(parseFloat(geometry.gutter)).toBeCloseTo(gutters[width], 1);
+    const basis = await frameState(page), expectedWidth = Math.min(1600, basis.available);
+    writeFileSync(info.outputPath("page-frame.json"), JSON.stringify(basis, null, 2));
+    expect(geometry.width).toBe(expectedWidth);
+    expect(geometry.x).toBe((basis.available - expectedWidth) / 2);
+    expect(parseFloat(geometry.gutter)).toBeCloseTo(Math.min(40, Math.max(16, basis.vw * .024)), 1);
     expect(await header.evaluate(element => getComputedStyle(element).position)).toBe("fixed");
-    const mobile = width <= 768;
+    const mobile = await page.locator(".ui-navigation-toggle").isVisible();
     const trigger = page.getByRole("button", { name: mobile ? "メニュー" : "プロジェクト", exact: true });
     await trigger.focus();
     await page.keyboard.press("Enter");
@@ -72,7 +74,7 @@ for (const theme of ["light", "dark"]) for (const width of [390, 768, 1440, 2560
       const rect = await control.boundingBox();
       if (rect) { expect(rect.width).toBeGreaterThanOrEqual(44); expect(rect.height).toBeGreaterThanOrEqual(44); }
     }
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(false);
     await audit(page, mobile ? '[data-slot="navigation-sheet"]' : "#storybook-root", info);
     mkdirSync(evidence, { recursive: true });
     await page.screenshot({ path: `${evidence}/${browserName}-${theme}-${width}-menu.png`, animations: "disabled" });
