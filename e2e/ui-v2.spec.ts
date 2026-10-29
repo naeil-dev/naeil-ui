@@ -134,7 +134,7 @@ test("mobile layout and reduced motion", async ({ page }) => {
   );
   expect(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
+      () => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width),
     ),
   ).toBe(true);
   await page.getByRole("button", { name: "새 작업", exact: true }).click();
@@ -143,7 +143,7 @@ test("mobile layout and reduced motion", async ({ page }) => {
   expect(
     await page
       .getByRole("dialog")
-      .evaluate((e) => e.getBoundingClientRect().right <= innerWidth),
+      .evaluate((e) => e.getBoundingClientRect().right <= document.documentElement.getBoundingClientRect().width),
   ).toBe(true);
 });
 

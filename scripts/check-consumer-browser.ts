@@ -42,7 +42,7 @@ export async function checkConsumerBrowser(root: string) {
           const loaded = await document.fonts.load(font, text);
           faces.push({ font, count: loaded.length, loaded: document.fonts.check(font, text) });
         }
-        return { faces, overflow: document.documentElement.scrollWidth > innerWidth, body: getComputedStyle(document.body).backgroundColor };
+        return { faces, overflow: document.documentElement.scrollWidth > Math.ceil(document.documentElement.getBoundingClientRect().width), body: getComputedStyle(document.body).backgroundColor };
       });
       for (const face of result.faces) assert(face.count > 0 && face.loaded, `Packed font did not load: ${face.font}`);
       assert(!result.overflow, "Packed consumer has mobile page overflow");
@@ -139,7 +139,7 @@ export async function checkConsumerBrowser(root: string) {
           await expect(panel).toBeHidden();
           await expect(page.getByRole("button", { name: "メニュー", exact: true })).toBeFocused();
         }
-        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Packed whole header overflow");
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width)), "Packed whole header overflow");
         await page.screenshot({ path: join(output, `header-${width}-${theme}.png`) });
         console.log(`Packed whole header: PASS (${width}px/${theme}, official icons loaded, locales, guarded route, theme, mobile/desktop)`);
       } finally { await page.close(); }
@@ -234,7 +234,7 @@ export async function checkConsumerBrowser(root: string) {
         const start = page.getByRole("tab", { name: "Start", exact: true });
         await start.focus(); await start.press("ArrowLeft");
         await expect(page.getByRole("tab", { name: "Next", exact: true })).toBeFocused();
-        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Packed extension page overflow");
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width)), "Packed extension page overflow");
         await page.screenshot({ path: join(output, `extensions-${name}-390.png`), fullPage: true });
         console.log(`Packed extensions: PASS (${name}, deep Textarea/Tabs + core Tabs, refs, class override, RTL/disabled keyboard, native rows/form/newline/required, 390px)`);
       } finally { await page.close(); }

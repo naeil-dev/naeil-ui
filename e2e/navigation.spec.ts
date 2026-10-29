@@ -118,7 +118,7 @@ for (const theme of ["light", "dark"]) for (const width of [390, 1440, 2560]) {
     await expect(page.getByRole("heading", { name: "API 키", exact: true })).toBeVisible();
     await expect(region).toBeHidden();
     expect(await header.locator(".ui-navigation-brand").boundingBox()).toEqual(before);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(false);
     await expect(page.locator('footer[data-slot="site-footer"]')).toBeVisible();
     expect((await new AxeBuilder({ page }).include("#storybook-root").analyze()).violations).toEqual([]);
     mkdirSync("test-results/navigation", { recursive: true });

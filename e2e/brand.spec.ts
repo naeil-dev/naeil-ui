@@ -32,7 +32,7 @@ for (const theme of ["light", "dark"]) {
     const errors = await page.evaluate(() => {
       const ids = [...document.querySelectorAll('svg[data-naeil-brand] [id]')].map(el => el.id);
       const references = [...document.querySelectorAll('svg[data-naeil-brand] *')].flatMap(el => [...el.attributes].flatMap(attr => [...attr.value.matchAll(/url\(#([^\)]+)\)/g)].map(m => m[1])));
-      return { duplicates: ids.length - new Set(ids).size, unresolved: references.filter(id => !document.getElementById(id)), overflow: document.documentElement.scrollWidth > innerWidth };
+      return { duplicates: ids.length - new Set(ids).size, unresolved: references.filter(id => !document.getElementById(id)), overflow: document.documentElement.scrollWidth > Math.ceil(document.documentElement.getBoundingClientRect().width) };
     });
     expect(errors).toEqual({ duplicates: 0, unresolved: [], overflow: false });
     await page.screenshot({ path: `${output}/${browserName}-usage-${theme}.png`, fullPage: true });
@@ -54,7 +54,7 @@ for (const theme of ["light", "dark"]) {
     expect(after).toEqual(anchors);
     await expect(page.locator('footer [data-naeil-variant="footer"]')).toBeVisible();
     await expect(page.locator('main [data-naeil-variant="symbol"]')).toHaveAttribute('height', '40');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(false);
     await page.screenshot({ path: `${output}/${browserName}-application-${width}-${theme}.png`, fullPage: true });
     if (width === 390) {
       await page.getByRole('button', { name: '메뉴', exact: true }).click();
