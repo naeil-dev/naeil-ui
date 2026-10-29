@@ -36,9 +36,12 @@ export async function checkFrameConsumer(root: string, framework: "react" | "nex
     }
     const evidence = process.env.NAEIL_UI_CONSUMER_EVIDENCE || "test-results/packed-consumer";
     mkdirSync(evidence, { recursive: true });
-    for (const mode of process.env.NAEIL_UI_SCROLLBAR_WRAPPERS ? ["classic", "overlay"] : ["default"]) {
+    const wrappers = process.env.NAEIL_UI_SCROLLBAR_WRAPPERS && process.platform === "darwin";
+    if (process.platform !== "darwin") console.log("SKIP deterministic classic/overlay: B0 wrappers require macOS; running the default launch against its actual scrollbar probe.");
+    for (const mode of wrappers ? ["classic", "overlay"] : ["default"]) {
       const wrapper = `${process.env.NAEIL_UI_SCROLLBAR_WRAPPERS}/chromium-${mode}.sh`;
-      const launch = mode === "default" ? { args: ["--enable-automation"] } : { channel: "chromium", executablePath: wrapper, ignoreDefaultArgs: ["--hide-scrollbars"], args: ["--enable-automation"] };
+      // Hidden scrollbars can report a zero probe while Linux still reserves a root gutter.
+      const launch = { ignoreDefaultArgs: ["--hide-scrollbars"], args: ["--enable-automation"], ...(mode === "default" ? {} : { channel: "chromium", executablePath: wrapper }) };
       const browser = await chromium.launch(launch);
       const records: { name: string; data: unknown }[] = [];
       try {

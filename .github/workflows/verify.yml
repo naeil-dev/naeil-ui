@@ -61,6 +61,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: public-build-fixture
 
   storybook-and-browser:
+    # Keep slow paired comparisons below the existing 25-minute job budget.
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        shard: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     container:
@@ -81,13 +87,15 @@ jobs:
         run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm build:storybook
       - uses: actions/upload-artifact@v4
+        if: matrix.browser == 'chromium' && matrix.shard == 1
         with:
           name: storybook-preview
           path: storybook-static/
           retention-days: 14
           if-no-files-found: error
-      - run: pnpm test:browser
+      - run: pnpm test:browser --project=${{ matrix.browser }} --fully-parallel --shard=${{ matrix.shard }}/4
       - name: Optional reference-workflow regressions (no credentials)
+        if: matrix.browser == 'chromium' && matrix.shard == 1
         run: |
           node --test skills/frontend-reference-workflow/tests/browser-check.test.cjs
           node --test skills/frontend-reference-workflow/tests/layout-comparison.test.cjs
@@ -95,7 +103,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-results
+          name: browser-results-${{ matrix.browser }}-${{ matrix.shard }}
           path: |
             test-results/
             playwright-report/

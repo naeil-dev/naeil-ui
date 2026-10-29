@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 const previewPort = Number(process.env.NAEIL_UI_STORYBOOK_PORT || 6007);
 const scrollbarMode = process.env.NAEIL_UI_SCROLLBAR_MODE;
 if (scrollbarMode && !["classic", "overlay"].includes(scrollbarMode)) throw new Error("Expected classic or overlay scrollbar mode");
-const scrollbarLaunch = scrollbarMode ? {
+const scrollbarLaunch = scrollbarMode && process.platform === "darwin" ? {
   channel: "chromium",
   executablePath: `${process.env.NAEIL_UI_SCROLLBAR_WRAPPERS}/chromium-${scrollbarMode}.sh`,
   ignoreDefaultArgs: ["--hide-scrollbars"],

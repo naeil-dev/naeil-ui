@@ -57,14 +57,28 @@ test("P2 Home data, accessible brand and one status outside the link", async ({ 
       const paths = [...svg.querySelectorAll("path")].map(p => p.getBoundingClientRect()).filter(p => p.width && p.height && p.left > box.left + box.width * .28);
       const wordmarkCenter = (Math.min(...paths.map(p => p.top)) + Math.max(...paths.map(p => p.bottom))) / 2;
       const probe = document.createElement("i"); probe.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline"; label.append(probe);
-      const baseline = probe.getBoundingClientRect().y; probe.remove();
+      const baseline = probe.getBoundingClientRect().y;
+      const previousTranslate = label.style.translate;
+      label.style.translate = "0 1px";
+      const shiftedBaseline = probe.getBoundingClientRect().y;
+      label.style.translate = previousTranslate;
+      probe.remove();
       const css = getComputedStyle(label), context = document.createElement("canvas").getContext("2d")!;
       context.font = `${css.fontWeight} ${css.fontSize} ${css.fontFamily}`;
-      const ink = context.measureText("Home");
-      return { centerDelta: baseline + (ink.actualBoundingBoxDescent - ink.actualBoundingBoxAscent) / 2 - wordmarkCenter, gap: label.getBoundingClientRect().x - svg.getBoundingClientRect().right, fontSize: css.fontSize };
+      const rasterInk = context.measureText("Home");
+      // At 14px Linux rounds ink bounds to whole pixels. Measure font geometry
+      // at 100x and scale back, keeping the same .25px optical-alignment gate.
+      const scale = 100;
+      context.font = `${css.fontWeight} ${parseFloat(css.fontSize) * scale}px ${css.fontFamily}`;
+      const ink = context.measureText("Home"), offset = (ink.actualBoundingBoxDescent - ink.actualBoundingBoxAscent) / scale / 2;
+      return { centerDelta: baseline + offset - wordmarkCenter, shiftedCenterDelta: shiftedBaseline + offset - wordmarkCenter,
+        rasterCenterDelta: baseline + (rasterInk.actualBoundingBoxDescent - rasterInk.actualBoundingBoxAscent) / 2 - wordmarkCenter,
+        measureScale: scale, gap: label.getBoundingClientRect().x - svg.getBoundingClientRect().right, fontSize: css.fontSize };
     });
     await record(info, `${locale}-${width}-qualifier`, qualifier);
     expect(qualifier.fontSize).toBe("14px"); expect(qualifier.gap).toBe(4); expect(Math.abs(qualifier.centerDelta), `${locale}/${width} qualifier ink center`).toBeLessThanOrEqual(.25);
+    expect(qualifier.shiftedCenterDelta - qualifier.centerDelta).toBeCloseTo(1, 2);
+    expect(Math.abs(qualifier.shiftedCenterDelta), "A 1px qualifier displacement must fail the optical-alignment gate").toBeGreaterThan(.25);
     if (width === 390) await toggle(page).click();
     const scope = width === 390 ? sheet(page) : page.locator("header");
     await expect(scope.getByRole(width === 390 ? "heading" : "button", { name: "AI", exact: true })).toBeVisible();

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { expect, type Page, type Browser } from "@playwright/test";
+import { expect, test, type Page, type Browser } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
@@ -30,6 +30,7 @@ type State = Awaited<ReturnType<typeof frameState>>;
 
 export async function scrollbarLaunch(page: Page, browser: Browser, browserName: string) {
   const mode = process.env.NAEIL_UI_SCROLLBAR_MODE;
+  test.skip(!!mode && process.platform !== "darwin", "Deterministic classic/overlay uses the macOS B0 recipe; default Linux jobs assert against their actual scrollbar probe.");
   let argv: string[] | undefined;
   if (browserName === "chromium") {
     const cdp = await browser.newBrowserCDPSession();
@@ -163,7 +164,8 @@ export async function checkJapaneseToolbar(page: Page, profile: string) {
   const state = await assertRootFrame(page), sheet = page.locator('[data-slot="navigation-sheet"]');
   const controls = page.locator('.ui-navigation-mobile-toolbar .naeil-header-controls');
   const height = (await controls.boundingBox())!.height;
-  assert.equal(height, profile === "site" && state.scrollbar === 15 ? 104 : 44);
+  // The ja toolbar needs 261px inside the sheet's 24px side padding.
+  assert.equal(height, profile === "site" && state.available - 48 < 261 ? 104 : 44);
   const targets = controls.locator("button, a, [role=combobox]");
   const count = await targets.count();
   const clipped = await controls.evaluate(element => {
