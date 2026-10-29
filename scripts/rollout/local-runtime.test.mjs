@@ -71,11 +71,22 @@ test('machine lock cannot be released while a registered child process still run
 test('a gated child never runs when its parent ends before durable registration', async t => {
   const directory = fixture(t), source = new URL('./local-runtime.mjs', import.meta.url).href;
   // The parent exits inside registration (the reviewed crash window) or registers normally.
-  const parent = (marker, register) => `import { execFile } from 'node:child_process'; import { promisify } from 'node:util'; import { GATE, startRegistered } from ${JSON.stringify(source)};
-const pending = promisify(execFile)('/bin/sh', [...GATE, '/usr/bin/touch', ${JSON.stringify(marker)}], { detached: true });
-startRegistered(pending, () => { ${register ? '' : 'process.exit(0);'} }); await pending;`;
+  const parent = (marker, register) => `import { runRegistered } from ${JSON.stringify(source)};
+await runRegistered('/usr/bin/touch', [${JSON.stringify(marker)}], { timeout: 5000 }, () => { ${register ? '' : 'process.exit(0);'} });`;
   const crashed = join(directory, 'crashed'), registered = join(directory, 'registered');
   for (const [marker, register] of [[crashed, false], [registered, true]]) { const child = spawn(process.execPath, ['--input-type=module', '-e', parent(marker, register)]); await once(child, 'exit'); }
   await new Promise(resolve => setTimeout(resolve, 300));
   assert.equal(existsSync(crashed), false); assert.equal(existsSync(registered), true);
+});
+
+test('registered children own their process group and surviving descendants retain the lock', async t => {
+  const directory = fixture(t), lease = runtime.acquireMachineLock(join(directory, 'machine.lock')); let pid;
+  const output = await runtime.runRegistered('/bin/sh', ['-c', 'ps -o pgid= -p $$; sleep 30 >/dev/null 2>&1 &'], { timeout: 5000 }, (child, options) => { pid = child.pid; lease.registerChild(child, options); });
+  t.after(() => { try { process.kill(-pid, 'SIGKILL'); } catch { /* already gone */ } });
+  assert.equal(Number(output.trim()), pid);
+  assert.equal(lease.hasRunningChildren(), true);
+  assert.throws(() => lease.release(), error => error.reasonCode === 'child-recovery-required');
+  await assert.rejects(() => runtime.runRegistered('/bin/sleep', ['5'], { timeout: 100 }), error => error.killed === true);
+  process.kill(-pid, 'SIGKILL'); await new Promise(resolve => setTimeout(resolve, 200));
+  assert.equal(lease.hasRunningChildren(), false); lease.release();
 });

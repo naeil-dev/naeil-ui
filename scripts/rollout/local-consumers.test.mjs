@@ -161,3 +161,12 @@ test('0.7.2 legacy Jev transactions recover an unhealthy completed candidate onl
  // Retained helper bytes are never rewritten; the native journal records the rollback.
  assert.equal(hash(readFileSync(retained.path)),retained.sha256);assert.equal(JSON.parse(readFileSync(join(f.request.transactionDirectory,'transaction.json'))).phase,'rolled-back');
 });
+
+test('recovered native diagnostics reach the runner through the adapter',async t=>{
+ const directory=fixture(t),before=artifact(directory,'before','0.7.1'),after=artifact(directory,'after','0.7.2'),python=realpathSync(process.execPath),helper=fileURLToPath(new URL('./jev-native.py',import.meta.url));
+ const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:helper,sha256:hash(readFileSync(helper))},executionPath:'/usr/bin:/bin',config:{baseDirectory:directory,privateFiles:'metadata-only'}};
+ const transaction={id:'recovered-1',serviceId:'jev',previousArtifact:before,candidateArtifact:after,prepared:{native,release:{releaseId:'ui-0.7.2'},planSha256:'d'.repeat(64),service:{id:'jev'}},native:{operation:'rollback',status:'intent'}};
+ const adapters=consumer.createLocalConsumers({recoveryHelpers:{},native(action,input){return {...Object.fromEntries(['schemaVersion','attemptId','idempotencyKey','planSha256','action'].map(key=>[key,input[key]])),releaseId:'ui-0.7.2',serviceId:'jev',passed:false,safe:true,outcome:'failed',recovered:true,artifact:after,phase:'recovered',reasonCode:'native-rollback-recovered',stage:'native-identity-http',status:503,timeout:true,retryable:true};}});
+ const result=await adapters.rollback({plan:{},service:{id:'jev',mode:'deploy'},transaction,directory});
+ assert.deepEqual([result.outcome,result.stage,result.status,result.timeout,result.retryable],['failed','native-identity-http',503,true,true]);
+});

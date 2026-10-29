@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { closeSync, constants, fstatSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
@@ -127,12 +128,23 @@ export function acquireMachineLock(path) {
     },
   };
 }
-/** A child program is exec'd only after its process group is durably registered.
- * If the parent ends first, stdin closes and this gate exits without running it. */
-export const GATE = ['-c', 'IFS= read -r go && [ "$go" = go ] && exec "$0" "$@"'];
-export function startRegistered(pending, registerChild) {
-  try { if (pending.child.pid) registerChild?.(pending.child, { processGroup: true }); pending.child.stdin.end('go\n'); }
-  catch (error) { pending.child.stdin.end(); pending.catch(() => {}); throw error; }
+/** Run PROGRAM in its own process group (execFile ignores `detached`). It is
+ * exec'd only after that group is durably registered; if the parent ends first,
+ * stdin closes and the gate exits without running it. Timeout signals only this
+ * group; survivors keep the lock retained for explicit recovery. */
+const GATE = ['-c', 'IFS= read -r go && [ "$go" = go ] && exec "$0" "$@"'];
+export function runRegistered(file, args, { cwd, env, timeout, maxBuffer = 1024 * 1024 }, registerChild) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('/bin/sh', [...GATE, file, ...args], { cwd, env, detached: true, stdio: ['pipe', 'pipe', 'pipe'] });
+    let output = '', size = 0, killed = false, overflow = false;
+    const stop = () => { killed = true; try { process.kill(-child.pid, 'SIGTERM'); } catch { /* group already gone */ } };
+    const timer = setTimeout(stop, timeout);
+    for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { size += chunk.length; if (size > maxBuffer) { overflow = true; stop(); } else if (stream === child.stdout) output += chunk; });
+    child.on('error', error => { clearTimeout(timer); reject(error); });
+    child.on('close', code => { clearTimeout(timer); if (code === 0 && !killed) resolve(output); else reject(Object.assign(new Error(overflow ? 'child-output-limit' : 'child-failed'), { code, killed })); });
+    try { if (child.pid) registerChild?.(child, { processGroup: true }); child.stdin.end('go\n'); }
+    catch (error) { child.stdin.end(); clearTimeout(timer); reject(error); }
+  });
 }
 function processAlive(pid) { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; } }
 function childAlive(child) { return processAlive(child.pid) || (child.processGroup && processAlive(-child.pid)); }

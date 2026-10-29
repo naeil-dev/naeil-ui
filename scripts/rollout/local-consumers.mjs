@@ -8,18 +8,17 @@
  * }}. candidate may instead be a private JSON {path,sha256} reference.
  */
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, mkdtempSync, openSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isDeepStrictEqual, promisify } from 'node:util';
+import { isDeepStrictEqual } from 'node:util';
 import { assertCandidate, assertCandidateSource } from './consumer-preflight.mjs';
 import { inspectEstimateRelease, inspectJevArchive } from './consumer-artifact.mjs';
 import { treeDigest } from './preflight-sandbox.mjs';
-import { digest as planDigest, GATE, readReceipt, startRegistered } from './local-runtime.mjs';
+import { digest as planDigest, readReceipt, runRegistered } from './local-runtime.mjs';
 
-const exec=promisify(execFile),HEX=/^[a-f0-9]{64}$/,REVISION=/^[a-f0-9]{40}$/,ID=/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;
+const HEX=/^[a-f0-9]{64}$/,REVISION=/^[a-f0-9]{40}$/,ID=/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const manifestSha=value=>hash(JSON.stringify(Object.fromEntries(Object.entries(value).sort().map(([key,entry])=>[key,Object.fromEntries(Object.entries(entry).sort())]))));
 const fail=(reasonCode,outcome='not-started',extra={})=>Object.assign(new Error(reasonCode),{reasonCode,outcome,retryable:false,...extra});
@@ -140,9 +139,7 @@ async function transport(action,request,native,context) {
  const timeout=native.timeoutMs??180000;assert(Number.isSafeInteger(timeout)&&timeout>0&&timeout<=30*60*1000,'Bounded native timeout required');
  try {
   const jev=request.service.id==='jev';
-  const pending=exec('/bin/sh',[...GATE,jev?native.pythonExecutable:native.nodeExecutable,...(jev?['-B',native.helper.path]:[native.helper.path])],{cwd:jev?native.config.baseDirectory:native.config.deploymentRoot,env:{...nativeEnvironment(native),NAEIL_ROLLOUT_INPUT:input,NAEIL_ROLLOUT_OUTPUT:output},shell:false,detached:true,encoding:'utf8',timeout,maxBuffer:1024*1024});
-  startRegistered(pending,context.registerChild);
-  await pending;
+  await runRegistered(jev?native.pythonExecutable:native.nodeExecutable,jev?['-B',native.helper.path]:[native.helper.path],{cwd:jev?native.config.baseDirectory:native.config.deploymentRoot,env:{...nativeEnvironment(native),NAEIL_ROLLOUT_INPUT:input,NAEIL_ROLLOUT_OUTPUT:output},timeout},context.registerChild);
   return JSON.parse(privateBytes(output,4*1024*1024));
  }catch(error){throw fail('native-transport-uncertain',['inspect','inspect-transaction'].includes(action)?'not-started':'unknown',{timeout:error.killed===true||error.code==='ETIMEDOUT'});}
 }
@@ -211,7 +208,7 @@ export function createLocalConsumers(dependencies={}) {
     assert.deepEqual(candidate.artifact,transaction.candidateArtifact,'Durable candidate changed');assert.deepEqual(transaction.previousArtifact,service.currentArtifact,'Durable predecessor changed');
    }catch{throw fail('consumer-input-mismatch');}
    const receipt=await invoke('deploy',context,transaction.prepared.native,candidate.artifact,dependencies);
-   if(receipt.outcome==='failed')return {outcome:'failed',artifact:receipt.artifact,recovered:true,reasonCode:receipt.reasonCode??'native-deployment-recovered',receipt};
+   if(receipt.outcome==='failed')return {outcome:'failed',artifact:receipt.artifact,recovered:true,reasonCode:receipt.reasonCode??'native-deployment-recovered',stage:receipt.stage,status:receipt.status,timeout:receipt.timeout,retryable:receipt.retryable,receipt};
    return {outcome:'completed',artifact:transaction.candidateArtifact,receipt};
   },
   async rollback(context) {
@@ -224,7 +221,7 @@ export function createLocalConsumers(dependencies={}) {
    const artifact=transaction.previousArtifact;
    if(artifact?.immutable!==true||!ID.test(artifact.id)||!REVISION.test(artifact.sourceRevision)||!HEX.test(artifact.sha256)||!HEX.test(artifact.packageSha256))throw fail('rollback-artifact-mismatch');
    const receipt=await invoke('rollback',context,transaction.prepared.native,transaction.candidateArtifact,dependencies);
-   if(receipt.outcome==='failed')return {outcome:'failed',artifact:receipt.artifact,recovered:true,reasonCode:receipt.reasonCode??'native-rollback-recovered',receipt};
+   if(receipt.outcome==='failed')return {outcome:'failed',artifact:receipt.artifact,recovered:true,reasonCode:receipt.reasonCode??'native-rollback-recovered',stage:receipt.stage,status:receipt.status,timeout:receipt.timeout,retryable:receipt.retryable,receipt};
    return {outcome:'completed',artifact:transaction.previousArtifact,receipt};
   },
  };

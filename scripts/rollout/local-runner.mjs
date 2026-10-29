@@ -254,7 +254,8 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
     if (options.recoverVerification) {
       const record = state.services[options.serviceId], failure = record?.failure;
       const reasons = ['session-refresh-locked', 'session-refresh-uncertain', 'session-rotation-uncertain', 'ambiguous-session-rotation', 'session-persistence-uncertain', 'session-response-invalid', 'session-refresh-rejected'];
-      assert(state.status === 'manual-recovery' && record?.status === 'manual-recovery' && Object.values(state.services).filter(service => service.status === 'manual-recovery').length === 1 && same(state.failure, failure), 'Verification recovery requires the sole matching manual service failure');
+      // A STOP that cancelled an earlier recovery attempt leaves the service latch; the same command resumes it.
+      assert(record?.status === 'manual-recovery' && Object.values(state.services).filter(service => service.status === 'manual-recovery').length === 1 && (state.status === 'stopped' || (state.status === 'manual-recovery' && same(state.failure, failure))), 'Verification recovery requires the sole matching manual service failure');
       assert(['verify', 'production-verify', 'session-refresh'].includes(failure.stage) && (reasons.includes(failure.reasonCode) || (failure.stage === 'session-refresh' && failure.reasonCode === 'auth-required')), 'Verification recovery requires a session/verification failure');
     } else if (state.status === 'manual-recovery') return state;
     if (['held', 'auth-required'].includes(state.status) && options.command === 'run' && !options.retryHeld) return state;
@@ -269,6 +270,8 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
         if (options.serviceId && options.serviceId !== service.id) continue;
         currentService = service;
         const record = state.services[service.id]; assert(record, 'Service state missing');
+        // Only explicit recovery may pass a service-level manual latch (e.g. after a STOP replaced the release status).
+        if (record.status === 'manual-recovery' && !options.recoverVerification) { state.status = record.status; state.failure = record.failure; save(); return state; }
         if (['held', 'auth-required'].includes(record.status) && !options.retryHeld && options.command !== 'verify') {
           if (options.command === 'run') { state.status = record.status; state.failure = record.failure; save(); return state; }
           continue;

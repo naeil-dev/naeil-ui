@@ -476,3 +476,19 @@ test('verify before deployment reports nothing to verify without holding the lat
   assert.deepEqual(skipped.map(item => [item.serviceId, item.reasonCode]), [['jev', 'no-deployment-to-verify']]);
   assert.equal((await core.runLocal(config, deps)).status, 'production-verified');
 });
+
+test('a STOP-cancelled verification recovery keeps the service latch and resumes only with the same command', async t => {
+  const artifact = { id: 'previous', sourceRevision: 'b'.repeat(40), sha256: '1'.repeat(64) };
+  const { directory, config } = fixture(t, [{ id: 'naeil', mode: 'verify-only', artifact }]), deps = system(directory);
+  deps.verify = async () => { throw Object.assign(Error(), { stage: 'production-verify', reasonCode: 'session-refresh-locked', manualRecovery: true }); };
+  await core.runLocal(config, deps); writeFileSync(config.stopFile, 'stop');
+  assert.equal((await core.runLocal(config, deps, { command: 'verify', serviceId: 'naeil', recoverVerification: true })).status, 'stopped');
+  unlinkSync(config.stopFile); let calls = 0; deps.verify = async () => { calls++; return { passed: true }; };
+  for (const options of [{}, { retryHeld: true }, { command: 'verify', serviceId: 'naeil' }, { command: 'verify' }]) {
+    const state = await core.runLocal(config, deps, options);
+    assert.equal(state.status, 'manual-recovery'); assert.equal(state.failure.reasonCode, 'session-refresh-locked');
+  }
+  assert.equal(calls, 0);
+  const resumed = await core.runLocal(config, deps, { command: 'verify', serviceId: 'naeil', recoverVerification: true });
+  assert.equal(resumed.services.naeil.status, 'production-verified'); assert.equal(calls, 1);
+});
