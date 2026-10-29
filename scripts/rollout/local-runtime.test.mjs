@@ -90,3 +90,13 @@ test('registered children own their process group and surviving descendants reta
   process.kill(-pid, 'SIGKILL'); await new Promise(resolve => setTimeout(resolve, 200));
   assert.equal(lease.hasRunningChildren(), false); lease.release();
 });
+
+test('timeout ends the call even when a descendant ignores SIGTERM and holds the pipes', async t => {
+  const directory = fixture(t), lease = runtime.acquireMachineLock(join(directory, 'machine.lock')); let pid;
+  t.after(() => { try { process.kill(-pid, 'SIGKILL'); } catch { /* already gone */ } });
+  const started = Date.now();
+  await assert.rejects(() => runtime.runRegistered('/bin/sh', ['-c', "trap '' TERM; (trap '' TERM; sleep 30) & wait"], { timeout: 300 }, (child, options) => { pid = child.pid; lease.registerChild(child, options); }), error => error.killed === true);
+  assert(Date.now() - started < 3000);
+  assert.equal(lease.hasRunningChildren(), true);
+  process.kill(-pid, 'SIGKILL'); await new Promise(resolve => setTimeout(resolve, 200)); lease.release();
+});

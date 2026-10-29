@@ -136,14 +136,20 @@ const GATE = ['-c', 'IFS= read -r go && [ "$go" = go ] && exec "$0" "$@"'];
 export function runRegistered(file, args, { cwd, env, timeout, maxBuffer = 1024 * 1024 }, registerChild) {
   return new Promise((resolve, reject) => {
     const child = spawn('/bin/sh', [...GATE, file, ...args], { cwd, env, detached: true, stdio: ['pipe', 'pipe', 'pipe'] });
-    let output = '', size = 0, killed = false, overflow = false;
-    const stop = () => { killed = true; try { process.kill(-child.pid, 'SIGTERM'); } catch { /* group already gone */ } };
-    const timer = setTimeout(stop, timeout);
-    for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { size += chunk.length; if (size > maxBuffer) { overflow = true; stop(); } else if (stream === child.stdout) output += chunk; });
-    child.on('error', error => { clearTimeout(timer); reject(error); });
-    child.on('close', code => { clearTimeout(timer); if (code === 0 && !killed) resolve(output); else reject(Object.assign(new Error(overflow ? 'child-output-limit' : 'child-failed'), { code, killed })); });
+    let output = '', size = 0, settled = false;
+    const settle = (error, value) => { if (settled) return; settled = true; clearTimeout(timer); if (error) reject(error); else resolve(value); };
+    // Timeout/output cap end the call without waiting for EOF: a descendant may keep the pipes open.
+    const stop = reason => {
+      try { process.kill(-child.pid, 'SIGTERM'); } catch { /* group already gone */ }
+      for (const stream of [child.stdin, child.stdout, child.stderr]) stream.destroy();
+      settle(Object.assign(new Error(reason), { killed: true }));
+    };
+    const timer = setTimeout(() => stop('child-timeout'), timeout);
+    for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { size += chunk.length; if (size > maxBuffer) stop('child-output-limit'); else if (stream === child.stdout) output += chunk; });
+    child.on('error', error => settle(error));
+    child.on('close', code => settle(code === 0 ? null : Object.assign(new Error('child-failed'), { code, killed: false }), output));
     try { if (child.pid) registerChild?.(child, { processGroup: true }); child.stdin.end('go\n'); }
-    catch (error) { child.stdin.end(); clearTimeout(timer); reject(error); }
+    catch (error) { child.stdin.end(); settle(error); }
   });
 }
 function processAlive(pid) { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; } }
