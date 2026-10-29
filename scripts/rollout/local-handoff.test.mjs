@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { approvalFor, planDigest } from './local-runner.mjs';
 import { hash, readReceipt } from './local-runtime.mjs';
-import { runActiveGeneration } from './standing-launcher.mjs';
+import { acquireControlLock } from './rollout-io.mjs';
 
 const handoff = await import('./local-handoff.mjs').catch(() => ({}));
 const put = (path, value) => { const bytes = Buffer.from(typeof value === 'string' ? value : JSON.stringify(value)); writeFileSync(path, bytes, { mode: 0o600 }); return { path, sha256: hash(bytes), bytes: bytes.length }; };
@@ -89,7 +89,7 @@ test('an exact retained handoff fence is reused read-only after worker absence i
   const lock = join(controlDirectory, 'control.lock'), bytes = readFileSync(lock);
   await handoff.withLocalHandoff(config, async () => {}, noWorkers);
   assert.deepEqual(readFileSync(lock), bytes);
-  await assert.rejects(() => runActiveGeneration(controlDirectory, { poll() { assert.fail('old writer must remain excluded'); } }), /launcher refused/);
+  assert.throws(() => acquireControlLock(controlDirectory), /EEXIST/);
   assert.deepEqual(readFileSync(lock), bytes);
 });
 

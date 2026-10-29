@@ -4,9 +4,9 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { chmodSync, closeSync, constants, fchmodSync, fstatSync, fsyncSync, openSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve, sep } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { atomicJSON, automationDigest, fingerprint, generationDigest, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
-import { assertDependencyDelta, dependencyTarget } from './update-consumer.mjs';
+import { pathToFileURL } from 'node:url';
+import { atomicJSON, fingerprint, generationDigest, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './rollout-io.mjs';
+import { assertDependencyDelta, dependencyTarget } from './consumer-dependency.mjs';
 import { frozenPackageIndex, runtimeIndex } from './package-runtime.mjs';
 import { copyCodeTree, codeManifest, inspectEstimateRelease, inspectJevStandalone } from './consumer-artifact.mjs';
 import { fixtureManifest } from './jev-candidate.mjs';
@@ -14,7 +14,6 @@ import { validateReleaseExpectations, selectExpectationProfile } from './release
 import { createSandbox, executeSandbox, networkManifest, sanitizedEnvironment, treeDigest, treeManifest, readBoundedSource } from './preflight-sandbox.mjs';
 import { verifySandbox } from './preflight-sandbox.mjs';
 
-const AUTOMATION_ROOT=resolve(fileURLToPath(new URL('../../',import.meta.url)));
 const under=(path,root)=>path===root||path.startsWith(root+sep);
 const keys=(value,allowed)=>assert(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(key=>allowed.includes(key)),'Unsupported preflight input/config field; operational config prohibited');
 const reference=path=>{const bytes=readFileSync(path);return {path,sha256:hash(bytes),bytes:bytes.length};};
@@ -34,34 +33,21 @@ function exclusiveIntent(path,value) {
 }
 function configured(input) {
  assert.equal(process.platform,'darwin','Supported macOS sandbox required; no unsandboxed fallback');
- keys(input,['schemaVersion','kind','service','repository','sourceRoot','reviewedBaseSha','sourceHeadSha','isolatedRoot','release','previousVersion','archive','fixture','harnessSha256','generation','config','approval']);
+ keys(input,['schemaVersion','kind','service','repository','sourceRoot','reviewedBaseSha','sourceHeadSha','isolatedRoot','release','previousVersion','archive','fixture','harnessSha256','config']);
  assert.equal(input.schemaVersion,1);assert(['estimate','jev'].includes(input.service),'Bounded consumer service required');
  assert.equal(input.repository,input.service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev','Exact repository binding required');
  assert(REVISION.test(input.reviewedBaseSha)&&HEX.test(input.harnessSha256),'Reviewed exact source and harness closure required');
  if(input.sourceHeadSha!==undefined)assert(REVISION.test(input.sourceHeadSha),'Exact dependency-only source HEAD required');
- if(localPlan(input)) {
-  assert(!Object.hasOwn(input,'generation')&&!Object.hasOwn(input,'approval'),'Local preflight cannot carry legacy execution authority');
- }else {
-  assert(input.kind===undefined,'Unknown preflight kind');
-  assert(input.approval?.approvedBy?.trim()&&input.approval?.approvalRef?.trim(),'Recorded exact preflight approval required');
-  assert.equal(input.approval.planSha256,preflightPlanDigest(input),'Exact preflight plan approval mismatch');
-  generationDigest(input.generation);
-  assert.equal(automationDigest(AUTOMATION_ROOT),input.generation.automationSha256,'Reviewed preflight automation bytes changed');
-  for(const [path,digest] of Object.entries(input.generation.trustedFiles)) {assert(realpathSync(path)===path,'Canonical trusted generation path required');const stat=lstatSync(path);assert(stat.isDirectory()||stat.isFile(),'Trusted file/tree required');assert.equal(stat.isDirectory()?treeDigest(path):hash(readFileSync(path)),digest,'Trusted generation bytes changed');}
- }
+ assert(localPlan(input),'Only local consumer preflight is supported');
  const c=input.config;keys(c,['schemaVersion','node','git','pnpm','executables','readable','executionPath','network','checks','artifactRelative','releaseIntegrity','e2e','smoke','environment','dependencyStore']);assert.equal(c.schemaVersion,1);
  if(c.git!==undefined)assert(c.executables[c.git]&&isAbsolute(c.git),'Explicit pinned isolated Git required');
  assert.equal(c.node,input.service==='estimate'?'/Users/jaymini/.local/share/estimate-runtime/node-v24.21.0-darwin-arm64/bin/node':'/Users/jaymini/.local/share/runtimes/node/v22.23.2/bin/node','Exact consumer Node runtime required');
  assert(typeof c.executionPath==='string'&&c.executionPath.split(':').every(path=>isAbsolute(path)&&resolve(path)===path),'Explicit execution PATH required');
- if(!localPlan(input))assert.equal(c.executionPath,input.generation.executionPath,'Generation PATH mismatch');
  for(const [path,digest] of Object.entries(c.executables)) {
-  if(!localPlan(input))assert.equal(input.generation.trustedFiles[path],digest,'Executable absent from generation trusted closure');
   assert(HEX.test(digest)&&realpathSync(path)===path&&lstatSync(path).isFile(),'Canonical pinned executable required');assert.equal(hash(readFileSync(path)),digest,'Pinned executable changed');
  }
- if(!localPlan(input))assert.equal(input.generation.trustedFiles[c.pnpm.path],c.pnpm.sha256,'pnpm helper absent from generation trusted closure');
  assert(isAbsolute(c.pnpm.path)&&realpathSync(c.pnpm.path)===c.pnpm.path&&lstatSync(c.pnpm.path).isFile(),'Canonical pnpm helper required');assert.equal(hash(readFileSync(c.pnpm.path)),c.pnpm.sha256,'Pinned pnpm helper changed');
  for(const entry of c.readable??[]) {
-  if(!localPlan(input))assert.equal(input.generation.trustedFiles[entry.path],entry.sha256,'Runtime read closure absent from generation identity');
   assert(HEX.test(entry.sha256)&&realpathSync(entry.path)===entry.path,'Canonical pinned read closure required');assert.equal(lstatSync(entry.path).isDirectory()?treeDigest(entry.path):hash(readFileSync(entry.path)),entry.sha256,'Runtime read closure changed');assert(!under(input.sourceRoot,entry.path)&&!under(entry.path,input.sourceRoot),'Runtime read closure overlaps source clone');
  }
  assert(c.executables[c.node]&&c.executables['/usr/bin/git']&&c.executables[realpathSync('/usr/bin/tar')]&&c.executables['/usr/bin/sandbox-exec'],'Pinned node/git/tar/sandbox executables required');
@@ -202,7 +188,7 @@ export async function prepareCandidate(input,dependencies={}) {
   assert(changed.every(path=>['package.json','pnpm-lock.yaml',target.vendor].includes(path)),'Unapproved source or executable changes during install');
   if(changed.length) {await isolatedGit(input,root,['add','--',...changed],{writable:true});await isolatedGit(input,root,['-c','user.name=Naeil preflight','-c','user.email=preflight@naeil.dev','commit','-m',`chore: prepare exact @naeil/ui ${input.release.version}`],{writable:true});}
   const identity=await sourceIdentity(input,root),bundlePath=join(root,'input','candidate.bundle'),bundleOutput=join(root,'output','candidate.bundle');await isolatedGit(input,root,['bundle','create',bundleOutput,'HEAD']);writeFileSync(bundlePath,readBoundedSource(bundleOutput,join(root,'output'),67108864),{mode:0o600,flag:'wx'});await isolatedGit(input,root,['bundle','verify',bundlePath]);
-  const candidate={schemaVersion:1,kind:'isolated-consumer-candidate',passed:false,service:input.service,repository:input.repository,reviewedBaseSha:input.reviewedBaseSha,...identity,release:input.release,expectationsSha256:JSON.parse(readFileSync(fixture.path)).expectations.sha256,harnessSha256:input.harnessSha256,...(localPlan(input)?{executionSha256:preflightExecutionDigest(config)}:{generationSha256:generationDigest(input.generation)}),preflightPlanSha256:preflightPlanDigest(input),preflightConfigSha256:fingerprint(config),root,checkout,output,archive:reference(archive),fixture,bundle:reference(bundlePath),plan:reference(join(root,'input','approved-plan.json')),isolation,checks};
+  const candidate={schemaVersion:1,kind:'isolated-consumer-candidate',passed:false,service:input.service,repository:input.repository,reviewedBaseSha:input.reviewedBaseSha,...identity,release:input.release,expectationsSha256:JSON.parse(readFileSync(fixture.path)).expectations.sha256,harnessSha256:input.harnessSha256,executionSha256:preflightExecutionDigest(config),preflightPlanSha256:preflightPlanDigest(input),preflightConfigSha256:fingerprint(config),root,checkout,output,archive:reference(archive),fixture,bundle:reference(bundlePath),plan:reference(join(root,'input','approved-plan.json')),isolation,checks};
   if(input.sourceHeadSha!==undefined)candidate.sourceHeadSha=input.sourceHeadSha;
   candidate.packageParity=parity(candidate);await assertSource(candidate,input);atomicJSON(join(root,'input','prepared.json'),candidate);atomicJSON(join(output,'prepared.json'),candidate);return candidate;
  }catch(error) {atomicJSON(join(output,'prepare-failed.json'),{schemaVersion:1,passed:false,planSha256:preflightPlanDigest(input),reasonSha256:hash(String(error.message))});throw new Error('Isolated candidate preparation failed; retained stage evidence', {cause:error});}

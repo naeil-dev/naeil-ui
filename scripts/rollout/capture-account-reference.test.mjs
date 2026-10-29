@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { captureAccountReference } from './capture-account-reference.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
-import { hash } from './standing-config.mjs';
+import { hash } from './rollout-io.mjs';
 
 async function fixture(t) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'account-reference-'))); chmodSync(root, 0o700);

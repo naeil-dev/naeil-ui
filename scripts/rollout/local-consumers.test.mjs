@@ -53,6 +53,24 @@ test('rollback uses only the recorded predecessor and retained native inputs wit
  assert.equal(result.outcome,'completed');assert.deepEqual(result.artifact,before);assert.deepEqual(request.previousArtifact,before);assert.deepEqual(request.config,native.config);
  assert(!Object.hasOwn(request,'policy'));assert(!Object.hasOwn(request,'approval'));
 });
+test('native receipts reject every missing or foreign action binding before accepting inspect or rollback',async t=>{
+ const directory=fixture(t),before=artifact(directory,'before','0.7.1'),after=artifact(directory,'after','0.7.2');
+ const helper=fileURLToPath(new URL('./jev-native.py',import.meta.url)),python=realpathSync(process.execPath);
+ const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:helper,sha256:hash(readFileSync(helper))},executionPath:'/usr/bin:/bin',config:{baseDirectory:directory,privateFiles:'metadata-only'}};
+ const service={id:'jev',mode:'deploy',currentArtifact:before,consumer:{native}},release={releaseId:'ui-0.7.2'},plan={schemaVersion:1,release,services:[service]};
+ const transaction={id:'binding-rollback',serviceId:'jev',previousArtifact:before,candidateArtifact:after,prepared:{native,release,planSha256:'d'.repeat(64),service:{id:'jev'}},native:{operation:'rollback',status:'intent'}};
+ const fields=['schemaVersion','releaseId','serviceId','attemptId','idempotencyKey','planSha256','action'];let calls=0;
+ for(const action of ['inspect','rollback'])for(const field of fields)for(const mutation of ['missing','foreign']) {
+  const adapters=consumer.createLocalConsumers({native(received,input){
+   calls++;assert.equal(received,action);
+   const response={...Object.fromEntries(['schemaVersion','attemptId','idempotencyKey','planSha256','action'].map(key=>[key,input[key]])),releaseId:input.release.releaseId,serviceId:input.service.id,passed:true,safe:true,activated:true};
+   if(mutation==='missing')delete response[field];else response[field]='foreign';return response;
+  }});
+  const context={plan,service,directory,...(action==='rollback'?{transaction}:{})};
+  await assert.rejects(()=>adapters[action](context),error=>error.reasonCode==='native-response-binding-mismatch'&&error.outcome===(action==='inspect'?'not-started':'unknown'));
+ }
+ assert.equal(calls,2*fields.length*2);
+});
 test('private native transport registers its process group and inherits only the native environment allowlist',async t=>{
  const directory=fixture(t),before=artifact(directory,'before','0.7.1'),python=realpathSync('/usr/bin/python3'),helper=join(directory,'synthetic-native.py');
  writeFileSync(helper,"import json,os\nassert 'SYNTHETIC_PRIVATE_CANARY' not in os.environ\nr=json.load(open(os.environ['NAEIL_ROLLOUT_INPUT']))\nb={k:r[k] for k in ['schemaVersion','attemptId','idempotencyKey','planSha256','action']}\nb.update(releaseId=r['release']['releaseId'],serviceId=r['service']['id'],passed=True,safe=True)\nf=open(os.environ['NAEIL_ROLLOUT_OUTPUT'],'x');os.chmod(os.environ['NAEIL_ROLLOUT_OUTPUT'],0o600);json.dump(b,f);f.close()\n",{mode:0o600});

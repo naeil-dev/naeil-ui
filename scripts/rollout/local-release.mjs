@@ -5,7 +5,7 @@ import { isAbsolute } from 'node:path';
 import { assertFrozen, digest } from './rollout.mjs';
 import { runtimeIndex, compareRuntime } from './package-runtime.mjs';
 import { loadReleaseExpectations } from './release-expectations.mjs';
-import { GitHub, materializeRelease } from './standing-github.mjs';
+import { GitHub, materializeRelease } from './release-discovery.mjs';
 
 export function validateLocalRelease({ plan }) {
   const { release } = plan;

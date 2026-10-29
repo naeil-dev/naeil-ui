@@ -4,8 +4,8 @@ import { basename, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { compareRuntime, runtimeIndex } from './package-runtime.mjs';
 import { validateReleaseExpectations, loadReleaseExpectations } from './release-expectations.mjs';
-import { hash, JSON_LIMITS, readPrivateBytes, REVISION, VERSION } from './standing-config.mjs';
-import { assertManifest } from './standing-github.mjs';
+import { hash, JSON_LIMITS, readPrivateBytes, REVISION, VERSION } from './rollout-io.mjs';
+import { assertManifest } from './release-discovery.mjs';
 
 const origin = version => `https://github.com/naeil-dev/naeil-ui/releases/download/v${version}/`;
 const json = bytes => JSON.parse(bytes.toString('utf8'));

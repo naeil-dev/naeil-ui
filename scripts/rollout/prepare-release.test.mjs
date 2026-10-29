@@ -4,10 +4,10 @@ import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hash } from './standing-config.mjs';
+import { hash } from './rollout-io.mjs';
 import {declaration} from './fixtures/reviewed-expectations.mjs';
 import {loadReleaseExpectations} from './release-expectations.mjs';
-import { materializeRelease, assertManifest } from './standing-github.mjs';
+import { materializeRelease, assertManifest } from './release-discovery.mjs';
 import { checkDraft, prepareRelease } from './prepare-release.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
 

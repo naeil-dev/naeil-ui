@@ -131,7 +131,7 @@ function nativeEnvironment(native) {
 /** Transactions retained by the adfc995 Jev helper (0.7.2 acceptance) recover
  * with this exact reviewed helper after the retained bytes are verified. The
  * pair is fixed in code; no config, plan or state can name another helper. */
-export const RECOVERY_HELPERS={'5eab8ff610b28705113d7e6ebcf9cea6c498510302e459077ceb9dd43f85a843':{path:fileURLToPath(new URL('./jev-native.py',import.meta.url)),sha256:'984e1cefb1eeacb2348f3aa484e0f91d0b8514868de1cebaccb47a9887c7229a'}};
+export const RECOVERY_HELPERS={'5eab8ff610b28705113d7e6ebcf9cea6c498510302e459077ceb9dd43f85a843':{path:fileURLToPath(new URL('./jev-native.py',import.meta.url)),sha256:'b2ab1dc82ab6b10142782a917db3e91f322766947de9b3c9abe1d1d2e59e7096'}};
 async function transport(action,request,native,context) {
  const {directory}=context;
  const root=mkdtempSync(join(directory,`native-${action}-`)),input=join(root,'input.json'),output=join(root,'output.json');

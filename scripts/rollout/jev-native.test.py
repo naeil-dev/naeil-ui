@@ -32,6 +32,25 @@ class NativeTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(n.Refusal): n.execution_gate({**request, key: value})
         with self.assertRaises(n.Refusal): n.execution_gate({**request, 'release': {**request['release'], 'version': '0.8.0'}})
 
+    def test_retired_envelopes_and_actions_never_reach_native_runtime(self):
+        request = {'schemaVersion': 1, 'mode': 'local', 'action': 'deploy', 'planSha256': 'a' * 64, 'service': {'id': 'jev'}, 'release': {'version': '0.7.2', 'contract': {'version': '1'}}, 'config': {'privateFiles': 'metadata-only'}, 'attemptId': 'synthetic'}
+        with patch.object(n, 'Native', side_effect=AssertionError('native runtime reached')):
+            for mode in ['standing', 'adopt', None]:
+                with self.subTest(mode=mode), self.assertRaisesRegex(n.Refusal, 'local-native-envelope-required'):
+                    n.native_action({**request, 'mode': mode})
+            for action in ['stage', 'activate']:
+                with self.subTest(action=action), self.assertRaisesRegex(n.Refusal, 'local-native-action'):
+                    n.native_action({**request, 'action': action})
+
+    def test_release_fingerprint_golden_excludes_only_archive_and_contract_paths(self):
+        release = {'releaseId': 'synthetic', 'archive': {'path': '/epoch/archive', 'sha256': 'a' * 64}, 'contract': {'path': '/epoch/reference', 'sha256': 'b' * 64, 'version': '1'}, 'account': {'path': '/epoch/account', 'sha256': 'c' * 64}}
+        self.assertEqual(n.release_fingerprint(release), '0180f9668d1adc48745423a406411a74d73095144fcdc55939ca954e6b918a1e')
+        changed = json.loads(json.dumps(release)); changed['archive']['path'] = '/elsewhere'; changed['contract']['path'] = '/elsewhere'
+        self.assertEqual(n.release_fingerprint(changed), n.release_fingerprint(release))
+        changed['account']['path'] = '/elsewhere'; self.assertNotEqual(n.release_fingerprint(changed), n.release_fingerprint(release))
+        reordered = {'archive': release['archive'], 'releaseId': release['releaseId'], 'contract': release['contract'], 'account': release['account']}
+        self.assertNotEqual(n.release_fingerprint(reordered), n.release_fingerprint(release))
+
     def test_local_runtime_checks_protected_metadata_without_reading_private_contents(self):
         config = self.native_config(); config['privateFiles'] = 'metadata-only'
         original = Path.read_text
@@ -146,55 +165,6 @@ class NativeTests(unittest.TestCase):
         self.assertFalse((release / 'previous-app').exists())
         self.assertEqual(json.loads((release / 'transaction.json').read_text())['phase'], 'uncertain')
 
-    def test_stop_or_expiry_during_online_backup_prevents_stop(self):
-        for change in ['stop', 'expiry']:
-            with self.subTest(change=change), tempfile.TemporaryDirectory() as d:
-                root = Path(d); ops = Fake(root); release = root / 'release'; release.mkdir()
-                staged = release / 'staged-app'; staged.mkdir(); (staged / 'server.js').write_text('new')
-                record = {'phase': 'staged', 'before': n.code_manifest(ops.app), 'after': n.code_manifest(staged)}
-                request = policy_request(root)
-                backup = ops.backup
-                def changed(directory, name):
-                    backup(directory, name)
-                    if change == 'stop': Path(request['policy']['stopFile']).touch()
-                    else: request['policy']['expiresAt'] = '2000-01-01'
-                ops.backup = changed
-                with self.assertRaises(n.Refusal): n.activate_transaction(ops, release, record, guard=lambda: n.policy_gate(request))
-                self.assertNotIn('stop', ops.events)
-                self.assertEqual((ops.app / 'server.js').read_text(), 'old')
-
-    def test_policy_rejects_disabled_scope_expiry_patch_contract_and_unapproved_rollback(self):
-        request = policy_request(self.root); n.policy_gate(request)
-        for update in [lambda r: r['policy'].update(enabled=False), lambda r: r['policy'].update(services=['other']), lambda r: r['policy'].update(expiresAt='2000-01-01'), lambda r: r['release'].update(version='0.8.0'), lambda r: r['policy']['patchWindow'].update(contractVersion='2'), lambda r: r.update(action='rollback')]:
-            r = json.loads(json.dumps(request)); update(r)
-            with self.assertRaises(n.Refusal): n.policy_gate(r)
-
-    def test_dangling_stop_switch_is_active(self):
-        request = policy_request(self.root); Path(request['policy']['stopFile']).symlink_to('missing')
-        with self.assertRaises(n.Refusal): n.policy_gate(request)
-
-    def test_policy_accepts_dom_only_with_owner_approved_migration_of_exact_release(self):
-        request = policy_request(self.root); release = request['release']
-        release.update(changes=['dom'], sourceRevision='a' * 40, siteSourceRevision='d' * 40, archive={'sha256': 'b' * 64}); release['contract']['sha256'] = 'e' * 64
-        with self.assertRaises(n.Refusal): n.policy_gate(request)
-        migration = {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'sourceRevision': 'a' * 40, 'siteSourceRevision': 'd' * 40, 'archiveSha256': 'b' * 64, 'contractSha256': 'e' * 64, 'changes': ['dom'], 'services': ['jev'], 'approvedBy': 'owner', 'approvalRef': 'migration-approval', 'reason': 'Reviewed header catalog change', 'expiresAt': '2099-01-01T00:00:00Z'}
-        request['policy']['reviewedMigration'] = migration; n.policy_gate(request)
-        for change in [{'archiveSha256': 'c' * 64}, {'contractSha256': 'c' * 64}, {'siteSourceRevision': 'c' * 40}, {'services': ['estimate']}, {'expiresAt': '2000-01-01T00:00:00Z'}, {'changes': ['dom', 'api']}, {'reason': ''}]:
-            request['policy']['reviewedMigration'] = {**migration, **change}
-            with self.assertRaises(n.Refusal): n.policy_gate(request)
-
-    def test_dispatcher_policy_adopts_exact_current_without_predecessor_and_cannot_mutate(self):
-        request = policy_request(self.root); request.update(mode='adopt', action='inspect')
-        del request['policy']['schemaVersion']; del request['policy']['patchWindow']
-        request['release'].update(version='0.7.1', previousVersion='0.1.0', changes=['dom', 'api'], archive={'sha256': 'e' * 64})
-        artifact = {'id': 'actual-current', 'sourceRevision': 'a' * 40, 'ui': {'version': '0.7.1', 'contractVersion': '1'}, 'packageSha256': 'e' * 64}
-        request.update(artifact=artifact, config={'baselineArtifact': json.loads(json.dumps(artifact))})
-        n.policy_gate(request)
-        for action in ['stage', 'activate', 'rollback']:
-            with self.assertRaises(n.Refusal): n.policy_gate({**request, 'action': action})
-        request['artifact']['sourceRevision'] = 'b' * 40
-        with self.assertRaises(n.Refusal): n.policy_gate(request)
-
     def native_config(self):
         base = self.root / 'runtime'; base.mkdir(mode=0o700); (base / 'app').mkdir()
         env = base / 'server.env'; env.write_text('NAEIL_SUPABASE_URL=https://project.example.test\nNAEIL_SUPABASE_ANON_KEY=fictional-key\nAPP_ORIGIN=https://jev.naeil.dev\nJEV_DATA_DB=' + str(base / 'state.sqlite') + '\n'); env.chmod(0o600)
@@ -204,7 +174,7 @@ class NativeTests(unittest.TestCase):
         db.chmod(0o600)
         retained = base / 'releases/current'; (retained / 'previous-app').mkdir(parents=True)
         paths = [retained, retained / 'previous-app']
-        config = {'baseDirectory': str(base), 'plistPath': str(self.root / 'jev.plist'), 'nodeExecutable': '/fictional/node', 'nodeVersion': 'v22.23.2', 'label': 'dev.naeil.jev', 'port': 2466, 'appOrigin': 'https://jev.naeil.dev', 'databasePath': str(db), 'envPath': str(env), 'passwordPath': str(password), 'envKeys': ['NAEIL_SUPABASE_URL', 'NAEIL_SUPABASE_ANON_KEY', 'APP_ORIGIN', 'JEV_DATA_DB'], 'envMetadata': n.file_metadata(env), 'passwordMetadata': n.file_metadata(password), 'preserveDirectories': list(map(str, paths)), 'databaseIdentity': self.identity(db), 'preserveDirectoryIdentities': {str(p): self.identity(p) for p in paths}}
+        config = {'privateFiles': 'metadata-only', 'baseDirectory': str(base), 'plistPath': str(self.root / 'jev.plist'), 'nodeExecutable': '/fictional/node', 'nodeVersion': 'v22.23.2', 'label': 'dev.naeil.jev', 'port': 2466, 'appOrigin': 'https://jev.naeil.dev', 'databasePath': str(db), 'envPath': str(env), 'passwordPath': str(password), 'envKeys': ['NAEIL_SUPABASE_URL', 'NAEIL_SUPABASE_ANON_KEY', 'APP_ORIGIN', 'JEV_DATA_DB'], 'envMetadata': n.file_metadata(env), 'passwordMetadata': n.file_metadata(password), 'preserveDirectories': list(map(str, paths)), 'databaseIdentity': self.identity(db), 'preserveDirectoryIdentities': {str(p): self.identity(p) for p in paths}}
         import plistlib
         plist = {'Label': config['label'], 'ProgramArguments': [config['nodeExecutable'], '--env-file=' + str(env), str(base / 'app/server.js')], 'WorkingDirectory': str(base / 'app'), 'KeepAlive': True}
         Path(config['plistPath']).write_bytes(plistlib.dumps(plist)); config['plistSha256'] = n.sha(Path(config['plistPath']).read_bytes())
@@ -221,7 +191,7 @@ class NativeTests(unittest.TestCase):
             for field in ['envMetadata', 'passwordMetadata', 'databaseIdentity']:
                 changed = json.loads(json.dumps(config)); changed[field][1] += 1
                 with self.assertRaises(n.Refusal): n.Native(changed).static()
-            changed = json.loads(json.dumps(config)); changed['envKeys'].append('FOREIGN')
+            changed = json.loads(json.dumps(config)); changed['privateFiles'] = 'legacy-env-parser'
             with self.assertRaises(n.Refusal): n.Native(changed).static()
             retained = Path(config['preserveDirectories'][0]); retained.rename(retained.with_name('saved')); retained.mkdir()
             with self.assertRaises(n.Refusal): n.Native(config).static()
@@ -285,13 +255,12 @@ class NativeTests(unittest.TestCase):
     def test_complete_native_transaction_then_code_only_rollback_preserves_every_release(self):
         config = self.native_config(); old = self.artifact('0.7.1', 'old'); new = self.artifact('0.7.2', 'new')
         base = Path(config['baseDirectory']); (base / 'app').rmdir(); n.extract_code(Path(old['path']), base / 'app', n.artifact_manifest(old))
-        request = policy_request(self.root)
+        request = local_request(self.root)
         for key in ['archive', 'contract']:
             path = self.root / (key + '.json'); path.write_text('frozen synthetic ' + key)
             request['release'].setdefault(key, {}).update({'path': str(path), 'sha256': n.sha(path.read_bytes())})
         new['packageSha256'] = request['release']['archive']['sha256']
         request.update({'config': config, 'artifact': new, 'previousArtifact': old, 'attemptId': 'attempt-1', 'idempotencyKey': 'ui-0.7.2:jev', 'transactionDirectory': str(base / 'releases/ui-attempt-1')})
-        request['policy'].update(rollbackApproved=True, rollbackScope='code-only')
         events = []
         class SyntheticNative(n.Native):
             def command(self, args): return SimpleNamespace(returncode=0, stdout=config['nodeVersion'])
@@ -304,7 +273,8 @@ class NativeTests(unittest.TestCase):
                 if json.loads((self.app / 'public/.well-known/naeil-ui.json').read_text()) != identity: raise n.Refusal('synthetic-identity')
             def ensure_running(self, identity): self.health(identity)
         with patch.object(n, 'Native', SyntheticNative):
-            self.assertTrue(n.native_action({**request, 'action': 'stage'})['passed'])
+            with patch.object(SyntheticNative, 'preflight', side_effect=n.Deferred('synthetic-busy')):
+                with self.assertRaises(n.Deferred): n.native_action(request)
             # Full config and release are bound independently of the artifact.
             changed = json.loads(json.dumps(request)); changed['config']['unexpected'] = True
             with self.assertRaises(n.Refusal): n.native_action(changed)
@@ -359,7 +329,7 @@ class NativeTests(unittest.TestCase):
             self.assertTrue((Path(request['transactionDirectory']) / 'rollback/previous-app').is_dir())
 
     def test_native_private_transport_echoes_action_binding_and_generic_errors(self):
-        request = {**policy_request(self.root), 'attemptId': 'attempt-1', 'idempotencyKey': 'release:jev', 'action': 'inspect'}
+        request = {**local_request(self.root), 'attemptId': 'attempt-1', 'idempotencyKey': 'release:jev', 'action': 'inspect'}
         incoming, outgoing = self.root / 'input.json', self.root / 'output.json'
         n.write_private(incoming, request)
         with patch.dict(os.environ, {'NAEIL_ROLLOUT_INPUT': str(incoming), 'NAEIL_ROLLOUT_OUTPUT': str(outgoing)}), patch.object(n, 'native_action', side_effect=n.Refusal('credential-or-provider-detail')):
@@ -775,8 +745,8 @@ class Fake:
     def preserved(self): self.events.append('preserved')
 
 
-def policy_request(root):
-    return {'schemaVersion': 1, 'mode': 'standing', 'action': 'activate', 'service': {'id': 'jev'}, 'release': {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'previousVersion': '0.7.1', 'contract': {'version': '1'}, 'changes': ['fix']}, 'policy': {'schemaVersion': 1, 'enabled': True, 'approvedBy': 'fixture', 'approvalRef': 'fixture', 'expiresAt': '2099-01-01', 'services': ['jev'], 'stopFile': str(root / 'STOP'), 'patchWindow': {'approvedBy': 'fixture', 'approvalRef': 'fixture', 'reason': 'synthetic', 'startsAt': '2020-01-01', 'expiresAt': '2099-01-01', 'minVersion': '0.7.1', 'maxVersion': '0.7.9', 'services': ['jev'], 'contractVersion': '1'}}}
+def local_request(root):
+    return {'schemaVersion': 1, 'mode': 'local', 'action': 'deploy', 'planSha256': 'a' * 64, 'service': {'id': 'jev'}, 'release': {'releaseId': 'ui-0.7.2', 'version': '0.7.2', 'previousVersion': '0.7.1', 'contract': {'version': '1'}, 'changes': ['fix']}}
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

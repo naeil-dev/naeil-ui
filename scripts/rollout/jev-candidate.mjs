@@ -7,7 +7,7 @@ import { cpSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, 
 import { createHash } from 'node:crypto';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {JSON_LIMITS,readPrivateBytes} from './standing-config.mjs';
+import {JSON_LIMITS,readPrivateBytes} from './rollout-io.mjs';
 import {loadReleaseExpectations,selectExpectationProfile} from './release-expectations.mjs';
 
 export const REVIEWED_FIXTURE_SHA256 = 'f35c241851f35bec1f4d5cbdfceec460a381b9ba20b64cb1c74165a82ba45367';

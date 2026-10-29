@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hash } from './standing-config.mjs';
+import { hash } from './rollout-io.mjs';
 
 // Hand-declared synthetic future input; no renderer or compatibility helper authors it.
 import {futureRelease,declaration} from './fixtures/reviewed-expectations.mjs';

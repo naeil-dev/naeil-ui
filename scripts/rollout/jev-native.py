@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Parameterized code-only Jev lifecycle. Invoked through private JSON files only.
 
-Actions: inspect, stage, activate, rollback. No action executes on import. Never
+Actions: inspect, inspect-transaction, deploy, rollback. No action executes on import. Never
 restore/initialize operating data, alter config, signal an unowned process, force
-kill or erase uncertainty. The JS dispatcher holds the durable operation lock.
+kill or erase uncertainty. The local runner holds the durable operation lock.
 """
 from contextlib import closing
-from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 import hashlib
 import json
@@ -20,7 +19,6 @@ import subprocess
 import tarfile
 import time
 import urllib.request
-from urllib.parse import urlparse
 
 
 class Refusal(RuntimeError): pass
@@ -39,46 +37,10 @@ def canonical(value): return json.dumps(value, sort_keys=True, separators=(',', 
 def manifest_sha(value): return sha(canonical(value))
 
 
-def date(value):
-    try:
-        parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
-        return parsed.replace(tzinfo=timezone.utc).timestamp() if parsed.tzinfo is None else parsed.timestamp()
-    except (ValueError, TypeError, AttributeError): return 0
-
-
 def release_fingerprint(release):
     # Match rollout.mjs releaseIdentity/JSON.stringify insertion order exactly.
     value = {**release, 'archive': {k: v for k, v in release.get('archive', {}).items() if k != 'path'}, 'contract': {k: v for k, v in release['contract'].items() if k != 'path'}}
     return sha(json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode())
-
-
-def policy_gate(request):
-    policy, release, service = request['policy'], request['release'], request['service']['id']
-    now = time.time()
-    require(policy.get('schemaVersion') in [None, 1] and policy.get('enabled') is True and all(isinstance(policy.get(key), str) and policy[key].strip() for key in ['approvedBy', 'approvalRef']) and date(policy.get('expiresAt')) > now, 'standing-approval')
-    require(service == 'jev' and service in policy.get('services', []), 'standing-service-scope')
-    stop = Path(policy.get('stopFile', ''))
-    require(stop.is_absolute() and not stop.exists() and not stop.is_symlink(), 'stop-switch')
-    if request.get('mode') == 'adopt':
-        artifact = request['artifact']
-        require(request['action'] == 'inspect' and artifact == request['config']['baselineArtifact'], 'adopt-current-inspection-only')
-        require(release['version'] == '0.7.1' and release['contract']['version'] == '1' and artifact['ui'] == {'version': '0.7.1', 'contractVersion': '1'} and artifact['packageSha256'] == release['archive']['sha256'], 'adopt-exact-current-binding')
-        return
-    require(request.get('mode') == 'standing', 'explicit-native-standing-mode')
-    if request['action'] == 'rollback': require(policy.get('rollbackApproved') is True and policy.get('rollbackScope') == 'code-only', 'code-only-rollback-approval')
-    version = lambda value: tuple(map(int, value.split('.'))) if isinstance(value, str) and re.fullmatch(r'(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', value) else ()
-    before, after = version(release.get('previousVersion')), version(release.get('version'))
-    require(len(before) == 3 and len(after) == 3 and before[:2] == after[:2] == (0, 7) and after[2] == before[2] + 1, 'consecutive-patch-required')
-    migration = policy.get('reviewedMigration')
-    migrated = isinstance(migration, dict) and all(isinstance(migration.get(key), str) and migration[key].strip() for key in ['approvedBy', 'approvalRef', 'reason']) and date(migration.get('expiresAt')) > now and all(migration.get(key) == release.get(key) for key in ['releaseId', 'version', 'sourceRevision', 'siteSourceRevision', 'changes']) and migration.get('archiveSha256') == release['archive']['sha256'] and migration.get('contractSha256') == release['contract']['sha256'] and service in migration.get('services', [])
-    require((release.get('changes') == ['fix'] or migrated) and release['contract']['version'] == '1', 'fix-only-contract1-required')
-    window = policy.get('patchWindow')
-    require(isinstance(window, dict), 'active-patch-window-required')
-    if 'startsAt' in window: require(0 < date(window['startsAt']) <= now, 'patch-window-not-active')
-    if 'expiresAt' in window: require(date(window['expiresAt']) > now, 'patch-window-expired')
-    low, high = version(window.get('minVersion')), version(window.get('maxVersion'))
-    require(len(low) == 3 and len(high) == 3 and low[:2] == high[:2] == after[:2] and low[2] <= after[2] <= high[2], 'patch-window-version')
-    require(window.get('contractVersion') == release['contract']['version'] and ('services' not in window or service in window['services']), 'patch-window-contract-service')
 
 
 def execution_gate(request):
@@ -87,9 +49,7 @@ def execution_gate(request):
     No legacy policy is manufactured. An invocation already in flight completes
     its durable transaction; cancellation is enforced at the caller's boundary.
     """
-    if request.get('mode') != 'local':
-        policy_gate(request)
-        return
+    require(request.get('mode') == 'local', 'local-native-envelope-required')
     require(not any(key in request for key in ['policy', 'generation', 'generationSha256', 'sourceAdoption']), 'legacy-authority-in-local-request')
     require(re.fullmatch('[a-f0-9]{64}', request.get('planSha256', '')) is not None, 'exact-local-plan-required')
     require(request['service']['id'] == 'jev' and request['action'] in ['inspect', 'inspect-transaction', 'deploy', 'rollback'], 'local-native-action')
@@ -310,29 +270,8 @@ class Native:
         require(version.returncode == 0 and version.stdout.strip() == self.config['nodeVersion'], 'native-node-version')
         for key, metadata_key in [('envPath', 'envMetadata'), ('passwordPath', 'passwordMetadata')]:
             require(file_metadata(Path(self.config[key])) == self.config[metadata_key], 'protected-metadata-changed')
-        if self.config.get('privateFiles') == 'metadata-only':
-            # Local rollout pins protected descriptors without parsing sessions,
-            # tokens or .env bytes. Configuration identity is owner provisioned.
-            self.preserved()
-            return
-        values = {}
-        # Never log raw parser errors or values. Full file metadata is pinned.
-        for line in Path(self.config['envPath']).read_text().splitlines():
-            line = line.strip()
-            if not line or line.startswith('#'): continue
-            if line.startswith('export '): line = line[7:]
-            require('=' in line, 'unsupported-env-syntax')
-            key, value = line.split('=', 1); key = key.strip(); value = value.strip()
-            require(re.fullmatch('[A-Za-z_][A-Za-z0-9_]*', key) is not None and key not in values, 'env-key-contract')
-            if len(value) >= 2 and value[0] in ['"', "'"] and value[-1] == value[0]: value = value[1:-1]
-            values[key] = value
-        require(sorted(values) == sorted(self.config['envKeys']), 'env-keys-changed')
-        require('JEV_PASSWORD_FILE' not in values and 'NEXT_MANUAL_SIG_HANDLE' not in values, 'legacy-or-manual-signal-config')
-        require(bool(values.get('NAEIL_SUPABASE_ANON_KEY')) and bool(values.get('NAEIL_SUPABASE_URL')), 'shared-session-keys-required')
-        supabase = urlparse(values['NAEIL_SUPABASE_URL'])
-        require(supabase.scheme == 'https' and bool(supabase.netloc) and not supabase.username and not supabase.password, 'shared-session-url')
-        require(values.get('APP_ORIGIN', 'https://jev.naeil.dev') == self.config['appOrigin'], 'application-origin-changed')
-        require(Path(values.get('JEV_DATA_DB', str(Path.home() / '.local/share/jev/state.sqlite'))) == self.db, 'database-config-changed')
+        require(self.config.get('privateFiles') == 'metadata-only', 'local-private-metadata-only')
+        # Protected descriptors are pinned without parsing sessions or .env bytes.
         self.preserved()
 
     def preserved(self):
@@ -449,14 +388,14 @@ class Native:
         self.health(identity)
 
 
-def activate_transaction(ops, release, record, guard=lambda: None):
+def activate_transaction(ops, release, record):
     require(record['phase'] == 'staged', 'transaction-not-staged')
     staged, previous = release / 'staged-app', release / 'previous-app'
     require(not previous.exists() and not previous.is_symlink(), 'existing-recovery-code')
     require(code_manifest(ops.app) == record['before'] and code_manifest(staged) == record['after'], 'pre-swap-code-changed')
     stopped = False
     try:
-        guard(); ops.preflight()
+        ops.preflight()
         backup_directory = release
         backup_names = [f'{stage}-{suffix}' for stage in ['online', 'stopped'] for suffix in ['state.sqlite', 'restore-proof.sqlite', 'backup.json']]
         if record.get('backupAttempts') or any((release / name).exists() or (release / name).is_symlink() for name in backup_names):
@@ -468,13 +407,13 @@ def activate_transaction(ops, release, record, guard=lambda: None):
             name = f'backup-attempt-{len(attempts) + 2}'; backup_directory = release / name
             require(not backup_directory.exists() and not backup_directory.is_symlink(), 'backup-attempt-exists')
             private_directory(backup_directory); attempts.append(name); record_phase(release, record, 'staged')
-        ops.backup(backup_directory, 'online'); guard(); ops.preflight(); ops.idle(); guard()
+        ops.backup(backup_directory, 'online'); ops.preflight(); ops.idle()
         record_phase(release, record, 'stopping'); stopped = True; ops.stop(allow_unhealthy=getattr(ops, 'allow_unhealthy', False))
         record_phase(release, record, 'stopped'); ops.backup(backup_directory, 'stopped')
-        guard(); ops.static()
+        ops.static()
         require(code_manifest(ops.app) == record['before'] and code_manifest(staged) == record['after'], 'code-changed-while-stopping')
         record_phase(release, record, 'swapping'); ops.app.rename(previous); staged.rename(ops.app)
-        record_phase(release, record, 'starting'); guard(); ops.start(); ops.health(record['identity'])
+        record_phase(release, record, 'starting'); ops.start(); ops.health(record['identity'])
         require(code_manifest(ops.app) == record['after'], 'active-code-changed')
         ops.preserved(); record_phase(release, record, 'active')
     except Uncertain:
@@ -509,7 +448,7 @@ def transaction_record(request, ops):
         expected = request['release']['releaseId'] if key == 'releaseId' else request['service']['id'] if key == 'serviceId' else request[key]
         require(record[key] == expected, 'transaction-binding')
     require(record['artifact'] == request['artifact'] and record['previousArtifact'] == request['previousArtifact'], 'transaction-artifact-binding')
-    if request.get('mode') == 'local': require(record.get('planSha256') == request['planSha256'], 'transaction-plan-binding')
+    require(record.get('planSha256') == request['planSha256'], 'transaction-plan-binding')
     require(record['configSha256'] == sha(canonical(request['config'])) and record['releaseFingerprint'] == release_fingerprint(request['release']), 'transaction-config-release-binding')
     return release, record
 
@@ -620,20 +559,13 @@ def local_rollback(request, ops, release, record):
 def native_action(request):
     require(request.get('schemaVersion') == 1 and request['service']['id'] == 'jev', 'native-envelope')
     require(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,119}', request['attemptId']) is not None, 'native-attempt-id')
-    local = request.get('mode') == 'local'
     execution_gate(request)
-    if local:
-        if request['action'] not in ['rollback', 'inspect-transaction']: frozen_release(request['release'])
-        guard = lambda: None
-    else:
-        guard = lambda: (policy_gate(request), frozen_release(request['release']))
-        guard()
+    if request['action'] not in ['rollback', 'inspect-transaction']: frozen_release(request['release'])
     ops = Native(request['config']); ops.static()
     action = request['action']
     artifact = request['artifact']; manifest = artifact_manifest(artifact) if action not in ['rollback', 'inspect-transaction'] else None
     expected_identity = public_identity(request['service'], artifact)
     if action == 'inspect-transaction':
-        require(local, 'transaction-inspection-local-only')
         release, record = transaction_record(request, ops)
         return inspect_transaction(request, ops, release, record)
     if action == 'inspect':
@@ -651,14 +583,14 @@ def native_action(request):
         require(request['previousArtifact']['ui'] == {'version': request['release']['previousVersion'], 'contractVersion': request['release']['contract']['version']}, 'previous-verified-ui-binding')
     # A proven busy deferral can retain staged code. The caller permits this
     # retry only after a not-started receipt; unknown intents are never replayed.
-    reuse_staged = local and action == 'deploy' and (release.exists() or release.is_symlink())
-    if action in ['stage', 'deploy'] and not reuse_staged:
+    reuse_staged = action == 'deploy' and (release.exists() or release.is_symlink())
+    if action == 'deploy' and not reuse_staged:
         require(not release.exists() and not release.is_symlink(), 'transaction-exists')
         previous = request['previousArtifact']; before = artifact_manifest(previous)
         require(code_manifest(ops.app) == before, 'predecessor-code-changed'); ops.ownership()
-        guard(); private_directory(release)
+        private_directory(release)
         record = {'schemaVersion': 1, 'releaseId': request['release']['releaseId'], 'serviceId': 'jev', 'idempotencyKey': request['idempotencyKey'], 'attemptId': request['attemptId'], 'configSha256': sha(canonical(request['config'])), 'releaseFingerprint': release_fingerprint(request['release']), 'phase': 'preparing', 'before': before, 'after': manifest, 'identity': expected_identity, 'previousIdentity': public_identity(request['service'], previous), 'artifact': artifact, 'previousArtifact': previous}
-        if local: record['planSha256'] = request['planSha256']
+        record['planSha256'] = request['planSha256']
         record_phase(release, record, 'preparing')
     if reuse_staged:
         release, record = transaction_record(request, ops)
@@ -673,25 +605,16 @@ def native_action(request):
                 name = f'staged-app-incomplete-{len(attempts) + 1}'; preserved = release / name
                 require(not preserved.exists() and not preserved.is_symlink(), 'incomplete-stage-exists')
                 staged.rename(preserved); attempts.append(name); record_phase(release, record, 'preparing')
-    if action in ['stage', 'deploy'] and (not reuse_staged or record['phase'] == 'preparing'):
+    if action == 'deploy' and (not reuse_staged or record['phase'] == 'preparing'):
         extract_code(Path(artifact['path']), release / 'staged-app', manifest)
         require(json.loads((release / 'staged-app/public/.well-known/naeil-ui.json').read_text()) == expected_identity, 'staged-identity')
         require((release / 'staged-app/.next/BUILD_ID').read_text().strip() == artifact['buildId'], 'staged-build')
         record_phase(release, record, 'staged')
-        if action == 'stage': return {'passed': True, 'safe': True}
-    require(action in ['activate', 'deploy', 'rollback'], 'unknown-native-action')
+    require(action in ['deploy', 'rollback'], 'unknown-native-action')
     require(release.is_dir() and not release.is_symlink(), 'real-transaction-directory')
     release, record = transaction_record(request, ops)
-    if action in ['activate', 'deploy']: activate_transaction(ops, release, record, guard)
-    elif local: local_rollback(request, ops, release, record)
-    else:
-        require(record['phase'] == 'active' and code_manifest(ops.app) == record['after'], 'rollback-active-code')
-        previous = request['previousArtifact']; old = artifact_manifest(previous)
-        rollback = release / 'rollback'; require(not rollback.exists() and not rollback.is_symlink(), 'rollback-already-attempted')
-        private_directory(rollback); extract_code(Path(previous['path']), rollback / 'staged-app', old)
-        recovery = {'phase': 'staged', 'before': record['after'], 'after': old, 'identity': record['previousIdentity'], 'previousIdentity': record['identity']}
-        record_phase(rollback, recovery, 'staged'); activate_transaction(ops, rollback, recovery, guard)
-        record_phase(release, record, 'rolled-back')
+    if action == 'deploy': activate_transaction(ops, release, record)
+    else: local_rollback(request, ops, release, record)
     return {'passed': True, 'safe': True, 'activated': True}
 
 
@@ -699,39 +622,37 @@ def main():
     os.umask(0o077)
     request = private_json(Path(os.environ['NAEIL_ROLLOUT_INPUT']))
     output = Path(os.environ['NAEIL_ROLLOUT_OUTPUT'])
-    binding = {key: request[key] for key in ['schemaVersion', 'attemptId', 'idempotencyKey']}
-    if request.get('mode') == 'local': binding['planSha256'] = request['planSha256']
+    require(request.get('mode') == 'local', 'local-native-envelope-required')
+    binding = {key: request[key] for key in ['schemaVersion', 'attemptId', 'idempotencyKey', 'planSha256']}
     binding.update({'releaseId': request['release']['releaseId'], 'serviceId': request['service']['id'], 'action': request['action']})
     try: result = native_action(request)
     except Deferred: result = {'passed': False, 'safe': True, 'deferred': True, 'reason': 'native-busy-deferred', 'outcome': 'not-started'}
     except Uncertain: result = {'passed': False, 'safe': False, 'reason': 'native-state-uncertain', 'outcome': 'unknown'}
     except BaseException as error:
         # Determine safety from the durable record, never from a raw exception.
-        safe = request['action'] in ['inspect', 'inspect-transaction', 'stage']
+        safe = request['action'] in ['inspect', 'inspect-transaction']
         phase = None
         transaction = Path(request.get('transactionDirectory', '/nonexistent')) / 'transaction.json'
         if transaction.exists():
             try:
                 record = private_json(transaction)
-                if request.get('mode') == 'local' and request['action'] == 'rollback' and record.get('rollbackAttempts'):
+                if request['action'] == 'rollback' and record.get('rollbackAttempts'):
                     _, record = latest_rollback(transaction.parent, record)
                 phase = record.get('phase')
                 safe = phase in ['preparing', 'staged', 'recovered', 'rolled-back']
-                if request.get('mode') == 'local' and request['action'] == 'rollback' and not record.get('rollbackAttempts') and record.get('action') != 'rollback' and phase == 'active': safe = True
+                if request['action'] == 'rollback' and not record.get('rollbackAttempts') and record.get('action') != 'rollback' and phase == 'active': safe = True
             except Exception: safe = False
         result = {'passed': False, 'safe': safe, 'reason': 'native-operation-refused'}
-        if request.get('mode') == 'local':
-            known = isinstance(error, Refusal)
-            recovered_identity = getattr(error, 'recovered_identity', None)
-            recovered_artifact = next((artifact for artifact in [request.get('previousArtifact'), request.get('artifact')] if artifact and public_identity(request['service'], artifact) == recovered_identity), None)
-            recovered = known and phase == 'recovered' and recovered_artifact is not None
-            known_safe = known and (safe or request['action'] in ['inspect', 'inspect-transaction'])
-            result.update({'safe': known_safe, 'outcome': 'failed' if recovered else 'not-started' if known_safe else 'unknown', 'phase': phase})
-            if recovered: result.update({'recovered': True, 'artifact': recovered_artifact})
-            code = getattr(error, 'reason_code', 'native-operation-refused')
-            result['reasonCode'] = code if re.fullmatch('[a-z][a-z0-9-]{0,99}', code) else 'native-operation-refused'
-    if request.get('mode') == 'local':
-        result.setdefault('outcome', 'completed' if result.get('passed') is True else 'unknown')
+        known = isinstance(error, Refusal)
+        recovered_identity = getattr(error, 'recovered_identity', None)
+        recovered_artifact = next((artifact for artifact in [request.get('previousArtifact'), request.get('artifact')] if artifact and public_identity(request['service'], artifact) == recovered_identity), None)
+        recovered = known and phase == 'recovered' and recovered_artifact is not None
+        known_safe = known and (safe or request['action'] in ['inspect', 'inspect-transaction'])
+        result.update({'safe': known_safe, 'outcome': 'failed' if recovered else 'not-started' if known_safe else 'unknown', 'phase': phase})
+        if recovered: result.update({'recovered': True, 'artifact': recovered_artifact})
+        code = getattr(error, 'reason_code', 'native-operation-refused')
+        result['reasonCode'] = code if re.fullmatch('[a-z][a-z0-9-]{0,99}', code) else 'native-operation-refused'
+    result.setdefault('outcome', 'completed' if result.get('passed') is True else 'unknown')
     write_private(output, {**binding, **result})
 
 

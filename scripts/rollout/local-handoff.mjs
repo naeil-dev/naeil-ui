@@ -7,7 +7,7 @@ import { execFile } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
-import { acquireControlLock } from './standing-config.mjs';
+import { acquireControlLock } from './rollout-io.mjs';
 import { readStandingState } from './standing-state.mjs';
 import { approvalFor, assertFinalPlan, planDigest } from './local-runner.mjs';
 import { appendReceipt, digest, entryExists, hash, LocalRolloutError, privateDirectory, readBytes, readJSON } from './local-runtime.mjs';

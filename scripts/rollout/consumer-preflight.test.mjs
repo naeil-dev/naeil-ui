@@ -8,10 +8,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
-import { prepareCandidate, runPreflight, assertCandidate, preflightPlanDigest, offlineInstallArgs } from './consumer-preflight.mjs';
+import { prepareCandidate, runPreflight, assertCandidate, handoffGit, preflightExecutionDigest, preflightPlanDigest, offlineInstallArgs } from './consumer-preflight.mjs';
 import { treeDigest, treeManifest } from './preflight-sandbox.mjs';
-import { automationDigest, generationDigest, hash } from './standing-config.mjs';
-import { assertDependencyDelta } from './update-consumer.mjs';
+import { fingerprint, generationDigest, hash } from './rollout-io.mjs';
+import { assertDependencyDelta } from './consumer-dependency.mjs';
 import { syntheticArchive } from './fixtures/release.mjs';
 import { declaration } from './fixtures/reviewed-expectations.mjs';
 import { dependencyLock } from './fixtures/dependency-lock.mjs';
@@ -45,21 +45,20 @@ function setup(t,{update=false,badBuild=false,service='estimate'}={}) {
  const fixture=join(root,'fixture.json');writeFileSync(fixture,JSON.stringify({schemaVersion:2,kind:'standing-ui-reference',release,account:pin(account),expectations:pin(expectations),routingProfile:null}),{mode:0o600});
  const executables=Object.fromEntries([node,'/usr/bin/git','/Library/Developer/CommandLineTools/usr/bin/git',realpathSync('/usr/bin/tar'),'/usr/bin/sandbox-exec'].map(p=>[p,hash(readFileSync(p))]));
  const config={schemaVersion:1,node,git:'/Library/Developer/CommandLineTools/usr/bin/git',pnpm:pin(pnpm),executables,readable:[],executionPath:node.slice(0,node.lastIndexOf('/'))+':/usr/bin',network:{},checks:[{name:'unit',file:node,args:['-e','0']},{name:'type',file:node,args:['-e','0']},{name:'lint',file:node,args:['-e','0']},{name:'build',file:node,args:['scripts/build.mjs']},{name:'package',file:node,args:['-e','0']}],artifactRelative:service==='estimate'?'release':'.next/standalone',e2e:{file:node,args:['scripts/e2e.mjs']},smoke:{file:node,args:['-e','0']},...(service==='estimate'?{releaseIntegrity:{file:node,args:['-e',"const assert=require('node:assert/strict'),fs=require('node:fs');assert.equal(process.argv[1],'release');assert.equal(JSON.parse(fs.readFileSync(process.argv[1]+'/manifest.json')).sourceCommit,process.env.NAEIL_SOURCE_REVISION);"]}}:{})};
- const input={schemaVersion:1,service,repository:service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev',sourceRoot:source,reviewedBaseSha:git(['rev-parse','HEAD']),isolatedRoot:join(root,'isolated'),release,previousVersion:'0.7.41',archive:pin(archivePath),fixture:pin(fixture),harnessSha256:null,generation:{automationSha256:automationDigest(new URL('../../',import.meta.url).pathname),trustedFiles:{...executables,[pnpm]:hash(readFileSync(pnpm))},executionPath:config.executionPath,stateSchemaVersion:2},config};
+ const input={schemaVersion:1,kind:'local-consumer-preflight',service,repository:service==='estimate'?'naeil-dev/abestimate':'naeil-dev/jev',sourceRoot:source,reviewedBaseSha:git(['rev-parse','HEAD']),isolatedRoot:join(root,'isolated'),release,previousVersion:'0.7.41',archive:pin(archivePath),fixture:pin(fixture),harnessSha256:null,config};
  // Harness closure is explicitly approved before preparation; never inferred after checks.
  input.harnessSha256=hash(JSON.stringify({'playwright.config.ts':hash(readFileSync(join(source,'playwright.config.ts'))),'tests/check.mjs':hash(readFileSync(join(source,'tests/check.mjs')))}));
- input.approval={approvedBy:'synthetic',approvalRef:'synthetic-only',planSha256:preflightPlanDigest(input)};
  writeFileSync(join(root,'STOP'),'standing remains stopped',{mode:0o600});
  return {root,input,config,git,retainFailure};
 }
 import {createHash} from 'node:crypto';
 function awaitHash512(bytes){return createHash('sha512').update(bytes).digest('base64');}
-const candidateBinding=c=>Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','generationSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,c[key]]));
+const candidateBinding=c=>Object.fromEntries(['service','repository','reviewedBaseSha','candidateSourceSha','treeSha','lockfileSha256','release','expectationsSha256','harnessSha256','executionSha256','preflightConfigSha256','preflightPlanSha256'].map(key=>[key,c[key]]));
 for(const service of ['estimate','jev'])test(`local ${service} preflight reuses exact source/tool inputs without generation or staged approvals`,{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t,{service,update:true});f.input.kind='local-consumer-preflight';delete f.input.generation;delete f.input.approval;
  try {
   const prepared=await prepareCandidate(f.input),candidate=await runPreflight(prepared,f.config);
-  const binding=candidateBinding(candidate);delete binding.generationSha256;binding.executionSha256=candidate.executionSha256;
+  const binding=candidateBinding(candidate);
   assert.equal(candidate.passed,true);assert.match(candidate.executionSha256,/^[a-f0-9]{64}$/);assert(!Object.hasOwn(candidate,'generationSha256'));
   assertCandidate(candidate,binding);assert.equal(f.git(['status','--porcelain']),'');assert.equal(readFileSync(join(f.root,'STOP'),'utf8'),'standing remains stopped');
   const proof=localCandidateProof(candidate.receipt);assert.deepEqual(readLocalCandidate(candidate.receipt),candidate);
@@ -72,7 +71,7 @@ test('retained Jev candidate enters the new runner once and rolls back independe
  const fixture=JSON.parse(readFileSync(f.input.fixture.path));fixture.release=f.input.release;
  const expectations=fixture.expectations.path;writeFileSync(expectations,JSON.stringify(declaration({...f.input.release,archive:{sha256:f.input.release.archiveSha256},contract:{version:'1',sha256:f.input.release.chromeSha256},account:{sha256:f.input.release.accountSha256}})));
  fixture.expectations.sha256=hash(readFileSync(expectations));fixture.expectations.bytes=readFileSync(expectations).length;
- writeFileSync(f.input.fixture.path,JSON.stringify(fixture));f.input.fixture.sha256=hash(readFileSync(f.input.fixture.path));f.input.fixture.bytes=readFileSync(f.input.fixture.path).length;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ writeFileSync(f.input.fixture.path,JSON.stringify(fixture));f.input.fixture.sha256=hash(readFileSync(f.input.fixture.path));f.input.fixture.bytes=readFileSync(f.input.fixture.path).length;
  const candidate=await runPreflight(await prepareCandidate(f.input),f.config),proof=localCandidateProof(candidate.receipt);
  assert(!Object.hasOwn(proof.candidateBinding,'generationSha256'));
  const source='d'.repeat(40),identity={schemaVersion:1,appId:'jev',artifactId:'synthetic-previous',sourceRevision:source,ui:{version:'0.7.41',contractVersion:'1'}};
@@ -113,7 +112,7 @@ function offlineArchive(name,version,dependencies={}) {
 function offlineFixture(t,pnpm) {
  const f=setup(t,{update:true,service:'jev'}),source=f.input.sourceRoot,store=join(f.root,'prepared-bundle');mkdirSync(store,{mode:0o700});
  assert.equal(hash(readFileSync(pnpm)),'e7499b13968f344210a03c50efa23139eba1207ee8a3ec0e3e44e0d35a4fb2ea');
- const pin=path=>({path,sha256:hash(readFileSync(path)),bytes:readFileSync(path).length});f.config.pnpm=pin(pnpm);f.input.generation.trustedFiles[pnpm]=f.config.pnpm.sha256;
+ const pin=path=>({path,sha256:hash(readFileSync(path)),bytes:readFileSync(path).length});f.config.pnpm=pin(pnpm);
  const registryArchive=join(f.root,'offline-fixture-1.0.0.tgz');writeFileSync(registryArchive,offlineArchive('offline-fixture','1.0.0'),{mode:0o600});
  const env={PATH:`${join(f.config.node,'..') }:/usr/bin:/bin`,HOME:f.root,XDG_CACHE_HOME:join(f.root,'setup-cache'),npm_config_userconfig:'/dev/null',npm_config_globalconfig:'/dev/null',CI:'1'};
  execFileSync(f.config.node,[pnpm,'store','add',registryArchive,'--store-dir',store],{cwd:source,env});
@@ -129,7 +128,7 @@ function offlineFixture(t,pnpm) {
  const accountPath=join(f.root,'account.json'),account=JSON.parse(readFileSync(accountPath));account.archiveSha256=f.input.archive.sha256;writeFileSync(accountPath,JSON.stringify(account));f.input.release.accountSha256=hash(readFileSync(accountPath));
  const expectationsPath=join(f.root,'expectations.json');writeFileSync(expectationsPath,JSON.stringify(declaration({...f.input.release,archive:{sha256:f.input.archive.sha256},contract:{version:'1',sha256:f.input.release.chromeSha256},account:{sha256:f.input.release.accountSha256}})));
  const fixture=JSON.parse(readFileSync(f.input.fixture.path));fixture.release=f.input.release;fixture.account=pin(accountPath);fixture.expectations=pin(expectationsPath);writeFileSync(f.input.fixture.path,JSON.stringify(fixture));f.input.fixture=pin(f.input.fixture.path);
- f.config.dependencyStore={path:store,sha256:treeDigest(store)};f.input.generation.trustedFiles[store]=f.config.dependencyStore.sha256;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ f.config.dependencyStore={path:store,sha256:treeDigest(store)};
  return {...f,store,metadata,env};
 }
 test('pinned pnpm resolves an existing registry package only from the approved offline bundle cache',{skip:process.platform!=='darwin'?'actual macOS sandbox required':!process.env.NAEIL_TEST_PNPM_10_30_3?'set NAEIL_TEST_PNPM_10_30_3 to exact pinned pnpm.cjs':false},async t=>{
@@ -164,7 +163,7 @@ test('prepared dependency store preserves exact modes and internal links under u
  for(const [path,value] of [['',0o755],['objects',0o750],['bin',0o755],['objects/data',0o644],['bin/tool',0o755]])fs.chmodSync(join(store,path),value);
  fs.symlinkSync('objects/data',join(store,'data-link'));fs.symlinkSync('bin',join(store,'bin-link'));
  const before=treeManifest(store),digest=treeDigest(store),rootMode=mode(store);
- f.config.dependencyStore={path:store,sha256:digest};f.input.generation.trustedFiles[store]=digest;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ f.config.dependencyStore={path:store,sha256:digest};
  t.diagnostic(JSON.stringify({syntheticRoot:f.root,umask:process.umask().toString(8),approvedStoreSha256:digest,sourceManifest:before}));
  try {
   const c=await prepareCandidate(f.input),copied=join(c.root,'cache/store'),retained=JSON.parse(readFileSync(join(c.root,'input/approved-plan.json')));
@@ -184,7 +183,7 @@ test('dependency store copy refuses unexpected destination links without chmod o
   const f=setup(t),store=join(f.root,'prepared-store'),outside=join(f.root,'outside-copy-target');mkdirSync(store,{mode:0o700});
   if(directory){mkdirSync(join(store,'member'));mkdirSync(outside,{mode:0o700});}else{writeFileSync(join(store,'member'),'synthetic source',{mode:0o600});writeFileSync(outside,'synthetic outside',{mode:0o600});}
   fs.chmodSync(join(store,'member'),directory?0o755:0o644);const before=treeManifest(store),outsideStat=fs.lstatSync(outside),outsideBytes=directory?null:readFileSync(outside);
-  f.config.dependencyStore={path:store,sha256:treeDigest(store)};f.input.approval.planSha256=preflightPlanDigest(f.input);
+  f.config.dependencyStore={path:store,sha256:treeDigest(store)};
   const original=fs.cpSync;let swapped=false;
   fs.cpSync=(source,destination,options)=>{const result=original(source,destination,options);if(source===store){const member=join(destination,'member');rmSync(member,{recursive:true});fs.symlinkSync(outside,member);swapped=true;}return result;};syncBuiltinESMExports();
   try{await assert.rejects(()=>prepareCandidate(f.input));assert(swapped,'Synthetic copy boundary was not reached');assert.equal(fs.lstatSync(outside).mode,outsideStat.mode);if(directory)assert.deepEqual(fs.readdirSync(outside),[]);else assert.deepEqual(readFileSync(outside),outsideBytes);assert.deepEqual(treeManifest(store),before);assert(!existsSync(join(f.input.isolatedRoot,'input/prepared.json')));assert.equal(JSON.parse(readFileSync(join(f.input.isolatedRoot,'output/prepare-failed.json'))).passed,false);}catch(error){f.retainFailure(error);throw error;}finally{fs.cpSync=original;syncBuiltinESMExports();}
@@ -215,7 +214,7 @@ test('STOP-safe synthetic candidate E2E uses retained artifact, package bytes, s
  assert.equal(prepared.candidateSourceSha,base);assert.equal(prepared.passed,false);assert(existsSync(prepared.bundle.path));
  const passed=await runPreflight(prepared,f.config);assert.equal(passed.passed,true);assert.equal(passed.candidateSourceSha,base);
  assert(passed.checks.some(check=>check.name==='release-integrity'&&check.exitCode===0));
- assertCandidate(passed,{...candidateBinding(passed),service:'estimate',repository:f.input.repository,reviewedBaseSha:base,candidateSourceSha:base,generationSha256:generationDigest(f.input.generation),release:f.input.release});
+ assertCandidate(passed,{...candidateBinding(passed),service:'estimate',repository:f.input.repository,reviewedBaseSha:base,candidateSourceSha:base,executionSha256:preflightExecutionDigest(f.config),release:f.input.release});
  await assert.rejects(()=>runPreflight(prepared,f.config),/already|single|replay/);
  assert.equal(f.git(['rev-parse','HEAD']),base);assert.equal(readFileSync(join(f.root,'STOP'),'utf8'),'standing remains stopped');
  const checkout=join(f.input.isolatedRoot,'checkout');assert.equal(execFileSync('/usr/bin/git',['rev-parse','HEAD'],{cwd:checkout,encoding:'utf8'}).trim(),base);
@@ -233,19 +232,19 @@ test('dependency-only candidate is committed once; validation never creates anot
 test('an exact approved dependency-only source HEAD can reuse its adopted base in a fresh isolated preparation',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t,{update:true}),first=await prepareCandidate(f.input);
  const next={...f.input,sourceRoot:first.checkout,sourceHeadSha:first.candidateSourceSha,isolatedRoot:join(f.root,'next-isolated')};
- next.approval={approvedBy:'synthetic',approvalRef:'synthetic-later-preparation',planSha256:preflightPlanDigest(next)};
+
  const second=await prepareCandidate(next);
  assert.equal(second.reviewedBaseSha,f.input.reviewedBaseSha);assert.equal(second.sourceHeadSha,first.candidateSourceSha);assert.equal(second.candidateSourceSha,first.candidateSourceSha,'Exact already-prepared dependency bytes retain the existing SHA');
  assert.notEqual(second.root,first.root);assert.equal(f.git(['rev-parse','HEAD']),f.input.reviewedBaseSha);
- // Fresh exact plan approval does not permit other source edits above that base.
+ // The local plan does not permit other source edits above that base.
  execFileSync('/usr/bin/git',['-c','user.name=Synthetic','-c','user.email=synthetic@example.invalid','commit','--allow-empty','-qm','synthetic harmless descendant'],{cwd:first.checkout});
  writeFileSync(join(first.checkout,'scripts/unapproved.mjs'),'// unapproved executable source');execFileSync('/usr/bin/git',['add','.'],{cwd:first.checkout});execFileSync('/usr/bin/git',['-c','user.name=Synthetic','-c','user.email=synthetic@example.invalid','commit','-qm','unapproved source'],{cwd:first.checkout});
- const bad={...next,sourceHeadSha:execFileSync('/usr/bin/git',['rev-parse','HEAD'],{cwd:first.checkout,encoding:'utf8'}).trim(),isolatedRoot:join(f.root,'unapproved-isolated')};bad.approval={...next.approval,planSha256:preflightPlanDigest(bad)};
+ const bad={...next,sourceHeadSha:execFileSync('/usr/bin/git',['rev-parse','HEAD'],{cwd:first.checkout,encoding:'utf8'}).trim(),isolatedRoot:join(f.root,'unapproved-isolated')};
  await assert.rejects(()=>prepareCandidate(bad),/dependency-only scope/);assert(!existsSync(bad.isolatedRoot));
 });
-test('invalid policy/native config or stale exact plan fails before checkout; failed build retains evidence without passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required; unsupported OS is fail-closed':false},async t=>{
+test('invalid policy/native config or unknown source fails before checkout; failed build retains evidence without passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required; unsupported OS is fail-closed':false},async t=>{
  const f=setup(t);await assert.rejects(()=>prepareCandidate({...f.input,policy:{stopFile:'/fake'}}),/field|operational|input/);assert(!existsSync(f.input.isolatedRoot));
- await assert.rejects(()=>prepareCandidate({...f.input,reviewedBaseSha:'0'.repeat(40)}),/approval|plan/);assert(!existsSync(f.input.isolatedRoot));
+ await assert.rejects(()=>prepareCandidate({...f.input,reviewedBaseSha:'0'.repeat(40)}),/source|commit|revision|git/i);assert(!existsSync(f.input.isolatedRoot));
  const bad=setup(t,{badBuild:true});const c=await prepareCandidate(bad.input);await assert.rejects(()=>runPreflight(c,bad.config),/preflight failed/i);
  const failed=JSON.parse(readFileSync(join(c.output,'failed.json')));assert.equal(failed.passed,false);assert(!existsSync(join(c.output,'passed.json')));assert.throws(()=>assertCandidate(failed,{}),/passed/i);
 });
@@ -253,12 +252,12 @@ test('invalid policy/native config or stale exact plan fails before checkout; fa
 test('candidate cannot redirect retained output outside isolated root or substitute its bindings',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t);const candidate=await prepareCandidate(f.input);const outside=join(f.root,'outside-output');mkdirSync(outside,{mode:0o700});
  await assert.rejects(()=>runPreflight({...candidate,output:outside},f.config),/candidate|isolated|path/i);assert.deepEqual((await import('node:fs')).readdirSync(outside),[]);
- await assert.rejects(()=>runPreflight({...candidate,generationSha256:'e'.repeat(64)},f.config),/generation|binding|candidate/i);
+ await assert.rejects(()=>runPreflight({...candidate,executionSha256:'e'.repeat(64)},f.config),/generation|binding|candidate/i);
 });
 
 test('synthetic Jev selected standalone keeps exact native manifest/archive/receipt and immutable E2E bytes',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t,{service:'jev'});try {const candidate=await prepareCandidate(f.input);const result=await runPreflight(candidate,f.config);
- assertCandidate(result,{...candidateBinding(result),service:'jev',repository:'naeil-dev/jev',candidateSourceSha:candidate.candidateSourceSha,generationSha256:candidate.generationSha256});
+ assertCandidate(result,{...candidateBinding(result),service:'jev',repository:'naeil-dev/jev',candidateSourceSha:candidate.candidateSourceSha,executionSha256:candidate.executionSha256});
  assert.equal(result.artifact.standalonePath,result.artifact.directory);assert.match(result.artifact.sha256,/^[a-f0-9]{64}$/);
  const manifest=JSON.parse(readFileSync(result.artifact.manifestPath));const expected=hash(JSON.stringify(Object.fromEntries(Object.entries(manifest).sort().map(([key,value])=>[key,Object.fromEntries(Object.entries(value).sort())]))));
  assert.equal(result.artifact.manifestSha256,expected);
@@ -275,22 +274,23 @@ test('unsupported OS CLI refuses before creating its isolated root or launching 
 });
 
 test('unsafe stage names fail before checkout even in a newly approved isolated plan',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);f.config.checks.splice(1,0,{name:'../outside',file:node,args:['-e','0']});f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const f=setup(t);f.config.checks.splice(1,0,{name:'../outside',file:node,args:['-e','0']});
  await assert.rejects(()=>prepareCandidate(f.input),/check name/);assert(!existsSync(f.input.isolatedRoot));
 });
 
-test('newly approved preflight with stale automation bytes still fails before checkout',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);f.input.generation.automationSha256='0'.repeat(64);f.input.approval.planSha256=preflightPlanDigest(f.input);
- await assert.rejects(()=>prepareCandidate(f.input),/automation.*changed|automation.*mismatch/i);assert(!existsSync(f.input.isolatedRoot));
+test('retired generation/approval preflight is rejected before creating the isolated root',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t);const legacy={...f.input,generation:{automationSha256:'a'.repeat(64)},approval:{approvedBy:'synthetic'}};delete legacy.kind;
+ await assert.rejects(()=>prepareCandidate(legacy),/field|local|operational/i);assert(!existsSync(f.input.isolatedRoot));
+ await assert.rejects(()=>prepareCandidate({...f.input,kind:undefined}),/local/i);assert(!existsSync(f.input.isolatedRoot));
 });
 
 test('Estimate requires its release integrity gate before creating a candidate checkout',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);delete f.config.releaseIntegrity;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const f=setup(t);delete f.config.releaseIntegrity;
  await assert.rejects(()=>prepareCandidate(f.input),/release integrity gate/i);assert(!existsSync(f.input.isolatedRoot));
 });
 
 test('failed Estimate release integrity cannot select an artifact or issue a passed receipt',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);try {f.config.releaseIntegrity.args=['-e','process.exit(1)'];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const f=setup(t);try {f.config.releaseIntegrity.args=['-e','process.exit(1)'];
  const candidate=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(candidate,f.config),error=>{if(!error.cause?.message.startsWith('Isolated stage failed: release-integrity'))throw error;return /preflight failed/i.test(error.message);});
  const check=JSON.parse(readFileSync(join(candidate.root,'input/receipts/release-integrity.json')));assert.equal(check.exitCode,1);
  assert(!existsSync(join(candidate.root,'artifact/selected/receipt.json')));assert(!existsSync(join(candidate.root,'input/passed.json')));
@@ -311,7 +311,7 @@ test('post-consumer Git filter cannot launch an outside synthetic marker',{skip:
 });
 
 test('consumer cannot write real Git metadata and redirecting .git cannot select host filters',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);try {f.config.checks[0].args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const pointer=fs.readFileSync('.git','utf8').trim();assert(pointer.startsWith('gitdir: '));const dir=path.resolve(pointer.slice(8));for(const file of ['config','info/attributes'])assert.throws(()=>fs.appendFileSync(path.join(dir,file),'bad'),e=>['EPERM','EACCES'].includes(e.code));fs.writeFileSync('.git','gitdir: ../outside-git');"];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const f=setup(t);try {f.config.checks[0].args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const pointer=fs.readFileSync('.git','utf8').trim();assert(pointer.startsWith('gitdir: '));const dir=path.resolve(pointer.slice(8));for(const file of ['config','info/attributes'])assert.throws(()=>fs.appendFileSync(path.join(dir,file),'bad'),e=>['EPERM','EACCES'].includes(e.code));fs.writeFileSync('.git','gitdir: ../outside-git');"];
  const c=await prepareCandidate(f.input);await assert.rejects(()=>runPreflight(c,f.config),error=>{if(!error.cause?.message.startsWith('Immutable Git directory pointer changed'))throw error;return /preflight failed/i.test(error.message);});
  const unit=JSON.parse(readFileSync(join(c.root,'input/receipts/unit.json')));assert.equal(unit.exitCode,0);
  }catch(error){f.retainFailure(error);throw error;}
@@ -319,7 +319,7 @@ test('consumer cannot write real Git metadata and redirecting .git cannot select
 
 test('source lock symlink is rejected without any parent read of its synthetic outside target',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t),canary=join(f.root,'outside-source-canary');writeFileSync(canary,'synthetic-outside-bytes',{mode:0o600});
- f.config.checks[0].args=['-e',`const fs=require('node:fs');fs.unlinkSync('pnpm-lock.yaml');fs.symlinkSync(${JSON.stringify(canary)},'pnpm-lock.yaml');`];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ f.config.checks[0].args=['-e',`const fs=require('node:fs');fs.unlinkSync('pnpm-lock.yaml');fs.symlinkSync(${JSON.stringify(canary)},'pnpm-lock.yaml');`];
  const c=await prepareCandidate(f.input),original=fs.readFileSync;let outsideReads=0;
  fs.readFileSync=(path,...args)=>{if(typeof path==='string'&&path===join(c.checkout,'pnpm-lock.yaml')&&fs.lstatSync(path).isSymbolicLink())outsideReads++;return original(path,...args);};syncBuiltinESMExports();
  try{await assert.rejects(()=>runPreflight(c,f.config));assert.equal(outsideReads,0,'Parent followed consumer-controlled source symlink');}finally{fs.readFileSync=original;syncBuiltinESMExports();}
@@ -328,13 +328,64 @@ test('source lock symlink is rejected without any parent read of its synthetic o
 test('post-install package symlink cannot trigger a parent reread outside the checkout',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
  const f=setup(t,{update:true}),canary=join(f.root,'outside-package-canary');writeFileSync(canary,'synthetic-outside-bytes',{mode:0o600});
  const pnpm=f.config.pnpm.path;fs.appendFileSync(pnpm,`if(process.argv.includes('--frozen-lockfile')){fs.unlinkSync('package.json');fs.symlinkSync(${JSON.stringify(canary)},'package.json');}`);
- f.config.pnpm.sha256=hash(readFileSync(pnpm));f.config.pnpm.bytes=readFileSync(pnpm).length;f.input.generation.trustedFiles[pnpm]=f.config.pnpm.sha256;f.input.approval.planSha256=preflightPlanDigest(f.input);
+ f.config.pnpm.sha256=hash(readFileSync(pnpm));f.config.pnpm.bytes=readFileSync(pnpm).length;
  const original=fs.readFileSync;let outsideReads=0;
  fs.readFileSync=(path,...args)=>{if(typeof path==='string'&&path===join(f.input.isolatedRoot,'checkout/package.json')&&fs.lstatSync(path).isSymbolicLink())outsideReads++;return original(path,...args);};syncBuiltinESMExports();
  try{await assert.rejects(()=>prepareCandidate(f.input));assert.equal(outsideReads,0,'Parent followed post-install package symlink');}finally{fs.readFileSync=original;syncBuiltinESMExports();}
 });
 
 test('release integrity writes only its runner-bound output evidence without dirtying source',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
- const f=setup(t);f.config.releaseIntegrity.args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const output=process.env.RELEASE_INTEGRITY_EVIDENCE_PATH;assert.equal(output,path.resolve('..','output','release-integrity-evidence.json'));fs.writeFileSync(output,JSON.stringify({ok:true}));"];f.input.approval.planSha256=preflightPlanDigest(f.input);
+ const f=setup(t);f.config.releaseIntegrity.args=['-e',"const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');const output=process.env.RELEASE_INTEGRITY_EVIDENCE_PATH;assert.equal(output,path.resolve('..','output','release-integrity-evidence.json'));fs.writeFileSync(output,JSON.stringify({ok:true}));"];
  const c=await prepareCandidate(f.input),passed=await runPreflight(c,f.config);assert.equal(passed.passed,true);assert.deepEqual(JSON.parse(readFileSync(join(c.output,'release-integrity-evidence.json'))),{ok:true});
+});
+
+
+test('historical generation candidate receipts remain readable but cannot execute a preflight',{skip:process.platform!=='darwin'?'actual macOS sandbox required':false},async t=>{
+ const f=setup(t),prepared=await prepareCandidate(f.input),passed=await runPreflight(prepared,f.config);
+ const ref=path=>{const bytes=readFileSync(path);return {path,sha256:hash(bytes),bytes:bytes.length};};
+ const generation={automationSha256:'a'.repeat(64),trustedFiles:{'/synthetic/tool':'b'.repeat(64)},executionPath:'/synthetic:/usr/bin',stateSchemaVersion:2};
+ const plan={...f.input,generation,approval:{approvedBy:'historical-synthetic'}};delete plan.kind;
+ const historical={...passed};delete historical.receipt;delete historical.executionSha256;
+ const planPath=join(f.root,'historical-plan.json');writeFileSync(planPath,JSON.stringify(plan),{mode:0o600});
+ historical.plan=ref(planPath);historical.preflightPlanSha256=preflightPlanDigest(plan);historical.preflightConfigSha256=fingerprint(plan.config);historical.generationSha256=generationDigest(generation);
+ writeFileSync(passed.receipt.path,JSON.stringify(historical));historical.receipt=ref(passed.receipt.path);
+ const binding={...candidateBinding(historical),generationSha256:historical.generationSha256};delete binding.executionSha256;
+ assert.equal(assertCandidate(historical,binding),historical);
+ await assert.rejects(()=>prepareCandidate(plan),/field|local|operational/i);
+ generation.trustedFiles['/synthetic/tool']='c'.repeat(64);writeFileSync(planPath,JSON.stringify(plan));historical.plan=ref(planPath);historical.preflightPlanSha256=preflightPlanDigest(plan);
+ const {receipt,...body}=historical;writeFileSync(receipt.path,JSON.stringify(body));historical.receipt=ref(receipt.path);
+ assert.throws(()=>assertCandidate(historical,{...binding,preflightPlanSha256:historical.preflightPlanSha256}),/generation identity/i);
+});
+
+// Pure source inspection from the retired source-adoption tests. These exercise
+// the retained handoffGit boundary directly and need no old adapters or approval.
+function sourceFixture(t) {
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'consumer-source-'))),source=join(root,'checkout');mkdirSync(source,{mode:0o700});t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const git=args=>execFileSync('/usr/bin/git',args,{cwd:source,encoding:'utf8',env:{PATH:'/usr/bin:/bin',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'}}).trim();
+ git(['init','-q']);git(['config','user.name','Synthetic']);git(['config','user.email','synthetic@example.invalid']);writeFileSync(join(source,'package.json'),'{}');git(['add','.']);git(['commit','-qm','synthetic source']);
+ const settings={git:'/usr/bin/git',gitSha256:hash(readFileSync('/usr/bin/git')),executionPath:'/usr/bin:/bin'};
+ return {root,source,git,settings};
+}
+for(const included of [false,true])test(`retained source Git rejects ${included?'included':'local'} filters without running an outside command`,t=>{
+ const f=sourceFixture(t),marker=join(f.root,'filter-called'),attrs=join(f.root,'attributes'),helper=join(f.root,'filter.cjs');
+ writeFileSync(attrs,'* filter=unreviewed\n');writeFileSync(helper,`require('node:fs').writeFileSync(${JSON.stringify(marker)},'called');process.stdout.write(require('node:fs').readFileSync(0));`);
+ const config=`[core]\n attributesFile = ${JSON.stringify(attrs)}\n[filter "unreviewed"]\n clean = ${JSON.stringify(process.execPath+' '+helper)}\n smudge = ${JSON.stringify(process.execPath+' '+helper)}\n`;
+ if(included){const path=join(f.root,'included');writeFileSync(path,config);f.git(['config','include.path',path]);}else fs.appendFileSync(join(f.source,'.git/config'),config);
+ assert.throws(()=>handoffGit(f.source,['status','--porcelain'],f.settings));assert(!existsSync(marker));
+});
+test('retained source Git refuses command-producing settings and conditional includes',t=>{
+ const f=sourceFixture(t),path=join(f.source,'.git/config'),before=readFileSync(path);
+ for(const [key,value]of [['core.sshCommand','/unreviewed/ssh'],['credential.helper','!/unreviewed/credentials'],['remote.origin.uploadpack','/unreviewed/upload-pack'],['filter.arbitrary.process','/unreviewed/process'],['diff.arbitrary.textconv','/unreviewed/textconv'],['merge.arbitrary.driver','/unreviewed/merge'],['includeIf.gitdir:/.path','/unreviewed/include'],['extensions.worktreeConfig','true']]){
+  writeFileSync(path,before);f.git(['config',key,value]);assert.throws(()=>handoffGit(f.source,['rev-parse','HEAD'],f.settings));
+ }
+});
+for(const boundary of ['pointer','commondir','config-link','attributes'])test(`retained source Git preserves metadata boundary: ${boundary}`,t=>{
+ const f=sourceFixture(t),outside=join(f.root,'outside'),metadata=join(f.source,'.git');mkdirSync(outside);writeFileSync(join(outside,'config'),'synthetic canary');
+ if(boundary==='pointer'){fs.renameSync(metadata,join(f.root,'saved-git'));writeFileSync(metadata,`gitdir: ${outside}\n`);}
+ if(boundary==='commondir')writeFileSync(join(metadata,'commondir'),outside+'\n');
+ if(boundary==='config-link'){fs.unlinkSync(join(metadata,'config'));fs.symlinkSync(join(outside,'config'),join(metadata,'config'));}
+ if(boundary==='attributes')writeFileSync(join(metadata,'info/attributes'),'* filter=unreviewed\n');
+ const open=fs.openSync;let outsideReads=0;fs.openSync=(path,...args)=>{if(String(path).startsWith(outside+'/'))outsideReads++;return open(path,...args);};syncBuiltinESMExports();
+ try{assert.throws(()=>handoffGit(f.source,['rev-parse','HEAD'],f.settings));}finally{fs.openSync=open;syncBuiltinESMExports();}
+ assert.equal(outsideReads,0);
 });

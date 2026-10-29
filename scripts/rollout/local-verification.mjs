@@ -5,7 +5,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { entryExists as stopped, hash, immutableJSON, readJSON, privateDirectory, LocalRolloutError, runRegistered } from './local-runtime.mjs';
-import { verifyLocalProduction } from './standing-verification.mjs';
+import { verifyLocalProduction } from './production-verifier.mjs';
 import { readPrivateJson } from './verification-session.mjs';
 import { loadReleaseExpectations } from './release-expectations.mjs';
 import { routeKey } from './route-contract.mjs';

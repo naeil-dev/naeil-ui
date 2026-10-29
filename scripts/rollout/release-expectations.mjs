@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { hash, HEX, JSON_LIMITS, readPrivateBytes, REVISION, VERSION } from './standing-config.mjs';
+import { hash, HEX, JSON_LIMITS, readPrivateBytes, REVISION, VERSION } from './rollout-io.mjs';
 
 const locales = ['en', 'ko', 'ja'];
 const text = value => typeof value === 'string' && value.trim() && value === value.trim();

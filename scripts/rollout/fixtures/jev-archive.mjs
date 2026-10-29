@@ -1,5 +1,5 @@
 import { gzipSync } from 'node:zlib';
-import { hash } from '../standing-config.mjs';
+import { hash } from '../rollout-io.mjs';
 export function tarEntry(name, bytes = Buffer.alloc(0), type = '0', link = '') {
   bytes = Buffer.from(bytes); const header = Buffer.alloc(512);
   header.write(name); header.write('0000644\0', 100); header.write(`${bytes.length.toString(8).padStart(11, '0')}\0`, 124); header.fill(32, 148, 156); header.write(type, 156); header.write(link, 157); header.write('ustar\0', 257); header.write('00', 263);

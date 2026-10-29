@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import { closeSync, existsSync, fsyncSync, openSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadReleaseExpectations } from './release-expectations.mjs';
-import { atomicJSON, fingerprint, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './standing-config.mjs';
-import { reviewedMigration } from './rollout.mjs';
+import { atomicJSON, fingerprint, hash, HEX, JSON_LIMITS, privateDirectory, readPrivateBytes, readPrivateJSON, REVISION, VERSION } from './rollout-io.mjs';
 import { verificationFetch, verificationBody } from './verification-error.mjs';
 
 export class GitHubUnavailable extends Error {
@@ -114,28 +113,9 @@ export function assertManifest(release, item) {
     assert(url.href.startsWith(prefix) && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(url.href.slice(prefix.length)), 'Version-scoped immutable expectations asset required');
   }
   // Only data crosses the release boundary. Local paths and action configuration
-  // are assigned by the trusted dispatcher, never accepted from an asset.
+  // are assigned by the local caller, never accepted from an asset.
   const entry = value => ({ sha256: value.sha256, url: value.url, ...(value.version ? { version: value.version } : {}) });
   return { schemaVersion: 1, releaseId: release.releaseId, version: release.version, previousVersion: release.previousVersion, sourceRevision: release.sourceRevision, siteSourceRevision: release.siteSourceRevision, siteRuntimeSha256: release.siteRuntimeSha256, archive: entry(release.archive), contract: entry(release.contract), account: entry(account), siteArchive: entry(release.siteArchive || release.archive), ...(release.expectations ? {expectations:entry(release.expectations)} : {}), changes: release.changes };
-}
-
-export function assertPolicyRelease(release, config, currentVersion) {
-  const baseline = config.baseline;
-  if (currentVersion === null) {
-    assert.equal(release.version, baseline.version, 'Exact baseline must be adopted before future patches');
-    for (const [key, value] of Object.entries({ releaseId: baseline.releaseId, sourceRevision: baseline.sourceRevision })) assert.equal(release[key], value, 'Baseline provenance mismatch');
-    for (const [entry, key] of [['archive', 'archiveSha256'], ['contract', 'referenceSha256'], ['account', 'accountReferenceSha256']]) assert.equal(release[entry].sha256, baseline[key], 'Baseline frozen bytes mismatch');
-    return 'adopt';
-  }
-  const patch = value => Number(value.split('.')[2]);
-  assert.equal(release.previousVersion, currentVersion, 'Release predecessor differs from last completed selected-scope baseline');
-  assert.equal(patch(release.version), patch(currentVersion) + 1, 'Consecutive patches required; never skip a missing release');
-  const migrated = config.policy.services?.length > 0 && config.policy.services.every(id => reviewedMigration(release, { id }, config.policy));
-  assert(migrated || (release.changes.length === 1 && release.changes[0] === 'fix'), 'Unattended releases must declare fix only unless the owner approved this exact release for every selected service');
-  const window = config.policy.patchWindow;
-  assert(Date.parse(window.startsAt) <= Date.now() && Date.parse(window.expiresAt) > Date.now(), 'Approved patch window is not active');
-  assert(patch(release.version) >= patch(window.minVersion) && patch(release.version) <= patch(window.maxVersion), 'Release outside approved patch window');
-  return 'standing';
 }
 
 export async function materializeRelease(item, config, github, existing, { beforeWrite = () => {} } = {}) {

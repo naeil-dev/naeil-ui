@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { verifyLocalProduction } from './standing-verification.mjs';
+import { verifyLocalProduction } from './production-verifier.mjs';
 import { assertLocalVerification, createLocalVerifier } from './local-verification.mjs';
 import { loadReleaseExpectations } from './release-expectations.mjs';
 import { routeKey } from './route-contract.mjs';
@@ -32,8 +32,23 @@ test('local verification keeps protected rendering and exact receipt validation 
     },
   });
   assertLocalVerification(result, request, started);
-  assert.throws(() => assertLocalVerification({ ...result, attemptId: 'different' }, request, started), /attemptId/);
-  assert.throws(() => assertLocalVerification({ ...result, routes: [] }, request, started), /route/);
+  for (const field of ['releaseId', 'serviceId', 'attemptId', 'idempotencyKey', 'phase', 'archiveSha256', 'referenceSha256', 'accountReferenceSha256', 'expectationsSha256']) {
+    const missing = { ...result }; delete missing[field];
+    for (const changed of [missing, { ...result, [field]: 'foreign' }]) assert.throws(() => assertLocalVerification(changed, request, started), new RegExp(field));
+  }
+  for (const mutate of [
+    value => { value.schemaVersion = 2; }, value => { value.passed = false; },
+    value => { value.identity.artifactId = 'foreign'; }, value => { value.identity.sourceRevision = 'f'.repeat(40); },
+    value => { value.identity.ui.version = '0.7.42'; }, value => { value.identity.extra = 'unapproved'; },
+    value => { value.checkedAt = '2000-01-01T00:00:00Z'; }, value => { value.checkedAt = new Date(Date.now() + 60_000).toISOString(); },
+    value => { value.checkedAt = 'invalid'; }, value => { value.routes = []; },
+    value => { value.routes[0].routeKey = 'foreign'; }, value => { value.routes[0].path = '/different'; },
+    value => { value.routes[0].status = 'failed'; },
+  ]) {
+    const changed = structuredClone(result); mutate(changed);
+    assert.throws(() => assertLocalVerification(changed, request, started));
+  }
+  assert.equal(result.expectationsSha256, loadReleaseExpectations(release).sha256);
   await assert.rejects(() => verifyLocalProduction({ ...request, policy: {} }, config, { beforeAction() {}, beforeWrite() {} }), /legacy/);
 });
 

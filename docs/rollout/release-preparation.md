@@ -1,4 +1,4 @@
-# Preparing standing release assets
+# Preparing release assets
 
 These commands prepare local files only. Publication, registry consumption, exact-SHA main CI and Git/Vercel deployment remain separate checks. Use a genuine reviewed patch; do not create a release solely to exercise the worker. Never regenerate the published0.7.1 assets.
 
@@ -52,7 +52,7 @@ node scripts/rollout/capture-account-reference.mjs /absolute/account-capture.jso
 }
 ```
 
-The account output parent must exist with mode0700; the file is created exclusively with mode0600. Capture is limited to a loopback Storybook, Japanese synthetic signed-in state, desktop1440/mobile390 and light/dark themes, matching the account matrix used by standing verification. It checks the frozen build identity, archive version, rendered version, font readiness and overflow, then records `frozen:true`. It opens menus, focuses the first action and measures styles; it never invokes logout. Frozen0.7.1's historical account file has no `frozen` field; it remains untouched. New preparation requires that field on both references.
+The account output parent must exist with mode0700; the file is created exclusively with mode0600. Capture is limited to a loopback Storybook, Japanese synthetic signed-in state, desktop1440/mobile390 and light/dark themes, matching the account matrix used by local production verification. It checks the frozen build identity, archive version, rendered version, font readiness and overflow, then records `frozen:true`. It opens menus, focuses the first action and measures styles; it never invokes logout. Frozen0.7.1's historical account file has no `frozen` field; it remains untouched. New preparation requires that field on both references.
 
 ## Assemble and check the draft
 
@@ -79,7 +79,7 @@ Create an input JSON with explicit paths and provenance:
 node scripts/rollout/prepare-release.mjs prepare /absolute/prepare-input.json
 ```
 
-Upload **all six** files to the draft: versioned npm archive, site archive, chrome reference, account reference, `release.json`, `site-runtime-verification.json`. The manifest uses only `https://github.com/naeil-dev/naeil-ui/releases/download/v<version>/<name>` URLs. [release.example.json](release.example.json) shows its current schema with placeholders. Preparation validates the real worker's `assertManifest` contract locally; it performs no GitHub writes or npm publication.
+Upload **all six** files to the draft: versioned npm archive, site archive, chrome reference, account reference, `release.json`, `site-runtime-verification.json`. The manifest uses only `https://github.com/naeil-dev/naeil-ui/releases/download/v<version>/<name>` URLs. [release.example.json](release.example.json) shows its current schema with placeholders. Preparation validates the release discovery module’s `assertManifest` contract locally; it performs no GitHub writes or npm publication.
 
 Export the draft's actual GitHub asset inventory as a JSON array with `name`, `url` (the API's `browser_download_url`), numeric `size`, and `digest` (`sha256:<64 lowercase hex>`). Do not construct the listing from local files: it must describe the uploaded draft. A missing server digest needs investigation; the check does not accept an absent digest as evidence.
 
@@ -87,4 +87,15 @@ Export the draft's actual GitHub asset inventory as a JSON array with `name`, `u
 node scripts/rollout/prepare-release.mjs check /absolute/new-release-assets-directory /absolute/draft-assets.json
 ```
 
-The check requires exactly one matching remote asset per manifest input and both generated JSON assets; names, version-scoped URLs, sizes and SHA256 digests must match the local files. Resolve every mismatch while the release is a draft. Publish only after the [release order and release window](standing-rollout.md#publishing-the-next-patch-release) gates pass. Do not modify assets or tag afterward.
+The check requires exactly one matching remote asset per manifest input and both generated JSON assets; names, version-scoped URLs, sizes and SHA256 digests must match the local files. Resolve every mismatch while the release is a draft. Publish only after the release order below and the separate [package publication checks](../package-release.md#publication-and-deployment) pass. Do not modify assets or tag afterward.
+
+## Publication order
+
+Preserve the published 0.7.1 archive, references, assets and `v0.7.1` tag. For the next genuine patch:
+
+1. Commit the reviewed package source on main and require a successful **push** run of `.github/workflows/verify.yml` for that exact SHA. Freeze the npm archive from that clean source.
+2. Select the exact reviewed site source on main, require its successful push verification run and observe its Git/Vercel production deployment. Pack that clean site source separately and compare its public runtime with the frozen npm archive.
+3. Capture the chrome/account references and assemble a fresh private asset directory with the commands above. Local preparation does not prove main ancestry, successful CI, clean-source packing or a live deployment.
+4. Upload all six assets to a draft release and check its actual asset inventory. Complete npm byte-identity and fresh registry-consumption checks separately before publishing the GitHub Release. Published assets and tags remain immutable.
+
+Service execution then follows the [local runner](local-runner.md): one pinned release, its exact candidates and predecessors, and one approved final plan. Package publication does not deploy a consumer. Keep unrelated site revisions outside the release window until the pinned site identity is verified; a different live revision fails that verification. A cancelled exact-SHA CI run must be rerun successfully.
