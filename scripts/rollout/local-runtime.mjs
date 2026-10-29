@@ -136,16 +136,16 @@ const GATE = ['-c', 'IFS= read -r go && [ "$go" = go ] && exec "$0" "$@"'];
 export function runRegistered(file, args, { cwd, env, timeout, maxBuffer = 1024 * 1024 }, registerChild) {
   return new Promise((resolve, reject) => {
     const child = spawn('/bin/sh', [...GATE, file, ...args], { cwd, env, detached: true, stdio: ['pipe', 'pipe', 'pipe'] });
-    let output = '', size = 0, settled = false;
+    let output = '', settled = false; const sizes = new Map();
     const settle = (error, value) => { if (settled) return; settled = true; clearTimeout(timer); if (error) reject(error); else resolve(value); };
     // Timeout/output cap end the call without waiting for EOF: a descendant may keep the pipes open.
     const stop = reason => {
       try { process.kill(-child.pid, 'SIGTERM'); } catch { /* group already gone */ }
       for (const stream of [child.stdin, child.stdout, child.stderr]) stream.destroy();
-      settle(Object.assign(new Error(reason), { killed: true }));
+      settle(Object.assign(new Error(reason), { killed: reason === 'child-timeout', code: reason }));
     };
     const timer = setTimeout(() => stop('child-timeout'), timeout);
-    for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { size += chunk.length; if (size > maxBuffer) stop('child-output-limit'); else if (stream === child.stdout) output += chunk; });
+    for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { const size = (sizes.get(stream) || 0) + chunk.length; sizes.set(stream, size); if (size > maxBuffer) stop('child-output-limit'); else if (stream === child.stdout) output += chunk; });
     child.on('error', error => settle(error));
     child.on('close', code => settle(code === 0 ? null : Object.assign(new Error('child-failed'), { code, killed: false }), output));
     try { if (child.pid) registerChild?.(child, { processGroup: true }); child.stdin.end('go\n'); }

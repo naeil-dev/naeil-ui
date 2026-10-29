@@ -126,3 +126,12 @@ test('R2 session renewal exposes exact atomic file and lock operations before pe
   assert.deepEqual((await readdir(directory)).sort(),['session.json','session.json.last-refresh.json']);
  }finally{await rm(directory,{recursive:true,force:true});}
 });
+test('a failure after locking but before the refresh POST removes only this call lock', async () => {
+  const { directory, config } = await fixture(); let posts = 0;
+  try {
+    await assert.rejects(renewVerificationSession({ ...config, userId: 'another-account' }, { fetchImpl: async () => { posts++; return Response.json(session); } }), /account/i);
+    await assert.rejects(renewVerificationSession(config, { beforeWrite: ({ operation, target }) => { if (operation === 'write' && target.endsWith('pending.json')) throw Error('synthetic marker write failure'); }, fetchImpl: async () => { posts++; return Response.json(session); } }), /marker write/);
+    assert.equal(posts, 0); assert.deepEqual(await readdir(directory), ['session.json']);
+    await renewVerificationSession(config, { fetchImpl: async () => { posts++; return Response.json(session); } }); assert.equal(posts, 1);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

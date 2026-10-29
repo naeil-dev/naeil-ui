@@ -100,3 +100,8 @@ test('timeout ends the call even when a descendant ignores SIGTERM and holds the
   assert.equal(lease.hasRunningChildren(), true);
   process.kill(-pid, 'SIGKILL'); await new Promise(resolve => setTimeout(resolve, 200)); lease.release();
 });
+
+test('output cap is per stream and is not reported as a retryable timeout', async () => {
+  assert.equal(await runtime.runRegistered('/bin/sh', ['-c', 'printf 1234; printf 5678 >&2'], { timeout: 5000, maxBuffer: 4 }), '1234');
+  await assert.rejects(() => runtime.runRegistered('/bin/sh', ['-c', 'printf 12345'], { timeout: 5000, maxBuffer: 4 }), error => error.killed === false && error.code === 'child-output-limit');
+});

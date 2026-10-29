@@ -492,3 +492,15 @@ test('a STOP-cancelled verification recovery keeps the service latch and resumes
   const resumed = await core.runLocal(config, deps, { command: 'verify', serviceId: 'naeil', recoverVerification: true });
   assert.equal(resumed.services.naeil.status, 'production-verified'); assert.equal(calls, 1);
 });
+
+test('a verifier child that outlived its stage resumes only through explicit verification recovery', async t => {
+  const artifact = { id: 'previous', sourceRevision: 'b'.repeat(40), sha256: '1'.repeat(64) };
+  for (const stage of ['verify', 'inspect']) {
+    const { directory, config } = fixture(t, [{ id: 'naeil', mode: 'verify-only', artifact }]), deps = system(directory);
+    deps[stage] = async () => { throw Object.assign(Error(), { reasonCode: 'child-recovery-required', manualRecovery: true }); };
+    assert.equal((await core.runLocal(config, deps)).failure.reasonCode, 'child-recovery-required');
+    const resumed = core.runLocal(config, system(directory), { command: 'verify', serviceId: 'naeil', recoverVerification: true });
+    if (stage === 'verify') assert.equal((await resumed).services.naeil.status, 'production-verified');
+    else await assert.rejects(resumed, /session\/verification failure/);
+  }
+});

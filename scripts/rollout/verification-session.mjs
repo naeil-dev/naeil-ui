@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { constants } from 'node:fs';
-import { open, lstat, realpath, mkdir, rename, rmdir } from 'node:fs/promises';
+import { open, lstat, realpath, mkdir, rename, rm, rmdir } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { VerificationError } from './verification-error.mjs';
@@ -58,11 +58,14 @@ export async function renewVerificationSession(config, { fetchImpl = fetch, now 
   beforeWrite({operation:'mkdir',path:lock}); try { await mkdir(lock, { mode: 0o700 }); } catch { throw new VerificationError('session-refresh', 'session-refresh-locked', { manualRecovery: true }); }
   // Read only after obtaining the lock; another completed refresh may have
   // rotated the token between the initial permission check and lock creation.
-  const prior = await readPrivateJson(config.stateFile);
-  assert.equal(prior.user?.id, config.userId, 'Verification account mismatch');
-  assert(typeof prior.refresh_token === 'string' && prior.refresh_token, 'Verification refresh session missing');
-  // No secret is ever written into the operation marker or error message.
-  await writePrivateJson(`${lock}/pending.json`, { startedAt: new Date(now).toISOString(), phase: 'refresh-requested' }, { beforeWrite });
+  let prior;
+  try {
+    prior = await readPrivateJson(config.stateFile);
+    assert.equal(prior.user?.id, config.userId, 'Verification account mismatch');
+    assert(typeof prior.refresh_token === 'string' && prior.refresh_token, 'Verification refresh session missing');
+    // No secret is ever written into the operation marker or error message.
+    await writePrivateJson(`${lock}/pending.json`, { startedAt: new Date(now).toISOString(), phase: 'refresh-requested' }, { beforeWrite });
+  } catch (error) { await rm(lock, { recursive: true, force: true }); throw error; } // No request was sent; this call created the lock.
   let response;
   try {
     response = await fetchImpl(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {

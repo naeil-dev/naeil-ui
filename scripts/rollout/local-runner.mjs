@@ -256,7 +256,8 @@ export async function runLocal(config, dependencies = {}, rawOptions = {}) {
       const reasons = ['session-refresh-locked', 'session-refresh-uncertain', 'session-rotation-uncertain', 'ambiguous-session-rotation', 'session-persistence-uncertain', 'session-response-invalid', 'session-refresh-rejected'];
       // A STOP that cancelled an earlier recovery attempt leaves the service latch; the same command resumes it.
       assert(record?.status === 'manual-recovery' && Object.values(state.services).filter(service => service.status === 'manual-recovery').length === 1 && (state.status === 'stopped' || (state.status === 'manual-recovery' && same(state.failure, failure))), 'Verification recovery requires the sole matching manual service failure');
-      assert(['verify', 'production-verify', 'session-refresh'].includes(failure.stage) && (reasons.includes(failure.reasonCode) || (failure.stage === 'session-refresh' && failure.reasonCode === 'auth-required')), 'Verification recovery requires a session/verification failure');
+      // A verifier child that outlived its stage is resumable once this lease exists: acquisition proved every recorded child gone.
+      assert(['verify', 'production-verify', 'session-refresh'].includes(failure.stage) && (reasons.includes(failure.reasonCode) || (failure.stage === 'session-refresh' && failure.reasonCode === 'auth-required') || (failure.stage !== 'session-refresh' && failure.reasonCode === 'child-recovery-required')), 'Verification recovery requires a session/verification failure');
     } else if (state.status === 'manual-recovery') return state;
     if (['held', 'auth-required'].includes(state.status) && options.command === 'run' && !options.retryHeld) return state;
     if (options.serviceId) assert(plan.services.some(service => service.id === options.serviceId), 'Service outside release plan');
