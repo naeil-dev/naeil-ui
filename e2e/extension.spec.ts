@@ -166,7 +166,7 @@ test("Extensions mobile/localized, reduced motion, text scaling and CSS zoom", a
   for (const family of ["tabs", "textarea"]) {
     await usage(page, family, "dark", "compact");
     await page.emulateMedia({ reducedMotion: "reduce" });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
     const control = family === "tabs" ? page.getByRole("tab", { name: "Overview", exact: true }) : page.getByLabel("Workspace notes", { exact: true });
     await expect(control).toHaveCSS("min-height", "44px");
     await expect(control).toHaveCSS("transition-duration", "0s");
@@ -174,10 +174,10 @@ test("Extensions mobile/localized, reduced motion, text scaling and CSS zoom", a
     await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
     await expect(control).toHaveCSS("font-size", "32px");
     if (family === "tabs") expect(await control.evaluate(element => element.clientHeight >= parseFloat(getComputedStyle(element).lineHeight))).toBe(true);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.evaluate(() => { document.documentElement.style.fontSize = ""; document.documentElement.style.zoom = "2"; });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
     await page.setViewportSize({ width: 320, height: 900 });
   }
 });

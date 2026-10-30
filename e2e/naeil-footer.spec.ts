@@ -34,6 +34,6 @@ for (const width of [390, 1440]) for (const theme of ['light', 'dark']) {
     // Firefox can report 43.999969px for a computed 44px box at fractional y.
     // Allow only floating-point serialization noise, not a smaller hit target.
     for (const link of await footer.getByRole('link').all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44 - 0.001);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
   });
 }

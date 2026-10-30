@@ -15,6 +15,15 @@ const Link = ({ children, ...props }: ComponentPropsWithoutRef<"a"> & { href: st
   createElement("a", { ...props, "data-consumer-link": true }, children);
 
 describe("complete branded header", () => {
+  it("passes Home navigation data unchanged between catalog/blog and subNav", () => {
+    const items = [{ id: "ai", label: "AI", columns: 1 as const, items: [{ id: "keys", label: "Keys", href: "/keys", active: true, description: "Manage", icon: createElement("svg"), badge: "New", external: true, target: "_blank" as const }] }, { id: "console", label: "Console", href: "/console" }];
+    const element = header({ locale: "ko", appNavigation: items, subNav: [{ label: "Settings", href: "/settings" }] } as NaeilHeaderProps);
+    expect(element.props.items.map((item: { id: string }) => item.id)).toEqual(["projects", "blog", "ai", "console", "/settings"]);
+    expect(element.props.items[2]).toBe(items[0]);
+    expect(element.props.items[3]).toBe(items[1]);
+    const html = renderToStaticMarkup(header({ locale: "en", brandSuffix: "Home", brandSlot: createElement("span", null, "Custom") } as NaeilHeaderProps));
+    expect(html).not.toContain("naeil-header-brand-suffix");
+  });
   it.each([
     ["ja", "プロジェクト", "ブログ", "準備中", "https://naeil.dev/ja/blog"],
     ["ko", "프로젝트", "블로그", "준비 중", "https://naeil.dev/ko/blog"],

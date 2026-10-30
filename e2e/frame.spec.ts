@@ -1,20 +1,24 @@
+import { scrollbarLaunch } from "../scripts/page-frame-browser";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { test, expect } from "@playwright/test";
 
-const cases = [
-  { width: 320, frame: 320, gutter: 16 },
-  { width: 390, frame: 390, gutter: 16 },
-  { width: 768, frame: 768, gutter: 18.432 },
-  { width: 1440, frame: 1440, gutter: 34.56 },
-  { width: 1920, frame: 1600, gutter: 40 },
-  { width: 2560, frame: 1600, gutter: 40 },
-];
+const cases = [320, 390, 768, 1440, 1920, 2560];
 
 for (const theme of ["light", "dark"]) for (const size of cases) {
-  test(`shared application frame ${theme} ${size.width}`, async ({ page }) => {
-    await page.setViewportSize({ width: size.width, height: 1000 });
+  test(`shared application frame ${theme} ${size}`, async ({ page }) => {
+    await page.setViewportSize({ width: size, height: 1000 });
     await page.goto(`/iframe.html?id=ui-navigation--home&viewMode=story&globals=theme:${theme};a11y.manual:!true`);
     await expect(page.getByRole("heading", { name: "대시보드", exact: true })).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
+    const basis = await page.evaluate(() => {
+      const probe = document.createElement("div");
+      probe.style.cssText = "position:fixed;left:-10000px;width:100vw;height:0";
+      document.body.append(probe); const vw = probe.getBoundingClientRect().width; probe.remove();
+      return { available: document.documentElement.getBoundingClientRect().width, vw };
+    });
+    const expectedFrame = Math.min(basis.available, 1600);
+    const expectedGutter = Math.min(40, Math.max(16, basis.vw * .024));
     const frames = await page.locator(".ui-navigation-frame, main, .ui-site-footer-frame").evaluateAll(elements => elements.map(element => {
       const rect = element.getBoundingClientRect();
       const css = getComputedStyle(element);
@@ -22,13 +26,13 @@ for (const theme of ["light", "dark"]) for (const size of cases) {
     }));
     expect(frames).toHaveLength(3);
     for (const frame of frames) {
-      expect(frame.width).toBeCloseTo(size.frame, 1);
-      expect(frame.x).toBeCloseTo((size.width - size.frame) / 2, 1);
-      expect(frame.gutter).toBeCloseTo(size.gutter, 1);
+      expect(frame.width).toBeCloseTo(expectedFrame, 1);
+      expect(frame.x).toBeCloseTo((basis.available - expectedFrame) / 2, 1);
+      expect(frame.gutter).toBeCloseTo(expectedGutter, 1);
     }
     const list = page.locator('[data-ui-layout="list"]');
-    expect((await list.boundingBox())!.width).toBeCloseTo(size.frame - size.gutter * 2, 1);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await list.boundingBox())!.width).toBeCloseTo(expectedFrame - expectedGutter * 2, 1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
   });
 }
 
@@ -58,4 +62,11 @@ test("narrow content and consumer overrides keep navigation and footer aligned",
   await frame.evaluate(element => element.classList.add("max-w-7xl", "px-0"));
   expect((await frame.boundingBox())!.width).toBe(1280);
   expect(await frame.evaluate(element => getComputedStyle(element).paddingInlineStart)).toBe("0px");
+});
+
+
+test.beforeEach(async ({ page, browser, browserName }, info) => {
+  const path = info.outputPath("launch-and-probe.json");
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(await scrollbarLaunch(page, browser, browserName), null, 2));
 });

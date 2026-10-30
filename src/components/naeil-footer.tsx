@@ -30,7 +30,7 @@ export function NaeilFooter({
   const copy = content[locale];
   const home = { id: "brand", label: ".naeil", href: resolveHref("/") };
   return <SiteFooter {...props} variant={variant} Link={Link} onNavigate={onNavigate}
-    data-naeil-footer data-naeil-ui-version={uiRelease.version} data-naeil-ui-contract={uiRelease.contractVersion}
+    data-naeil-footer data-naeil-chrome="" lang={locale} data-naeil-ui-version={uiRelease.version} data-naeil-ui-contract={uiRelease.contractVersion}
     brand={<Link href={home.href} aria-label=".naeil" data-footer-brand className="ui-focus inline-flex min-h-11 items-center"
       onClick={event => onNavigate?.(event, home)}>
       <Logo variant="footer" size={20} label={null} />

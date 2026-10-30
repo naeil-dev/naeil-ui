@@ -1,3 +1,4 @@
+import { frameState, stableFrame } from "../scripts/page-frame-browser";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -26,7 +27,7 @@ async function axe(page: Page, info: TestInfo, state: string) {
   return result;
 }
 async function noOverflow(page: Page) {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
 }
 
 for (const family of families) {
@@ -235,7 +236,7 @@ test("320px reflow, 200% text scaling and 200% CSS zoom on localized controls", 
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
   await page.getByRole("button", { name: "Edit workspace", exact: true }).click();
   const dialog = page.getByRole("dialog"); await expect(dialog).toBeVisible();
-  expect(await dialog.evaluate(element => { const r = element.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight; })).toBe(true);
+  expect(await dialog.evaluate(element => { const r = element.getBoundingClientRect(); return r.left >= 0 && r.right <= document.documentElement.getBoundingClientRect().width && r.top >= 0 && r.bottom <= innerHeight; })).toBe(true);
   await axe(page, info, "dialog-css-zoom-200");
 });
 
@@ -267,12 +268,20 @@ for (const theme of ["light", "dark"]) test(`Workspace visual evidence: ${theme}
   await expect(page.locator('[data-ui-layout="settings"]')).toHaveCSS("max-width", "640px");
   await expect(page.locator('[data-ui-layout="list"]')).toHaveCSS("max-width", "1600px");
   await noOverflow(page);
-  await page.screenshot({ path: info.outputPath(`workspace-${theme}-2560-default.png`), fullPage: true });
+  {
+    const before = await frameState(page);
+    await page.screenshot({ path: info.outputPath(`workspace-${theme}-2560-default.png`) });
+    stableFrame(before, await frameState(page));
+  }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "촘촘하게", exact: true }).click();
   await expect(page.getByLabel("워크스페이스 이름")).toHaveCSS("height", "44px");
   await noOverflow(page);
-  await page.screenshot({ path: info.outputPath(`workspace-${theme}-390-compact.png`), fullPage: true });
+  {
+    const before = await frameState(page);
+    await page.screenshot({ path: info.outputPath(`workspace-${theme}-390-compact.png`) });
+    stableFrame(before, await frameState(page));
+  }
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.getByRole("button", { name: "새 작업", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCSS("animation-name", "none");

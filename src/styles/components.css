@@ -1,3 +1,20 @@
+@layer base {
+  html:not([data-naeil-scrollbar-gutter="auto"]) {
+    scrollbar-gutter: stable;
+  }
+  html[data-naeil-scrollbar-gutter="auto"] {
+    scrollbar-gutter: auto;
+  }
+}
+
+/* The root already reserves the gap. Keep Radix's lock, without a second gap. */
+@supports (scrollbar-gutter: stable) {
+  html:not([data-naeil-scrollbar-gutter="auto"]) > body[data-scroll-locked] {
+    margin-right: 0 !important;
+    --removed-body-scroll-bar-size: 0px;
+  }
+}
+
 @layer components {
   .ui-navigation {
     position: relative;
@@ -533,6 +550,119 @@
     --normal-text: var(--foreground);
     --normal-border: var(--border-strong);
     transition-duration: var(--ui-motion-standard);
+  }
+}
+
+
+/* Canonical chrome owns final typography. Unlayered, marker-scoped rules also
+   beat supported (0,3,0) host rules even when loaded later. Body portals stay local. */
+html:root [data-naeil-chrome][lang] {
+  /* Keep the base :lang(ja) fallback local while slot font utilities still win. */
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+  --naeil-chrome-font: "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5625;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-link:not([data-app-toolbar] *):not([data-app-brand]),
+html:root [data-naeil-chrome][lang] .naeil-header-login,
+html:root [data-naeil-chrome][lang] .naeil-header-account-trigger,
+html:root [data-naeil-chrome][lang] .ui-navigation-title,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="select-trigger"]:nth-child(2) {
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5625;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-title, .naeil-header-login) {
+  font-weight: 500;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
+  font-weight: 600;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5625;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-group-label, .ui-site-footer-label) {
+  font-weight: 600;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-sheet-heading > h2 {
+  font-family: var(--naeil-chrome-font);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is([data-slot="select-item"], [data-slot="dropdown-menu-item"]) {
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-base {
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-sm {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child {
+  font-weight: 500;
+  line-height: 24px;
+}
+html:root [data-naeil-chrome][lang]:lang(ja),
+html:root [data-naeil-locale-menu][lang] :lang(ja) {
+  --naeil-chrome-font: "Noto Sans JP", "Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif;
+  font-family: var(--naeil-chrome-font);
+}
+
+.naeil-header-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+}
+html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
+  font-family: var(--naeil-chrome-font);
+  margin-inline-start: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21.875px;
+  letter-spacing: normal;
+  white-space: nowrap;
+  transform: translateY(1px);
+}
+@supports (text-box-trim: trim-both) {
+  html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
+  font-family: var(--naeil-chrome-font);
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    transform: none;
   }
 }
 

@@ -2,7 +2,7 @@
 
 React components, semantic design tokens, and shared styles for naeil products. The approved system uses a neutral light/dark palette, Pretendard, 16px controls, comfortable or compact density, purpose-specific content widths, and restrained motion. Radix supplies interaction behavior.
 
-**0.7.1 published and registry-verified — 2026-10-23.** The current published baseline is **0.7.1**. This first published 0.7.x release combines canonical `NaeilFooter`, server-safe `/release` identity and `NaeilHeaderAccountControl`; 0.7.0 remains an unpublished candidate. The frozen package source and `v0.7.1` tag are `32108fd8e1cb1db6dae24a09f3ca72ac9a91f618`. Fresh React/Next registry consumers matched all 139 frozen files and passed types, production builds and browser checks. Maintained guides use separately reviewed source; hosted Docs and standing activation require separate receipts. See the [release policy and receipts](docs/package-release.md#publication-and-deployment).
+**Version 0.9.0 adds the shared page-root scrollbar reservation and scroll-lock correction.** Use an exact version with verified registry publication and archive identity. At the 2026-10-29 verification, the published 0.8.0 archive matched frozen SHA-256 `6feb5a8cd50265ace584a0855432683b4127119377e08235282eaebd27081084` (139 files, source `3f708e27d05212af7f7a5be769f13f871e8d10c7`); tags were `latest=0.7.2`, `next=0.8.0`. Current publication, hosted Docs and per-service deployment have separate receipts in the [release policy](docs/package-release.md#publication-and-deployment).
 
 This repository also contains the **naeil.dev brand/example website** and an **optional agent reference workflow**. Choose the path you need:
 
@@ -15,13 +15,13 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 
 ## Use the UI
 
-Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. Install the verified registry release:
+Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. The installation example targets 0.9.0; run it after verifying that exact version's registry publication:
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.7.1
+pnpm add --save-exact @naeil/ui@0.9.0
 ```
 
-The [npm 0.7.1 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.7.1.tgz) is byte-identical to the frozen release archive. Its bundled guides retain the preparation snapshot; use these maintained instructions for current installation. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-0.7.1.tgz`. A fresh pack of maintained source differs from the frozen release archive; use the exact frozen file for release verification. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
+The [npm 0.8.0 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.8.0.tgz) is byte-identical to its frozen release archive. Bundled guides record the preparation snapshot; maintained guides record later publication outcomes. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-0.9.0.tgz` from the checked-out source. Use the exact reviewed archive for release verification; later source or guide changes require a new freeze. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
 
 The preceding [0.5.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0) was published on 2026-10-15 and introduced the whole shared header. Version 0.6.0 adds the shared 1600px frame; existing applications must upgrade and adopt its layout composition.
 
@@ -34,11 +34,11 @@ Choose the shared application composition before building a header or footer:
 | Actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
 | Owned-service login, account and logout presentation (0.7.1) | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header`, passed in `authSlot` |
 | Owned naeil service footer (0.7.1) | `NaeilFooter` from `@naeil/ui/naeil-footer` |
-| A product's own menu | `Navigation` from `@naeil/ui/ui` |
+| A different product without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
 | Different product footer or deliberate content override | `SiteFooter` from `@naeil/ui/ui` |
 | Existing Next/next-intl integration | Preserve `Nav` / `Footer` compatibility adapters |
 
-Pair `NaeilHeader` and `NaeilFooter` in owned services. Supply application routing, guards, authentication and menu data through adapters and slots. `NaeilHeaderAccountControl` receives session state, a busy flag and the guarded logout callback; keep pending state and its request lock above the header so desktop/mobile copies share them. Keep the shared menu, mobile sheet, account presentation and footer implementation in the package. The [application layout guide](docs/components/application-layout.md) provides a starter and consumer-agent instructions. Header, main and footer share a 1600px maximum frame with `clamp(16px, 2.4vw, 40px)` gutters; use `ui-app-frame` on main and keep 640px reading/settings or 480px short-form sections inside it.
+Pair the complete `NaeilHeader` and `NaeilFooter` in owned services, including product menus via `appNavigation`. Supply application routing, guards, authentication and menu data through adapters and slots. `NaeilHeaderAccountControl` receives session state, a busy flag and the guarded logout callback; keep pending state and its request lock above the header so desktop/mobile copies share them. Keep the shared menu, mobile sheet, account presentation and footer implementation in the package. The [application layout guide](docs/components/application-layout.md) provides a starter and consumer-agent instructions. Header, main and footer share a 1600px maximum frame with `clamp(16px, 2.4vw, 40px)` gutters; use `ui-app-frame` on main and keep 640px reading/settings or 480px short-form sections inside it.
 
 Import primitives from the dedicated entrypoint:
 

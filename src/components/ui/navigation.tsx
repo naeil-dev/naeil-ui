@@ -42,6 +42,8 @@ export interface NavigationProps extends Omit<
   toolbar?: React.ReactNode;
   mobileToolbar?: React.ReactNode;
   mobileFooter?: React.ReactNode;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
   /** Use the same product-owned frame class on header, footer and main. */
   containerClassName?: string;
   /** Preserve modified clicks; applications may preventDefault for client routing/guards. */
@@ -57,6 +59,21 @@ const NativeLink = React.forwardRef<HTMLAnchorElement, NavigationLinkProps>(
   },
 );
 
+// Controlled-sheet actions can leave the sheet entirely (for example a host
+// confirmation). Run them after both closing layers have released their focus.
+export const NavigationSheetAction = React.createContext<((action: () => void) => {
+  menuClosed: () => void;
+  cancel: () => void;
+}) | undefined>(undefined);
+
+interface PendingSheetAction {
+  action: () => void;
+  sheet: HTMLDivElement | null;
+  menuClosed: boolean;
+  sheetClosed: boolean;
+  timer?: ReturnType<typeof setTimeout>;
+}
+
 function DesktopGroup({
   item,
   active,
@@ -64,6 +81,7 @@ function DesktopGroup({
   anotherGroupOpen,
   onOpenChange,
   children,
+  chrome,
 }: {
   item: NavigationGroup;
   active: boolean;
@@ -71,6 +89,7 @@ function DesktopGroup({
   anotherGroupOpen: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
+  chrome: React.HTMLAttributes<HTMLDivElement>;
 }) {
   const hoverOpened = React.useRef(false);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -153,6 +172,7 @@ function DesktopGroup({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
+          {...chrome}
           ref={panel}
           data-slot="navigation-popover"
           className="ui-navigation-popover ui-popup"
@@ -197,19 +217,75 @@ export function Navigation({
   toolbar,
   mobileToolbar,
   mobileFooter,
+  mobileOpen: controlledOpen,
+  onMobileOpenChange,
   containerClassName,
   onNavigate,
   className,
   ...props
 }: NavigationProps) {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const mobileOpen = controlledOpen ?? internalOpen;
+  const state = React.useRef({ open: mobileOpen, controlled: controlledOpen !== undefined, onChange: onMobileOpenChange });
+  const mounted = React.useRef(false);
+  const pendingAction = React.useRef<PendingSheetAction | undefined>(undefined);
+  const cancelAction = React.useCallback(() => {
+    clearTimeout(pendingAction.current?.timer);
+    pendingAction.current = undefined;
+  }, []);
+  React.useLayoutEffect(() => {
+    const reopening = mobileOpen && !state.current.open;
+    state.current = { open: mobileOpen, controlled: controlledOpen !== undefined, onChange: onMobileOpenChange };
+    if (reopening) cancelAction();
+  });
+  React.useLayoutEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; cancelAction(); };
+  }, [cancelAction]);
+  const setMobileOpen = React.useCallback((next: boolean, owner?: PendingSheetAction) => {
+    if (next) cancelAction();
+    if (next === state.current.open) return;
+    // A later dismissal replaces a pending selection; the selection's own
+    // close request must survive a parent that accepts it asynchronously.
+    if (pendingAction.current !== owner) cancelAction();
+    // Controlled requests compare against the committed prop, even when a
+    // parent rejects or delays accepting an earlier request.
+    if (!state.current.controlled) {
+      state.current.open = next;
+      setInternalOpen(next);
+    }
+    state.current.onChange?.(next);
+  }, [cancelAction]);
+  const chrome = "data-naeil-chrome" in props ? { "data-naeil-chrome": "", lang: props.lang } : {};
   const [openGroup, setOpenGroup] = React.useState<string | null>(null);
   const trigger = React.useRef<HTMLButtonElement>(null);
   const desktop = React.useRef<HTMLElement>(null);
+  const sheetContent = React.useRef<HTMLDivElement>(null);
+  function settleAction(flow: PendingSheetAction) {
+    if (!mounted.current || pendingAction.current !== flow || state.current.open ||
+      !flow.menuClosed || !flow.sheetClosed || flow.timer !== undefined) return;
+    // FocusScope close events precede remaining layer cleanup. This task is
+    // owned by this closing flow, and cannot survive a reopen or unmount.
+    flow.timer = setTimeout(() => {
+      flow.timer = undefined;
+      if (!mounted.current || pendingAction.current !== flow) return;
+      if (state.current.open) { cancelAction(); return; }
+      if (!flow.menuClosed || !flow.sheetClosed) return;
+      const target = [trigger.current, desktop.current?.parentElement?.querySelector<HTMLElement>(".ui-navigation-toolbar [data-naeil-account-trigger]")]
+        .find(element => element?.isConnected && element.getBoundingClientRect().width && element.getBoundingClientRect().height);
+      cancelAction();
+      if (!target) return;
+      target.focus();
+      flow.action();
+    }, 0);
+  }
+  const previousHref = React.useRef(currentHref);
   React.useEffect(() => {
+    if (previousHref.current === currentHref) return;
+    previousHref.current = currentHref;
     setMobileOpen(false);
     setOpenGroup(null);
-  }, [currentHref]);
+  }, [currentHref, setMobileOpen]);
   // Container width, rather than viewport width, determines which navigation is visible.
   React.useEffect(() => {
     const element = desktop.current;
@@ -220,11 +296,11 @@ export function Navigation({
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [setMobileOpen]);
 
   const active = (item: NavigationLink) =>
     item.active ?? (!item.external && item.href === currentHref);
-  function link(item: NavigationLink, close?: () => void, entry = false) {
+  function link(item: NavigationLink, close?: "mobile" | "group", entry = false) {
     const Component = item.external ? NativeLink : Link;
     return (
       <Component
@@ -245,8 +321,10 @@ export function Navigation({
             !event.ctrlKey &&
             !event.shiftKey &&
             !event.altKey
-          )
-            close?.();
+          ) {
+            if (close === "mobile") setMobileOpen(false);
+            else if (close === "group") setOpenGroup(null);
+          }
         }}
       >
         {item.icon && (
@@ -289,6 +367,7 @@ export function Navigation({
             {items.map((item) =>
               "items" in item ? (
                 <DesktopGroup
+                  chrome={chrome}
                   key={item.id}
                   item={item}
                   active={item.items.some(active)}
@@ -301,7 +380,7 @@ export function Navigation({
                   }
                 >
                   {item.items.map((child) =>
-                    link(child, () => setOpenGroup(null), true),
+                    link(child, "group", true),
                   )}
                 </DesktopGroup>
               ) : (
@@ -324,10 +403,22 @@ export function Navigation({
                 className="ui-navigation-overlay ui-popup"
               />
               <Dialog.Content
+                {...chrome}
+                // Retain the closing DOM owner after Radix clears the live ref;
+                // a menu selection can race the sheet's external dismissal.
+                ref={element => { if (element) sheetContent.current = element; }}
                 data-slot="navigation-sheet"
                 className="ui-navigation-sheet ui-popup"
                 aria-describedby={undefined}
                 onCloseAutoFocus={(event) => {
+                  if (controlledOpen !== undefined && (!mounted.current || state.current.open)) { event.preventDefault(); return; }
+                  const flow = pendingAction.current;
+                  if (flow && event.target === flow.sheet) {
+                    event.preventDefault();
+                    flow.sheetClosed = true;
+                    settleAction(flow);
+                    return;
+                  }
                   if (
                     trigger.current &&
                     trigger.current.getBoundingClientRect().width === 0
@@ -361,17 +452,35 @@ export function Navigation({
                           {item.label}
                         </h3>
                         {item.items.map((child) =>
-                          link(child, () => setMobileOpen(false), true),
+                          link(child, "mobile", true),
                         )}
                       </section>
                     ) : (
-                      link(item, () => setMobileOpen(false))
+                      link(item, "mobile")
                     ),
                   )}
                 </nav>
                 {(mobileToolbar ?? toolbar) && (
                   <div className="ui-navigation-mobile-toolbar">
-                    {mobileToolbar ?? toolbar}
+                    <NavigationSheetAction.Provider value={controlledOpen === undefined ? undefined : action => {
+                      if (!mounted.current) return { menuClosed: () => {}, cancel: () => {} };
+                      cancelAction();
+                      const flow: PendingSheetAction = { action, sheet: sheetContent.current, menuClosed: false, sheetClosed: false };
+                      pendingAction.current = flow;
+                      return {
+                        menuClosed: () => {
+                          if (!mounted.current || pendingAction.current !== flow) return;
+                          flow.menuClosed = true;
+                          // Preserve B1's layer cleanup order before closing
+                          // the sheet; both completion events still belong here.
+                          setMobileOpen(false, flow);
+                          settleAction(flow);
+                        },
+                        cancel: () => { if (pendingAction.current === flow) cancelAction(); },
+                      };
+                    }}>
+                      {mobileToolbar ?? toolbar}
+                    </NavigationSheetAction.Provider>
                   </div>
                 )}
                 {mobileFooter && (

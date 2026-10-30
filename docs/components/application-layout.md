@@ -1,6 +1,6 @@
 # Application frame and shared navigation/footer
 
-This maintained guide covers **published and registry-verified @naeil/ui 0.7.1**, combining canonical footer/release identity and shared account presentation with the published 0.6.0 frame. Install exact `@naeil/ui@0.7.1` from npm; hosted Docs and service activation have separate receipts. See [release identities and status](../package-release.md#publication-and-deployment) and [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
+Exact **@naeil/ui 0.8.0 is published** (`next` tag; `latest` remains 0.7.2 at the 2026-10-29 verification). The **0.9.0 candidate** adds shared root reservation. Install exact `@naeil/ui@0.8.0` for the published Home APIs; hosted Docs and service activation have separate receipts. See [release identities and status](../package-release.md#publication-and-deployment) and [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
 
 ## Choose the shared composition first
 
@@ -8,7 +8,8 @@ This maintained guide covers **published and registry-verified @naeil/ui 0.7.1**
 | --- | --- |
 | The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
 | Owned-service login/account/logout presentation | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header` in `authSlot` |
-| A product's own menu | `Navigation` from `@naeil/ui/ui` |
+| Owned naeil service with product menu data (0.8.0) | Complete `NaeilHeader`, with `appNavigation`, catalog/blog hidden, optional `brandSuffix` and `statusSlot` |
+| A different product menu without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
 | Owned naeil service footer | `NaeilFooter` from `@naeil/ui/naeil-footer` |
 | Different product footer or explicit content override | `SiteFooter` from `@naeil/ui/ui` |
 | An existing Next/next-intl consumer | Keep its `Nav` / `Footer` adapters |
@@ -28,13 +29,30 @@ Choose one header per application frame. Supply menu data, links, route guards, 
 
 Use `.ui-app-frame` on main. Shared header/footer already apply the frame internally; **do not wrap them in another padded frame**. Put purpose-specific sections inside main. At 1920px the default frame has 1520px available after its 40px gutters. Small screens shrink the frame and reduce gutters to at least 16px. A narrow form must not constrain or move navigation.
 
-Reserve a consistent scrollbar gutter in the consumer's global CSS when routes can alternate between short and tall content:
+The **0.9.0 candidate** supplies `html { scrollbar-gutter: stable }` once in `components.css`, reached by `globals.css` or `theme.css + components.css`. Classic mode reserves one browser-sized gutter on short and long pages; overlay mode reserves none. The shared lock correction removes duplicate Radix body right-margin/gap compensation and retains its scroll prevention, focus and nested cleanup. Keep header/main/footer and their ordinary content horizontally stable. Compare matching root policies and measure before any fullPage capture. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md).
 
-```css
-html { scrollbar-gutter: stable; }
+For a different document policy, declare this on the root **before first paint**:
+
+```html
+<html data-naeil-scrollbar-gutter="auto">
 ```
 
-This keeps a centered frame from shifting when a classic scrollbar appears. The document scroll policy belongs to the application; the shared components do not set it implicitly. In a 1920px Chromium viewport with a 15px scrollbar, the frame starts at 152.5px with this policy in both short and tall states. Without it, the start changes from 160px to 152.5px. Overlay-scrollbar platforms may reserve no extra space.
+This sets `scrollbar-gutter: auto` and disables the shared lock correction together. Apply custom root/scroller CSS only after opting out; changing only gutter CSS leaves an unsupported compensation combination. The default full-page profile has zero body margin/outer padding; no new body reset is supplied. Nonzero body edge spacing, custom scroll locks and react-remove-scroll-bar helper classes need consumer integration or opt-out. Theme-only and JS-only imports do not set root policy. Unsupported engines keep Radix's original compensation.
+
+Import `globals.css`, or the split `theme.css` and `components.css`, without an enclosing named layer (`@import "@naeil/ui/components.css";`, not `@import "@naeil/ui/components.css" layer(ui);`). The package already declares its own layers. Wrapping the import in a named layer lets the dependency's unlayered `--removed-body-scroll-bar-size` win: it can remain 15px in classic mode even though the important margin correction still wins. Elements using that variable can then shift.
+
+After opting out, a plain `@layer base { html { scrollbar-gutter: stable; } }` loses to the package's more specific root attribute selector in the same layer. Write the custom rule outside any layer, for example:
+
+```css
+/* The root has data-naeil-scrollbar-gutter="auto"; this policy owns its lock integration. */
+html[data-naeil-scrollbar-gutter="auto"] { scrollbar-gutter: stable; }
+```
+
+Alternatively, use that attribute selector in `@layer base` after the package import, so equal specificity resolves to the later consumer rule. The shared lock correction stays disabled in either case; the consumer owns matching compensation.
+
+In classic mode, a fixed modal scrim covers the page's available width, leaving the reserved gutter strip undimmed (15px in the measured macOS Chromium profile). This is expected with a reserved root; 0.9.0 leaves the scrim styles unchanged. Overlay mode has no reserved strip. A full-viewport scrim redesign is outside this release.
+
+Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter the centered 1600px frame starts at 152.5px on both short and long pages (overlay: 160px). Japanese signed-out canonical login content at width 320 has 257px inside the 305px classic sheet; its 261px toolbar wraps to 104px. Overlay remains 44px. Preserve all labels, 44px targets and keyboard access. Home Workspace/account and LoginGate/no-login-slot retain their 44px toolbars; this specific F3 profile difference is documented, not a new Home chrome exception.
 
 ## Canonical naeil application starter
 
@@ -78,7 +96,9 @@ export function ApplicationLayout({ children, locale, Link, currentHref,
 
 `NaeilHeader` is fixed; reserve its 65px height and account for it in sticky areas and focus/anchor scroll margins. Default destinations are official naeil.dev URLs. Preserve routing/unsaved-change guards using the [header contract](naeil-header.md) and [footer interception contract](naeil-footer.md); a Link adapter must handle absolute official and GitHub destinations as well as local routes. Only pass `onLocaleChange` when the application supports its complete language set.
 
-For a different product menu, use the [generic Navigation composition](navigation.md) with the same main/footer structure. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the installed header, narrow form and SiteFooter together.
+For owned naeil product navigation, keep the whole header and pass menu data through `appNavigation`; see the [Home profile and host conditions](naeil-header.md#host-typography-and-mobile-handoff-080). `mobileOpen`/`onMobileOpenChange` can coordinate the sheet with a consumer confirmation, while busy state and request locking remain above the header. For a different product menu without canonical chrome, use the [generic Navigation composition](navigation.md) with the same main/footer structure. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the installed header, narrow form and SiteFooter together.
+
+An empty desktop menu preserves B1's limitation: resizing alone leaves the sheet open; Escape/close/overlay/route change dismiss it. Controlled-mobile account callbacks wait for both closing layers and their focus handoff; desktop and uncontrolled-mobile account callbacks retain B1's selection-time behavior. A consumer confirmation owns cancellation focus, including a visible desktop account fallback after resize.
 
 ## Deliberate overrides
 
@@ -106,6 +126,7 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 - Use @naeil/ui/naeil-header for the canonical naeil header; use Navigation from @naeil/ui/ui for a different product menu. Use NaeilFooter from @naeil/ui/naeil-footer for owned service footers; SiteFooter remains the generic primitive. Keep existing Next Nav/Footer compatibility adapters when applicable.
 - Put NaeilHeaderAccountControl from @naeil/ui/naeil-header in authSlot for owned apps. Supply real session state, the busy flag and guarded logout callback. Keep pending state and the request lock above the header so desktop/mobile copies share them; do not copy account/avatar/menu markup.
 - Local wrappers supply menu data, routing/guards, locale, auth and slots. Do not copy the menu, mobile sheet, controls or footer implementation. Extend the shared component for reusable missing behavior.
+- The 0.9.0 candidate CSS reserves a stable root gutter through globals or theme+components; opt out on html with data-naeil-scrollbar-gutter="auto" before first paint to disable both root reservation and lock correction. Compare classic/overlay and short/long body content through menus/dialogs; measure before fullPage screenshots.
 - Use ui-app-frame on main; navigation/footer own their internal frames. Keep reading/settings/short-form sections inside that frame. Apply frame overrides consistently across routes.
 - Check the installed package version and CSS before creating a replacement for an apparently missing component.
 - Verify actual shared navigation/footer rendering and stable anchors across routes, themes and supported sizes, including signed-out, signed-in, menu, busy, cancellation/failure and retry states. An import or anonymous-only check is not adoption evidence. Record intentional route exceptions.
@@ -119,7 +140,7 @@ Owned-service checks also verify canonical header/footer destinations, rendered 
 
 A blanket ban on `<header>`, `<nav>` or `<footer>` would also reject valid section landmarks and adapters. Review the root composition and its rendered output instead. This repository checks packed React/Next examples; external applications still need their own upgrades, adapter migrations and CI. Publication and deployment are separate work.
 
-See [canonical footer content and save interception](naeil-footer.md). Version 0.7.1 includes package/contract identity from the unpublished 0.7.0 candidate; registry publication, hosted Docs and per-service operational rollout have separate receipts.
+See [canonical footer content and save interception](naeil-footer.md). Version 0.7.2 includes package/contract identity; registry publication, hosted Docs and per-service operational rollout have separate receipts.
 
 ## Shared naeil.dev login (services on `*.naeil.dev`)
 
