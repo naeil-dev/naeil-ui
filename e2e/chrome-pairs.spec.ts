@@ -1,3 +1,4 @@
+import { fixtureURL as base, fixtureDirectory } from "../scripts/chrome-fixture-config";
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -7,7 +8,6 @@ test.beforeEach(async ({ page, browser, browserName }, info) => {
   await record(info, "launch-and-probe", await scrollbarLaunch(page, browser, browserName));
 });
 
-const base = "http://127.0.0.1:6008";
 const properties = ["color", "background-color", "border-color", "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "opacity", "-webkit-font-smoothing", "-moz-osx-font-smoothing", "padding", "gap", "min-height"];
 type EntryMeasurement = { active: boolean; metrics: Record<string, unknown>; raw: unknown };
 async function prepare(page: Page, side: string, query: string, state: string, home = false) {
@@ -156,7 +156,7 @@ for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) 
     const states = ["closed", ...(mobile ? ["sheet"] : []), "current", "focus", ...(mobile ? [] : ["hover", "popover"]), ...(auth === "in" ? ["account"] : []), "locale"];
     const failures: string[] = [];
     const entryReferences = new Map<boolean, { state: string; metrics: Record<string, unknown> }>();
-    await record(info, "identity", { ...JSON.parse(readFileSync("test-results/chrome-fixtures/identity.json", "utf8")), browser: page.context().browser()?.version(), viewport: { width, height: 900 }, locale, theme, auth, css: "globals.css", dpr: await page.evaluate(() => devicePixelRatio), fonts: "local PretendardVariable.woff2; Noto Sans JP 400/500/600 subsets", review: "Human review required. Candidate renders are not expected baselines." });
+    await record(info, "identity", { ...JSON.parse(readFileSync(`${fixtureDirectory}/identity.json`, "utf8")), browser: page.context().browser()?.version(), viewport: { width, height: 900 }, locale, theme, auth, css: "globals.css", dpr: await page.evaluate(() => devicePixelRatio), fonts: "local PretendardVariable.woff2; Noto Sans JP 400/500/600 subsets", review: "Human review required. Candidate renders are not expected baselines." });
     for (const state of states) {
       await prepare(page, "baseline", query, state);
       const baseline = await snapshot(page); await evidence(page, info, `${state}-B1`, baseline);

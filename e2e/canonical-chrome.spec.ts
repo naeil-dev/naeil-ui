@@ -1,3 +1,4 @@
+import { fixtureURL as base } from "../scripts/chrome-fixture-config";
 import { scrollbarLaunch } from "../scripts/page-frame-browser";
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -9,7 +10,6 @@ async function record(info: TestInfo, name: string, value: unknown) {
   await info.attach(name, { path, contentType: "application/json" });
 }
 
-const base = "http://127.0.0.1:6008";
 async function open(page: Page, query = "", side = "candidate") {
   await page.goto(`${base}/${side}/index.html?${query}`);
   await expect(page.locator("header")).toBeVisible();

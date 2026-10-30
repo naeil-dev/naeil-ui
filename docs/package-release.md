@@ -31,6 +31,17 @@ pnpm exec playwright install chromium firefox webkit
 pnpm test:browser
 ```
 
+The chrome fixture server and standalone navigation sample use `NAEIL_UI_FIXTURE_PORT`, with the unchanged default defined in `scripts/chrome-fixture-config.ts` in the repository. The same module supplies every fixture URL. An explicit port also isolates generated fixtures, test results and HTML reports by port; leave it unset to retain the existing CI paths. Choose a free integer port from 1 to 65535.
+
+For two concurrent fixture-only runs in one worktree, use separate terminals:
+
+```sh
+NAEIL_UI_CHROME_ONLY=1 NAEIL_UI_FIXTURE_PORT=16081 pnpm test:browser e2e/page-frame.spec.ts --project=chromium
+NAEIL_UI_CHROME_ONLY=1 NAEIL_UI_FIXTURE_PORT=16082 pnpm test:browser e2e/page-frame.spec.ts --project=chromium
+```
+
+`NAEIL_UI_CHROME_ONLY=1` skips the unrelated Storybook server. Full suites still use `NAEIL_UI_STORYBOOK_PORT` for Storybook. Do not overlap an unset-port run (which cleans the default `test-results` directory) with custom-port runs in the same worktree. The standalone sample uses the same port setting: `NAEIL_UI_FIXTURE_PORT=16083 pnpm exec tsx scripts/serve-navigation-sample.ts`. Stop standalone previews after use; Playwright stops its own fixture server.
+
 `check:package:boundary` inspects an actual `npm pack --ignore-scripts` archive for every declared export, runtime dependencies, source aliases, relative imports, required CSS/tokens/documents/notices and forbidden website payload. `check:consumers` separately installs that tarball with npm into two temporary directories. It builds the reusable React example with Vite/Tailwind, type-checks with library checks enabled, imports shared deep modules, checks SSR and CSS, and asserts Next/Supabase/Three are absent. A separate Next production build exercises root exports and the deep paths observed in the reachable Next consumer, with consumer-owned messages and no auth backend. Neither fixture uses repository dependency symlinks. Network access is needed for uncached npm dependencies; temporary installs are removed on completion or failure.
 
 For a frozen release candidate, both archive-producing checks can enforce the reviewed SHA-256 before extraction or consumer installation:

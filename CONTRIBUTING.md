@@ -12,4 +12,6 @@ For package behavior changes, run `pnpm test`, `pnpm lint`, `pnpm check:contrast
 
 For workflow helper edits run the relevant tests in `skills/frontend-reference-workflow/tests/`; see [tooling setup](docs/design/frontend-tooling.md). Attribute adopted code and preserve required license notices. Do not include credentials, personal absolute paths, private session identifiers, or inaccessible local evidence links in public documentation.
 
+Chrome fixture tests and the standalone navigation sample share `NAEIL_UI_FIXTURE_PORT`; its default is defined in [`scripts/chrome-fixture-config.ts`](scripts/chrome-fixture-config.ts). For concurrent runs, choose a different port for each run. See the [fixture test commands](docs/package-release.md#checks) for fixture-only runs and output isolation.
+
 A pull request should explain the trigger and resulting behavior, consumer compatibility, validation scope, and remaining limits. Keep generated files synchronized. Publishing an npm package and deploying the website are separate maintainer actions; a successful local build is not either action.

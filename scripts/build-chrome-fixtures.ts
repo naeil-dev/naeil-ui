@@ -4,12 +4,13 @@ import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
+import { fixtureDirectory } from "./chrome-fixture-config";
 
 const require = createRequire(import.meta.url);
 const { build } = createRequire(require.resolve("tsup"))("esbuild");
 const postcss = createRequire(require.resolve("@tailwindcss/postcss"))("postcss");
 const tailwind = require("@tailwindcss/postcss");
-export const chromeOutput = resolve("test-results/chrome-fixtures");
+export const chromeOutput = resolve(fixtureDirectory);
 export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROME_PACKAGE) {
   const baseline = join(chromeOutput, "baseline");
   mkdirSync(baseline, { recursive: true });
