@@ -114,7 +114,12 @@ export function assertLinks(actual, locale, origin, contract) {
   for (const link of actual.footerLinks.filter(link => link.target === '_blank')) assert(link.rel.includes('noopener') && link.rel.includes('noreferrer'), 'External target needs safe rel');
 }
 
-export async function checkMenu(page, locale, theme, chrome = {}) {
+// Canonical NaeilHeader catalog size by released UI version: 0.7.2 retired four
+// projects, while earlier verified artifacts (rollback targets) keep five.
+// Update this when a reviewed DOM release changes the catalog again.
+export const catalogSize = version => { const [major, minor, patch] = version.split('.').map(Number); return major === 0 && (minor < 7 || minor === 7 && patch < 2) ? 5 : 1; };
+
+export async function checkMenu(page, locale, theme, chrome = {}, projectCount = 5) {
   // Consumers may own theme controls (and their accessible labels) while the
   // canonical menu and actual theme change remain mandatory.
   const themeLabels = chrome.themeControlLabels ?? labels[locale];
@@ -126,7 +131,7 @@ export async function checkMenu(page, locale, theme, chrome = {}) {
   await trigger.focus(); await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: mobile ? labels[locale].menu : labels[locale].projects, exact: true });
   await dialog.waitFor({ state: 'visible' });
-  assert.equal(await dialog.locator('img[src^="https://naeil.dev/images/"]').count(), 5, 'Canonical project catalog missing');
+  assert.equal(await dialog.locator('img[src^="https://naeil.dev/images/"]').count(), projectCount, 'Canonical project catalog missing');
   const dismiss = async () => {
     await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
     assert(await trigger.evaluate(el => el === document.activeElement), 'Escape did not return focus to navigation trigger');
@@ -189,7 +194,7 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           assert(baseline, `No independent reference for ${locale}/${theme}/${width}/${actual.footerVariant}`);
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, locale, origin, reference.contract);
-          await checkMenu(page, locale, theme, route.chrome);
+          await checkMenu(page, locale, theme, route.chrome, catalogSize(identity.ui.version));
           if (checkAccount) await checkAccount({ page, route, locale, width, theme });
           // Capture only shared chrome; never business/family content.
           const name = `${results.length}-${width}-${theme}`;
