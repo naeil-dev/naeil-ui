@@ -76,3 +76,14 @@ test('account capture skips relevant infinite decoration and bounds a stuck fini
   });
   await assert.rejects(captureWithin(page, { animationTimeoutMs: 50 }), /Account animation settling exceeded/);
 });
+
+test('account capture rechecks action authority after awaited setup and mouse movement',async()=>{
+  for(const drift of ['menu','mouse']) {
+    let current=true;const actions=[];
+    const trigger={waitFor:async()=>{}};
+    const menu={waitFor:async()=>{if(drift==='menu')current=false;},getByRole:()=>({first:()=>({focus:async()=>{actions.push('focus');}})})};
+    const page={locator:selector=>selector.includes('trigger')?trigger:menu,mouse:{move:async()=>{actions.push('mouse');if(drift==='mouse')current=false;}},evaluate:async()=>assert.fail('lost fence reached account capture')};
+    await assert.rejects(()=>captureAccountRender(page,{beforeAction:()=>assert(current,'account generation fence lost')}),/account generation fence lost/);
+    assert.deepEqual(actions,drift==='mouse'?['mouse']:[]);
+  }
+});

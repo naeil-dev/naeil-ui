@@ -110,6 +110,13 @@ test('failed read-only adoption preserves evidence and permits a fresh verificat
 test('standing requires a verified baseline', async () => {
   standing(); const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'gate-failed'); assert(!calls.includes('update'));
 });
+test('unapproved candidate and adoption transport cannot reach native inspection', async () => {
+  await adopt(); standing(); input.generationSha256='f'.repeat(64);
+  assert.equal((await runStanding(input,config,dependencies)).state,'gate-failed');assert.deepEqual(calls,[]);
+  delete input.generationSha256; input.candidate = { passed: true }; input.sourceAdoption = { reviewedBaseSha: 'f'.repeat(40) };
+  const result = await runStanding(input, config, dependencies);
+  assert.equal(result.state, 'gate-failed'); assert.deepEqual(calls, []);
+});
 test('runs all build gates before staging and binds activation to the verified predecessor', async () => {
   await adopt(); standing(); const result = await runStanding(input, config, dependencies); assert.equal(result.state, 'production-verified', dependencies.lastError?.stack ?? result.reason);
   for (const stage of ['update', 'command:run typecheck', 'command:run lint', 'command:run test --maxWorkers=1', 'command:run build', 'package', 'deploy', 'activate', 'verify:production']) assert(calls.includes(stage), 'Missing ' + stage);
@@ -289,6 +296,14 @@ test('F8 STOP accompanying a refused read-only inspect defers without consuming 
   const ledger = JSON.parse(readFileSync(join(config.stateDirectory, 'keys', hash(input.idempotencyKey) + '.json')));
   assert.equal(ledger.state, 'deferred'); assert.equal(ledger.runtimeMutationAttempted, false);
 });
+test('I3: Estimate independently refuses any read-only reverification envelope before native work', async () => {
+  for (const envelope of [{ reverification: { schemaVersion: 1, kind: 'standing-read-only-reverification' } }, { reverification: null }, { phase: 'production', attemptId: 'substituted-verifier' }]) {
+    const result = await runStanding({ ...input, ...envelope }, config, dependencies);
+    assert.equal(result.state, 'gate-failed'); assert.deepEqual(calls, []);
+  }
+  assert(!existsSync(join(config.stateDirectory, 'running.lock')));
+});
+
 test('F8 STOP after source update is gate-failed with runtime untouched', async () => {
   await adopt(); standing(); const update = dependencies.update;
   dependencies.update = async (...args) => { const updated = await update(...args); put(input.policy.stopFile, 'STOP'); return updated; };

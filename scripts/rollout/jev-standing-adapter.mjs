@@ -1,3 +1,6 @@
+import {copyCodeTree} from './consumer-artifact.mjs';
+import { validateCandidateHandoff } from './source-approval.mjs';
+import { assertCandidateSource, stageCandidate } from './consumer-preflight.mjs';
 /**
  * Main provisions service.adapterOptions.standingConfigPath (owned0600 JSON).
  * NAEIL_ROLLOUT_INPUT/OUTPUT carry JSON files; no shell, credentials or inline code.
@@ -7,7 +10,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
-import { constants, closeSync, copyFileSync, existsSync, fchmodSync, fstatSync, ftruncateSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { constants, closeSync, copyFileSync, existsSync, fchmodSync, fstatSync, ftruncateSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, basename } from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -15,8 +18,9 @@ import { assertFrozen, digest, reviewedMigration } from './rollout.mjs';
 import { routeKey, assertRouteConfig } from './route-contract.mjs';
 import { updateConsumer } from './update-consumer.mjs';
 import { assertCandidateHarness, prepareCandidateHarness } from './jev-candidate.mjs';
-import { assertTrustedFiles } from './standing-config.mjs';
+import { assertGenerationExecution, assertGenerationFence, assertTrustedFiles } from './standing-config.mjs';
 
+const copyCode=(source,destination)=>copyCodeTree(source,destination,{normalizeLinks:true});
 const exec = promisify(execFile);
 const ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,119}$/;
 const HEX = /^[a-f0-9]{64}$/;
@@ -106,24 +110,25 @@ export async function runCommand(file, args, options = {}) {
   return exec(file, args, { maxBuffer: 4 * 1024 * 1024, ...options, shell: false, timeout });
 }
 
-async function transport(command, request, directory, prefix, config, environmentNames) {
+async function transport(command, request, directory, prefix, config, environmentNames, boundary = () => {}) {
+  boundary();
   directory = mkdtempSync(join(directory, `${prefix}-`));
   const input = join(directory, `${prefix}.input.json`), output = join(directory, `${prefix}.output.json`);
-  writePrivate(input, request, true);
+  boundary(); writePrivate(input, request, true);
   assert(!existsSync(output), 'Subprocess result already exists');
   const env = { ...cleanEnvironment(config), [environmentNames[0]]: input, [environmentNames[1]]: output };
   // Captured subprocess payloads are deliberately not persisted or echoed.
-  await runCommand(executable(command), command.args, { cwd: config.worktree, env, timeoutMs: command.timeoutMs ?? 1200000 });
+  boundary(); await runCommand(executable(command), command.args, { cwd: config.worktree, env, timeoutMs: command.timeoutMs ?? 1200000 });
   const stat = lstatSync(output);
   assert(stat.isFile() && !stat.isSymbolicLink() && stat.nlink === 1 && stat.uid === process.getuid() && !(stat.mode & 0o077) && stat.size <= 4 * 1024 * 1024, 'Private bounded subprocess result required');
   return readPrivate(output);
 }
 
-export const invokeVerifier = (request, config, directory) => transport(config.verificationCommand, request, directory, `verify-${request.phase}`, config, ['NAEIL_VERIFY_INPUT', 'NAEIL_VERIFY_OUTPUT']);
+export const invokeVerifier = (request, config, directory, boundary) => transport(config.verificationCommand, request, directory, `verify-${request.phase}`, config, ['NAEIL_VERIFY_INPUT', 'NAEIL_VERIFY_OUTPUT'], boundary);
 
-async function invokeNative(action, request, config, directory) {
+async function invokeNative(action, request, config, directory, boundary) {
   const helper = fileURLToPath(new URL('./jev-native.py', import.meta.url));
-  return transport({ file: config.pythonExecutable, args: ['-B', helper], timeoutMs: config.nativeTimeoutMs ?? 180000 }, { ...request, action, config: { ...config.native, baselineArtifact: config.baselineArtifact } }, directory, `native-${action}`, config, ['NAEIL_ROLLOUT_INPUT', 'NAEIL_ROLLOUT_OUTPUT']);
+  return transport({ file: config.pythonExecutable, args: ['-B', helper], timeoutMs: config.nativeTimeoutMs ?? 180000 }, { ...request, action, config: { ...config.native, baselineArtifact: config.baselineArtifact } }, directory, `native-${action}`, config, ['NAEIL_ROLLOUT_INPUT', 'NAEIL_ROLLOUT_OUTPUT'], boundary);
 }
 
 function activePolicy(input, config) {
@@ -211,17 +216,6 @@ function manifest(root, normalizeLinks = false) {
   walk(root); return result;
 }
 
-function copyCode(source, destination) {
-  mkdirSync(destination, { mode: 0o700 });
-  for (const name of readdirSync(source)) {
-    assert(!forbidden(name), 'Forbidden source member');
-    const input = join(source, name), output = join(destination, name), stat = lstatSync(input);
-    if (stat.isDirectory()) copyCode(input, output);
-    else if (stat.isSymbolicLink()) symlinkSync(relative(dirname(input), realpathSync(input)), output);
-    else { assert(stat.isFile(), 'Unsupported source member'); copyFileSync(input, output); }
-  }
-}
-
 export async function createArtifact(input, config, sourceRevision) {
   const source = join(config.worktree, '.next/standalone');
   const before = manifest(source, true);
@@ -249,15 +243,20 @@ export async function createArtifact(input, config, sourceRevision) {
 
 export async function runStanding(input, config, dependencies = {}) {
   const result = { schemaVersion: 1, releaseId: input?.release?.releaseId, serviceId: input?.service?.id, idempotencyKey: input?.idempotencyKey, attemptId: input?.attemptId, state: 'gate-failed', mutationAttempted: false };
-  let lock, directory, state, uncertain = false, mutated = false, storageFault = false, baseline, artifact;
-  const persist = (path, value) => { try { atomic(path, value); } catch (error) { storageFault = true; throw error; } };
+  let lock, directory, state, uncertain = false, mutated = false, storageFault = false, baseline, artifact, handoff, staged = false, fenceLost = false;
+  const stageOptions = () => ({worktree:config.worktree,branch:config.branch,reviewedSourceRevision:config.reviewedSourceRevision,git:gitExecutable(config),executionPath:config.executionPath,gitSha256:config.trustedFiles[gitExecutable(config)]});
+  const fence = () => { try { return assertGenerationFence(input, config); } catch (error) { fenceLost = true; throw error; } };
+  const makeDirectory = path => { fence(); return privateDirectory(path); };
+  const persist = (path, value) => { try { fence(); atomic(path, value); } catch (error) { storageFault = true; throw error; } };
   const save = () => { if (directory) persist(join(directory, 'result.json'), { ...result, checkedAt: new Date().toISOString() }); };
   const gate = () => {
+    fence(); assertGenerationExecution(input, config);
     if (input.trustedFiles && config.trustedFiles) assert.deepEqual(input.trustedFiles, config.trustedFiles, 'Trusted executable/helper closure drift');
     assertTrustedFiles(input.trustedFiles ?? config.trustedFiles);
     assertFrozen(input.release); activePolicy(input, config);
     if (input.release.account) { assert(isAbsolute(input.release.account.path || '') && digest(readFileSync(input.release.account.path)) === input.release.account.sha256, 'Frozen account reference mismatch'); }
     assert(!stopped(input.policy.stopFile), 'Stop switch active');
+    if(handoff) {validateCandidateHandoff(handoff,input,config);if(staged)assertCandidateSource(handoff,stageOptions());}
   };
   try {
     assert(input?.schemaVersion === 1 && input.service?.id === 'jev' && ['adopt', 'standing'].includes(input.mode), 'Jev standing envelope required');
@@ -268,26 +267,30 @@ export async function runStanding(input, config, dependencies = {}) {
     config = { ...config, executionPath: config.executionPath ?? input.executionPath };
     for (const path of [config.worktree, config.nodeExecutable, config.pnpmExecutable, config.pythonExecutable]) assert(isAbsolute(path || ''), 'Absolute configured path required');
     executable(config.verificationCommand); gate();
-    state = privateDirectory(config.stateDirectory);
-    try { lock = openSync(join(state, 'running.lock'), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600); }
+    if(input.candidate !== undefined || input.sourceAdoption !== undefined || (config.handoff || input.generationSha256 !== undefined) && input.mode === 'standing') {
+      assert.equal(input.mode,'standing','Source/candidate adoption does not replace baseline adoption');
+      handoff=validateCandidateHandoff(input.candidate,input,config);
+    }
+    state = makeDirectory(config.stateDirectory);
+    try { fence(); lock = openSync(join(state, 'running.lock'), constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600); }
     catch (error) { if (error.code === 'EEXIST') return { ...result, state: 'deferred', reason: 'Existing operation or unresolved native uncertainty' }; throw error; }
-    writeFileSync(lock, JSON.stringify({ attemptId: input.attemptId, idempotencyKey: input.idempotencyKey })); fsyncSync(lock);
+    fence(); writeFileSync(lock, JSON.stringify({ attemptId: input.attemptId, idempotencyKey: input.idempotencyKey })); fsyncSync(lock);
     const stateFd = openSync(state, constants.O_RDONLY); try { fsyncSync(stateFd); } finally { closeSync(stateFd); }
-    const attempts = privateDirectory(join(state, 'attempts')); directory = join(attempts, input.attemptId);
-    assert(!existsSync(directory), 'Attempt already recorded; inspect retained result'); privateDirectory(directory); save();
+    const attempts = makeDirectory(join(state, 'attempts')); directory = join(attempts, input.attemptId);
+    assert(!existsSync(directory), 'Attempt already recorded; inspect retained result'); makeDirectory(directory); save();
     const native = async (action, fields = {}, expected = {}) => {
       gate();
       const request = { ...input, artifact, previousArtifact: baseline?.artifact, transactionDirectory: join(config.native.baseDirectory || state, 'releases', `ui-${input.attemptId}`), ...fields };
-      const response = dependencies.native ? await dependencies.native(action, request) : await invokeNative(action, request, config, directory);
+      const response = dependencies.native ? await dependencies.native(action, request) : await invokeNative(action, request, config, directory, gate);
       assertNative(response, action, request);
       for (const [key, value] of Object.entries(expected)) assert.equal(response[key], value, `Native ${key} mismatch`);
       return response;
     };
     const verify = async (phase, target, release = input.release) => {
       gate(); assertFrozen(release);
-      const request = { ...input, release, phase, artifact: target, previousArtifact: baseline?.artifact, origin: input.service.origin, expectedIdentity: identity(input.service, target), referencePath: release.contract.path, outputDirectory: privateDirectory(join(directory, `browser-${phase}`)) };
+      const request = { ...input, release, phase, artifact: target, previousArtifact: baseline?.artifact, origin: input.service.origin, expectedIdentity: identity(input.service, target), referencePath: release.contract.path, outputDirectory: makeDirectory(join(directory, `browser-${phase}`)) };
       const expected = structuredClone(request);
-      const production = dependencies.verify ? await dependencies.verify(request) : await invokeVerifier(request, config, directory);
+      const production = dependencies.verify ? await dependencies.verify(request) : await invokeVerifier(request, config, directory, gate);
       assertProduction(production, expected); return production;
     };
     const baselinePath = join(state, 'baseline.json');
@@ -311,9 +314,18 @@ export async function runStanding(input, config, dependencies = {}) {
       assert.equal(baseline.production.referenceSha256, baseline.release.contract.sha256); assert.equal(baseline.production.passed, true);
       assert.deepEqual(baseline.artifact.ui, { version: baseline.release.version, contractVersion: baseline.release.contract.version });
       assert.equal(baseline.artifact.packageSha256, baseline.release.archive.sha256, 'Predecessor UI archive mismatch');
+      if(handoff) {
+        gate();result.mutationAttempted=true;
+        const intent={schemaVersion:1,state:'invoked',candidateReceipt:handoff.receipt,sourceAdoptionSha256:config.handoff.sourceAdoptionSha256,generationSha256:config.handoff.generationSha256,candidateSourceSha:handoff.candidateSourceSha};
+        persist(join(directory,'candidate-stage.json'),intent);save();
+        stageCandidate(handoff,{...stageOptions(),beforeMutation:gate});staged=true;
+        persist(join(directory,'candidate-stage.json'),{...intent,state:'completed'});
+        artifact=handoff.artifact;validateArtifact(artifact);
+      }
       await native('inspect', { artifact: baseline.artifact });
       result.predecessorProduction = await verify('adopt', baseline.artifact, baseline.release);
       await native('inspect', { artifact: baseline.artifact, inspection: 'after-predecessor-verification' });
+      if(!handoff) {
       const command = dependencies.command ?? runCommand;
       const env = cleanEnvironment(config);
       const node = await command(config.nodeExecutable, ['--version'], { env, cwd: config.worktree });
@@ -370,6 +382,9 @@ export async function runStanding(input, config, dependencies = {}) {
       assert.deepEqual(manifest(artifact.standalonePath), read(artifact.manifestPath), 'Artifact code changed during browser gates');
       assert.deepEqual(await packageCheck(), installed, 'Installed UI changed during browser gates');
       await sourceCheck(update.sourceRevision);
+      } else {
+        result.artifact=artifact;result.previousArtifact=baseline.artifact;result.candidateReceipt=handoff.receipt;result.sourceAdoptionSha256=config.handoff.sourceAdoptionSha256;save();gate();
+      }
       await native('stage');
       result.state = 'activation-pending'; save();
       gate(); uncertain = true; result.mutationAttempted = true; save();
@@ -383,6 +398,7 @@ export async function runStanding(input, config, dependencies = {}) {
     save(); return result;
   } catch (error) {
     if (error.nativeSafe === true) uncertain = false;
+    if(fenceLost&&lock!==undefined)uncertain=true;
     if (error.nativeSafe === true && error.deferred === true && !mutated) result.mutationAttempted = false;
     result.state = uncertain ? 'activation-pending' : error.deferred && !mutated ? 'deferred' : 'gate-failed';
     result.reason = uncertain ? 'Native operation may have changed runtime; durable reconciliation required' : 'Jev operation refused or gate failed; inspect private step records';
@@ -392,14 +408,14 @@ export async function runStanding(input, config, dependencies = {}) {
         try {
           gate();
           const request = { ...input, artifact, previousArtifact: baseline.artifact, transactionDirectory: join(config.native.baseDirectory || state, 'releases', `ui-${input.attemptId}`) };
-          const rollback = dependencies.native ? await dependencies.native('rollback', request) : await invokeNative('rollback', request, config, directory);
+          const rollback = dependencies.native ? await dependencies.native('rollback', request) : await invokeNative('rollback', request, config, directory, gate);
           assertNative(rollback, 'rollback', request); assert.equal(rollback.activated, true);
           gate();
-          const verificationRequest = { ...input, release: baseline.release, phase: 'rollback', artifact: baseline.artifact, origin: input.service.origin, expectedIdentity: identity(input.service, baseline.artifact), referencePath: baseline.release.contract.path, outputDirectory: privateDirectory(join(directory, 'browser-rollback')) };
-          const production = dependencies.verify ? await dependencies.verify(verificationRequest) : await invokeVerifier(verificationRequest, config, directory);
+          const verificationRequest = { ...input, release: baseline.release, phase: 'rollback', artifact: baseline.artifact, origin: input.service.origin, expectedIdentity: identity(input.service, baseline.artifact), referencePath: baseline.release.contract.path, outputDirectory: makeDirectory(join(directory, 'browser-rollback')) };
+          const production = dependencies.verify ? await dependencies.verify(verificationRequest) : await invokeVerifier(verificationRequest, config, directory, gate);
           assertProduction(production, verificationRequest);
           gate();
-          const inspected = dependencies.native ? await dependencies.native('inspect', { ...request, artifact: baseline.artifact }) : await invokeNative('inspect', { ...request, artifact: baseline.artifact }, config, directory);
+          const inspected = dependencies.native ? await dependencies.native('inspect', { ...request, artifact: baseline.artifact }) : await invokeNative('inspect', { ...request, artifact: baseline.artifact }, config, directory, gate);
           assertNative(inspected, 'inspect', request);
           result.rollback = { state: 'production-verified', artifact: baseline.artifact, production }; uncertain = false; result.state = 'gate-failed';
         } catch { result.rollback = { state: 'activation-pending', artifact: baseline.artifact }; }
@@ -409,22 +425,25 @@ export async function runStanding(input, config, dependencies = {}) {
     try { save(); } catch { if (mutated || uncertain) { uncertain = true; result.state = 'activation-pending'; } }
     return result;
   } finally {
-    if (lock !== undefined) { closeSync(lock); if (!uncertain) unlinkSync(join(state, 'running.lock')); }
+    if (lock !== undefined) {
+      closeSync(lock);
+      if (!uncertain && !fenceLost) { try { fence(); unlinkSync(join(state, 'running.lock')); } catch { uncertain = true; result.state = 'activation-pending'; } }
+    }
   }
 }
 
 async function main() {
-  let output;
+  let output,input;
   try {
     assert(process.env.NAEIL_ROLLOUT_INPUT && process.env.NAEIL_ROLLOUT_OUTPUT, 'Private file transport required');
     output = process.env.NAEIL_ROLLOUT_OUTPUT;
-    const input = readPrivate(process.env.NAEIL_ROLLOUT_INPUT);
+    input = readPrivate(process.env.NAEIL_ROLLOUT_INPUT);
     const path = input.service?.adapterOptions?.standingConfigPath ?? process.env.JEV_ROLLOUT_CONFIG;
     assert(isAbsolute(path || ''), 'Private standing configuration required');
     const result = await runStanding(input, readPrivate(path));
-    writePrivate(output, result); if (!['production-verified', 'deferred'].includes(result.state)) process.exitCode = 1;
+    assertGenerationFence(input);writePrivate(output, result); if (!['production-verified', 'deferred'].includes(result.state)) process.exitCode = 1;
   } catch {
-    if (output) writePrivate(output, { schemaVersion: 1, state: 'gate-failed', reason: 'Jev adapter configuration or private transport refused' });
+    try { if (output) { if(input)assertGenerationFence(input);writePrivate(output, { schemaVersion: 1, state: 'gate-failed', reason: 'Jev adapter configuration or private transport refused' }); } } catch {}
     process.exitCode = 1;
   }
 }

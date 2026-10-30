@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent-project-expectations",
+  "frozen": true,
+  "release": {
+    "releaseId": "naeil-ui-0.7.1",
+    "version": "0.7.1",
+    "contractVersion": "1",
+    "sourceRevision": "32108fd8e1cb1db6dae24a09f3ca72ac9a91f618",
+    "archiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8",
+    "chromeSha256": "85bb399a13bba741e9c100d8f08db8ab5c58af3fd2a2614ca9ff24b7e455dfac",
+    "accountSha256": "158dd3bca9d5c4dd8068cf97d70de1c65d7b187f3057f9388409a7685b447bc5"
+  },
+  "review": {
+    "approvedBy": "Owner-approved standing rollout A",
+    "approvalRef": "docs/superpowers/specs/2026-10-26-standing-rollout-change-management.md",
+    "sourceCitations": [
+      "https://github.com/naeil-dev/naeil-ui/blob/32108fd8e1cb1db6dae24a09f3ca72ac9a91f618/src/components/naeil-header-content.ts",
+      "https://github.com/naeil-dev/naeil-ui/blob/32108fd8e1cb1db6dae24a09f3ca72ac9a91f618/src/components/naeil-header.tsx",
+      "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.1/naeil-chrome-0.7.1.json",
+      "https://github.com/naeil-dev/naeil-ui/releases/download/v0.7.1/naeil-account-0.7.1.json"
+    ],
+    "notes": "Canonical localized official URLs; current naeil, Estimate and Jev use this profile. Overrides require a reviewed exact profile in this declaration and route chrome digest binding. Desktop data-columns and actual grid columns are 2; mobile Projects section is one column. IDs are semantic declaration IDs, matched by ordered exact content; existing DOM has no item ID attribute."
+  },
+  "layout": {
+    "desktopColumns": 2,
+    "mobileColumns": 1,
+    "minimumTargetPx": 44,
+    "tolerancePx": 2,
+    "columnGapPx": 8
+  },
+  "locales": {
+    "en": [
+      {
+        "id": "cc",
+        "href": "https://naeil.dev/en/cc",
+        "name": "Content Collector",
+        "accessibleName": "Content Collector Automated content collection from RSS, YouTube, Reddit + AI summarization",
+        "image": "https://naeil.dev/images/coral.png"
+      },
+      {
+        "id": "pkm",
+        "href": "https://naeil.dev/en/pkm",
+        "name": "PKM",
+        "accessibleName": "PKM Coming Soon Personal knowledge management — document parsing, embeddings, semantic search",
+        "image": "https://naeil.dev/images/jellyfish.png"
+      },
+      {
+        "id": "naeilUi",
+        "href": "https://naeil.dev/en/design",
+        "name": "naeil-ui",
+        "accessibleName": "naeil-ui Minimal design system — OKLCH tokens, Tailwind v4, shadcn",
+        "image": "https://naeil.dev/images/whale.png"
+      },
+      {
+        "id": "sa",
+        "href": "https://naeil.dev/en/sa",
+        "name": "Sustainability Analyzer",
+        "accessibleName": "Sustainability Analyzer AI-powered ESG report analysis — PDF parsing, qualitative assessment, comparison tables",
+        "image": "https://naeil.dev/images/fish.png"
+      },
+      {
+        "id": "babyAgent",
+        "href": "https://naeil.dev/en/baby-agent",
+        "name": "Baby Agent",
+        "accessibleName": "Baby Agent Coming Soon Parenting AI agent — LINE-based Q&A, records, reminders",
+        "image": "https://naeil.dev/images/turtle.png"
+      }
+    ],
+    "ko": [
+      {
+        "id": "cc",
+        "href": "https://naeil.dev/ko/cc",
+        "name": "Content Collector",
+        "accessibleName": "Content Collector RSS, YouTube, Reddit 자동 수집 + AI 요약",
+        "image": "https://naeil.dev/images/coral.png"
+      },
+      {
+        "id": "pkm",
+        "href": "https://naeil.dev/ko/pkm",
+        "name": "PKM",
+        "accessibleName": "PKM 준비 중 개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색",
+        "image": "https://naeil.dev/images/jellyfish.png"
+      },
+      {
+        "id": "naeilUi",
+        "href": "https://naeil.dev/ko/design",
+        "name": "naeil-ui",
+        "accessibleName": "naeil-ui 미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn",
+        "image": "https://naeil.dev/images/whale.png"
+      },
+      {
+        "id": "sa",
+        "href": "https://naeil.dev/ko/sa",
+        "name": "Sustainability Analyzer",
+        "accessibleName": "Sustainability Analyzer ESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성",
+        "image": "https://naeil.dev/images/fish.png"
+      },
+      {
+        "id": "babyAgent",
+        "href": "https://naeil.dev/ko/baby-agent",
+        "name": "Baby Agent",
+        "accessibleName": "Baby Agent 준비 중 육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더",
+        "image": "https://naeil.dev/images/turtle.png"
+      }
+    ],
+    "ja": [
+      {
+        "id": "cc",
+        "href": "https://naeil.dev/ja/cc",
+        "name": "Content Collector",
+        "accessibleName": "Content Collector RSS、YouTube、Redditの自動収集 + AI要約",
+        "image": "https://naeil.dev/images/coral.png"
+      },
+      {
+        "id": "pkm",
+        "href": "https://naeil.dev/ja/pkm",
+        "name": "PKM",
+        "accessibleName": "PKM 準備中 個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索",
+        "image": "https://naeil.dev/images/jellyfish.png"
+      },
+      {
+        "id": "naeilUi",
+        "href": "https://naeil.dev/ja/design",
+        "name": "naeil-ui",
+        "accessibleName": "naeil-ui ミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn",
+        "image": "https://naeil.dev/images/whale.png"
+      },
+      {
+        "id": "sa",
+        "href": "https://naeil.dev/ja/sa",
+        "name": "Sustainability Analyzer",
+        "accessibleName": "Sustainability Analyzer ESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成",
+        "image": "https://naeil.dev/images/fish.png"
+      },
+      {
+        "id": "babyAgent",
+        "href": "https://naeil.dev/ja/baby-agent",
+        "name": "Baby Agent",
+        "accessibleName": "Baby Agent 準備中 育児AIエージェント — LINE Q&A、記録、リマインダー",
+        "image": "https://naeil.dev/images/turtle.png"
+      }
+    ]
+  },
+  "profiles": {}
+}

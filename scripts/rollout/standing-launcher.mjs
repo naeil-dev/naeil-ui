@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import { join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { acquireControlLock, activeControlAcquisition, assertExecutingAutomation, assertGenerationFence, atomicJSON, JSON_LIMITS, privateDirectory, readActiveGeneration } from './standing-config.mjs';
+
+const automationRoot = fileURLToPath(new URL('../..', import.meta.url));
+
+export { readActiveGeneration };
+
+/** Independent bounded heartbeat: dispatcher state is never needed to report exit. */
+export async function runActiveGeneration(controlDirectory, dependencies = {}) {
+  privateDirectory(controlDirectory);
+  const startedAt = new Date().toISOString(), statusPath = join(controlDirectory, 'launcher-status.json');
+  let lease, active, dispatched = false;
+  const status = (state, exitCode, endedAt = null) => atomicJSON(statusPath, { schemaVersion: 1, state, startedAt, endedAt, exitCode, generationId: active?.pointer.generationId || null }, JSON_LIMITS.operatorStatus);
+  try {
+    const acquisition = activeControlAcquisition(controlDirectory);
+    lease = acquireControlLock(controlDirectory, acquisition); status('starting', null);
+    active = readActiveGeneration(controlDirectory);
+    assert.equal(active.pointerSha256, acquisition.pointer.sha256, 'Launcher acquisition pointer changed');
+    const config = { ...active.config, generationFence: { controlDirectory, pointerSha256: active.pointerSha256 } };
+    assertExecutingAutomation(config, automationRoot);
+    assertGenerationFence(config); status('running', null);
+    // poll is an explicit synthetic IO seam; it never substitutes code identity.
+    const poll = dependencies.poll || (await import('./standing-dispatcher.mjs')).poll;
+    assertExecutingAutomation(config, automationRoot);
+    dispatched = true;
+    const result = await poll(config, { ...dependencies.dispatcher, controlLease: lease });
+    assertGenerationFence(config);
+    const exitCode = result?.state === 'blocked' ? 1 : 0; status('exited', exitCode, new Date().toISOString()); return result;
+  } catch (cause) {
+    // Lock contention must not overwrite the running launcher's heartbeat.
+    if (lease) status(dispatched ? 'failed' : 'refused', 1, new Date().toISOString());
+    throw new Error('Active generation launcher refused or failed; inspect retained control evidence', { cause });
+  } finally { lease?.release(); }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  assert(process.argv.length === 3, 'Usage: standing-launcher.mjs CONTROL_DIRECTORY');
+  runActiveGeneration(resolve(process.argv[2])).then(result => { if (result?.state === 'blocked') process.exitCode = 1; }).catch(() => { console.error('Standing launcher refused; inspect private launcher-status and control journal.'); process.exitCode = 1; });
+}

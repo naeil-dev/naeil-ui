@@ -45,6 +45,20 @@ export function runtimeIndex(archive) {
   return { schemaVersion: 1, package: Object.fromEntries(metadata.filter(key => key in pkg).map(key => [key, pkg[key]])), files: Object.fromEntries(Object.entries(files).sort(([a], [b]) => a.localeCompare(b))) };
 }
 
+/** Full archive parity for consumers, including documentation and package.json. */
+export function frozenPackageIndex(archive) {
+  runtimeIndex(archive); // Validate checksum, duplicate/path/type/export closure first.
+  const tar=gunzipSync(archive,{maxOutputLength:32*1024*1024}),files={};
+  for(let offset=0;offset+512<=tar.length;) {
+    const header=tar.subarray(offset,offset+512);if(header.every(byte=>byte===0))break;
+    const field=(start,length)=>header.subarray(start,start+length).toString('utf8').replace(/\0.*$/s,'');
+    const path=[field(345,155),field(0,100)].filter(Boolean).join('/').slice(8),size=parseInt(field(124,12).trim(),8);
+    files[path]={sha256:hash(tar.subarray(offset+512,offset+512+size)),bytes:size};
+    offset+=512+Math.ceil(size/512)*512;
+  }
+  return Object.fromEntries(Object.entries(files).sort(([a],[b])=>a<b?-1:a>b?1:0));
+}
+
 export function compareRuntime(expected, actual) {
   assert.deepEqual(actual.package, expected.package, 'Site/package runtime metadata mismatch');
   assert.deepEqual(actual.files, expected.files, 'Site/package public runtime bytes mismatch');

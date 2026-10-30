@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 
 // Capture the actual open account menu. The caller owns synthetic authentication,
 // viewport, locale, theme, navigation opening and font readiness.
-export async function captureAccountRender(page, { animationTimeoutMs = 2000 } = {}) {
+export async function captureAccountRender(page, { animationTimeoutMs = 2000, beforeAction = () => {} } = {}) {
   assert(Number.isSafeInteger(animationTimeoutMs) && animationTimeoutMs > 0 && animationTimeoutMs <= 10000, 'Bounded account animation timeout required');
   const trigger = page.locator('[data-naeil-account-trigger]:visible');
   const menu = page.locator('[data-naeil-account-menu]:visible');
   await trigger.waitFor();
   await menu.waitFor();
-  await page.mouse.move(0, 0);
-  await menu.getByRole('menuitem').first().focus();
+  beforeAction(); await page.mouse.move(0, 0);
+  beforeAction(); await menu.getByRole('menuitem').first().focus();
   await page.evaluate(async timeoutMs => {
     const shown = selector => [...document.querySelectorAll(selector)].find(element => element.getBoundingClientRect().width > 0);
     const roots = [shown('[data-naeil-account-trigger]'), shown('[data-naeil-account-menu]')];

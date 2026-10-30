@@ -5,9 +5,11 @@ import { join } from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import test from 'node:test';
 import { observe } from './naeil-standing-observer.mjs';
-import { hash, routeKey } from './standing-config.mjs';
+import { fingerprint, hash, routeKey } from './standing-config.mjs';
+import { resolveSiteTarget } from './site-continuation.mjs';
+import { syntheticSite } from './fixtures/site-continuation.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
-import { GitHubUnavailable } from './standing-github.mjs';
+import { GitHub, GitHubUnavailable } from './standing-github.mjs';
 
 const frozen = readFileSync(new URL('../../docs/rollout/frozen/naeil-ui-0.7.1.tgz', import.meta.url));
 const chrome = readFileSync(new URL('../../docs/rollout/frozen/naeil-chrome-0.7.1.json', import.meta.url));
@@ -24,7 +26,7 @@ function fixture(t) {
   const outputDirectory = join(directory, 'output'); mkdirSync(outputDirectory, { mode: 0o700 });
   const request = {
     schemaVersion: 1, idempotencyKey: 'ui-0.7.1:naeil', attemptId: 'attempt-fixture', mode: 'adopt', outputDirectory,
-    release: { releaseId: 'ui-0.7.1', version: '0.7.1', sourceRevision: packageSource, siteSourceRevision: siteSource, siteRuntimeSha256: hash(JSON.stringify(runtimeIndex(frozen))), archive: persist('package.tgz', frozen), siteArchive: persist('site.tgz', frozen), contract: { version: '1', ...persist('chrome.json', chrome) }, account: persist('account.json', account) },
+    release: { releaseId: 'naeil-ui-0.7.1', version: '0.7.1', sourceRevision: packageSource, siteSourceRevision: siteSource, siteRuntimeSha256: hash(JSON.stringify(runtimeIndex(frozen))), archive: persist('package.tgz', frozen), siteArchive: persist('site.tgz', frozen), contract: { version: '1', ...persist('chrome.json', chrome) }, account: persist('account.json', account) },
     service: { id: 'naeil', appId: 'naeil', origin: 'https://naeil.dev', observer: { workflowPath: '.github/workflows/verify.yml', environment: 'Production', deploymentCreator: 'vercel[bot]', correlation: 'immutable-url' }, verification: { command: { file: process.execPath, args: ['fixture'], timeoutMs: 1000 }, options: { safe: true } }, routes: [{ path: '/', policy: 'canonical', renderState: { access: 'public' } }, { path: '/en/account', policy: 'canonical', state: 'authenticated', renderState: { access: 'protected', visible: '[data-account]' } }] },
     policy: { enabled: true, approvedBy: 'fixture-owner', approvalRef: 'fixture-approval', stopFile: join(directory, 'STOP'), expiresAt: new Date(Date.now() + 86400000).toISOString(), maxEvidenceAgeSeconds: 3600 },
     trustedFiles: { [helper.path]: helper.sha256 }, executionPath: '/usr/bin:/bin',
@@ -34,13 +36,14 @@ function fixture(t) {
   const status = { id: 13, state: 'success', created_at: new Date().toISOString(), creator: { login: 'vercel[bot]' }, environment_url: 'https://design-system-fixture.vercel.app' };
   const calls = [], verifications = [];
   const github = {
+    mainAncestor: async () => {},
     workflow: async (revision, path) => { calls.push({ kind: 'workflow', revision, path }); return { state: 'success', id: 11 }; },
     pages: async path => { calls.push({ kind: 'github', path }); return path.endsWith('/statuses') ? [status] : [deployment]; },
   };
   const fetchImpl = async (url, options) => { calls.push({ kind: 'fetch', url, options }); return json(identity); };
   const verify = async (command, input, path, kind) => {
     verifications.push({ command, input, path, kind });
-    return { schemaVersion: 1, releaseId: input.release.releaseId, serviceId: input.service.id, idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, phase: input.phase, passed: true, identity: structuredClone(identity), archiveSha256: input.release.archive.sha256, referenceSha256: input.release.contract.sha256, accountReferenceSha256: input.release.account.sha256, checkedAt: new Date().toISOString(), routes: input.service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
+    return { schemaVersion: 1, releaseId: input.release.releaseId, serviceId: input.service.id, idempotencyKey: input.idempotencyKey, attemptId: input.attemptId, phase: input.phase, passed: true, identity: structuredClone(identity), archiveSha256: input.release.archive.sha256, referenceSha256: input.release.contract.sha256, accountReferenceSha256: input.release.account.sha256, expectationsSha256: hash(readFileSync(new URL('./expectations/0.7.1.json', import.meta.url))), ...(input.siteTarget ? { siteTargetSha256: fingerprint(input.siteTarget) } : {}), checkedAt: new Date().toISOString(), routes: input.service.routes.map(route => ({ path: route.path, routeKey: routeKey(route), status: 'production-verified' })) };
   };
   return { directory, request, identity, deployment, status, github, fetchImpl, verify, calls, verifications, helper, persist };
 }
@@ -84,7 +87,7 @@ test('only newest matching trusted Production deployment and successful trusted 
   const f = fixture(t); f.github.pages = async path => path.endsWith('/statuses') ? [f.status, { ...f.status, id: 14, created_at: new Date(Date.now() + 1).toISOString(), state: 'pending' }] : [{ ...f.deployment, id: 11 }, f.deployment, { ...f.deployment, id: 15, sha: packageSource }];
   assert.equal((await observe(f.request, f)).state, 'deferred'); assert.equal(f.verifications.length, 0);
   const unknown = fixture(t); unknown.status.creator.login = 'outsider'; await assert.rejects(observe(unknown.request, unknown));
-  const foreign = fixture(t); foreign.deployment.creator.login = 'outsider'; assert.equal((await observe(foreign.request, foreign)).state, 'deferred');
+  const foreign = fixture(t); foreign.deployment.creator.login = 'outsider'; await assert.rejects(observe(foreign.request, foreign));
 });
 
 test('immutable URL must be a Vercel deployment with the exact same identity', async t => {
@@ -196,11 +199,48 @@ test('F15 cancelled site CI defers without observing deployment or running brows
 });
 test('F15 another valid live site revision defers and a later matching deploy verifies', async t => {
   const f = fixture(t); f.identity.sourceRevision = packageSource;
-  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-live'); assert.equal(f.verifications.length, 0);
+  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-approved'); assert.equal(f.verifications.length, 0);
   f.identity.sourceRevision = siteSource; assert.equal((await observe(f.request, f)).state, 'production-verified');
 });
 test('F15 a different main deployment winning during browser verification remains a deferral', async t => {
   const f = fixture(t), verify = f.verify;
   f.verify = async (...args) => { const result = await verify(...args); f.identity.sourceRevision = packageSource; return result; };
-  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-live'); assert.equal(result.mutationAttempted, false);
+  const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-revision-not-approved'); assert.equal(result.mutationAttempted, false);
+});
+
+test('T7 observer verifies the approved exact site target while preserving published/native release fields', async t => {
+  const f = fixture(t), { approval } = syntheticSite(f.directory, f.request.release, frozen);
+  const original = structuredClone(f.request.release);
+  f.request.service.siteContinuationApproval = approval; f.request.siteTarget = resolveSiteTarget(f.request.release, approval);
+  f.identity.sourceRevision = approval.sourceRevision; f.identity.artifactId = approval.deploymentId; f.deployment.sha = approval.sourceRevision;
+  const result = await observe(f.request, f); assert.equal(result.state, 'production-verified');
+  assert.deepEqual(f.request.release, original); assert.deepEqual(f.verifications[0].input.release, original);
+  assert.equal(result.production.siteTargetSha256, fingerprint(f.request.siteTarget));
+  assert.equal(result.artifact.sourceRevision, approval.sourceRevision);
+});
+test('T7 observer refuses unapproved site targets, wrong deployment, ancestry, proof and expired protected/public evidence', async t => {
+  for (const cause of ['unapproved', 'deployment', 'ancestry', 'proof', 'protected', 'public']) {
+    const f = fixture(t), { approval } = syntheticSite(f.directory, f.request.release, frozen);
+    f.request.service.siteContinuationApproval = approval; f.request.siteTarget = resolveSiteTarget(f.request.release, approval);
+    f.identity.sourceRevision = approval.sourceRevision; f.identity.artifactId = approval.deploymentId; f.deployment.sha = approval.sourceRevision;
+    if (cause === 'unapproved') delete f.request.service.siteContinuationApproval;
+    if (cause === 'deployment') f.identity.artifactId = 'dpl_Other';
+    if (cause === 'ancestry') f.github.mainAncestor = async () => { throw Error('Untrusted main ancestry'); };
+    if (cause === 'proof') writeFileSync(approval.packageProof.archive.path, 'changed');
+    if (cause === 'protected' || cause === 'public') { const verify = f.verify; f.verify = async (...args) => { const value = await verify(...args); if (cause === 'protected') value.routes.pop(); else value.checkedAt = '2001-01-01'; return value; }; }
+    await assert.rejects(() => observe(f.request, f));
+  }
+});
+test('T7 exact site CI uses push/main/SHA workflow provenance and cannot fall back to unrelated successful runs', async t => {
+  for (const changed of [{ event: 'pull_request' }, { head_sha: packageSource }, { head_branch: 'feature' }, { path: 'other.yml' }]) {
+    const f = fixture(t), valid = { id: 15, event: 'push', head_branch: 'main', head_sha: siteSource, path: '.github/workflows/verify.yml', status: 'completed', conclusion: 'success', run_attempt: 1 };
+    const client = new GitHub({ token: null, fetchImpl: async () => json({ workflow_runs: [{ ...valid, ...changed }] }) });
+    f.github.workflow = (...args) => client.workflow(...args);
+    const result = await observe(f.request, f); assert.equal(result.state, 'deferred'); assert.equal(result.reasonCode, 'site-ci-pending'); assert.equal(f.verifications.length, 0);
+  }
+});
+
+test('new-generation observer cannot drop its fence before metadata, directory or verifier work',async t=>{
+ const f=fixture(t);f.request.generationSha256='a'.repeat(64);
+ await assert.rejects(()=>observe(f.request,f),/fence|generation/i);assert.equal(f.calls.length,0);assert.equal(f.verifications.length,0);
 });

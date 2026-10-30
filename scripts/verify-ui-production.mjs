@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
+import { loadReleaseExpectations, expectedProjects, assertProjectCatalog, selectExpectationProfile, assertExpectationChrome } from './rollout/release-expectations.mjs';
 import { assertRouteConfig, routeKey } from './rollout/route-contract.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -114,7 +115,11 @@ export function assertLinks(actual, locale, origin, contract) {
   for (const link of actual.footerLinks.filter(link => link.target === '_blank')) assert(link.rel.includes('noopener') && link.rel.includes('noreferrer'), 'External target needs safe rel');
 }
 
-export async function checkMenu(page, locale, theme, chrome = {}) {
+export async function checkMenu(page, locale, theme, chrome = {}, expectations, beforeAction = () => {}) {
+  assertExpectationChrome(chrome);
+  assert(expectations, 'Independent project expectations required');
+  const approved = selectExpectationProfile(expectations, chrome.projectProfile);
+  const expected = expectedProjects(approved, locale, page.url());
   // Consumers may own theme controls (and their accessible labels) while the
   // canonical menu and actual theme change remain mandatory.
   const themeLabels = chrome.themeControlLabels ?? labels[locale];
@@ -123,20 +128,46 @@ export async function checkMenu(page, locale, theme, chrome = {}) {
   const menu = header.getByRole('button', { name: labels[locale].menu, exact: true });
   const mobile = await menu.isVisible();
   const trigger = mobile ? menu : header.getByRole('button', { name: labels[locale].projects, exact: true });
-  await trigger.focus(); await trigger.press('Enter');
+  beforeAction(); await trigger.focus();
+  beforeAction(); await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: mobile ? labels[locale].menu : labels[locale].projects, exact: true });
   await dialog.waitFor({ state: 'visible' });
-  assert.equal(await dialog.locator('img[src^="https://naeil.dev/images/"]').count(), 5, 'Canonical project catalog missing');
+  // Role locators omit hidden/aria-hidden regions. Count structural catalog
+  // implementations first, including duplicates, without taking unrelated links.
+  const scope = mobile
+    ? dialog.locator(`nav.ui-navigation-mobile-links section[aria-label="${labels[locale].projects}"]`)
+    : dialog.locator('nav.ui-navigation-menu-grid');
+  assert.equal(await scope.count(), 1, 'Project catalog scope missing or duplicated');
+  // Schema 1 declares one exact image URL, not responsive source candidates.
+  // Reject alternate declarations even when offline currentSrc is empty.
+  assert.equal(await scope.locator('img[srcset], picture source').count(), 0, 'Project alternate image source declarations are unsupported');
+  const actual = await scope.evaluate((root, mobile) => {
+    const box = root.getBoundingClientRect();
+    const style = getComputedStyle(root);
+    const columns = style.display === 'grid' ? style.gridTemplateColumns.split(/\s+/).filter(Boolean).length : 1;
+    return {x:box.x,width:box.width,columns,declaredColumns:mobile?null:Number(root.closest('[role="dialog"]').dataset.columns),items:[...root.querySelectorAll('a')].map(a=>{
+      const rect=a.getBoundingClientRect(), css=getComputedStyle(a), image=a.querySelector('img');
+      return {href:a.href,name:a.querySelector('.ui-navigation-title > span')?.textContent.trim(),image:image?.src, selectedImage:image?.currentSrc,
+        x:rect.x,y:rect.y,width:rect.width,height:rect.height,visible:rect.width>0 && rect.height>0 && css.visibility==='visible' && css.display!=='none'};
+    })};
+  }, mobile);
+  assertProjectCatalog(actual,expected,{...approved.layout,columns:mobile?approved.layout.mobileColumns:approved.layout.desktopColumns});
+  for(let i=0;i<expected.length;i++) {
+    if (actual.items[i].selectedImage) assert.equal(actual.items[i].selectedImage, expected[i].image, `Project ${i} selected image mismatch`);
+    const link=scope.getByRole('link',{name:expected[i].accessibleName,exact:true});
+    assert.equal(await link.count(),1,`Project ${i} accessible name mismatch`);
+    assert(await link.evaluate((el,index)=>el===el.closest('section,nav').querySelectorAll('a')[index],i),'Project accessible name/order mismatch');
+  }
   const dismiss = async () => {
-    await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
+    beforeAction(); await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
     assert(await trigger.evaluate(el => el === document.activeElement), 'Escape did not return focus to navigation trigger');
   };
   if (!mobile) await dismiss();
   const controls = mobile ? dialog : header;
   const nextTheme = theme === 'dark' ? 'light' : 'dark';
-  await controls.getByRole('button', { name: themeLabels[nextTheme], exact: true }).click();
+  beforeAction(); await controls.getByRole('button', { name: themeLabels[nextTheme], exact: true }).click();
   await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), nextTheme);
-  await controls.getByRole('button', { name: themeLabels[theme], exact: true }).click();
+  beforeAction(); await controls.getByRole('button', { name: themeLabels[theme], exact: true }).click();
   await page.waitForFunction(value => document.documentElement.classList.contains(value) && !document.documentElement.classList.contains(value === 'light' ? 'dark' : 'light'), theme);
   if (mobile) await dismiss();
 }
@@ -153,28 +184,33 @@ export async function createVerificationContext({ browser, route, origin, viewpo
   return browser.newContext(contextOptions);
 }
 
-export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true }) {
+export async function verifyProduction({ release, origin, identity, routes, referencePath, outputDir, contextFactory, checkAccount, screenshots = true, beforeAction = () => {}, beforeWrite = () => {} }) {
+  const expectations = loadReleaseExpectations(release);
   const { assertReference, verifyIdentity } = await import('./rollout/rollout.mjs');
   const referenceBytes = readFileSync(referencePath);
   const reference = assertReference(release, referenceBytes);
   assert.equal(reference.ui.version, identity.ui.version, 'Reference release version mismatch');
   assert.equal(reference.ui.contractVersion, identity.ui.contractVersion, 'Reference contract mismatch');
   assert(Array.isArray(routes) && routes.length > 0, 'Nonempty explicit route inventory required');
-  for (const route of routes) assertRouteConfig(route);
-  await verifyIdentity(origin, identity);
-  const output = resolve(outputDir); mkdirSync(output, { recursive: true });
-  const browser = await chromium.launch(); const results = [];
+  for (const route of routes) {
+    assertRouteConfig(route);
+    assertExpectationChrome(route.chrome);
+    selectExpectationProfile(expectations, route.chrome?.projectProfile);
+  }
+  beforeAction(); await verifyIdentity(origin, identity);
+  const output = resolve(outputDir); beforeWrite(); mkdirSync(output, { recursive: true });
+  beforeAction(); const browser = await chromium.launch(); const results = [];
   try {
     for (const route of routes) {
       if (!['canonical', 'shared'].includes(route.policy)) throw new Error(`Unverified route policy ${route.policy}: ${route.path}`);
       assert(!route.path.includes('*'), `Concrete route specimen required: ${route.path}`);
       const cases = [];
       for (const width of reference.contract.viewports) for (const theme of reference.contract.themes) {
-        const context = await createVerificationContext({ browser, route, origin, viewport: { width, height: 900 }, colorScheme: theme, contextFactory });
-        const page = await context.newPage();
+        beforeAction(); const context = await createVerificationContext({ browser, route, origin, viewport: { width, height: 900 }, colorScheme: theme, contextFactory });
+        beforeAction(); const page = await context.newPage();
         try {
-          await context.addInitScript(value => { localStorage.setItem('theme', value); localStorage.setItem('naeil-theme', value); }, theme);
-          const response = await page.goto(new URL(route.path, origin).href);
+          beforeAction(); await context.addInitScript(value => { localStorage.setItem('theme', value); localStorage.setItem('naeil-theme', value); }, theme);
+          beforeAction(); const response = await page.goto(new URL(route.path, origin).href);
           assert(response?.ok(), `Route HTTP failure: ${route.path}`);
           assertRouteDestination(page.url(), route, origin);
           await assertRouteState(page, route);
@@ -189,14 +225,14 @@ export async function verifyProduction({ release, origin, identity, routes, refe
           assert(baseline, `No independent reference for ${locale}/${theme}/${width}/${actual.footerVariant}`);
           assertGeometry(actual, reference.contract, baseline.render);
           assertLinks(actual, locale, origin, reference.contract);
-          await checkMenu(page, locale, theme, route.chrome);
-          if (checkAccount) await checkAccount({ page, route, locale, width, theme });
+          beforeAction(); await checkMenu(page, locale, theme, route.chrome, expectations, beforeAction);
+          if (checkAccount) { beforeAction(); await checkAccount({ page, route, locale, width, theme }); }
           // Capture only shared chrome; never business/family content.
           const name = `${results.length}-${width}-${theme}`;
           if (screenshots) {
             const mask = [page.locator('[data-naeil-account-menu]'), page.locator('[data-naeil-account-trigger]')];
-            await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`), mask });
-            await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
+            beforeWrite(); await page.locator('[data-naeil-header]').screenshot({ path: join(output, `${name}-header.png`), mask });
+            beforeWrite(); await page.locator('[data-naeil-footer]').screenshot({ path: join(output, `${name}-footer.png`) });
           }
           assertRouteDestination(page.url(), route, origin);
           await assertRouteState(page, route);
@@ -205,9 +241,9 @@ export async function verifyProduction({ release, origin, identity, routes, refe
       }
       results.push({ path: route.path, routeKey: routeKey(route), locale: route.locale || null, state: route.state || null, renderState: route.renderState, status: 'production-verified', cases });
     }
-    await verifyIdentity(origin, identity);
-    const result = { schemaVersion: 1, referenceSha256: hash(referenceBytes), identity, checkedAt: new Date().toISOString(), routes: results, passed: true };
-    writeFileSync(join(output, 'render-verification.json'), JSON.stringify(result, null, 2));
+    beforeAction(); await verifyIdentity(origin, identity);
+    const result = { schemaVersion: 1, referenceSha256: hash(referenceBytes), expectationsSha256: expectations.sha256, identity, checkedAt: new Date().toISOString(), routes: results, passed: true };
+    beforeWrite(); writeFileSync(join(output, 'render-verification.json'), JSON.stringify(result, null, 2));
     return result;
   } finally { await browser.close(); }
 }

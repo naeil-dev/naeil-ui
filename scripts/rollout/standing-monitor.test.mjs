@@ -4,6 +4,7 @@ import { chmodSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { atomicJSON, hash, readPrivateJSON } from './standing-config.mjs';
+import { writeStandingState } from './standing-state.mjs';
 import { monitor, monitorOptions } from './standing-monitor.mjs';
 
 const day = 86400000, now = Date.parse('2026-10-23T12:00:00Z');
@@ -12,7 +13,7 @@ function fixture(t) {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const config = { stateDirectory: root, executionPath: '/usr/bin:/bin', trustedFiles: {}, policy: { expiresAt: new Date(now + 30 * day).toISOString(), patchWindow: { expiresAt: new Date(now + 30 * day).toISOString() }, stopFile: join(root, 'STOP') } };
   const lines = [], summary = (value = {}, time = now) => atomicJSON(join(root, 'summary.json'), { schemaVersion: 1, observedAt: new Date(time).toISOString(), state: 'waiting-release', releases: [], ...value });
-  summary(); atomicJSON(join(root, 'state.json'), { schemaVersion: 1, releases: {} });
+  summary(); writeStandingState(root, { schemaVersion: 1, releases: {} });
   const run = (time = now, exit = 0) => monitor(config, { dispatcherExit: exit, now: time, stderr: line => lines.push(line) });
   return { root, config, lines, summary, run, receipt: () => readPrivateJSON(join(root, 'monitor.json')) };
 }
@@ -45,7 +46,7 @@ test('missing/unreadable summary, missing state and stale observation raise aler
 });
 
 test('durable blocked state is noticed even if a fresh summary has not been written', async t => {
-  const f = fixture(t); atomicJSON(join(f.root, 'state.json'), { schemaVersion: 1, blocked: { releaseId: 'synthetic', serviceId: 'jev', reasonCode: 'interrupted-invocation' } });
+  const f = fixture(t); writeStandingState(f.root, { schemaVersion: 1, releases: {}, blocked: { releaseId: 'synthetic', serviceId: 'jev', reasonCode: 'interrupted-invocation' } });
   assert(codes(await f.run()).includes('blocked'));
 });
 
@@ -121,4 +122,25 @@ test('monitor rejects unsafe thresholds, shell/untrusted notifier and malformed 
   f.config.monitor = { notifier: { file: '/bin/sh', args: [], timeoutMs: 1000 } }; assert.throws(() => monitorOptions(f.config));
   f.config.monitor.notifier.file = process.execPath; assert.throws(() => monitorOptions(f.config), /trusted/);
   delete f.config.monitor; await assert.rejects(f.run(now, -1));
+});
+
+test('monitor reads bounded v2 observation without hydrating missing historical evidence and sees independent STOP intent', async t => {
+  const f = fixture(t);
+  writeStandingState(f.root, { schemaVersion: 1, releases: {}, blocked: { releaseId: 'synthetic', reasonCode: 'interrupted-invocation' } });
+  const root = readPrivateJSON(join(f.root, 'state.json'));
+  // Observation is deliberately readable without the payload catalog. The
+  // dispatcher still rejects this state and its operator error stays visible.
+  rmSync(join(f.root, root.state.path));
+  const result = await f.run(); assert(codes(result).includes('blocked'));
+});
+
+test('monitor archives old cleared alerts and retains only twenty recent dedup entries', async t => {
+  const f = fixture(t), alerts = Object.fromEntries(Array.from({ length: 1500 }, (_, n) => [`old-${n}`, { fingerprint: `old-${n}`, code: 'blocked', clearedAt: new Date(now - n).toISOString(), lastSeen: new Date(now - n).toISOString() }]));
+  // Input itself remains within the monitor reader budget.
+  atomicJSON(join(f.root, 'monitor.json'), { schemaVersion: 1, alerts, waiting: {} }, 262144);
+  await f.run(); assert.equal(Object.keys(f.receipt().alerts).length, 20);
+  const { readdirSync } = await import('node:fs');
+  const files = readdirSync(join(f.root, 'monitor-history')); assert(files.length > 1);
+  const archived = files.flatMap(file => readPrivateJSON(join(f.root, 'monitor-history', file), 262144).entries);
+  assert.equal(archived.length, 1480); assert(archived.some(item => item.fingerprint === 'old-1499'));
 });

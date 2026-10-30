@@ -1,3 +1,4 @@
+import {declaration} from './fixtures/reviewed-expectations.mjs';
 import { dependencyLock } from './fixtures/dependency-lock.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -53,6 +54,15 @@ test('adoption verifies actual current artifact without updating, staging or sel
   assert.equal(JSON.parse(readFileSync(join(f.config.stateDirectory, 'baseline.json'))).artifact.id, 'jev-current');
 });
 
+test('I3: Jev independently refuses any read-only reverification envelope before native work', async t => {
+  const f = fixture(t);
+  for (const envelope of [{ reverification: { schemaVersion: 1, kind: 'standing-read-only-reverification' } }, { reverification: null }, { phase: 'production', attemptId: 'substituted-verifier' }]) {
+    const result = await runStanding({ ...f.input, ...envelope }, f.config, f.deps);
+    assert.equal(result.state, 'gate-failed'); assert.deepEqual(f.events, []);
+  }
+  assert(!existsSync(join(f.config.stateDirectory, 'running.lock')));
+});
+
 test('disabled policy and stop switch refuse before any app operation', async t => {
   for (const cause of ['policy', 'stop']) {
     const f = fixture(t);
@@ -61,6 +71,12 @@ test('disabled policy and stop switch refuse before any app operation', async t 
     assert.equal((await runStanding(f.input, f.config, f.deps)).state, 'gate-failed');
     assert.deepEqual(f.events, []);
   }
+});
+test('unapproved candidate and adoption transport cannot reach native inspection', async t => {
+  const f = fixture(t); await runStanding(f.input, f.config, f.deps); future(f); f.input.attemptId = 'unapproved-candidate'; f.events.length = 0;
+  f.input.generationSha256='f'.repeat(64);assert.equal((await runStanding(f.input,f.config,f.deps)).state,'gate-failed');assert.deepEqual(f.events,[]);delete f.input.generationSha256;
+  f.input.candidate = { passed: true }; f.input.sourceAdoption = { reviewedBaseSha: 'f'.repeat(40) };
+  assert.equal((await runStanding(f.input, f.config, f.deps)).state, 'gate-failed'); assert.deepEqual(f.events, []);
 });
 
 test('reviewed PATH and hermetic git options replace inherited runtime and git injection', t => {
@@ -368,7 +384,7 @@ function frozen(f, version, archive) {
   f.input.release.archive.path = archive; f.input.release.archive.sha256 = hash(readFileSync(archive));
   const common = { schemaVersion: 1, archiveSha256: f.input.release.archive.sha256, sourceRevision: f.input.release.sourceRevision, ui: { version, contractVersion: '1' } };
   f.input.release.contract.path = join(f.root, `contract-${version}.json`); put(f.input.release.contract.path, { ...common, frozen: true, kind: 'independent-release-render' }); f.input.release.contract.sha256 = hash(readFileSync(f.input.release.contract.path));
-  f.input.release.account = { path: join(f.root, `account-${version}.json`) }; put(f.input.release.account.path, { ...common, kind: 'independent-account-render', cases: [] }); f.input.release.account.sha256 = hash(readFileSync(f.input.release.account.path));
+  f.input.release.account = { path: join(f.root, `account-${version}.json`) }; put(f.input.release.account.path, { ...common, kind: 'independent-account-render', frozen:true, cases:[{render:{uiVersion:version}}] }); f.input.release.account.sha256 = hash(readFileSync(f.input.release.account.path));
 }
 
 test('complete synthetic CLI pipeline uses real updater commit, package bytes, copied tests and structured production verification', async t => {
@@ -387,19 +403,28 @@ test('complete synthetic CLI pipeline uses real updater commit, package bytes, c
   put(join(checkout, 'package.json'), { private: true, type: 'module', packageManager: 'pnpm@10.30.3', dependencies: { '@naeil/ui': 'file:vendor/naeil-ui-0.7.1.tgz' } });
   writeFileSync(join(checkout, 'pnpm-lock.yaml'), dependencyLock('0.7.1')); writeFileSync(join(checkout, '.gitignore'), 'node_modules/\n.next/\n');
   writeFileSync(join(checkout, 'scripts/candidate-files.mjs'), `import{readFileSync,readdirSync}from'node:fs';import{execFileSync}from'node:child_process';import{join}from'node:path';export function verifyInstalledPackage(archive,root){for(const file of ['package.json','dist/ui-release.json']){const expected=execFileSync('/usr/bin/tar',['-xOf',archive,'package/'+file]);if(!expected.equals(readFileSync(join(root,file))))throw Error('installed package drift');}return{fileCount:2};}`);
-  writeFileSync(join(checkout, 'tests/e2e/shared-chrome.spec.ts'), 'expect(header).toHaveAttribute("data-naeil-ui-version", "0.7.1"); expect(footer).toHaveAttribute("data-naeil-ui-contract", "1"); expect(identity).toMatchObject({ui: {version: "0.7.1", contractVersion: "1"}});');
-  writeFileSync(join(checkout, 'tests/e2e/account-control.spec.ts'), 'const bytes=readFileSync("vendor/naeil-account-0.7.1.json");expect(hash(bytes)).toBe("158dd3bca9d5c4dd8068cf97d70de1c65d7b187f3057f9388409a7685b447bc5");');
+  writeFileSync(join(checkout, 'tests/e2e/shared-chrome.spec.ts'), 'import {loadStandingReference} from "../fixtures/standing-ui-reference.mjs"; const standing=loadStandingReference(uiRelease);');
+  mkdirSync(join(checkout,'tests/fixtures'));writeFileSync(join(checkout,'tests/fixtures/standing-ui-reference.mjs'),'export const fixtureAPI=2;');
+  writeFileSync(join(checkout, 'tests/e2e/account-control.spec.ts'), 'const accountReference=loadStandingReference(uiRelease).account;');
   writeFileSync(join(checkout, 'playwright.config.ts'), 'export default {};'); f.config.candidateFixtureSha256 = hash(JSON.stringify(fixtureManifest(checkout)));
   for (const args of [['init', '--initial-branch=rollout/standing'], ['add', '.'], ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test', 'commit', '-m', 'synthetic consumer']]) await runCommand('/usr/bin/git', args, { cwd: checkout });
   f.config.reviewedSourceRevision = (await runCommand('/usr/bin/git', ['rev-parse', 'HEAD'], { cwd: checkout })).stdout.trim();
   const pnpm = join(f.root, 'pnpm'), commandLog = join(f.root, 'commands.jsonl');
   writeFileSync(pnpm, `#!${process.execPath}
-import{readFileSync,writeFileSync,mkdirSync,rmSync,appendFileSync,existsSync}from'node:fs';import{execFileSync}from'node:child_process';import{createHash}from'node:crypto';import{join}from'node:path';const args=process.argv.slice(2);const read=p=>JSON.parse(readFileSync(p));const put=(p,v)=>writeFileSync(p,JSON.stringify(v));appendFileSync(${JSON.stringify(commandLog)},JSON.stringify(args)+'\\n');if(args[0]==='--version'){console.log('10.30.3');}else if(args[0]==='install'){const pkg=read('package.json'),archive=pkg.dependencies['@naeil/ui'].slice(5),target='node_modules/@naeil/ui';rmSync(target,{recursive:true,force:true});mkdirSync(target,{recursive:true});execFileSync('/usr/bin/tar',['-xzf',archive,'-C',target,'--strip-components=1']);writeFileSync('pnpm-lock.yaml',(${dependencyLock.toString()})(read(target+'/package.json').version,'sha512-'+createHash('sha512').update(readFileSync(archive)).digest('base64')));}else if(args[0]==='run'){if(args[1]==='build'){const source=execFileSync('/usr/bin/git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),tree='.next/standalone';mkdirSync(tree+'/public/.well-known',{recursive:true});mkdirSync(tree+'/.next');put(tree+'/public/.well-known/naeil-ui.json',{schemaVersion:1,appId:'jev',artifactId:'jev-ui07-'+source.slice(0,12),sourceRevision:source,ui:read('node_modules/@naeil/ui/dist/ui-release.json')});writeFileSync(tree+'/.next/BUILD_ID','synthetic-build');writeFileSync(tree+'/server.js','synthetic application');}else if(!['test','typecheck','lint'].includes(args[1]))process.exit(3);}else if(args[0]==='exec'&&args[1]==='playwright'){const release=read(process.env.JEV_CANDIDATE_RELEASE),identity=read(join(process.env.JEV_TEST_STANDALONE,'public/.well-known/naeil-ui.json')),receipt=read(join(process.env.JEV_TEST_STANDALONE,'../receipt.json'));if(identity.ui.version!==release.version||identity.artifactId!==receipt.artifactId||!readFileSync('tests/e2e/account-control.spec.ts','utf8').includes('rolloutRelease.account.sha256')||args[3]!=='--config'||!existsSync(args[4])||readFileSync('.next/BUILD_ID','utf8').trim()!=='synthetic-build')process.exit(4);}else process.exit(5);
+import{readFileSync,writeFileSync,mkdirSync,rmSync,appendFileSync,existsSync}from'node:fs';import{execFileSync}from'node:child_process';import{createHash}from'node:crypto';import{join}from'node:path';const args=process.argv.slice(2);const read=p=>JSON.parse(readFileSync(p));const put=(p,v)=>writeFileSync(p,JSON.stringify(v));appendFileSync(${JSON.stringify(commandLog)},JSON.stringify(args)+'\\n');if(args[0]==='--version'){console.log('10.30.3');}else if(args[0]==='install'){const pkg=read('package.json'),archive=pkg.dependencies['@naeil/ui'].slice(5),target='node_modules/@naeil/ui';rmSync(target,{recursive:true,force:true});mkdirSync(target,{recursive:true});execFileSync('/usr/bin/tar',['-xzf',archive,'-C',target,'--strip-components=1']);writeFileSync('pnpm-lock.yaml',(${dependencyLock.toString()})(read(target+'/package.json').version,'sha512-'+createHash('sha512').update(readFileSync(archive)).digest('base64')));}else if(args[0]==='run'){if(args[1]==='build'){const source=execFileSync('/usr/bin/git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),tree='.next/standalone';mkdirSync(tree+'/public/.well-known',{recursive:true});mkdirSync(tree+'/.next');put(tree+'/public/.well-known/naeil-ui.json',{schemaVersion:1,appId:'jev',artifactId:'jev-ui07-'+source.slice(0,12),sourceRevision:source,ui:read('node_modules/@naeil/ui/dist/ui-release.json')});writeFileSync(tree+'/.next/BUILD_ID','synthetic-build');writeFileSync(tree+'/server.js','synthetic application');}else if(!['test','typecheck','lint'].includes(args[1]))process.exit(3);}else if(args[0]==='exec'&&args[1]==='playwright'){const release=read(process.env.JEV_CANDIDATE_RELEASE),identity=read(join(process.env.JEV_TEST_STANDALONE,'public/.well-known/naeil-ui.json')),receipt=read(join(process.env.JEV_TEST_STANDALONE,'../receipt.json'));if(identity.ui.version!==release.version||identity.artifactId!==receipt.artifactId||!readFileSync('tests/e2e/account-control.spec.ts','utf8').includes('loadStandingReference(uiRelease).account')||readFileSync('tests/e2e/account-control.spec.ts','utf8').includes('rolloutRelease')||read('harness-receipt.json').fixtureAPI!=='schema2'||Object.keys(read('harness-receipt.json').parameterizedFiles).length!==0||args[3]!=='--config'||!existsSync(args[4])||readFileSync('.next/BUILD_ID','utf8').trim()!=='synthetic-build')process.exit(4);}else process.exit(5);
 `); chmodSync(pnpm, 0o700); f.config.pnpmExecutable = pnpm;
   f.input.mode = 'standing'; f.input.attemptId = 'attempt-2'; f.input.release.previousVersion = '0.7.1'; f.input.release.changes = ['fix']; frozen(f, '0.7.2', nextArchive);
+  // Explicit schema2 options replace the old arbitrary legacy string pin.
+  const fixturesSha256=f.config.candidateFixtureSha256;
+  const expected=declaration(f.input.release),expectationsPath=join(f.root,'reviewed-expectations.json');put(expectationsPath,expected);
+  f.input.release.expectations={path:expectationsPath,sha256:hash(readFileSync(expectationsPath))};
+  const ref=entry=>({path:entry.path,sha256:entry.sha256,bytes:readFileSync(entry.path).length});
+  const fixturePath=join(f.root,'standing-fixture.json');put(fixturePath,{schemaVersion:2,kind:'standing-ui-reference',release:expected.release,account:ref(f.input.release.account),expectations:ref(f.input.release.expectations),routingProfile:null});
+  f.config.candidateFixtureSha256={schemaVersion:2,fixturesSha256,fixturePath};
   const result = await subprocess.execute(); assert.equal(result.state, 'production-verified'); assert.equal(result.artifact.ui.version, '0.7.2');
   assert(result.checks.length === 5 && result.checks.every(check => check.passed));
-  assert.equal(result.candidateHarness.fixturesSha256, f.config.candidateFixtureSha256);
+  assert.equal(result.candidateHarness.fixturesSha256, f.config.candidateFixtureSha256.fixturesSha256);
+  assert.equal(result.candidateHarness.fixtureAPI,'schema2');assert.deepEqual(result.candidateHarness.parameterizedFiles,{});
   const commands = readFileSync(commandLog, 'utf8').trim().split('\n').map(JSON.parse);
   assert(commands.some(args => args.join(' ') === 'install --no-frozen-lockfile --ignore-scripts'));
   assert(commands.some(args => args.join(' ') === 'install --frozen-lockfile --ignore-scripts'));

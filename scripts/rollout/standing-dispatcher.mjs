@@ -3,12 +3,21 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, lstatSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { acquireLock, assertActive, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, validateConfig } from './standing-config.mjs';
-import { publicIdentity } from './naeil-standing-observer.mjs';
+import { acquireControlLock, acquireLock, activeControlAcquisition, assertActive, assertGenerationFence, assertProduction, assertTrustedFiles, atomicJSON, automationDigest, fileReference, fingerprint, hash, HEX, IDS, inactiveState, invokeJSON, loadConfig, privateDirectory, readPrivateJSON, releaseIdentityDigest, validateConfig } from './standing-config.mjs';
+import { assertEvidencePath, JSON_LIMITS, readOperatorStatus, readStandingState, StandingStorageError, writeStandingEvidence, writeStandingState } from './standing-state.mjs';
+import { checkSiteProvenance, publicIdentity } from './naeil-standing-observer.mjs';
+import { assertSiteArtifact, resolveSiteTarget } from './site-continuation.mjs';
 import { assertPolicyRelease, GitHub, GitHubUnavailable, materializeRelease, releaseMetadata } from './standing-github.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const patch = value => Number(value.split('.')[2]);
+class SiteRevisionNotApproved extends Error {
+  constructor() { super('Current site revision/deployment is not approved'); }
+}
+function assertObservedSite(observed) {
+  if (observed.reasonCode === 'site-revision-not-approved') throw new SiteRevisionNotApproved();
+  assert.equal(observed.state, 'observed', 'Current site provenance is not approved/ready');
+}
 
 export function assertServiceResult(result, request, options = {}) {
   for (const [key, expected] of Object.entries({ schemaVersion: 1, releaseId: request.release.releaseId, serviceId: request.service.id, idempotencyKey: request.idempotencyKey, attemptId: request.attemptId })) assert.equal(result?.[key], expected, `Adapter ${key} mismatch`);
@@ -17,9 +26,7 @@ export function assertServiceResult(result, request, options = {}) {
   if (result.state !== 'production-verified') return;
   assert(result.artifact && typeof result.artifact.id === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/.test(result.artifact.id), 'Exact app artifact required');
   if (request.service.id === 'naeil') {
-    assert.equal(result.artifact.sourceRevision, request.release.siteSourceRevision, 'Site observer used package tag instead of reviewed app source');
-    assert.equal(result.artifact.platform?.kind, 'vercel-git', 'Existing Git/Vercel provenance required');
-    assert(typeof result.artifact.platform.deploymentId === 'string' && result.artifact.platform.deploymentId, 'Exact platform deployment required');
+    assertSiteArtifact(request, result.artifact);
   } else assert.match(result.artifact.sha256, HEX, 'Native immutable artifact digest required');
   assertProduction(result.production, request, result.artifact, options);
 }
@@ -27,23 +34,45 @@ export function assertServiceResult(result, request, options = {}) {
 const summaryState = state => ['stopped', 'authorization-expired', 'disabled'].includes(state.lastState) ? state.lastState : state.blocked ? 'blocked' : state.lastState || 'waiting-release';
 
 function publicSummary(state) {
-  return { schemaVersion: 1, scope: 'selected-services', services: IDS, allDiscoveredServicesComplete: false, observedAt: state.observedAt, currentVersion: state.currentVersion, state: summaryState(state), ...(state.since ? { since: state.since } : {}), ...(state.lastReasonCode ? { reasonCode: state.lastReasonCode } : {}), ...(state.blocked ? { blockedRelease: state.blocked.releaseId, blockedService: state.blocked.serviceId || null, reasonCode: state.blocked.reasonCode } : {}), releases: Object.values(state.releases).map(record => ({ version: record.version, releaseId: record.releaseId || null, state: record.state, services: IDS.map(id => ({ id, state: record.services?.[id]?.state || 'not-started', ...(record.services?.[id]?.result?.artifact ? { artifactId: record.services[id].result.artifact.id, sourceRevision: record.services[id].result.artifact.sourceRevision } : {}) })) })) };
+  return { schemaVersion: 1, scope: 'selected-services', services: IDS, allDiscoveredServicesComplete: false, observedAt: state.observedAt, currentVersion: state.currentVersion, state: summaryState(state), ...(state.since ? { since: state.since } : {}), ...(state.lastReasonCode ? { reasonCode: state.lastReasonCode } : {}), ...(state.blocked ? { blockedRelease: state.blocked.releaseId, blockedService: state.blocked.serviceId || null, reasonCode: state.blocked.reasonCode } : {}), releases: Object.values(state.releases).slice(-20).map(record => ({ version: record.version, releaseId: record.releaseId || null, state: record.state, services: IDS.map(id => ({ id, state: record.services?.[id]?.state || 'not-started', ...(record.services?.[id]?.result?.artifact ? { artifactId: record.services[id].result.artifact.id, sourceRevision: record.services[id].result.artifact.sourceRevision } : {}) })) })) };
 }
 
 /** One bounded poll; launchd supplies cadence. Never installs or starts a job. */
-export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON } = {}) {
-  validateConfig(config);
-  const unlock = acquireLock(config.stateDirectory);
-  const path = join(config.stateDirectory, 'state.json');
+export async function poll(config, { github = new GitHub({ repository: config.repository }), invoke = invokeJSON, verify = invokeJSON, fetchImpl = fetch, controlLease } = {}) {
+  validateConfig(config, { automationRoot: root });
+  const active=assertGenerationFence(config), lease=active&&!controlLease?acquireControlLock(config.generationFence.controlDirectory,activeControlAcquisition(config.generationFence.controlDirectory)):null;
+  if(controlLease)assert.equal(readPrivateJSON(join(config.generationFence.controlDirectory,'control.lock')).token,controlLease.token,'Launcher lease changed');
+  let unlock;try {assertGenerationFence(config);unlock=acquireLock(config.stateDirectory);}catch(error){lease?.release();throw error;}
   let state;
-  const save = () => atomicJSON(path, state);
-  const finish = () => { state.observedAt = new Date().toISOString(); const status = summaryState(state); if (state.statusState !== status || !state.since) state.since = state.observedAt; state.statusState = status; if (status === 'complete') delete state.since; save(); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary); return summary; };
+  const save = () => {assertGenerationFence(config);return writeStandingState(config.stateDirectory,state,config);};
+  const persist=(path,value,limit)=>{assertGenerationFence(config);atomicJSON(path,value,limit);};
+  const complete = (key, record, release, binding, mode) => {
+    record.state = 'complete'; record.completedAt ||= new Date().toISOString(); save();
+    assertGenerationFence(config);const evidence = writeStandingEvidence(config.stateDirectory, { schemaVersion: 1, release, record },config);
+    const receipt = { schemaVersion: 2, scope: 'selected-services', complete: true, allDiscoveredServicesComplete: false, release, binding, mode, evidence, completedAt: record.completedAt };
+    const path = join(config.stateDirectory, 'runs', key, 'receipt.json');
+    if (existsSync(path)) assert.deepEqual(readPrivateJSON(path), receipt, 'Existing completion binding/evidence differs');
+    else persist(path, receipt);
+    state.currentVersion = release.version; state.lastState = 'complete'; save();
+  };
+  const finish = () => { state.observedAt = new Date().toISOString(); const status = summaryState(state); if (state.statusState !== status || !state.since) state.since = state.observedAt; state.statusState = status; if (status === 'complete') delete state.since; save(); const summary = publicSummary(state); persist(join(config.stateDirectory, 'summary.json'), summary, JSON_LIMITS.summary); persist(join(config.stateDirectory, 'operator-status.json'), readOperatorStatus(config), JSON_LIMITS.operatorStatus); return summary; };
   try {
-    state = existsSync(path) ? readPrivateJSON(path) : { schemaVersion: 1, repository: config.repository, currentVersion: null, releases: {}, createdAt: new Date().toISOString() };
+    try { state = readStandingState(config.stateDirectory) || { schemaVersion: 1, repository: config.repository, currentVersion: null, releases: {}, createdAt: new Date().toISOString() }; }
+    catch (cause) {
+      const status = readOperatorStatus(config); status.stateError ||= 'state-unreadable'; persist(join(config.stateDirectory, 'operator-status.json'), status, JSON_LIMITS.operatorStatus);
+      throw new StandingStorageError(cause);
+    }
     assert(state.schemaVersion === 1 && state.repository === config.repository, 'Durable state repository/schema mismatch');
     // A process can die after an app accepted work but before output/receipt.
     // That invocation is never retried just because a new poll starts.
     for (const record of Object.values(state.releases)) for (const [id, service] of Object.entries(record.services || {})) if (service.state === 'invoking') { service.state = 'uncertain'; record.state = 'uncertain'; state.blocked = { releaseId: record.releaseId, serviceId: id, reasonCode: 'interrupted-invocation' }; }
+    for (const record of Object.values(state.releases)) for (const [id, service] of Object.entries(record.services || {})) {
+      const latest = service.reverificationAttempts?.at(-1);
+      if (service.verificationIntent || latest?.state === 'invoking') { record.state = 'uncertain'; state.blocked = { releaseId: record.releaseId, serviceId: id, reasonCode: 'interrupted-verification' }; }
+    }
+    if (state.storageIntents?.intents?.length && !state.blocked) {
+      const intent = state.storageIntents.intents[0]; state.blocked = { releaseId: intent.releaseId, serviceId: intent.serviceId, reasonCode: intent.kind === 'verify' ? 'interrupted-verification' : 'interrupted-invocation' };
+    }
     delete state.lastReasonCode;
     const stop = record => { const status = inactiveState(config); if (!status) return false; state.lastState = status; delete state.lastReasonCode; if (record) record.state = 'stopped'; return true; };
     if (stop()) return finish();
@@ -69,13 +98,20 @@ export async function poll(config, { github = new GitHub({ repository: config.re
       let record = state.releases[key];
       if (!record) { record = { githubId: item.id, version, metadataHash: fingerprint(releaseMetadata(item)), state: 'observed', services: {} }; state.releases[key] = record; save(); }
       try {
-        const snapshot = await materializeRelease(item, config, github, record);
+        assertGenerationFence(config);const snapshot = await materializeRelease(item,config,github,record,{beforeWrite:()=>assertGenerationFence(config)});
         const release = snapshot.release, mode = assertPolicyRelease(release, config, state.currentVersion);
         assert(!Object.values(state.releases).some(other => other !== record && (other.releaseId === release.releaseId || other.version === release.version)), 'Duplicate release/version identity');
         record.releaseId = release.releaseId; record.tagSha = snapshot.tagSha;
         const binding = fingerprint({ release, manifestHash: snapshot.manifestHash, automation: config.automation, trustedFiles: config.trustedFiles, executionPath: config.executionPath, policy: config.policy, services: config.services, mode });
-        if (record.binding) assert.equal(record.binding, binding, 'Run configuration changed; reconciliation required');
-        record.binding = binding; record.mode = mode; save();
+        if(record.generationContinuation) {
+          const continuation=record.generationContinuation;
+          assert(active&&continuation.planSha256===active.pointer.transitionPlanSha256&&continuation.authorizationSha256===active.pointer.authorizationSha256&&continuation.generationSha256===config.generationSha256&&continuation.originalBinding===record.binding&&continuation.releaseSha256===releaseIdentityDigest(release),'Unapproved generation continuation');
+          if(continuation.activeBinding)assert.equal(continuation.activeBinding,binding,'Continuation config changed');
+          continuation.activeBinding=binding;
+        } else {if(record.binding)assert.equal(record.binding,binding,'Run configuration changed; reconciliation required');record.binding=binding;}
+        record.mode = mode; save();
+        if (record.state === 'complete') { complete(key, record, release, binding, mode); continue; }
+        assert(!existsSync(join(config.stateDirectory, 'runs', key, 'receipt.json')), 'Completion receipt conflicts with incomplete state');
         if (mode === 'standing') {
           const checks = await github.workflow(release.sourceRevision, '.github/workflows/verify.yml');
           if (['pending', 'cancelled'].includes(checks.state)) { record.state = 'waiting-package-ci'; state.lastState = record.state; state.lastReasonCode = checks.state; return finish(); }
@@ -88,64 +124,121 @@ export async function poll(config, { github = new GitHub({ repository: config.re
           if (prior?.state === 'production-verified') {
             // Revalidate all cached evidence before allowing a later consumer.
             try {
-              assertServiceResult(prior.result, prior.request, { allowExpired: true });
-              for (const receipt of prior.reverifications || []) assertProduction(receipt.production, receipt.request, prior.result.artifact, { allowExpired: true });
-              const latest = prior.reverifications?.at(-1) || { production: prior.result.production, request: prior.request };
-              const expired = Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
+              const historical=prior.continuation;
+              if(historical)assert(id==='naeil'&&active&&historical.requiresFreshVerification===true&&historical.planSha256===active.pointer.transitionPlanSha256&&historical.authorizationSha256===active.pointer.authorizationSha256&&historical.generationSha256===config.generationSha256&&historical.historicalRequestSha256===fingerprint(prior.request)&&historical.historicalResultSha256===fingerprint(prior.result),'Historical provenance continuation mismatch');
+              else assertServiceResult(prior.result, prior.request, { allowExpired: true });
+              const latest = latestVerification(prior);
+              const { command: ignored, ...currentService } = config.services[id];
+              const siteTarget = id === 'naeil' ? resolveSiteTarget(release, currentService.siteContinuationApproval) : undefined;
+              const changedSite = id === 'naeil' && (fingerprint(latest.request.siteTarget || resolveSiteTarget(latest.request.release, latest.request.service.siteContinuationApproval)) !== fingerprint(siteTarget) || fingerprint(latest.request.service) !== fingerprint(currentService));
+              const changedContext = id === 'naeil' && config.generation && (latest.request.generationSha256 !== config.generationSha256 || fingerprint(latest.request.generationFence) !== fingerprint(config.generationFence) || latest.request.configReferencesSha256 !== config.configReferencesSha256);
+              const expired = changedSite || changedContext || historical && latest.request.generationSha256 !== config.generationSha256 || Date.now() - Date.parse(latest.production.checkedAt) > config.policy.maxEvidenceAgeSeconds * 1000;
               if (expired) {
                 state.lastState = 'cached-evidence-expired'; state.lastReasonCode = 'cached-evidence-expired'; record.state = 'cached-evidence-expired'; finish();
                 if (stop(record)) return finish();
                 assertActive(config); assertTrustedFiles(config.trustedFiles);
-                const attemptId = randomUUID(), artifact = prior.result.artifact;
-                const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId); privateDirectory(outputDirectory, true);
-                const request = { ...prior.request, attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
+                const attemptId = randomUUID(); let artifact = latest.artifact;
+                const outputDirectory = join(config.stateDirectory, 'runs', key, id, 'reverify-' + attemptId);assertGenerationFence(config);privateDirectory(outputDirectory, true);
+                const {command,...currentService}=config.services[id];
+                const request = { ...prior.request,release,service:currentService,...(siteTarget ? {siteTarget} : {}),policy:config.policy,trustedFiles:config.trustedFiles,executionPath:config.executionPath,...generationRequest(config,id,record),attemptId, phase: mode === 'adopt' ? 'adopt' : 'production', artifact, expectedIdentity: artifactIdentity(config.services[id], artifact), origin: config.services[id].origin, referencePath: release.contract.path, outputDirectory, options: config.services[id].verification.options || {} };
+                if (id === 'naeil') {
+                  const observed = await checkSiteProvenance(request, { github, fetchImpl, beforeAction: () => { assertActive(config); assertTrustedFiles(config.trustedFiles); } });
+                  assertObservedSite(observed);
+                  artifact = observed.artifact; request.artifact = artifact; request.expectedIdentity = artifactIdentity(currentService, artifact);
+                }
+                if(config.generation&&id!=='naeil') {
+                  const successfulAttempt=writeStandingEvidence(config.stateDirectory,{schemaVersion:1,kind:'standing-successful-native-attempt',generationSha256:config.generationSha256,epochId:config.generationControl.epochId,request:prior.request,result:prior.result},config);
+                  request.reverification={schemaVersion:1,kind:'standing-read-only-reverification',epochId:config.generationControl.epochId,successfulAttempt};
+                }
                 const attempt = { state: 'invoking', request, startedAt: new Date().toISOString() };
-                (prior.reverificationAttempts ||= []).push(attempt); save();
-                const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');
+                prior.verificationIntent = attempt; save();
+                assertActive(config);const production = await verify(config.services[id].verification.command, request, join(outputDirectory, 'invocation'), 'verify');
                 assertProduction(production, request, artifact);
+                if (id === 'naeil') await assertCurrentSite(config, { request, artifact, production }, { github, fetchImpl });
                 Object.assign(attempt, { state: 'production-verified', completedAt: new Date().toISOString() });
-                (prior.reverifications ||= []).push({ request, production }); save();
-              } else assertProduction(latest.production, latest.request, prior.result.artifact);
-            } catch {
+                (prior.reverificationAttempts ||= []).push(attempt);
+                (prior.reverifications ||= []).push({ request, production, ...(id === 'naeil' ? {artifact} : {}) });
+                if (id === 'naeil') prior.siteHead = { request, artifact, production };
+                delete prior.verificationIntent; save();
+              } else assertProduction(latest.production, latest.request, latest.artifact);
+            } catch (error) {
+              if (error instanceof StandingStorageError) throw error;
               if (stop(record)) return finish();
-              record.state = 'blocked'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: 'cached-evidence-reverification-failed' }; return finish();
+              record.state = 'blocked'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: error instanceof SiteRevisionNotApproved ? 'site-revision-not-approved' : 'cached-evidence-reverification-failed' }; return finish();
             }
             continue;
           }
           assert(!prior || prior.state === 'deferred', 'A dispatched failed/uncertain app cannot replay');
-          const attemptId = randomUUID();
+          if (id !== 'naeil') await assertCurrentSite(config, latestVerification(record.services.naeil), { github, fetchImpl });
+          const attemptId = prior?.authorizedAttemptId || randomUUID();
           const configured = config.services[id], { command, ...service } = configured;
-          const directory = join(config.stateDirectory, 'runs', key, id, attemptId); privateDirectory(directory, true);
-          const request = { schemaVersion: 1, release, service, policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath, idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
-          if (prior) (record.history ||= []).push({ serviceId: id, prior: structuredClone(prior), resolution: 'retry-deferred', at: new Date().toISOString() });
+          const directory = join(config.stateDirectory, 'runs', key, id, attemptId);assertGenerationFence(config);privateDirectory(directory, true);
+          const request = { schemaVersion: 1, release, service, ...(id === 'naeil' && service.siteContinuationApproval ? {siteTarget:resolveSiteTarget(release,service.siteContinuationApproval)} : {}), policy: config.policy, adapterOptions: service.adapterOptions || {}, trustedFiles: config.trustedFiles, executionPath: config.executionPath,...generationRequest(config,id,record), idempotencyKey: `${release.releaseId}:${id}`, attemptId, mode, outputDirectory: directory, ...(prior?.reconciliation ? { reconciliation: prior.reconciliation } : {}) };
+          if (prior) (record.history ||= []).push({ serviceId: id, prior: JSON.parse(JSON.stringify(prior)), resolution: 'retry-deferred', at: new Date().toISOString() });
           record.services[id] = { state: 'invoking', attemptId, request, startedAt: new Date().toISOString() };
           record.state = 'running'; save(); // Must precede every child launch.
           let result;
-          try { result = await invoke(command, request, directory, 'rollout', { acceptNonzeroResult: true }); assertServiceResult(result, request);
+          try { assertActive(config);result = await invoke(command, request, directory, 'rollout', { acceptNonzeroResult: true }); assertServiceResult(result, request);
             if (result.transportExitCode !== undefined) assert(Number.isInteger(result.transportExitCode) && result.transportExitCode > 0 && ['gate-failed', 'activation-pending', 'review-required', 'not-deployed'].includes(result.state), 'Nonzero exit did not prove a terminal failure'); }
           catch {
             record.services[id].state = 'uncertain'; record.state = 'uncertain';
             state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: 'command-or-result-uncertain' }; return finish();
           }
           Object.assign(record.services[id], { state: result.state, result, completedAt: new Date().toISOString() });
-          if (result.state === 'deferred') { record.state = 'deferred'; state.lastState = 'deferred'; state.lastReasonCode = result.reasonCode; return finish(); }
+          if (result.state === 'deferred') { record.state = 'deferred'; state.lastState = 'deferred'; if (result.reasonCode !== undefined) state.lastReasonCode = result.reasonCode; else delete state.lastReasonCode; return finish(); }
           if (result.state !== 'production-verified') { record.state = 'failed'; state.blocked = { releaseId: release.releaseId, serviceId: id, reasonCode: result.state }; return finish(); }
           save();
         }
-        // Completion receipt precedes the global cursor. Interrupted finalizing
-        // can consume existing verified receipts, without invoking an app again.
-        record.state = 'complete'; record.completedAt = new Date().toISOString();
-        atomicJSON(join(config.stateDirectory, 'runs', key, 'receipt.json'), { schemaVersion: 1, scope: 'selected-services', complete: true, allDiscoveredServicesComplete: false, release, binding, mode, services: record.services, completedAt: record.completedAt });
-        state.currentVersion = release.version; state.lastState = 'complete'; save();
+        complete(key, record, release, binding, mode);
       } catch (error) {
+        if (error instanceof StandingStorageError) throw error;
         if (stop(record)) return finish();
         if (error instanceof GitHubUnavailable) { record.state = 'release-unavailable'; state.lastState = record.state; return finish(); }
-        record.state = 'blocked'; state.blocked = { releaseId: record.releaseId || version, reasonCode: 'release-or-config-validation-failed' }; return finish();
+        record.state = 'blocked'; state.blocked = { releaseId: record.releaseId || version, reasonCode: error instanceof SiteRevisionNotApproved ? 'site-revision-not-approved' : 'release-or-config-validation-failed' }; return finish();
       }
     }
     delete state.lastReasonCode;
     state.lastState = state.currentVersion ? 'complete' : 'waiting-release'; return finish();
-  } finally { unlock(); }
+  } finally { try {assertGenerationFence(config);unlock();}finally{lease?.release();} }
+}
+
+function generationRequest(config,id,record) {
+  if(!config.generation)return {};
+  assertGenerationFence(config);
+  const fields={generationSha256:config.generationSha256,generationFence:config.generationFence,configReferences:config.configReferences,configReferencesSha256:config.configReferencesSha256,executionPath:config.generation.executionContexts[id]?.executionPath||config.executionPath};
+  if(id!=='naeil') {
+    const adapter=readPrivateJSON(config.services[id].adapterOptions.standingConfigPath),ref=adapter.handoff?.candidateReceipt;assert(ref,'Current generation requires exact candidate handoff');
+    const naeil=record?.services.naeil,latest=latestVerification(naeil),artifact=latest.artifact;
+    assert(naeil?.state==='production-verified'&&artifact,'Fresh naeil predecessor required');assertProduction(latest.production,latest.request,artifact);
+    const active=assertGenerationFence(config);assert.equal(latest.request.generationSha256,config.generationSha256,'Fresh current-generation naeil verification required');
+    const proof={schemaVersion:1,kind:'standing-current-naeil-verification',generationSha256:config.generationSha256,pointerSha256:config.generationFence.pointerSha256,releaseSha256:active.approval.releaseSha256,request:latest.request,artifact,production:latest.production};
+    const directory=join(config.stateDirectory,'prerequisites'),path=join(directory,'naeil-'+fingerprint(proof)+'.json');assertGenerationFence(config);privateDirectory(directory,true);
+    if(!entryExists(path)){assertGenerationFence(config);atomicJSON(path,proof);}else assert.equal(fingerprint(readPrivateJSON(path)),fingerprint(proof),'Immutable naeil prerequisite conflicts');
+    const candidate=readPrivateJSON(ref.path);return {...fields,naeilPrerequisite:fileReference(path),candidate:{...candidate,receipt:ref},sourceAdoption:adapter.handoff.sourceAdoption};
+  }
+  return fields;
+}
+
+function latestVerification(prior) {
+  const latest = prior?.siteHead || prior?.reverifications?.at(-1);
+  return latest ? { ...latest, artifact: latest.artifact || prior.result.artifact } : { request: prior?.request, production: prior?.result?.production, artifact: prior?.result?.artifact };
+}
+async function assertCurrentSite(config, latest, { github, fetchImpl }) {
+  assertActive(config); assertTrustedFiles(config.trustedFiles);
+  assert(latest?.request && latest.artifact, 'Current site verification required before native dispatch');
+  const { command, ...service } = config.services.naeil;
+  const request = { ...latest.request, service, siteTarget: resolveSiteTarget(latest.request.release, service.siteContinuationApproval) };
+  // Never let an old request/receipt establish authority for a different target,
+  // route profile, verifier or generation even when package runtime is equal.
+  if (latest.request.siteTarget) assert.deepEqual(latest.request.siteTarget, request.siteTarget, 'Current site target changed; fresh verification required');
+  else assert(!service.siteContinuationApproval, 'Old site receipt cannot authorize a new target');
+  assert.deepEqual(latest.request.service, service, 'Site verification service/routes changed');
+  assertProduction(latest.production, latest.request, latest.artifact);
+  const observed = await checkSiteProvenance(request, { github, fetchImpl, beforeAction: () => { assertActive(config); assertTrustedFiles(config.trustedFiles); } });
+  assertObservedSite(observed);
+  if (fingerprint(artifactIdentity(service, observed.artifact)) !== fingerprint(artifactIdentity(service, latest.artifact))) throw new SiteRevisionNotApproved();
+  assertProduction(latest.production, latest.request, latest.artifact);
+  assertActive(config);
 }
 
 const artifactIdentity = (service, artifact) => ({ schemaVersion: 1, appId: service.appId, artifactId: artifact.id, sourceRevision: artifact.sourceRevision, ui: artifact.ui });
@@ -160,10 +253,10 @@ async function liveIdentity(service, fetchImpl) {
   return identity;
 }
 function retainedOutput(config, prior) {
-  const directory = prior.request?.outputDirectory, runs = join(config.stateDirectory, 'runs') + '/';
-  if (typeof directory !== 'string' || resolve(directory) !== directory || !directory.startsWith(runs)) return { exists: false, validates: false };
+  const directory = prior.request?.outputDirectory;
+  if (typeof directory !== 'string' || resolve(directory) !== directory) return { exists: false, validates: false };
   const path = join(directory, 'output.json'), exists = entryExists(path);
-  try { const result = readPrivateJSON(path); assertServiceResult(result, prior.request, { allowExpired: true }); return { exists, validates: true, result }; }
+  try { assertEvidencePath(config, path); const result = readPrivateJSON(path); assertServiceResult(result, prior.request, { allowExpired: true }); return { exists, validates: true, result }; }
   catch { return { exists, validates: false }; }
 }
 function estimateFacts(config, prior) {
@@ -191,9 +284,12 @@ function estimateFacts(config, prior) {
 /** Read-only operational evidence, with no private config or native payloads. */
 export async function inspect(config, { fetchImpl = fetch } = {}) {
   validateConfig(config);
-  const path = join(config.stateDirectory, 'state.json'), state = existsSync(path) ? readPrivateJSON(path) : { releases: {} };
+  const operatorStatus = readOperatorStatus(config);
+  let state;
+  try { state = readStandingState(config.stateDirectory, { allowLegacy: true }) || { releases: {} }; }
+  catch { return { schemaVersion: 1, operatorStatus: { ...operatorStatus, stateError: operatorStatus.stateError || 'state-unreadable' }, blocked: operatorStatus.blocked, releases: [], liveIdentity: {} }; }
   const live = Object.fromEntries(await Promise.all(IDS.map(async id => { try { return [id, await liveIdentity(config.services[id], fetchImpl)]; } catch { return [id, { available: false }]; } })));
-  return { schemaVersion: 1, observedAt: new Date().toISOString(), blocked: state.blocked || null, releases: Object.values(state.releases).map(record => ({ releaseId: record.releaseId || null, version: record.version, state: record.state, services: IDS.map(id => {
+  return { schemaVersion: 1, operatorStatus, observedAt: new Date().toISOString(), blocked: state.blocked || null, releases: Object.values(state.releases).map(record => ({ releaseId: record.releaseId || null, version: record.version, state: record.state, services: IDS.map(id => {
     const prior = record.services?.[id] || {}, retained = retainedOutput(config, prior);
     const result = retained.validates ? retained.result : prior.result;
     return { id, state: prior.state || 'not-started', mutationAttempted: result?.mutationAttempted ?? null, runtimeMutationAttempted: result?.runtimeMutationAttempted ?? null, rollbackState: result?.rollback?.state || null, retainedOutput: { exists: retained.exists, validates: retained.validates }, ...(id === 'estimate' ? { native: estimateFacts(config, prior) } : {}) };
@@ -208,7 +304,7 @@ export async function reconcile(config, releaseId, serviceId, resolution, { appr
   requireReconciliation(typeof approvedBy === 'string' && approvedBy.trim().length > 0 && approvedBy.length <= 200 && typeof reason === 'string' && reason.trim().length > 0 && reason.length <= 2000, 'Recorded approver and reason required');
   const unlock = acquireLock(config.stateDirectory);
   try {
-    const path = join(config.stateDirectory, 'state.json'), state = readPrivateJSON(path), record = Object.values(state.releases).find(record => record.releaseId === releaseId), prior = record?.services?.[serviceId];
+    const state = readStandingState(config.stateDirectory), record = Object.values(state.releases).find(record => record.releaseId === releaseId), prior = record?.services?.[serviceId];
     requireReconciliation(state.blocked?.releaseId === releaseId && state.blocked?.serviceId === serviceId && prior?.request && ['uncertain', 'gate-failed', 'review-required', 'not-deployed', 'activation-pending'].includes(prior.state), 'Resolution must name the currently blocked service invocation');
     const retained = retainedOutput(config, prior);
     let stored;
@@ -231,10 +327,10 @@ export async function reconcile(config, releaseId, serviceId, resolution, { appr
       catch { throw new ReconciliationRefused('Live public identity differs from the previously verified artifact or is unavailable'); }
     }
     const at = new Date().toISOString();
-    (record.history ||= []).push({ serviceId, prior: structuredClone(prior), result: structuredClone(result), resolution, approvedBy, reason, at });
+    (record.history ||= []).push({ serviceId, prior: JSON.parse(JSON.stringify(prior)), result: structuredClone(result), resolution, approvedBy, reason, at });
     record.services[serviceId] = { state: 'deferred', reconciliation: { priorAttemptId: prior.request.attemptId }, reconciledAt: at };
     record.state = 'deferred'; delete state.blocked; state.lastState = 'deferred'; delete state.lastReasonCode; state.since = at; state.statusState = 'deferred'; state.observedAt = at;
-    atomicJSON(path, state); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary); return summary;
+    writeStandingState(config.stateDirectory, state); const summary = publicSummary(state); atomicJSON(join(config.stateDirectory, 'summary.json'), summary, JSON_LIMITS.summary); atomicJSON(join(config.stateDirectory, 'operator-status.json'), readOperatorStatus(config), JSON_LIMITS.operatorStatus); return summary;
   } finally { unlock(); }
 }
 

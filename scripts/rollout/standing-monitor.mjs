@@ -4,6 +4,7 @@ import { lstatSync } from 'node:fs';
 import { basename, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
+import { archiveMonitorHistory, JSON_LIMITS, readOperatorStatus } from './standing-state.mjs';
 import { assertTrustedFiles, atomicJSON, commandConfig, fingerprint, loadConfig, readPrivateJSON } from './standing-config.mjs';
 
 const exec = promisify(execFile), day = 86400;
@@ -30,7 +31,7 @@ export function monitorOptions(config) {
 }
 
 function optionalJSON(path) {
-  try { return { value: readPrivateJSON(path) }; } catch (error) { return { error: error.code === 'ENOENT' ? 'missing' : 'unreadable' }; }
+  try { return { value: readPrivateJSON(path, JSON_LIMITS.monitor) }; } catch (error) { return { error: error.code === 'ENOENT' ? 'missing' : 'unreadable' }; }
 }
 
 /** Read-only with respect to dispatcher, policy and services. Only monitor-owned
@@ -42,13 +43,13 @@ export async function monitor(config, { dispatcherExit, now = Date.now(), stderr
   assert(!priorRead.error || priorRead.error === 'missing', 'Monitor dedup state unreadable; preserve it for inspection');
   const prior = priorRead.value || { schemaVersion: 1, alerts: {}, waiting: {} };
   assert.equal(prior.schemaVersion, 1, 'Monitor schema1 required');
-  const summaryRead = optionalJSON(join(directory, 'summary.json')), stateRead = optionalJSON(join(directory, 'state.json'));
-  const summary = summaryRead.value, state = stateRead.value, current = [], seenWaiting = {};
+  const summaryRead = optionalJSON(join(directory, 'summary.json')), operator = readOperatorStatus(config);
+  const summary = summaryRead.value, state = { blocked: operator.blocked }, current = [], seenWaiting = {};
   const add = (code, severity, scope = {}, detail = {}) => current.push({ fingerprint: fingerprint({ code, ...scope }), code, severity, ...scope, ...detail });
   if (priorRead.error !== 'missing' && !prior.alerts) throw Error('Monitor dedup alerts missing');
   if (summaryRead.error || !summary || summary.schemaVersion !== 1 || !timestamp(summary.observedAt)) add('summary-unavailable', 'alert');
   else if (now - timestamp(summary.observedAt) > options.staleSeconds * 1000 || timestamp(summary.observedAt) > now + 60000) add('summary-stale', 'alert', {}, { observedAt: summary.observedAt });
-  if (stateRead.error || state?.schemaVersion !== 1) add('state-unavailable', 'alert');
+  if (operator.stateError) add('state-unavailable', 'alert', {}, { reasonCode: operator.stateError });
   const blocked = summary?.state === 'blocked' ? summary : state?.blocked ? { blockedRelease: state.blocked.releaseId, blockedService: state.blocked.serviceId, reasonCode: state.blocked.reasonCode } : null;
   if (blocked) add('blocked', 'alert', { blockedRelease: safe(blocked.blockedRelease), service: safe(blocked.blockedService), reasonCode: safe(blocked.reasonCode) });
   if (dispatcherExit !== 0) add('dispatcher-exit', 'alert', {}, { exit: dispatcherExit });
@@ -88,12 +89,16 @@ export async function monitor(config, { dispatcherExit, now = Date.now(), stderr
   }
   const active = new Set(current.map(alert => alert.fingerprint));
   for (const [key, value] of Object.entries(records)) if (!active.has(key) && !value.clearedAt) records[key] = { ...value, clearedAt: iso(now) };
+  const cleared = Object.entries(records).filter(([, value]) => value.clearedAt).sort((a, b) => Date.parse(b[1].clearedAt) - Date.parse(a[1].clearedAt));
+  const archived = cleared.slice(20);
+  if (archived.length) archiveMonitorHistory(directory, archived.map(([, value]) => value));
+  for (const [key] of archived) delete records[key];
   const payload = { schemaVersion: 1, observedAt: iso(now), alerts: current };
-  atomicJSON(join(directory, 'alerts.json'), payload);
+  atomicJSON(join(directory, 'alerts.json'), payload, JSON_LIMITS.monitor);
   let delivery = prior.delivery || null;
   if (notifications.length) {
     const notificationPath = join(directory, 'monitor-notification.json');
-    atomicJSON(notificationPath, { schemaVersion: 1, observedAt: iso(now), alerts: notifications });
+    atomicJSON(notificationPath, { schemaVersion: 1, observedAt: iso(now), alerts: notifications }, JSON_LIMITS.monitor);
     if (config.monitor?.notifier) {
       const command = config.monitor.notifier;
       try {
@@ -106,7 +111,7 @@ export async function monitor(config, { dispatcherExit, now = Date.now(), stderr
       delivery = { attemptedAt: iso(now), passed: true, channel: 'stderr', count: notifications.length };
     }
   }
-  atomicJSON(join(directory, 'monitor.json'), { schemaVersion: 1, observedAt: iso(now), alerts: records, waiting: seenWaiting, stopSince, delivery });
+  atomicJSON(join(directory, 'monitor.json'), { schemaVersion: 1, observedAt: iso(now), alerts: records, waiting: seenWaiting, stopSince, delivery }, JSON_LIMITS.monitor);
   return { ...payload, notifications: notifications.length, delivery };
 }
 

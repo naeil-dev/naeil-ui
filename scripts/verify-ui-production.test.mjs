@@ -1,8 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { chromium } from '@playwright/test';
-import { assertGeometry, assertRouteDestination, assertRouteState, checkMenu, readChrome } from './verify-ui-production.mjs';
+import { assertGeometry, assertRouteDestination, assertRouteState, checkMenu, readChrome, verifyProduction } from './verify-ui-production.mjs';
+import { catalogHTML } from './rollout/fixtures/project-catalog.mjs';
+const compatibility = version => { const d=JSON.parse(readFileSync(new URL(`./rollout/expectations/${version}.json`,import.meta.url)));return {releaseId:d.release.releaseId,version,sourceRevision:d.release.sourceRevision,archive:{sha256:d.release.archiveSha256},contract:{version:'1',sha256:d.release.chromeSha256},account:{sha256:d.release.accountSha256}}; };
 const contract = JSON.parse(readFileSync(new URL('../contracts/naeil-chrome.v1.json', import.meta.url)));
 const baseline = {
   layoutWidth: 1920, layoutX: 0, headerFrame: { x: 160, width: 1600, padding: 40 }, footerFrame: { x: 160, width: 1600, padding: 40 },
@@ -30,18 +34,15 @@ test('registered application theme labels still require working theme changes an
   try {
     const page = await browser.newPage(); page.setDefaultTimeout(1000);
     await page.route('https://naeil.dev/**', route => route.abort());
-    await page.setContent(`<html class="light"><header data-naeil-header><button id="projects">Projects</button><button id="theme">Theme</button></header><div id="catalog" role="dialog" aria-label="Projects" hidden>${Array.from({length:5}, (_, i) => `<img src="https://naeil.dev/images/fixture-${i}.png">`).join('')}</div><script>
-      const catalog = document.getElementById('catalog'), projects = document.getElementById('projects');
-      projects.onclick = () => { catalog.hidden = false; };
-      document.addEventListener('keydown', e => { if(e.key === 'Escape') { catalog.hidden = true; projects.focus(); } });
-      document.getElementById('theme').onclick = () => { document.documentElement.className = document.documentElement.className === 'light' ? 'dark' : 'light'; };
-    </script></html>`, { waitUntil: 'domcontentloaded' });
-    await checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } });
+    await page.setContent(catalogHTML(), {waitUntil:'domcontentloaded'});
+    const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
+    const expectations=loadReleaseExpectations(compatibility('0.7.1'));
+    await checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } },expectations);
     assert.equal(await page.locator('html').getAttribute('class'), 'light');
     await page.locator('#theme').evaluate(button => { button.onclick = null; });
-    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }), /Timeout/);
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } },expectations), /Timeout/);
     await page.locator('#theme').evaluate(button => { button.onclick = () => document.documentElement.classList.add('light', 'dark'); });
-    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }), /Timeout/);
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } },expectations), /Timeout/);
   } finally { await browser.close(); }
 });
 test('browser font verification accepts real static/variable faces and rejects fallback-only stacks', async () => {
@@ -135,4 +136,217 @@ test('protected production contexts require an explicit scoped provider while pu
     assert.equal(calls, 1, 'Public checks must never inherit the private session');
     await publicContext.close();
   } finally { await browser.close(); }
+});
+
+
+test('fixed independently declared catalogs pass both releases, locales, themes and viewport layouts', async () => {
+  const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
+  const browser=await chromium.launch();
+  try {
+    for(const version of ['0.7.1','0.7.2']) for(const locale of ['en','ko','ja']) for(const mobile of [false,true]) for(const theme of ['light','dark']) {
+      const page=await browser.newPage({viewport:{width:mobile?390:1440,height:900}});
+      await page.route('https://naeil.dev/**',route=>route.abort());
+      await page.setContent(catalogHTML({version,locale,mobile,theme}),{waitUntil:'domcontentloaded'});
+      await checkMenu(page,locale,theme,{themeControlLabels:{light:'Theme',dark:'Theme'}},loadReleaseExpectations(compatibility(version)));
+      await page.close();
+    }
+  } finally {await browser.close()}
+});
+
+test('naeil next-intl profile binds real menu hrefs without accepting canonical or content drift', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const projectProfile = {
+    id: 'naeil-next-intl-en-default', sha256: '62582d03fdc065939b818ce3252aa37537b874c982693793c64ccc72ae1a2928',
+  };
+  const release = compatibility('0.7.2'), expectations = loadReleaseExpectations(release);
+  // Refuse a missing declaration before launching the synthetic browser.
+  loadReleaseExpectations(release, { profile: projectProfile });
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext();
+    await context.route('**/*', route => route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(500);
+    const chrome = { themeControlLabels: { light: 'Theme', dark: 'Theme' }, projectProfile };
+    const render = async (locale, mobile, theme = 'light') => {
+      await page.setViewportSize({ width: mobile ? 390 : 1440, height: 900 });
+      await page.setContent(catalogHTML({ version: '0.7.2', locale, mobile, theme }), { waitUntil: 'domcontentloaded' });
+      const root = page.locator(mobile ? 'section' : '.ui-navigation-menu-grid');
+      if (locale === 'en') await root.locator('a').evaluate(link => link.href = 'https://naeil.dev/design');
+      return root;
+    };
+    for (const locale of ['en', 'ko', 'ja']) for (const mobile of [false, true]) for (const theme of ['light', 'dark']) {
+      await render(locale, mobile, theme);
+      await checkMenu(page, locale, theme, chrome, expectations);
+    }
+    for (const mobile of [false, true]) {
+      await render('en', mobile);
+      await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: chrome.themeControlLabels }, expectations), /Project 0 href mismatch/);
+      const mutations = [
+        [root => root.querySelector('a').href = 'https://naeil.dev/en/design', /Project 0 href mismatch/],
+        [root => root.querySelector('.ui-navigation-title > span').textContent = 'Wrong name', /Project 0 name mismatch/],
+        [root => root.querySelector('img').src = 'https://naeil.dev/images/fish.png', /Project 0 image mismatch/],
+        [root => root.querySelector('a').setAttribute('aria-label', 'Wrong accessible name'), /Project 0 accessible name mismatch/],
+      ];
+      for (const [mutate, reason] of mutations) {
+        const root = await render('en', mobile); await root.evaluate(mutate);
+        await assert.rejects(checkMenu(page, 'en', 'light', chrome, expectations), reason);
+      }
+      for (const locale of ['ko', 'ja']) {
+        const root = await render(locale, mobile);
+        await root.locator('a').evaluate(link => link.href = 'https://naeil.dev/design');
+        await assert.rejects(checkMenu(page, locale, 'light', chrome, expectations), /Project 0 href mismatch/);
+      }
+    }
+    await context.close();
+  } finally { await browser.close(); }
+});
+
+test('real DOM rejects deletion/addition/reordering, same-count wrong content, hidden duplicates and wrong geometry', async () => {
+  const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
+  const browser=await chromium.launch();
+  try {
+    const page=await browser.newPage();page.setDefaultTimeout(400);
+    await page.route('https://naeil.dev/**',route=>route.abort());
+    for(const version of ['0.7.1','0.7.2']) for(const mobile of [false,true]) {
+      const mutations=[
+        root=>root.querySelector('a').remove(),
+        root=>root.append(root.querySelector('a').cloneNode(true)),
+        root=>root.querySelector('a').href='https://attacker.test/design',
+        root=>root.querySelector('.ui-navigation-title > span').textContent='Wrong name',
+        root=>root.querySelector('img').src='https://naeil.dev/images/fish.png',
+        root=>{const a=root.querySelector('a').cloneNode(true);a.hidden=true;root.append(a)},
+        root=>root.style.gridTemplateColumns='repeat(3,minmax(0,1fr))',
+        root=>root.querySelector('a').setAttribute('aria-label','Wrong accessible name'),
+        root=>root.querySelector('a').style.width='50%',
+        root=>{const a=root.querySelector('a');a.style.minHeight='0';a.style.height='20px';a.style.padding='0'},
+        root=>root.querySelector('a').style.marginLeft='800px',
+      ];
+      if(version==='0.7.1')mutations.push(root=>root.append(root.querySelector('a')));
+      for(const mutation of mutations) {
+        await page.setContent(catalogHTML({version,mobile}),{waitUntil:'domcontentloaded'});
+        await page.locator(mobile?'section':'.ui-navigation-menu-grid').evaluate(mutation);
+        await assert.rejects(checkMenu(page,'en','light',{themeControlLabels:{light:'Theme',dark:'Theme'}},loadReleaseExpectations(compatibility(version))), /Project|catalog|accessible/i);
+      }
+    }
+  } finally {await browser.close()}
+});
+
+test('immutable 0.7.1/0.7.2 source components pass Chromium catalog checks in every locale/theme/layout', async()=>{
+  const {frozenHeaderRender}=await import('./rollout/fixtures/frozen-header-render.mjs');
+  const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
+  const browser=await chromium.launch();
+  try {
+    for(const version of ['0.7.1','0.7.2']) {
+      const release=compatibility(version),expectations=loadReleaseExpectations(release);
+      const frozen=await frozenHeaderRender(release.sourceRevision);
+      for(const locale of ['en','ko','ja'])for(const width of [390,1440])for(const theme of ['light','dark']) {
+        const context=await browser.newContext({viewport:{width,height:900},colorScheme:theme});
+        // All browser network is synthetic or blocked, including artwork/fonts.
+        await context.route('**/*',route=>route.request().url()==='https://fixture.test/'?route.fulfill({contentType:'text/html',body:'<html><head></head><body><div id="root"></div></body></html>'}):route.abort());
+        const page=await context.newPage();page.setDefaultTimeout(3000);
+        const errors=[];page.on('pageerror',error=>errors.push(error.message));
+        await page.goto('https://fixture.test/');
+        await page.addStyleTag({content:frozen.css});
+        await page.evaluate(value=>{window.fixture=value},{locale,theme});
+        await page.addScriptTag({content:frozen.script});
+        await page.locator('[data-naeil-header]').waitFor();
+        await page.waitForFunction(theme=>document.documentElement.classList.contains(theme),theme);
+        await checkMenu(page,locale,theme,{},expectations);
+        assert.deepEqual(errors,[]);
+        await context.close();
+      }
+    }
+  } finally {await browser.close()}
+});
+
+test('I1 rejects hidden and aria-hidden whole mobile Projects sections while ignoring unrelated links', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    page.setDefaultTimeout(500);
+    await page.route('**/*', route => route.abort());
+    for (const version of ['0.7.1', '0.7.2']) for (const locale of ['en', 'ko', 'ja']) for (const theme of ['light', 'dark']) for (const hiding of ['hidden', 'aria-hidden']) {
+      await page.setContent(catalogHTML({ version, locale, theme, mobile: true }), { waitUntil: 'domcontentloaded' });
+      await page.locator('section').evaluate((section, hiding) => {
+        const duplicate = section.cloneNode(true);
+        if (hiding === 'hidden') duplicate.hidden = true;
+        else duplicate.setAttribute('aria-hidden', 'true');
+        section.after(duplicate);
+      }, hiding);
+      assert.equal(await page.locator('nav.ui-navigation-mobile-links > section').count(), 2);
+      await assert.rejects(checkMenu(page, locale, theme, { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, loadReleaseExpectations(compatibility(version))), /Project catalog scope.*duplicated/);
+    }
+  } finally { await browser.close(); }
+});
+
+test('I2 rejects responsive image source substitutions even without currentSrc, retaining offline ordinary src', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    page.setDefaultTimeout(500);
+    await page.route('**/*', route => route.abort());
+    for (const version of ['0.7.1', '0.7.2']) for (const mobile of [false, true]) {
+      const expectations = loadReleaseExpectations(compatibility(version));
+      // A failed/blocked ordinary image may have no currentSrc. Its exact src
+      // remains sufficient only when there is no alternate source declaration.
+      await page.setContent(catalogHTML({ version, mobile }), { waitUntil: 'domcontentloaded' });
+      await page.locator('img').first().evaluate(image => Object.defineProperty(image, 'currentSrc', { get: () => '' }));
+      await checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, expectations);
+      for (const kind of ['srcset', 'picture']) for (const emptyCurrentSrc of [false, true]) {
+        await page.setContent(catalogHTML({ version, mobile }), { waitUntil: 'domcontentloaded' });
+        const fallback = await page.locator('img').first().getAttribute('src');
+        await page.locator('img').first().evaluate((image, { kind, emptyCurrentSrc }) => {
+          if (kind === 'srcset') image.setAttribute('srcset', 'https://naeil.dev/images/fish.png 1x');
+          else {
+            const picture = document.createElement('picture'), source = document.createElement('source');
+            source.srcset = 'https://naeil.dev/images/fish.png 1x';
+            image.before(picture); picture.append(source, image);
+          }
+          if (emptyCurrentSrc) Object.defineProperty(image, 'currentSrc', { get: () => '' });
+        }, { kind, emptyCurrentSrc });
+        assert.equal(await page.locator('img').first().getAttribute('src'), fallback);
+        await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, expectations), /Project.*image/i);
+      }
+    }
+  } finally { await browser.close(); }
+});
+
+test('I2 independently compares nonempty selected image metadata with the exact declared URL', async () => {
+  const { loadReleaseExpectations } = await import('./rollout/release-expectations.mjs');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    page.setDefaultTimeout(500);
+    await page.route('**/*', route => route.abort());
+    await page.setContent(catalogHTML({ version: '0.7.2', mobile: true }), { waitUntil: 'domcontentloaded' });
+    // Controlled DOM metadata input isolates the selected-URL comparison from
+    // the separate unsupported-srcset/picture gate; no image is downloaded.
+    await page.locator('img').evaluate(image => Object.defineProperty(image, 'currentSrc', { get: () => 'https://naeil.dev/images/fish.png' }));
+    assert.equal(await page.locator('img').getAttribute('src'), 'https://naeil.dev/images/whale.png');
+    await assert.rejects(checkMenu(page, 'en', 'light', { themeControlLabels: { light: 'Theme', dark: 'Theme' } }, loadReleaseExpectations(compatibility('0.7.2'))), /Project 0 selected image mismatch/);
+  } finally { await browser.close(); }
+});
+
+test('production verifier checks action and write fences around awaited identity before creating files or a browser',async t=>{
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'standing-render-fence-')));chmodSync(root,0o700);t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const release={schemaVersion:1,...compatibility('0.7.1'),previousVersion:'0.7.0',changes:['fix']};release.archive.url='https://example.invalid/frozen.tgz';
+ const identity={schemaVersion:1,appId:'naeil',artifactId:'synthetic-site',sourceRevision:release.sourceRevision,ui:{version:release.version,contractVersion:'1'}},outputDir=join(root,'output');let current=false,fetches=0;
+ t.mock.method(globalThis,'fetch',async()=>{fetches++;current=false;return Response.json(identity);});t.mock.method(chromium,'launch',async()=>assert.fail('lost fence launched a browser'));
+ const options={release,identity,origin:'https://example.invalid',routes:[{path:'/',policy:'canonical',renderState:{access:'public'}}],referencePath:new URL('../docs/rollout/frozen/naeil-chrome-0.7.1.json',import.meta.url).pathname,outputDir,beforeAction:()=>assert(current,'generation action fence lost'),beforeWrite:()=>assert(current,'generation write fence lost')};
+ await assert.rejects(()=>verifyProduction(options),/action fence lost/);assert.equal(fetches,0);assert(!existsSync(outputDir));
+ current=true;await assert.rejects(()=>verifyProduction(options),/write fence lost/);assert.equal(fetches,1);assert(!existsSync(outputDir));
+});
+
+test('menu verification rechecks authority after awaited visibility and focus before a new input action',async()=>{
+ const {loadReleaseExpectations}=await import('./rollout/release-expectations.mjs');
+ const expectations=loadReleaseExpectations(compatibility('0.7.2'));
+ for(const drift of ['visibility','focus']) {
+  let current=true;const actions=[];
+  const trigger={isVisible:async()=>{if(drift==='visibility')current=false;return true;},focus:async()=>{actions.push('focus');if(drift==='focus')current=false;},press:async()=>{actions.push('Enter');throw Error('unfenced key input');}};
+  const page={url:()=> 'https://example.invalid/en',locator:()=>({getByRole:()=>trigger})};
+  await assert.rejects(()=>checkMenu(page,'en','light',{},expectations,()=>assert(current,'menu generation fence lost')),/menu generation fence lost/);
+  assert.deepEqual(actions,drift==='focus'?['focus']:[]);
+ }
 });
