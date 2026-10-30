@@ -95,14 +95,14 @@ jobs:
           if-no-files-found: error
       - name: Run browser coverage
         env:
-          BROWSER: ${{ matrix.browser }}
-          SUITE: ${{ matrix.suite }}
+          NAEIL_UI_TEST_BROWSER: ${{ matrix.browser }}
+          NAEIL_UI_TEST_SUITE: ${{ matrix.suite }}
         run: |
-          if [ "$SUITE" = other ]; then
+          if [ "$NAEIL_UI_TEST_SUITE" = other ]; then
             printf '%s\n' chrome-pairs.spec.ts > "$RUNNER_TEMP/paired-tests.txt"
-            pnpm test:browser --project="$BROWSER" --test-list-invert "$RUNNER_TEMP/paired-tests.txt"
+            pnpm test:browser --project="$NAEIL_UI_TEST_BROWSER" --test-list-invert "$RUNNER_TEMP/paired-tests.txt"
           else
-            pnpm test:browser e2e/chrome-pairs.spec.ts --project="$BROWSER" --fully-parallel --shard="${SUITE#pairs-}/3"
+            pnpm test:browser e2e/chrome-pairs.spec.ts --project="$NAEIL_UI_TEST_BROWSER" --fully-parallel --shard="${NAEIL_UI_TEST_SUITE#pairs-}/3"
           fi
       - name: Optional reference-workflow regressions (no credentials)
         if: matrix.browser == 'chromium' && matrix.suite == 'other'
