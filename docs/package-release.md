@@ -31,7 +31,7 @@ pnpm exec playwright install chromium firefox webkit
 pnpm test:browser
 ```
 
-The chrome fixture server and standalone navigation sample use `NAEIL_UI_FIXTURE_PORT`, with the unchanged default defined in [`scripts/chrome-fixture-config.ts`](../scripts/chrome-fixture-config.ts). The same module supplies every fixture URL. An explicit port also isolates generated fixtures, test results and HTML reports by port; leave it unset to retain the existing CI paths. Choose a free integer port from 1 to 65535.
+The chrome fixture server and standalone navigation sample use `NAEIL_UI_FIXTURE_PORT`, with the unchanged default defined in `scripts/chrome-fixture-config.ts` in the repository. The same module supplies every fixture URL. An explicit port also isolates generated fixtures, test results and HTML reports by port; leave it unset to retain the existing CI paths. Choose a free integer port from 1 to 65535.
 
 For two concurrent fixture-only runs in one worktree, use separate terminals:
 
