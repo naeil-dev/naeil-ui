@@ -61,12 +61,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: public-build-fixture
 
   storybook-and-browser:
-    # Keep slow paired comparisons below the existing 25-minute job budget.
+    # Split the slow paired file separately; equal test counts are not equal work.
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-        shard: [1, 2, 3, 4]
+        suite: [other, pairs-1, pairs-2, pairs-3]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     container:
@@ -87,15 +87,25 @@ jobs:
         run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm build:storybook
       - uses: actions/upload-artifact@v4
-        if: matrix.browser == 'chromium' && matrix.shard == 1
+        if: matrix.browser == 'chromium' && matrix.suite == 'other'
         with:
           name: storybook-preview
           path: storybook-static/
           retention-days: 14
           if-no-files-found: error
-      - run: pnpm test:browser --project=${{ matrix.browser }} --fully-parallel --shard=${{ matrix.shard }}/4
+      - name: Run browser coverage
+        env:
+          BROWSER: ${{ matrix.browser }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          if [ "$SUITE" = other ]; then
+            printf '%s\n' chrome-pairs.spec.ts > "$RUNNER_TEMP/paired-tests.txt"
+            pnpm test:browser --project="$BROWSER" --test-list-invert "$RUNNER_TEMP/paired-tests.txt"
+          else
+            pnpm test:browser e2e/chrome-pairs.spec.ts --project="$BROWSER" --fully-parallel --shard="${SUITE#pairs-}/3"
+          fi
       - name: Optional reference-workflow regressions (no credentials)
-        if: matrix.browser == 'chromium' && matrix.shard == 1
+        if: matrix.browser == 'chromium' && matrix.suite == 'other'
         run: |
           node --test skills/frontend-reference-workflow/tests/browser-check.test.cjs
           node --test skills/frontend-reference-workflow/tests/layout-comparison.test.cjs
@@ -103,7 +113,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-results-${{ matrix.browser }}-${{ matrix.shard }}
+          name: browser-results-${{ matrix.browser }}-${{ matrix.suite }}
           path: |
             test-results/
             playwright-report/
