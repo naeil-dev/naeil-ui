@@ -47,7 +47,7 @@ The instruction identities and final implementation hashes are recorded in navig
 
 `docs/design/navigation-footer-sample.html` embeds the actual current Navigation stories, React runtime, compiled shared CSS, Pretendard Variable and notices. It opens from a local file without a development server. Build with `pnpm exec tsx scripts/build-navigation-sample.ts`; preview-only controls switch Home/website/long labels, iframe width and theme. No shared component behavior was changed for packaging.
 
-Verified local-file rendering, desktop navigation, mobile sheet, page changes, both theme controls, website/footer switching and no outer overflow at 390px. Typecheck passed. The private preview serves only this HTML on 127.0.0.1:6008 through Tailscale Serve HTTPS port 6447; the `.html` route downloads the file. Stop the preview proxy with `tailscale serve --https=6447 off`. Existing 443 and 2455 services are unchanged.
+Verified local-file rendering, desktop navigation, mobile sheet, page changes, both theme controls, website/footer switching and no outer overflow at 390px. Typecheck passed. The private preview serves only this HTML on the loopback fixture port (default in [`scripts/chrome-fixture-config.ts`](../../scripts/chrome-fixture-config.ts)) through Tailscale Serve HTTPS port 6447; the `.html` route downloads the file. Override the local port with `NAEIL_UI_FIXTURE_PORT=16083 pnpm exec tsx scripts/serve-navigation-sample.ts`; an existing proxy still targets its configured upstream and is not updated by this variable. Stop the preview proxy with `tailscale serve --https=6447 off`. Existing 443 and 2455 services are unchanged.
 
 ## Desktop brand alignment and sample deployment — 2026-10-13
 

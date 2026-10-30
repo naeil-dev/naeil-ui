@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { fixturePort, fixtureURL, fixtureDirectory, fixtureResults, fixtureReport } from "./scripts/chrome-fixture-config";
 
 const previewPort = Number(process.env.NAEIL_UI_STORYBOOK_PORT || 6007);
 const scrollbarMode = process.env.NAEIL_UI_SCROLLBAR_MODE;
@@ -13,7 +14,8 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
-  reporter: [["list"], ["html", { open: "never" }]],
+  outputDir: fixtureResults,
+  reporter: [["list"], ["html", { open: "never", outputFolder: fixtureReport }]],
   use: {
     baseURL: `http://127.0.0.1:${previewPort}`,
     viewport: { width: 1440, height: 1000 },
@@ -32,8 +34,8 @@ export default defineConfig({
     stdout: "ignore" as const,
     stderr: "ignore" as const,
   }]), {
-    command: "tsx scripts/build-chrome-fixtures.ts && NAEIL_UI_PREVIEW_PORT=6008 tsx scripts/serve-storybook.ts test-results/chrome-fixtures",
-    url: "http://127.0.0.1:6008/identity.json",
+    command: `tsx scripts/build-chrome-fixtures.ts && NAEIL_UI_PREVIEW_PORT=${fixturePort} tsx scripts/serve-storybook.ts ${fixtureDirectory}`,
+    url: `${fixtureURL}/identity.json`,
     reuseExistingServer: false,
     timeout: 120000,
   }],
