@@ -4,6 +4,7 @@ import {
   createDecipheriv,
   randomBytes,
   createHmac,
+  hkdfSync,
 } from "node:crypto";
 import { readInviteConfig, type InviteConfig } from "./invite-config";
 import { temporaryMarker, UUID, type AuthUser } from "./password-policy";
@@ -38,11 +39,22 @@ export function loginConfig() {
     throw new LoginFailure();
   return c;
 }
+function purposeKey(config: InviteConfig, purpose: "cookie" | "operation") {
+  return Buffer.from(
+    hkdfSync(
+      "sha256",
+      Buffer.from(config.encryptionKey!, "base64url"),
+      "naeil-site-password-v1",
+      purpose,
+      32,
+    ),
+  );
+}
 export function changeCookie(
   config: InviteConfig,
   value: ChangeOperation | string,
 ): string | ChangeOperation {
-  const key = Buffer.from(config.encryptionKey!, "base64url");
+  const key = purposeKey(config, "cookie");
   if (typeof value !== "string") {
     const iv = randomBytes(12),
       cipher = createCipheriv("aes-256-gcm", key, iv);
@@ -98,7 +110,10 @@ export function authTransport(
       const r = await fetcher(config.supabaseUrl + path, {
         method,
         headers: {
-          apikey: config.anonKey,
+          apikey:
+            token === config.serviceRoleKey
+              ? config.serviceRoleKey
+              : config.anonKey,
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
@@ -198,10 +213,7 @@ export async function newChange(
   )
     throw new LoginFailure(409, "reissued");
   // Same session/generation/rejection predecessor => same durable admission, including concurrent tabs.
-  const bytes = createHmac(
-    "sha256",
-    Buffer.from(config.encryptionKey!, "base64url"),
-  )
+  const bytes = createHmac("sha256", purposeKey(config, "operation"))
     .update(
       JSON.stringify([
         "S2-password-change",
@@ -276,7 +288,7 @@ async function advanceChange(
             (e.status === 400 &&
               [
                 "current_password_required",
-                "current_password_mismatch",
+                "current_password_invalid",
                 "reauthentication_needed",
               ].includes(e.code)))
         )
@@ -321,64 +333,6 @@ async function advanceChange(
     throw new LoginFailure(409, "reissued");
   if (current.must_change || current.locked) throw new LoginFailure();
 }
-export async function expiredLogin(
-  email: string,
-  error: { status?: number; code?: string },
-  config: InviteConfig,
-  fetcher?: typeof fetch,
-) {
-  if (
-    ![
-      [409, "PT409"],
-      [400, "user_banned"],
-      [403, "user_banned"],
-      [500, "unexpected_failure"],
-    ].some(([s, c]) => error.status === s && error.code === c)
-  )
-    return false;
-  const call = authTransport(config, fetcher);
-  const data = record(
-    await call(
-      `/auth/v1/admin/users?filter=${encodeURIComponent(email)}&page=1&per_page=2`,
-      config.serviceRoleKey,
-    ),
-  );
-  if (!Array.isArray(data.users)) return false;
-  const u = data.users.find(
-    (v) =>
-      v &&
-      typeof v === "object" &&
-      (v as { email?: string }).email?.toLowerCase() === email,
-  ) as (AuthUser & { banned_until?: string }) | undefined;
-  if (!u || !UUID.test(u.id) || !temporaryMarker(u)) return false;
-  if (
-    temporaryMarker(u)?.locked ||
-    Date.parse(u.banned_until || "") > Date.now()
-  )
-    return true;
-  // Start immediately below the exact UUID; the bounded expired read must contain this user first if expired.
-  const n = BigInt("0x" + u.id.replaceAll("-", "")) - BigInt(1);
-  const after =
-    n < 0
-      ? null
-      : n
-          .toString(16)
-          .padStart(32, "0")
-          .replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, "$1-$2-$3-$4-$5");
-  const rows = await call(
-    "/rest/v1/rpc/console_temp_list",
-    config.serviceRoleKey,
-    "POST",
-    { p_after: after, p_sweep: true },
-  );
-  return (
-    Array.isArray(rows) &&
-    rows.some(
-      (v) => v?.userId === u.id && ["expired", "locked"].includes(v.state),
-    )
-  );
-}
-
 export async function performChange(
   config: InviteConfig,
   token: string,

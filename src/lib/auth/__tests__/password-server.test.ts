@@ -4,7 +4,6 @@ import {
   changeCookie,
   newChange,
   performChange,
-  expiredLogin,
   LoginFailure,
   type ChangeOperation,
 } from "../password-server";
@@ -42,7 +41,9 @@ function fixture(
     failure?: string;
     generation?: number;
     malformed?: boolean;
+    bad?: string;
     reject?: boolean;
+    currentInvalid?: boolean;
     ambiguous?: number;
   } = {},
 ) {
@@ -50,6 +51,7 @@ function fixture(
     path: string;
     method: string;
     key: string;
+    api: string;
     body: Record<string, unknown>;
   }[] = [];
   let applied = false;
@@ -61,6 +63,7 @@ function fixture(
       path,
       method,
       key: new Headers(init?.headers).get("Authorization") || "",
+      api: new Headers(init?.headers).get("apikey") || "",
       body,
     });
     if (path.endsWith("/user") && method === "PUT") {
@@ -69,6 +72,11 @@ function fixture(
           { error_code: "edge_timeout" },
           { status: options.ambiguous },
         );
+      if (options.currentInvalid)
+        return Response.json(
+          { error_code: "current_password_invalid" },
+          { status: 400 },
+        );
       if (options.reject)
         return Response.json({ error_code: "weak_password" }, { status: 422 });
       if (options.failure === "password") throw new Error("response lost");
@@ -76,12 +84,16 @@ function fixture(
     }
     if (path.endsWith("/user"))
       return Response.json({
-        id: uid,
+        id: applied && options.bad === "fresh-user" ? sid : uid,
         app_metadata: {
           console_temp: {
             ...marker,
-            generation: options.generation || 2,
-            must_change: !applied,
+            generation:
+              applied && options.bad === "fresh-generation"
+                ? 3
+                : options.generation || 2,
+            must_change: options.bad === "fresh-change" ? true : !applied,
+            locked: applied && options.bad === "fresh-lock",
           },
         },
       });
@@ -89,7 +101,7 @@ function fixture(
       return Response.json({
         userId: uid,
         operationId: oid,
-        generation: 2,
+        generation: options.bad === "plan-generation" ? 3 : 2,
         dispatch: options.dispatch ?? true,
       });
     if (path.endsWith("console_temp_operation"))
@@ -103,7 +115,11 @@ function fixture(
         return Response.json({ code: "PT409" }, { status: 409 });
       return Response.json({
         userId: options.malformed ? sid : uid,
-        marker: { ...marker, must_change: false },
+        marker: {
+          ...marker,
+          must_change: false,
+          operation_id: options.bad === "marker-operation" ? sid : oid,
+        },
         applied,
       });
     }
@@ -173,6 +189,8 @@ describe("S2 site-direct completion", () => {
       f.calls[1].key.endsWith(config.serviceRoleKey) &&
         f.calls[2].key.endsWith(token),
     ).toBe(true);
+    expect(f.calls[1].api).toBe(config.serviceRoleKey);
+    expect(f.calls[2].api).toBe(config.anonKey);
     expect(f.calls[4].body).toEqual({
       app_metadata: { console_temp: { ...marker, must_change: false } },
     });
@@ -211,15 +229,18 @@ describe("S2 site-direct completion", () => {
       );
     }
   });
-  it("confirmed rejection never invokes completion", async () => {
-    const f = fixture({ reject: true });
-    await expect(
-      performChange(config, token, op, password, f.fetcher),
-    ).rejects.toMatchObject({ code: "rejected" });
-    expect(
-      f.calls.some((c) => c.path.endsWith("console_temp_complete_change")),
-    ).toBe(false);
-  });
+  it.each([{ reject: true }, { currentInvalid: true }])(
+    "confirmed rejection never invokes completion (%s)",
+    async (options) => {
+      const f = fixture(options);
+      await expect(
+        performChange(config, token, op, password, f.fetcher),
+      ).rejects.toMatchObject({ code: "rejected" });
+      expect(
+        f.calls.some((c) => c.path.endsWith("console_temp_complete_change")),
+      ).toBe(false);
+    },
+  );
   it("reports a generation race during completion as reissued", async () => {
     const f = fixture({ failure: "completion-reissue" });
     await expect(
@@ -248,50 +269,29 @@ describe("S2 site-direct completion", () => {
       )("/auth/v1/user", token),
     ).rejects.toThrow("Sign-in operation unavailable");
   });
-  it("reads fresh expiry evidence only after a typed temp/ban error", async () => {
-    let count = 0;
-    const fetcher: typeof fetch = async (input) => {
-      count++;
-      return Response.json(
-        String(input).includes("admin/users?")
-          ? {
-              users: [
-                {
-                  id: uid,
-                  email: "temp@users.naeil.dev",
-                  app_metadata: { console_temp: marker },
-                },
-              ],
-            }
-          : [{ userId: uid, state: "expired" }],
-      );
-    };
-    expect(
-      await expiredLogin(
-        "temp@users.naeil.dev",
-        { status: 400, code: "invalid_credentials" },
-        config,
-        fetcher,
-      ),
-    ).toBe(false);
-    expect(count).toBe(0);
-    expect(
-      await expiredLogin(
-        "temp@users.naeil.dev",
-        { status: 409, code: "PT409" },
-        config,
-        fetcher,
-      ),
-    ).toBe(true);
-    expect(count).toBe(2);
-    expect(
-      await expiredLogin(
-        "temp@users.naeil.dev",
-        { status: 400, code: "user_banned" },
-        config,
-        fetcher,
-      ),
-    ).toBe(true);
+  it.each([
+    "marker-operation",
+    "plan-generation",
+    "fresh-user",
+    "fresh-generation",
+    "fresh-change",
+    "fresh-lock",
+  ])("rejects invalid completion proof %s", async (bad) => {
+    const f = fixture({ bad });
+    await expect(
+      performChange(config, token, op, password, f.fetcher),
+    ).rejects.toThrow(LoginFailure);
+  });
+  it("rejects an expired cookie and a JWT belonging to another subject", async () => {
+    const sealed = changeCookie(config, {
+      ...op,
+      expires: Date.now() - 1,
+    }) as string;
+    expect(() => changeCookie(config, sealed)).toThrow(LoginFailure);
+    const other = `header.${Buffer.from(JSON.stringify({ sub: sid, session_id: sid })).toString("base64url")}.signature`;
+    await expect(newChange(config, other, fixture().fetcher)).rejects.toThrow(
+      LoginFailure,
+    );
   });
   it("gates malformed/server temporary metadata and validates IDs", () => {
     expect(
