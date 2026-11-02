@@ -46,7 +46,7 @@ export function CredentialForms({
       form.current?.reset();
       if ("location" in result && typeof result.location === "string")
         window.location.assign(result.location);
-      else setStatus(result.status);
+      else setStatus(result.status === "ready" ? "" : result.status);
     } catch {
       form.current?.reset();
       setStatus(change ? "retry" : "error");
