@@ -1,3 +1,4 @@
+import {applyCookies} from "./invite-fixture";
 import { describe, it, expect } from "vitest";
 import { runInNewContext } from "node:vm";
 import { createInviteHandler } from "../invite";
@@ -39,7 +40,11 @@ async function recoveryPage(
           verificationType: "invite",
         });
       if (p.endsWith("/verify"))
-        return Response.json({ access_token: token, user });
+        return Response.json({
+          access_token: token,
+          refresh_token: "fixture-refresh-token",
+          user,
+        });
       if (p.endsWith("/user")) return Response.json(user);
       if (p.endsWith("record_verification"))
         return Response.json({
@@ -115,14 +120,13 @@ async function recoveryPage(
   const fetch = async (_input: string, init: RequestInit) => {
     const method = init.method || "GET";
     const action =
-      method === "POST" ? JSON.parse(String(init.body)).action : "status";
+      method === "POST" ? JSON.parse(String(init.body)).action : "bootstrap";
     browser.push(action);
     const r =
       method === "POST"
         ? await h.POST(request("POST", String(init.body)))
         : await h.GET(request("GET"));
-    const next = r.headers.get("set-cookie");
-    if (next) cookie = next.split(";")[0];
+    cookie=applyCookies(cookie,r);
     if (!lost && action === lostAction && r.ok) {
       lost = true;
       if (kind === "network") throw new TypeError("Response lost");
@@ -180,17 +184,23 @@ describe("real-handler recovery after successful response loss", () => {
     async (kind) => {
       const t = await recoveryPage("stage", kind);
       expect(t.browser).toEqual(["stage"]);
-      expect(t.upstream).toHaveLength(0);
+      expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(0);
       expect(t.nodes.get("confirm")!.hidden).toBe(false);
       await t.click();
-      expect(t.browser).toEqual(["stage", "status"]);
-      expect(t.upstream).toHaveLength(0);
+      expect(t.browser).toEqual(["stage", "bootstrap", "status"]);
+      expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(0);
       expect(t.nodes.get("confirm")!.hidden).toBe(false);
       await t.click();
-      expect(t.browser).toEqual(["stage", "status", "stage"]);
-      expect(t.upstream).toHaveLength(0);
+      expect(t.browser).toEqual(["stage", "bootstrap", "status", "stage"]);
+      expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(0);
       await t.click();
-      expect(t.browser).toEqual(["stage", "status", "stage", "confirm"]);
+      expect(t.browser).toEqual([
+        "stage",
+        "bootstrap",
+        "status",
+        "stage",
+        "confirm",
+      ]);
       expect(t.nodes.get("links")!.children).toHaveLength(1);
       expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
     },
@@ -201,10 +211,10 @@ describe("real-handler recovery after successful response loss", () => {
       const t = await recoveryPage("confirm", kind);
       await t.click();
       expect(t.browser).toEqual(["stage", "confirm"]);
-      expect(t.upstream).toHaveLength(5);
+      expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
       await t.click();
-      expect(t.browser).toEqual(["stage", "confirm", "status"]);
-      expect(t.upstream).toHaveLength(5);
+      expect(t.browser).toEqual(["stage", "confirm", "bootstrap", "status"]);
+      expect(t.upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
       expect(
         t.upstream.filter((p) => p.endsWith("record_verification")),
       ).toHaveLength(1);

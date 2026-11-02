@@ -39,11 +39,15 @@ describe("actual exported invitation route", () => {
     expect(r.headers.get("referrer-policy")).toBe("no-referrer");
     expect(r.headers.get("cache-control")).toContain("no-store");
   });
-  it("uses __Host secure HTTPS cookies and stages with no upstream request", async () => {
+  it("uses host-only receipt cookies and validates proof before staging", async () => {
     config();
-    const network = vi.fn(() => {
-      throw new Error("No upstream during stage");
-    });
+    const network = vi.fn<typeof fetch>(async () =>
+      Response.json({
+        userId: "20000000-0000-4000-8000-000000000002",
+        email: "recipient@example.test",
+        verificationType: "invite",
+      }),
+    );
     vi.stubGlobal("fetch", network);
     const r = await GET(
       new Request("https://naeil.dev/auth/invite", {
@@ -76,7 +80,10 @@ describe("actual exported invitation route", () => {
     );
     expect(staged.status).toBe(200);
     expect((await staged.json()).status).toBe("staged");
-    expect(network).not.toHaveBeenCalled();
+    expect(network).toHaveBeenCalledTimes(1);
+    expect(String(network.mock.calls[0]?.[0])).toContain(
+      "console_invite_preflight",
+    );
   });
   it("rejects authority in query, forwarded origin and duplicate invitation cookies", async () => {
     config();

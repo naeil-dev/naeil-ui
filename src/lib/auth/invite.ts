@@ -1,6 +1,17 @@
-import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import {
+  createHash,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 import { readInviteConfig, type InviteConfig } from "./invite-config";
 import { invitePage } from "./invite-page";
+import {
+  inviteSession,
+  inviteSessionClaims,
+  InviteSessionExpired,
+  type InviteCredentials,
+} from "./invite-session";
 import {
   InviteStore,
   inviteProofIdentity,
@@ -22,10 +33,12 @@ type Envelope = {
   nonce: string;
   token_hash: string;
 };
-type Verified = { accessToken: string; userId: string; sessionId: string };
+type Verified = InviteCredentials;
 export type Transaction = {
   expires: number;
   csrf: string;
+  handle?: string;
+  session?: InviteCredentials;
   proof?: Envelope;
   proofIdentity?: { id: string; version: number; fingerprint: string };
   verified?: Verified;
@@ -44,6 +57,11 @@ type Dependencies = {
 class Failure extends Error {
   constructor(readonly status: number) {
     super("Invitation unavailable");
+  }
+}
+class SwitchAccount extends Error {
+  constructor(readonly userId: string) {
+    super("Explicit account switch required");
   }
 }
 const fresh = () => randomBytes(32).toString("base64url");
@@ -186,6 +204,10 @@ function terminalDenial(path: string, status: number, text: string): boolean {
     "prepared proof conflict",
   ];
   const denials: Record<string, Record<number, string[]>> = {
+    "/rest/v1/rpc/console_invite_tx_admit": {
+      404: [proof[0]],
+      409: proof.slice(1),
+    },
     "/rest/v1/rpc/console_invite_preflight": {
       404: [proof[0]],
       409: proof.slice(1),
@@ -206,6 +228,10 @@ function terminalDenial(path: string, status: number, text: string): boolean {
         "recipient proof conflict",
         "invitation expired or closed",
         "member conflict",
+        "confirmed email required",
+        "invitation creator authority conflict",
+        "accepted subject conflict",
+        "verification receipt conflict",
       ],
       422: [
         "bounded invitation proof required",
@@ -282,10 +308,13 @@ function boundary(request: Request, config: InviteConfig, post: boolean) {
     throw new Failure(403);
   if (
     !["/auth/invite", "/auth/invite/"].includes(url.pathname) ||
-    [...url.searchParams].some(
-      ([k, v]) => k !== "locale" || !["ko", "ja", "en"].includes(v),
+    [...url.searchParams].some(([k, v]) =>
+      k === "locale"
+        ? !["ko", "ja", "en"].includes(v)
+        : k !== "next" || !Object.values(LINKS).some((link) => link.href === v),
     ) ||
-    url.searchParams.getAll("locale").length > 1
+    url.searchParams.getAll("locale").length > 1 ||
+    url.searchParams.getAll("next").length > 1
   )
     throw new Failure(400);
 }
@@ -315,6 +344,25 @@ export function inviteCanonicalResponse(request: Request): Response {
 export function createInviteHandler(deps: Dependencies = {}) {
   const transactions = new Map<string, Transaction>();
   const now = deps.now || Date.now;
+  const localCsrfKey = fresh();
+  const csrfFor = (handle: string, config: InviteConfig) =>
+    createHmac("sha256", config.encryptionKey || localCsrfKey)
+      .update(`naeil-invite-csrf-v1:${handle}`)
+      .digest("base64url");
+  const sessionFetch: typeof fetch = async (input, init) => {
+    try {
+      const r = await (deps.fetch || fetch)(input, {
+        ...init,
+        redirect: "error",
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+      });
+      const text = await boundedText(r.body, 65536);
+      return new Response(text, { status: r.status, headers: r.headers });
+    } catch {
+      throw new Error("Invitation session unavailable");
+    }
+  };
   const configReader = deps.readConfig || readInviteConfig;
   async function call(
     config: InviteConfig,
@@ -377,6 +425,8 @@ export function createInviteHandler(deps: Dependencies = {}) {
     t: Transaction,
     config: InviteConfig,
     checkpoint?: (phase: InvitePhase) => Promise<void>,
+    current?: Awaited<ReturnType<ReturnType<typeof inviteSession>["current"]>>,
+    switchFrom?: unknown,
   ) {
     const p = t.proof;
     if (!p) throw new Failure(409);
@@ -396,55 +446,56 @@ export function createInviteHandler(deps: Dependencies = {}) {
       if (
         !uuid(pre.userId) ||
         !email(pre.email) ||
-        !["invite", "recovery"].includes(String(pre.verificationType))
+        !["invite", "recovery"].includes(String(pre.verificationType)) ||
+        (pre.registrationComplete !== undefined &&
+          typeof pre.registrationComplete !== "boolean")
       )
         throw new Failure(503);
       if (t.expires <= now()) throw new Failure(409);
-      // The durable claim must survive before the single-use external effect.
+      if (
+        current &&
+        current.userId !== pre.userId &&
+        switchFrom !== current.userId
+      )
+        throw new SwitchAccount(current.userId);
+      // SQL005 has one path into candidate, including trigger-first readback.
       await checkpoint?.("verifying");
       if (t.expires <= now()) throw new Failure(409);
-      const auth = await call(config, "/auth/v1/verify", config.anonKey, {
-        token_hash: p.token_hash,
-        type: pre.verificationType,
-      });
-      if (
-        typeof auth.access_token !== "string" ||
-        auth.access_token.length > 16384 ||
-        !object(auth.user)
-      )
-        throw new Failure(503);
-      let claims: Record<string, unknown>;
-      try {
-        const pieces = auth.access_token.split(".");
-        if (pieces.length !== 3) throw new Error();
-        claims = JSON.parse(
-          Buffer.from(pieces[1], "base64url").toString("utf8"),
-        );
-        if (!object(claims)) throw new Error();
-      } catch {
-        throw new Failure(503);
+      if (pre.registrationComplete === true && current?.userId === pre.userId) {
+        t.candidate = { ...current, email: pre.email };
+      } else {
+        // A lost one-use verify response remains uncertain; never call it again.
+        const auth = await call(config, "/auth/v1/verify", config.anonKey, {
+          token_hash: p.token_hash,
+          type: pre.verificationType,
+        });
+        if (
+          typeof auth.access_token !== "string" ||
+          auth.access_token.length > 16384 ||
+          typeof auth.refresh_token !== "string" ||
+          !/^[A-Za-z0-9._~-]{16,512}$/.test(auth.refresh_token) ||
+          !object(auth.user)
+        )
+          throw new Failure(503);
+        const claims = inviteSessionClaims(auth.access_token);
+        if (
+          claims.sub !== pre.userId ||
+          claims.exp * 1000 <= now() ||
+          auth.user.id !== pre.userId ||
+          auth.user.email !== pre.email ||
+          typeof auth.user.email_confirmed_at !== "string" ||
+          !Number.isFinite(Date.parse(auth.user.email_confirmed_at))
+        )
+          throw new Failure(503);
+        if (t.expires <= now()) throw new Failure(409);
+        t.candidate = {
+          accessToken: auth.access_token,
+          refreshToken: auth.refresh_token,
+          userId: claims.sub,
+          sessionId: claims.session_id,
+          email: pre.email,
+        };
       }
-      if (
-        !uuid(claims.sub) ||
-        !uuid(claims.session_id) ||
-        claims.sub !== pre.userId ||
-        typeof claims.exp !== "number" ||
-        claims.exp * 1000 <= now() ||
-        auth.user.id !== pre.userId ||
-        auth.user.email !== pre.email ||
-        typeof auth.user.email_confirmed_at !== "string" ||
-        !Number.isFinite(Date.parse(auth.user.email_confirmed_at))
-      )
-        throw new Failure(503);
-      if (t.expires <= now()) throw new Failure(409);
-      // This candidate is never authority until the fresh /user check succeeds.
-      // Retaining it permits explicit retry if /user loses its response after OTP use.
-      t.candidate = {
-        accessToken: auth.access_token,
-        userId: claims.sub,
-        sessionId: claims.session_id,
-        email: pre.email,
-      };
       await checkpoint?.("candidate");
     }
     if (!t.verified) {
@@ -461,14 +512,15 @@ export function createInviteHandler(deps: Dependencies = {}) {
       if (t.expires <= now()) throw new Failure(409);
       t.verified = {
         accessToken: candidate.accessToken,
+        refreshToken: candidate.refreshToken,
         userId: candidate.userId,
         sessionId: candidate.sessionId,
       };
       t.candidate = undefined;
       await checkpoint?.("verified");
     }
-    // Once a receipt is known, do not re-record after an unknown acceptance outcome.
-    // record_verification correctly rejects a now-accepted invitation; accept replays it.
+    // An unknown accept result needs only its same-user readback, never another
+    // receipt mutation or grant.
     if (!t.receiptRecorded) {
       if (t.expires <= now()) throw new Failure(409);
       const recorded = await call(
@@ -485,7 +537,10 @@ export function createInviteHandler(deps: Dependencies = {}) {
         recorded.verified !== true ||
         typeof recorded.expiresAt !== "string" ||
         !Number.isFinite(Date.parse(recorded.expiresAt)) ||
-        Date.parse(recorded.expiresAt) <= now()
+        (recorded.registrationComplete !== undefined &&
+          recorded.registrationComplete !== true) ||
+        (recorded.registrationComplete !== true &&
+          Date.parse(recorded.expiresAt) <= now())
       )
         throw new Failure(503);
       t.receiptRecorded = true;
@@ -516,6 +571,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
     t.links = Object.keys(LINKS)
       .filter((s) => (receipt.services as string[]).includes(s))
       .map((s) => LINKS[s as keyof typeof LINKS]);
+    t.session = t.verified;
     t.proof = undefined;
     t.verified = undefined;
     t.candidate = undefined;
@@ -550,14 +606,10 @@ export function createInviteHandler(deps: Dependencies = {}) {
             args,
           ),
         );
-      if (durable && id) {
-        store = durableStore(id);
-        t = await store.read();
-      } else t = id ? transactions.get(id) : undefined;
       if (post) {
-        if (!t) throw new Failure(403);
         const data = await body(request);
-        if (!equal(data.csrf, t.csrf)) throw new Failure(403);
+        if (!id || !equal(data.csrf, csrfFor(id, config)))
+          throw new Failure(403);
         if (data.action === "stage") {
           if (
             !exactKeys(data, [
@@ -572,94 +624,158 @@ export function createInviteHandler(deps: Dependencies = {}) {
             throw new Failure(400);
           const p = envelope(data);
           if (!p) throw new Failure(400);
-          const rotated =
-            !!store &&
-            t.proofIdentity?.id === p.id &&
-            p.version > t.proofIdentity.version;
-          if (rotated) {
-            // An explicitly supplied resend gets a separate lifetime and handle.
-            // Never claim or rewrite the old row, especially terminal uncertainty.
-            id = fresh();
-            store = durableStore(id);
-            t = await store.create({ expires: now() + TTL, csrf: fresh() });
-            // The new handle must remain recoverable if its stage checkpoint
-            // commits but the response is lost. GET reads empty/staged DB truth.
-            setCookie(id);
-          }
+          // No allocation (even a capacity slot) until SQL003 validates the proof.
+          const pre = await call(
+            config,
+            "/rest/v1/rpc/console_invite_preflight",
+            config.serviceRoleKey,
+            {
+              p_invite_id: p.id,
+              p_version: p.version,
+              p_nonce_hash: hash(p.nonce),
+              p_token_hash_hash: hash(p.token_hash),
+            },
+          );
           if (
-            t.pending ||
-            t.links ||
-            t.invalid ||
-            t.uncertain ||
-            t.verified ||
-            t.candidate
+            !uuid(pre.userId) ||
+            !email(pre.email) ||
+            !["invite", "recovery"].includes(String(pre.verificationType))
           )
-            throw new Failure(409);
-          if (t.proof && JSON.stringify(t.proof) !== JSON.stringify(p))
-            throw new Failure(409);
-          if (store) {
-            t = await store.claim();
-            // Rotation already checked the previous handle's CSRF. A new row's
-            // random CSRF was never sent by that previous tab.
-            if (!rotated && !equal(data.csrf, t.csrf))
-              throw new Failure(403);
-          }
-          t.proof = p;
-          t.proofIdentity = inviteProofIdentity(p);
-          t.csrf = fresh();
-          if (store) await store.checkpoint(t, "staged");
-        } else if (data.action === "confirm") {
-          if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
-          if (t.invalid || t.uncertain || (!t.proof && !t.links))
-            throw new Failure(409);
-          if (!t.links) {
-            if (store) {
-              t = await store.claim();
-              if (!equal(data.csrf, t.csrf)) throw new Failure(403);
-              const current = t;
-              await accept(t, config, (phase) =>
-                store!.checkpoint(current, phase),
-              );
-            } else {
-              if (!t.pending) {
-                const current = t;
-                t.pending = accept(t, config).catch((e) => {
-                  if (e instanceof Failure && e.status === 409) {
-                    current.invalid = true;
-                    current.proof = undefined;
-                    current.verified = undefined;
-                    current.candidate = undefined;
-                    current.receiptRecorded = undefined;
-                  }
-                  throw e;
-                });
-              }
-              const pending = t.pending;
-              try {
-                await pending;
-              } finally {
-                if (t.pending === pending) t.pending = undefined;
-              }
+            throw new Failure(503);
+          const handle = fresh();
+          t = {
+            handle,
+            expires: now() + TTL,
+            csrf: csrfFor(handle, config),
+            proofIdentity: inviteProofIdentity(p),
+          };
+          if (durable) {
+            store = durableStore(handle);
+            t = await store.admit(t, p);
+          } else {
+            const previous = [...transactions.values()].find(
+              (v) =>
+                v.proofIdentity?.fingerprint === t!.proofIdentity!.fingerprint,
+            );
+            if (previous) t = previous;
+            else {
+              if (transactions.size >= MAX_TRANSACTIONS) throw new Failure(503);
+              transactions.set(handle, t);
             }
           }
-          if (!store) t.csrf = fresh();
-        } else if (data.action === "status") {
-          if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
-        } else throw new Failure(400);
+          setCookie(t.handle!);
+          if (state(t) === "empty") {
+            if (store) t = await store.claim();
+            t.proof = p;
+            if (store) await store.checkpoint(t, "staged");
+          }
+        } else {
+          if (durable) {
+            store = durableStore(id);
+            t = await store.read();
+          } else t = transactions.get(id);
+          t ??= { expires: now() + TTL, csrf: csrfFor(id, config) };
+          t.csrf = csrfFor(id, config); // Legacy encrypted rows used random CSRF.
+          if (data.action === "confirm") {
+            if (
+              !exactKeys(
+                data,
+                data.switchFrom === undefined
+                  ? ["action", "csrf"]
+                  : ["action", "csrf", "switchFrom"],
+              ) ||
+              (data.switchFrom !== undefined && !uuid(data.switchFrom))
+            )
+              throw new Failure(400);
+            if (t.invalid || t.uncertain || (!t.proof && !t.links))
+              throw new Failure(409);
+            const session = inviteSession(request, config, h, sessionFetch),
+              current = await session.current();
+            const expected =
+              t.session?.userId || t.verified?.userId || t.candidate?.userId;
+            if (
+              current &&
+              expected &&
+              current.userId !== expected &&
+              data.switchFrom !== current.userId
+            )
+              throw new SwitchAccount(current.userId);
+            if (!t.links) {
+              if (store) {
+                t = await store.claim();
+                t.csrf = csrfFor(id, config);
+                const claimed = t;
+                await accept(
+                  t,
+                  config,
+                  (phase) => store!.checkpoint(claimed, phase),
+                  current,
+                  data.switchFrom,
+                );
+              } else {
+                if (!t.pending)
+                  t.pending = accept(
+                    t,
+                    config,
+                    undefined,
+                    current,
+                    data.switchFrom,
+                  ).finally(() => {
+                    t!.pending = undefined;
+                  });
+                await t.pending;
+              }
+            }
+            await store?.release();
+            try {
+              if (!t.session) throw new InviteSessionExpired();
+              if (current?.userId !== t.session.userId || current.sessionId !== t.session.sessionId)
+                await session.install(t.session);
+            } catch (e) {
+              if (!(e instanceof InviteSessionExpired)) throw e;
+              return Response.json(
+                { ...dto(t), status: "signin" },
+                { headers: h },
+              );
+            }
+          } else if (data.action === "status") {
+            if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
+            if (t.links) {
+              const current = await inviteSession(
+                request,
+                config,
+                h,
+                sessionFetch,
+              ).current();
+              if (current && t.session && current.userId !== t.session.userId)
+                throw new SwitchAccount(current.userId);
+              if (!current || !t.session)
+                return Response.json(
+                  { ...dto(t), status: t.session ? "delivery" : "signin" },
+                  { headers: h },
+                );
+            }
+          } else throw new Failure(400);
+        }
         await store?.release();
-        return Response.json(dto(t), { headers: h });
+        const result = {
+            ...dto(t),
+            ...(data.action === "stage" && t.links
+              ? { status: "delivery" }
+              : {}),
+          },
+          next = new URL(request.url).searchParams.get("next");
+        if (next && result.links)
+          result.links = [...result.links].sort(
+            (a, b) => Number(b.href === next) - Number(a.href === next),
+          );
+        return Response.json(result, { headers: h });
       }
-      if (!t) {
-        if (!durable && transactions.size >= MAX_TRANSACTIONS)
-          throw new Failure(503);
-        id = fresh();
-        t = { expires: now() + TTL, csrf: fresh() };
-        if (durable) {
-          store = durableStore(id);
-          t = await store.create(t);
-        } else transactions.set(id, t);
-        setCookie(id);
-      }
+      // Anonymous GET/HEAD are inert: only a signed bootstrap CSRF cookie, no RPC.
+      id ??= fresh();
+      setCookie(id);
+      t = { expires: now() + TTL, csrf: csrfFor(id, config) };
+      if (request.method === "HEAD") return new Response(null, { headers: h });
       if (
         request.headers
           .get("accept")
@@ -689,6 +805,20 @@ export function createInviteHandler(deps: Dependencies = {}) {
         },
       );
     } catch (e) {
+      if (e instanceof SwitchAccount) {
+        try {
+          await store?.release();
+        } catch {
+          return Response.json(
+            { status: "unavailable" },
+            { status: 503, headers: h },
+          );
+        }
+        return Response.json(
+          { status: "switch", csrf: t?.csrf, switchFrom: e.userId },
+          { status: 409, headers: h },
+        );
+      }
       let status = e instanceof Failure ? e.status : 503;
       if (store && t) {
         try {
@@ -708,6 +838,12 @@ export function createInviteHandler(deps: Dependencies = {}) {
         } catch {
           status = 503;
         }
+      }
+      if (!store && t && status === 409) {
+        t.invalid = true;
+        t.proof = undefined;
+        t.candidate = undefined;
+        t.verified = undefined;
       }
       return Response.json(
         {

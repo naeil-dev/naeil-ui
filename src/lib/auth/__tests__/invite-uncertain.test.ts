@@ -61,6 +61,8 @@ function render(
       fetch: async (_url: string, init: RequestInit) => {
         calls.push(init.method || "GET");
         if (init.body) payloads.push(JSON.parse(String(init.body)));
+        if (init.method === "GET")
+          return Response.json({ status: "empty", csrf: "c".repeat(43) });
         const next = replies.shift()!;
         if (next.lost) throw new TypeError("Whole response including cookie lost");
         return Response.json(next.body, { status: next.status });
@@ -102,7 +104,7 @@ describe("honest unrecoverable verification copy", () => {
     ]);
     await f.clicks.get("confirm")!();
     await f.clicks.get("confirm")!();
-    expect(f.calls).toEqual(["POST", "GET"]);
+    expect(f.calls).toEqual(["POST", "GET", "POST"]);
     expect(f.nodes.get("status")!.textContent).toContain(
       "verification result cannot be recovered",
     );
@@ -148,13 +150,26 @@ describe("honest unrecoverable verification copy", () => {
       await f.settle();
       expect(f.payloads.map((payload) => payload.action)).toEqual(["stage"]);
       await f.clicks.get("confirm")!();
-      expect(f.calls).toEqual(["POST", "GET"]);
+      expect(f.calls).toEqual(["POST", "GET", "POST"]);
       expect(f.nodes.get("confirm")!.hidden).toBe(false);
       await f.clicks.get("confirm")!();
-      expect(f.payloads.map((payload) => payload.action)).toEqual(["stage", "stage"]);
-      expect(f.payloads[1]).toMatchObject({ ...fresh, version: 2, csrf: "c".repeat(43) });
+      expect(f.payloads.map((payload) => payload.action)).toEqual([
+        "stage",
+        "status",
+        "stage",
+      ]);
+      expect(f.payloads[2]).toMatchObject({
+        ...fresh,
+        version: 2,
+        csrf: "c".repeat(43),
+      });
       await f.clicks.get("confirm")!();
-      expect(f.payloads.map((payload) => payload.action)).toEqual(["stage", "stage", "confirm"]);
+      expect(f.payloads.map((payload) => payload.action)).toEqual([
+        "stage",
+        "status",
+        "stage",
+        "confirm",
+      ]);
     },
   );
 });

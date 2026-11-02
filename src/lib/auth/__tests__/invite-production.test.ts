@@ -5,6 +5,7 @@ import { mkdtempSync, realpathSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
+import { fixture, config, applyCookies } from "./invite-fixture";
 const origin = "http://127.0.0.1:2482";
 // Deliberately opt-in: owns2482 and a private fake HTTP Auth/RPC seam, never real OTP.
 const enabled = process.env.NAEIL_INVITE_PRODUCTION_TEST === "1";
@@ -51,17 +52,10 @@ describe.skipIf(!enabled)(
   () => {
     let app: ChildProcess | undefined;
     let seam: Server | undefined;
-    let privateDir = "";
-    const upstream: string[] = [];
-    const id = "10000000-0000-4000-8000-000000000001",
-      userId = "20000000-0000-4000-8000-000000000002",
-      sessionId = "30000000-0000-4000-8000-000000000003";
-    const user = {
-      id: userId,
-      email: "recipient@example.test",
-      email_confirmed_at: "2026-10-15T01:00:00Z",
-    };
-    const token = `${Buffer.from('{"alg":"HS256"}').toString("base64url")}.${Buffer.from(JSON.stringify({ sub: userId, session_id: sessionId, exp: 9999999999 })).toString("base64url")}.fixture`;
+    let privateDir = "", privateFile="";
+    const f = fixture(),
+      upstream = f.calls;
+    const id = "10000000-0000-4000-8000-000000000001";
     beforeAll(async () => {
       const guard = createServer();
       await new Promise<void>((resolve, reject) => {
@@ -71,26 +65,25 @@ describe.skipIf(!enabled)(
         guard.listen(2482, "127.0.0.1", resolve);
       });
       await new Promise<void>((r) => guard.close(() => r()));
-      seam = createServer((req, res) => {
-        const p = req.url || "";
-        upstream.push(p);
-        let data: unknown;
-        if (p.endsWith("preflight"))
-          data = { userId, email: user.email, verificationType: "invite" };
-        else if (p.endsWith("/verify")) data = { access_token: token, user };
-        else if (p.endsWith("/user")) data = user;
-        else if (p.endsWith("record_verification"))
-          data = { verified: true, expiresAt: "2099-01-01T00:00:00Z" };
-        else
-          data = {
-            inviteId: id,
-            version: 1,
-            userId,
-            services: ["jev"],
-            acceptedAt: "2026-10-15T01:00:00Z",
-          };
-        res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify(data));
+      seam = createServer(async (req, res) => {
+        try {
+          const chunks: Buffer[] = [];
+          for await (const chunk of req) chunks.push(Buffer.from(chunk));
+          const response = await f.fetch(`http://127.0.0.1${req.url}`, {
+            method: req.method,
+            headers: new Headers(req.headers as Record<string, string>),
+            ...(chunks.length
+              ? { body: Buffer.concat(chunks).toString() }
+              : {}),
+          });
+          res.writeHead(response.status, {
+            "content-type": "application/json",
+          });
+          res.end(await response.text());
+        } catch {
+          res.writeHead(503);
+          res.end("{}");
+        }
       });
       await new Promise<void>((r) => seam!.listen(0, "127.0.0.1", r));
       const address = seam.address();
@@ -99,17 +92,19 @@ describe.skipIf(!enabled)(
       privateDir = mkdtempSync(
         join(realpathSync(tmpdir()), "invite-production-"),
       );
-      const privateFile = join(privateDir, "private.json");
+      privateFile = join(privateDir, "private.json");
       writeFileSync(
         privateFile,
         JSON.stringify({
+          ...config,
           siteOrigin: origin,
           supabaseUrl: `http://127.0.0.1:${address.port}`,
-          anonKey: "fixture-anon",
-          serviceRoleKey: "fixture-service",
         }),
         { mode: 0o600 },
       );
+      await start();
+    }, 30000);
+    async function start() {
       app = spawn(
         process.execPath,
         [
@@ -146,8 +141,8 @@ describe.skipIf(!enabled)(
       }
       if (!ready)
         throw new Error("Owned production preview did not become ready");
-    }, 30000);
-    afterAll(async () => {
+    }
+    async function stop() {
       if (app && app.exitCode === null) {
         app.kill("SIGTERM");
         await Promise.race([
@@ -156,6 +151,9 @@ describe.skipIf(!enabled)(
         ]);
         if (app.exitCode === null) app.kill("SIGKILL");
       }
+    }
+    afterAll(async () => {
+      await stop();
       if (seam) await new Promise<void>((r) => seam!.close(() => r()));
       if (privateDir) rmSync(privateDir, { recursive: true, force: true });
     }, 10000);
@@ -305,8 +303,7 @@ describe.skipIf(!enabled)(
             ...(init.method === "POST" ? { origin } : {}),
           },
         });
-        const next = response.headers.get("set-cookie");
-        if (next) cookie = next.split(";")[0];
+    cookie=applyCookies(cookie,response);
         return response;
       };
       const count = upstream.length;
@@ -338,11 +335,33 @@ describe.skipIf(!enabled)(
         await new Promise((r) => setTimeout(r, 20));
       expect(location.hash).toBe("");
       expect(requests).toEqual(["POST"]);
-      expect(upstream.length).toBe(count);
+      expect(upstream[count]).toBe("/rest/v1/rpc/console_invite_preflight");
+      expect(upstream.slice(count)).toContain(
+        "/rest/v1/rpc/console_invite_tx_admit",
+      );
+      expect(upstream.some((p) => p.endsWith("/verify"))).toBe(false);
+      expect(f.rows.size).toBe(1);
       expect(node("confirm").hidden).toBe(false);
       await clicks.get("confirm:click")!();
       expect(node("links").children).toHaveLength(1);
-      expect(upstream.length - count).toBe(5);
-    });
+      expect(upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
+      expect(
+        upstream.filter((p) => p.endsWith("accept_console_invite")),
+      ).toHaveLength(1);
+      expect(cookie.includes("sb-127-auth-token=")).toBe(true);
+      // Response/cookie loss after acceptance retries only session delivery.
+      cookie = cookie
+        .split("; ")
+        .filter((c) => !c.startsWith("sb-"))
+        .join("; ");
+      const accepted = upstream.length;
+      await stop();await start();
+      await clicks.get("confirm:click")!();
+      expect(
+        upstream
+          .slice(accepted)
+          .filter((p) => !p.includes("console_invite_tx_")),
+      ).toEqual(["/auth/v1/user"]);
+    },30000);
   },
 );

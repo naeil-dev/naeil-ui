@@ -1,3 +1,4 @@
+import {applyCookies} from "./invite-fixture";
 import { describe, it, expect, vi } from "vitest";
 import { createInviteHandler } from "../invite";
 
@@ -44,15 +45,33 @@ function harness(
     init: RequestInit;
   }[] = [];
   const json = (data: unknown, status = 200) => Response.json(data, { status });
+  let staging = false;
   const fetcher = vi.fn(
     async (url: string | URL | Request, init: RequestInit = {}) => {
       const path = new URL(String(url)).pathname;
       const body = init.body ? JSON.parse(String(init.body)) : {};
       calls.push({ path, body, init });
-      if (overrides.reply) return overrides.reply(path, body, init);
+      if (staging && path.endsWith("preflight") && body.p_version !== 1)
+        return json(
+          {
+            code: "PT409",
+            message: "invitation proof conflict",
+            details: null,
+            hint: null,
+          },
+          409,
+        );
+      // Legacy transport cases inject faults during confirmation; admission is
+      // independently exercised by invite-delivery.test.ts.
+      if (overrides.reply && !staging) return overrides.reply(path, body, init);
       if (path.endsWith("console_invite_preflight"))
         return json({ userId, email, verificationType: "invite" });
-      if (path.endsWith("/verify")) return json({ access_token: jwt(), user });
+      if (path.endsWith("/verify"))
+        return json({
+          access_token: jwt(),
+          refresh_token: "fixture-refresh-token",
+          user,
+        });
       if (path.endsWith("/user")) return json(user);
       if (path.endsWith("console_invite_record_verification"))
         return json({ verified: true, expiresAt: "2099-01-01T00:00:00Z" });
@@ -85,15 +104,20 @@ function harness(
       },
       ...(data === undefined ? {} : { body: JSON.stringify(data) }),
     });
+  function cookies(r:Response){cookie=applyCookies(cookie,r);}
   async function get() {
+    if (cookie) return post({ action: "status" });
     const r = await h.GET(request("GET"));
-    cookie = r.headers.get("set-cookie")?.split(";")[0] || cookie;
+    cookies(r);
     const b = await r.json();
     csrf = b.csrf;
     return { r, b };
   }
   async function post(data: Record<string, unknown>) {
+    staging = data.action === "stage";
     const r = await h.POST(request("POST", { csrf, ...data }));
+    staging = false;
+    cookies(r);
     const b = await r.json();
     if (b.csrf) csrf = b.csrf;
     return { r, b };
@@ -143,7 +167,10 @@ describe("isolated invitation HTTP boundary", () => {
     await t.get();
     const staged = await t.post({ action: "stage", ...proof });
     expect(staged.b.status).toBe("staged");
-    expect(t.calls).toHaveLength(0);
+    expect(t.calls.map((c) => c.path)).toEqual([
+      "/rest/v1/rpc/console_invite_preflight",
+    ]);
+    t.calls.length = 0;
     const { r, b } = await t.post({ action: "confirm" });
     expect(r.status).toBe(200);
     expect(b.status).toBe("complete");
@@ -157,6 +184,7 @@ describe("isolated invitation HTTP boundary", () => {
       "/auth/v1/user",
       "/rest/v1/rpc/console_invite_record_verification",
       "/rest/v1/rpc/accept_console_invite",
+      "/auth/v1/user",
     ]);
     expect(t.calls[1].body).toEqual({
       token_hash: proof.token_hash,
@@ -182,7 +210,9 @@ describe("isolated invitation HTTP boundary", () => {
     protectedHeaders(r);
     const count = t.calls.length;
     await t.post({ action: "confirm" });
-    expect(t.calls).toHaveLength(count);
+    expect(t.calls.slice(count).every((c) => c.path.endsWith("/user"))).toBe(
+      true,
+    );
   });
   it("renders a fragment-clearing script with no automatic confirmation or third-party dependencies", async () => {
     const t = harness();
@@ -305,15 +335,22 @@ describe("isolated invitation HTTP boundary", () => {
         { cookie: `${t.cookie}; sb-fixture-auth-token=older-jwt` },
       ),
     );
-    expect(r.status).toBe(403);
-    expect(t.calls).toHaveLength(0);
+    expect(r.status).toBe(409);
+    expect(t.calls.map((c) => c.path)).toEqual([
+      "/rest/v1/rpc/console_invite_preflight",
+    ]);
   });
-  it("bounds active transactions without evicting valid staged proofs", async () => {
+  it("GET never consumes capacity reserved for validated proofs", async () => {
     const t = harness();
     for (let i = 0; i < 256; i++)
       expect((await t.h.GET(t.request("GET"))).status).toBe(200);
     const r = await t.h.GET(t.request("GET"));
-    expect(r.status).toBe(503);
+    expect(r.status).toBe(200);
+    expect(t.calls).toHaveLength(0);
+    await t.get();
+    expect((await t.post({ action: "stage", ...proof })).b.status).toBe(
+      "staged",
+    );
     protectedHeaders(r);
   });
 });
@@ -335,7 +372,7 @@ describe("verified-proof retry and fail-closed transport", () => {
             });
           if (path.endsWith("/verify")) {
             expect(body.type).toBe("recovery");
-            return Response.json({ access_token: jwt(), user });
+            return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
           }
           if (path.endsWith("/user")) return Response.json(user);
           if (path.endsWith("record_verification")) {
@@ -368,16 +405,21 @@ describe("verified-proof retry and fail-closed transport", () => {
   it("coalesces double confirmation while preventing replacement midflight", async () => {
     let release!: () => void;
     const gate = new Promise<void>((r) => (release = r));
-    let count = 0;
+    let count = 0,
+      entered!: () => void;
+    const started = new Promise<void>((r) => {
+      entered = r;
+    });
     const t = harness({
       reply: async (path) => {
         if (path.endsWith("preflight")) {
           count++;
+          entered();
           await gate;
           return Response.json({ userId, email, verificationType: "invite" });
         }
         if (path.endsWith("/verify"))
-          return Response.json({ access_token: jwt(), user });
+          return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
         if (path.endsWith("/user")) return Response.json(user);
         if (path.endsWith("record_verification"))
           return Response.json({
@@ -392,6 +434,7 @@ describe("verified-proof retry and fail-closed transport", () => {
     const csrf = t.csrf;
     const a = t.h.POST(t.request("POST", { action: "confirm", csrf }));
     const b = t.h.POST(t.request("POST", { action: "confirm", csrf }));
+    await started;
     const replacement = await t.post({ action: "stage", ...proof, version: 2 });
     expect(replacement.r.status).toBe(409);
     release();
@@ -417,7 +460,7 @@ describe("verified-proof retry and fail-closed transport", () => {
                     access_token: jwt("40000000-0000-4000-8000-000000000004"),
                     user,
                   }
-                : { access_token: jwt(), user },
+                : {access_token:jwt(),refresh_token:"fixture-refresh-token",user},
             );
           if (path.endsWith("/user"))
             return Response.json(
@@ -461,7 +504,7 @@ describe("verified-proof retry and fail-closed transport", () => {
       expect(r.status).toBe(503);
       expect((await t.get()).b.status).toBe("staged");
       expect(JSON.stringify(b)).not.toContain("private");
-      expect(t.calls).toHaveLength(1);
+      expect(t.calls).toHaveLength(2);
     },
   );
   it("all fetches forbid redirects, time out, and use fixed transport paths", async () => {
@@ -486,7 +529,7 @@ describe("additional consumed OTP and parser regression boundaries", () => {
         if (path.endsWith("preflight"))
           return Response.json({ userId, email, verificationType: "invite" });
         if (path.endsWith("/verify"))
-          return Response.json({ access_token: jwt(), user });
+          return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
         if (path.endsWith("/user")) {
           if (!failed) {
             failed = true;
@@ -531,7 +574,7 @@ describe("additional consumed OTP and parser regression boundaries", () => {
         if (path.endsWith("preflight"))
           return Response.json({ userId, email, verificationType: "invite" });
         if (path.endsWith("/verify"))
-          return Response.json({ access_token: jwt(), user });
+          return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
         if (path.endsWith("/user")) return Response.json(user);
         if (path.endsWith("record_verification"))
           return Response.json({
@@ -678,7 +721,7 @@ describe("authoritative denial versus retained consumed-OTP recovery", () => {
           if (path.endsWith("preflight"))
             return Response.json({ userId, email, verificationType: "invite" });
           if (path.endsWith("/verify"))
-            return Response.json({ access_token: jwt(), user });
+            return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
           if (path.endsWith("/user")) return Response.json(user);
           if (path.endsWith("record_verification"))
             return Response.json({
@@ -770,7 +813,7 @@ describe("authoritative denial versus retained consumed-OTP recovery", () => {
           if (path.endsWith("preflight"))
             return Response.json({ userId, email, verificationType: "invite" });
           if (path.endsWith("/verify"))
-            return Response.json({ access_token: jwt(), user });
+            return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
           if (path.endsWith("/user")) return Response.json(user);
           return Response.json({
             verified: true,

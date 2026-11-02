@@ -68,8 +68,8 @@ async function page(fragment: string, failStageOnce = false) {
       init.method === "GET"
         ? { action: "status" }
         : JSON.parse(String(init.body));
-    calls.push(body);
-    if (failStageOnce && calls.length === 1)
+    if (init.method !== "GET") calls.push(body);
+    if (failStageOnce && calls.length === 1 && body.action === "stage")
       return Response.json(
         { status: "unavailable", csrf: "rotated" },
         { status: 503 },
@@ -128,7 +128,6 @@ describe("executed inert fragment script", () => {
     expect(t.nodes.get("links")?.children).toHaveLength(1);
   });
   it.each([
-    "",
     "#id=x",
     "#" + new URLSearchParams(proof) + "&nonce=again",
     "#" + new URLSearchParams(proof) + "&type=invite",

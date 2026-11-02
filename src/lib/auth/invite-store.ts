@@ -53,7 +53,10 @@ const validIdentity = (v: unknown): boolean =>
   uuid(v.sessionId) &&
   typeof v.accessToken === "string" &&
   v.accessToken.length > 0 &&
-  v.accessToken.length <= 16384;
+  v.accessToken.length <= 16384 &&
+  (v.refreshToken === undefined ||
+    (typeof v.refreshToken === "string" &&
+      /^[A-Za-z0-9._~-]{16,512}$/.test(v.refreshToken)));
 
 /** Non-authoritative resend identity. It cannot recover or authorize a proof. */
 export function inviteProofIdentity(proof: NonNullable<Transaction["proof"]>) {
@@ -97,7 +100,7 @@ function readRow(value: Record<string, unknown>): Row | null {
 
 /** One request's fenced view. It never retries a mutation with an unknown result. */
 export class InviteStore {
-  private readonly fingerprint: string;
+  private fingerprint: string;
   private readonly key: Buffer;
   private readonly owner = randomUUID();
   private row: Row | null = null;
@@ -129,6 +132,8 @@ export class InviteStore {
   private seal(t: Transaction): string {
     const snapshot = {
       csrf: t.csrf,
+      handle: t.handle,
+      session: t.session,
       proof: t.proof,
       proofIdentity: t.proofIdentity,
       candidate: t.candidate,
@@ -179,6 +184,8 @@ export class InviteStore {
         (key) =>
           ![
             "csrf",
+            "handle",
+            "session",
             "proof",
             "proofIdentity",
             "candidate",
@@ -189,6 +196,18 @@ export class InviteStore {
             "uncertain",
           ].includes(key),
       )
+    )
+      throw new Error("Invitation store unavailable");
+    if (
+      value.handle !== undefined &&
+      (!safe(value.handle) ||
+        createHash("sha256").update(value.handle).digest("hex") !==
+          this.fingerprint)
+    )
+      throw new Error("Invitation store unavailable");
+    if (
+      value.session !== undefined &&
+      (row.phase !== "complete" || !validIdentity(value.session))
     )
       throw new Error("Invitation store unavailable");
     if (
@@ -296,6 +315,37 @@ export class InviteStore {
     );
     if (!this.row) throw new Error("Invitation store unavailable");
     return this.open(this.row);
+  }
+  async admit(
+    t: Transaction,
+    proof: NonNullable<Transaction["proof"]>,
+  ): Promise<Transaction> {
+    const result = await this.rpc("admit", {
+      p_handle_hash: this.fingerprint,
+      p_payload: this.seal(t),
+      p_invite_id: proof.id,
+      p_version: proof.version,
+      p_nonce_hash: createHash("sha256").update(proof.nonce).digest("hex"),
+      p_token_hash_hash: createHash("sha256")
+        .update(proof.token_hash)
+        .digest("hex"),
+    });
+    if (
+      typeof result.handleHash !== "string" ||
+      !/^[a-f0-9]{64}$/.test(result.handleHash)
+    )
+      throw new Error("Invitation store unavailable");
+    this.fingerprint = result.handleHash;
+    this.row = readRow(result);
+    if (!this.row) throw new Error("Invitation store unavailable");
+    const admitted = this.open(this.row);
+    if (
+      !admitted.handle ||
+      admitted.proofIdentity?.fingerprint !==
+        inviteProofIdentity(proof).fingerprint
+    )
+      throw new Error("Invitation store unavailable");
+    return admitted;
   }
   async claim(): Promise<Transaction> {
     if (!this.row) throw new Error("Invitation store unavailable");

@@ -1,0 +1,256 @@
+import {InviteStore} from "../invite-store";
+import { describe, expect, it, vi } from "vitest";
+import { fixture, proof, token, userId, user, config } from "./invite-fixture";
+async function staged() {
+  const f=fixture();
+  await f.send(f.handler());
+  await f.send(f.handler(),"stage",proof);
+  return f;
+}
+const denial = (message: string) =>
+  Response.json(
+    { code: "PT409", message, details: null, hint: null },
+    { status: 409 },
+  );
+describe("S1 invitation admission and delivery", () => {
+  it("GET and HEAD bootstrap without any durable RPC", async () => {
+    const f = fixture(),
+      h = f.handler();
+    const request = (method: string) =>
+      new Request("https://naeil.dev/auth/invite", {
+        method,
+        headers: { host: "naeil.dev", accept: "application/json" },
+      });
+    expect((await h.GET(request("GET"))).status).toBe(200);
+    expect((await h.GET(request("HEAD"))).status).toBe(200);
+    expect(f.calls).toEqual([]);
+    expect(f.rows.size).toBe(0);
+  });
+  it("rejects an invalid proof before any durable admission", async () => {
+    const f = fixture(),
+      h = f.handler();
+    await f.send(h);
+    f.calls.length = 0;
+    f.fault((path) =>
+      path.endsWith("preflight")
+        ? denial("invitation proof conflict")
+        : undefined,
+    );
+    const { r } = await f.send(h, "stage", proof);
+    expect(r.status).toBe(409);
+    expect(f.calls[0]).toContain("console_invite_preflight");
+    expect(f.rows.size).toBe(0);
+  });
+  it("maps creator authority conflict to terminal invalid rather than dependency failure", async () => {
+    const f = await staged(), h=f.handler();
+    f.fault((path) =>
+      path.endsWith("accept_console_invite")
+        ? denial("invitation creator authority conflict")
+        : undefined,
+    );
+    const { r, body } = await f.send(h, "confirm");
+    expect(r.status).toBe(409);
+    expect(body.status).toBe("invalid");
+  });
+});
+
+it.each([false,true])("reuses the canonical handle across instances, including lost admission (%s)", async lost => {
+  const f=fixture();await f.send(f.handler());
+  if(lost){f.lose("admit");expect((await f.send(f.handler(),"stage",proof)).r.status).toBe(503);await f.send(f.handler(),"bootstrap");}
+  await f.send(f.handler(),"stage",proof);
+  const original = f.cookie;
+  f.newBrowser();
+  await f.send(f.handler());
+  expect((await f.send(f.handler(),"stage",proof)).body.status).toBe("staged");
+  expect(f.cookie).toBe(original);
+  expect(f.rows.size).toBe(1);
+  await f.send(f.handler(), "confirm");
+  f.newBrowser();
+  await f.send(f.handler());
+  expect((await f.send(f.handler(),"stage",proof)).body.status).toBe("delivery");
+  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
+  expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
+});
+it("delivers shared Auth cookies separately from the host-only receipt, keeping credentials encrypted", async () => {
+  const f = fixture();
+  await f.send(f.handler());
+  const staged = await f.send(f.handler(), "stage", proof);
+  const receipt = staged.r.headers.getSetCookie();
+  expect(receipt).toHaveLength(1);
+  expect(receipt[0]).not.toContain("Domain=");
+  const result = await f.send(f.handler(), "confirm"),
+    cookies = result.r.headers.getSetCookie();
+  expect(
+    cookies.some(
+      (c) =>
+        c.startsWith("sb-fictional-auth-token=") &&
+        /Domain=\.naeil.dev/i.test(c) &&
+        /Secure/i.test(c),
+    ),
+  ).toBe(true);
+  for (const secret of [
+    token,
+    "fictional-refresh-token",
+    proof.nonce,
+    proof.token_hash,
+  ]) {
+    expect(JSON.stringify([...f.rows]).includes(secret)).toBe(false);
+    expect(JSON.stringify(result.body).includes(secret)).toBe(false);
+  }
+});
+it("after lost Auth-cookie delivery only delivers the durable session, never verifies or accepts again", async () => {
+  const f = await staged();
+  await f.send(f.handler(), "confirm");
+  f.auth(null);
+  const before = f.calls.length;
+  expect((await f.send(f.handler())).body.status).toBe("delivery");
+  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
+  expect(
+    f.calls
+      .slice(before)
+      .every((p) => p.includes("console_invite_tx_") || p.endsWith("/user")),
+  ).toBe(true);
+});
+it("a failed session installation retains completed acceptance for delivery-only retry", async () => {
+  const f = await staged();
+  let users = 0;
+  f.fault((p) =>
+    p.endsWith("/user") && ++users === 2
+      ? Response.json({}, { status: 503 })
+      : undefined,
+  );
+  expect((await f.send(f.handler(), "confirm")).r.status).toBe(503);
+  expect([...f.rows.values()][0].phase).toBe("complete");
+  f.fault(undefined);
+  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
+  expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
+});
+it("requires explicit fresh consent before replacing a different signed-in account", async () => {
+  const f = fixture(),
+    other = "40000000-0000-4000-8000-000000000004",
+    changed = "50000000-0000-4000-8000-000000000005";
+  await f.send(f.handler());
+  await f.send(f.handler(), "stage", proof);
+  f.auth(other);
+  const first = await f.send(f.handler(), "confirm");
+  expect(first.r.status).toBe(409);
+  expect(first.body).toMatchObject({ status: "switch", switchFrom: other });
+  expect(first.r.headers.getSetCookie()).toHaveLength(0);
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(0);
+  f.auth(changed);
+  expect(
+    (await f.send(f.handler(), "confirm", { switchFrom: other })).body,
+  ).toMatchObject({ status: "switch", switchFrom: changed });
+  const result = await f.send(f.handler(), "confirm", { switchFrom: changed });
+  expect(result.body.status).toBe("complete");
+  expect(
+    result.r.headers.getSetCookie().some((c) => /Max-Age=0/i.test(c)),
+  ).toBe(true);
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
+});
+it("trigger-first registration with an expired receipt still delivers the same recipient session", async () => {
+  const f = await staged();
+  f.fault((p) =>
+    p.endsWith("record_verification")
+      ? Response.json({
+          verified: true,
+          registrationComplete: true,
+          expiresAt: "2020-01-01T00:00:00Z",
+        })
+      : undefined,
+  );
+  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
+});
+it("uses the same already-confirmed recipient session after trigger acceptance without another OTP", async () => {
+  const f = await staged();
+  f.auth(userId);
+  f.fault((p) =>
+    p.endsWith("preflight")
+      ? Response.json({
+          userId,
+          email: user.email,
+          verificationType: "invite",
+          registrationComplete: true,
+        })
+      : undefined,
+  );
+  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(0);
+  expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
+});
+it.each([401, 403])(
+  "keeps service-key HTTP%i a retryable dependency failure",
+  async (status) => {
+    const f = fixture();
+    await f.send(f.handler());
+    f.fault((p) =>
+      p.endsWith("preflight")
+        ? Response.json(
+            { code: status, error_code: "bad_jwt", msg: "fixture" },
+            { status },
+          )
+        : undefined,
+    );
+    const result = await f.send(f.handler(), "stage", proof);
+    expect(result.r.status).toBe(503);
+    expect(result.body.status).toBe("unavailable");
+    expect(f.rows.size).toBe(0);
+  },
+);
+it("accepts only fixed next URLs and never adds a service absent from the receipt", async () => {
+  const f = fixture();
+  const h = f.handler();
+  await f.send(h);
+  await f.send(h, "stage", proof);
+  const request = (next: string) =>
+    new Request(
+      `https://naeil.dev/auth/invite?next=${encodeURIComponent(next)}`,
+      {
+        method: "POST",
+        headers: {
+          host: "naeil.dev",
+          origin: "https://naeil.dev",
+          "content-type": "application/json",
+          cookie: f.cookie,
+        },
+        body: JSON.stringify({ action: "confirm", csrf: f.csrf }),
+      },
+    );
+  expect((await h.POST(request("https://evil.example/"))).status).toBe(400);
+  const result = await h.POST(request("https://abestimate.naeil.dev/"));
+  expect(result.status).toBe(200);
+  expect((await result.json()).links).toEqual([
+    { label: "JEV", href: "https://jev.naeil.dev/" },
+  ]);
+});
+
+it("expires session delivery without repeating OTP or acceptance",async()=>{
+  const time=Date.now(), f=await staged();
+  const [head,,signature]=token.split(".");
+  const claims={sub:userId,session_id:"30000000-0000-4000-8000-000000000003",exp:Math.floor(time/1000)+120};
+  const credential=[head,Buffer.from(JSON.stringify(claims)).toString("base64url"),signature].join(".");
+  f.fault(p=>p.endsWith("/verify")?Response.json({access_token:credential,refresh_token:"fictional-refresh-token",user}):undefined);
+  expect((await f.send(f.handler(),"confirm")).body.status).toBe("complete");
+  f.auth(null);f.advance(121000);
+  const clock=vi.spyOn(Date,"now").mockReturnValue(time+121000);
+  try {expect((await f.send(f.handler(),"confirm")).body.status).toBe("signin");}
+  finally {clock.mockRestore();}
+  expect(f.calls.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+  expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
+});
+
+it("reads a legacy random-CSRF row after inert bootstrap without an authorization loop",async()=>{
+  const f=fixture();await f.send(f.handler());
+  const store=new InviteStore(f.cookie.split("=")[1],config.encryptionKey,async(action,args)=>{
+    const response=await f.fetch(`https://fictional.supabase.co/rest/v1/rpc/console_invite_tx_${action}`,{method:"POST",headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},body:JSON.stringify(args)});
+    return response.json();
+  });
+  await store.create({csrf:"l".repeat(43),expires:Date.now()+600000});
+  const t=await store.claim();t.proof=proof;await store.checkpoint(t,"staged");await store.release();
+  expect((await f.send(f.handler())).body.status).toBe("staged");
+  expect((await f.send(f.handler(),"confirm")).body.status).toBe("complete");
+  expect(f.calls.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+});
