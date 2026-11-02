@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
+import { requiresPasswordChange, passwordChangePath } from "./lib/auth/password-policy";
 import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
 import { isProtectedReportRoute } from "./lib/auth/routes";
@@ -37,6 +38,14 @@ export default async function proxy(request: NextRequest) {
 
   // 2. Capture URL info BEFORE intl middleware (which may mutate request.nextUrl)
   const { pathname } = request.nextUrl;
+
+  const language = pathname.match(/^\/(en|ko|ja)(?:\/|$)/)?.[1] || "en";
+  if (requiresPasswordChange(user) && !/^\/(?:(?:en|ko|ja)\/)?login\/change-password$/.test(pathname)) {
+    const response = NextResponse.redirect(new URL(passwordChangePath(language), request.url), 303);
+    supabaseResponse.cookies.getAll().forEach(cookie => response.cookies.set(cookie));
+    response.headers.set("Cache-Control", "no-store");
+    return response;
+  }
 
   // 3. Check protected routes — redirect to login if unauthenticated
   if (isProtectedReportRoute(pathname) && !user) {
