@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import {InviteStore} from "../invite-store";
 import { describe, expect, it, vi } from "vitest";
 import { fixture, proof, token, userId, user, config } from "./invite-fixture";
@@ -6,6 +7,12 @@ async function staged() {
   await f.send(f.handler());
   await f.send(f.handler(),"stage",proof);
   return f;
+}
+function storeFor(f:ReturnType<typeof fixture>) {
+  return new InviteStore(f.cookie.split(";")[0].split("=")[1],config.encryptionKey,async(action,args)=>{
+    const response=await f.fetch(`https://fictional.supabase.co/rest/v1/rpc/console_invite_tx_${action}`,{method:"POST",headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},body:JSON.stringify(args)});
+    return response.json();
+  });
 }
 const denial = (message: string) =>
   Response.json(
@@ -21,7 +28,10 @@ describe("S1 invitation admission and delivery", () => {
         method,
         headers: { host: "naeil.dev", accept: "application/json" },
       });
-    expect((await h.GET(request("GET"))).status).toBe(200);
+    const bootstrap=await h.GET(request("GET"));expect(bootstrap.status).toBe(200);
+    const binding=bootstrap.headers.getSetCookie().find(c=>c.startsWith("__Host-naeil_invite_browser="))!;
+    for(const flag of ["HttpOnly","Secure","SameSite=Lax","Max-Age=600","Path=/"])expect(binding).toContain(flag);
+    expect(binding).not.toContain("Domain=");
     expect((await h.GET(request("HEAD"))).status).toBe(200);
     expect(f.calls).toEqual([]);
     expect(f.rows.size).toBe(0);
@@ -54,21 +64,25 @@ describe("S1 invitation admission and delivery", () => {
   });
 });
 
-it.each([false,true])("reuses the canonical handle across instances, including lost admission (%s)", async lost => {
+it.each([{lost:false,other:null},{lost:true,other:"40000000-0000-4000-8000-000000000004"}])("reuses admission but denies another browser session delivery ($other)", async ({lost,other}) => {
   const f=fixture();await f.send(f.handler());
   if(lost){f.lose("admit");expect((await f.send(f.handler(),"stage",proof)).r.status).toBe(503);await f.send(f.handler(),"bootstrap");}
   await f.send(f.handler(),"stage",proof);
-  const original = f.cookie;
+  const original = {cookie:f.cookie,csrf:f.csrf};
   f.newBrowser();
   await f.send(f.handler());
   expect((await f.send(f.handler(),"stage",proof)).body.status).toBe("staged");
-  expect(f.cookie).toBe(original);
+  expect(f.cookie.split(";")[0]).toBe(original.cookie.split(";")[0]);
   expect(f.rows.size).toBe(1);
   await f.send(f.handler(), "confirm");
-  f.newBrowser();
-  await f.send(f.handler());
-  expect((await f.send(f.handler(),"stage",proof)).body.status).toBe("delivery");
-  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
+  const joined=await f.send(f.handler(),"confirm",{},original);
+  expect(joined.body.status).toBe("signin");expect(joined.r.headers.getSetCookie().some(c=>c.startsWith("sb-"))).toBe(false);
+  f.newBrowser();await f.send(f.handler());if(other)f.auth(other);
+  for(const [action,extra] of [["stage",proof],["status",{}],["confirm",other?{switchFrom:other}:{}]] as const) {
+    const result=await f.send(f.handler(),action,extra);
+    expect(result.body.status).toBe("signin");
+    expect(result.r.headers.getSetCookie().some(c=>c.startsWith("sb-"))).toBe(false);
+  }
   expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
   expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
 });
@@ -94,6 +108,7 @@ it("delivers shared Auth cookies separately from the host-only receipt, keeping 
     "fictional-refresh-token",
     proof.nonce,
     proof.token_hash,
+    f.cookie.split("; ").find(c=>c.startsWith("__Host-naeil_invite_browser="))!.split("=")[1],
   ]) {
     expect(JSON.stringify([...f.rows]).includes(secret)).toBe(false);
     expect(JSON.stringify(result.body).includes(secret)).toBe(false);
@@ -127,18 +142,20 @@ it("a failed session installation retains completed acceptance for delivery-only
   expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
   expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
 });
-it("requires explicit fresh consent before replacing a different signed-in account", async () => {
+it.each(["staged","delivery"])("requires explicit fresh consent before replacing a different account at %s", async phase => {
   const f = fixture(),
     other = "40000000-0000-4000-8000-000000000004",
     changed = "50000000-0000-4000-8000-000000000005";
   await f.send(f.handler());
   await f.send(f.handler(), "stage", proof);
+  if(phase==="delivery")await f.send(f.handler(),"confirm");
+  const verifiedBefore=f.calls.filter(p=>p.endsWith("/verify")).length;
   f.auth(other);
   const first = await f.send(f.handler(), "confirm");
   expect(first.r.status).toBe(409);
   expect(first.body).toMatchObject({ status: "switch", switchFrom: other });
   expect(first.r.headers.getSetCookie()).toHaveLength(0);
-  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(0);
+  expect(f.calls.filter((p) => p.endsWith("/verify"))).toHaveLength(verifiedBefore);
   f.auth(changed);
   expect(
     (await f.send(f.handler(), "confirm", { switchFrom: other })).body,
@@ -244,13 +261,34 @@ it("expires session delivery without repeating OTP or acceptance",async()=>{
 
 it("reads a legacy random-CSRF row after inert bootstrap without an authorization loop",async()=>{
   const f=fixture();await f.send(f.handler());
-  const store=new InviteStore(f.cookie.split("=")[1],config.encryptionKey,async(action,args)=>{
-    const response=await f.fetch(`https://fictional.supabase.co/rest/v1/rpc/console_invite_tx_${action}`,{method:"POST",headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},body:JSON.stringify(args)});
-    return response.json();
-  });
+  const store=storeFor(f);
   await store.create({csrf:"l".repeat(43),expires:Date.now()+600000});
   const t=await store.claim();t.proof=proof;await store.checkpoint(t,"staged");await store.release();
   expect((await f.send(f.handler())).body.status).toBe("staged");
   expect((await f.send(f.handler(),"confirm")).body.status).toBe("complete");
   expect(f.calls.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+});
+
+it("offers normal sign-in for an already registered recipient whose OTP is spent",async()=>{
+  const f=await staged();
+  f.fault(p=>p.endsWith("preflight")?Response.json({userId,email:user.email,verificationType:"invite",registrationComplete:true}):p.endsWith("/verify")?Response.json({code:403,error_code:"otp_expired",msg:"Fixture OTP spent"},{status:403}):undefined);
+  const result=await f.send(f.handler(),"confirm");expect(result.r.status).toBe(200);expect(result.body.status).toBe("signin");
+  expect((await f.send(f.handler())).body.status).toBe("signin");
+  expect((await f.send(f.handler(),"confirm")).body.status).toBe("signin");
+  expect(f.calls.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+});
+
+it("persists only the confirming browser hash before the external OTP call",async()=>{
+  const f=await staged();let observed=false;
+  const secret=f.cookie.split("; ").find(c=>c.startsWith("__Host-naeil_invite_browser="))!.split("=")[1];
+  f.fault(async p=>{
+    if(p.endsWith("/verify")) {
+      observed=true;const saved=await storeFor(f).read();
+      expect([...f.rows.values()][0].phase).toBe("verifying");
+      expect(saved?.browserHash).toBe(createHash("sha256").update(secret).digest("hex"));
+      expect(JSON.stringify([...f.rows]).includes(secret)).toBe(false);
+    }
+    return undefined;
+  });
+  expect((await f.send(f.handler(),"confirm")).body.status).toBe("complete");expect(observed).toBe(true);
 });

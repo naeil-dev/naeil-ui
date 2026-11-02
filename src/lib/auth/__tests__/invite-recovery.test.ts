@@ -79,7 +79,7 @@ async function recoveryPage(
       ...(data ? { body: data } : {}),
     });
   const initial = await h.GET(request("GET", undefined, "text/html"));
-  cookie = initial.headers.get("set-cookie")!.split(";")[0];
+  cookie = applyCookies("",initial);
   const html = await initial.text();
   type Node = {
     textContent: string;

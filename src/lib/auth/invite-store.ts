@@ -134,6 +134,8 @@ export class InviteStore {
       csrf: t.csrf,
       handle: t.handle,
       session: t.session,
+      browserHash: t.browserHash,
+      signin: t.signin,
       proof: t.proof,
       proofIdentity: t.proofIdentity,
       candidate: t.candidate,
@@ -186,6 +188,8 @@ export class InviteStore {
             "csrf",
             "handle",
             "session",
+            "browserHash",
+            "signin",
             "proof",
             "proofIdentity",
             "candidate",
@@ -203,6 +207,17 @@ export class InviteStore {
       (!safe(value.handle) ||
         createHash("sha256").update(value.handle).digest("hex") !==
           this.fingerprint)
+    )
+      throw new Error("Invitation store unavailable");
+    if (
+      value.browserHash !== undefined &&
+      (typeof value.browserHash !== "string" ||
+        !/^[a-f0-9]{64}$/.test(value.browserHash))
+    )
+      throw new Error("Invitation store unavailable");
+    if (
+      value.signin !== undefined &&
+      (value.signin !== true || row.phase !== "invalid")
     )
       throw new Error("Invitation store unavailable");
     if (

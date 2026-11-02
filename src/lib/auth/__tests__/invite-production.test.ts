@@ -246,7 +246,7 @@ describe.skipIf(!enabled)(
       const r = await fetch(origin + "/auth/invite/");
       expect(r.status).toBe(200);
       const html = await r.text();
-      let cookie = r.headers.get("set-cookie")!.split(";")[0];
+      let cookie = applyCookies("",r);
       type ProbeNode = {
         dataset: Record<string, string>;
         children: unknown[];
@@ -362,6 +362,19 @@ describe.skipIf(!enabled)(
           .slice(accepted)
           .filter((p) => !p.includes("console_invite_tx_")),
       ).toEqual(["/auth/v1/user"]);
+      for(const other of [null,"40000000-0000-4000-8000-000000000004"]) {
+        const bootstrap=await fetch(origin+"/auth/invite",{headers:{accept:"application/json"}});
+        let probeCookie=applyCookies("",bootstrap), csrf=(await bootstrap.json()).csrf;
+        if(other){f.newBrowser();f.auth(other);probeCookie+=f.cookie.replace("sb-fictional-","sb-127-");}
+        for(const payload of [{action:"stage",id,version:1,nonce:"n".repeat(48),token_hash:"a".repeat(64)},{action:"status"},{action:"confirm",...(other?{switchFrom:other}:{})}]) {
+          const response=await fetch(origin+"/auth/invite",{method:"POST",headers:{origin,cookie:probeCookie,"content-type":"application/json"},body:JSON.stringify({csrf,...payload})});
+          probeCookie=applyCookies(probeCookie,response);const result=await response.json();csrf=result.csrf;
+          expect(result.status).toBe("signin");
+          expect(response.headers.getSetCookie().some(c=>c.startsWith("sb-"))).toBe(false);
+        }
+      }
+      expect(upstream.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+      expect(upstream.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
     },30000);
   },
 );

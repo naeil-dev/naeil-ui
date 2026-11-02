@@ -39,6 +39,8 @@ export type Transaction = {
   csrf: string;
   handle?: string;
   session?: InviteCredentials;
+  browserHash?: string;
+  signin?: boolean;
   proof?: Envelope;
   proofIdentity?: { id: string; version: number; fingerprint: string };
   verified?: Verified;
@@ -59,6 +61,7 @@ class Failure extends Error {
     super("Invitation unavailable");
   }
 }
+class SignInRequired extends Error {}
 class SwitchAccount extends Error {
   constructor(readonly userId: string) {
     super("Explicit account switch required");
@@ -230,7 +233,6 @@ function terminalDenial(path: string, status: number, text: string): boolean {
         "member conflict",
         "confirmed email required",
         "invitation creator authority conflict",
-        "accepted subject conflict",
         "verification receipt conflict",
       ],
       422: [
@@ -263,17 +265,19 @@ export function inviteMethodNotAllowed(): Response {
 }
 
 function state(t: Transaction) {
-  return t.links
-    ? "complete"
-    : t.uncertain
-      ? "uncertain"
-      : t.invalid
-        ? "invalid"
-        : t.verified || t.candidate
-          ? "retry"
-          : t.proof
-            ? "staged"
-            : "empty";
+  return t.signin
+    ? "signin"
+    : t.links
+      ? "complete"
+      : t.uncertain
+        ? "uncertain"
+        : t.invalid
+          ? "invalid"
+          : t.verified || t.candidate
+            ? "retry"
+            : t.proof
+              ? "staged"
+              : "empty";
 }
 function dto(t: Transaction) {
   return {
@@ -424,6 +428,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
   async function accept(
     t: Transaction,
     config: InviteConfig,
+    browserHash: string,
     checkpoint?: (phase: InvitePhase) => Promise<void>,
     current?: Awaited<ReturnType<ReturnType<typeof inviteSession>["current"]>>,
     switchFrom?: unknown,
@@ -458,17 +463,30 @@ export function createInviteHandler(deps: Dependencies = {}) {
         switchFrom !== current.userId
       )
         throw new SwitchAccount(current.userId);
-      // SQL005 has one path into candidate, including trigger-first readback.
+      // Freeze browser authority before any one-use external verification.
+      t.browserHash ??= browserHash;
       await checkpoint?.("verifying");
       if (t.expires <= now()) throw new Failure(409);
       if (pre.registrationComplete === true && current?.userId === pre.userId) {
         t.candidate = { ...current, email: pre.email };
       } else {
         // A lost one-use verify response remains uncertain; never call it again.
-        const auth = await call(config, "/auth/v1/verify", config.anonKey, {
-          token_hash: p.token_hash,
-          type: pre.verificationType,
-        });
+        let auth: Record<string, unknown>;
+        try {
+          auth = await call(config, "/auth/v1/verify", config.anonKey, {
+            token_hash: p.token_hash,
+            type: pre.verificationType,
+          });
+        } catch (e) {
+          // verify's only typed terminal denial is GoTrue otp_expired.
+          if (
+            pre.registrationComplete === true &&
+            e instanceof Failure &&
+            e.status === 409
+          )
+            throw new SignInRequired();
+          throw e;
+        }
         if (
           typeof auth.access_token !== "string" ||
           auth.access_token.length > 16384 ||
@@ -589,7 +607,21 @@ export function createInviteHandler(deps: Dependencies = {}) {
         throw new Failure(503);
       boundary(request, config, post);
       purge();
-      const name = cookieName(config);
+      const name = cookieName(config),
+        browserName = `${name}_browser`;
+      const browser = cookieId(request, browserName),
+        browserHash = browser ? hash(browser) : undefined;
+      const sameBrowser = (value: Transaction) =>
+        !!browserHash && equal(value.browserHash, browserHash);
+      const foreign = (value: Transaction) =>
+        !!(
+          value.browserHash ||
+          value.candidate ||
+          value.verified ||
+          value.links
+        ) && !sameBrowser(value);
+      const signin = (value: Transaction) =>
+        Response.json({ ...dto(value), status: "signin" }, { headers: h });
       let id = cookieId(request, name);
       const setCookie = (handle: string) =>
         h.set(
@@ -687,6 +719,8 @@ export function createInviteHandler(deps: Dependencies = {}) {
               (data.switchFrom !== undefined && !uuid(data.switchFrom))
             )
               throw new Failure(400);
+            if (foreign(t) || t.signin) return signin(t);
+            if (!browserHash) throw new Failure(403);
             if (t.invalid || t.uncertain || (!t.proof && !t.links))
               throw new Failure(409);
             const session = inviteSession(request, config, h, sessionFetch),
@@ -708,6 +742,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
                 await accept(
                   t,
                   config,
+                  browserHash,
                   (phase) => store!.checkpoint(claimed, phase),
                   current,
                   data.switchFrom,
@@ -717,6 +752,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
                   t.pending = accept(
                     t,
                     config,
+                    browserHash,
                     undefined,
                     current,
                     data.switchFrom,
@@ -727,9 +763,13 @@ export function createInviteHandler(deps: Dependencies = {}) {
               }
             }
             await store?.release();
+            if (!sameBrowser(t)) return signin(t);
             try {
               if (!t.session) throw new InviteSessionExpired();
-              if (current?.userId !== t.session.userId || current.sessionId !== t.session.sessionId)
+              if (
+                current?.userId !== t.session.userId ||
+                current.sessionId !== t.session.sessionId
+              )
                 await session.install(t.session);
             } catch (e) {
               if (!(e instanceof InviteSessionExpired)) throw e;
@@ -740,6 +780,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
             }
           } else if (data.action === "status") {
             if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
+            if (foreign(t) || t.signin) return signin(t);
             if (t.links) {
               const current = await inviteSession(
                 request,
@@ -758,6 +799,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
           } else throw new Failure(400);
         }
         await store?.release();
+        if (foreign(t)) return signin(t);
         const result = {
             ...dto(t),
             ...(data.action === "stage" && t.links
@@ -774,6 +816,11 @@ export function createInviteHandler(deps: Dependencies = {}) {
       // Anonymous GET/HEAD are inert: only a signed bootstrap CSRF cookie, no RPC.
       id ??= fresh();
       setCookie(id);
+      if (!browser)
+        h.append(
+          "Set-Cookie",
+          `${browserName}=${fresh()}; Path=/; Max-Age=600; HttpOnly; SameSite=Lax${config.siteOrigin.startsWith("https:") ? "; Secure" : ""}`,
+        );
       t = { expires: now() + TTL, csrf: csrfFor(id, config) };
       if (request.method === "HEAD") return new Response(null, { headers: h });
       if (
@@ -789,8 +836,8 @@ export function createInviteHandler(deps: Dependencies = {}) {
           ? proxyNonce
           : fresh();
       const pageHeaders = inviteResponseHeaders(nonce);
-      if (h.has("set-cookie"))
-        pageHeaders.set("set-cookie", h.get("set-cookie")!);
+      for (const cookie of h.getSetCookie())
+        pageHeaders.append("set-cookie", cookie);
       pageHeaders.set("Content-Type", "text/html; charset=utf-8");
       const locale =
         new URL(request.url).searchParams.get("locale") ||
@@ -819,7 +866,9 @@ export function createInviteHandler(deps: Dependencies = {}) {
           { status: 409, headers: h },
         );
       }
-      let status = e instanceof Failure ? e.status : 503;
+      const registered = e instanceof SignInRequired;
+      if (registered && t) t.signin = true;
+      let status = registered ? 409 : e instanceof Failure ? e.status : 503;
       if (store && t) {
         try {
           if (
@@ -850,12 +899,14 @@ export function createInviteHandler(deps: Dependencies = {}) {
           status:
             status === 503
               ? "unavailable"
-              : t?.uncertain
-                ? "uncertain"
-                : "invalid",
+              : t?.signin
+                ? "signin"
+                : t?.uncertain
+                  ? "uncertain"
+                  : "invalid",
           ...(t ? { csrf: t.csrf } : {}),
         },
-        { status, headers: h },
+        { status: registered && status === 409 ? 200 : status, headers: h },
       );
     }
   }

@@ -19,9 +19,10 @@ function render(
       hidden: boolean;
       disabled: boolean;
       dataset: Record<string, string>;
+      children: {href?:string}[];
       setAttribute: () => void;
       replaceChildren: () => void;
-      append: () => void;
+      append: (value:{href?:string}) => void;
       addEventListener: (event: string, fn: () => Promise<void>) => void;
     }
   >();
@@ -33,9 +34,10 @@ function render(
         hidden: false,
         disabled: false,
         dataset: {},
+        children: [],
         setAttribute() {},
-        replaceChildren() {},
-        append() {},
+        replaceChildren() {this.children=[];},
+        append(value) {this.children.push(value);},
         addEventListener: (_event, fn) => {
           clicks.set(id, fn);
         },
@@ -172,4 +174,10 @@ describe("honest unrecoverable verification copy", () => {
       ]);
     },
   );
+});
+
+it("offers normal login when registered sign-in guidance has no receipt links",()=>{
+  const f=render("en","signin");
+  expect(f.nodes.get("links")!.children).toEqual([{href:"/login",textContent:"Sign in"}]);
+  expect(f.nodes.get("confirm")!.hidden).toBe(true);
 });
