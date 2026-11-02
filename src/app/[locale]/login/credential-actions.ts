@@ -8,6 +8,7 @@ import {
   passwordChangePath,
   requiresPasswordChange,
   temporaryMarker,
+  type AuthUser,
 } from "@/lib/auth/password-policy";
 import {
   CHANGE_COOKIE,
@@ -17,6 +18,7 @@ import {
   performChange,
   expiredLogin,
   authTransport,
+  verifiedSession,
   LoginFailure,
   type ChangeOperation,
 } from "@/lib/auth/password-server";
@@ -50,25 +52,10 @@ export async function passwordLogin(form: FormData) {
       }
       return { status: "error" };
     }
-    const jar = await cookies(),
-      stored = jar.get(CHANGE_COOKIE)?.value;
-    if (stored) {
-      try {
-        const op = changeCookie(loginConfig(), stored) as ChangeOperation;
-        const marker = temporaryMarker(data.user);
-        // A new session alone cannot settle a potentially committed password write.
-        if (
-          data.user.id === op.user &&
-          marker &&
-          (Number(marker.generation) > op.generation ||
-            (marker.generation === op.generation &&
-              !marker.must_change &&
-              !marker.locked))
-        )
-          jar.delete(CHANGE_COOKIE);
-      } catch {
-        /* Preserve unresolved bindings on unknown configuration/state. */
-      }
+    try {
+      await retainedChange(loginConfig(), data.user);
+    } catch {
+      /* Preserve unresolved bindings on unknown configuration/state. */
     }
     return {
       status: "signedIn",
@@ -112,6 +99,29 @@ async function sessionToken() {
   if (!session?.access_token) throw new LoginFailure(401, "reissued");
   return session.access_token;
 }
+async function retainedChange(
+  config: ReturnType<typeof loginConfig>,
+  user: AuthUser,
+) {
+  const jar = await cookies(),
+    stored = jar.get(CHANGE_COOKIE)?.value;
+  if (!stored) return null;
+  const op = changeCookie(config, stored) as ChangeOperation,
+    marker = temporaryMarker(user);
+  // Authentication alone cannot settle a potentially committed write of the same generation.
+  if (
+    user.id === op.user &&
+    marker &&
+    (Number(marker.generation) > op.generation ||
+      (marker.generation === op.generation &&
+        !marker.must_change &&
+        !marker.locked))
+  ) {
+    jar.delete(CHANGE_COOKIE);
+    return null;
+  }
+  return op;
+}
 async function rememberChange(
   config: ReturnType<typeof loginConfig>,
   op: ChangeOperation,
@@ -127,11 +137,12 @@ async function rememberChange(
 export async function beginPasswordChange() {
   try {
     const config = loginConfig(),
-      token = await sessionToken(),
-      jar = await cookies();
-    const stored = jar.get(CHANGE_COOKIE)?.value;
-    if (stored) {
-      const op = changeCookie(config, stored) as ChangeOperation;
+      token = await sessionToken();
+    const { user } = await verifiedSession(config, token);
+    const op = await retainedChange(config, user);
+    if (!requiresPasswordChange(user))
+      return { status: "changed", location: "/" };
+    if (op) {
       try {
         await authTransport(config)(
           "/rest/v1/rpc/console_temp_operation",
@@ -177,7 +188,8 @@ export async function submitPasswordChange(form: FormData) {
   });
 }
 export async function resumePasswordChange() {
-  return changePassword();
+  const start = await beginPasswordChange();
+  return start.status === "retry" ? changePassword() : start;
 }
 async function changePassword(credentials?: {
   password: string;

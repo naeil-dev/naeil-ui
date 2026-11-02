@@ -33,6 +33,8 @@ import {
   passwordLogin,
   emailLogin,
   submitPasswordChange,
+  beginPasswordChange,
+  resumePasswordChange,
 } from "./credential-actions";
 const config = {
   siteOrigin: "https://naeil.dev",
@@ -120,6 +122,69 @@ describe("login server actions", () => {
     );
     expect(changeCookie(config, state.set.mock.calls[0][1])).toEqual(next);
     expect(state.del).not.toHaveBeenCalled();
+  });
+  it.each([2, 3])(
+    "reconciles reissued OAuth/OTP sessions without losing generation %s writes",
+    async (generation) => {
+      const op = {
+        id: "a2000000-0000-0000-0000-000000000003",
+        user: "a2000000-0000-0000-0000-000000000001",
+        session: "a2000000-0000-0000-0000-000000000002",
+        generation: 2,
+        expires: Date.now() + 60000,
+      };
+      state.stored = changeCookie(config, op) as string;
+      vi.spyOn(passwordServer, "verifiedSession").mockResolvedValue({
+        user: {
+          id: op.user,
+          app_metadata: {
+            console_temp: {
+              must_change: true,
+              generation,
+              locked: false,
+              issued_at: new Date().toISOString(),
+              operation_id: op.id,
+            },
+          },
+        },
+        session: op.session,
+        call: vi.fn(),
+      });
+      vi.spyOn(passwordServer, "authTransport").mockReturnValue(async () => ({
+        userId: op.user,
+      }));
+      const start = vi
+        .spyOn(passwordServer, "newChange")
+        .mockResolvedValue({ ...op, generation });
+      expect((await beginPasswordChange()).status).toBe(
+        generation === 3 ? "ready" : "retry",
+      );
+      expect(start).toHaveBeenCalledTimes(generation === 3 ? 1 : 0);
+      expect(state.del).toHaveBeenCalledTimes(generation === 3 ? 1 : 0);
+    },
+  );
+  it("retries initialization without submitting a password when no operation was admitted", async () => {
+    vi.spyOn(passwordServer, "verifiedSession").mockResolvedValue({
+      user: {
+        id: "user",
+        app_metadata: { console_temp: { must_change: true } },
+      },
+      session: "session",
+      call: vi.fn(),
+    });
+    const start = vi
+      .spyOn(passwordServer, "newChange")
+      .mockResolvedValue({
+        id: "id",
+        user: "user",
+        session: "session",
+        generation: 2,
+        expires: Date.now() + 60000,
+      });
+    const write = vi.spyOn(passwordServer, "performChange");
+    expect((await resumePasswordChange()).status).toBe("ready");
+    expect(start).toHaveBeenCalledTimes(1);
+    expect(write).not.toHaveBeenCalled();
   });
   it("overrides service next for must-change login", async () => {
     state.password.mockResolvedValue({
