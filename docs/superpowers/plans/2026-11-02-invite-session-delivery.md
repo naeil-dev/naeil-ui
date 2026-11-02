@@ -25,7 +25,7 @@
 - [x] Extend candidate/verified/complete ciphertext with refresh credentials; isolate session cookie adapter in invite-session.ts reusing site-session.ts policy. Verify current user, require explicit switch, deliver session after accept and retry delivery only.
 - [x] Update invite-page.ts for account switch/session delivery, truthful complete copy and allowed next links; no shared chrome edits.
 ### Task3: Evidence and PR
-- [ ] Run full site Vitest serial, lint/types/site build and owned compiled-route tests with fake upstream; preserve generic diagnostics and preview launch contract for H5. Record red→green, counts, Home dependency and cleanup; push/open site PR, merge neither.
+- [x] Run full site Vitest serial, lint/types/site build and owned compiled-route tests with fake upstream; preserve generic diagnostics and preview launch contract for H5. Record red→green, counts, Home dependency and cleanup; push/open [site PR35](https://github.com/naeil-dev/naeil-ui/pull/35), merge neither.
 
 ## Contract / activation gate
 - Requires [Home PR183 SQL011](https://github.com/naeil-dev/naeil-home/pull/183) before this site image activates. Neither PR authorizes deployment.
