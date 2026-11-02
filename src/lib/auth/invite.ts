@@ -9,6 +9,7 @@ import { invitePage } from "./invite-page";
 import {
   inviteSession,
   inviteSessionClaims,
+  isInviteRefreshToken,
   InviteSessionExpired,
   type InviteCredentials,
 } from "./invite-session";
@@ -490,8 +491,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
         if (
           typeof auth.access_token !== "string" ||
           auth.access_token.length > 16384 ||
-          typeof auth.refresh_token !== "string" ||
-          !/^[A-Za-z0-9._~-]{16,512}$/.test(auth.refresh_token) ||
+          !isInviteRefreshToken(auth.refresh_token) ||
           !object(auth.user)
         )
           throw new Failure(503);

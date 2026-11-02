@@ -69,7 +69,7 @@ function harness(
       if (path.endsWith("/verify"))
         return json({
           access_token: jwt(),
-          refresh_token: "fixture-refresh-token",
+          refresh_token: "abcdefghijkl",
           user,
         });
       if (path.endsWith("/user")) return json(user);
@@ -372,7 +372,7 @@ describe("verified-proof retry and fail-closed transport", () => {
             });
           if (path.endsWith("/verify")) {
             expect(body.type).toBe("recovery");
-            return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
+            return Response.json({access_token:jwt(),refresh_token:"abcdefghijkl",user});
           }
           if (path.endsWith("/user")) return Response.json(user);
           if (path.endsWith("record_verification")) {
@@ -419,7 +419,7 @@ describe("verified-proof retry and fail-closed transport", () => {
           return Response.json({ userId, email, verificationType: "invite" });
         }
         if (path.endsWith("/verify"))
-          return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
+          return Response.json({access_token:jwt(),refresh_token:"abcdefghijkl",user});
         if (path.endsWith("/user")) return Response.json(user);
         if (path.endsWith("record_verification"))
           return Response.json({
@@ -460,7 +460,7 @@ describe("verified-proof retry and fail-closed transport", () => {
                     access_token: jwt("40000000-0000-4000-8000-000000000004"),
                     user,
                   }
-                : {access_token:jwt(),refresh_token:"fixture-refresh-token",user},
+                : {access_token:jwt(),refresh_token:"abcdefghijkl",user},
             );
           if (path.endsWith("/user"))
             return Response.json(
@@ -529,7 +529,7 @@ describe("additional consumed OTP and parser regression boundaries", () => {
         if (path.endsWith("preflight"))
           return Response.json({ userId, email, verificationType: "invite" });
         if (path.endsWith("/verify"))
-          return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
+          return Response.json({access_token:jwt(),refresh_token:"abcdefghijkl",user});
         if (path.endsWith("/user")) {
           if (!failed) {
             failed = true;
@@ -574,7 +574,7 @@ describe("additional consumed OTP and parser regression boundaries", () => {
         if (path.endsWith("preflight"))
           return Response.json({ userId, email, verificationType: "invite" });
         if (path.endsWith("/verify"))
-          return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
+          return Response.json({access_token:jwt(),refresh_token:"abcdefghijkl",user});
         if (path.endsWith("/user")) return Response.json(user);
         if (path.endsWith("record_verification"))
           return Response.json({
@@ -721,7 +721,7 @@ describe("authoritative denial versus retained consumed-OTP recovery", () => {
           if (path.endsWith("preflight"))
             return Response.json({ userId, email, verificationType: "invite" });
           if (path.endsWith("/verify"))
-            return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
+            return Response.json({access_token:jwt(),refresh_token:"abcdefghijkl",user});
           if (path.endsWith("/user")) return Response.json(user);
           if (path.endsWith("record_verification"))
             return Response.json({
@@ -813,7 +813,7 @@ describe("authoritative denial versus retained consumed-OTP recovery", () => {
           if (path.endsWith("preflight"))
             return Response.json({ userId, email, verificationType: "invite" });
           if (path.endsWith("/verify"))
-            return Response.json({access_token:jwt(),refresh_token:"fixture-refresh-token",user});
+            return Response.json({access_token:jwt(),refresh_token:"abcdefghijkl",user});
           if (path.endsWith("/user")) return Response.json(user);
           return Response.json({
             verified: true,

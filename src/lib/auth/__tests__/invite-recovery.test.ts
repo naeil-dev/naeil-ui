@@ -42,7 +42,7 @@ async function recoveryPage(
       if (p.endsWith("/verify"))
         return Response.json({
           access_token: token,
-          refresh_token: "fixture-refresh-token",
+          refresh_token: "abcdefghijkl",
           user,
         });
       if (p.endsWith("/user")) return Response.json(user);

@@ -6,6 +6,7 @@ import {
   randomUUID,
 } from "node:crypto";
 import type { Transaction } from "./invite";
+import { isInviteRefreshToken } from "./invite-session";
 
 export type InvitePhase =
   | "empty"
@@ -55,8 +56,7 @@ const validIdentity = (v: unknown): boolean =>
   v.accessToken.length > 0 &&
   v.accessToken.length <= 16384 &&
   (v.refreshToken === undefined ||
-    (typeof v.refreshToken === "string" &&
-      /^[A-Za-z0-9._~-]{16,512}$/.test(v.refreshToken)));
+    isInviteRefreshToken(v.refreshToken));
 
 /** Non-authoritative resend identity. It cannot recover or authorize a proof. */
 export function inviteProofIdentity(proof: NonNullable<Transaction["proof"]>) {

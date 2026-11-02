@@ -209,7 +209,7 @@ export function fixture() {
     if (path.endsWith("/verify"))
       return Response.json({
         access_token: token,
-        refresh_token: "fictional-refresh-token",
+        refresh_token: "abcdefghijkl",
         user,
       });
     if (path.endsWith("/user")) {
@@ -291,7 +291,7 @@ export function fixture() {
           Buffer.from(
             JSON.stringify({
               access_token,
-              refresh_token: "fictional-refresh-token",
+              refresh_token: "abcdefghijkl",
               expires_at: 9999999999,
               token_type: "bearer",
               user: { ...user, id: subject },

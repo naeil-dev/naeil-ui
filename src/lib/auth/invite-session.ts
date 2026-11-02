@@ -28,6 +28,14 @@ export function inviteSessionClaims(token: string) {
     throw new Error("Invitation session unavailable");
   return v as { sub: string; session_id: string; exp: number };
 }
+// GoTrue v2.197.0: SecureAlphanumeric(12), or unpadded base64url of 38–46 bytes.
+export function isInviteRefreshToken(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  if (value.length === 12 && /^[a-z2-7]{12}$/.test(value)) return true;
+  if (!/^[A-Za-z0-9_-]{51,62}$/.test(value)) return false;
+  const bytes = Buffer.from(value, "base64url");
+  return bytes.length >= 38 && bytes.length <= 46 && bytes[0] === 0 && bytes.toString("base64url") === value;
+}
 export class InviteSessionExpired extends Error {}
 
 /** Existing shared SSR cookies, independent of the host-only recipient receipt. */

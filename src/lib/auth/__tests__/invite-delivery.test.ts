@@ -106,7 +106,7 @@ it("delivers shared Auth cookies separately from the host-only receipt, keeping 
   ).toBe(true);
   for (const secret of [
     token,
-    "fictional-refresh-token",
+    "abcdefghijkl",
     proof.nonce,
     proof.token_hash,
     browserSecret,
@@ -115,10 +115,11 @@ it("delivers shared Auth cookies separately from the host-only receipt, keeping 
     expect(JSON.stringify(result.body).includes(secret)).toBe(false);
   }
 });
-it("a failed session installation retains completed acceptance for delivery-only retry", async () => {
+it.each([["abcdefghijkl", "HS256", 32], [Buffer.alloc(38).toString("base64url"), "ES256", 64], [Buffer.alloc(46).toString("base64url"), "RS256", 256]] as const)("recovers GoTrue refresh format %s with %s after failed session delivery", async (refresh, alg, signatureBytes) => {
   const f = await staged();
+  const access=Buffer.from(JSON.stringify({alg,typ:"JWT"})).toString("base64url")+"."+token.split(".")[1]+"."+Buffer.alloc(signatureBytes).toString("base64url");
   let users = 0;
-  f.fault((p) =>
+  f.fault((p) => p.endsWith("/verify") ? Response.json({access_token:access,refresh_token:refresh,user}) :
     p.endsWith("/user") && ++users === 2
       ? Response.json({}, { status: 503 })
       : undefined,
@@ -237,7 +238,7 @@ it("expires session delivery without repeating OTP or acceptance",async()=>{
   const [head,,signature]=token.split(".");
   const claims={sub:userId,session_id:"30000000-0000-4000-8000-000000000003",exp:Math.floor(time/1000)+120};
   const credential=[head,Buffer.from(JSON.stringify(claims)).toString("base64url"),signature].join(".");
-  f.fault(p=>p.endsWith("/verify")?Response.json({access_token:credential,refresh_token:"fictional-refresh-token",user}):undefined);
+  f.fault(p=>p.endsWith("/verify")?Response.json({access_token:credential,refresh_token:"abcdefghijkl",user}):undefined);
   expect((await f.send(f.handler(),"confirm",{}, {cookie:f.cookie,csrf:f.csrf})).body.status).toBe("complete");
   f.auth(null);f.advance(121000);
   const clock=vi.spyOn(Date,"now").mockReturnValue(time+121000);
@@ -302,9 +303,20 @@ it("rejects a foreign candidate before claim, record or acceptance, while its ow
 it("never authorizes delivery from a legacy unbound complete row, even for the recipient",async()=>{
   const f=fixture();await f.send(f.handler());const store=storeFor(f);
   await store.create({csrf:f.csrf,expires:Date.now()+600000});const t=await store.claim();
-  t.session={accessToken:token,refreshToken:"fictional-refresh-token",userId,sessionId:"30000000-0000-4000-8000-000000000003"};
+  t.session={accessToken:token,refreshToken:"abcdefghijkl",userId,sessionId:"30000000-0000-4000-8000-000000000003"};
   t.links=[{label:"JEV",href:"https://jev.naeil.dev/"}];
   for(const phase of ["staged","verifying","candidate","verified","recorded","complete"] as const)await store.checkpoint(t,phase);
   await store.release();f.auth(userId);
   expect((await f.send(f.handler(),"status")).body.status).toBe("signin");
+});
+
+it.each(["a".repeat(11),"a".repeat(13),"A".repeat(12),"1".repeat(12),"a".repeat(50),"a".repeat(63),"a".repeat(51)+"\n", "abcdefghijkl\n"])("rejects malformed refresh format %j before acceptance",async refresh=>{
+  const f=await staged();f.fault(p=>p.endsWith("/verify")?Response.json({access_token:token,refresh_token:refresh,user}):undefined);
+  expect((await f.send(f.handler(),"confirm")).r.status).toBe(503);
+  expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(0);
+});
+it.each(["", "not.jwt", token.replace(token.split(".")[1],Buffer.from(JSON.stringify({sub:userId,session_id:"not-a-uuid",exp:9999999999})).toString("base64url")), token.replace(token.split(".")[1],Buffer.from(JSON.stringify({sub:userId,session_id:"30000000-0000-4000-8000-000000000003",exp:"9999999999"})).toString("base64url"))])("rejects malformed access claims case %#",async access=>{
+  const f=await staged();f.fault(p=>p.endsWith("/verify")?Response.json({access_token:access,refresh_token:"abcdefghijkl",user}):undefined);
+  expect((await f.send(f.handler(),"confirm")).r.status).toBe(503);
+  expect(f.calls.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(0);
 });
