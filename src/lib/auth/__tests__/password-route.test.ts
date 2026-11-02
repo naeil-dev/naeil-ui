@@ -67,6 +67,16 @@ describe("minimal site must-change gates", () => {
     expect(r.cookies.has("fixture-refresh")).toBe(true);
     expect(state.intl).not.toHaveBeenCalled();
   });
+  it("keeps the locale cookie on locale-less protected navigation", async () => {
+    const r = await proxy(
+      new NextRequest("https://naeil.dev/projects", {
+        headers: { cookie: "NEXT_LOCALE=ja" },
+      }),
+    );
+    expect(r.headers.get("location")).toBe(
+      "https://naeil.dev/ja/login/change-password",
+    );
+  });
   it("keeps the change page reachable and preserves normal sessions", async () => {
     expect(
       (

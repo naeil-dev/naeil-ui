@@ -1,15 +1,16 @@
 "use client";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { clearLocalSession } from "./actions";
 import {
   passwordLogin,
   emailLogin,
   beginPasswordChange,
   submitPasswordChange,
   resumePasswordChange,
+  leavePasswordChange,
+  requestPasswordCode,
 } from "./credential-actions";
 
 export function CredentialForms({
@@ -22,11 +23,13 @@ export function CredentialForms({
   const t = useTranslations("auth"),
     locale = useLocale(),
     form = useRef<HTMLFormElement>(null),
-    lock = useRef(false);
+    lock = useRef(false),
+    statusId = useId();
   const [busy, setBusy] = useState(false),
-    [status, setStatus] = useState("");
+    [status, setStatus] = useState(""),
+    [email, setEmail] = useState("");
   async function run(
-    kind: "password" | "email" | "change" | "resume",
+    kind: "password" | "email" | "change" | "resume" | "code",
     data: FormData,
   ) {
     if (lock.current) return;
@@ -39,16 +42,17 @@ export function CredentialForms({
         const start = await beginPasswordChange();
         result =
           start.status === "ready" ? await submitPasswordChange(data) : start;
-      } else if (kind === "resume") result = await resumePasswordChange();
+      } else if (kind === "code") result = await requestPasswordCode();
+      else if (kind === "resume") result = await resumePasswordChange();
       else
         result =
           kind === "email" ? await emailLogin(data) : await passwordLogin(data);
-      form.current?.reset();
+      clearSensitive();
       if ("location" in result && typeof result.location === "string")
         window.location.assign(result.location);
       else setStatus(result.status === "ready" ? "" : result.status);
     } catch {
-      form.current?.reset();
+      clearSensitive();
       setStatus(change ? "retry" : "error");
     } finally {
       lock.current = false;
@@ -57,23 +61,37 @@ export function CredentialForms({
   }
   const messages: Record<string, string> = {
     error: "credentialError",
+    invalidEmail: "invalidEmail",
+    codeSent: "codeSent",
     expired: "tempExpired",
     reissued: "tempReissued",
     retry: "completionRetry",
     sent: "emailSent",
     rejected: "passwordRejected",
   };
+  const blocked = change && (status === "retry" || status === "reissued");
+  const invalid = ["error", "invalidEmail", "rejected"].includes(status);
+  function clearSensitive() {
+    form.current
+      ?.querySelectorAll<HTMLInputElement>(
+        'input[type="password"], input[name="nonce"]',
+      )
+      .forEach((input) => {
+        input.value = "";
+      });
+  }
   return (
     <div className="space-y-4">
-      {status && (
-        <p
-          role="status"
-          aria-live="polite"
-          className="rounded-md bg-surface-subtle p-4 text-sm"
-        >
-          {t(messages[status] || "credentialError")}
-        </p>
-      )}
+      <p
+        id={statusId}
+        role="status"
+        aria-live="polite"
+        className={
+          status ? "rounded-md bg-surface-subtle p-4 text-sm" : "sr-only"
+        }
+      >
+        {status ? t(messages[status] || "credentialError") : ""}
+      </p>
       <form
         ref={form}
         action={(data) => run(change ? "change" : "password", data)}
@@ -86,11 +104,15 @@ export function CredentialForms({
             <span>{t("emailId")}</span>
             <Input
               name="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               type="email"
               autoComplete="username"
               required
               maxLength={254}
-              disabled={busy}
+              aria-describedby={statusId}
+              aria-invalid={invalid || undefined}
+              disabled={busy || blocked}
             />
           </label>
         )}
@@ -101,7 +123,9 @@ export function CredentialForms({
               name="current_password"
               type="password"
               autoComplete="current-password"
-              disabled={busy}
+              aria-describedby={statusId}
+              aria-invalid={invalid || undefined}
+              disabled={busy || blocked}
               maxLength={1024}
             />
           </label>
@@ -115,7 +139,9 @@ export function CredentialForms({
             required
             minLength={change ? 12 : 1}
             maxLength={change ? 72 : 1024}
-            disabled={busy || status === "retry" || status === "reissued"}
+            disabled={busy || blocked}
+            aria-describedby={statusId}
+            aria-invalid={invalid || undefined}
           />
         </label>
         {change && (
@@ -129,7 +155,9 @@ export function CredentialForms({
                 required
                 minLength={12}
                 maxLength={72}
-                disabled={busy}
+                aria-describedby={statusId}
+                aria-invalid={invalid || undefined}
+                disabled={busy || blocked}
               />
             </label>
             <label className="block space-y-2">
@@ -138,16 +166,28 @@ export function CredentialForms({
                 name="nonce"
                 autoComplete="one-time-code"
                 maxLength={128}
-                disabled={busy}
+                aria-describedby={statusId}
+                aria-invalid={invalid || undefined}
+                disabled={busy || blocked}
               />
             </label>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              size="lg"
+              disabled={busy || blocked}
+              onClick={() => void run("code", new FormData())}
+            >
+              {t("requestCode")}
+            </Button>
           </>
         )}
         <Button
           type="submit"
           size="lg"
           className="w-full whitespace-normal"
-          disabled={busy || status === "retry" || status === "reissued"}
+          disabled={busy || blocked}
           aria-busy={busy}
         >
           {t(change ? "changePassword" : "passwordSignIn")}
@@ -160,6 +200,12 @@ export function CredentialForms({
             className="w-full whitespace-normal"
             disabled={busy}
             onClick={() => {
+              if (
+                !form.current
+                  ?.querySelector<HTMLInputElement>('input[name="email"]')
+                  ?.reportValidity()
+              )
+                return;
               const data = new FormData();
               data.set(
                 "email",
@@ -186,9 +232,20 @@ export function CredentialForms({
       {change && (
         <Button
           variant="link"
+          disabled={busy}
           onClick={async () => {
-            await clearLocalSession();
-            window.location.assign(`/${locale}/login`);
+            if (lock.current) return;
+            lock.current = true;
+            setBusy(true);
+            clearSensitive();
+            try {
+              await leavePasswordChange();
+              window.location.assign(`/${locale}/login`);
+            } catch {
+              lock.current = false;
+              setBusy(false);
+              setStatus("error");
+            }
           }}
         >
           {t("backToLogin")}
