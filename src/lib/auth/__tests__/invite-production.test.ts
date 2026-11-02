@@ -342,6 +342,7 @@ describe.skipIf(!enabled)(
       expect(upstream.some((p) => p.endsWith("/verify"))).toBe(false);
       expect(f.rows.size).toBe(1);
       expect(node("confirm").hidden).toBe(false);
+      const beforeDelivery=cookie;
       await clicks.get("confirm:click")!();
       expect(node("links").children).toHaveLength(1);
       expect(upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
@@ -350,10 +351,7 @@ describe.skipIf(!enabled)(
       ).toHaveLength(1);
       expect(cookie.includes("sb-127-auth-token=")).toBe(true);
       // Response/cookie loss after acceptance retries only session delivery.
-      cookie = cookie
-        .split("; ")
-        .filter((c) => !c.startsWith("sb-"))
-        .join("; ");
+      cookie = beforeDelivery; // Lost response includes the binding-clearing header.
       const accepted = upstream.length;
       await stop();await start();
       await clicks.get("confirm:click")!();

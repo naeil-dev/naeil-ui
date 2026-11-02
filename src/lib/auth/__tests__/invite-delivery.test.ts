@@ -93,6 +93,7 @@ it("delivers shared Auth cookies separately from the host-only receipt, keeping 
   const receipt = staged.r.headers.getSetCookie();
   expect(receipt).toHaveLength(1);
   expect(receipt[0]).not.toContain("Domain=");
+  const browserSecret=f.cookie.split("; ").find(c=>c.startsWith("__Host-naeil_invite_browser="))!.split("=")[1];
   const result = await f.send(f.handler(), "confirm"),
     cookies = result.r.headers.getSetCookie();
   expect(
@@ -108,24 +109,11 @@ it("delivers shared Auth cookies separately from the host-only receipt, keeping 
     "fictional-refresh-token",
     proof.nonce,
     proof.token_hash,
-    f.cookie.split("; ").find(c=>c.startsWith("__Host-naeil_invite_browser="))!.split("=")[1],
+    browserSecret,
   ]) {
     expect(JSON.stringify([...f.rows]).includes(secret)).toBe(false);
     expect(JSON.stringify(result.body).includes(secret)).toBe(false);
   }
-});
-it("after lost Auth-cookie delivery only delivers the durable session, never verifies or accepts again", async () => {
-  const f = await staged();
-  await f.send(f.handler(), "confirm");
-  f.auth(null);
-  const before = f.calls.length;
-  expect((await f.send(f.handler())).body.status).toBe("delivery");
-  expect((await f.send(f.handler(), "confirm")).body.status).toBe("complete");
-  expect(
-    f.calls
-      .slice(before)
-      .every((p) => p.includes("console_invite_tx_") || p.endsWith("/user")),
-  ).toBe(true);
 });
 it("a failed session installation retains completed acceptance for delivery-only retry", async () => {
   const f = await staged();
@@ -148,7 +136,7 @@ it.each(["staged","delivery"])("requires explicit fresh consent before replacing
     changed = "50000000-0000-4000-8000-000000000005";
   await f.send(f.handler());
   await f.send(f.handler(), "stage", proof);
-  if(phase==="delivery")await f.send(f.handler(),"confirm");
+  if(phase==="delivery")await f.send(f.handler(),"confirm",{}, {cookie:f.cookie,csrf:f.csrf});
   const verifiedBefore=f.calls.filter(p=>p.endsWith("/verify")).length;
   f.auth(other);
   const first = await f.send(f.handler(), "confirm");
@@ -250,7 +238,7 @@ it("expires session delivery without repeating OTP or acceptance",async()=>{
   const claims={sub:userId,session_id:"30000000-0000-4000-8000-000000000003",exp:Math.floor(time/1000)+120};
   const credential=[head,Buffer.from(JSON.stringify(claims)).toString("base64url"),signature].join(".");
   f.fault(p=>p.endsWith("/verify")?Response.json({access_token:credential,refresh_token:"fictional-refresh-token",user}):undefined);
-  expect((await f.send(f.handler(),"confirm")).body.status).toBe("complete");
+  expect((await f.send(f.handler(),"confirm",{}, {cookie:f.cookie,csrf:f.csrf})).body.status).toBe("complete");
   f.auth(null);f.advance(121000);
   const clock=vi.spyOn(Date,"now").mockReturnValue(time+121000);
   try {expect((await f.send(f.handler(),"confirm")).body.status).toBe("signin");}
@@ -291,4 +279,32 @@ it("persists only the confirming browser hash before the external OTP call",asyn
     return undefined;
   });
   expect((await f.send(f.handler(),"confirm")).body.status).toBe("complete");expect(observed).toBe(true);
+});
+
+it("consumes browser delivery authority only in the successful response",async()=>{
+  const f=await staged(), result=await f.send(f.handler(),"confirm");
+  expect(result.r.headers.getSetCookie().some(c=>c.startsWith("__Host-naeil_invite_browser=;") && c.includes("Max-Age=0"))).toBe(true);
+  f.auth(null);await f.send(f.handler(),"bootstrap");
+  const retry=await f.send(f.handler(),"confirm");
+  expect(retry.body.status).toBe("signin");expect(retry.r.headers.getSetCookie().some(c=>c.startsWith("sb-"))).toBe(false);
+});
+it("rejects a foreign candidate before claim, record or acceptance, while its owner can recover",async()=>{
+  const f=await staged(), owner={cookie:f.cookie,csrf:f.csrf};
+  f.lose("candidate");expect((await f.send(f.handler(),"confirm")).r.status).toBe(503);
+  f.advance(30001);f.newBrowser();await f.send(f.handler());await f.send(f.handler(),"stage",proof);
+  const before=[...f.rows.values()][0].revision;
+  expect((await f.send(f.handler(),"confirm")).body.status).toBe("signin");
+  expect([...f.rows.values()][0].revision).toBe(before);
+  expect(f.calls.filter(p=>p.endsWith("record_verification")||p.endsWith("accept_console_invite"))).toHaveLength(0);
+  expect((await f.send(f.handler(),"confirm",{},owner)).body.status).toBe("complete");
+  expect(f.calls.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+});
+it("never authorizes delivery from a legacy unbound complete row, even for the recipient",async()=>{
+  const f=fixture();await f.send(f.handler());const store=storeFor(f);
+  await store.create({csrf:f.csrf,expires:Date.now()+600000});const t=await store.claim();
+  t.session={accessToken:token,refreshToken:"fictional-refresh-token",userId,sessionId:"30000000-0000-4000-8000-000000000003"};
+  t.links=[{label:"JEV",href:"https://jev.naeil.dev/"}];
+  for(const phase of ["staged","verifying","candidate","verified","recorded","complete"] as const)await store.checkpoint(t,phase);
+  await store.release();f.auth(userId);
+  expect((await f.send(f.handler(),"status")).body.status).toBe("signin");
 });

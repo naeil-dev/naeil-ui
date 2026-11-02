@@ -49,7 +49,8 @@ export function applyCookies(cookie: string, response: Response) {
   const jar=new Map(pairs);
   for(const c of response.headers.getSetCookie()) {
     const [pair]=c.split(";"), at=pair.indexOf("=");
-    jar.set(pair.slice(0,at),pair.slice(at+1));
+    if (/;\s*Max-Age=0(?:;|$)/i.test(c)) jar.delete(pair.slice(0,at));
+    else jar.set(pair.slice(0,at),pair.slice(at+1));
   }
   return [...jar].map(([k,v])=>`${k}=${v}`).join("; ");
 }

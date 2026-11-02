@@ -126,7 +126,6 @@ async function recoveryPage(
       method === "POST"
         ? await h.POST(request("POST", String(init.body)))
         : await h.GET(request("GET"));
-    cookie=applyCookies(cookie,r);
     if (!lost && action === lostAction && r.ok) {
       lost = true;
       if (kind === "network") throw new TypeError("Response lost");
@@ -135,6 +134,7 @@ async function recoveryPage(
         return Response.json({ status: "invalid" }, { status: kind });
       return new Response("{broken-json", { status: 200 });
     }
+    cookie=applyCookies(cookie,r);
     return r;
   };
   const location = {
@@ -206,7 +206,7 @@ describe("real-handler recovery after successful response loss", () => {
     },
   );
   it.each(["network", "json", "null502", 500, 502, 504] as const)(
-    "lost acceptance %s: explicit GET shows known completion without repeat authority calls",
+    "lost acceptance %s: recover GET preserves browser binding and delivers without repeat authority calls",
     async (kind) => {
       const t = await recoveryPage("confirm", kind);
       await t.click();
@@ -221,6 +221,9 @@ describe("real-handler recovery after successful response loss", () => {
       expect(
         t.upstream.filter((p) => p.endsWith("accept_console_invite")),
       ).toHaveLength(1);
+      expect(t.nodes.get("confirm")!.hidden).toBe(false);
+      await t.click(); // Only deliver the durable session after recovery.
+      expect(t.upstream.filter(p=>p.endsWith("/verify")||p.endsWith("accept_console_invite")||p.endsWith("record_verification"))).toHaveLength(3);
       expect(t.nodes.get("links")!.children).toHaveLength(1);
       expect(t.nodes.get("confirm")!.hidden).toBe(true);
     },

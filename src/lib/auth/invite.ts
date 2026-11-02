@@ -778,6 +778,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
                 { headers: h },
               );
             }
+            h.append("Set-Cookie", `${browserName}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${config.siteOrigin.startsWith("https:") ? "; Secure" : ""}`);
           } else if (data.action === "status") {
             if (!exactKeys(data, ["action", "csrf"])) throw new Failure(400);
             if (foreign(t) || t.signin) return signin(t);
