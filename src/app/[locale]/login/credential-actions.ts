@@ -1,7 +1,7 @@
 "use server";
 import { cookies, headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { prepareLogin } from "./actions";
+import { prepareLogin, clearLocalSession } from "./actions";
 import { loginDestination, authLocale } from "@/lib/auth/return-location";
 import {
   loginEmail,
@@ -16,7 +16,6 @@ import {
   loginConfig,
   newChange,
   performChange,
-  expiredLogin,
   authTransport,
   verifiedSession,
   LoginFailure,
@@ -43,20 +42,9 @@ export async function passwordLogin(form: FormData) {
       email,
       password,
     });
-    if (error || !data.user) {
-      try {
-        if (error && (await expiredLogin(email, error, loginConfig())))
-          return { status: "expired" };
-      } catch {
-        /* generic dependency/credential error */
-      }
-      return { status: "error" };
-    }
-    try {
-      await retainedChange(loginConfig(), data.user);
-    } catch {
-      /* Preserve unresolved bindings on unknown configuration/state. */
-    }
+    if (error || !data.user) return { status: "error" };
+    // GoTrue password grants always create a fresh session.
+    (await cookies()).delete(CHANGE_COOKIE);
     return {
       status: "signedIn",
       location: requiresPasswordChange(data.user)
@@ -69,7 +57,8 @@ export async function passwordLogin(form: FormData) {
 }
 export async function emailLogin(form: FormData) {
   const email = loginEmail(form.get("email"));
-  if (!email) return { status: "sent" };
+  if (!email) return { status: "invalidEmail" };
+  const started = performance.now();
   try {
     await prepareLogin(
       loginDestination(form.get("next")),
@@ -88,6 +77,10 @@ export async function emailLogin(form: FormData) {
     });
   } catch {
     /* Neutral for missing accounts, dependency errors and throttling. */
+  } finally {
+    const remaining = 1500 - (performance.now() - started);
+    if (remaining > 0)
+      await new Promise((resolve) => setTimeout(resolve, remaining));
   }
   return { status: "sent" };
 }
@@ -102,20 +95,21 @@ async function sessionToken() {
 async function retainedChange(
   config: ReturnType<typeof loginConfig>,
   user: AuthUser,
+  session: string,
 ) {
   const jar = await cookies(),
     stored = jar.get(CHANGE_COOKIE)?.value;
   if (!stored) return null;
   const op = changeCookie(config, stored) as ChangeOperation,
     marker = temporaryMarker(user);
-  // Authentication alone cannot settle a potentially committed write of the same generation.
   if (
-    user.id === op.user &&
-    marker &&
-    (Number(marker.generation) > op.generation ||
-      (marker.generation === op.generation &&
-        !marker.must_change &&
-        !marker.locked))
+    op.user !== user.id ||
+    op.session !== session ||
+    (marker &&
+      (Number(marker.generation) > op.generation ||
+        (marker.generation === op.generation &&
+          !marker.must_change &&
+          !marker.locked)))
   ) {
     jar.delete(CHANGE_COOKIE);
     return null;
@@ -138,8 +132,8 @@ export async function beginPasswordChange() {
   try {
     const config = loginConfig(),
       token = await sessionToken();
-    const { user } = await verifiedSession(config, token);
-    const op = await retainedChange(config, user);
+    const { user, session } = await verifiedSession(config, token);
+    const op = await retainedChange(config, user, session);
     if (!requiresPasswordChange(user))
       return { status: "changed", location: "/" };
     if (op) {
@@ -233,5 +227,20 @@ async function changePassword(credentials?: {
           ? "reissued"
           : "retry",
     };
+  }
+}
+
+export async function leavePasswordChange() {
+  (await cookies()).delete(CHANGE_COOKIE);
+  await clearLocalSession();
+}
+export async function requestPasswordCode() {
+  try {
+    const { error } = await (
+      await createClient({ writeCookies: false })
+    ).auth.reauthenticate();
+    return { status: error ? "error" : "codeSent" };
+  } catch {
+    return { status: "error" };
   }
 }

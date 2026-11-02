@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   password: vi.fn(),
   otp: vi.fn(),
+  clear: vi.fn(),
+  reauth: vi.fn(),
   set: vi.fn(),
   del: vi.fn(),
   prepare: vi.fn(),
@@ -12,6 +14,7 @@ vi.mock("@/lib/supabase/server", () => ({
     auth: {
       signInWithPassword: state.password,
       signInWithOtp: state.otp,
+      reauthenticate: state.reauth,
       getSession: async () => ({
         data: { session: { access_token: "fictional-token" } },
       }),
@@ -26,7 +29,10 @@ vi.mock("next/headers", () => ({
   }),
   headers: async () => new Headers({ origin: "https://naeil.dev" }),
 }));
-vi.mock("./actions", () => ({ prepareLogin: state.prepare }));
+vi.mock("./actions", () => ({
+  prepareLogin: state.prepare,
+  clearLocalSession: state.clear,
+}));
 import * as passwordServer from "@/lib/auth/password-server";
 import { changeCookie, LoginFailure } from "@/lib/auth/password-server";
 import {
@@ -35,6 +41,8 @@ import {
   submitPasswordChange,
   beginPasswordChange,
   resumePasswordChange,
+  leavePasswordChange,
+  requestPasswordCode,
 } from "./credential-actions";
 const config = {
   siteOrigin: "https://naeil.dev",
@@ -55,18 +63,25 @@ const form = () => {
 beforeEach(() => {
   vi.resetAllMocks();
   state.stored = undefined;
+  state.set.mockImplementation((_name, value) => {
+    state.stored = value;
+  });
+  state.del.mockImplementation(() => {
+    state.stored = undefined;
+  });
   vi.stubEnv("NAEIL_INVITE_CONFIG_JSON", JSON.stringify(config));
   vi.stubEnv("NAEIL_INVITE_CONFIG_FILE", "");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", config.supabaseUrl);
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", config.anonKey);
 });
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 describe("login server actions", () => {
   it.each([2, 3])(
-    "preserves an unresolved write until confirmed reissue (generation %s)",
+    "password sign-in retires the prior session binding (generation %s)",
     async (generation) => {
       const user = "a2000000-0000-0000-0000-000000000001",
         id = "a2000000-0000-0000-0000-000000000003";
@@ -94,7 +109,7 @@ describe("login server actions", () => {
         },
       });
       expect((await passwordLogin(form())).status).toBe("signedIn");
-      expect(state.del).toHaveBeenCalledTimes(generation === 3 ? 1 : 0);
+      expect(state.del).toHaveBeenCalledTimes(1);
     },
   );
   it("advances the sealed binding only after a definitive password rejection", async () => {
@@ -172,19 +187,116 @@ describe("login server actions", () => {
       session: "session",
       call: vi.fn(),
     });
-    const start = vi
-      .spyOn(passwordServer, "newChange")
-      .mockResolvedValue({
-        id: "id",
-        user: "user",
-        session: "session",
-        generation: 2,
-        expires: Date.now() + 60000,
-      });
+    const start = vi.spyOn(passwordServer, "newChange").mockResolvedValue({
+      id: "id",
+      user: "user",
+      session: "session",
+      generation: 2,
+      expires: Date.now() + 60000,
+    });
     const write = vi.spyOn(passwordServer, "performChange");
     expect((await resumePasswordChange()).status).toBe("ready");
     expect(start).toHaveBeenCalledTimes(1);
     expect(write).not.toHaveBeenCalled();
+  });
+  it.each(["session", "user"])(
+    "starts a new binding after changing %s on one browser",
+    async (changed) => {
+      const old = {
+        id: "a2000000-0000-0000-0000-000000000003",
+        user: "a2000000-0000-0000-0000-000000000001",
+        session: "a2000000-0000-0000-0000-000000000002",
+        generation: 2,
+        expires: Date.now() + 60000,
+      };
+      const next = {
+        ...old,
+        [changed]: "a2000000-0000-0000-0000-000000000004",
+      };
+      state.stored = changeCookie(config, old) as string;
+      vi.spyOn(passwordServer, "verifiedSession").mockResolvedValue({
+        user: {
+          id: next.user,
+          app_metadata: { console_temp: { must_change: true } },
+        },
+        session: next.session,
+        call: vi.fn(),
+      });
+      vi.spyOn(passwordServer, "newChange").mockResolvedValue(next);
+      const write = vi
+        .spyOn(passwordServer, "performChange")
+        .mockResolvedValue();
+      expect((await beginPasswordChange()).status).toBe("ready");
+      const f = form();
+      f.set("confirm", "fictional-password");
+      expect((await submitPasswordChange(f)).status).toBe("changed");
+      expect(write.mock.calls[0][2]).toEqual(next);
+    },
+  );
+  it("recovers weak-password → back → sign in again → completes", async () => {
+    const old = {
+      id: "a2000000-0000-0000-0000-000000000003",
+      user: "a2000000-0000-0000-0000-000000000001",
+      session: "a2000000-0000-0000-0000-000000000002",
+      generation: 2,
+      expires: Date.now() + 60000,
+    };
+    state.stored = changeCookie(config, old) as string;
+    const write = vi
+      .spyOn(passwordServer, "performChange")
+      .mockRejectedValueOnce(new LoginFailure(422, "rejected"))
+      .mockResolvedValue();
+    vi.spyOn(passwordServer, "newChange").mockResolvedValue(old);
+    const f = form();
+    f.set("confirm", "fictional-password");
+    expect((await submitPasswordChange(f)).status).toBe("rejected");
+    await leavePasswordChange();
+    expect(state.stored).toBeUndefined();
+    expect(state.clear).toHaveBeenCalled();
+    state.password.mockResolvedValue({
+      data: {
+        user: {
+          id: old.user,
+          app_metadata: { console_temp: { must_change: true } },
+        },
+      },
+    });
+    expect((await passwordLogin(form())).status).toBe("signedIn");
+    const next = { ...old, session: "a2000000-0000-0000-0000-000000000005" };
+    vi.spyOn(passwordServer, "verifiedSession").mockResolvedValue({
+      user: {
+        id: old.user,
+        app_metadata: { console_temp: { must_change: true } },
+      },
+      session: next.session,
+      call: vi.fn(),
+    });
+    vi.mocked(passwordServer.newChange).mockResolvedValue(next);
+    expect((await beginPasswordChange()).status).toBe("ready");
+    expect((await submitPasswordChange(f)).status).toBe("changed");
+    expect(write.mock.calls[1][2].session).toBe(next.session);
+  });
+  it.each([
+    "invalid_credentials",
+    "user_banned",
+    "unexpected_failure",
+    "PT409",
+  ])("keeps %s neutral without any account lookup", async (code) => {
+    state.password.mockResolvedValue({
+      data: { user: null },
+      error: { status: code === "unexpected_failure" ? 500 : 400, code },
+    });
+    const upstream = vi.spyOn(passwordServer, "authTransport");
+    expect(await passwordLogin(form())).toEqual({ status: "error" });
+    expect(upstream).not.toHaveBeenCalled();
+  });
+  it("validates empty email and requests a signed-in reauthentication code", async () => {
+    const f = form();
+    f.set("email", "");
+    expect(await emailLogin(f)).toEqual({ status: "invalidEmail" });
+    expect(state.otp).not.toHaveBeenCalled();
+    state.reauth.mockResolvedValue({ error: null });
+    expect(await requestPasswordCode()).toEqual({ status: "codeSent" });
   });
   it("overrides service next for must-change login", async () => {
     state.password.mockResolvedValue({
@@ -214,11 +326,16 @@ describe("login server actions", () => {
   it.each([null, new Error("missing account"), new Error("throttled")])(
     "OTP is existing-user only and neutral (%s)",
     async (error) => {
+      vi.useFakeTimers({ toFake: ["setTimeout", "performance"] });
       state.otp.mockImplementation(() => {
         if (error) throw error;
         return { error: null };
       });
-      expect(await emailLogin(form())).toEqual({ status: "sent" });
+      const started = performance.now(),
+        result = emailLogin(form());
+      await vi.runAllTimersAsync();
+      expect(await result).toEqual({ status: "sent" });
+      expect(performance.now() - started).toBe(1500);
       expect(state.otp.mock.calls[0][0].options.shouldCreateUser).toBe(false);
       expect(state.otp.mock.calls[0][0]).not.toHaveProperty("password");
     },
