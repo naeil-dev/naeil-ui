@@ -1,9 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
+import { requiresPasswordChange, passwordChangePath } from "./lib/auth/password-policy";
+import { authLocale } from "./lib/auth/return-location";
 import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
 import { isProtectedReportRoute } from "./lib/auth/routes";
 import { invitationProxyResponse } from "./lib/auth/invite-proxy";
+import { actionRequestBoundary } from "./lib/auth/action-request-boundary";
 import { isCanonicalServiceReturnPath, isServiceReturnPath, serviceReturnHandler, serviceReturnHeaders } from "./lib/auth/service-return";
 
 const intlMiddleware = createIntlMiddleware(routing);
@@ -22,6 +25,8 @@ export default async function proxy(request: NextRequest) {
   if (["/auth/invite", "/auth/invite/"].includes(request.nextUrl.pathname)) {
     return invitationProxyResponse(request);
   }
+  const actionRejection = await actionRequestBoundary(request);
+  if (actionRejection) return actionRejection;
   // Run canonicalization after protected namespaces. A framework redirect runs
   // before proxy and drops their response headers, including no-referrer.
   if (rawPathname !== "/" && rawPathname.endsWith("/") && !rawPathname.startsWith("/_next")) {
@@ -37,6 +42,14 @@ export default async function proxy(request: NextRequest) {
 
   // 2. Capture URL info BEFORE intl middleware (which may mutate request.nextUrl)
   const { pathname } = request.nextUrl;
+
+  const language = pathname.match(/^\/(en|ko|ja)(?:\/|$)/)?.[1] || authLocale(request.cookies.get("NEXT_LOCALE")?.value);
+  if (requiresPasswordChange(user) && !/^\/(?:(?:en|ko|ja)\/)?login\/change-password$/.test(pathname)) {
+    const response = NextResponse.redirect(new URL(passwordChangePath(language), request.url), 303);
+    supabaseResponse.cookies.getAll().forEach(cookie => response.cookies.set(cookie));
+    response.headers.set("Cache-Control", "no-store");
+    return response;
+  }
 
   // 3. Check protected routes — redirect to login if unauthenticated
   if (isProtectedReportRoute(pathname) && !user) {

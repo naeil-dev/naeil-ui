@@ -2,9 +2,12 @@ import { Logo } from "@/components/logo";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requiresPasswordChange, passwordChangePath } from "@/lib/auth/password-policy";
+import { CredentialForms } from "./credential-forms";
 import { OAuthButtons } from "./oauth-buttons";
 import { PageTitle } from "@/components/typography";
 import { loginDestination } from "@/lib/auth/return-location";
+import { authEmailEnabled } from "@/lib/auth/feature-gates";
 
 export default async function LoginPage({
   params,
@@ -13,7 +16,7 @@ export default async function LoginPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  await params;
+  const { locale } = await params;
   const { next, error } = await searchParams;
   const destination = loginDestination(next);
 
@@ -24,7 +27,7 @@ export default async function LoginPage({
 
   if (user && !authError) {
     // The validated return URL already contains its locale prefix.
-    redirect(destination);
+    redirect(requiresPasswordChange(user) ? passwordChangePath(locale) : destination);
   }
 
   const t = await getTranslations("auth");
@@ -43,6 +46,7 @@ export default async function LoginPage({
           </p>
         </div>
 
+        <CredentialForms next={destination} emailEnabled={authEmailEnabled()} />
         {/* OAuth buttons */}
         <OAuthButtons next={destination} initialError={error === "auth"} />
       </div>

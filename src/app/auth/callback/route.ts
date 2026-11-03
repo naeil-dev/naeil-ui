@@ -1,3 +1,4 @@
+import { requiresPasswordChange, passwordChangePath, type AuthUser } from "@/lib/auth/password-policy";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
@@ -44,9 +45,12 @@ export async function GET(request: Request) {
     );
 
     let failed = false;
+    let target = destination;
     try {
       const result = await supabase.auth.exchangeCodeForSession(code);
       failed = !!result.error;
+      const user = result.data?.user as AuthUser | undefined;
+      if (user && requiresPasswordChange(user)) target = passwordChangePath(locale);
     } catch {
       failed = true;
     }
@@ -54,7 +58,7 @@ export async function GET(request: Request) {
     if (!failed) {
       cookieStore.set(RETURN_DESTINATION_COOKIE, "", { path: "/", maxAge: 0 });
       cookieStore.set(RETURN_LOCALE_COOKIE, "", { path: "/", maxAge: 0 });
-      return NextResponse.redirect(new URL(destination, origin));
+      return NextResponse.redirect(new URL(target, origin));
     }
   }
 
