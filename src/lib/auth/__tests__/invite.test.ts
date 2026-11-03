@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createInviteHandler } from "../invite";
 
 const origin = "http://127.0.0.1:2482";
@@ -788,3 +788,7 @@ describe("authoritative denial versus retained consumed-OTP recovery", () => {
     },
   );
 });
+
+// Enabled-path regressions explicitly opt in; production defaults OFF.
+beforeEach(() => vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true"));
+afterEach(() => vi.unstubAllEnvs());

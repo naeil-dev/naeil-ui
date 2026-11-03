@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { runInNewContext } from "node:vm";
 import { createInviteHandler } from "../invite";
 const origin = "http://127.0.0.1:2482";
@@ -216,3 +216,7 @@ describe("real-handler recovery after successful response loss", () => {
     },
   );
 });
+
+// Enabled-path regressions explicitly opt in; production defaults OFF.
+beforeEach(() => vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true"));
+afterEach(() => vi.unstubAllEnvs());

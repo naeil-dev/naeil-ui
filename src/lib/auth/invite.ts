@@ -1,6 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { readInviteConfig, type InviteConfig } from "./invite-config";
 import { invitePage } from "./invite-page";
+import { inviteAcceptanceEnabled } from "./feature-gates";
 import {
   InviteStore,
   inviteProofIdentity,
@@ -236,6 +237,42 @@ export function inviteMethodNotAllowed(): Response {
   );
 }
 
+function htmlResponse(request: Request, initial: unknown, status = 200) {
+  // The slash alias is answered inside proxy, before nonce replacement.
+  const proxyNonce =
+    new URL(request.url).pathname === "/auth/invite"
+      ? request.headers.get("x-naeil-invite-nonce")
+      : null;
+  const nonce =
+    proxyNonce && /^[A-Za-z0-9_-]{43}$/.test(proxyNonce) ? proxyNonce : fresh();
+  const headers = inviteResponseHeaders(nonce);
+  headers.set("Content-Type", "text/html; charset=utf-8");
+  const requested = new URL(request.url).searchParams.get("locale");
+  const locale =
+    requested && ["ko", "ja", "en"].includes(requested)
+      ? requested
+      : (request.headers.get("accept-language") || "")
+          .match(/^(ko|ja)\b/i)?.[1]
+          .toLowerCase() || "en";
+  return new Response(
+    invitePage(nonce, locale as "ko" | "ja" | "en", initial),
+    { status, headers },
+  );
+}
+
+function pausedResponse(request: Request) {
+  const initial = { status: "paused" };
+  if (
+    request.method === "GET" &&
+    request.headers.get("accept")?.includes("text/html")
+  )
+    return htmlResponse(request, initial, 503);
+  return Response.json(initial, {
+    status: 503,
+    headers: inviteResponseHeaders(),
+  });
+}
+
 function state(t: Transaction) {
   return t.links
     ? "complete"
@@ -292,6 +329,7 @@ function boundary(request: Request, config: InviteConfig, post: boolean) {
 
 /** The narrow proxy handles this alias before the normal site auth/intl path. */
 export function inviteCanonicalResponse(request: Request): Response {
+  if (!inviteAcceptanceEnabled()) return pausedResponse(request);
   const responseHeaders = inviteResponseHeaders();
   try {
     const config = readInviteConfig();
@@ -523,6 +561,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
     await checkpoint?.("complete");
   }
   async function handle(request: Request, post: boolean): Promise<Response> {
+    if (!inviteAcceptanceEnabled()) return pausedResponse(request);
     const h = inviteResponseHeaders();
     let t: Transaction | undefined;
     let store: InviteStore | undefined;
@@ -601,8 +640,7 @@ export function createInviteHandler(deps: Dependencies = {}) {
             t = await store.claim();
             // Rotation already checked the previous handle's CSRF. A new row's
             // random CSRF was never sent by that previous tab.
-            if (!rotated && !equal(data.csrf, t.csrf))
-              throw new Failure(403);
+            if (!rotated && !equal(data.csrf, t.csrf)) throw new Failure(403);
           }
           t.proof = p;
           t.proofIdentity = inviteProofIdentity(p);
@@ -667,27 +705,10 @@ export function createInviteHandler(deps: Dependencies = {}) {
           .some((v) => v.trim() === "application/json")
       )
         return Response.json(dto(t), { headers: h });
-      const proxyNonce = request.headers.get("x-naeil-invite-nonce");
-      const nonce =
-        proxyNonce && /^[A-Za-z0-9_-]{43}$/.test(proxyNonce)
-          ? proxyNonce
-          : fresh();
-      const pageHeaders = inviteResponseHeaders(nonce);
+      const page = htmlResponse(request, dto(t));
       if (h.has("set-cookie"))
-        pageHeaders.set("set-cookie", h.get("set-cookie")!);
-      pageHeaders.set("Content-Type", "text/html; charset=utf-8");
-      const locale =
-        new URL(request.url).searchParams.get("locale") ||
-        (request.headers.get("accept-language") || "")
-          .match(/^(ko|ja)\b/i)?.[1]
-          .toLowerCase() ||
-        "en";
-      return new Response(
-        invitePage(nonce, locale as "ko" | "ja" | "en", dto(t)),
-        {
-          headers: pageHeaders,
-        },
-      );
+        page.headers.set("set-cookie", h.get("set-cookie")!);
+      return page;
     } catch (e) {
       let status = e instanceof Failure ? e.status : 503;
       if (store && t) {
