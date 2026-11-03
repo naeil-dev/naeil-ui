@@ -62,7 +62,8 @@ function render(
         calls.push(init.method || "GET");
         if (init.body) payloads.push(JSON.parse(String(init.body)));
         const next = replies.shift()!;
-        if (next.lost) throw new TypeError("Whole response including cookie lost");
+        if (next.lost)
+          throw new TypeError("Whole response including cookie lost");
         return Response.json(next.body, { status: next.status });
       },
       URLSearchParams,
@@ -81,6 +82,29 @@ function render(
   };
 }
 describe("honest unrecoverable verification copy", () => {
+  it.each(["ko", "ja", "en"] as const)(
+    "keeps a paused %s page inert even with a fragment or synthetic click",
+    async (locale) => {
+      const t = render(
+        locale,
+        "paused",
+        [],
+        "#" +
+          new URLSearchParams({
+            id: "10000000-0000-4000-8000-000000000001",
+            version: "1",
+            nonce: "n".repeat(48),
+            token_hash: "a".repeat(64),
+          }),
+      );
+      await t.settle();
+      expect(t.nodes.get("confirm")?.hidden).toBe(true);
+      expect(t.nodes.get("status")?.textContent).not.toBe("");
+      await t.clicks.get("confirm")!();
+      await t.clicks.get("language")!();
+      expect(t.calls).toEqual([]);
+    },
+  );
   it.each([
     ["ko", "이메일 확인 결과를 복구할 수 없습니다", "재전송"],
     ["ja", "メール確認の結果を復元できません", "再送"],
@@ -151,10 +175,21 @@ describe("honest unrecoverable verification copy", () => {
       expect(f.calls).toEqual(["POST", "GET"]);
       expect(f.nodes.get("confirm")!.hidden).toBe(false);
       await f.clicks.get("confirm")!();
-      expect(f.payloads.map((payload) => payload.action)).toEqual(["stage", "stage"]);
-      expect(f.payloads[1]).toMatchObject({ ...fresh, version: 2, csrf: "c".repeat(43) });
+      expect(f.payloads.map((payload) => payload.action)).toEqual([
+        "stage",
+        "stage",
+      ]);
+      expect(f.payloads[1]).toMatchObject({
+        ...fresh,
+        version: 2,
+        csrf: "c".repeat(43),
+      });
       await f.clicks.get("confirm")!();
-      expect(f.payloads.map((payload) => payload.action)).toEqual(["stage", "stage", "confirm"]);
+      expect(f.payloads.map((payload) => payload.action)).toEqual([
+        "stage",
+        "stage",
+        "confirm",
+      ]);
     },
   );
 });

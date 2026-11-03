@@ -125,6 +125,7 @@ describe.skipIf(!enabled)(
           env: {
             ...process.env,
             NAEIL_INVITE_CONFIG_FILE: privateFile,
+            NAEIL_INVITE_ACCEPT_ENABLED: "true",
             NAEIL_INVITE_DIST_DIR: ".next-console-invite",
           },
           stdio: "ignore",

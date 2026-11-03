@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi, beforeEach } from "vitest";
 import { mkdtempSync, writeFileSync, rmSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -159,3 +159,7 @@ it("uses exact configured Host/Origin rather than Next internal request URL auth
   );
   expect(p.status).toBe(200);
 });
+
+// Enabled-path regressions explicitly opt in; production defaults OFF.
+beforeEach(() => vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true"));
+afterEach(() => vi.unstubAllEnvs());

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { runInNewContext } from "node:vm";
 import { createInviteHandler } from "../invite";
 const origin = "http://127.0.0.1:2482";
@@ -162,3 +162,7 @@ it("recovers status before explicitly restaging the same envelope after stage503
     "confirm",
   ]);
 });
+
+// Enabled-path regressions explicitly opt in; production defaults OFF.
+beforeEach(() => vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true"));
+afterEach(() => vi.unstubAllEnvs());
