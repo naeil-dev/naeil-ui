@@ -41,6 +41,8 @@ The supported worker grammar is an app page, optional route groups, a first `[lo
 
 Build configuration binds the actual dist directory and development `dev/` directory to that server path, and includes the manifest in server tracing. Exact production build, middleware NFT and an independently packaged standalone runtime must show that the file exists and is readable. A missing artifact produces finite 503; it does not silently disable the boundary. Local packaged success is not hosted Vercel acceptance.
 
+The pinned Turbopack build does not apply `outputFileTracingIncludes` to its proxy NFT. The supported `compiler.runAfterProductionCompile` config hook therefore requires the current generated manifest and proxy/middleware NFT, validates the version1/files trace shape, and adds only the relative `server-reference-manifest.json` file. An absent or unsupported trace fails the build. This changes the application's generated packaging trace, not the installed Next package. Standalone already carries the manifest via required-server-files; that fact alone does not prove a separately packaged proxy function can read it.
+
 ## Required preservation and acceptance
 
 Normal logout and clearLocalSession remain callable from every actual rendered page: landing, blog, blog slug, design, projects, login and change-password, with supported locales. OAuth prepareLogin stays callable from login. Password login, no-mail D first change, completion recovery and auth cookie behavior stay unchanged on their owning routes. Existing service-return/C tests must continue to pass.

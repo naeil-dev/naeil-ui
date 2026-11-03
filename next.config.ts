@@ -3,6 +3,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 import createMDX from "@next/mdx";
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { access, readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import { resolveSiteSourceRevision } from "./scripts/site-build-identity";
 
 // Public allowlist only. These constants are compiled into the immutable build.
@@ -38,6 +40,33 @@ const nextConfig: NextConfig = {
   distDir,
   // The proxy reads this private build artifact; it must accompany its trace.
   outputFileTracingIncludes: { "**/*": [`./${distDir}/server/server-reference-manifest.json`] },
+  compiler: {
+    async runAfterProductionCompile({ distDir: outputDir }) {
+      // Next 16.1.7 Turbopack omits proxy from outputFileTracingIncludes.
+      // Carry this generated server artifact into the proxy's generated NFT.
+      // Missing or changed trace formats must fail the build, never ship a
+      // function that silently depends on the original source workspace.
+      await access(join(outputDir, "server/server-reference-manifest.json"));
+      let traced = false;
+      for (const name of ["middleware", "proxy"]) {
+        const path = join(outputDir, `server/${name}.js.nft.json`);
+        let raw: string;
+        try { raw = await readFile(path, "utf8"); }
+        catch (error) {
+          if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+          throw error;
+        }
+        const trace = JSON.parse(raw);
+        if (trace.version !== 1 || !Array.isArray(trace.files) || !trace.files.every((file: unknown) => typeof file === "string")) {
+          throw new Error("Unsupported proxy trace format");
+        }
+        trace.files = [...new Set([...trace.files, "server-reference-manifest.json"])];
+        await writeFile(path, JSON.stringify(trace));
+        traced = true;
+      }
+      if (!traced) throw new Error("Missing proxy trace for action manifest");
+    },
+  },
   // Proxy rejects return aliases before site Auth/locale processing and keeps
   // ordinary trailing-slash redirects after the protected namespaces.
   skipTrailingSlashRedirect: true,
