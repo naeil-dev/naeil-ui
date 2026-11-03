@@ -6,6 +6,7 @@ import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
 import { isProtectedReportRoute } from "./lib/auth/routes";
 import { invitationProxyResponse } from "./lib/auth/invite-proxy";
+import { actionRequestBoundary } from "./lib/auth/action-request-boundary";
 import { isCanonicalServiceReturnPath, isServiceReturnPath, serviceReturnHandler, serviceReturnHeaders } from "./lib/auth/service-return";
 
 const intlMiddleware = createIntlMiddleware(routing);
@@ -24,6 +25,8 @@ export default async function proxy(request: NextRequest) {
   if (["/auth/invite", "/auth/invite/"].includes(request.nextUrl.pathname)) {
     return invitationProxyResponse(request);
   }
+  const actionRejection = await actionRequestBoundary(request);
+  if (actionRejection) return actionRejection;
   // Run canonicalization after protected namespaces. A framework redirect runs
   // before proxy and drops their response headers, including no-referrer.
   if (rawPathname !== "/" && rawPathname.endsWith("/") && !rawPathname.startsWith("/_next")) {

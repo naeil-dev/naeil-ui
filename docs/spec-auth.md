@@ -6,6 +6,8 @@
 
 > B·D 우선 로컬 준비(2026-11-03): 현재 비밀번호 로그인/첫 변경은 S2 계약을 따르며, 이메일 링크·재인증 메일·C 초대 수락은 [명시적 default-OFF gate 계약](superpowers/specs/2026-11-03-site-bd-mail-gates.md)을 따른다. 아래 Phase 1 기록은 이 후속 계약이나 운영 승인 상태를 대체하지 않는다.
 
+> Server Action의 소유 경로 밖 요청은 [request-boundary 계약](superpowers/specs/2026-11-03-site-action-request-boundary.md)에 따라 forwarding 전에 거부한다. 메일 OFF의 off-owner 응답은409 JSON `mailPaused`이며 정상 소유 경로의200 Flight action 결과와 구분한다. 전역 logout/recovery 및 정상 OAuth/password action은 보존한다.
+
 ## Goals
 
 - [ ] 공개 회원가입 (Google/GitHub OAuth) 구현

@@ -27,12 +27,17 @@ const withMDX = createMDX({
   },
 });
 
+const distDir = process.env.NAEIL_INVITE_DIST_DIR || ".next";
+const actionManifestPath = `${distDir}/${process.env.NODE_ENV === "development" ? "dev/" : ""}server/server-reference-manifest.json`;
+
 const nextConfig: NextConfig = {
   output: process.env.NAEIL_ROLLOUT_STANDALONE === '1' ? 'standalone' : undefined,
   generateBuildId: async () => artifactId,
-  env: { NAEIL_APP_ARTIFACT_ID: artifactId, NAEIL_SOURCE_REVISION: sourceRevision },
+  env: { NAEIL_APP_ARTIFACT_ID: artifactId, NAEIL_SOURCE_REVISION: sourceRevision, NAEIL_ACTION_MANIFEST_PATH: actionManifestPath },
   poweredByHeader: false,
-  distDir: process.env.NAEIL_INVITE_DIST_DIR || ".next",
+  distDir,
+  // The proxy reads this private build artifact; it must accompany its trace.
+  outputFileTracingIncludes: { "**/*": [`./${distDir}/server/server-reference-manifest.json`] },
   // Proxy rejects return aliases before site Auth/locale processing and keeps
   // ordinary trailing-slash redirects after the protected namespaces.
   skipTrailingSlashRedirect: true,
