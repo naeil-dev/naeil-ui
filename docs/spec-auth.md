@@ -4,6 +4,8 @@
 
 > Supabase 기반 인증 + SA 리포트 열람 — naeil.dev의 첫 번째 사용자 인터랙션 레이어.
 
+> B·D 우선 로컬 준비(2026-11-03): 현재 비밀번호 로그인/첫 변경은 S2 계약을 따르며, 이메일 링크·재인증 메일·C 초대 수락은 [명시적 default-OFF gate 계약](superpowers/specs/2026-11-03-site-bd-mail-gates.md)을 따른다. 아래 Phase 1 기록은 이 후속 계약이나 운영 승인 상태를 대체하지 않는다.
+
 ## Goals
 
 - [ ] 공개 회원가입 (Google/GitHub OAuth) 구현

@@ -1,0 +1,18 @@
+# S2 site login verification
+
+Site-only composition on UI main ce56dd7. Shared components/tokens and S1-owned invite/session helpers are unchanged. All three stacked PRs remain drafts and unmerged.
+
+- Full repo Vitest: **622 passed / 5 existing opt-in production-invite tests skipped** (39 files). Includes S1 invite/proxy/session tests and the client module graph boundary test. TypeScript and production webpack build passed. Full `eslint .` exited0: zero errors, three pre-existing warnings in logo-study verify_browser.mjs, rollout evidence verify-public.mjs and auth/return rejected route; those files are unchanged.
+- Review fixes: current-user/session operation binding; Back clears it; weak-password → Back → re-sign-in completes; switching temporary users on one browser completes. Unknown outcomes retain the same-session admission and only retry completion. GoTrue's real `current_password_invalid` is a definite rejection. HKDF separates cookie and operation keys; apikey matches the existing invite transport pattern.
+- GoTrue v2.197 wraps SQL008 token-issuance trigger failures as generic unexpected_failure. Invalid credentials, user_banned and indistinguishable post-password failures all get the same neutral sign-in message. **No email lookup, admin filter, sweep RPC or BigInt cursor trick remains.** Explicit expiry appears only on the authenticated change page with verified metadata.
+- Production Next with synthetic Auth HTTP seam: password login → change page → failed completion → completion-only retry performs one password PUT and one admin-marker PUT. Initial Auth outage recovers before any password write. Reauthentication-code request, retained email/error association, disabled pending inputs and same-browser PKCE hint are also exercised. This is not a real GoTrue/SMTP/IdP test.
+- Rendered login/change pages: ko/en/ja × light/dark × 390-touch/1440-desktop, 24 states; scoped axe WCAG2/2.1 AA zero violations, no horizontal overflow, keyboard field order, ≥44px touch/40px desktop controls and loaded Pretendard. Representative captures below were visually inspected. No baseline pixel comparison or general accessibility certification is claimed.
+- Client module graph and all built client JS chunks exclude the private canary. App logs exclude fixture password/JWT/private canaries. Real credentials were not used. Owned Next/Auth processes stop after each browser run.
+
+Mutation regressions: nine mutations each failed on assertions, then original bytes were restored: operation_id check; plan generation; final fresh /user; fresh must_change; fresh locked; cookie expiry; claims.sub; login-page gate; change-page expiry. The expiry-list state-filter mutation is eliminated by deleting that lookup path, rather than retaining unnecessary account queries.
+
+Reproduce: `pnpm exec vitest run --maxWorkers=1`, `pnpm exec tsc --noEmit`, `pnpm exec eslint .`, `pnpm exec next build --webpack` with fictional public Supabase settings. The owned pgrep guard waits for other pytest/Vitest runs before heavy checks. Browser fixtures use isolated loopback Next/Auth seams.
+
+[Required production gates](../../superpowers/specs/2026-11-02-site-password-login-ops.md): Vercel Firewall rate limiting must be owner-configured and tested before activation; hosted forwarded-IP support is unverified. Email responses share a 1.5-second floor, not a claim of constant-time slow SMTP. Real SQL008/Auth audit, password/reauthentication policy, OAuth and mail delivery remain separate hosted gates. No package API change, publication or main merge.
+
+[한국어 로그인·모바일](login-ko-light-390.png) · [한국어 강제 변경·모바일](change-ko-light-390.png) · [日本語ログイン・desktop dark](login-ja-dark-1440.png)

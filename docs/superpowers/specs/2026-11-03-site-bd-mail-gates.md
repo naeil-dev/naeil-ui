@@ -1,0 +1,23 @@
+# Site B/D preparation: email and invitation gates
+
+Scope: local preparation on the S2 #34 source; #35 remains deferred. This contract narrows the historical email behavior in `docs/spec-auth.md` and the S2 spec for the B/D-only rollout. No shared package, hosted settings, SQL, deployment, publication or service authorization changes.
+
+## Requirements
+
+- Email-link and reauthentication-code actions MUST require the server-only `NAEIL_AUTH_EMAIL_ENABLED` value to equal exactly `true`. Missing, empty, differently cased, padded or other values mean OFF. OFF returns `mailPaused` before cookies, SDK creation, session lookup or any upstream request, including direct/replayed Server Actions on another route.
+- Invitation GET/HEAD, POST stage/confirm/status and the trailing-slash alias MUST require `NAEIL_INVITE_ACCEPT_ENABLED` to equal exactly `true`. OFF returns a protected no-store 503 before private config, transaction read/create/claim, Auth verification or acceptance. Existing handles/proofs cannot bypass it. Switching OFF does not cancel already admitted in-flight work; rollout must close ingress and drain it.
+- Both gates are independent of the private service-role/AES configuration and default OFF. The private file/JSON exact-key parser stays unchanged. Do not add gate keys to that JSON or use a `NEXT_PUBLIC_*` fallback. Pages receive only a boolean for UI presentation; actions reread server policy on every call.
+- Login and first-change UI MUST explain paused email delivery in ko/en/ja and omit its request controls. The invitation page MUST show a paused state without staging a fragment or offering acceptance. Password login, first password change without SMTP/nonce, completion-only recovery, Google/GitHub and existing A sessions remain available.
+- Tests MUST cover valid D config with both gates OFF, strict values, direct/replayed actions, all invitation entry points, a pre-existing staged transaction, unchanged enabled behavior, and first-change success without OTP/reauthentication. Hosted canaries and actual mail delivery remain separate acceptance gates.
+
+## Deployment sequence proposal (approval required)
+
+Current #32 → #33 → #34 heads are not safe intermediate B/D deployments: missing SMTP or private config does not prevent the email actions in #33/#34. An env flag cannot protect code that does not read it.
+
+Before approving any stack merge, the main agent should prepare and review a gate-only prerequisite for the currently deployed invite ingress, then carry that gate forward into #32. Reuse this contract's strict server helper and early invitation boundary; do not bring #35. Update #33's credential actions to include the two email guards before it can be deployed, then update #34's UI/pages/copy. Merge forward without rebasing/resetting and bind each revised head to tests/review. This is a proposal; this branch does not modify those PRs.
+
+The owner-approved window must first close C ingress/writers, retain existing state, and drain admitted requests (including the SQL011 legacy 10-minute/live-zero requirement). Deploy the prerequisite with both gates absent or `false`; verify canonical/alias GET/HEAD/POST produce no transaction/verification calls. Keep gates OFF at every #32/#33/#34 deployment. Verify each deployment's exact source and direct action behavior, not only its UI. Add the D private config only after the gated source, database/audit and firewall prerequisites are verified. Test D with no email. If a prerequisite/stack revision cannot be prepared, block the intermediate deployments; do not use Email-provider OFF or dummy SMTP as a workaround.
+
+The SQL011 writer stop in stage ⑤ precedes site deployment in stage ⑦. Therefore the main must prepare a separately approved temporary Vercel C ingress deny covering `/auth/invite`, its trailing slash and aliases, then the required drain before SQL011. Keep that hold until the final gated deployment is verified; disabling it requires approval, and deleting it is outside this preparation. No such rule is applied here.
+
+Any later email/C activation needs separate approval and the original delivery/SQL011/S1 acceptance evidence. Rolling back to an ungated deployment while D config exists is unsafe; rollback must preserve an ingress hold and a reviewed gated source. Gates do not revoke already sent links or existing Auth sessions and do not control direct Supabase APIs.

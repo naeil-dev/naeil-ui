@@ -1,5 +1,7 @@
 # S2 — website password and email-link login
 
+The [2026-11-03 B/D preparation contract](2026-11-03-site-bd-mail-gates.md) adds independent default-OFF email/C gates. Its explicitly expanded invitation boundary scope supersedes the original S1 ownership split below for this hold only; #35 is not included.
+
 Approved scope: design-final-v2 §1/5/8, Home SQL008 site-direct S2 contract, PR179/180/182 reviews. Site-only composition; no shared package API, invite*, session helper, rollout, deployment or publication changes. S2 owns proxy.ts/callback's minimal must-change gate, confirmed by owner. S1 retains invite* and site-session.ts.
 
 Keep OAuth and validated next. Add email/password and neutral existing-account-only OTP (shouldCreateUser:false), ko/en/ja. Fresh server app_metadata with must_change (or malformed temporary marker) permits only localized password-change screen; ignore service next until completion. Central access_decision remains the business gate.
