@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-04T04:11:42.128886+00:00",
+  "method": "Aside read-only browser session uf3b6Tq9jnR4UJCI; root transcribed allowlisted observations",
+  "authenticated": true,
+  "project": {
+    "slug": "design-system",
+    "teamSlug": "naeils-projects",
+    "ids": "not inspected/visible"
+  },
+  "currentProduction": {
+    "deploymentId": "dpl_FuW4ys1kDCP63jVejZ5mG1vdvpUx",
+    "sourceRevision": "9b3bea317bc482a834edc7cb57a0d84291d329b9",
+    "status": "Ready",
+    "environment": "Production",
+    "current": true,
+    "domain": "naeil.dev",
+    "deploymentDomain": "design-system-hi8nevncq-naeils-projects.vercel.app",
+    "sourceRevisionEvidence": "Exact production source-link href; GitHub target not opened"
+  },
+  "rollbackUi": {
+    "currentDeploymentRetained": true,
+    "currentDeploymentRollbackAndPromoteControls": "disabled while current",
+    "projectDialogOpened": true,
+    "previousTargetDomain": "design-system-6vkupoo8n-naeils-projects.vercel.app",
+    "previousTargetVisibleSource": "9b3bea3",
+    "earlierTargetRestriction": "Upgrade to Pro to roll back to an earlier deployment",
+    "continuePressed": false,
+    "dialogCancelled": true,
+    "actionExecuted": false,
+    "futureTargetAvailability": "Not executed or established; intended current deployment must become/select as the eligible previous target for first recovery. Retention and exact target require fresh verification."
+  },
+  "pageUrls": [
+    "https://vercel.com/naeils-projects/design-system",
+    "https://vercel.com/naeils-projects/design-system/FuW4ys1kDCP63jVejZ5mG1vdvpUx"
+  ],
+  "sourceLink": "https://github.com/naeil-dev/naeil-ui/commit/9b3bea317bc482a834edc7cb57a0d84291d329b9",
+  "limits": [
+    "Read-only overview/deployment/action-menu/initial rollback-dialog inspection only; no confirmation or setting change.",
+    "No environment values, credentials, logs, business data or APIs inspected.",
+    "Aside file-write policy blocked saving its requested /tmp receipt; parent preserved only these allowlisted returned observations in its authorized workspace. Raw browser transcript is not retained in repository or release assets.",
+    "This observation is retention/UI evidence, not an executed rollback or guaranteed future eligibility. No plan upgrade is authorized."
+  ]
+}

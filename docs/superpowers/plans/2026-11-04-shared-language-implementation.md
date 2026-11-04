@@ -17,7 +17,7 @@ Site identity and freshly fetched `origin/main` agree. Jev runtime matches 2939 
 
 ## Execution gates
 
-1. Capture current source/registry/DNS/ingress/user-route and rendered/code navigation inventory. Known three apps are established; full DNS control-plane access remains under inspection. Do not infer global scope from the old three-service runner.
+1. Capture current source/registry/DNS/ingress/user-route and rendered/code navigation inventory. Authenticated Cloudflare inventory is complete: three required apps plus excluded Baby. Do not infer global scope from the old three-service runner.
 2. Freeze shared export contract; implement shared next-intl request/proxy/messages/provider/controller, strict UI versus protocol parsing, canonical URL builder, delayed explicit preference commit and shared departure guard. Keep legacy public routing behavior unchanged.
 3. Move Jev runs/stream/prompt/selection and Estimate raw inputs/undo/dialogs/controller to session-scoped root stores. Test remount, same/stale/new revision, session change, failed/slow RSC, no extra saves/aborts/refresh. Auth data checks remain independent from proxy markers.
 4. Migrate common chrome strings to one `naeil` JSON source plus standalone compatibility; migrate app messages to `site`, `jev`, `estimate` namespaces. Validate key/ICU/variables and inventory residual user-visible literals. Translate all Estimate UI, preserving business document/PDF language and input parsers.
@@ -37,8 +37,8 @@ Site identity and freshly fetched `origin/main` agree. Jev runtime matches 2939 
 - [x] Current full domain/route/code inventory; Cloudflare control-plane receipt captured. Expanded rendered-edge acceptance is tracked below.
 - [x] Shared runtime and state/auth gate.
 - [x] Complete translations/common UI migration.
-- [ ] Local full acceptance, Storybook/packed consumption, review.
-- [x] Independently tested emergency fallback sources/artifacts. Final clean Site build receipt remains in local acceptance.
+- [x] Local acceptance and review executed: final Site 223/223, Jev/Estimate closure receipts and exact packed consumers. Actual Storybook retains documented external-artwork failures; no all-browser-green claim.
+- [x] Independently tested emergency fallbacks and final clean-source receipts. One-release manual native switch/recovery proposal prepared without changing 0.7.x guards.
 - [ ] Publication/deployment/receiver acceptance/send activation.
 - [ ] Deployed acceptance and operational receipts.
 
