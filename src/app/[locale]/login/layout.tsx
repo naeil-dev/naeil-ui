@@ -8,15 +8,16 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "auth" });
+  const t = await getTranslations({ locale, namespace: "site.auth" });
   return {
-    ...siteMetadata({
+    ...await siteMetadata({
       locale: locale as Locale,
       path: "/login",
       title: t("login"),
       description: t("loginDescription"),
     }),
     robots: { index: false, follow: false },
+    alternates: null,
   };
 }
 

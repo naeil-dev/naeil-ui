@@ -1,0 +1,342 @@
+{
+  "scope": "isolated exact prior Site build, synthetic Auth; emergency fallback only",
+  "source": "9b3bea317bc482a834edc7cb57a0d84291d329b9",
+  "identity": {
+    "schemaVersion": 1,
+    "appId": "naeil",
+    "artifactId": "d241ead2-015e-4c40-b3cb-0976be23a672",
+    "sourceRevision": "9b3bea317bc482a834edc7cb57a0d84291d329b9",
+    "ui": {
+      "version": "0.9.0",
+      "contractVersion": "1"
+    }
+  },
+  "buildId": "1f2a1f60-2f62-46af-9492-686eedfe4fd8",
+  "normalRollback": false,
+  "limitations": [
+    "Old locale detection and /en auth destinations remain; emergency rollback retracts language contract.",
+    "No production credential or service touched."
+  ],
+  "rows": [
+    {
+      "state": "anonymous",
+      "path": "/login/change-password",
+      "status": 307,
+      "location": "/login",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/sa/reports/fallback-record",
+      "status": 307,
+      "location": "/login?next=%2Fsa%2Freports%2Ffallback-record",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ko/login/change-password",
+      "status": 307,
+      "location": "/login",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ko/sa/reports/fallback-record",
+      "status": 307,
+      "location": "/login?next=%2Fko%2Fsa%2Freports%2Ffallback-record",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ko/api/private",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ko/auth/callback",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ja/login/change-password",
+      "status": 307,
+      "location": "/login",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ja/sa/reports/fallback-record",
+      "status": 307,
+      "location": "/login?next=%2Fja%2Fsa%2Freports%2Ffallback-record",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ja/api/private",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "anonymous",
+      "path": "/ja/auth/callback",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/login/change-password",
+      "status": 307,
+      "location": "/",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/sa/reports/fallback-record",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ko/login/change-password",
+      "status": 307,
+      "location": "/",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ko/sa/reports/fallback-record",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ko/api/private",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ko/auth/callback",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ja/login/change-password",
+      "status": 307,
+      "location": "/",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ja/sa/reports/fallback-record",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ja/api/private",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "authenticated",
+      "path": "/ja/auth/callback",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/login/change-password",
+      "status": 200,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/sa/reports/fallback-record",
+      "status": 303,
+      "location": "/en/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ko/login/change-password",
+      "status": 200,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ko/sa/reports/fallback-record",
+      "status": 303,
+      "location": "/ko/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ko/api/private",
+      "status": 303,
+      "location": "/ko/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ko/auth/callback",
+      "status": 303,
+      "location": "/ko/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ja/login/change-password",
+      "status": 200,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ja/sa/reports/fallback-record",
+      "status": 303,
+      "location": "/ja/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ja/api/private",
+      "status": 303,
+      "location": "/ja/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "must-change",
+      "path": "/ja/auth/callback",
+      "status": 303,
+      "location": "/ja/login/change-password",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/login/change-password",
+      "status": 307,
+      "location": "/login",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/sa/reports/fallback-record",
+      "status": 503,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ko/login/change-password",
+      "status": 307,
+      "location": "/login",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ko/sa/reports/fallback-record",
+      "status": 503,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ko/api/private",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ko/auth/callback",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ja/login/change-password",
+      "status": 307,
+      "location": "/login",
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ja/sa/reports/fallback-record",
+      "status": 503,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ja/api/private",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    },
+    {
+      "state": "unavailable",
+      "path": "/ja/auth/callback",
+      "status": 404,
+      "location": null,
+      "protectedForm": false,
+      "leakedSession": false
+    }
+  ]
+}

@@ -51,7 +51,6 @@ describe("minimal site must-change gates", () => {
     "/ko/blog?next=https://jev.naeil.dev/",
     "/ja/login",
     "/projects",
-    "/sa/reports/123",
   ])("blocks %s and copies refreshed cookies", async (path) => {
     const r = await proxy(
       new NextRequest("https://naeil.dev" + path, {
@@ -67,15 +66,19 @@ describe("minimal site must-change gates", () => {
     expect(r.cookies.has("fixture-refresh")).toBe(true);
     expect(state.intl).not.toHaveBeenCalled();
   });
-  it("keeps the locale cookie on locale-less protected navigation", async () => {
+  it("keeps unprefixed English authoritative over the old locale cookie", async () => {
     const r = await proxy(
       new NextRequest("https://naeil.dev/projects", {
         headers: { cookie: "NEXT_LOCALE=ja" },
       }),
     );
     expect(r.headers.get("location")).toBe(
-      "https://naeil.dev/ja/login/change-password",
+      "https://naeil.dev/login/change-password",
     );
+  });
+  it("rejects archived routes without starting auth", async () => {
+    expect((await proxy(new NextRequest("https://naeil.dev/ja/sa/reports/123"))).status).toBe(404);
+    expect(state.auth).not.toHaveBeenCalled();
   });
   it("keeps the change page reachable and preserves normal sessions", async () => {
     expect(

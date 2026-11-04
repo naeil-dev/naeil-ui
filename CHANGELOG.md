@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0 — shared language runtime (unpublished candidate)
+
+- Add opt-in `naeil-locale` root, client, server, messages, checker and chrome entries for the owned Next applications. English uses unprefixed paths; Korean/Japanese use `/ko` and `/ja`. Strict route/protocol parsing, legacy receiving aliases, selected JSON loading, ICU validation and committed-intent preference writes share one implementation.
+- Keep the transition controller above locale layouts, restore stable focus, and share document-departure protection. Consumers retain business/session state, data authorization and logical-navigation guards.
+- Move canonical header/footer/account copy to one JSON source. Existing React-only imports keep standalone locale props and public overrides; the opt-in chrome entry uses the selected provider dictionary. Generic Navigation/SiteFooter and legacy Nav/Footer routing APIs remain unchanged.
+- Validate all three Next consumers with exact next-intl4.14.8. Publication, receiver deployment, cross-service sending and hosted Docs have separate receipts; see [the integration guide](docs/components/naeil-locale.md).
+
 ## 0.9.0 — page-root scrollbar reservation
 
 - Reserve one classic scrollbar gutter at the document root through both package CSS paths; overlay scrollbars reserve no space. The root `data-naeil-scrollbar-gutter="auto"` opt-out disables reservation and shared lock correction together.

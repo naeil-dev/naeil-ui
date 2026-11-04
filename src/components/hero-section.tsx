@@ -64,7 +64,7 @@ export function HeroSection() {
   const [motionAllowed, setMotionAllowed] = useState(false);
   const [failedSource, setFailedSource] = useState<string | null>(null);
   const { resolvedTheme } = useTheme();
-  const t = useTranslations("hero");
+  const t = useTranslations("site.hero");
   const source = motionAllowed && resolvedTheme
     ? `/images/hero/sunset-water-${resolvedTheme === "dark" ? "dark" : "light"}.mp4`
     : undefined;

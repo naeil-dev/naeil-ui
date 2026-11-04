@@ -1,0 +1,78 @@
+{
+  "naeil": {
+    "header": {
+      "nav": {
+        "home": "Home",
+        "projects": "Projects",
+        "blog": "Blog",
+        "navigation": "Main navigation",
+        "menu": "Menu",
+        "closeMenu": "Close menu"
+      },
+      "theme": {
+        "switchToLight": "Switch to light theme",
+        "switchToDark": "Switch to dark theme"
+      },
+      "locale": {
+        "switchLabel": "Language"
+      },
+      "projects": {
+        "cc": {
+          "name": "Content Collector",
+          "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization"
+        },
+        "pkm": {
+          "name": "PKM",
+          "description": "Personal knowledge management — document parsing, embeddings, semantic search"
+        },
+        "naeilUi": {
+          "name": "naeil-ui",
+          "description": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn"
+        },
+        "sa": {
+          "name": "Sustainability Analyzer",
+          "description": "AI-powered ESG report analysis — PDF parsing, qualitative assessment, comparison tables"
+        },
+        "babyAgent": {
+          "name": "Baby Agent",
+          "description": "Parenting AI agent — LINE-based Q&A, records, reminders"
+        },
+        "status": {
+          "active": "Active",
+          "coming": "Coming Soon"
+        }
+      }
+    },
+    "account": {
+      "menu": "Account menu",
+      "account": "Account",
+      "login": "Log in",
+      "logout": "Log out",
+      "busy": "Logging out…"
+    },
+    "footer": {
+      "navigation": "Navigation",
+      "projects": "Projects",
+      "blog": "Blog",
+      "social": "Social",
+      "description": "Tomorrow starts here."
+    },
+    "locale": {
+      "names": {
+        "en": "English",
+        "ko": "한국어",
+        "ja": "日本語"
+      },
+      "pending": "Changing language…",
+      "failed": "The language could not be changed. Your work is still here.",
+      "retry": "Try again",
+      "errors": {
+        "badRequest": "This address is not valid.",
+        "notFound": "Page not found.",
+        "unauthenticated": "Sign in to continue.",
+        "forbidden": "You do not have access to this page.",
+        "unavailable": "The service is temporarily unavailable. Please try again."
+      }
+    }
+  }
+}

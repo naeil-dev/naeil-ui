@@ -19,7 +19,7 @@ vi.mock("node:fs/promises", async (original) => ({
 vi.mock("@/lib/supabase/middleware", () => ({
   updateSession: () => {
     fixture.sessionReads++;
-    return { response: NextResponse.next(), user: null, unavailable: false };
+    return { response: NextResponse.next(), user: { id: "authenticated-action-fixture" }, unavailable: false };
   },
 }));
 vi.mock("next-intl/middleware", () => ({
@@ -126,20 +126,21 @@ describe("Server Action dispatch before session/locale and framework forwarding"
     }
     await rejected(await proxy(request("/login")), 503, "actionUnavailable");
   });
-  it.each(["/login", "/en/login", "/ko/login", "/ja/login", "/login/change-password", "/ko/login/change-password", "/ja/login/change-password"])("preserves credential owner %s", async path => {
+  it.each(["/login", "/ko/login", "/ja/login", "/login/change-password", "/ko/login/change-password", "/ja/login/change-password"])("preserves credential owner %s", async path => {
     for (const id of [email, code, password]) expect((await proxy(request(path, id))).headers.get("x-middleware-next")).toBe("1");
     expect(fixture.sessionReads).toBe(3); expect(fixture.localeReads).toBe(3);
   });
   it.each(["/", "/blog", "/blog/example-post", "/blog/%ED%95%9C%EA%B8%80", "/design", "/projects", "/login", "/login/change-password"])("preserves global actions on actual page %s", async path => {
-    for (const locale of ["", "/en", "/ko", "/ja"]) for (const id of [logout, clear]) {
+    for (const locale of ["", "/ko", "/ja"]) for (const id of [logout, clear]) {
       const delivered = locale + (path === "/" ? "" : path) || "/";
       expect((await proxy(request(delivered, id))).headers.get("x-middleware-next")).toBe("1");
     }
-    expect(fixture.sessionReads).toBe(8);
+    expect(fixture.sessionReads).toBe(6);
   });
-  it("preserves the trailing-slash redirect for an owner and rejects a forwarded global action", async () => {
+  it("rejects noncanonical Action paths without a document redirect and keeps forwarding guard", async () => {
     const response = await proxy(request("/ja/login/", prepare));
-    expect(response.status).toBe(308); expect(response.headers.get("location")).toBe("https://naeil.dev/ja/login");
+    expect(response.status).toBe(400); expect(response.headers.get("location")).toBeNull();
+    fixture.sessionReads = 0; fixture.localeReads = 0;
     await rejected(await proxy(request("/projects", logout, { "x-action-forwarded": "1" })), 409, "invalidActionRoute");
   });
   it.each(["GET", "HEAD"])("leaves ordinary %s untouched even with action-like headers", async method => {

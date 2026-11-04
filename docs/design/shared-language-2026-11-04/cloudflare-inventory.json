@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-04T03:06:00Z/2026-11-04T03:09:18Z",
+  "method": "Aside authenticated Cloudflare dashboard, read only; root inspected published-route screenshot and DNS/tunnel pagination snapshots",
+  "asideSession": "eFjnFgPf33LzTsOe",
+  "zone": "naeil.dev",
+  "dnsRecordCount": 4,
+  "dnsPagination": "Showing 1-4 of 4, blank search",
+  "tunnelCount": 1,
+  "tunnelPagination": "Showing 1-1 of 1, blank search and all statuses; next/last disabled",
+  "tunnel": { "name": "mac-mini", "id": "7efad9e4-5a88-496b-96c5-b54b9656beae", "status": "Healthy", "replicas": 1, "publishedRouteCount": 3 },
+  "records": [
+    { "hostname": "naeil.dev", "type": "A", "target": "216.198.79.1", "proxied": false, "scope": "required" },
+    { "hostname": "jev.naeil.dev", "type": "CNAME", "targetDisplayed": "mac-mini", "proxied": true, "service": "http://127.0.0.1:2466", "routeOrder": 2, "scope": "required" },
+    { "hostname": "abestimate.naeil.dev", "type": "CNAME", "targetDisplayed": "mac-mini", "proxied": true, "service": "http://127.0.0.1:2473", "routeOrder": 3, "scope": "required" },
+    { "hostname": "baby.naeil.dev", "type": "CNAME", "targetDisplayed": "mac-mini", "proxied": true, "service": "http://localhost:8001", "routeOrder": 1, "scope": "excluded by explicit user decision; separate product" }
+  ],
+  "networkRoutes": { "count": 6, "pagination": "1-6 of 6", "kind": "Cloudflare system CIDRs; no additional public hostname" },
+  "additionalActiveOwnedUiFound": false,
+  "home": "Excluded by approved design; no hostname in this zone or published tunnel routes",
+  "urls": {
+    "dns": "https://dash.cloudflare.com/1b8febf2da58f93c089b8768474527e0/naeil.dev/dns/records",
+    "tunnels": "https://dash.cloudflare.com/1b8febf2da58f93c089b8768474527e0/tunnels",
+    "publishedRoutes": "https://dash.cloudflare.com/1b8febf2da58f93c089b8768474527e0/tunnels/7efad9e4-5a88-496b-96c5-b54b9656beae/routes",
+    "networkRoutes": "https://dash.cloudflare.com/1b8febf2da58f93c089b8768474527e0/magic-networks/routes/route-config"
+  },
+  "mutations": [],
+  "limitations": [
+    "Scope is this zone and account routes, not deleted history or other domains.",
+    "Healthy tunnel status does not independently verify backend health or language acceptance.",
+    "Dashboard displays CNAME target as tunnel name; no secret/configuration export was requested.",
+    "Aside could not attach an existing Estimate tab; public sign-in response was observed separately. This is inventory evidence, not authenticated product acceptance."
+  ]
+}

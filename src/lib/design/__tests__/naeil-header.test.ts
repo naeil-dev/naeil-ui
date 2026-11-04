@@ -3,13 +3,28 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import { Nav } from "../../../components/nav";
+import type { NavigationProps } from "../../../components/ui/navigation";
 import type { NaeilHeaderProps } from "../../../components/naeil-header";
 
+const navigationCapture = vi.hoisted(() => ({ props: null as NavigationProps | null }));
+vi.mock("../../../components/ui/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../components/ui/navigation")>();
+  return { ...actual, Navigation: (props: NavigationProps) => {
+    navigationCapture.props = props;
+    return createElement(actual.Navigation, props);
+  } };
+});
+
+// Render the public adapter through its real locale context, then inspect the
+// Navigation boundary. A wrapper implementation is not part of the public API.
 // A missing optional entry is a contract failure, with a useful RED assertion.
 const entry = await import("../../../components/naeil-header").catch(() => null);
 function header(props: NaeilHeaderProps) {
   expect(entry?.NaeilHeader, "the complete React-only header is exported").toBeTypeOf("function");
-  return entry!.NaeilHeader(props);
+  navigationCapture.props = null;
+  const html = renderToStaticMarkup(createElement(entry!.NaeilHeader, props));
+  expect(navigationCapture.props).not.toBeNull();
+  return { props: navigationCapture.props! as ReturnType<NonNullable<typeof entry>["NaeilHeader"]>["props"], html };
 }
 const Link = ({ children, ...props }: ComponentPropsWithoutRef<"a"> & { href: string }) =>
   createElement("a", { ...props, "data-consumer-link": true }, children);
@@ -21,7 +36,7 @@ describe("complete branded header", () => {
     expect(element.props.items.map((item: { id: string }) => item.id)).toEqual(["projects", "blog", "ai", "console", "/settings"]);
     expect(element.props.items[2]).toBe(items[0]);
     expect(element.props.items[3]).toBe(items[1]);
-    const html = renderToStaticMarkup(header({ locale: "en", brandSuffix: "Home", brandSlot: createElement("span", null, "Custom") } as NaeilHeaderProps));
+    const html = header({ locale: "en", brandSuffix: "Home", brandSlot: createElement("span", null, "Custom") } as NaeilHeaderProps).html;
     expect(html).not.toContain("naeil-header-brand-suffix");
   });
   it.each([
@@ -36,13 +51,13 @@ describe("complete branded header", () => {
     expect(group.items.map((item: { href: string }) => item.href)).toEqual([`https://naeil.dev/${locale}/design`]);
     expect(blogLink).toMatchObject({ label: blog, href });
     expect(group.items[0].badge).toBeUndefined();
-    expect(renderToStaticMarkup(header({ locale, translations: { projects, blog, project: key => key === "status.coming" ? coming : key } }))).not.toContain(coming);
+    expect(header({ locale, translations: { projects, blog, project: key => key === "status.coming" ? coming : key } }).html).not.toContain(coming);
     expect(group.items[0].icon.props.children.props.src.slice(0, 80)).toBe("https://naeil.dev/images/whale.png");
   });
 
   it("routes absolute blog and brand destinations through the consumer link", () => {
     const element = header({ locale: "ja", Link });
-    const html = renderToStaticMarkup(element);
+    const html = element.html;
     expect(html).toMatch(/<a[^>]*href="https:\/\/naeil.dev\/ja"[^>]*data-consumer-link="true"/);
     expect(html).toMatch(/<a[^>]*href="https:\/\/naeil.dev\/ja\/blog"[^>]*data-consumer-link="true"/);
     expect(html).toContain('data-naeil-variant="horizontal"');
@@ -66,7 +81,7 @@ describe("complete branded header", () => {
     const element = header({ locale: "en", translations: { projects: "Consumer tools", blog: "Consumer journal", project: key => ({ "naeilUi.name": "My design system", "naeilUi.description": "My token description" })[key] ?? key } });
     expect(element.props.items[0]).toMatchObject({ label: "Consumer tools" });
     expect(element.props.items[0].items[0]).toMatchObject({ label: "My design system", description: "My token description" });
-    expect(renderToStaticMarkup(element)).toContain("Consumer journal");
+    expect(element.html).toContain("Consumer journal");
   });
 
   it("does not require project dictionaries when the project menu is hidden", () => {
@@ -88,11 +103,11 @@ describe("complete branded header", () => {
 
   it("renders SSR-safe theme and auth without claiming unsupported locales", () => {
     const element = header({ locale: "ja", authSlot: createElement("button", null, "Logout") });
-    const html = renderToStaticMarkup(element);
+    const html = element.html;
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-label="ダークテーマに切り替える"/);
     expect(html).not.toContain('role="combobox"');
     expect(html.indexOf("ダークテーマに切り替える")).toBeLessThan(html.indexOf("Logout"));
-    const localeHtml = renderToStaticMarkup(header({ locale: "ja", onLocaleChange: () => {} }));
+    const localeHtml = header({ locale: "ja", onLocaleChange: () => {} }).html;
     expect(localeHtml).toContain('role="combobox"');
     expect(localeHtml).toContain('aria-label="言語"');
   });

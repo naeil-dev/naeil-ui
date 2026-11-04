@@ -1,5 +1,7 @@
 import { createClient, hasLocalSession } from "@/lib/supabase/server";
 import { isTerminalSessionError } from "@/lib/auth/site-session";
+import { getAllPosts } from "@/lib/blog";
+import { locales, type Locale } from "@/i18n/config";
 import { NavWrapper } from "./nav-wrapper";
 
 export async function NavServerWrapper() {
@@ -20,5 +22,8 @@ export async function NavServerWrapper() {
     : null;
 
   const sessionPresent = !!error && !isTerminalSessionError(error) && await hasLocalSession();
-  return <NavWrapper user={authUser} sessionPresent={sessionPresent} />;
+  const translatedBlogLocales: Record<string, Locale[]> = {};
+  for (const locale of locales) for (const post of getAllPosts(locale))
+    (translatedBlogLocales[post.slug] ??= []).push(locale);
+  return <NavWrapper user={authUser} sessionPresent={sessionPresent} translatedBlogLocales={translatedBlogLocales} />;
 }

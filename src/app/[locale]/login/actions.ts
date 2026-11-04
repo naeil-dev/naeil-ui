@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/server";
 import { cookies, headers } from "next/headers";
 import { authLocale, loginDestination } from "@/lib/auth/return-location";
@@ -27,15 +26,22 @@ export async function prepareLogin(next: string, locale: string) {
   cookieStore.set(RETURN_LOCALE_COOKIE, authLocale(locale), options);
 }
 
+/** Update only presentation language after a pending OAuth preparation. */
+export async function updateLoginLocale(locale: string) {
+  const cookieStore = await cookies();
+  const { secure } = siteCookieOptions((await headers()).get("host"));
+  cookieStore.set(RETURN_LOCALE_COOKIE, authLocale(locale), { path: "/", httpOnly: true, sameSite: "lax", secure, maxAge: 600 });
+}
+
 /** Explicit browser-local recovery only; this does not claim remote revocation. */
 export async function clearLocalSession() {
   await clearSiteCookies();
 }
 
-export async function logout(locale: string) {
+export async function logout() {
   const supabase = await createClient({ writeCookies: false });
   const { error } = await supabase.auth.signOut({ scope: "local" });
   if (error) throw new Error("Sign out failed");
   await clearSiteCookies();
-  redirect({ href: "/", locale: authLocale(locale) });
+  // The client clears all root state before the intentional document departure.
 }

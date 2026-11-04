@@ -2,9 +2,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageTitle } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { Link } from "@/i18n/routing";
+import { Link } from "@/i18n/site-link";
 import type { Metadata } from "next";
-import { getAllPosts } from "@/lib/blog";
+import { isNaeilLocale } from "@/naeil-locale";
+import { getAllPosts, getPost } from "@/lib/blog";
 import { siteMetadata } from "@/lib/site-metadata";
 import type { Locale } from "@/i18n/config";
 import styles from "@/app/home-blog.module.css";
@@ -15,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "blogPage" });
+  const t = await getTranslations({ locale, namespace: "site.blogPage" });
   return siteMetadata({
     locale,
     path: "/blog",
@@ -25,15 +26,20 @@ export async function generateMetadata({
 }
 
 export default async function BlogPage({
-  params,
+  params, searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ original?: string; originalLocale?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("blogPage");
-  const postT = await getTranslations("blogPost");
+  const t = await getTranslations("site.blogPage");
+  const postT = await getTranslations("site.blogPost");
   const posts = getAllPosts(locale as Locale);
+  const query = await searchParams;
+  const originalLocale = isNaeilLocale(query.originalLocale) ? query.originalLocale : undefined;
+  const original = originalLocale && typeof query.original === "string" && /^[a-zA-Z0-9_-]+$/.test(query.original)
+    ? await getPost(originalLocale, query.original) : undefined;
 
   return (
     <>
@@ -56,6 +62,10 @@ export default async function BlogPage({
         />
       </div>
 
+      {original && originalLocale && <aside className="mb-6 space-y-2" role="status">
+        <p>{t("unavailableTranslation")}</p>
+        <Link href={`/blog/${original.slug}`} locale={originalLocale} className="ui-focus underline">{t("readOriginal")}: {original.title}</Link>
+      </aside>}
       <section className={styles.blogList} aria-labelledby="blog-title">
         {posts.length > 0 ? (
           <div className={styles.postList}>

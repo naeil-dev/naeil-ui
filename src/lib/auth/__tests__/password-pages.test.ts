@@ -11,8 +11,10 @@ vi.mock("@/lib/supabase/server", () => ({
     },
   }),
 }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
 vi.mock("next-intl/server", () => ({
   getTranslations: async () => (key: string) => key,
+  getRequestConfig: (callback: unknown) => callback,
 }));
 vi.mock("next/navigation", () => ({
   redirect: (path: string) => {
@@ -57,7 +59,7 @@ it.each([false, true])(
       (
         state.user!.app_metadata.console_temp as Record<string, unknown>
       ).issued_at = new Date(Date.now() - 8 * 86400_000).toISOString();
-    const html = renderToStaticMarkup(await PasswordChangePage());
+    const html = renderToStaticMarkup(await PasswordChangePage({ params: Promise.resolve({ locale: "en" }) }));
     expect(html.includes('data-change="true"')).toBe(!expired);
     expect(html.includes("tempExpired")).toBe(expired);
   },

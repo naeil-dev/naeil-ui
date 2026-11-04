@@ -1,4 +1,6 @@
 import { JetBrains_Mono } from "next/font/google";
+import { SiteSessionStateProvider } from "@/components/site-session-state";
+import { NaeilLocaleController } from "@/naeil-locale/client";
 import { getLocale } from "next-intl/server";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "@fontsource/noto-sans-jp/400.css";
@@ -21,7 +23,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${jetbrainsMono.variable} antialiased`}>
-        {children}
+        <NaeilLocaleController service="main" preferenceWritesEnabled={process.env.NAEIL_LOCALE_SEND_ENABLED === "1"}><SiteSessionStateProvider>{children}</SiteSessionStateProvider></NaeilLocaleController>
       </body>
     </html>
   );

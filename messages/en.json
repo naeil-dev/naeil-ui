@@ -1,340 +1,352 @@
 {
-  "common": {
-    "appName": "naeil",
-    "home": "Home",
-    "projects": "Projects",
-    "design": "Design System",
-    "loading": "Loading...",
-    "description": "Projects and build notes by Jay",
-    "skipToContent": "Skip to content"
-  },
-  "nav": {
-    "home": "Home",
-    "projects": "Projects",
-    "blog": "Blog",
-    "navigation": "Main navigation",
-    "menu": "Menu",
-    "closeMenu": "Close menu"
-  },
-  "hero": {
-    "title": ".naeil",
-    "subtitle": "Build · Ship · Iterate",
-    "sceneLabel": "Sunset over a quiet sea",
-    "viewProjects": "View projects",
-    "pauseMotion": "Pause water motion",
-    "resumeMotion": "Resume water motion"
-  },
-  "projects": {
-    "title": "Projects",
-    "subtitle": "Personal tools built for real use — not demos.",
+  "site": {
+    "common": {
+      "appName": "naeil",
+      "home": "Home",
+      "projects": "Projects",
+      "design": "Design System",
+      "loading": "Loading...",
+      "description": "Projects and build notes by Jay",
+      "skipToContent": "Skip to content"
+    },
+    "hero": {
+      "title": ".naeil",
+      "subtitle": "Build · Ship · Iterate",
+      "sceneLabel": "Sunset over a quiet sea",
+      "viewProjects": "View projects",
+      "pauseMotion": "Pause water motion",
+      "resumeMotion": "Resume water motion"
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "Personal tools built for real use — not demos.",
+      "cc": {
+        "name": "Content Collector",
+        "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization"
+      },
+      "pkm": {
+        "name": "PKM",
+        "description": "Personal knowledge management — document parsing, embeddings, semantic search"
+      },
+      "naeilUi": {
+        "name": "naeil-ui",
+        "description": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn"
+      },
+      "babyAgent": {
+        "name": "Baby Agent",
+        "description": "Parenting AI agent — LINE-based Q&A, records, reminders"
+      },
+      "status": {
+        "active": "Active",
+        "coming": "Coming Soon"
+      },
+      "sa": {
+        "name": "Sustainability Analyzer",
+        "description": "AI-powered ESG report analysis — PDF parsing, qualitative assessment, comparison tables"
+      }
+    },
+    "stack": {
+      "label": "Built with"
+    },
     "cc": {
       "name": "Content Collector",
-      "description": "Automated content collection from RSS, YouTube, Reddit + AI summarization"
+      "description": "Autonomous local pipeline — noisy tech streams to a daily, decision-ready brief.",
+      "overview": "Automated content pipeline with local AI processing.\n\nTech content from multiple sources — GitHub, Reddit, Threads — through a local AI pipeline. Embedding, classification, clustering, summarization. Raw content to daily editorial digest.\n\nFull local execution — Ollama + free APIs. Structured data in PostgreSQL + pgvector. Semantic search built in.",
+      "features": {
+        "collect": {
+          "title": "Multi-Source Ingestion",
+          "desc": "RSS, Reddit, Threads — pulled and normalized into one pipeline"
+        },
+        "classify": {
+          "title": "Local AI Triage",
+          "desc": "Qwen3 14B on-device — relevance scoring, topic labeling, priority ranking"
+        },
+        "embed": {
+          "title": "Semantic Vector Index",
+          "desc": "BGE-M3 embeddings in pgvector — fast similarity search and topic-level recall"
+        },
+        "digest": {
+          "title": "Daily Digest",
+          "desc": "Gemini-generated editorial summaries — LINE message + clean HTML report"
+        },
+        "zeroCost": {
+          "title": "Zero Monthly Cost",
+          "desc": "Local Mac Mini, open models, free-tier APIs — no paid infrastructure"
+        },
+        "alerts": {
+          "title": "Real-Time Alerts",
+          "desc": "Immediate notifications on high-priority signals — not hours later"
+        }
+      },
+      "workflow": {
+        "github": {
+          "desc": "GitHub releases and discussions via RSS feeds",
+          "meta": "30min interval"
+        },
+        "reddit": {
+          "desc": "Subreddit posts via RSS and JSON search API",
+          "meta": "30min interval"
+        },
+        "threads": {
+          "desc": "Profile scraping via Playwright headless browser",
+          "meta": "30min interval"
+        },
+        "collector": {
+          "desc": "Source-specific dispatch, content-hash deduplication",
+          "meta": "SHA-256 dedup"
+        },
+        "postgres": {
+          "desc": "Raw items, classifications, embeddings, clusters, digest history"
+        },
+        "embed": {
+          "desc": "1024-dim multilingual vectors for similarity search",
+          "meta": "~2s per item"
+        },
+        "classify": {
+          "desc": "Topic, importance score, content type, tags — auto-labeled",
+          "meta": "~18s per item"
+        },
+        "cluster": {
+          "desc": "Cosine similarity grouping, hot score ranking"
+        },
+        "digest": {
+          "desc": "Editorial LINE summary + detailed HTML report from top content",
+          "meta": "Free API"
+        },
+        "line": {
+          "desc": "Concise daily summary pushed to LINE group"
+        },
+        "html": {
+          "desc": "Full categorized report with links and scores"
+        }
+      }
     },
     "pkm": {
       "name": "PKM",
-      "description": "Personal knowledge management — document parsing, embeddings, semantic search"
-    },
-    "naeilUi": {
-      "name": "naeil-ui",
-      "description": "Minimal design system — OKLCH tokens, Tailwind v4, shadcn"
+      "description": "Personal knowledge base — parse, embed, search your own documents."
     },
     "babyAgent": {
       "name": "Baby Agent",
-      "description": "Parenting AI agent — LINE-based Q&A, records, reminders"
+      "description": "Parenting AI companion on LINE — Q&A, growth tracking, schedule reminders."
     },
-    "status": {
-      "active": "Active",
-      "coming": "Coming Soon"
+    "design": {
+      "title": "naeil-ui",
+      "subtitle": "Design System Showcase — Tokens · Components · Themes",
+      "foundations": "Foundations",
+      "components": "Components",
+      "neutralDescription": "Actions and selection use neutral semantic colors in both themes. Focus and feedback have separate roles.",
+      "primitiveDescription": "Primitive palettes remain available for compatibility. The blue scale is a legacy primitive, not the default action color.",
+      "semanticDescription": "These roles follow the active light or dark theme. Colors below are read from the shared CSS variables.",
+      "projectDescription": "Project colors identify individual products. They do not replace shared action, focus, or selection roles.",
+      "typeDescription": "Pretendard for Korean and Latin UI, Noto Sans JP for Japanese. Monospace samples use the configured fallback stack.",
+      "radiusDescription": "Tags use 4px corners, controls 8px, and panels 12px.",
+      "preview": "Preview",
+      "interactive": "Interactive",
+      "variants": "Variants",
+      "sizes": "Sizes",
+      "states": "States",
+      "disabled": "Disabled",
+      "invalid": "Invalid input",
+      "inputLabel": "Example input",
+      "inputHelp": "Change the controls to compare input states.",
+      "inputError": "Check this value and try again.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "systemTitle": "System status",
+      "systemDescription": "Example service information",
+      "systemBody": "All services are operating normally.",
+      "details": "View details",
+      "deploymentTitle": "Deployment log",
+      "deploymentDescription": "Example release history",
+      "raisedDescription": "Raised surfaces use the card-elevated role and a subtle shadow.",
+      "openDialog": "Open dialog",
+      "confirmTitle": "Confirm",
+      "confirmDescription": "Would you like to continue?",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "openMenu": "Open menu",
+      "actions": "Actions",
+      "logoutFailed": "Could not log out. Please try again.",
+      "profile": "Profile",
+      "settings": "Settings",
+      "team": "Team",
+      "signOut": "Sign out",
+      "toastSuccess": "Deployment completed.",
+      "toastError": "Deployment failed.",
+      "toastInfo": "A new update is available.",
+      "toastWarning": "Disk space is low.",
+      "legacyBlue": "Legacy blue primitive",
+      "neutralAction": "Neutral action",
+      "selectedSurface": "Selection",
+      "focusIndicator": "Focus",
+      "regularRole": "Body text",
+      "mediumRole": "Labels and controls",
+      "semiboldRole": "Page and section titles",
+      "pageTitleSample": "Page title",
+      "sectionTitleSample": "Section title",
+      "typeSample": "Tomorrow begins here.",
+      "monoStack": "Monospace fallback",
+      "loading": "Loading"
+    },
+    "blogPage": {
+      "title": "Blog",
+      "subtitle": "Build notes, research, and iteration logs.",
+      "comingSoon": "Coming Soon",
+      "noPosts": "No posts available yet. Check back soon!",
+      "unavailableTranslation": "This article is not available in English.",
+      "readOriginal": "Read the original article"
+    },
+    "blogPost": {
+      "backToBlog": "Back to Blog",
+      "languages": {
+        "ko": "한국어",
+        "en": "English",
+        "ja": "日本語"
+      },
+      "sources": "Sources",
+      "previousPost": "Previous Post",
+      "nextPost": "Next Post",
+      "readingTime": "{minutes} min read",
+      "otherLanguages": "Read in another language",
+      "myStack": "My Stack",
+      "codeBlock": "Code block",
+      "dataTable": "Data table",
+      "postNavigation": "Post navigation",
+      "languageLabel": "Languages"
+    },
+    "auth": {
+      "emailId": "Email or account ID",
+      "password": "Password",
+      "passwordSignIn": "Sign in with password",
+      "emailLoginLink": "Email me a login link",
+      "emailLoginPaused": "Email login links are currently unavailable. Use your password or Google/GitHub.",
+      "reauthMailPaused": "Email verification codes are currently unavailable. Try changing your password with your current password. If a code is required, return to sign in and contact your administrator.",
+      "emailSent": "If this account can sign in, a login link will arrive. Open it in the browser that requested it.",
+      "invalidEmail": "Enter a valid email address.",
+      "requestCode": "Request reauthentication code",
+      "codeSent": "Reauthentication code requested. If it does not arrive, contact the admin.",
+      "credentialError": "Could not sign in. If this is a temporary account, it may have expired; ask the admin to reissue it.",
+      "tempExpired": "Expired or locked — ask the administrator to reissue your account.",
+      "tempReissued": "This account was reissued or its session changed. Sign in with the new password.",
+      "changePassword": "Change password",
+      "changeRequired": "Change your temporary password before continuing. Use at least 12 characters.",
+      "currentPassword": "Current password (if required)",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "reauthCode": "Reauthentication code (if required)",
+      "passwordRejected": "The new password was rejected. Check the confirmation and password requirements.",
+      "completionRetry": "The result is not confirmed. Retry completion; your password will not be sent again.",
+      "retryCompletion": "Retry completion",
+      "backToLogin": "Back to sign in",
+      "logoutFailed": "Could not log out. Please try again.",
+      "localLogout": "Log out of this browser",
+      "localLogoutDescription": "You can remove this website’s login from this browser. The authentication server and other sessions will not be signed out.",
+      "localLogoutFailed": "Could not remove this browser’s login. Please try again.",
+      "login": "Sign in",
+      "loginWithGoogle": "Sign in with Google",
+      "loginWithGithub": "Sign in with GitHub",
+      "loginDescription": "Sign in to access all features",
+      "redirecting": "Redirecting...",
+      "logout": "Sign out",
+      "profile": "Profile",
+      "accountMenu": "Account menu for {name}",
+      "pendingGoogle": "Opening Google sign-in…",
+      "pendingGithub": "Opening GitHub sign-in…",
+      "loginError": "Could not start sign-in. Choose a sign-in method below to try again."
     },
     "sa": {
       "name": "Sustainability Analyzer",
-      "description": "AI-powered ESG report analysis — PDF parsing, qualitative assessment, comparison tables"
-    }
-  },
-  "stack": {
-    "label": "Built with"
-  },
-  "cc": {
-    "name": "Content Collector",
-    "description": "Autonomous local pipeline — noisy tech streams to a daily, decision-ready brief.",
-    "overview": "Automated content pipeline with local AI processing.\n\nTech content from multiple sources — GitHub, Reddit, Threads — through a local AI pipeline. Embedding, classification, clustering, summarization. Raw content to daily editorial digest.\n\nFull local execution — Ollama + free APIs. Structured data in PostgreSQL + pgvector. Semantic search built in.",
-    "features": {
-      "collect": {
-        "title": "Multi-Source Ingestion",
-        "desc": "RSS, Reddit, Threads — pulled and normalized into one pipeline"
+      "description": "AI-driven ESG report analysis — topic discovery, qualitative assessment, automated cross-company comparison.",
+      "overview": "An analysis pipeline that parses corporate ESG report PDFs and performs systematic qualitative assessments with AI.\n\nDocling layout parser preserves table and text structure through hierarchical chunking. BGE-M3 embeddings (Dense+Sparse) enable hybrid semantic search. Claude auto-discovers 41 ESG topics and generates 415 checklist items for qualitative evaluation.\n\nLocal embeddings + free APIs. Structured storage in PostgreSQL + pgvector.",
+      "features": {
+        "ingest": {
+          "title": "Structure-Preserving PDF Parsing",
+          "desc": "Docling layout parser — hierarchical chunking that preserves tables and section boundaries"
+        },
+        "embed": {
+          "title": "Hybrid Search",
+          "desc": "BGE-M3 Dense+Sparse embeddings — pgvector hybrid semantic search"
+        },
+        "topics": {
+          "title": "Auto Topic Discovery",
+          "desc": "Claude Sonnet — auto-discovers 41 topics and 415 checklist items from ESG reports"
+        },
+        "assess": {
+          "title": "AI Qualitative Assessment",
+          "desc": "Checklist-based evaluation per topic — cited evidence, scores, and commentary"
+        },
+        "compare": {
+          "title": "Cross-Company Comparison",
+          "desc": "Sector-filtered topic × company matrix — auto-generated comparison tables"
+        },
+        "zeroCost": {
+          "title": "Local + Free",
+          "desc": "BGE-M3 on-device embeddings, Claude & Gemini free-tier usage"
+        }
       },
-      "classify": {
-        "title": "Local AI Triage",
-        "desc": "Qwen3 14B on-device — relevance scoring, topic labeling, priority ranking"
-      },
-      "embed": {
-        "title": "Semantic Vector Index",
-        "desc": "BGE-M3 embeddings in pgvector — fast similarity search and topic-level recall"
-      },
-      "digest": {
-        "title": "Daily Digest",
-        "desc": "Gemini-generated editorial summaries — LINE message + clean HTML report"
-      },
-      "zeroCost": {
-        "title": "Zero Monthly Cost",
-        "desc": "Local Mac Mini, open models, free-tier APIs — no paid infrastructure"
-      },
-      "alerts": {
-        "title": "Real-Time Alerts",
-        "desc": "Immediate notifications on high-priority signals — not hours later"
+      "workflow": {
+        "pdf": {
+          "desc": "Corporate ESG/sustainability report PDF input",
+          "meta": "Annual reports"
+        },
+        "docling": {
+          "desc": "Layout-based structural parsing — single-chunk tables, section boundary preservation",
+          "meta": "Tables+Text"
+        },
+        "chunk": {
+          "desc": "Parent-child hierarchical chunking — context preservation + granular retrieval",
+          "meta": "parent 1K / child 512"
+        },
+        "bgem3": {
+          "desc": "Dense (1024d) + Sparse (learned BM25) simultaneous embedding generation",
+          "meta": "FlagEmbedding"
+        },
+        "pgvector": {
+          "desc": "Chunks, embeddings, assessments, comparisons — full structured storage"
+        },
+        "search": {
+          "desc": "Dense+Sparse hybrid search with parent context expansion"
+        },
+        "claude": {
+          "desc": "Topic discovery, checklist generation, evidence-based qualitative assessment",
+          "meta": "Sonnet"
+        },
+        "report": {
+          "desc": "Topic × company comparison table HTML report generation",
+          "meta": "Sector filter"
+        }
       }
     },
-    "workflow": {
-      "github": {
-        "desc": "GitHub releases and discussions via RSS feeds",
-        "meta": "30min interval"
-      },
-      "reddit": {
-        "desc": "Subreddit posts via RSS and JSON search API",
-        "meta": "30min interval"
-      },
-      "threads": {
-        "desc": "Profile scraping via Playwright headless browser",
-        "meta": "30min interval"
-      },
-      "collector": {
-        "desc": "Source-specific dispatch, content-hash deduplication",
-        "meta": "SHA-256 dedup"
-      },
-      "postgres": {
-        "desc": "Raw items, classifications, embeddings, clusters, digest history"
-      },
-      "embed": {
-        "desc": "1024-dim multilingual vectors for similarity search",
-        "meta": "~2s per item"
-      },
-      "classify": {
-        "desc": "Topic, importance score, content type, tags — auto-labeled",
-        "meta": "~18s per item"
-      },
-      "cluster": {
-        "desc": "Cosine similarity grouping, hot score ranking"
-      },
-      "digest": {
-        "desc": "Editorial LINE summary + detailed HTML report from top content",
-        "meta": "Free API"
-      },
-      "line": {
-        "desc": "Concise daily summary pushed to LINE group"
-      },
-      "html": {
-        "desc": "Full categorized report with links and scores"
-      }
+    "invitation": {
+      "check": "Check status",
+      "recover": "The result could not be received. Check status before continuing.",
+      "title": "You’re invited",
+      "intro": "Confirm your invitation to activate the access selected for you.",
+      "empty": "Open the full invitation link from your email. If it has expired, ask your administrator to resend it.",
+      "staged": "Your invitation is ready. Confirm when you’re ready to continue.",
+      "retry": "Email verification succeeded. Access could not be confirmed yet. Retry to continue with the same verification.",
+      "complete": "Your access is ready",
+      "done": "Choose a service below. Each service may ask you to sign in separately.",
+      "invalid": "This invitation cannot be used. Ask your administrator for a fresh invitation.",
+      "unavailable": "We couldn’t confirm access. Please try again. If this page was restarted or the link expired, ask for a fresh invitation.",
+      "confirm": "Accept invitation",
+      "again": "Try again",
+      "working": "Confirming…",
+      "wait": "Preparing invitation…",
+      "safety": "Only the access selected by your administrator will be activated.",
+      "noscript": "JavaScript is required to safely confirm this invitation.",
+      "theme": "Appearance",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "paused": "Sign in with your password or Google/GitHub. Contact your administrator if you need access.",
+      "pauseIntro": "Invitation acceptance is currently paused.",
+      "uncertain": "The email verification result cannot be recovered. Ask your administrator to resend the invitation.",
+      "restage": "The invitation link is still available. Prepare it again before accepting.",
+      "prepare": "Prepare invitation",
+      "pageTitle": "Confirm invitation",
+      "login": "Sign in",
+      "nextLanguage": "한국어"
     }
-  },
-  "pkm": {
-    "name": "PKM",
-    "description": "Personal knowledge base — parse, embed, search your own documents."
-  },
-  "babyAgent": {
-    "name": "Baby Agent",
-    "description": "Parenting AI companion on LINE — Q&A, growth tracking, schedule reminders."
-  },
-  "design": {
-    "title": "naeil-ui",
-    "subtitle": "Design System Showcase — Tokens · Components · Themes",
-    "foundations": "Foundations",
-    "components": "Components",
-    "neutralDescription": "Actions and selection use neutral semantic colors in both themes. Focus and feedback have separate roles.",
-    "primitiveDescription": "Primitive palettes remain available for compatibility. The blue scale is a legacy primitive, not the default action color.",
-    "semanticDescription": "These roles follow the active light or dark theme. Colors below are read from the shared CSS variables.",
-    "projectDescription": "Project colors identify individual products. They do not replace shared action, focus, or selection roles.",
-    "typeDescription": "Pretendard for Korean and Latin UI, Noto Sans JP for Japanese. Monospace samples use the configured fallback stack.",
-    "radiusDescription": "Tags use 4px corners, controls 8px, and panels 12px.",
-    "preview": "Preview",
-    "interactive": "Interactive",
-    "variants": "Variants",
-    "sizes": "Sizes",
-    "states": "States",
-    "disabled": "Disabled",
-    "invalid": "Invalid input",
-    "inputLabel": "Example input",
-    "inputHelp": "Change the controls to compare input states.",
-    "inputError": "Check this value and try again.",
-    "emailLabel": "Email",
-    "emailPlaceholder": "you@example.com",
-    "systemTitle": "System status",
-    "systemDescription": "Example service information",
-    "systemBody": "All services are operating normally.",
-    "details": "View details",
-    "deploymentTitle": "Deployment log",
-    "deploymentDescription": "Example release history",
-    "raisedDescription": "Raised surfaces use the card-elevated role and a subtle shadow.",
-    "openDialog": "Open dialog",
-    "confirmTitle": "Confirm",
-    "confirmDescription": "Would you like to continue?",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "openMenu": "Open menu",
-    "actions": "Actions",
-    "logoutFailed": "Could not log out. Please try again.",
-    "profile": "Profile",
-    "settings": "Settings",
-    "team": "Team",
-    "signOut": "Sign out",
-    "toastSuccess": "Deployment completed.",
-    "toastError": "Deployment failed.",
-    "toastInfo": "A new update is available.",
-    "toastWarning": "Disk space is low.",
-    "legacyBlue": "Legacy blue primitive",
-    "neutralAction": "Neutral action",
-    "selectedSurface": "Selection",
-    "focusIndicator": "Focus",
-    "regularRole": "Body text",
-    "mediumRole": "Labels and controls",
-    "semiboldRole": "Page and section titles",
-    "pageTitleSample": "Page title",
-    "sectionTitleSample": "Section title",
-    "typeSample": "Tomorrow begins here.",
-    "monoStack": "Monospace fallback",
-    "loading": "Loading"
-  },
-  "blogPage": {
-    "title": "Blog",
-    "subtitle": "Build notes, research, and iteration logs.",
-    "comingSoon": "Coming Soon",
-    "noPosts": "No posts available yet. Check back soon!"
-  },
-  "blogPost": {
-    "backToBlog": "Back to Blog",
-    "languages": {
-      "ko": "한국어",
-      "en": "English",
-      "ja": "日本語"
-    },
-    "sources": "Sources",
-    "previousPost": "Previous Post",
-    "nextPost": "Next Post",
-    "readingTime": "{minutes} min read",
-    "otherLanguages": "Read in another language",
-    "myStack": "My Stack",
-    "codeBlock": "Code block",
-    "dataTable": "Data table",
-    "postNavigation": "Post navigation",
-    "languageLabel": "Languages"
-  },
-  "footer": {
-    "tagline": "Tomorrow starts here.",
-    "navigation": "Navigation",
-    "projects": "Projects",
-    "blog": "Blog",
-    "social": "Social"
-  },
-  "auth": {
-    "emailId": "Email or account ID",
-    "password": "Password",
-    "passwordSignIn": "Sign in with password",
-    "emailLoginLink": "Email me a login link",
-    "emailLoginPaused": "Email login links are currently unavailable. Use your password or Google/GitHub.",
-    "reauthMailPaused": "Email verification codes are currently unavailable. Try changing your password with your current password. If a code is required, return to sign in and contact your administrator.",
-    "emailSent": "If this account can sign in, a login link will arrive. Open it in the browser that requested it.",
-    "invalidEmail": "Enter a valid email address.",
-    "requestCode": "Request reauthentication code",
-    "codeSent": "Reauthentication code requested. If it does not arrive, contact the admin.",
-    "credentialError": "Could not sign in. If this is a temporary account, it may have expired; ask the admin to reissue it.",
-    "tempExpired": "Expired or locked — ask the administrator to reissue your account.",
-    "tempReissued": "This account was reissued or its session changed. Sign in with the new password.",
-    "changePassword": "Change password",
-    "changeRequired": "Change your temporary password before continuing. Use at least 12 characters.",
-    "currentPassword": "Current password (if required)",
-    "newPassword": "New password",
-    "confirmPassword": "Confirm new password",
-    "reauthCode": "Reauthentication code (if required)",
-    "passwordRejected": "The new password was rejected. Check the confirmation and password requirements.",
-    "completionRetry": "The result is not confirmed. Retry completion; your password will not be sent again.",
-    "retryCompletion": "Retry completion",
-    "backToLogin": "Back to sign in",
-
-    "logoutFailed": "Could not log out. Please try again.",
-    "localLogout": "Log out of this browser",
-    "localLogoutDescription": "You can remove this website’s login from this browser. The authentication server and other sessions will not be signed out.",
-    "localLogoutFailed": "Could not remove this browser’s login. Please try again.",
-    "login": "Sign in",
-    "loginWithGoogle": "Sign in with Google",
-    "loginWithGithub": "Sign in with GitHub",
-    "loginDescription": "Sign in to access all features",
-    "redirecting": "Redirecting...",
-    "logout": "Sign out",
-    "profile": "Profile",
-    "accountMenu": "Account menu for {name}",
-    "pendingGoogle": "Opening Google sign-in…",
-    "pendingGithub": "Opening GitHub sign-in…",
-    "loginError": "Could not start sign-in. Choose a sign-in method below to try again."
-  },
-  "locale": {
-    "switchLabel": "Language"
-  },
-  "sa": {
-    "name": "Sustainability Analyzer",
-    "description": "AI-driven ESG report analysis — topic discovery, qualitative assessment, automated cross-company comparison.",
-    "overview": "An analysis pipeline that parses corporate ESG report PDFs and performs systematic qualitative assessments with AI.\n\nDocling layout parser preserves table and text structure through hierarchical chunking. BGE-M3 embeddings (Dense+Sparse) enable hybrid semantic search. Claude auto-discovers 41 ESG topics and generates 415 checklist items for qualitative evaluation.\n\nLocal embeddings + free APIs. Structured storage in PostgreSQL + pgvector.",
-    "features": {
-      "ingest": {
-        "title": "Structure-Preserving PDF Parsing",
-        "desc": "Docling layout parser — hierarchical chunking that preserves tables and section boundaries"
-      },
-      "embed": {
-        "title": "Hybrid Search",
-        "desc": "BGE-M3 Dense+Sparse embeddings — pgvector hybrid semantic search"
-      },
-      "topics": {
-        "title": "Auto Topic Discovery",
-        "desc": "Claude Sonnet — auto-discovers 41 topics and 415 checklist items from ESG reports"
-      },
-      "assess": {
-        "title": "AI Qualitative Assessment",
-        "desc": "Checklist-based evaluation per topic — cited evidence, scores, and commentary"
-      },
-      "compare": {
-        "title": "Cross-Company Comparison",
-        "desc": "Sector-filtered topic × company matrix — auto-generated comparison tables"
-      },
-      "zeroCost": {
-        "title": "Local + Free",
-        "desc": "BGE-M3 on-device embeddings, Claude & Gemini free-tier usage"
-      }
-    },
-    "workflow": {
-      "pdf": {
-        "desc": "Corporate ESG/sustainability report PDF input",
-        "meta": "Annual reports"
-      },
-      "docling": {
-        "desc": "Layout-based structural parsing — single-chunk tables, section boundary preservation",
-        "meta": "Tables+Text"
-      },
-      "chunk": {
-        "desc": "Parent-child hierarchical chunking — context preservation + granular retrieval",
-        "meta": "parent 1K / child 512"
-      },
-      "bgem3": {
-        "desc": "Dense (1024d) + Sparse (learned BM25) simultaneous embedding generation",
-        "meta": "FlagEmbedding"
-      },
-      "pgvector": {
-        "desc": "Chunks, embeddings, assessments, comparisons — full structured storage"
-      },
-      "search": {
-        "desc": "Dense+Sparse hybrid search with parent context expansion"
-      },
-      "claude": {
-        "desc": "Topic discovery, checklist generation, evidence-based qualitative assessment",
-        "meta": "Sonnet"
-      },
-      "report": {
-        "desc": "Topic × company comparison table HTML report generation",
-        "meta": "Sector filter"
-      }
-    }
-  },
-  "theme": {
-    "switchToLight": "Switch to light theme",
-    "switchToDark": "Switch to dark theme"
   }
 }

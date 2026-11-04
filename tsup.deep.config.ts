@@ -24,6 +24,12 @@ export default defineConfig({
     "src/components/nav.tsx",
     "src/components/naeil-header.tsx",
     "src/components/naeil-header-account.tsx", // Internal shared account UI, re-exported by naeil-header.
+    "src/components/naeil-header-core.tsx",
+    "src/components/naeil-header-account-core.tsx",
+    "src/components/naeil-footer-core.tsx",
+    "src/components/naeil-messages-context.tsx",
+    "src/components/naeil-standalone-messages.tsx",
+    "src/components/naeil-header-data.ts",
     "src/components/naeil-header-content.ts",
     "src/components/naeil-footer.tsx",
     "src/lib/ui-release.ts",

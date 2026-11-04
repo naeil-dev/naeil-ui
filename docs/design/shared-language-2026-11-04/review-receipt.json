@@ -1,0 +1,23 @@
+{
+  "agentId": "57075402-e0e3-4036-8311-45431ff534c0",
+  "provider": "claude",
+  "requestedModel": "claude-opus-5-5",
+  "observedModel": "claude-opus-5-5",
+  "runtimeModel": "claude-opus-5-5",
+  "thinkingOptionId": "high",
+  "sessionId": "5c10c037-3fb4-4759-a241-88c031c6edca",
+  "workspaceId": "wks_51cd033507167804",
+  "serverId": "srv_ExrvrbkWmtMP",
+  "status": "idle",
+  "createdAt": "2026-11-03T21:43:01.695Z",
+  "observedUpdatedAt": "2026-11-03T21:53:28.037Z",
+  "verification": "Model identity observed by primary agent using Paseo snapshot; design review is not a product runtime test.",
+  "snapshotAttentionTimestamp": "2026-11-03T21:47:34.536Z",
+  "draftSha256": "ab9991d771878a43e89751df299e4eaf875a10c1765b1704bfa081d701406321",
+  "reviewedRevisionSha256": "8822aa4a950925586655c38914209f84db34672331c2fcc8d332ec17db2dcc1a",
+  "finalDesignSha256": "03275533fa9b609b56393492c8ba0ba8fecb5a13f8b61ce3eacc3af06f9aa566",
+  "finalDesign": "superseded-hybrid-design.md",
+  "reviewConclusion": "Hybrid recommendation accepted; revised design conditionally accepted after resolving stale server-rendered copy. Primary agent implemented that final documentation correction and three clarifications. Final bytes were not rereviewed by model.",
+  "finalCorrection": "Client provider owns all live-switchable UI copy; no locale-only router.refresh; acceptance covers all translated keys and retained input/stream state.",
+  "designStatus": "superseded: user clarified uniform locale paths for all mandatory services"
+}

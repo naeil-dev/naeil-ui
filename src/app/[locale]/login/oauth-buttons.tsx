@@ -3,9 +3,9 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { useState } from "react";
-import { createOAuthFlow, type OAuthState } from "./oauth-flow";
-import { prepareLogin } from "./actions";
+import { useSiteState } from "@/components/site-session-state";
+import { type OAuthProvider, type OAuthState } from "./oauth-flow";
+import { prepareLogin, updateLoginLocale } from "./actions";
 
 export function OAuthButtons({
   initialError = false,
@@ -14,25 +14,44 @@ export function OAuthButtons({
   initialError?: boolean;
   next?: string;
 }) {
-  const t = useTranslations("auth");
+  const t = useTranslations("site.auth");
   const locale = useLocale();
-  const [state, setState] = useState<OAuthState>({
+  const [state, setState, cell] = useSiteState<OAuthState>(`oauth:${next}`, {
     status: initialError ? "error" : "idle",
-  });
-  const [flow] = useState(() =>
-    createOAuthFlow(async (provider) => {
+  }, "/login", value => value.status === "pending", next);
+  async function flow(provider: OAuthProvider) {
+    if (!cell.active || cell.get().status === "pending") return;
+    setState({ status: "pending", provider });
+    try {
       const returnLocation = new URL(window.location.href).searchParams.get("next") || next;
       await prepareLogin(returnLocation, document.documentElement.lang || locale);
+      if (!cell.active) return;
       const supabase = createClient();
-      return supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: true,
           ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {}),
         },
       });
-    }, setState),
-  );
+      if (!error && data.url && cell.active) {
+        // The provider URL can take time to prepare. Capture the last committed
+        // UI locale without changing the independently validated return URL.
+        while (cell.active) {
+          const committedLocale = document.documentElement.lang || locale;
+          await updateLoginLocale(committedLocale);
+          if (!cell.active) return;
+          if ((document.documentElement.lang || locale) === committedLocale) break;
+        }
+        // A successful, explicitly requested OAuth departure is intentional.
+        setState({ status: "idle" });
+        window.location.assign(data.url);
+        return;
+      }
+    } catch { /* Show a translated recovery key; do not retain provider details. */ }
+    setState({ status: "error" });
+  }
   const pending = state.status === "pending";
   const pendingText = pending
     ? t(state.provider === "google" ? "pendingGoogle" : "pendingGithub")

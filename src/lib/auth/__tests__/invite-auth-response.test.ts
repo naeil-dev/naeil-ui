@@ -137,13 +137,13 @@ describe("actual auth redirect responses", () => {
 describe("final proxy response cookies", () => {
   it("protects document queries with a503 during Auth failure and preserves complete login return on401", async () => {
     state.unavailable = true;
-    const unavailable = await proxy(new NextRequest("https://naeil.dev/ja/sa/reports/one?tab=detail"));
+    const unavailable = await proxy(new NextRequest("https://naeil.dev/ja/login/change-password?tab=detail"));
     expect(unavailable.status).toBe(503);
     expect(unavailable.headers.get("location")).toBeNull();
-    expect(unavailable.headers.get("cache-control")).toBe("no-store");
+    expect(unavailable.headers.get("cache-control")).toBe("private, no-store");
     state.unavailable = false;
-    const expired = await proxy(new NextRequest("https://naeil.dev/ja/sa/reports/one?tab=detail"));
-    expect(new URL(expired.headers.get("location")!).searchParams.get("next")).toBe("/ja/sa/reports/one?tab=detail");
+    const expired = await proxy(new NextRequest("https://naeil.dev/ja/login/change-password?tab=detail"));
+    expect(new URL(expired.headers.get("location")!).searchParams.get("next")).toBe("/ja/login/change-password?tab=detail");
   });
   function refreshed() {
     const r = NextResponse.next();
@@ -159,7 +159,7 @@ describe("final proxy response cookies", () => {
     });
     state.sessionResponse = r;
   }
-  it.each(["/ko", "/sa/reports/one"])(
+  it.each(["/ko", "/login/change-password"])(
     "preserves every refresh cookie option on %s",
     async (path) => {
       refreshed();
@@ -174,7 +174,7 @@ describe("final proxy response cookies", () => {
         sameSite: "lax",
         maxAge: 300,
       });
-      if (path.includes("/reports/"))
+      if (path === "/login/change-password")
         expect(r.headers.get("location")).toContain("/login");
     },
   );

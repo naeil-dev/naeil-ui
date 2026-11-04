@@ -1,17 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-import createIntlMiddleware from "next-intl/middleware";
+import { createNaeilLocaleProxy } from "./naeil-locale/server";
+import { localePath } from "./naeil-locale";
 import { requiresPasswordChange, passwordChangePath } from "./lib/auth/password-policy";
-import { authLocale } from "./lib/auth/return-location";
-import { routing } from "./i18n/routing";
 import { updateSession } from "./lib/supabase/middleware";
-import { isProtectedReportRoute } from "./lib/auth/routes";
 import { invitationProxyResponse } from "./lib/auth/invite-proxy";
 import { actionRequestBoundary } from "./lib/auth/action-request-boundary";
 import { isCanonicalServiceReturnPath, isServiceReturnPath, serviceReturnHandler, serviceReturnHeaders } from "./lib/auth/service-return";
 
-const intlMiddleware = createIntlMiddleware(routing);
-
-export default async function proxy(request: NextRequest) {
+async function protocol(request: NextRequest) {
   const rawPathname = new URL(request.url).pathname;
   if (isServiceReturnPath(rawPathname)) {
     // Pass canonical GETs to their static public route. That route validates
@@ -27,60 +23,34 @@ export default async function proxy(request: NextRequest) {
   }
   const actionRejection = await actionRequestBoundary(request);
   if (actionRejection) return actionRejection;
-  // Run canonicalization after protected namespaces. A framework redirect runs
-  // before proxy and drops their response headers, including no-referrer.
-  if (rawPathname !== "/" && rawPathname.endsWith("/") && !rawPathname.startsWith("/_next")) {
-    const canonical = new URL(request.url);
-    canonical.pathname = rawPathname.slice(0, -1);
-    return NextResponse.redirect(canonical, 308);
-  }
-  // The broad matcher exists to intercept encoded/Next return aliases. Preserve
-  // the previous exclusions before the ordinary site Auth/locale path.
-  if (/^\/(?:_next|api\/|auth\/)|\./.test(rawPathname)) return NextResponse.next();
-  // 1. Refresh Supabase session (updates auth cookies)
-  const { response: supabaseResponse, user, unavailable } = await updateSession(request);
-
-  // 2. Capture URL info BEFORE intl middleware (which may mutate request.nextUrl)
-  const { pathname } = request.nextUrl;
-
-  const language = pathname.match(/^\/(en|ko|ja)(?:\/|$)/)?.[1] || authLocale(request.cookies.get("NEXT_LOCALE")?.value);
-  if (requiresPasswordChange(user) && !/^\/(?:(?:en|ko|ja)\/)?login\/change-password$/.test(pathname)) {
-    const response = NextResponse.redirect(new URL(passwordChangePath(language), request.url), 303);
-    supabaseResponse.cookies.getAll().forEach(cookie => response.cookies.set(cookie));
-    response.headers.set("Cache-Control", "no-store");
-    return response;
-  }
-
-  // 3. Check protected routes — redirect to login if unauthenticated
-  if (isProtectedReportRoute(pathname) && !user) {
-    if (unavailable) return new NextResponse("Authentication is temporarily unavailable. Please retry.", {
-      status: 503, headers: { "Cache-Control": "no-store", "Retry-After": "30", "Content-Type": "text/plain; charset=utf-8" },
-    });
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.search = "";
-    loginUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
-    const response = NextResponse.redirect(loginUrl);
-    supabaseResponse.cookies
-      .getAll()
-      .forEach((cookie) => response.cookies.set(cookie));
-    return response;
-  }
-
-  // 4. Run next-intl middleware for locale routing
-  const intlResponse = intlMiddleware(request);
-
-  // Login return state is written only by prepareLogin on the provider click.
-  // A background link prefetch must not replace an active callback destination.
-
-  // 5. Copy Supabase auth cookies onto the intl response
-  supabaseResponse.cookies.getAll().forEach((cookie) => {
-    intlResponse.cookies.set(cookie);
-  });
-
-  return intlResponse;
+  // Existing public files are assets, outside the user-page locale inventory.
+  if (rawPathname.startsWith("/console-invite/") || rawPathname.startsWith("/svg/") || ["/window.svg", "/globe.svg", "/next.svg", "/vercel.svg", "/file.svg", "/coral-concepts.html"].includes(rawPathname)) return NextResponse.next();
+  return undefined;
 }
 
-export const config = {
-  matcher: ["/:path*"],
-};
+export default createNaeilLocaleProxy({
+  service: "main",
+  protocol,
+  async authorize({ request, route }) {
+    const { response, user, unavailable } = await updateSession(request);
+    const cookiesFrom = response;
+    const requestHeaders = new Headers(request.headers);
+    if (requiresPasswordChange(user) && route.logicalPath !== "/login/change-password") {
+      const target = new URL(passwordChangePath(route.locale), request.url);
+      return { access: "forbidden", response: NextResponse.redirect(target, 303), cookiesFrom, requestHeaders };
+    }
+    if (route.route.protected && !user) {
+      const target = new URL(localePath("main", "/login", route.locale), request.url);
+      target.searchParams.set("next", route.canonicalPath);
+      return {
+        access: unavailable ? "unavailable" : "unauthenticated",
+        response: unavailable ? undefined : NextResponse.redirect(target),
+        cookiesFrom,
+        requestHeaders,
+      };
+    }
+    return { access: "allowed", cookiesFrom, requestHeaders };
+  },
+});
+
+export const config = { matcher: ["/:path*"] };

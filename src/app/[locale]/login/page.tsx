@@ -30,7 +30,7 @@ export default async function LoginPage({
     redirect(requiresPasswordChange(user) ? passwordChangePath(locale) : destination);
   }
 
-  const t = await getTranslations("auth");
+  const t = await getTranslations("site.auth");
 
   return (
     <div className="flex min-h-[calc(100svh-var(--ui-navigation-height))] items-center justify-center px-6 py-16">

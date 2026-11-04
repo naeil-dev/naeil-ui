@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link } from "@/i18n/site-link";
 import { Badge } from "@/components/ui/badge";
 import { HeroSection } from "@/components/hero-section";
 import Image from "next/image";
@@ -33,7 +33,7 @@ const PROJECTS = [
 ] as const;
 
 function HubContent() {
-  const t = useTranslations();
+  const t = useTranslations("site");
 
   return (
     <>

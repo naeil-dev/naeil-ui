@@ -1,3 +1,4 @@
+import { localePath } from "@/naeil-locale";
 import { canonicalRedirect } from "./redirect";
 import { defaultLocale, locales, type Locale } from "@/i18n/config";
 
@@ -15,7 +16,7 @@ export function authLocale(value: unknown): Locale {
 
 export function loginErrorLocation(origin: string, destination: string, locale: unknown): URL {
   const language = authLocale(locale);
-  const url = new URL(language === defaultLocale ? "/login" : `/${language}/login`, origin);
+  const url = new URL(localePath("main", "/login", language), origin);
   url.searchParams.set("error", "auth");
   if (destination !== "/") url.searchParams.set("next", loginDestination(destination));
   return url;

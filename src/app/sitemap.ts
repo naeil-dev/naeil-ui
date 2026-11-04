@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { defaultLocale, locales, type Locale } from "@/i18n/config";
+import { locales, type Locale } from "@/i18n/config";
+import { localeMetadata } from "@/naeil-locale/server";
 import { getAllPosts } from "@/lib/blog";
 import { siteUrl } from "@/lib/site-metadata";
 
@@ -11,14 +12,7 @@ const staticPages = [
 ];
 
 function languageAlternates(path: string, availableLocales: readonly Locale[]) {
-  const languages: Record<string, string> = Object.fromEntries(
-    availableLocales.map((locale) => [locale, siteUrl(locale, path)]),
-  );
-  const fallbackLocale = availableLocales.includes(defaultLocale)
-    ? defaultLocale
-    : availableLocales[0];
-  if (fallbackLocale) languages["x-default"] = siteUrl(fallbackLocale, path);
-  return languages;
+  return localeMetadata({ service: "main", route: path, locale: availableLocales[0], title: "", serviceName: ".naeil", public: true, translatedLocales: availableLocales }).alternates!.languages;
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {

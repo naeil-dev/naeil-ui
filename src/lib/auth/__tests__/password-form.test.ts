@@ -14,12 +14,15 @@ vi.mock("@/app/[locale]/login/credential-actions", () => ({
   leavePasswordChange: vi.fn(),
   requestPasswordCode: vi.fn(),
 }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/ko/login" }));
+vi.mock("@/naeil-locale/client", () => ({ useLocaleBeforeUnload: () => {} }));
+import { SiteSessionStateProvider } from "@/components/site-session-state";
 import { CredentialForms } from "@/app/[locale]/login/credential-forms";
 it.each([false, true])(
   "defaults to paused mail controls while keeping the primary action (change=%s)",
   (change) => {
     const html = renderToStaticMarkup(
-      createElement(CredentialForms, { change }),
+      createElement(SiteSessionStateProvider, null, createElement(CredentialForms, { change })),
     );
     expect(html).toContain(change ? "reauthMailPaused" : "emailLoginPaused");
     expect(html).toContain(change ? "changePassword" : "passwordSignIn");
@@ -33,7 +36,7 @@ it.each([false, true])(
   "keeps a persistent status region linked to the inputs (change=%s)",
   (change) => {
     const html = renderToStaticMarkup(
-      createElement(CredentialForms, { change, emailEnabled: true }),
+      createElement(SiteSessionStateProvider, null, createElement(CredentialForms, { change, emailEnabled: true })),
     );
     const id = html.match(/<p id="([^"]+)" role="status"/)?.[1];
     expect(id).toBeTruthy();

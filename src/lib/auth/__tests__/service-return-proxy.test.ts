@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
+import { NextRequest, NextResponse } from "next/server";
 import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import proxy, { config } from "@/proxy";
 
-vi.mock("@/lib/supabase/middleware", () => ({ updateSession: () => { throw new Error("Relay must not execute site Auth"); } }));
+vi.mock("@/lib/supabase/middleware", () => ({ updateSession: vi.fn(() => { throw new Error("Relay must not execute site Auth"); }) }));
 vi.mock("next-intl/middleware", () => ({ default: () => () => { throw new Error("Relay must not execute locale middleware"); } }));
 vi.mock("@/i18n/routing", () => ({ routing: { locales: ["en", "ko", "ja"], defaultLocale: "ko" } }));
 
@@ -91,9 +92,10 @@ describe("return namespace before site Auth/locale middleware", () => {
     const response = await proxy(new NextRequest(`https://naeil.dev${path}`));
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
-  it("preserves ordinary trailing-slash canonicalization", async () => {
+  it("canonicalizes a UI document once after its auth check", async () => {
+    vi.mocked(updateSession).mockResolvedValueOnce({ response: NextResponse.next(), user: null, unavailable: false });
     const response = await proxy(new NextRequest("https://naeil.dev/ja/login/?next=%2Fja%2Fsa"));
-    expect(response.status).toBe(308);
+    expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://naeil.dev/ja/login?next=%2Fja%2Fsa");
   });
 });
