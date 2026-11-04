@@ -40,4 +40,6 @@ Archive terrific-buffalo after final backup comparison and selective preservatio
 
 - Four already-integrated inactive workspaces archived after full archive hash verification; their local merged refs removed. One obsolete loopback-only Storybook preview was retired after exact process ownership checks.
 - Baseline main unit suite: 791 passed, 5 skipped. Audits completed for runner, invitation and homepage history.
-- Implementation, combined checks, integration PR and deployment verification pending.
+- Runner and dormant invitation histories integrated in `eb51ccf` and `3dd4fe1`; independent task reviews passed. Seven historical documents and archive indexes preserved in `b4c0550`.
+- Integrated runtime: 839 unit and 6 compiled invitation tests passed; rollout 351 plus the optional exact-pnpm case, Python 58 and account/site helper 8 passed. Catalogs/types/lint, token drift/contrast, package/packed React+Next consumers, font notices and Storybook build passed. Four actual Chromium Storybook account cases passed. A packed-document link failure was fixed in `ce2360e`; the full packed-consumer rerun passed.
+- Replacement [PR #39](https://github.com/naeil-dev/naeil-ui/pull/39) opened. Final whole-branch review, current-head CI, main merge/old PR disposition and exact Site deployment verification remain pending at this checkpoint. Final operational receipts will be retained in the private closeout directory and linked from the PR.
