@@ -6,6 +6,13 @@ import { randomUUID } from "node:crypto";
 import { access, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { resolveSiteSourceRevision } from "./scripts/site-build-identity";
+import { assertLocaleMessages } from "./src/naeil-locale/checker";
+import en from "./messages/en.json";
+import ko from "./messages/ko.json";
+import ja from "./messages/ja.json";
+
+// The site owns its namespace but uses the same mandatory build gate as apps.
+assertLocaleMessages({ en, ko, ja }, { namespace: "site" });
 
 // Public allowlist only. These constants are compiled into the immutable build.
 const artifactId = process.env.NAEIL_APP_ARTIFACT_ID || process.env.VERCEL_DEPLOYMENT_ID || randomUUID();

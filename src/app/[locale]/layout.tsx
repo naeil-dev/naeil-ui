@@ -1,5 +1,7 @@
+import { headers } from "next/headers";
+import { getRequestLocaleAccess } from "@/naeil-locale/server";
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
+import { NaeilLocaleProvider } from "@/naeil-locale/client";
 import {
   getMessages,
   getTranslations,
@@ -8,9 +10,9 @@ import {
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { SiteAccessBoundary } from "@/components/site-access-boundary";
 import { NavServerWrapper } from "@/components/nav-server-wrapper";
 import { FooterWrapper } from "@/components/footer-wrapper";
-import { DocumentLocale } from "@/components/document-locale";
 import { locales, type Locale } from "@/i18n/config";
 import { siteMetadata, SITE_NAME } from "@/lib/site-metadata";
 
@@ -25,9 +27,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   if (!locales.includes(locale as Locale)) notFound();
-  const t = await getTranslations({ locale, namespace: "common" });
+  const t = await getTranslations({ locale, namespace: "site.common" });
+  const access = getRequestLocaleAccess(await headers());
+  if (access && access !== "allowed") return {
+    title: { default: SITE_NAME, template: `%s — ${SITE_NAME}` },
+    robots: { index: false, follow: false },
+    alternates: null,
+  };
   return {
-    ...siteMetadata({
+    ...await siteMetadata({
       locale: locale as Locale,
       description: t("description"),
     }),
@@ -50,11 +58,10 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   const messages = await getMessages();
-  const t = await getTranslations("common");
+  const t = await getTranslations("site.common");
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      <DocumentLocale locale={locale} />
+    <NaeilLocaleProvider locale={locale as Locale} messages={messages}>
       <ThemeProvider
         attribute="class"
         defaultTheme="dark"
@@ -69,11 +76,11 @@ export default async function LocaleLayout({
         </a>
         <NavServerWrapper />
         <main id="main-content" tabIndex={-1}>
-          {children}
+          <SiteAccessBoundary>{children}</SiteAccessBoundary>
         </main>
         <FooterWrapper />
         <Toaster />
       </ThemeProvider>
-    </NextIntlClientProvider>
+    </NaeilLocaleProvider>
   );
 }

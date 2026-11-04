@@ -1,0 +1,11 @@
+--- a/README.md
++++ b/README.md
+@@ -42,7 +42,7 @@
+ 
+ The following preview receipts describe their original release checkpoints. Saved master/estimate persistence was implemented afterward; current source/runtime and limits are in [STATUS](STATUS.md). The preview itself remains temporary and resets on full reload.
+ 
+-The protected calendar test URL is **https://abestimate.naeil.dev/calendar-preview**, using the existing password.「マスターカレンダー」manages weekly business defaults without people/hours/money. Generated fiscal/group defaults are fixed;「休日・休業日を管理」opens one date-sorted list to add/edit/delete closures and exceptional working days. Ordinary weekends are automatic. Apply validates the whole draft and recalculates automatic weekly days, retaining manual master counts; Cancel/Escape discards it.
++The protected Japanese calendar entry is **https://abestimate.naeil.dev/ja/calendar-preview**, using the existing central account session. English uses `/calendar-preview`; Korean uses `/ko/calendar-preview`.「マスターカレンダー」manages weekly business defaults without people/hours/money. Generated fiscal/group defaults are fixed;「休日・休業日を管理」opens one date-sorted list to add/edit/delete closures and exceptional working days. Ordinary weekends are automatic. Apply validates the whole draft and recalculates automatic weekly days, retaining manual master counts; Cancel/Escape discards it.
+ 
+ The deployed FY2027 follow-up adds April2027–March2028 beside FY2026, with named static official2026/2027 holidays and the existing company closure dates. January–March2028 holiday names carry「（暫定）」and remain unverified pending formal publication; future company closures are not assumed. The workbook's51weekly business-day counts match these defaults; it contains no named holiday list. [FY2027 acceptance](docs/evidence/fy2027-holidays/acceptance.md) records actual checks and review limits.
+ 

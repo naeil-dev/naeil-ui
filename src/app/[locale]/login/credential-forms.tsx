@@ -1,5 +1,7 @@
 "use client";
-import { useId, useRef, useState } from "react";
+import { useId, useRef } from "react";
+import { useCredentialDraft } from "@/components/site-session-state";
+import { localePath, assertLocale } from "@/naeil-locale";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,26 +24,27 @@ export function CredentialForms({
   change?: boolean;
   emailEnabled?: boolean;
 }) {
-  const t = useTranslations("auth"),
+  const t = useTranslations("site.auth"),
     locale = useLocale(),
     form = useRef<HTMLFormElement>(null),
-    lock = useRef(false),
     statusId = useId();
-  const [busy, setBusy] = useState(false),
-    [status, setStatus] = useState(""),
-    [email, setEmail] = useState("");
+  const [draft, setDraft, cell] = useCredentialDraft(change, next);
+  const { busy, status, email } = draft;
+  const setStatus = (status: string) => setDraft(current => ({ ...current, status }));
+  const setBusy = (busy: boolean) => setDraft(current => ({ ...current, busy }));
+  const field = (name: "email" | "password" | "current_password" | "confirm" | "nonce", value: string) => setDraft(current => ({ ...current, [name]: value }));
   async function run(
     kind: "password" | "email" | "change" | "resume" | "code",
     data: FormData,
   ) {
-    if (lock.current) return;
-    lock.current = true;
+    if (!cell.active || cell.get().busy) return;
     setBusy(true);
     setStatus("");
     try {
       let result;
       if (kind === "change") {
         const start = await beginPasswordChange();
+        if (!cell.active) return;
         result =
           start.status === "ready" ? await submitPasswordChange(data) : start;
       } else if (kind === "code") result = await requestPasswordCode();
@@ -49,15 +52,20 @@ export function CredentialForms({
       else
         result =
           kind === "email" ? await emailLogin(data) : await passwordLogin(data);
+      if (!cell.active) return;
       clearSensitive();
-      if ("location" in result && typeof result.location === "string")
-        window.location.assign(result.location);
-      else setStatus(result.status === "ready" ? "" : result.status);
+      if ("location" in result && typeof result.location === "string") {
+        setDraft(current => ({ ...current, email: "", busy: false }));
+        const currentLocale = assertLocale(document.documentElement.lang);
+        const destination = "authPage" in result && result.authPage === "change-password"
+          ? localePath("main", "/login/change-password", currentLocale)
+          : change && result.location === "/" ? localePath("main", "/", currentLocale) : result.location;
+        window.location.assign(destination);
+      } else setStatus(result.status === "ready" ? "" : result.status);
     } catch {
       clearSensitive();
       setStatus(change ? "retry" : "error");
     } finally {
-      lock.current = false;
       setBusy(false);
     }
   }
@@ -75,13 +83,7 @@ export function CredentialForms({
   const blocked = change && (status === "retry" || status === "reissued");
   const invalid = ["error", "invalidEmail", "rejected"].includes(status);
   function clearSensitive() {
-    form.current
-      ?.querySelectorAll<HTMLInputElement>(
-        'input[type="password"], input[name="nonce"]',
-      )
-      .forEach((input) => {
-        input.value = "";
-      });
+    setDraft(current => ({ ...current, password: "", current_password: "", confirm: "", nonce: "" }));
   }
   return (
     <div className="space-y-4">
@@ -108,7 +110,7 @@ export function CredentialForms({
             <Input
               name="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => field("email", event.target.value)}
               type="email"
               autoComplete="username"
               required
@@ -124,6 +126,8 @@ export function CredentialForms({
             <span>{t("currentPassword")}</span>
             <Input
               name="current_password"
+              value={draft.current_password}
+              onChange={event => field("current_password", event.target.value)}
               type="password"
               autoComplete="current-password"
               aria-describedby={statusId}
@@ -137,6 +141,8 @@ export function CredentialForms({
           <span>{t(change ? "newPassword" : "password")}</span>
           <Input
             name="password"
+              value={draft.password}
+              onChange={event => field("password", event.target.value)}
             type="password"
             autoComplete={change ? "new-password" : "current-password"}
             required
@@ -153,6 +159,8 @@ export function CredentialForms({
               <span>{t("confirmPassword")}</span>
               <Input
                 name="confirm"
+              value={draft.confirm}
+              onChange={event => field("confirm", event.target.value)}
                 type="password"
                 autoComplete="new-password"
                 required
@@ -168,6 +176,8 @@ export function CredentialForms({
                 <span>{t("reauthCode")}</span>
                 <Input
                   name="nonce"
+              value={draft.nonce}
+              onChange={event => field("nonce", event.target.value)}
                   autoComplete="one-time-code"
                   maxLength={128}
                   aria-describedby={statusId}
@@ -246,15 +256,15 @@ export function CredentialForms({
           variant="link"
           disabled={busy}
           onClick={async () => {
-            if (lock.current) return;
-            lock.current = true;
+            if (!cell.active || cell.get().busy) return;
             setBusy(true);
             clearSensitive();
             try {
               await leavePasswordChange();
-              window.location.assign(`/${locale}/login`);
+              if (!cell.active) return;
+              setDraft(current => ({ ...current, busy: false, email: "" }));
+              window.location.assign(localePath("main", "/login", assertLocale(document.documentElement.lang)));
             } catch {
-              lock.current = false;
               setBusy(false);
               setStatus("error");
             }

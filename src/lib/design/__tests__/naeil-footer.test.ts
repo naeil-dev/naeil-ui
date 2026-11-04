@@ -2,11 +2,21 @@ import { createElement, type MouseEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { NaeilFooter } from "../../../components/naeil-footer";
-import { SiteFooter } from "../../../components/ui/site-footer";
+import type { SiteFooterProps } from "../../../components/ui/site-footer";
 import type { NavigationLinkProps } from "../../../components/ui/navigation";
 import { uiRelease } from "../../ui-release";
 import { readFileSync } from "node:fs";
 
+const footerCapture = vi.hoisted(() => ({ props: null as SiteFooterProps | null }));
+vi.mock("../../../components/ui/site-footer", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../components/ui/site-footer")>();
+  return { ...actual, SiteFooter: (props: SiteFooterProps) => {
+    footerCapture.props = props;
+    return createElement(actual.SiteFooter, props);
+  } };
+});
+
+const { SiteFooter: actualSiteFooter } = await vi.importActual<typeof import("../../../components/ui/site-footer")>("../../../components/ui/site-footer");
 const Link = (props: NavigationLinkProps) => createElement("a", { ...props, "data-guarded": true });
 describe("canonical footer", () => {
   it.each(["en", "ko", "ja"] as const)("keeps canonical destinations in both %s variants and forwards every link adapter", locale => {
@@ -23,14 +33,15 @@ describe("canonical footer", () => {
   it("passes the original event and exact brand destination to the application guard", () => {
     const guard = vi.fn();
     const event = { metaKey: true } as MouseEvent<HTMLAnchorElement>;
-    const footer = NaeilFooter({ locale: "ko", resolveHref: path => `/ko${path}`, onNavigate: guard });
-    footer.props.brand.props.onClick(event);
+    renderToStaticMarkup(createElement(NaeilFooter, { locale: "ko", resolveHref: path => `/ko${path}`, onNavigate: guard }));
+    const brand = footerCapture.props!.brand as ReturnType<typeof createElement<{ onClick: (event: MouseEvent<HTMLAnchorElement>) => void }>>;
+    brand.props.onClick(event);
     expect(guard).toHaveBeenCalledWith(event, { id: "brand", label: ".naeil", href: "/ko/" });
   });
   it("intercepts explicitly external native group anchors without breaking legacy Link bypass", () => {
     const onNavigate = vi.fn();
     const item = { id: "remote", href: "https://example.org", label: "Remote", external: true };
-    const footer = SiteFooter({ Link, onNavigate, groups: [{ id: "links", label: "Links", links: [item] }] });
+    const footer = actualSiteFooter({ Link, onNavigate, groups: [{ id: "links", label: "Links", links: [item] }] });
     const anchor = footer.props.children.props.children[1][0].props.children[1][0];
     expect(anchor.type).toBe("a");
     const event = { ctrlKey: true } as MouseEvent<HTMLAnchorElement>;

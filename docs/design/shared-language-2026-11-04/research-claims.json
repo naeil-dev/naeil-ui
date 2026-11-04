@@ -1,0 +1,79 @@
+[
+  {
+    "id": "C1",
+    "text": "Google recommends separate language URLs and conservative language redirects for public content; this does not establish a universal path requirement for authenticated apps.",
+    "kind": "official_fact",
+    "evidence_ids": [
+      "dfbdeecda4baa289c23c57b0"
+    ],
+    "status": "supported",
+    "conditions": "Only intact general guidance paragraphs; lost geographic comparison table cells excluded."
+  },
+  {
+    "id": "C2",
+    "text": "next-intl supports as-needed and never; disabling locale detection disables cookie matching too, whereas cookie writing has a separate configuration.",
+    "kind": "official_fact",
+    "evidence_ids": [
+      "c18f769a9ecb1a7eb739150e",
+      "bdf5f5e582d984d1f6b6f734"
+    ],
+    "status": "supported"
+  },
+  {
+    "id": "C3",
+    "text": "Domain cookies can cover parent/subdomains; host-only cookies and origin-scoped localStorage cannot automatically synchronize separate service origins.",
+    "kind": "official_fact",
+    "evidence_ids": [
+      "5608c42872abb139605176c7",
+      "e7406041a6bbdc8b66a8d12d"
+    ],
+    "status": "supported"
+  },
+  {
+    "id": "C4",
+    "text": "Same-name cookies may coexist without request Domain/Path attribution or reliable ordering; the design chooses a new shared preference cookie name.",
+    "kind": "official_fact",
+    "evidence_ids": [
+      "c9ae5d54a7c90c1c11d6bee0"
+    ],
+    "status": "supported",
+    "conditions": "New name is a design inference, not a mandated cookie standard."
+  },
+  {
+    "id": "C5",
+    "text": "A 2025 issue and maintainer replies describe explicit-choice preference requirements and the existing Link/prefix/cookie contract.",
+    "kind": "reported_experience",
+    "evidence_ids": [
+      "eb7b533538b6b64efc6084f0",
+      "0d38287fee6825b2b8c2b316",
+      "b41869f43a4645f5e0b7abe8"
+    ],
+    "status": "supported",
+    "conditions": "Historical discussion, not independent current-version test. Maintainer citations of Google are same origin as Google guidance."
+  },
+  {
+    "id": "C6",
+    "text": "A reporter observed a popup/navigation/Server Action redirect loop with Next15.4.2 and next-intl4.3.4; the maintainer suspected a Next edge case.",
+    "kind": "reported_experience",
+    "evidence_ids": [
+      "09e8d15d2c54487dbece7c0f",
+      "53c06eae7bd422051f796e0d"
+    ],
+    "status": "supported",
+    "conditions": "2025 historical version-specific report. Closed state is not evidence of a released fix. No present-day defect inference."
+  },
+  {
+    "id": "C7",
+    "text": "One Reddit developer reports untranslated-page and localeDetection/cookie pitfalls in two complete comments.",
+    "kind": "reported_experience",
+    "evidence_ids": [
+      "reddit-locale-1",
+      "reddit-locale-2"
+    ],
+    "status": "supported",
+    "origin_ids": [
+      "reddit:Which-Examination-74"
+    ],
+    "conditions": "One source, unverified affiliation/version, exact date unknown; relative display 25 days ago. Do not generalize as consensus."
+  }
+]

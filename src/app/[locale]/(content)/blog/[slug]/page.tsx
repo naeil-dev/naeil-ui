@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { Link } from "@/i18n/site-link";
 import { Badge } from "@/components/ui/badge";
 import type { Metadata } from "next";
 import { getPost, getNavigationPosts, getAlternateLanguagePosts } from "@/lib/blog";
@@ -20,7 +20,7 @@ export async function generateMetadata({
   if (!post) notFound();
 
   const alternateLanguages = getAlternateLanguagePosts(slug);
-  const metadata = siteMetadata({
+  const metadata = await siteMetadata({
     locale,
     path: `/blog/${slug}`,
     title: post.title,
@@ -54,7 +54,7 @@ export default async function BlogPostPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("blogPost");
+  const t = await getTranslations("site.blogPost");
   const post = await getPost(locale as Locale, slug);
   if (!post) notFound();
 

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "scope": "Root disposition of five local audit findings; no deployed acceptance",
+  "audit": {
+    "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/estimate-validation/acceptance-audit.json",
+    "sha256": "a05df9e4a5ce1d16bc4f9af8cb422e9fae9034e5e30f08d4556b7b3e815178bb",
+    "originalFindingsRetained": true
+  },
+  "receipts": {
+    "site": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/site-final-455f2f9aedb1/receipt.json",
+      "sha256": "1b0665aad3eae8d490c12ca17507ce2236398392c7a3b1e8da7b228f0a06887d"
+    },
+    "jev": {
+      "path": "/Users/jaymini/.paseo/worktrees/28nele6j/jev-shared-language-20261104/docs/design/shared-language-2026-11-04-gap-receipt.json",
+      "sha256": "2ac2cc3fa9cc1f5a0b6283d763c05a33a5ae7c68137c2e8842c37ed6f85aac0a"
+    },
+    "estimate": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/estimate-validation/gap-closure/closure-receipt.json",
+      "sha256": "4a7c7cc09a56952d2baf270057b58985001bf6bc933179bbb61e9b90d6773a43"
+    }
+  },
+  "findings": [
+    {
+      "id": "LOCAL-01",
+      "status": "local-coverage-closed",
+      "evidence": [
+        "site",
+        "jev",
+        "estimate"
+      ],
+      "disposition": "Exact rendered hrefs and real click/new-tab/copied-href destinations, synthetic invitation exits, Estimate action/guard/redirect producers in en/ko/ja and both sender modes. Expanded tests explicitly reject /en and lang. Matrices deduplicate visible destinations; they do not invent menus.",
+      "remaining": "Deployed cross-origin and real central-login returns."
+    },
+    {
+      "id": "LOCAL-02",
+      "status": "local-coverage-closed",
+      "evidence": [
+        "site",
+        "jev"
+      ],
+      "disposition": "Correct current common-cookie name, actual cookie setter drop/throw, simultaneous tabs and passive nonwrites. Isolated HTTPS three-host browser test checks duplicate host/domain cookies, cleanup, attributes and expiry using the actual controller and frozen packed reader. All apps consume the same verified archive.",
+      "remaining": "Real production cookie domain/TLS observations."
+    },
+    {
+      "id": "LOCAL-03",
+      "status": "local-coverage-closed",
+      "evidence": [
+        "site"
+      ],
+      "disposition": "Actual final build public metadata/HTTP Link/cache/cookie invariance and baked sitemap; all six missing-translation selector pairs verified using labelled private fs fixtures without editing built content.",
+      "remaining": "Deployed HTML/head/cache/sitemap checks."
+    },
+    {
+      "id": "LOCAL-04",
+      "status": "local-coverage-closed-after-product-fix",
+      "evidence": [
+        "site",
+        "jev",
+        "estimate"
+      ],
+      "disposition": "Exact localized page/service titles on direct/reload/controller routes, recovery/error states and held/failed RSC. Site nested password layout template defect fixed at455f2f9 and all223 checks rerun. Estimate ten route title map covers all3locales; Jev app/recovery/errors checked.",
+      "remaining": "Live deployment metadata; inherited Jev favicon absence and safe Estimate ICO404 diagnostic remain recorded."
+    },
+    {
+      "id": "LOCAL-05",
+      "status": "local-coverage-closed-after-product-fix",
+      "evidence": [
+        "estimate",
+        "jev",
+        "site"
+      ],
+      "disposition": "Estimate all nine protected routes ×3locales×5identities×document/Flight=270 rows per mode plus12cookie rotation rows; independent native fetch exposed stale NextResponse.cookies, corrected in cf8ed5e. Jev protected root and Site auth/protocol checks retained. Failure bodies exclude business canaries.",
+      "remaining": "Real deployed sessions/returns; local403/503fixtures are not production provider outage tests."
+    }
+  ],
+  "allLocalCoverageFindingsClosed": true,
+  "productionVerified": false,
+  "externalVerificationLimit": "Storybook Firefox/WebKit16 whole-header external image failures remain; this closure does not convert them into passes."
+}

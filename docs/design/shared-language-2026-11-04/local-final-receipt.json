@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-04T04:05:18.333830+00:00",
+  "scope": "Root verification of final local artifacts/evidence; no publication or deployed acceptance",
+  "productionVerified": false,
+  "design": {
+    "sha256": "514c16a8dfc1a85324a9209811db624fb19ca57ae3cf3a457ef9c930e900dc0e",
+    "approvedFilesCompared": 23,
+    "copiesCompared": [
+      "original",
+      "isolated",
+      "durable-backup"
+    ]
+  },
+  "preservation": {
+    "originalHead": "6d15cbc376495779896aa428b3154a4a3f07ae7a",
+    "originalTrackedDiff": false,
+    "frozen071Source": "32108fd8e1cb1db6dae24a09f3ca72ac9a91f618",
+    "frozen071ArchiveSha256": "ecd656c595fd63516417eef58a5e2624d1f1bf928ba0465761292d05502ab3f8"
+  },
+  "package": {
+    "version": "0.10.0",
+    "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/frozen-0.10.0/naeil-ui-0.10.0.tgz",
+    "sha256": "a4a1e312f2f608358a10f9019c248af37a8172bb116d3bc506144442cb963fb4",
+    "sha1": "eb7a50ce5c9d3a62739893a295c7556b35c953ae",
+    "integrity": "sha512-oNsrBBPtShN/zfydA8g+GIfCJu94EncifdRrj/OgZ79X7D+Tpsng/BL0PkpbRoMrs8nVzxmTt7gFnKWPFx2rWg==",
+    "bytes": 226529,
+    "files": 175,
+    "firstPackedSource": "4cf8a68720564688c828196bd2a645a59a06505a",
+    "finalReproducedSource": "455f2f9aedb108606af2f429c18281260eafd2dd",
+    "proposedTagSource": "455f2f9aedb108606af2f429c18281260eafd2dd",
+    "proposedDistTag": "next",
+    "published": false,
+    "packReceipt": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/final-root-verification/package-pack-455f.json",
+      "sha256": "e55bbb4524a23223687a8af1d6f31ce8808e1bcf01362bbb95c7d278d9fe697c"
+    }
+  },
+  "site": {
+    "source": "455f2f9aedb108606af2f429c18281260eafd2dd",
+    "identity": {
+      "schemaVersion": 1,
+      "appId": "naeil",
+      "artifactId": "naeil-language-455f2f9aedb1",
+      "sourceRevision": "455f2f9aedb108606af2f429c18281260eafd2dd",
+      "ui": {
+        "version": "0.10.0",
+        "contractVersion": "1"
+      }
+    },
+    "counts": {
+      "extendedSenderOff": 82,
+      "extendedSenderOn": 82,
+      "originalVisualAuth": 48,
+      "originalFocused": 11,
+      "totalPassed": 223,
+      "failed": 0
+    },
+    "receipt": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/site-final-455f2f9aedb1/receipt.json",
+      "sha256": "1b0665aad3eae8d490c12ca17507ce2236398392c7a3b1e8da7b228f0a06887d"
+    },
+    "evidenceFilesVerified": 43,
+    "deploymentBoundary": "Deploy reviewed source through production-bound Vercel build; synthetic NEXT_PUBLIC local build is not deployable"
+  },
+  "jev": {
+    "source": "5f4b1fc07415e450252444efa89f42722b491552",
+    "currentDocsTestsHead": "4a35845358f32780df7f7ccba38e0c732ec11063",
+    "identity": {
+      "schemaVersion": 1,
+      "appId": "jev",
+      "artifactId": "jev-ui07-5f4b1fc07415",
+      "sourceRevision": "5f4b1fc07415e450252444efa89f42722b491552",
+      "ui": {
+        "version": "0.10.0",
+        "contractVersion": "1"
+      }
+    },
+    "buildId": "G2swU7GBFotEIQR2tJRGv",
+    "archive": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/jev-final/jev-final.tar.gz",
+      "bytes": 35194557,
+      "sha256": "ab7767a9c8f592b28f09b8660b9aa6cca6f2650df3671fd4ea9093984d3d74b0"
+    },
+    "inventoryEntriesVerified": 2157,
+    "preservationReceipt": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/jev-final/preservation.json",
+      "sha256": "049e433a7d28a08a3a6328dca0426dad89c5a2f01692656f9ebec2fd1540e74a"
+    },
+    "gapReceipt": {
+      "path": "/Users/jaymini/.paseo/worktrees/28nele6j/jev-shared-language-20261104/docs/design/shared-language-2026-11-04-gap-receipt.json",
+      "sha256": "2ac2cc3fa9cc1f5a0b6283d763c05a33a5ae7c68137c2e8842c37ed6f85aac0a"
+    },
+    "rscReceipt": {
+      "path": "/Users/jaymini/.paseo/worktrees/28nele6j/jev-shared-language-20261104/docs/design/shared-language-2026-11-04-rsc-receipt.json",
+      "sha256": "401982bb38f731c155e87788533af7f73354ce9182d5c8b582ebf9dbfa495190"
+    }
+  },
+  "estimate": {
+    "source": "cf8ed5ebef085807737438521ad9db5f5c045f8b",
+    "currentDocsTestsHead": "a5c0cd24e5019c613009cd5e786eedd6c917d99a",
+    "artifactId": "2a37c7a5-6b50-418f-b035-836c8ad06ceb",
+    "releaseId": "cf8ed5ebef08-9712b1345b03",
+    "archive": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/estimate-final/cookie-rotation-cf8ed5e/estimate-cf8ed5ebef08.tgz",
+      "sha256": "a2ffe5b18d08f0e737db1f41842efad209284ae1cafe840f116aa393010e4885"
+    },
+    "manifestSha256": "d0e6815dd8ee427b1d035b1aaf56d8cc43cb8797d776a204aee206082cbd715a",
+    "inventoryEntriesVerified": 2940,
+    "closureReceipt": {
+      "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/estimate-validation/gap-closure/closure-receipt.json",
+      "sha256": "4a7c7cc09a56952d2baf270057b58985001bf6bc933179bbb61e9b90d6773a43"
+    },
+    "gates": {
+      "unitIntegration": {
+        "files": 55,
+        "passed": 729
+      },
+      "senderOn": 23,
+      "senderOffWithStateRegression": 28,
+      "integrity": 16,
+      "smoke": 62,
+      "typescript": "passed",
+      "changedFileEslint": "passed"
+    },
+    "supersededSource": "cdff34f026ebdc6d2dedc7b303afd03a8d73a046"
+  },
+  "mainValidation": {
+    "unitPassed": 791,
+    "unitSkipped": 5,
+    "types": "pass",
+    "lint": "pass with 3 inherited warnings",
+    "contrast": "pass",
+    "packedConsumers": "pass against exact archive",
+    "preservedEvidence": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/main-validation/4cf8a6872056"
+  },
+  "storybook": {
+    "chromiumPassed": 22,
+    "firefoxWebkitPassed": 28,
+    "firefoxWebkitExternalImageFailures": 16,
+    "cause": "Official whale.png returned Vercel403 challenge; blocked-image usability passed",
+    "allBrowsersGreen": false
+  },
+  "cloudflare": {
+    "path": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-language-20261104/docs/design/shared-language-2026-11-04/cloudflare-inventory.json",
+    "sha256": "c17d67773be04989ec21c336973acc13b51afd58873e608ee565a8a27e113a79"
+  },
+  "nativeProposal": {
+    "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/operational-preparation/native-release-review-original.md",
+    "sha256": "7f3133a8622ac0a77d97b70217738d7f805a449266f6b49489adb0f0d6d5a723"
+  },
+  "verificationScript": {
+    "path": "/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/final-root-verification/verify.py",
+    "sha256": "f908a47b86dd644c70d806ae6f19086ecd909fd73bea872de3175212587da144"
+  },
+  "operationalActivation": {
+    "packagePublished": false,
+    "sourcePushed": false,
+    "tagCreated": false,
+    "deployed": false,
+    "senderEnabled": false,
+    "semanticActivationTimes": null,
+    "legacyHintSunsets": null
+  },
+  "limits": [
+    "Local synthetic auth/business/network fixtures do not establish production state.",
+    "Estimate implicit favicon.ico logs invalid-locale diagnostic with safe404; declared SVG passes.",
+    "Jev inherits baseline absence of favicon.",
+    "Broad Estimate visual matrix predates narrow cookie fix; five state/mobile/recovery cases reran.",
+    "Clipboard tests use browser Clipboard API, not native context menu.",
+    "Fresh service ownership/installed-code/latest-data preservation required immediately before any approved managed switch."
+  ],
+  "vercelPreparation": {
+    "path": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-language-20261104/docs/design/shared-language-2026-11-04/vercel-preparation.json",
+    "sha256": "87d94fa23ba25c8af91aa15ddf73cd6f1b8517c8aa8d8fcd3368be59540972dc"
+  },
+  "nativeProcedure": {
+    "path": "/Users/jaymini/.paseo/worktrees/28nele6j/shared-language-20261104/docs/design/shared-language-2026-11-04/native-release-procedure.md",
+    "sha256": "e3aa04d3e4004d326eb2ae1e7061640b0e59ac00feeca02f08c3d3bd0df2412e"
+  },
+  "registryBefore": {
+    "recordedAt": "2026-11-04T04:11:42.130234+00:00",
+    "latest": "0.7.2",
+    "next": "0.9.0",
+    "version010Exists": false,
+    "source": "npm view @naeil/ui dist-tags versions --json; read-only successful check"
+  }
+}

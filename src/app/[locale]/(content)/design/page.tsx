@@ -155,7 +155,7 @@ function ColorScale({
   );
 }
 function InteractiveButton() {
-  const t = useTranslations("design");
+  const t = useTranslations("site.design");
   const [variant, setVariant] =
     useState<(typeof BUTTON_VARIANTS)[number]>("default");
   const [size, setSize] = useState<(typeof BUTTON_SIZES)[number]>("default");
@@ -226,7 +226,7 @@ function InteractiveButton() {
   );
 }
 function InteractiveInput() {
-  const t = useTranslations("design");
+  const t = useTranslations("site.design");
   const [disabled, setDisabled] = useState(false);
   const [invalid, setInvalid] = useState(false);
   return (
@@ -271,7 +271,7 @@ function InteractiveInput() {
 }
 
 export default function DesignPage() {
-  const t = useTranslations("design");
+  const t = useTranslations("site.design");
   return (
     <div className="ui-app-frame space-y-16 pb-24">
       <section className="flex flex-col-reverse items-start gap-8 pb-4 sm:flex-row sm:justify-between">

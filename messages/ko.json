@@ -1,340 +1,352 @@
 {
-  "common": {
-    "appName": "naeil",
-    "home": "홈",
-    "projects": "프로젝트",
-    "design": "디자인 시스템",
-    "loading": "로딩 중...",
-    "description": "Jay의 프로젝트와 개발 기록",
-    "skipToContent": "본문으로 바로가기"
-  },
-  "nav": {
-    "home": "홈",
-    "projects": "프로젝트",
-    "blog": "블로그",
-    "navigation": "주요 메뉴",
-    "menu": "메뉴",
-    "closeMenu": "메뉴 닫기"
-  },
-  "hero": {
-    "title": ".naeil",
-    "subtitle": "Build · Ship · Iterate",
-    "sceneLabel": "고요한 바다 위로 지는 노을",
-    "viewProjects": "프로젝트 보기",
-    "pauseMotion": "수면 움직임 멈추기",
-    "resumeMotion": "수면 움직임 재생"
-  },
-  "projects": {
-    "title": "프로젝트",
-    "subtitle": "실사용을 위해 만든 개인 도구들.",
+  "site": {
+    "common": {
+      "appName": "naeil",
+      "home": "홈",
+      "projects": "프로젝트",
+      "design": "디자인 시스템",
+      "loading": "로딩 중...",
+      "description": "Jay의 프로젝트와 개발 기록",
+      "skipToContent": "본문으로 바로가기"
+    },
+    "hero": {
+      "title": ".naeil",
+      "subtitle": "Build · Ship · Iterate",
+      "sceneLabel": "고요한 바다 위로 지는 노을",
+      "viewProjects": "프로젝트 보기",
+      "pauseMotion": "수면 움직임 멈추기",
+      "resumeMotion": "수면 움직임 재생"
+    },
+    "projects": {
+      "title": "프로젝트",
+      "subtitle": "실사용을 위해 만든 개인 도구들.",
+      "cc": {
+        "name": "Content Collector",
+        "description": "RSS, YouTube, Reddit 자동 수집 + AI 요약"
+      },
+      "pkm": {
+        "name": "PKM",
+        "description": "개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
+      },
+      "naeilUi": {
+        "name": "naeil-ui",
+        "description": "미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+      },
+      "babyAgent": {
+        "name": "Baby Agent",
+        "description": "육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+      },
+      "status": {
+        "active": "활성",
+        "coming": "준비 중"
+      },
+      "sa": {
+        "name": "Sustainability Analyzer",
+        "description": "ESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
+      }
+    },
+    "stack": {
+      "label": "사용 기술"
+    },
     "cc": {
       "name": "Content Collector",
-      "description": "RSS, YouTube, Reddit 자동 수집 + AI 요약"
+      "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스, 하루 한 장으로",
+      "overview": "GitHub, Reddit, Threads — 여러 소스의 테크 콘텐츠를 수집하고 로컬 AI로 처리.\n\n임베딩, 분류, 클러스터링, 요약. 원시 콘텐츠에서 매일 편집된 다이제스트로.\n\nOllama + 무료 API 기반 전부 로컬 실행. PostgreSQL + pgvector 구조화 저장. 시맨틱 검색 내장.",
+      "features": {
+        "collect": {
+          "title": "멀티 소스 수집",
+          "desc": "RSS, Reddit, Threads — 한 파이프라인으로 수집·정규화"
+        },
+        "classify": {
+          "title": "로컬 AI 분류",
+          "desc": "Qwen3 14B 온디바이스 — 관련도 판별, 토픽 라벨링, 우선순위 랭킹"
+        },
+        "embed": {
+          "title": "벡터 임베딩 검색",
+          "desc": "BGE-M3 + pgvector — 의미 기반 유사 검색과 주제 추적"
+        },
+        "digest": {
+          "title": "데일리 다이제스트",
+          "desc": "Gemini 편집 요약 — LINE 메시지 + 상세 HTML 리포트"
+        },
+        "zeroCost": {
+          "title": "월 비용 0원",
+          "desc": "로컬 Mac Mini, 오픈 모델, 무료 API — 고정 인프라 비용 없음"
+        },
+        "alerts": {
+          "title": "실시간 알림",
+          "desc": "우선순위 높은 신호 감지 즉시 알림 — 몇 시간 뒤가 아니라 바로"
+        }
+      },
+      "workflow": {
+        "github": {
+          "desc": "RSS 피드를 통한 GitHub 릴리즈 및 디스커션 수집",
+          "meta": "30분 간격"
+        },
+        "reddit": {
+          "desc": "RSS 및 JSON 검색 API를 통한 서브레딧 포스트 수집",
+          "meta": "30분 간격"
+        },
+        "threads": {
+          "desc": "Playwright 헤드리스 브라우저로 프로필 스크래핑",
+          "meta": "30분 간격"
+        },
+        "collector": {
+          "desc": "소스별 디스패치, 콘텐츠 해시 중복 제거",
+          "meta": "SHA-256 중복 제거"
+        },
+        "postgres": {
+          "desc": "원본 아이템, 분류, 임베딩, 클러스터, 다이제스트 이력 저장"
+        },
+        "embed": {
+          "desc": "유사 검색을 위한 1024차원 다국어 벡터 생성",
+          "meta": "아이템당 ~2초"
+        },
+        "classify": {
+          "desc": "토픽, 중요도, 콘텐츠 유형, 태그 — 자동 라벨링",
+          "meta": "아이템당 ~18초"
+        },
+        "cluster": {
+          "desc": "코사인 유사도 그룹화, 핫 스코어 랭킹"
+        },
+        "digest": {
+          "desc": "상위 콘텐츠에서 편집 LINE 요약 + 상세 HTML 리포트 생성",
+          "meta": "무료 API"
+        },
+        "line": {
+          "desc": "LINE 그룹에 간결한 일일 요약 푸시"
+        },
+        "html": {
+          "desc": "링크와 점수 포함 카테고리별 상세 리포트"
+        }
+      }
     },
     "pkm": {
       "name": "PKM",
-      "description": "개인 지식 관리 — 문서 파싱, 임베딩, 시맨틱 검색"
-    },
-    "naeilUi": {
-      "name": "naeil-ui",
-      "description": "미니멀 디자인 시스템 — OKLCH 토큰, Tailwind v4, shadcn"
+      "description": "개인 지식 베이스 — 문서 파싱, 임베딩, 시맨틱 검색"
     },
     "babyAgent": {
       "name": "Baby Agent",
-      "description": "육아 AI 에이전트 — LINE 기반 Q&A, 기록, 리마인더"
+      "description": "LINE 기반 육아 AI — Q&A, 성장 기록, 일정 리마인더"
     },
-    "status": {
-      "active": "활성",
-      "coming": "준비 중"
+    "design": {
+      "title": "naeil-ui",
+      "subtitle": "디자인 시스템 쇼케이스 — 토큰 · 컴포넌트 · 테마",
+      "foundations": "기초 규칙",
+      "components": "컴포넌트",
+      "neutralDescription": "밝은 테마와 어두운 테마 모두 액션과 선택에 무채색 의미 색상을 사용합니다. 포커스와 피드백은 각각 별도의 역할을 가집니다.",
+      "primitiveDescription": "기본 팔레트는 호환성을 위해 유지합니다. 파란색 팔레트는 기존 기본색이며 기본 액션 색상이 아닙니다.",
+      "semanticDescription": "이 역할은 현재 밝은 테마 또는 어두운 테마를 따릅니다. 아래 색상은 공통 CSS 변수에서 읽습니다.",
+      "projectDescription": "프로젝트 색상은 개별 제품을 구분합니다. 공통 액션·포커스·선택 역할을 대체하지 않습니다.",
+      "typeDescription": "한글과 영문 UI에는 Pretendard, 일본어에는 Noto Sans JP를 사용합니다. 고정폭 글꼴 예시는 설정된 대체 글꼴을 사용합니다.",
+      "radiusDescription": "태그 모서리는 4px, 컨트롤은 8px, 패널은 12px입니다.",
+      "preview": "미리 보기",
+      "interactive": "직접 조작",
+      "variants": "종류",
+      "sizes": "크기",
+      "states": "상태",
+      "disabled": "비활성",
+      "invalid": "유효하지 않은 입력",
+      "inputLabel": "입력 예시",
+      "inputHelp": "컨트롤을 변경해 입력 상태를 비교하세요.",
+      "inputError": "입력값을 확인하고 다시 시도하세요.",
+      "emailLabel": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "systemTitle": "시스템 상태",
+      "systemDescription": "서비스 정보 예시",
+      "systemBody": "모든 서비스가 정상 작동하고 있습니다.",
+      "details": "자세히 보기",
+      "deploymentTitle": "배포 기록",
+      "deploymentDescription": "릴리스 기록 예시",
+      "raisedDescription": "떠 있는 표면은 card-elevated 역할과 은은한 그림자를 사용합니다.",
+      "openDialog": "대화상자 열기",
+      "confirmTitle": "확인",
+      "confirmDescription": "계속 진행할까요?",
+      "cancel": "취소",
+      "confirm": "확인",
+      "openMenu": "메뉴 열기",
+      "actions": "작업",
+      "logoutFailed": "로그아웃하지 못했습니다. 다시 시도해 주세요.",
+      "profile": "프로필",
+      "settings": "설정",
+      "team": "팀",
+      "signOut": "로그아웃",
+      "toastSuccess": "배포가 완료되었습니다.",
+      "toastError": "배포에 실패했습니다.",
+      "toastInfo": "새 업데이트가 있습니다.",
+      "toastWarning": "디스크 공간이 부족합니다.",
+      "legacyBlue": "기존 파란색 기본 팔레트",
+      "neutralAction": "무채색 액션",
+      "selectedSurface": "선택",
+      "focusIndicator": "포커스",
+      "regularRole": "본문",
+      "mediumRole": "레이블과 컨트롤",
+      "semiboldRole": "페이지와 섹션 제목",
+      "pageTitleSample": "페이지 제목",
+      "sectionTitleSample": "섹션 제목",
+      "typeSample": "내일은 여기서 시작됩니다.",
+      "monoStack": "고정폭 대체 글꼴",
+      "loading": "로딩 중"
+    },
+    "blogPage": {
+      "title": "블로그",
+      "subtitle": "빌드 기록, 리서치, 반복 개선 로그.",
+      "comingSoon": "준비 중",
+      "noPosts": "아직 게시된 글이 없습니다. 곧 찾아오세요!",
+      "unavailableTranslation": "이 글은 아직 한국어로 제공되지 않습니다.",
+      "readOriginal": "원문 읽기"
+    },
+    "blogPost": {
+      "backToBlog": "블로그로 돌아가기",
+      "languages": {
+        "ko": "한국어",
+        "en": "English",
+        "ja": "日本語"
+      },
+      "sources": "출처",
+      "previousPost": "이전 글",
+      "nextPost": "다음 글",
+      "readingTime": "{minutes}분 읽기",
+      "otherLanguages": "다른 언어로 읽기",
+      "myStack": "사용 중인 도구",
+      "codeBlock": "코드 블록",
+      "dataTable": "데이터 표",
+      "postNavigation": "이전·다음 글",
+      "languageLabel": "언어"
+    },
+    "auth": {
+      "emailId": "이메일 또는 계정 아이디",
+      "password": "비밀번호",
+      "passwordSignIn": "비밀번호로 로그인",
+      "emailLoginLink": "이메일로 로그인 링크 받기",
+      "emailLoginPaused": "이메일 로그인 링크는 현재 사용할 수 없습니다. 비밀번호 또는 Google·GitHub로 로그인해 주세요.",
+      "reauthMailPaused": "이메일 재인증 코드는 현재 받을 수 없습니다. 현재 비밀번호로 변경을 시도해 주세요. 코드가 필요한 경우 로그인 화면으로 돌아가 관리자에게 문의해 주세요.",
+      "emailSent": "로그인할 수 있는 계정이면 로그인 링크가 도착합니다. 링크는 요청한 브라우저에서 열어 주세요.",
+      "invalidEmail": "올바른 이메일 주소를 입력해 주세요.",
+      "requestCode": "재인증 코드 받기",
+      "codeSent": "재인증 코드를 요청했습니다. 받지 못한 경우 관리자에게 문의해 주세요.",
+      "credentialError": "로그인할 수 없습니다. 임시 계정이라면 만료되었을 수 있으니 관리자에게 재발급을 요청해 주세요.",
+      "tempExpired": "만료되거나 잠긴 계정입니다. 관리자에게 재발급을 요청해 주세요.",
+      "tempReissued": "계정이 재발급되었거나 세션이 바뀌었습니다. 새 비밀번호로 로그인해 주세요.",
+      "changePassword": "비밀번호 변경",
+      "changeRequired": "계속하려면 임시 비밀번호를 변경해 주세요. 12자 이상을 사용해 주세요.",
+      "currentPassword": "현재 비밀번호(필요한 경우)",
+      "newPassword": "새 비밀번호",
+      "confirmPassword": "새 비밀번호 확인",
+      "reauthCode": "재인증 코드(필요한 경우)",
+      "passwordRejected": "새 비밀번호가 거부되었습니다. 비밀번호 조건과 확인 입력을 확인해 주세요.",
+      "completionRetry": "처리 결과를 확인하지 못했습니다. 완료 확인을 다시 시도해 주세요. 비밀번호는 다시 전송하지 않습니다.",
+      "retryCompletion": "완료 확인 다시 시도",
+      "backToLogin": "로그인으로 돌아가기",
+      "logoutFailed": "로그아웃하지 못했습니다. 다시 시도해 주세요.",
+      "localLogout": "이 브라우저에서 로그아웃",
+      "localLogoutDescription": "이 브라우저에서 이 웹사이트의 로그인 정보를 지울 수 있습니다. 인증 서버와 다른 세션의 로그아웃은 완료되지 않습니다.",
+      "localLogoutFailed": "이 브라우저의 로그인 정보를 지우지 못했습니다. 다시 시도해 주세요.",
+      "login": "로그인",
+      "loginWithGoogle": "Google로 로그인",
+      "loginWithGithub": "GitHub로 로그인",
+      "loginDescription": "모든 기능을 이용하려면 로그인하세요",
+      "redirecting": "리다이렉트 중...",
+      "logout": "로그아웃",
+      "profile": "프로필",
+      "accountMenu": "{name} 계정 메뉴",
+      "pendingGoogle": "Google 로그인으로 이동 중…",
+      "pendingGithub": "GitHub 로그인으로 이동 중…",
+      "loginError": "로그인을 시작하지 못했습니다. 아래 로그인 방법을 선택해 다시 시도해 주세요."
     },
     "sa": {
       "name": "Sustainability Analyzer",
-      "description": "ESG 리포트 AI 분석 — PDF 파싱, 정성평가, 비교표 자동 생성"
-    }
-  },
-  "stack": {
-    "label": "사용 기술"
-  },
-  "cc": {
-    "name": "Content Collector",
-    "description": "로컬 AI 자동 파이프라인 — 흩어진 테크 소스, 하루 한 장으로",
-    "overview": "GitHub, Reddit, Threads — 여러 소스의 테크 콘텐츠를 수집하고 로컬 AI로 처리.\n\n임베딩, 분류, 클러스터링, 요약. 원시 콘텐츠에서 매일 편집된 다이제스트로.\n\nOllama + 무료 API 기반 전부 로컬 실행. PostgreSQL + pgvector 구조화 저장. 시맨틱 검색 내장.",
-    "features": {
-      "collect": {
-        "title": "멀티 소스 수집",
-        "desc": "RSS, Reddit, Threads — 한 파이프라인으로 수집·정규화"
+      "description": "ESG 리포트를 AI로 분석 — 주제 발견, 정성평가, 기업간 비교표 자동 생성",
+      "overview": "기업 ESG 리포트 PDF를 파싱하고, AI로 체계적 정성평가를 수행하는 분석 파이프라인.\n\nDocling 레이아웃 파서로 표·텍스트 구조를 보존한 채 청킹. BGE-M3 임베딩(Dense+Sparse)으로 하이브리드 시맨틱 검색. Claude가 41개 ESG 주제를 자동 발견하고 415개 체크리스트 항목으로 정성평가를 수행.\n\n로컬 임베딩 + 무료 API 기반. PostgreSQL + pgvector에 구조화 저장.",
+      "features": {
+        "ingest": {
+          "title": "PDF 구조 보존 파싱",
+          "desc": "Docling 레이아웃 파서 — 표·섹션 경계를 보존한 계층적 청킹"
+        },
+        "embed": {
+          "title": "하이브리드 검색",
+          "desc": "BGE-M3 Dense+Sparse 임베딩 — pgvector 하이브리드 시맨틱 검색"
+        },
+        "topics": {
+          "title": "주제 자동 발견",
+          "desc": "Claude Sonnet — ESG 리포트에서 41개 주제·415개 체크리스트 자동 생성"
+        },
+        "assess": {
+          "title": "AI 정성평가",
+          "desc": "주제별 체크리스트 기반 자동 평가 — 근거 인용·점수·코멘트"
+        },
+        "compare": {
+          "title": "기업간 비교표",
+          "desc": "섹터별 필터링 — 주제×기업 매트릭스 자동 생성"
+        },
+        "zeroCost": {
+          "title": "로컬 + 무료",
+          "desc": "BGE-M3 온디바이스 임베딩, Claude·Gemini 무료 티어 활용"
+        }
       },
-      "classify": {
-        "title": "로컬 AI 분류",
-        "desc": "Qwen3 14B 온디바이스 — 관련도 판별, 토픽 라벨링, 우선순위 랭킹"
-      },
-      "embed": {
-        "title": "벡터 임베딩 검색",
-        "desc": "BGE-M3 + pgvector — 의미 기반 유사 검색과 주제 추적"
-      },
-      "digest": {
-        "title": "데일리 다이제스트",
-        "desc": "Gemini 편집 요약 — LINE 메시지 + 상세 HTML 리포트"
-      },
-      "zeroCost": {
-        "title": "월 비용 0원",
-        "desc": "로컬 Mac Mini, 오픈 모델, 무료 API — 고정 인프라 비용 없음"
-      },
-      "alerts": {
-        "title": "실시간 알림",
-        "desc": "우선순위 높은 신호 감지 즉시 알림 — 몇 시간 뒤가 아니라 바로"
+      "workflow": {
+        "pdf": {
+          "desc": "기업 ESG/지속가능성 리포트 PDF 입력",
+          "meta": "연간 리포트"
+        },
+        "docling": {
+          "desc": "레이아웃 기반 구조 파싱 — 표 단일 청킹, 섹션 경계 보존",
+          "meta": "표+텍스트"
+        },
+        "chunk": {
+          "desc": "Parent-Child 계층 청킹 — 문맥 보존 + 세밀 검색",
+          "meta": "parent 1K / child 512"
+        },
+        "bgem3": {
+          "desc": "Dense(1024d) + Sparse(학습된 BM25) 동시 임베딩 생성",
+          "meta": "FlagEmbedding"
+        },
+        "pgvector": {
+          "desc": "청크, 임베딩, 평가, 비교표 — 전체 구조화 저장"
+        },
+        "search": {
+          "desc": "Dense+Sparse 하이브리드 검색, Parent Context 확장"
+        },
+        "claude": {
+          "desc": "주제 발견, 체크리스트 생성, 근거 기반 정성평가",
+          "meta": "Sonnet"
+        },
+        "report": {
+          "desc": "주제×기업 비교표 HTML 리포트 자동 생성",
+          "meta": "섹터 필터"
+        }
       }
     },
-    "workflow": {
-      "github": {
-        "desc": "RSS 피드를 통한 GitHub 릴리즈 및 디스커션 수집",
-        "meta": "30분 간격"
-      },
-      "reddit": {
-        "desc": "RSS 및 JSON 검색 API를 통한 서브레딧 포스트 수집",
-        "meta": "30분 간격"
-      },
-      "threads": {
-        "desc": "Playwright 헤드리스 브라우저로 프로필 스크래핑",
-        "meta": "30분 간격"
-      },
-      "collector": {
-        "desc": "소스별 디스패치, 콘텐츠 해시 중복 제거",
-        "meta": "SHA-256 중복 제거"
-      },
-      "postgres": {
-        "desc": "원본 아이템, 분류, 임베딩, 클러스터, 다이제스트 이력 저장"
-      },
-      "embed": {
-        "desc": "유사 검색을 위한 1024차원 다국어 벡터 생성",
-        "meta": "아이템당 ~2초"
-      },
-      "classify": {
-        "desc": "토픽, 중요도, 콘텐츠 유형, 태그 — 자동 라벨링",
-        "meta": "아이템당 ~18초"
-      },
-      "cluster": {
-        "desc": "코사인 유사도 그룹화, 핫 스코어 랭킹"
-      },
-      "digest": {
-        "desc": "상위 콘텐츠에서 편집 LINE 요약 + 상세 HTML 리포트 생성",
-        "meta": "무료 API"
-      },
-      "line": {
-        "desc": "LINE 그룹에 간결한 일일 요약 푸시"
-      },
-      "html": {
-        "desc": "링크와 점수 포함 카테고리별 상세 리포트"
-      }
+    "invitation": {
+      "check": "진행 상태 확인",
+      "recover": "결과를 받지 못했습니다. 진행 상태를 확인한 후 계속해 주세요.",
+      "title": "초대받으셨습니다",
+      "intro": "초대를 확인하면 관리자가 선택한 서비스 접근 권한이 활성화됩니다.",
+      "empty": "이메일의 전체 초대 링크를 열어 주세요. 만료된 경우 관리자에게 다시 보내기를 요청해 주세요.",
+      "staged": "초대가 준비되었습니다. 아래 버튼을 눌러 수락해 주세요.",
+      "retry": "이메일 확인이 완료되었습니다. 접근 권한을 아직 확인하지 못했습니다. 같은 확인 정보로 다시 시도해 주세요.",
+      "complete": "접근 권한이 준비되었습니다",
+      "done": "아래에서 서비스를 선택해 주세요. 서비스마다 별도 로그인이 필요할 수 있습니다.",
+      "invalid": "사용할 수 없는 초대입니다. 관리자에게 새 초대를 요청해 주세요.",
+      "unavailable": "접근 권한을 확인하지 못했습니다. 다시 시도해 주세요. 서버가 재시작되었거나 링크가 만료되었다면 새 초대를 요청해 주세요.",
+      "confirm": "초대 수락",
+      "again": "다시 시도",
+      "working": "확인 중…",
+      "wait": "초대 준비 중…",
+      "safety": "관리자가 선택한 서비스 접근 권한만 활성화됩니다.",
+      "noscript": "초대를 안전하게 확인하려면 JavaScript가 필요합니다.",
+      "theme": "화면 모드",
+      "system": "시스템",
+      "light": "밝게",
+      "dark": "어둡게",
+      "paused": "비밀번호 또는 Google·GitHub로 로그인해 주세요. 접근 권한이 필요하면 관리자에게 문의해 주세요.",
+      "pauseIntro": "초대 수락이 현재 중단되어 있습니다.",
+      "uncertain": "이메일 확인 결과를 복구할 수 없습니다. 관리자에게 초대 재전송을 요청해 주세요.",
+      "restage": "초대 링크가 남아 있습니다. 다시 준비한 후 수락해 주세요.",
+      "prepare": "초대 다시 준비",
+      "pageTitle": "초대 확인",
+      "login": "로그인",
+      "nextLanguage": "日本語"
     }
-  },
-  "pkm": {
-    "name": "PKM",
-    "description": "개인 지식 베이스 — 문서 파싱, 임베딩, 시맨틱 검색"
-  },
-  "babyAgent": {
-    "name": "Baby Agent",
-    "description": "LINE 기반 육아 AI — Q&A, 성장 기록, 일정 리마인더"
-  },
-  "design": {
-    "title": "naeil-ui",
-    "subtitle": "디자인 시스템 쇼케이스 — 토큰 · 컴포넌트 · 테마",
-    "foundations": "기초 규칙",
-    "components": "컴포넌트",
-    "neutralDescription": "밝은 테마와 어두운 테마 모두 액션과 선택에 무채색 의미 색상을 사용합니다. 포커스와 피드백은 각각 별도의 역할을 가집니다.",
-    "primitiveDescription": "기본 팔레트는 호환성을 위해 유지합니다. 파란색 팔레트는 기존 기본색이며 기본 액션 색상이 아닙니다.",
-    "semanticDescription": "이 역할은 현재 밝은 테마 또는 어두운 테마를 따릅니다. 아래 색상은 공통 CSS 변수에서 읽습니다.",
-    "projectDescription": "프로젝트 색상은 개별 제품을 구분합니다. 공통 액션·포커스·선택 역할을 대체하지 않습니다.",
-    "typeDescription": "한글과 영문 UI에는 Pretendard, 일본어에는 Noto Sans JP를 사용합니다. 고정폭 글꼴 예시는 설정된 대체 글꼴을 사용합니다.",
-    "radiusDescription": "태그 모서리는 4px, 컨트롤은 8px, 패널은 12px입니다.",
-    "preview": "미리 보기",
-    "interactive": "직접 조작",
-    "variants": "종류",
-    "sizes": "크기",
-    "states": "상태",
-    "disabled": "비활성",
-    "invalid": "유효하지 않은 입력",
-    "inputLabel": "입력 예시",
-    "inputHelp": "컨트롤을 변경해 입력 상태를 비교하세요.",
-    "inputError": "입력값을 확인하고 다시 시도하세요.",
-    "emailLabel": "이메일",
-    "emailPlaceholder": "you@example.com",
-    "systemTitle": "시스템 상태",
-    "systemDescription": "서비스 정보 예시",
-    "systemBody": "모든 서비스가 정상 작동하고 있습니다.",
-    "details": "자세히 보기",
-    "deploymentTitle": "배포 기록",
-    "deploymentDescription": "릴리스 기록 예시",
-    "raisedDescription": "떠 있는 표면은 card-elevated 역할과 은은한 그림자를 사용합니다.",
-    "openDialog": "대화상자 열기",
-    "confirmTitle": "확인",
-    "confirmDescription": "계속 진행할까요?",
-    "cancel": "취소",
-    "confirm": "확인",
-    "openMenu": "메뉴 열기",
-    "actions": "작업",
-    "logoutFailed": "로그아웃하지 못했습니다. 다시 시도해 주세요.",
-    "profile": "프로필",
-    "settings": "설정",
-    "team": "팀",
-    "signOut": "로그아웃",
-    "toastSuccess": "배포가 완료되었습니다.",
-    "toastError": "배포에 실패했습니다.",
-    "toastInfo": "새 업데이트가 있습니다.",
-    "toastWarning": "디스크 공간이 부족합니다.",
-    "legacyBlue": "기존 파란색 기본 팔레트",
-    "neutralAction": "무채색 액션",
-    "selectedSurface": "선택",
-    "focusIndicator": "포커스",
-    "regularRole": "본문",
-    "mediumRole": "레이블과 컨트롤",
-    "semiboldRole": "페이지와 섹션 제목",
-    "pageTitleSample": "페이지 제목",
-    "sectionTitleSample": "섹션 제목",
-    "typeSample": "내일은 여기서 시작됩니다.",
-    "monoStack": "고정폭 대체 글꼴",
-    "loading": "로딩 중"
-  },
-  "blogPage": {
-    "title": "블로그",
-    "subtitle": "빌드 기록, 리서치, 반복 개선 로그.",
-    "comingSoon": "준비 중",
-    "noPosts": "아직 게시된 글이 없습니다. 곧 찾아오세요!"
-  },
-  "blogPost": {
-    "backToBlog": "블로그로 돌아가기",
-    "languages": {
-      "ko": "한국어",
-      "en": "English",
-      "ja": "日本語"
-    },
-    "sources": "출처",
-    "previousPost": "이전 글",
-    "nextPost": "다음 글",
-    "readingTime": "{minutes}분 읽기",
-    "otherLanguages": "다른 언어로 읽기",
-    "myStack": "사용 중인 도구",
-    "codeBlock": "코드 블록",
-    "dataTable": "데이터 표",
-    "postNavigation": "이전·다음 글",
-    "languageLabel": "언어"
-  },
-  "footer": {
-    "tagline": "Tomorrow starts here.",
-    "navigation": "네비게이션",
-    "projects": "프로젝트",
-    "blog": "블로그",
-    "social": "소셜"
-  },
-  "auth": {
-    "emailId": "이메일 또는 계정 아이디",
-    "password": "비밀번호",
-    "passwordSignIn": "비밀번호로 로그인",
-    "emailLoginLink": "이메일로 로그인 링크 받기",
-    "emailLoginPaused": "이메일 로그인 링크는 현재 사용할 수 없습니다. 비밀번호 또는 Google·GitHub로 로그인해 주세요.",
-    "reauthMailPaused": "이메일 재인증 코드는 현재 받을 수 없습니다. 현재 비밀번호로 변경을 시도해 주세요. 코드가 필요한 경우 로그인 화면으로 돌아가 관리자에게 문의해 주세요.",
-    "emailSent": "로그인할 수 있는 계정이면 로그인 링크가 도착합니다. 링크는 요청한 브라우저에서 열어 주세요.",
-    "invalidEmail": "올바른 이메일 주소를 입력해 주세요.",
-    "requestCode": "재인증 코드 받기",
-    "codeSent": "재인증 코드를 요청했습니다. 받지 못한 경우 관리자에게 문의해 주세요.",
-    "credentialError": "로그인할 수 없습니다. 임시 계정이라면 만료되었을 수 있으니 관리자에게 재발급을 요청해 주세요.",
-    "tempExpired": "만료되거나 잠긴 계정입니다. 관리자에게 재발급을 요청해 주세요.",
-    "tempReissued": "계정이 재발급되었거나 세션이 바뀌었습니다. 새 비밀번호로 로그인해 주세요.",
-    "changePassword": "비밀번호 변경",
-    "changeRequired": "계속하려면 임시 비밀번호를 변경해 주세요. 12자 이상을 사용해 주세요.",
-    "currentPassword": "현재 비밀번호(필요한 경우)",
-    "newPassword": "새 비밀번호",
-    "confirmPassword": "새 비밀번호 확인",
-    "reauthCode": "재인증 코드(필요한 경우)",
-    "passwordRejected": "새 비밀번호가 거부되었습니다. 비밀번호 조건과 확인 입력을 확인해 주세요.",
-    "completionRetry": "처리 결과를 확인하지 못했습니다. 완료 확인을 다시 시도해 주세요. 비밀번호는 다시 전송하지 않습니다.",
-    "retryCompletion": "완료 확인 다시 시도",
-    "backToLogin": "로그인으로 돌아가기",
-
-    "logoutFailed": "로그아웃하지 못했습니다. 다시 시도해 주세요.",
-    "localLogout": "이 브라우저에서 로그아웃",
-    "localLogoutDescription": "이 브라우저에서 이 웹사이트의 로그인 정보를 지울 수 있습니다. 인증 서버와 다른 세션의 로그아웃은 완료되지 않습니다.",
-    "localLogoutFailed": "이 브라우저의 로그인 정보를 지우지 못했습니다. 다시 시도해 주세요.",
-    "login": "로그인",
-    "loginWithGoogle": "Google로 로그인",
-    "loginWithGithub": "GitHub로 로그인",
-    "loginDescription": "모든 기능을 이용하려면 로그인하세요",
-    "redirecting": "리다이렉트 중...",
-    "logout": "로그아웃",
-    "profile": "프로필",
-    "accountMenu": "{name} 계정 메뉴",
-    "pendingGoogle": "Google 로그인으로 이동 중…",
-    "pendingGithub": "GitHub 로그인으로 이동 중…",
-    "loginError": "로그인을 시작하지 못했습니다. 아래 로그인 방법을 선택해 다시 시도해 주세요."
-  },
-  "locale": {
-    "switchLabel": "언어"
-  },
-  "sa": {
-    "name": "Sustainability Analyzer",
-    "description": "ESG 리포트를 AI로 분석 — 주제 발견, 정성평가, 기업간 비교표 자동 생성",
-    "overview": "기업 ESG 리포트 PDF를 파싱하고, AI로 체계적 정성평가를 수행하는 분석 파이프라인.\n\nDocling 레이아웃 파서로 표·텍스트 구조를 보존한 채 청킹. BGE-M3 임베딩(Dense+Sparse)으로 하이브리드 시맨틱 검색. Claude가 41개 ESG 주제를 자동 발견하고 415개 체크리스트 항목으로 정성평가를 수행.\n\n로컬 임베딩 + 무료 API 기반. PostgreSQL + pgvector에 구조화 저장.",
-    "features": {
-      "ingest": {
-        "title": "PDF 구조 보존 파싱",
-        "desc": "Docling 레이아웃 파서 — 표·섹션 경계를 보존한 계층적 청킹"
-      },
-      "embed": {
-        "title": "하이브리드 검색",
-        "desc": "BGE-M3 Dense+Sparse 임베딩 — pgvector 하이브리드 시맨틱 검색"
-      },
-      "topics": {
-        "title": "주제 자동 발견",
-        "desc": "Claude Sonnet — ESG 리포트에서 41개 주제·415개 체크리스트 자동 생성"
-      },
-      "assess": {
-        "title": "AI 정성평가",
-        "desc": "주제별 체크리스트 기반 자동 평가 — 근거 인용·점수·코멘트"
-      },
-      "compare": {
-        "title": "기업간 비교표",
-        "desc": "섹터별 필터링 — 주제×기업 매트릭스 자동 생성"
-      },
-      "zeroCost": {
-        "title": "로컬 + 무료",
-        "desc": "BGE-M3 온디바이스 임베딩, Claude·Gemini 무료 티어 활용"
-      }
-    },
-    "workflow": {
-      "pdf": {
-        "desc": "기업 ESG/지속가능성 리포트 PDF 입력",
-        "meta": "연간 리포트"
-      },
-      "docling": {
-        "desc": "레이아웃 기반 구조 파싱 — 표 단일 청킹, 섹션 경계 보존",
-        "meta": "표+텍스트"
-      },
-      "chunk": {
-        "desc": "Parent-Child 계층 청킹 — 문맥 보존 + 세밀 검색",
-        "meta": "parent 1K / child 512"
-      },
-      "bgem3": {
-        "desc": "Dense(1024d) + Sparse(학습된 BM25) 동시 임베딩 생성",
-        "meta": "FlagEmbedding"
-      },
-      "pgvector": {
-        "desc": "청크, 임베딩, 평가, 비교표 — 전체 구조화 저장"
-      },
-      "search": {
-        "desc": "Dense+Sparse 하이브리드 검색, Parent Context 확장"
-      },
-      "claude": {
-        "desc": "주제 발견, 체크리스트 생성, 근거 기반 정성평가",
-        "meta": "Sonnet"
-      },
-      "report": {
-        "desc": "주제×기업 비교표 HTML 리포트 자동 생성",
-        "meta": "섹터 필터"
-      }
-    }
-  },
-  "theme": {
-    "switchToLight": "밝은 테마로 전환",
-    "switchToDark": "어두운 테마로 전환"
   }
 }

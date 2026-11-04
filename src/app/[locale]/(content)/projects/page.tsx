@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link } from "@/i18n/site-link";
 import {
   Card,
   CardHeader,
@@ -23,7 +23,7 @@ export default async function ProjectsPage({
 }
 
 function ProjectsContent() {
-  const t = useTranslations();
+  const t = useTranslations("site");
 
   const PROJECTS = [
     {

@@ -1,3 +1,4 @@
+import { localePath } from "@/naeil-locale";
 import { authLocale } from "./return-location";
 
 export type AuthUser = { id: string; app_metadata?: Record<string, unknown> };
@@ -26,7 +27,7 @@ export function requiresPasswordChange(user: AuthUser | null) {
   return !m || m.must_change !== false || m.locked === true;
 }
 export function passwordChangePath(locale: unknown) {
-  return `/${authLocale(locale)}/login/change-password`;
+  return localePath("main", "/login/change-password", authLocale(locale));
 }
 export function loginEmail(value: unknown): string | null {
   if (typeof value !== "string") return null;

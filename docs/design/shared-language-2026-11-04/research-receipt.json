@@ -1,0 +1,52 @@
+{
+  "question": "Design a shared ko/ja/en locale URL and preference contract across naeil.dev directories and subdomains, Jev and Estimate; compare path/query/no-URL, preserve English unprefixed preference, optional Home, assess best practices and migration pitfalls.",
+  "created_at": "2026-11-03T21:32:17.631926Z",
+  "finalized_at": "2026-11-03T21:43:09.837068Z",
+  "status": "finalized",
+  "date_range": {
+    "since": "2026-08-06",
+    "until": "2026-11-04"
+  },
+  "settings": {
+    "max_calls": 32,
+    "max_queries": 8,
+    "max_seconds": 1800.0,
+    "cache_ttl_seconds": 3600,
+    "cache_dir": "/private/tmp/naeil-i18n-research-20261104.4DIWBi/.cache"
+  },
+  "metrics": {
+    "calls": 8,
+    "wrapper_calls": 10,
+    "budget_reserved_calls": 10,
+    "unknown_request_attempts": 3,
+    "queries": 5,
+    "collector_invocations": 3,
+    "cache_hits": 0,
+    "imports": 6,
+    "elapsed_seconds": 133.01674162488803
+  },
+  "final": {
+    "answer_path": "final/answer.md",
+    "claims_path": "final/claims.json",
+    "coverage_path": "final/coverage.json",
+    "answer_sha256": "3a6600e76dc4323c9de81e269b2017a3c311bc7c31622de305df4b4e31019a55"
+  },
+  "raw_run": "/tmp/naeil-i18n-research-20261104.4DIWBi",
+  "report": "research-initial.md",
+  "warnings": [
+    "C1: evidence dfbdeecda4baa289c23c57b0 date is unknown",
+    "C2: evidence c18f769a9ecb1a7eb739150e date is unknown",
+    "C2: evidence bdf5f5e582d984d1f6b6f734 date is unknown",
+    "C3: evidence 5608c42872abb139605176c7 date is unknown",
+    "C3: evidence e7406041a6bbdc8b66a8d12d date is unknown",
+    "C4: evidence c9ae5d54a7c90c1c11d6bee0 date is unknown",
+    "C5: evidence eb7b533538b6b64efc6084f0 date is stale",
+    "C5: evidence 0d38287fee6825b2b8c2b316 date is stale",
+    "C5: evidence b41869f43a4645f5e0b7abe8 date is stale",
+    "C6: evidence 09e8d15d2c54487dbece7c0f date is stale",
+    "C6: evidence 53c06eae7bd422051f796e0d date is stale",
+    "C7: evidence reddit-locale-1 date is unknown",
+    "C7: evidence reddit-locale-2 date is unknown"
+  ],
+  "note": "Mechanical reference/inspection/date checks passed. These do not prove architectural correctness or product implementation. Raw external evidence stays in the saved run; this repository retains claims, coverage and report checksum. The finalized original report is preserved as research-initial.md; current research.md updates the design judgment after the user clarified URL unification."
+}

@@ -158,7 +158,7 @@ it.each(["ko", "ja", "en"])(
     const html = await r.text();
     expect(r.status).toBe(503);
     expect(html).toContain(`lang="${locale}"`);
-    expect(html).toContain(`href="/${locale}/login"`);
+    expect(html).toContain(`href="${locale === "en" ? "" : `/${locale}`}/login"`);
     expect(html).toContain('"status":"paused"');
     expect(html).not.toContain('"csrf":');
     expect(r.headers.get("set-cookie")).toBeNull();

@@ -1,0 +1,78 @@
+{
+  "naeil": {
+    "header": {
+      "nav": {
+        "home": "ホーム",
+        "projects": "プロジェクト",
+        "blog": "ブログ",
+        "navigation": "メインナビゲーション",
+        "menu": "メニュー",
+        "closeMenu": "メニューを閉じる"
+      },
+      "theme": {
+        "switchToLight": "ライトテーマに切り替える",
+        "switchToDark": "ダークテーマに切り替える"
+      },
+      "locale": {
+        "switchLabel": "言語"
+      },
+      "projects": {
+        "cc": {
+          "name": "Content Collector",
+          "description": "RSS、YouTube、Redditの自動収集 + AI要約"
+        },
+        "pkm": {
+          "name": "PKM",
+          "description": "個人ナレッジ管理 — ドキュメント解析、埋め込み、セマンティック検索"
+        },
+        "naeilUi": {
+          "name": "naeil-ui",
+          "description": "ミニマルデザインシステム — OKLCHトークン、Tailwind v4、shadcn"
+        },
+        "sa": {
+          "name": "Sustainability Analyzer",
+          "description": "ESGレポートAI分析 — PDF解析、定性評価、比較表の自動生成"
+        },
+        "babyAgent": {
+          "name": "Baby Agent",
+          "description": "育児AIエージェント — LINE Q&A、記録、リマインダー"
+        },
+        "status": {
+          "active": "アクティブ",
+          "coming": "準備中"
+        }
+      }
+    },
+    "account": {
+      "menu": "アカウントメニュー",
+      "account": "アカウント",
+      "login": "ログイン",
+      "logout": "ログアウト",
+      "busy": "ログアウト中…"
+    },
+    "footer": {
+      "navigation": "ナビゲーション",
+      "projects": "プロジェクト",
+      "blog": "ブログ",
+      "social": "ソーシャル",
+      "description": "Tomorrow starts here."
+    },
+    "locale": {
+      "names": {
+        "en": "English",
+        "ko": "한국어",
+        "ja": "日本語"
+      },
+      "pending": "言語を変更しています…",
+      "failed": "言語を変更できませんでした。作業内容は保持されています。",
+      "retry": "再試行",
+      "errors": {
+        "badRequest": "このアドレスは無効です。",
+        "notFound": "ページが見つかりません。",
+        "unauthenticated": "続けるにはログインしてください。",
+        "forbidden": "このページへのアクセス権限がありません。",
+        "unavailable": "サービスを一時的に利用できません。もう一度お試しください。"
+      }
+    }
+  }
+}

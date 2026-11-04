@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import { defaultLocale, locales, type Locale } from "@/i18n/config";
-import { getPathname } from "@/i18n/routing";
+import { locales, type Locale } from "@/i18n/config";
+import { headers } from "next/headers";
+import { localeMetadata, getRequestLocaleAccess } from "@/naeil-locale/server";
+import { localeHref } from "@/naeil-locale";
 
 export const SITE_NAME = ".naeil";
-const SITE_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://naeil.dev";
 
 /** Match next-intl's public paths, including the unprefixed default locale. */
 export function siteUrl(locale: string, path = "/") {
   if (!locales.includes(locale as Locale))
     throw new Error("Unsupported site locale");
-  return new URL(
-    getPathname({ locale: locale as Locale, href: path }),
-    SITE_ORIGIN,
-  ).toString();
+  return localeHref("main", path, locale as Locale);
 }
 
 interface SiteMetadataOptions {
@@ -25,30 +23,26 @@ interface SiteMetadataOptions {
   type?: "website" | "article";
 }
 
-export function siteMetadata({
+export async function siteMetadata({
   locale,
   path = "/",
   title,
   description,
   availableLocales = locales,
   type = "website",
-}: SiteMetadataOptions): Metadata {
+}: SiteMetadataOptions): Promise<Metadata> {
   if (!locales.includes(locale as Locale))
     throw new Error("Unsupported site locale");
   const currentLocale = locale as Locale;
+  const access = getRequestLocaleAccess(await headers());
+  if (access && access !== "allowed") return { title: SITE_NAME, robots: { index: false, follow: false }, alternates: null };
   const publicTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
-  const languages: Record<string, string> = Object.fromEntries(
-    availableLocales.map((language) => [language, siteUrl(language, path)]),
-  );
-  const fallbackLocale = availableLocales.includes(defaultLocale)
-    ? defaultLocale
-    : (availableLocales[0] ?? locale);
-  languages["x-default"] = siteUrl(fallbackLocale, path);
+  const shared = localeMetadata({ service: "main", route: path, locale: currentLocale, title: title ?? "", serviceName: SITE_NAME, public: true, translatedLocales: availableLocales, description });
 
   return {
     ...(title ? { title } : {}),
     description,
-    alternates: { canonical: siteUrl(locale, path), languages },
+    alternates: shared.alternates,
     openGraph: {
       title: publicTitle,
       description,

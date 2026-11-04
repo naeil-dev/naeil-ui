@@ -48,6 +48,7 @@ export async function passwordLogin(form: FormData) {
     (await cookies()).delete(CHANGE_COOKIE);
     return {
       status: "signedIn",
+      ...(requiresPasswordChange(data.user) ? { authPage: "change-password" as const } : {}),
       location: requiresPasswordChange(data.user)
         ? passwordChangePath(form.get("locale"))
         : loginDestination(form.get("next")),

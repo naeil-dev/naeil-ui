@@ -1,0 +1,83 @@
+[
+  {
+    "source": "discovery",
+    "means": "harness-native-websearch",
+    "statuses": [
+      "success",
+      "success",
+      "success",
+      "success"
+    ],
+    "reasons": [
+      "Native results locate original URLs only; snippets are not substantive evidence.",
+      "Native results locate original URLs only; snippets are not substantive evidence.",
+      "Native results locate original URLs only; snippets are not substantive evidence.",
+      "Native results locate original URLs only; snippets are not substantive evidence."
+    ],
+    "fetched_records": 0,
+    "inspected_original_bodies": 0,
+    "cited_original_bodies": 0,
+    "cited_metadata": 0,
+    "asserted_origins": 0,
+    "date_unknown": 0,
+    "date_stale": 0,
+    "newest": null,
+    "newest_basis": "unknown"
+  },
+  {
+    "source": "blogs",
+    "means": "local-extract",
+    "statuses": [
+      "success"
+    ],
+    "reasons": [],
+    "fetched_records": 6,
+    "inspected_original_bodies": 6,
+    "cited_original_bodies": 6,
+    "cited_metadata": 0,
+    "asserted_origins": 3,
+    "date_unknown": 6,
+    "date_stale": 0,
+    "newest": null,
+    "newest_basis": "cited published_at/updated_at unknown"
+  },
+  {
+    "source": "reddit",
+    "means": "aside-browser",
+    "statuses": [
+      "success",
+      "success"
+    ],
+    "reasons": [
+      "Logged-in Reddit in-site search; listing only, no cited original.",
+      "Original post snapshot was truncated; two selected complete first-hand comments recovered by observed snapshot-ref innerText. Dates preserved as raw relative display. Affiliation unverified."
+    ],
+    "fetched_records": 2,
+    "inspected_original_bodies": 2,
+    "cited_original_bodies": 2,
+    "cited_metadata": 0,
+    "asserted_origins": 1,
+    "date_unknown": 2,
+    "date_stale": 0,
+    "newest": null,
+    "newest_basis": "cited published_at/updated_at unknown"
+  },
+  {
+    "source": "github-issues",
+    "means": "rest-api",
+    "statuses": [
+      "success",
+      "success"
+    ],
+    "reasons": [],
+    "fetched_records": 8,
+    "inspected_original_bodies": 5,
+    "cited_original_bodies": 5,
+    "cited_metadata": 0,
+    "asserted_origins": 3,
+    "date_unknown": 0,
+    "date_stale": 8,
+    "newest": "2025-08-16T04:11:09Z",
+    "newest_basis": "cited published_at/updated_at"
+  }
+]

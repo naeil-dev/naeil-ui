@@ -408,6 +408,7 @@ describe("login server actions", () => {
     });
     expect(await passwordLogin(form())).toEqual({
       status: "signedIn",
+      authPage: "change-password",
       location: "/ja/login/change-password",
     });
   });

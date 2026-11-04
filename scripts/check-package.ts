@@ -67,11 +67,12 @@ try {
   ) as string[];
   for (const path of paths) {
     assert(
-      !/(?:^|\/)(?:app|brand|supabase|auth|blog|__tests__|messages|public|skills|superpowers)(?:\/|$)/.test(
+      !/(?:^|\/)(?:app|brand|supabase|auth|blog|__tests__|public|skills|superpowers)(?:\/|$)/.test(
         path,
       ),
       `Website/test payload shipped: ${path}`,
     );
+    if (/(?:^|\/)messages\//.test(path)) assert(/^dist\/source\/naeil-locale\/messages\/(?:en|ko|ja)\.json$/.test(path), `Only tiny shared standalone dictionaries may be packed: ${path}`);
     assert(
       !/(?:hero-scene|hero-section|paraglider-cursor|project-layout|workflow-diagram|accent-picker|nav-server-wrapper|nav-wrapper|footer-wrapper|auth-slot|i18n\/request)/.test(
         path,
