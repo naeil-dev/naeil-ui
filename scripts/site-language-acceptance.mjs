@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { createServer as createHttpServer } from 'node:http';
+import { createServer as createHttpsServer } from 'node:https';
+import { connect } from 'node:net';
 import { execFileSync, spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
@@ -24,6 +27,45 @@ const sharedCookie = 'naeil_locale_v1';
 const pathFor = (locale, route = '/') => paths[locale] + (route === '/' ? (locale === 'en' ? '/' : '') : route);
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const fixtureTitle = locale => `Acceptance original ${locale}`;
+
+// Context routing does not reliably intercept a popup's first request in every
+// Chromium build. This process-local CONNECT proxy makes that boundary safe too.
+export async function startSiteDestinationProxy(privateDir) {
+  const key = join(privateDir, 'destination-key.pem'), cert = join(privateDir, 'destination-cert.pem');
+  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=naeil.dev', '-keyout', key, '-out', cert], { stdio: 'ignore' });
+  const seen = [], blocked = [], sockets = new Set();
+  const destination = createHttpsServer({ key: readFileSync(key), cert: readFileSync(cert) }, (request, response) => {
+    const url = new URL(request.url, 'https://' + request.headers.host);
+    seen.push(url.href);
+    const language = /^\/ko(?:\/|$)/.test(url.pathname) ? 'ko' : /^\/ja(?:\/|$)/.test(url.pathname) ? 'ja' : 'en';
+    response.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' });
+    response.end(`<html lang="${language}"><title>Local receiver landing fixture</title><body>Local receiver landing fixture</body></html>`);
+  });
+  await new Promise((yes, no) => { destination.once('error', no); destination.listen(0, '127.0.0.1', yes); });
+  const proxy = createHttpServer((request, response) => { blocked.push(request.url); response.writeHead(502).end(); });
+  proxy.on('connect', (request, socket, head) => {
+    if (!['naeil.dev:443', 'jev.naeil.dev:443', 'abestimate.naeil.dev:443'].includes(request.url)) {
+      blocked.push(request.url); socket.end('HTTP/1.1 502 Blocked\r\n\r\n'); return;
+    }
+    const upstream = connect(destination.address().port, '127.0.0.1', () => {
+      socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
+      if (head.length) upstream.write(head);
+      upstream.pipe(socket); socket.pipe(upstream);
+    });
+    sockets.add(socket); sockets.add(upstream);
+    socket.on('error', () => upstream.destroy()); upstream.on('error', () => socket.destroy());
+    socket.on('close', () => { upstream.destroy(); sockets.delete(socket); sockets.delete(upstream); });
+  });
+  await new Promise((yes, no) => { proxy.once('error', no); proxy.listen(0, '127.0.0.1', yes); });
+  return {
+    server: 'http://127.0.0.1:' + proxy.address().port, seen, blocked,
+    async close() {
+      for (const socket of sockets) socket.destroy();
+      proxy.closeAllConnections(); destination.closeAllConnections();
+      await Promise.all([new Promise(yes => proxy.close(yes)), new Promise(yes => destination.close(yes))]);
+    },
+  };
+}
 
 export function prepareSiteLanguageFixture(privateDir, evidence, artifact) {
   const source = resolve('content/blog');
@@ -82,7 +124,7 @@ function assertPublicMeta(observed, locale, route, title, available = locales) {
   assert.equal(observed.title, title);
   assert.deepEqual(observed.canonical, [canonical]);
   assert.deepEqual(observed.alternates, alternates.sort());
-  assert.ok(observed.icons.includes('/icon.svg'));
+  assert.ok(observed.icons.some(href => new URL(href, 'https://naeil.dev').pathname === '/icon.svg'));
   assert.ok(!observed.robots.some(value => /noindex/.test(value)));
   assert.equal(observed.ogUrl, canonical);
   assert.equal(observed.ogTitle, title);
@@ -113,7 +155,7 @@ function observeCookieSetter({ denied = false } = {}) {
   });
 }
 
-export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, identity, evidence, fixture, withPasswordChangeSession }) {
+export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, identity, evidence, fixture, destinationProxy, withPasswordChangeSession }) {
   const senderEnabled = process.env.NAEIL_LOCALE_SEND_ENABLED === '1';
   const cases = [];
   const selected = process.env.NAEIL_LANGUAGE_CASE_FILTER ? new RegExp(process.env.NAEIL_LANGUAGE_CASE_FILTER) : null;
@@ -137,7 +179,7 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
     console.log(JSON.stringify({ acceptance: name, ...details, status: result.status, ...(result.error ? { error: result.error } : {}) }));
   }
   async function localContext(options = {}) {
-    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', ...options });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', ignoreHTTPSErrors: true, ...options });
     await context.route('**/*', route => [origin, authOrigin].includes(new URL(route.request().url()).origin) ? route.continue() : route.abort());
     return context;
   }
@@ -219,7 +261,7 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
         assert.deepEqual(meta.canonical, []);
         assert.deepEqual(meta.alternates, []);
         assert.ok(meta.robots.some(value => /noindex/.test(value)));
-        assert.ok(meta.icons.includes('/icon.svg'));
+        assert.ok(meta.icons.some(href => new URL(href, 'https://naeil.dev').pathname === '/icon.svg'));
         results.push({ route, metadata: meta });
       };
       await inspect('/login');
@@ -296,11 +338,14 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
 
   for (const host of ['naeil.dev', 'jev.naeil.dev', 'abestimate.naeil.dev']) await check('secure shared cookie duplicates attributes and expiry', { host }, async () => {
     const secureOrigin = 'https://' + host;
-    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', locale: 'ja-JP' });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', locale: 'ja-JP', ignoreHTTPSErrors: true });
     const mappedOrigins = new Set(['https://naeil.dev', 'https://jev.naeil.dev', 'https://abestimate.naeil.dev']);
     const mappedRequests = [];
+    const transportErrors = [];
+    let closing = false;
     try {
       await context.route('**/*', async route => {
+        try {
         const url = new URL(route.request().url());
         if (!mappedOrigins.has(url.origin)) return route.abort();
         if (url.pathname.startsWith('/__acceptance_packed__/')) {
@@ -314,6 +359,10 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
         mappedRequests.push({ browser: url.href, local: destination });
         const response = await route.fetch({ url: destination, headers, maxRedirects: 0 });
         await route.fulfill({ response });
+        } catch (error) {
+          if (!closing) transportErrors.push(String(error));
+          await route.abort().catch(() => {});
+        }
       });
       await context.addInitScript(observeCookieSetter, {});
       await context.addCookies([
@@ -369,8 +418,8 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
       assert.equal((await context.cookies(secureOrigin)).filter(cookie => cookie.name === sharedCookie).length, 0);
       await context.addCookies([{ name: sharedCookie, value: 'xx', domain: '.naeil.dev', path: '/', secure: true }]);
       assert.equal((await readActualCookie()).preference, null);
-      return { duplicate, equalDuplicate, cookiesAfterExplicitChoice: cookies, writes, expiredCookieUrl: page.url(), invalidValueIgnored: true, mappedRequestCount: mappedRequests.length, productionNetworkRequests: 0 };
-    } finally { await context.close(); }
+      return { duplicate, equalDuplicate, cookiesAfterExplicitChoice: cookies, writes, expiredCookieUrl: page.url(), invalidValueIgnored: true, mappedRequestCount: mappedRequests.length, transportErrors, productionNetworkRequests: 0 };
+    } finally { closing = true; await context.close(); }
   });
 
   for (const locale of locales) for (const target of locales.filter(value => value !== locale)) await check('missing translation actual selector fallback', { locale, target }, async () => {
@@ -485,12 +534,11 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
     try {
       // A receiver landing stub observes the browser's exact destination; the
       // separate consumer suites verify the actual applications at these hrefs.
+      const proxyStart = destinationProxy.seen.length;
       await context.route(/https:\/\/(?:jev|abestimate)\.naeil\.dev\//, async route => {
         if (!route.request().isNavigationRequest()) return route.abort();
         landings.push(route.request().url());
-        const path = new URL(route.request().url()).pathname;
-        const language = path.startsWith('/ko') ? 'ko' : path.startsWith('/ja') ? 'ja' : 'en';
-        await route.fulfill({ status: 200, contentType: 'text/html', body: `<html lang="${language}"><title>Local receiver landing fixture</title><body>Local receiver landing fixture</body></html>` });
+        await route.continue(); // Always terminates at the isolated local TLS proxy.
       });
       await context.route(origin + '/auth/invite?**', async route => {
         if (route.request().method() !== 'POST') return route.fallback();
@@ -502,13 +550,22 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(response) });
       });
       const page = await context.newPage();
+      const scriptErrors = [];
+      page.on('pageerror', error => scriptErrors.push(error.message));
       const envelope = new URLSearchParams({ id: '10000000-0000-4000-8000-000000000001', version: '1', nonce: 'n'.repeat(48), token_hash: 'a'.repeat(64) });
       const open = async () => {
+        // Reopening only the same fragment is a same-document navigation and
+        // does not execute the invitation bootstrap again. Start a new document.
+        await page.goto('about:blank');
         await page.goto(origin + '/auth/invite?locale=' + locale + '#' + envelope);
         await expect(page).toHaveTitle(inviteTitles[locale]);
         await expect(page.locator('html')).toHaveAttribute('lang', locale);
         await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/icon.svg');
-        await expect(page.locator('#confirm')).toBeVisible();
+        try { await expect(page.locator('#confirm')).toBeVisible(); }
+        catch (error) {
+          error.stack += '\nInvitation fixture diagnostic: ' + JSON.stringify({ status: await page.locator('#status').textContent(), url: page.url(), calls, scriptErrors });
+          throw error;
+        }
         assert.equal(new URL(page.url()).hash, '');
         await page.locator('#confirm').click();
         await expect(page.locator('#links a')).toHaveCount(2);
@@ -529,17 +586,20 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
         else { destination = page; await anchor.click(); }
         await expect(destination).toHaveURL(expected);
         await expect(destination.locator('html')).toHaveAttribute('lang', senderEnabled ? locale : 'en');
+        await expect(destination).toHaveTitle('Local receiver landing fixture');
+        assert.ok(destinationProxy.seen.slice(proxyStart).includes(expected));
         results.push({ service, mode, href, landed: destination.url() });
         if (destination !== page) await destination.close();
       }
       assert.equal(calls.filter(call => call.action === 'stage').length, 6);
       assert.equal(calls.filter(call => call.action === 'confirm').length, 6);
       assert.ok(calls.every(call => call.fragment === ''));
-      return { results, transportCalls: calls, interceptedLandings: landings };
+      return { results, transportCalls: calls, routeObservedLandings: landings, localTlsLandings: destinationProxy.seen.slice(proxyStart) };
     } finally { await context.close(); }
   });
 
   report.finishedAt = new Date().toISOString();
+  report.networkGuard = { kind: 'isolated-local-CONNECT-proxy', receiverLandings: destinationProxy.seen, blocked: destinationProxy.blocked };
   report.counts = { passed: cases.filter(result => result.status === 'passed').length, failed: cases.filter(result => result.status === 'failed').length };
   report.fixture.contentReadsObserved = existsSync(fixture.accessLog) ? readFileSync(fixture.accessLog, 'utf8').trim().split('\n').length : 0;
   persist();

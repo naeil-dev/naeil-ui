@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { chromium, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { prepareSiteLanguageFixture, runSiteLanguageAcceptance } from './site-language-acceptance.mjs';
+import { prepareSiteLanguageFixture, runSiteLanguageAcceptance, startSiteDestinationProxy } from './site-language-acceptance.mjs';
 
 // Actual built Next application; only Auth/provider transport and invite RPC are
 // synthetic. Never accepts an external URL, live cookie, environment or user data.
@@ -48,7 +48,7 @@ const auth = createServer((req, res) => {
   res.writeHead(outage ? 503 : expired ? 401 : 200, {'Content-Type':'application/json'});
   res.end(JSON.stringify(outage ? {error_code:'unexpected_failure'} : expired ? {error_code:'session_not_found'} : authUser));
 });
-let app, browser;
+let app, browser, destinationProxy;
 const checks = [];
 const packageVersion=JSON.parse(readFileSync('package.json','utf8')).version;
 const ui = {
@@ -91,7 +91,8 @@ try {
     const response = await fetch(origin+asset);
     assert.equal(response.status,200,asset);
   }
-  browser = await chromium.launch();
+  if (acceptanceEnabled) destinationProxy = await startSiteDestinationProxy(privateDir);
+  browser = await chromium.launch(acceptanceEnabled ? {channel:'chromium',args:['--ignore-certificate-errors'],proxy:{server:destinationProxy.server,bypass:'127.0.0.1,localhost'}} : undefined);
   if (!acceptanceOnly) {
   for (const locale of (process.env.NAEIL_LANGUAGE_FOCUS_ONLY ? [] : ['ko','ja','en'])) for (const width of [390,768,1440,1920]) for (const theme of ['light','dark']) for (const authenticated of [false,true]) {
     const context = await browser.newContext({viewport:{width,height:900},colorScheme:theme,locale:locale==='en'?'en-US':locale==='ja'?'ja-JP':'ko-KR',hasTouch:width<800});
@@ -297,7 +298,7 @@ try {
   await context.close();
   }
   if (acceptanceEnabled) {
-    const acceptance = await runSiteLanguageAcceptance({browser,origin,authOrigin,identity,evidence,fixture:languageFixture,
+    const acceptance = await runSiteLanguageAcceptance({browser,origin,authOrigin,identity,evidence,fixture:languageFixture,destinationProxy,
       withPasswordChangeSession:async(context,work)=>{
         authUser={...user,app_metadata:{console_temp:{must_change:true,generation:1,issued_at:new Date().toISOString(),locked:false,operation_id:'20000000-0000-4000-8000-000000000003'}}};
         try {await addSession(context);return await work();}
@@ -310,7 +311,9 @@ try {
   console.log(JSON.stringify({passed:checks.length,evidence}));
 } finally {
   await browser?.close();
+  await destinationProxy?.close();
   if(app && app.exitCode===null) {const ended=new Promise(resolve=>app.once('exit',resolve));app.kill('SIGTERM');await ended;}
+  auth.closeAllConnections();
   await new Promise(resolve=>auth.close(resolve));
   rmSync(privateDir,{recursive:true,force:true});
 }

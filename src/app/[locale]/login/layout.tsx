@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/config";
-import { siteMetadata } from "@/lib/site-metadata";
+import { siteMetadata, SITE_NAME } from "@/lib/site-metadata";
 
 export async function generateMetadata({
   params,
@@ -16,6 +16,7 @@ export async function generateMetadata({
       title: t("login"),
       description: t("loginDescription"),
     }),
+    title: { default: t("login"), template: `%s — ${SITE_NAME}` },
     robots: { index: false, follow: false },
     alternates: null,
   };
