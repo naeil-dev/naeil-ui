@@ -42,7 +42,7 @@ test('Jev artifact inspection binds the retained archive, file manifest and publ
 });
 test('rollback uses only the recorded predecessor and retained native inputs with STOP and no release archive',async t=>{
  const directory=fixture(t),before=artifact(directory,'before','0.7.1'),after=artifact(directory,'after','0.7.2');
- const helperPath=fileURLToPath(new URL('./jev-native.py',import.meta.url)),python=realpathSync(process.execPath);
+ const helperPath=fileURLToPath(new URL('./jev-native.py',import.meta.url)),python=realpathSync('/usr/bin/python3');
  const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:helperPath,sha256:hash(readFileSync(helperPath))},executionPath:'/usr/bin:/bin',config:{baseDirectory:directory,privateFiles:'metadata-only'}};
  const release={releaseId:'ui-0.7.2',version:'0.7.2',contract:{version:'1'},archive:{path:join(directory,'missing-release.tgz'),sha256:'c'.repeat(64)}};
  const transaction={id:'rollback-1',serviceId:'jev',previousArtifact:before,candidateArtifact:after,prepared:{native,release,planSha256:'d'.repeat(64),service:{id:'jev'}},native:{operation:'rollback',status:'intent'}};
@@ -55,7 +55,7 @@ test('rollback uses only the recorded predecessor and retained native inputs wit
 });
 test('native receipts reject every missing or foreign action binding before accepting inspect or rollback',async t=>{
  const directory=fixture(t),before=artifact(directory,'before','0.7.1'),after=artifact(directory,'after','0.7.2');
- const helper=fileURLToPath(new URL('./jev-native.py',import.meta.url)),python=realpathSync(process.execPath);
+ const helper=fileURLToPath(new URL('./jev-native.py',import.meta.url)),python=realpathSync('/usr/bin/python3');
  const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:helper,sha256:hash(readFileSync(helper))},executionPath:'/usr/bin:/bin',config:{baseDirectory:directory,privateFiles:'metadata-only'}};
  const service={id:'jev',mode:'deploy',currentArtifact:before,consumer:{native}},release={releaseId:'ui-0.7.2'},plan={schemaVersion:1,release,services:[service]};
  const transaction={id:'binding-rollback',serviceId:'jev',previousArtifact:before,candidateArtifact:after,prepared:{native,release,planSha256:'d'.repeat(64),service:{id:'jev'}},native:{operation:'rollback',status:'intent'}};
@@ -133,7 +133,10 @@ test('interrupted deployment with a running candidate reconciles into exact pred
 });
 
 test('Estimate rollback uses retained Node helper and transaction directory without source or archive access',async t=>{
- const directory=fixture(t),node=realpathSync(process.execPath),helper=join(directory,'estimate-fixture.mjs'),stateDirectory=join(directory,'native-state');mkdirSync(stateDirectory,{mode:0o700});
+ const directory=fixture(t),node=join(directory,'node'),helper=join(directory,'estimate-fixture.mjs'),stateDirectory=join(directory,'native-state');mkdirSync(stateDirectory,{mode:0o700});
+ // setup-node may belong to the host runner UID in a root container. Pin an
+ // owned fixture copy, preserving the production interpreter ownership check.
+ writeFileSync(node,readFileSync(process.execPath),{mode:0o700,flag:'wx'});
  writeFileSync(helper,`import assert from 'node:assert/strict';import fs from 'node:fs';import {join} from 'node:path';const r=JSON.parse(fs.readFileSync(process.env.NAEIL_ROLLOUT_INPUT));assert.equal(r.service.id,'estimate');assert.equal(r.action,'rollback');assert.equal(r.transactionDirectory,join(r.config.stateDirectory,r.attemptId));assert.equal(process.cwd(),r.config.deploymentRoot);assert.equal(process.env.NODE_OPTIONS,'');assert.equal(process.env.SYNTHETIC_PRIVATE_CANARY,undefined);for(const key of ['approval','policy'])assert.equal(r[key],undefined);fs.writeFileSync(process.env.NAEIL_ROLLOUT_OUTPUT,JSON.stringify({schemaVersion:1,releaseId:r.release.releaseId,serviceId:r.service.id,attemptId:r.attemptId,idempotencyKey:r.idempotencyKey,planSha256:r.planSha256,action:r.action,passed:true,safe:true,activated:true}),{mode:0o600,flag:'wx'});`,{mode:0o600});
  const before={immutable:true,id:'estimate-before',sourceRevision:'a'.repeat(40),sha256:'b'.repeat(64),packageSha256:'c'.repeat(64)},after={...before,id:'estimate-after'};
  const native={nodeExecutable:node,nodeSha256:hash(readFileSync(node)),helper:{path:helper,sha256:hash(readFileSync(helper))},executionPath:'/usr/bin:/bin',config:{deploymentRoot:directory,stateDirectory,privateFiles:'metadata-only'}};
@@ -143,7 +146,7 @@ test('Estimate rollback uses retained Node helper and transaction directory with
 });
 
 test('native transient and authentication diagnostics reach runner classification without losing the safe boundary',async t=>{
- const directory=fixture(t),before=artifact(directory,'before','0.7.1'),python=realpathSync(process.execPath),helper=fileURLToPath(new URL('./jev-native.py',import.meta.url));
+ const directory=fixture(t),before=artifact(directory,'before','0.7.1'),python=realpathSync('/usr/bin/python3'),helper=fileURLToPath(new URL('./jev-native.py',import.meta.url));
  const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:helper,sha256:hash(readFileSync(helper))},executionPath:'/usr/bin:/bin',config:{baseDirectory:directory,privateFiles:'metadata-only'}};
  const service={id:'jev',mode:'deploy',currentArtifact:before,consumer:{native}},plan={schemaVersion:1,release:{releaseId:'ui-0.7.2'},services:[service]};
  const {classifyFailure}=await import('./local-runner.mjs');
@@ -186,7 +189,7 @@ test('0.7.2 legacy Jev transactions recover an unhealthy completed candidate onl
 });
 
 test('recovered native diagnostics reach the runner through the adapter',async t=>{
- const directory=fixture(t),before=artifact(directory,'before','0.7.1'),after=artifact(directory,'after','0.7.2'),python=realpathSync(process.execPath),helper=fileURLToPath(new URL('./jev-native.py',import.meta.url));
+ const directory=fixture(t),before=artifact(directory,'before','0.7.1'),after=artifact(directory,'after','0.7.2'),python=realpathSync('/usr/bin/python3'),helper=fileURLToPath(new URL('./jev-native.py',import.meta.url));
  const native={pythonExecutable:python,pythonSha256:hash(readFileSync(python)),helper:{path:helper,sha256:hash(readFileSync(helper))},executionPath:'/usr/bin:/bin',config:{baseDirectory:directory,privateFiles:'metadata-only'}};
  const transaction={id:'recovered-1',serviceId:'jev',previousArtifact:before,candidateArtifact:after,prepared:{native,release:{releaseId:'ui-0.7.2'},planSha256:'d'.repeat(64),service:{id:'jev'}},native:{operation:'rollback',status:'intent'}};
  const adapters=consumer.createLocalConsumers({recoveryHelpers:{},native(action,input){return {...Object.fromEntries(['schemaVersion','attemptId','idempotencyKey','planSha256','action'].map(key=>[key,input[key]])),releaseId:'ui-0.7.2',serviceId:'jev',passed:false,safe:true,outcome:'failed',recovered:true,artifact:after,phase:'recovered',reasonCode:'native-rollback-recovered',stage:'native-identity-http',status:503,timeout:true,retryable:true};}});
