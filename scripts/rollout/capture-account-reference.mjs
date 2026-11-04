@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
 import { captureAccountRender } from '../account-render.mjs';
-import { hash, privateDirectory, REVISION, VERSION } from './standing-config.mjs';
+import { hash, privateDirectory, REVISION, VERSION } from './rollout-io.mjs';
 import { runtimeIndex } from './package-runtime.mjs';
 
 /** Capture the existing synthetic Japanese AccountStates Storybook story. No

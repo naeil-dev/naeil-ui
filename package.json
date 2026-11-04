@@ -191,7 +191,7 @@
     "build:brand": "tsx scripts/build-brand.ts",
     "check:brand": "tsx scripts/build-brand.ts --check",
     "build:release": "node scripts/build-ui-release.mjs",
-    "rollout": "node scripts/rollout/rollout.mjs",
+    "rollout": "node scripts/rollout/local-cli.mjs",
     "test:rollout": "node --test scripts/rollout/*.test.mjs scripts/verify-ui-production.test.mjs",
     "check:messages": "tsx scripts/check-locale-messages.ts",
     "check:locale:package": "tsx scripts/check-locale-package.ts"

@@ -27,6 +27,9 @@ jobs:
       options: --ipc=host
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Frozen component regressions archive immutable release source commits.
+          fetch-depth: 0
       # Actions mounts these directories as uid 1001; this image runs as root.
       # Firefox checks HOME ownership and Git checks repository ownership.
       - name: Match mounted directory ownership to the runner user

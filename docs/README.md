@@ -1,6 +1,6 @@
 # Documentation
 
-**0.7.1 published and registry-verified — 2026-10-23.** Current registry baseline: 0.7.1. The first published 0.7.x release includes canonical `NaeilFooter`, `NaeilHeaderAccountControl` and `/release` identity; 0.7.0 remains unpublished. Fresh React/Next registry consumers matched all 139 frozen files and passed their checks. Hosted Docs and standing activation require separate receipts. [Release policy and identities](package-release.md#publication-and-deployment) distinguish the frozen package source/tag from maintained guides, hosted Docs and service rollout receipts.
+**0.10.0 published and registry-verified — 2026-11-04.** Verified tags were `latest=0.7.2`, `next=0.10.0`; the exact archive contains 175 regular files. [Publication and service acceptance](design/shared-language-2026-11-04/implementation-progress.md) record the current release. [Release policy and identities](package-release.md#publication-and-deployment) distinguish frozen package source/tag, maintained guides, hosted Docs and service receipts. The retained [local runner](rollout/local-runner.md) supports historical **0.7.x only**, outside current 0.10.0 deployment/recovery.
 
 ## Maintained public guides
 
