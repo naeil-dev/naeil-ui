@@ -7,35 +7,41 @@ import { chromium, expect } from '@playwright/test';
 // Run with: node --test scripts/site-auth-slot.test.mjs (Chromium installed).
 const require = createRequire(import.meta.url);
 const { build } = require(require.resolve('esbuild', { paths: [require.resolve('tsup')] }));
-// Keep the real website adapter, shared header, responsive Navigation and Radix
-// menus. Only framework routing/i18n and the external session request are fakes.
+// Keep the real website adapter, locale/session providers, shared header,
+// responsive Navigation and Radix menus. Fake framework routing, session
+// requests and toast delivery at the browser fixture boundary.
 const mocks = {
-  'next-intl': `export const useLocale = () => 'ja';
-    export const useTranslations = () => key => key;`,
-  'next/navigation': `export { unstable_rethrow } from 'next/dist/client/components/unstable-rethrow.browser';`,
-  '@/i18n/routing': `import {createElement} from 'react';
-    export const Link = props => createElement('a', props);
-    export const getPathname = ({href, locale}) => '/' + locale + href;
-    export const usePathname = () => '/editor';
+  'next/navigation': `export { unstable_rethrow } from 'next/dist/client/components/unstable-rethrow.browser';
+    export const usePathname = () => '/ja';
     export const useRouter = () => ({replace() {}});`,
+  'next/link': `import {createElement} from 'react';
+    export default function Link(props) { return createElement('a', props); }`,
   '@/app/[locale]/login/actions': `export async function clearLocalSession() {}
     export function logout(locale) {
     window.siteFixture.requests.push(locale);
     return new Promise((resolve, reject) => { window.siteFixture.finish = error => error ? reject(error) : resolve(); });
   }`,
-  sonner: `export const toast = {error: message => window.siteFixture.errors.push(message)};`,
+  sonner: `export const toast = {error: message => window.siteFixture.errors.push(message), dismiss() {}};`,
 };
 const output = await build({
   stdin: { contents: `import {createElement} from 'react';
     import {createRoot} from 'react-dom/client';
     import {NavWrapper} from './src/components/nav-wrapper';
+    import {SiteSessionStateProvider} from './src/components/site-session-state';
+    import {NaeilLocaleController, NaeilLocaleProvider} from './src/naeil-locale/client';
+    import common from './src/naeil-locale/messages/ja.json';
+    import app from './messages/ja.json';
     window.siteFixture = {requests: [], errors: []};
-    createRoot(document.getElementById('root')).render(createElement(NavWrapper, {user: {id: 'synthetic-user'}}));`,
+    createRoot(document.getElementById('root')).render(
+      createElement(NaeilLocaleController, {service: 'main'},
+        createElement(SiteSessionStateProvider, null,
+          createElement(NaeilLocaleProvider, {locale: 'ja', messages: {...common, ...app}, timeZone: 'UTC'},
+            createElement(NavWrapper, {user: {id: 'synthetic-user'}})))));`,
     resolveDir: process.cwd(), loader: 'tsx' },
   bundle: true, write: false, format: 'iife', platform: 'browser', jsx: 'automatic',
   define: { 'process.env.NODE_ENV': '"production"' },
   plugins: [{ name: 'website-boundaries', setup(builder) {
-    builder.onResolve({ filter: /^(next-intl|next\/navigation|sonner|@\/i18n\/routing|@\/app\/)/ }, args =>
+    builder.onResolve({ filter: /^(next\/(?:navigation|link)$|sonner$|@\/app\/)/ }, args =>
       Object.hasOwn(mocks, args.path) ? { path: args.path, namespace: 'website-test' } : undefined);
     builder.onLoad({ filter: /.*/, namespace: 'website-test' }, args => ({ contents: mocks[args.path], resolveDir: process.cwd(), loader: 'js' }));
   } }],
@@ -44,16 +50,22 @@ const css = ['theme.css', 'components.css'].map(name => readFileSync(new URL(`..
 
 async function fixture(width) {
   const browser = await chromium.launch();
+  const pageErrors = [];
   try {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
+    page.on('pageerror', error => pageErrors.push(error.message));
     page.setDefaultTimeout(5000);
     await page.route('**/*', route => route.abort()); // No production assets or endpoints.
-    await page.setContent('<html class="light"><body><div id="root"></div></body></html>');
+    await page.setContent('<html class="light" lang="ja"><body><div id="root"></div></body></html>');
     await page.addStyleTag({ content: css });
     await page.addScriptTag({ content: output.outputFiles[0].text });
     await expect(page.locator('[data-naeil-header]')).toBeVisible();
-    return { browser, page };
-  } catch (error) { await browser.close(); throw error; }
+    return { browser, page, pageErrors };
+  } catch (error) {
+    await browser.close();
+    if (pageErrors.length) throw new Error(pageErrors.join('\n'), { cause: error });
+    throw error;
+  }
 }
 const account = page => page.locator('[data-naeil-account-trigger]:visible');
 const mobileMenu = page => page.getByRole('button', { name: 'メニュー', exact: true });
@@ -77,7 +89,7 @@ async function stillPending(page) {
 }
 
 test('site pending logout survives closing/reopening the mobile sheet and switching to desktop', async () => {
-  const { browser, page } = await fixture(390);
+  const { browser, page, pageErrors } = await fixture(390);
   try {
     await mobileMenu(page).click();
     await startLogout(page);
@@ -90,17 +102,19 @@ test('site pending logout survives closing/reopening the mobile sheet and switch
     await stillPending(page);
     await page.evaluate(() => window.siteFixture.finish(new Error('synthetic provider failure')));
     await expect(account(page)).not.toHaveAttribute('aria-busy', 'true');
-    assert.deepEqual(await page.evaluate(() => window.siteFixture.errors), ['logoutFailed']);
+    const japanese = JSON.parse(readFileSync(new URL('../messages/ja.json', import.meta.url), 'utf8'));
+    assert.deepEqual(await page.evaluate(() => window.siteFixture.errors), [japanese.site.auth.logoutFailed]);
     await account(page).click();
     await page.getByRole('menuitem', { name: 'ログアウト', exact: true }).click();
     await expect.poll(() => page.evaluate(() => window.siteFixture.requests.length)).toBe(2);
     await page.evaluate(() => window.siteFixture.finish());
     await expect(account(page)).not.toHaveAttribute('aria-busy', 'true');
+    assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
 test('site desktop logout remains pending when the mobile account slot mounts', async () => {
-  const { browser, page } = await fixture(1440);
+  const { browser, page, pageErrors } = await fixture(1440);
   try {
     await startLogout(page);
     await page.setViewportSize({ width: 390, height: 900 });
@@ -109,5 +123,6 @@ test('site desktop logout remains pending when the mobile account slot mounts', 
     await page.evaluate(() => window.siteFixture.finish());
     await expect(account(page)).not.toHaveAttribute('aria-busy', 'true');
     assert.deepEqual(await page.evaluate(() => window.siteFixture.errors), []);
+    assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
