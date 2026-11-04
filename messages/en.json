@@ -321,19 +321,19 @@
       "check": "Check status",
       "recover": "The result could not be received. Check status before continuing.",
       "title": "You’re invited",
-      "intro": "Confirm your invitation to activate the access selected for you.",
+      "intro": "Confirm your invitation and finish signing in to naeil.dev.",
       "empty": "Open the full invitation link from your email. If it has expired, ask your administrator to resend it.",
       "staged": "Your invitation is ready. Confirm when you’re ready to continue.",
       "retry": "Email verification succeeded. Access could not be confirmed yet. Retry to continue with the same verification.",
-      "complete": "Your access is ready",
-      "done": "Choose a service below. Each service may ask you to sign in separately.",
+      "complete": "Registration complete",
+      "done": "You’re signed in to naeil.dev. Each service checks your current access.",
       "invalid": "This invitation cannot be used. Ask your administrator for a fresh invitation.",
       "unavailable": "We couldn’t confirm access. Please try again. If this page was restarted or the link expired, ask for a fresh invitation.",
       "confirm": "Accept invitation",
       "again": "Try again",
       "working": "Confirming…",
       "wait": "Preparing invitation…",
-      "safety": "Only the access selected by your administrator will be activated.",
+      "safety": "Each service checks your current access.",
       "noscript": "JavaScript is required to safely confirm this invitation.",
       "theme": "Appearance",
       "system": "System",
@@ -346,7 +346,12 @@
       "prepare": "Prepare invitation",
       "pageTitle": "Confirm invitation",
       "login": "Sign in",
-      "nextLanguage": "한국어"
+      "nextLanguage": "한국어",
+      "delivery": "Registration is complete. Finish signing in without verifying the email again.",
+      "switch": "You’re signed in to a different account. Continue only if you want to switch to the invited account.",
+      "signin": "Sign in with the invited account to continue in this browser.",
+      "finish": "Finish signing in",
+      "switchButton": "Switch account and continue"
     }
   }
 }

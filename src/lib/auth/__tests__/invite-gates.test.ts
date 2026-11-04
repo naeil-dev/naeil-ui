@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { GET, POST } from "@/app/auth/invite/route";
 import { createInviteHandler } from "../invite";
 import { invitationProxyResponse } from "../invite-proxy";
+import { fixture } from "./invite-fixture";
 
 const config = {
   siteOrigin: "https://naeil.dev",
@@ -109,45 +110,29 @@ it("replaces an untrusted nonce on the paused HTML slash alias", async () => {
 });
 it("holds a transaction staged before OFF, including GET readback and replayed confirmation", async () => {
   vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true");
-  const readConfig = vi.fn(() => ({ ...config, transactionStore: undefined }));
-  const handler = createInviteHandler({ readConfig });
-  const initial = await handler.GET(request());
-  const cookie = initial.headers.get("set-cookie")!.split(";")[0];
-  const staged = await handler.POST(
-    request(
-      "POST",
-      "",
-      {
-        action: "stage",
-        csrf: (await initial.json()).csrf,
-        ...proof,
-      },
-      cookie,
-    ),
-  );
-  expect(staged.status).toBe(200);
-  const csrf = (await staged.json()).csrf;
-  readConfig.mockClear();
+  const f = fixture();
+  const handler = f.handler();
+  await f.send(handler);
+  expect((await f.send(handler, "stage", proof)).body.status).toBe("staged");
+  const csrf = f.csrf;
+  const rows = JSON.stringify([...f.rows]);
+  const calls = [...f.calls];
   vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "false");
   for (let replay = 0; replay < 2; replay++) {
-    expect(
-      (
-        await handler.POST(
-          request("POST", "", { action: "confirm", csrf }, cookie),
-        )
-      ).status,
-    ).toBe(503);
-    expect(
-      (await handler.GET(request("GET", "", undefined, cookie))).status,
-    ).toBe(503);
+    expect((await f.send(handler, "confirm")).r.status).toBe(503);
+    expect((await f.send(handler, "status")).r.status).toBe(503);
+    expect((await f.send(handler, "bootstrap")).r.status).toBe(503);
   }
-  expect(readConfig).not.toHaveBeenCalled();
+  expect(JSON.stringify([...f.rows])).toBe(rows);
+  expect(f.calls).toEqual(calls);
   expect(fetch).not.toHaveBeenCalled();
-  // A hold retains state; it does not delete or mutate the earlier transaction.
+  // The hold freezes existing rows. GET remains inert after re-enabling;
+  // only an explicit POST status reads the retained staged transaction.
   vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true");
-  expect(
-    await (await handler.GET(request("GET", "", undefined, cookie))).json(),
-  ).toMatchObject({ status: "staged", csrf });
+  expect((await f.send(handler, "bootstrap")).body).toMatchObject({ status: "empty", csrf });
+  expect(f.calls).toEqual(calls);
+  expect((await f.send(handler, "status")).body).toMatchObject({ status: "staged", csrf });
+  expect(JSON.stringify([...f.rows])).toBe(rows);
 });
 it.each(["ko", "ja", "en"])(
   "serves a localized paused HTML response with no CSRF/cookie (%s)",
@@ -165,3 +150,15 @@ it.each(["ko", "ja", "en"])(
     expect(fetch).not.toHaveBeenCalled();
   },
 );
+
+
+it.each([["ja-JP", "ja"], ["fr-FR", "en"]])("uses safe locale fallback for a paused invalid locale (%s)", async (acceptLanguage, expected) => {
+  const req = request("GET", "?locale=invalid");
+  req.headers.set("accept", "text/html");
+  req.headers.set("accept-language", acceptLanguage);
+  const response = await GET(req);
+  expect(response.status).toBe(503);
+  expect(await response.text()).toContain(`lang="${expected}"`);
+  expect(response.headers.getSetCookie()).toEqual([]);
+  expect(fetch).not.toHaveBeenCalled();
+});
