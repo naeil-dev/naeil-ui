@@ -329,3 +329,27 @@ The existing login/first-change and isolated invitation composition remain the r
 ## 2026-11-04 — shared language implementation
 
 DESIGN.md and the approved shared-language design remain the authority. Canonical header/footer/account, neutral tokens, Pretendard/Noto Sans JP and existing purpose widths are retained. Applied Impeccable context/harden/craft-floor and one detector pass (no findings); no external design catalog or image generation. Actual tools: Ego TaskSpace58 inspection of built Storybook, Playwright packed applications/Storybook/React/Next consumers, ICU/unit/type/lint/build/contrast checks and delegated source review. Aside authenticated Cloudflare DNS/tunnel inventory completed (four records, one tunnel, three published routes); root reviewed its relevant dashboard snapshots and route screenshot. No console changes occurred. Local receipts and the external-artwork403 limitation are recorded in shared-language-2026-11-04/acceptance.md. No deployed or real hosted OAuth acceptance is implied.
+
+## Historical provenance preserved on 2026-11-04
+
+The three dated entries below are preserved verbatim from the audited Console and Estimate branches. Their tool use and results describe those historical tasks; no new browser, design-tool or acceptance run is implied. See the [closeout index](project-closeout-2026-11-04.md) for source identities, archived mockup provenance and current boundaries.
+
+## 2026-10-15 — Home Console 실제 React UI
+
+승인된 Console 설계·HTML 목업과 기존 Home 소스/렌더를 기준으로 실제 한 페이지 UI를 구현했다. Home의 기존 Header·언어/테마 제공자·React primitive와 pinned copied/adapted naeil-v2 CSS를 소비하며 공유 @naeil/ui import나 패키지 변경은 아니다. neutral/Pretendard·기존1600px 프레임과 목적별 목록 폭을 유지했다. 숨긴 표 제목의 스크롤 이탈·스위치 중복 translate·한국어 제목/설명·필터 라벨을 실제 소스/렌더 근거로 수정했다. 외부 시각 레퍼런스 탐색이나 이미지 생성은 필요하지 않았다.
+
+실제 사용: frontend-reference-workflow revision2026-10-05.1(layout/verification), Impeccable4.4.0 context/craft-floor 및 최종 detect(`[]`), 캐시된 Playwright1.61.1/Chromium153.0.8010.12·axe-core4.11.1, 독립 코드 리뷰, Bun1.3.14. 메인이 frontend862개·타입/lint/build,36개 화면/18개 동작/추가 수동 판단4개와 프레임135개/구현 전후90개 비교를 확인했다. axe 위반0; 부분 가림으로 판단 보류한4개 패널은 스크롤 후 문구6.07:1/7.72:1 및 캡처를 확인하고 원본 보류 결과도 보존했다. Home `b27f79808e08d8a82e9b70ea3f6a052e0f5190d0`의 `openspec/changes/naeil-console-access/console-ui-verification.md`와 evidence에 명령·버전·출처 hash·캡처·제약을 기록했다. 외부 OAuth·메일·초대·실제 서비스 집행·운영 배포 검증과 구별하며 기존 제품/공유 UI의 미해결 검증을 종결하지 않는다.
+
+## 2026-10-15 — Console 초대 관리·수락 화면 로컬 구현
+
+기존 Console 한 페이지와 승인된 목업·neutral/Pretendard 기준을 사용했다. 공개 수락 화면은 기존 Pretendard1.3.9와 공식 brand1.1.1 wordmark를 출처·라이선스와 함께 복사한 독립 HTML 응답이다. 공유 React 컴포넌트 import 또는 공유 토큰 변경으로 표시하지 않는다. 복사된 라이선스 두 파일의 끝 공백만 정리했으며 폰트·로고 원본 bytes는 유지했다.
+
+실제 사용: frontend-reference-workflow 및 Impeccable 화면·상태·접근성 검토 절차, Playwright Chromium/axe와 실제 화면 캡처, 로컬 HTTP/SMTP 수집·Auth/PostgREST/RLS 통합 검사, 독립 코드 리뷰. 관리 화면의 viewport/theme/locale 조합·키보드·포커스·motion·색 대비와 공개 수락 상태를 측정했다. 새 외부 디자인 자료/생성 이미지/공유 UI 패키지 변경은 없다. 정확한 명령·실패/수정·결과·검증 한계는 Home `openspec/changes/naeil-console-access/invitation-verification.md`와 그 영구 증거를 따른다. 운영 배포·실제 수신함·외부 OAuth·실 HTTPS/SSO 성공을 주장하지 않는다.
+
+## 2026-10-09 — 개인 견적 앱 설계 제안
+
+- 후속 상태: 사용자가 설계안을 승인해 [구현 계획](../superpowers/plans/2026-10-09-estimate-app.md)을 작성했다. npm metadata로 @naeil/ui0.3.0·decimal.js10.6.0·Zod4.1.12 존재, Node 공식 배포 index로24.21.0 LTS artifact를 확인했다. JEV 배포 문서·로컬 package/runtime·후보 포트를 읽기 확인했으며 새 설치·제품 생성·실행 테스트·배포는 하지 않았다.
+- Gap: 업로드 HTML의 견적 기능을 독립 소비 앱의 작업 흐름으로 다시 구성하고, JEV식 비밀번호 입장을 DB 없는 1인용 저장 방식과 결합한다. [설계 제안](../superpowers/specs/2026-10-09-estimate-app-design.md)에 확정 범위, 제안 기본값, 레이아웃 계약, 이전 미해결 사항, source hash와 검증 계획을 기록했다.
+- 실제 읽음: 사용자 제공 HTML, 현재 DESIGN.md·v2-migration.md·package exports와 UI/Nav 소스, repository frontend-reference-workflow revision2026-10-02.1 및 layout/verification, 설치된 Impeccable/Brainstorming 안내, JEV 실제 로컬 worktree의 auth/session 소스·README·STATUS. 공유 시각 기준과 primitive 재사용을 제안했고 외부 UI 코드는 복사하지 않았다.
+- 실제 실행: Aside 원본 데스크톱 화면/접근성 트리·스크린샷 확인, Node에서 원본 계산·오류 사례 실행, 로컬 source/hash 검사. Aside의 viewport 조절 API가 지원되지 않아 모바일 화면 확인은 미완료다. JEV 운영 인증·새 앱 구현·Storybook·새 앱 브라우저 테스트·독립 critique/detector/polish/distill은 실행하지 않았다.
+- Refero/21st/Component Gallery/Kinetics 검색·retrieval·새 스타일 채택은 하지 않았다. 승인된 디자인 권위와 기존 컴포넌트로 현재 방향이 정해져 있다. 제품 구현 단계에서 실제로 발견한 패턴 공백만 추가 조사한다. 문서만 추가했으며 공유 패키지·사이트 UI·의존성·DNS는 변경하지 않았다.
