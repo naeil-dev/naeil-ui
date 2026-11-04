@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-04T05:36:51.137516+00:00",
+  "scope": [
+    "site",
+    "jev",
+    "estimate"
+  ],
+  "excluded": [
+    "baby",
+    "home",
+    "dns-changes"
+  ],
+  "publication": {
+    "npm": {
+      "package": "@naeil/ui",
+      "version": "0.10.0",
+      "distTags": {
+        "latest": "0.7.2",
+        "next": "0.10.0"
+      },
+      "archiveSha256": "a4a1e312f2f608358a10f9019c248af37a8172bb116d3bc506144442cb963fb4",
+      "verifiedMembers": 175,
+      "publicReceipt": "https://github.com/naeil-dev/naeil-ui/releases/download/v0.10.0/npm-registry-verification.json"
+    },
+    "release": {
+      "url": "https://github.com/naeil-dev/naeil-ui/releases/tag/v0.10.0",
+      "sourceRevision": "455f2f9aedb108606af2f429c18281260eafd2dd",
+      "assetsVerified": 3
+    }
+  },
+  "ci": {
+    "runId": 41775023276,
+    "url": "https://github.com/naeil-dev/naeil-ui/actions/runs/41775023276",
+    "headSha": "b5c344fb9d3a801a89bc66430adcadf8f0f8e306",
+    "conclusion": "success",
+    "jobs": {
+      "success": 13,
+      "failure": 0,
+      "cancelled": 0
+    },
+    "browserTotals": {
+      "passed": 1187,
+      "failed": 0,
+      "skipped": 4,
+      "flaky": 0
+    },
+    "unit": {
+      "passed": 791,
+      "skipped": 5
+    },
+    "receipt": {
+      "evidenceId": "operations/ci/runtime-pr37-run41775023276/final-receipt.json",
+      "sha256": "99285cc1c79dcd31a7a539bf119b2f97c935ba4031896d999b5536df37c71a6a",
+      "availability": "private operational evidence; not published"
+    },
+    "artworkDisposition": "Official images loaded in successful CI packed whole-header cases. Earlier local Vercel 403 evidence remains preserved; CI success establishes that environment only."
+  },
+  "siteIntegration": {
+    "pr": 37,
+    "url": "https://github.com/naeil-dev/naeil-ui/pull/37",
+    "mergeCommit": "09525c1cf0c82cba00ac381ea9491c58f255e694",
+    "mergedAt": "2026-11-04T05:03:18Z"
+  },
+  "services": {
+    "site": {
+      "receiverAccepted": true,
+      "receiverAcceptedAt": "2026-11-04T05:12:06.578742+00:00",
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "naeil",
+        "artifactId": "dpl_8mwBJsBVizByNt5sgLxgqz8ginaG",
+        "sourceRevision": "09525c1cf0c82cba00ac381ea9491c58f255e694",
+        "ui": {
+          "version": "0.10.0",
+          "contractVersion": "1"
+        }
+      },
+      "counts": {
+        "http": 41,
+        "browser": 29,
+        "realAuthRows": 9
+      },
+      "receiverReceipt": {
+        "evidenceId": "operations/site-receiver-acceptance.json",
+        "sha256": "bbba88229c81819a89dfae4e453c972e7fbf1437dfed2cf03ab40b092bf9bc31",
+        "availability": "private operational evidence; not published"
+      },
+      "limits": [
+        "Wire query spelling is not guaranteed by Vercel; original failed checker evidence is retained.",
+        "Real expiry/403/provider outage and OAuth/invitation mutations remain synthetic-only evidence."
+      ],
+      "receiverActivationEvidenceUtc": {
+        "integrationAt": "2026-11-04T05:03:18Z",
+        "firstPublicIdentityObservedAt": "2026-11-04T05:04:44.356399+00:00",
+        "exactExposureTimeKnown": false
+      },
+      "legacyHintDeadline": {
+        "anchorUtc": "2026-11-04T05:04:44.356399+00:00",
+        "notAfterUtc": "2027-02-02T05:04:44.356399+00:00",
+        "basis": "First documented receiver observation for Site; earliest timestamp in the recorded native activation window for Jev/Estimate. Not a claim of an exact exposure instant.",
+        "currentlyConsumed": false
+      },
+      "sender": {
+        "enabled": false,
+        "status": "awaiting-user-vercel-email-reauthentication",
+        "activationAccepted": false
+      }
+    },
+    "jev": {
+      "receiverAccepted": true,
+      "receiverAcceptedAt": "2026-11-04T05:18:34.511733+00:00",
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "jev",
+        "artifactId": "jev-ui07-5f4b1fc07415",
+        "sourceRevision": "5f4b1fc07415e450252444efa89f42722b491552",
+        "ui": {
+          "version": "0.10.0",
+          "contractVersion": "1"
+        }
+      },
+      "counts": {
+        "http": 37,
+        "realAuthRows": 9,
+        "deployedAssetFixture": 2
+      },
+      "receiverReceipt": {
+        "evidenceId": "operations/jev-receiver-acceptance.json",
+        "sha256": "5bfa120e9e36100e96a7c36c0639a02b3ac995315d8543ce678520a4ea10bda9",
+        "availability": "private operational evidence; not published"
+      },
+      "limits": [
+        "Real expiry/403/provider outages were not induced.",
+        "Deployed JS/CSS stream tests use fictional HTML/Flight/auth/model/storage."
+      ],
+      "receiverActivationEvidenceUtc": {
+        "bootstrapIntent": "2026-11-04T05:12:36.450903+00:00",
+        "readyObserved": "2026-11-04T05:12:37.862674+00:00"
+      },
+      "legacyHintDeadline": {
+        "anchorUtc": "2026-11-04T05:12:36.450903+00:00",
+        "notAfterUtc": "2027-02-02T05:12:36.450903+00:00",
+        "basis": "First documented receiver observation for Site; earliest timestamp in the recorded native activation window for Jev/Estimate. Not a claim of an exact exposure instant.",
+        "currentlyConsumed": false
+      },
+      "sender": {
+        "enabled": true,
+        "bootstrapRequestedAt": "2026-11-04T05:30:12.071841+00:00",
+        "readyObservedAt": "2026-11-04T05:30:13.540621+00:00",
+        "receipt": {
+          "evidenceId": "operations/jev/sender-jev-sender1-20261104T053100Z-root2/009-sender-ready.json",
+          "sha256": "151a828889bc3c8e22054b1ffe61cca52e54ad105772adf6d3077f7f1841f2cc",
+          "availability": "private operational evidence; not published"
+        },
+        "publicRealSessionAcceptance": "desktop read-only href/account observations passed; final interaction/preference matrix pending",
+        "activationAccepted": true,
+        "acceptanceReceipt": {
+          "evidenceId": "operations/jev-sender-acceptance.json",
+          "sha256": "d2de9a05bea2273fa49d3ac0c2ce8da2a6579238cdd2175f84af1450dd6f8274",
+          "availability": "private operational evidence; not published"
+        }
+      }
+    },
+    "estimate": {
+      "receiverAccepted": true,
+      "receiverAcceptedAt": "2026-11-04T05:28:46.375297+00:00",
+      "identity": {
+        "schemaVersion": 1,
+        "appId": "abestimate",
+        "artifactId": "2a37c7a5-6b50-418f-b035-836c8ad06ceb",
+        "sourceRevision": "cf8ed5ebef085807737438521ad9db5f5c045f8b",
+        "ui": {
+          "version": "0.10.0",
+          "contractVersion": "1"
+        }
+      },
+      "counts": {
+        "http": 92,
+        "realAuthRows": 9,
+        "deployedAssetFixture": 5
+      },
+      "receiverReceipt": {
+        "evidenceId": "operations/estimate-receiver-acceptance.json",
+        "sha256": "528cc3b6286e2149f6133bd539ab22fd365c8470882d91ed2fe2da59cd664483",
+        "availability": "private operational evidence; not published"
+      },
+      "limits": [
+        "Real expiry/403/provider outages were not induced.",
+        "Deployed JS/CSS tests use fictional local HTML/Flight/auth/API/storage; no production writes."
+      ],
+      "receiverActivationEvidenceUtc": {
+        "bootstrapIntent": "2026-11-04T05:18:43.802592+00:00",
+        "localReadyObserved": "2026-11-04T05:18:44.750125+00:00",
+        "preservationReceiptCompleted": "2026-11-04T05:18:45.317355+00:00",
+        "firstPublicProbe": "2026-11-04T05:19:25.612264+00:00"
+      },
+      "legacyHintDeadline": {
+        "anchorUtc": "2026-11-04T05:18:43.802592+00:00",
+        "notAfterUtc": "2027-02-02T05:18:43.802592+00:00",
+        "basis": "First documented receiver observation for Site; earliest timestamp in the recorded native activation window for Jev/Estimate. Not a claim of an exact exposure instant.",
+        "currentlyConsumed": false
+      },
+      "sender": {
+        "enabled": true,
+        "bootstrapRequestedAt": "2026-11-04T05:30:35.948986+00:00",
+        "readyObservedAt": "2026-11-04T05:30:37.526269+00:00",
+        "receipt": {
+          "evidenceId": "operations/estimate/sender-root-estimate-sender1-20261104T0531Z/receipt.json",
+          "sha256": "def36ae8d9d54b1a5dbd54f39627011dbd6e94801394b469940bcc785c835908",
+          "availability": "private operational evidence; not published"
+        },
+        "publicRealSessionAcceptance": "desktop read-only href/account observations passed; final interaction/preference matrix pending",
+        "activationAccepted": true,
+        "acceptanceReceipt": {
+          "evidenceId": "operations/estimate-sender-acceptance.json",
+          "sha256": "17048e66639813b69c00a10e1fe1eef9c77e95c3cafd09598481782449f96b08",
+          "availability": "private operational evidence; not published"
+        }
+      },
+      "receiverTimingSupplement": {
+        "evidenceId": "operations/estimate/receiver-timing-supplement.json",
+        "sha256": "4808af00825c5449a07c6e153cde4498fa7cbc360a298ba8cf5c1f1738abeee2",
+        "availability": "private operational evidence; not published"
+      }
+    }
+  },
+  "maintainedEstimateEntry": {
+    "sourceRevision": "93b2760d664db2498a5b977d73df901ea745dabd",
+    "branch": "feat/shared-language-20261104",
+    "pushed": true,
+    "mainIntegrated": false,
+    "scope": "README Japanese entry after receiver acceptance; product bytes unchanged"
+  },
+  "legacyCompatibility": {
+    "legacyHintHelper": "legacyLocaleHint",
+    "applicationConsumersFound": 0,
+    "sourceCheck": "rg legacyLocaleHint|legacyHint|NEXT_LOCALE in Site/Jev/Estimate src: helper definition and tests only; no application hint consumer.",
+    "legacyStorageHintsReadByApps": false,
+    "receivingAliasesRetained": "indefinitely",
+    "aliases": [
+      "/en",
+      "valid lang query"
+    ],
+    "deadlineDoesNotRemoveAliases": true
+  },
+  "fleet": {
+    "accepted": false,
+    "status": "pending Site sender activation and final cross-origin/preference acceptance",
+    "remaining": [
+      "User Vercel email reauthentication, Site sender-enabled deployment and verification",
+      "Final deployed three-language cross-origin click/new-tab/copied-href and explicit preference-write matrix in disposable anonymous contexts; existing-session auth and exact returns separately verified"
+    ]
+  },
+  "evidenceBoundaries": {
+    "live": "Public-origin HTTP/browser checks and separate existing-session production read-only auth observations.",
+    "fixtures": "Deployed static JS/CSS matched frozen artifacts; Jev stream and Estimate editing/recovery tests use fictional local HTML/Flight/auth/model/API/storage, not production backend behavior.",
+    "noInducedProductionCases": [
+      "expiry",
+      "403",
+      "provider outage",
+      "OAuth or invitation mutation"
+    ],
+    "failedCheckersPreserved": true,
+    "privateDataPublished": false
+  },
+  "nativePostSenderAuth": {
+    "accepted": true,
+    "checkedAt": "2026-11-04T05:33:32.447Z",
+    "rows": 6,
+    "scope": "Authenticated desktop, two native services \u00d7 three locales; canonical Site brand/footer hrefs, account control visible, identities rechecked.",
+    "businessWrites": 0,
+    "preferenceSelection": false,
+    "receipt": {
+      "evidenceId": "operations/native-sender-real-auth.json",
+      "sha256": "11eb8136e9759e50e3f4e97256e1497268d70201624ab10fe9ed8976bb8fccc1",
+      "availability": "private operational evidence; not published"
+    }
+  },
+  "nativePublicSender": {
+    "accepted": true,
+    "counts": {
+      "checks": 16,
+      "passed": 16,
+      "identities": 4,
+      "localeHtml": 6,
+      "localeFlight": 6,
+      "httpGets": 19,
+      "nonGetRequests": 0
+    },
+    "receipt": {
+      "evidenceId": "operations/native-sender-public.json",
+      "sha256": "5ef4f6b788c27f12490940be29831acdfa85f59d8e0b9a346878fc2c99d60d46",
+      "availability": "private operational evidence; not published"
+    }
+  },
+  "nativeAuthenticatedClicks": {
+    "accepted": true,
+    "checkedAt": "2026-11-04T05:36:09.115Z",
+    "rows": 6,
+    "scope": "Actual native header brand clicks to Site; native senders on, Site sender off. New-tab/copied-href and cookie behaviors remain separate.",
+    "receipt": {
+      "evidenceId": "operations/native-sender-authenticated-clicks.json",
+      "sha256": "f4ab232ce0facad64bd575748ae6b79344a961cbdc770a0f50f3e83f97f172b8",
+      "availability": "private operational evidence; not published"
+    }
+  }
+}
