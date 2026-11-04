@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-11-04T05:36:51.137516+00:00",
+  "recordedAt": "2026-11-04T05:54:54.371159+00:00",
   "scope": [
     "site",
     "jev",
@@ -160,6 +160,12 @@
           "sha256": "d2de9a05bea2273fa49d3ac0c2ce8da2a6579238cdd2175f84af1450dd6f8274",
           "availability": "private operational evidence; not published"
         }
+      },
+      "faviconDisposition": {
+        "baseline": "No asset or metadata declaration in recovered deployed source and current source.",
+        "migration": "Existing service identity retained under design section 7.",
+        "renderedIconCheckPassed": false,
+        "newIdentityAssetInScope": false
       }
     },
     "estimate": {
@@ -229,8 +235,26 @@
     "sourceRevision": "93b2760d664db2498a5b977d73df901ea745dabd",
     "branch": "feat/shared-language-20261104",
     "pushed": true,
-    "mainIntegrated": false,
-    "scope": "README Japanese entry after receiver acceptance; product bytes unchanged"
+    "scope": "README Japanese entry after receiver acceptance; product bytes unchanged",
+    "featureSourceMainIntegrated": false,
+    "readmeMainIntegrated": true,
+    "defaultBranchUpdate": {
+      "pr": "https://github.com/naeil-dev/abestimate/pull/1",
+      "sourceRevision": "fc9f8ff7636b04dd7bbe1c078f9c56ede2fc75e0",
+      "mergeCommit": "bc6803252543af19c7108e454c7bdd6e3d85ccf8",
+      "mergedAt": "2026-11-04T05:53:52Z",
+      "changedFiles": [
+        "README.md"
+      ],
+      "additions": 1,
+      "deletions": 1,
+      "nativeIdentityUnchanged": true,
+      "receipt": {
+        "evidenceId": "operations/estimate/maintained-entry-merge-receipt.json",
+        "sha256": "e8312f32226535de8a221b206f58eb975c2a18f7b83b2e17386370a79ec6c9b3",
+        "availability": "private operational evidence; not published"
+      }
+    }
   },
   "legacyCompatibility": {
     "legacyHintHelper": "legacyLocaleHint",
@@ -250,7 +274,29 @@
     "remaining": [
       "User Vercel email reauthentication, Site sender-enabled deployment and verification",
       "Final deployed three-language cross-origin click/new-tab/copied-href and explicit preference-write matrix in disposable anonymous contexts; existing-session auth and exact returns separately verified"
-    ]
+    ],
+    "checkerPreparation": {
+      "rootReviewed": true,
+      "liveExecuted": false,
+      "syntaxPassed": true,
+      "offlineTests": {
+        "passed": 66,
+        "failed": 0
+      },
+      "requiredSurfaceCases": 42,
+      "checkerSha256": "fe90f9b6334bdc64f15a6ffa158cf1e5d67fbf8a2c1f5204e6aefb4ded8a8c5d",
+      "preparationReceipt": {
+        "evidenceId": "operations/cross-service/reviewed-preparation-receipt.json",
+        "sha256": "20acafebac4378e1c13d59c96f48374ab098b137063c5f792ca5a0854a35a91e",
+        "availability": "private operational evidence; not published"
+      },
+      "rootReviewReceipt": {
+        "evidenceId": "operations/cross-service/root-reviewed-receipt.json",
+        "sha256": "15aff37aa9651520435831479c34a9a164a0276d2718425ecba2e589dc7020b5",
+        "availability": "private operational evidence; not published"
+      },
+      "executionGate": "All three exact identities must have separately accepted sender-on evidence before live execution."
+    }
   },
   "evidenceBoundaries": {
     "live": "Public-origin HTTP/browser checks and separate existing-session production read-only auth observations.",
@@ -268,7 +314,7 @@
     "accepted": true,
     "checkedAt": "2026-11-04T05:33:32.447Z",
     "rows": 6,
-    "scope": "Authenticated desktop, two native services \u00d7 three locales; canonical Site brand/footer hrefs, account control visible, identities rechecked.",
+    "scope": "Authenticated desktop, two native services × three locales; canonical Site brand/footer hrefs, account control visible, identities rechecked.",
     "businessWrites": 0,
     "preferenceSelection": false,
     "receipt": {
