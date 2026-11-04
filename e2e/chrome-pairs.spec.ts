@@ -10,6 +10,13 @@ test.beforeEach(async ({ page, browser, browserName }, info) => {
 
 const properties = ["color", "background-color", "border-color", "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "opacity", "-webkit-font-smoothing", "-moz-osx-font-smoothing", "padding", "gap", "min-height"];
 type EntryMeasurement = { active: boolean; metrics: Record<string, unknown>; raw: unknown };
+async function assertLocaleFocusMarker(page: Page) {
+  const profile = new URL(page.url()).searchParams.get("profile");
+  const expected = ["estimate", "compat-slots", "generic"].includes(profile || "") ? 0 : 1 + await page.locator('[data-slot="navigation-sheet"]').count();
+  const controls = page.locator('.naeil-header-controls [role="combobox"][data-slot="select-trigger"]');
+  expect(await controls.evaluateAll(elements => elements.map(element => element.getAttribute("data-naeil-focus-id"))), "Each current locale combobox must retain its focus-restoration marker").toEqual(Array(expected).fill("locale-control"));
+  expect(await page.locator("[data-naeil-focus-id]").count(), "Focus markers must occur only on the locale comboboxes").toBe(expected);
+}
 async function prepare(page: Page, side: string, query: string, state: string, home = false) {
   await page.goto(`${base}/${side}/index.html?${query}${home ? "&profile=home" : ""}${state === "current" ? `&current=${home ? "/" : "/design"}` : ""}`);
   await page.locator("header").waitFor();
@@ -35,6 +42,7 @@ async function prepare(page: Page, side: string, query: string, state: string, h
       await Promise.all(animations.map(a => a.finished.catch(() => {})));
     }
   });
+  if (side === "candidate") await assertLocaleFocusMarker(page);
 }
 
 async function snapshot(page: Page, home = false) {
@@ -46,7 +54,8 @@ async function snapshot(page: Page, home = false) {
     if (!home) {
       const nodes = roots.flatMap(root => [root, ...root.querySelectorAll("*")].filter(visible).map(e => ({ tag: e.tagName, slot: e.getAttribute("data-slot"), text: [...e.childNodes].filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent).join(""), rect: rect(e, root), style: style(e) })));
       const html = roots.map(root => { const clone = root.cloneNode(true) as Element; for (const e of [clone, ...clone.querySelectorAll("*")]) { const marked = e.hasAttribute("data-naeil-chrome"); for (const a of [...e.attributes]) {
-        if ((["data-naeil-chrome", "data-naeil-locale-menu", "data-naeil-ui-version"].includes(a.name) || (a.name === "lang" && marked))) e.removeAttribute(a.name);
+        if ((["data-naeil-chrome", "data-naeil-locale-menu", "data-naeil-ui-version"].includes(a.name) || (a.name === "lang" && marked)
+          || (a.name === "data-naeil-focus-id" && a.value === "locale-control" && e.matches('.naeil-header-controls [role="combobox"][data-slot="select-trigger"]')))) e.removeAttribute(a.name);
         else e.setAttribute(a.name, a.value.replace(/radix-(?:_r_[\w]+_|_R_[\w]+_)/g, "GENERATED_ID"));
       } } return clone.outerHTML; });
       return { nodes, html, common: common() };
@@ -143,6 +152,19 @@ async function record(info: TestInfo, name: string, measurements: unknown) {
   mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(measurements, null, 2));
   await info.attach(`${name}.json`, { path, contentType: "application/json" });
 }
+
+test("P1 locale focus marker comparison rejects a changed value or misplaced marker", async ({ page }) => {
+  await prepare(page, "candidate", "locale=ja&theme=light&auth=in", "closed");
+  const before = await snapshot(page);
+  const control = page.locator('.naeil-header-controls [role="combobox"]').first();
+  await control.evaluate(element => element.setAttribute("data-naeil-focus-id", "wrong-control"));
+  expect(compare(before, await snapshot(page)).some(value => value.includes("data-naeil-focus-id"))).toBe(true);
+  await expect(assertLocaleFocusMarker(page)).rejects.toThrow("Each current locale combobox");
+  await control.evaluate(element => element.setAttribute("data-naeil-focus-id", "locale-control"));
+  await page.locator("header").evaluate(element => element.setAttribute("data-naeil-focus-id", "locale-control"));
+  expect(compare(before, await snapshot(page)).some(value => value.includes("data-naeil-focus-id"))).toBe(true);
+  await expect(assertLocaleFocusMarker(page)).rejects.toThrow("Focus markers must occur only");
+});
 
 for (const locale of ["ko", "en", "ja"]) for (const theme of ["light", "dark"]) for (const width of [320, 390, 806, 807, 1440, 1920]) for (const auth of ["in", "out"]) {
   test(`P3 paired B1/default/Home ${locale}/${theme}/${width}/${auth}`, async ({ page }, info) => {

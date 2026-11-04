@@ -1,6 +1,6 @@
 # Shared-language release preparation
 
-Prepared for review on 2026-11-04. No publication, push, merge, tag, managed-service switch or hosted Docs deployment has occurred. Historical approvals are not reused.
+Historical preparation snapshot, reviewed on 2026-11-04 before external actions. The user subsequently approved the listed publication/source/deployment sequence. See [implementation progress](implementation-progress.md) for actual execution status; the proposal below is not a deployment receipt. Historical approvals are not reused.
 
 ## Reviewed candidates and required approval
 

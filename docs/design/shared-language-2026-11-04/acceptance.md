@@ -1,6 +1,6 @@
 # Acceptance — final local candidates, not deployed
 
-The approved design §12 remains the completion contract. This table records executed local evidence; every production row still needs a deployment receipt. No publication, push, merge, tag, deployment or sender activation has occurred.
+The approved design §12 remains the completion contract. This table records executed local evidence; every production row still needs a deployment receipt. Publication and source-push status are recorded separately in [implementation progress](implementation-progress.md).
 
 Exact sources, archives and evidence hashes are in [local-final-receipt.json](local-final-receipt.json). All three apps consume `next-intl@4.14.8` and archive SHA-256 `a4a1e312f2f608358a10f9019c248af37a8172bb116d3bc506144442cb963fb4`. A final pack at Site source `455f2f9aedb108606af2f429c18281260eafd2dd` reproduced these bytes. Later documentation commits do not change package or application code.
 
