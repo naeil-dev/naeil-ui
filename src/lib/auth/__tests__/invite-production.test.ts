@@ -5,6 +5,7 @@ import { mkdtempSync, realpathSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
+import { fixture, config, applyCookies } from "./invite-fixture";
 const origin = "http://127.0.0.1:2482";
 // Deliberately opt-in: owns2482 and a private fake HTTP Auth/RPC seam, never real OTP.
 const enabled = process.env.NAEIL_INVITE_PRODUCTION_TEST === "1";
@@ -51,17 +52,10 @@ describe.skipIf(!enabled)(
   () => {
     let app: ChildProcess | undefined;
     let seam: Server | undefined;
-    let privateDir = "";
-    const upstream: string[] = [];
-    const id = "10000000-0000-4000-8000-000000000001",
-      userId = "20000000-0000-4000-8000-000000000002",
-      sessionId = "30000000-0000-4000-8000-000000000003";
-    const user = {
-      id: userId,
-      email: "recipient@example.test",
-      email_confirmed_at: "2026-10-15T01:00:00Z",
-    };
-    const token = `${Buffer.from('{"alg":"HS256"}').toString("base64url")}.${Buffer.from(JSON.stringify({ sub: userId, session_id: sessionId, exp: 9999999999 })).toString("base64url")}.fixture`;
+    let privateDir = "", privateFile="";
+    const f = fixture(),
+      upstream = f.calls;
+    const id = "10000000-0000-4000-8000-000000000001";
     beforeAll(async () => {
       const guard = createServer();
       await new Promise<void>((resolve, reject) => {
@@ -71,26 +65,25 @@ describe.skipIf(!enabled)(
         guard.listen(2482, "127.0.0.1", resolve);
       });
       await new Promise<void>((r) => guard.close(() => r()));
-      seam = createServer((req, res) => {
-        const p = req.url || "";
-        upstream.push(p);
-        let data: unknown;
-        if (p.endsWith("preflight"))
-          data = { userId, email: user.email, verificationType: "invite" };
-        else if (p.endsWith("/verify")) data = { access_token: token, user };
-        else if (p.endsWith("/user")) data = user;
-        else if (p.endsWith("record_verification"))
-          data = { verified: true, expiresAt: "2099-01-01T00:00:00Z" };
-        else
-          data = {
-            inviteId: id,
-            version: 1,
-            userId,
-            services: ["jev"],
-            acceptedAt: "2026-10-15T01:00:00Z",
-          };
-        res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify(data));
+      seam = createServer(async (req, res) => {
+        try {
+          const chunks: Buffer[] = [];
+          for await (const chunk of req) chunks.push(Buffer.from(chunk));
+          const response = await f.fetch(`http://127.0.0.1${req.url}`, {
+            method: req.method,
+            headers: new Headers(req.headers as Record<string, string>),
+            ...(chunks.length
+              ? { body: Buffer.concat(chunks).toString() }
+              : {}),
+          });
+          res.writeHead(response.status, {
+            "content-type": "application/json",
+          });
+          res.end(await response.text());
+        } catch {
+          res.writeHead(503);
+          res.end("{}");
+        }
       });
       await new Promise<void>((r) => seam!.listen(0, "127.0.0.1", r));
       const address = seam.address();
@@ -99,17 +92,19 @@ describe.skipIf(!enabled)(
       privateDir = mkdtempSync(
         join(realpathSync(tmpdir()), "invite-production-"),
       );
-      const privateFile = join(privateDir, "private.json");
+      privateFile = join(privateDir, "private.json");
       writeFileSync(
         privateFile,
         JSON.stringify({
+          ...config,
           siteOrigin: origin,
           supabaseUrl: `http://127.0.0.1:${address.port}`,
-          anonKey: "fixture-anon",
-          serviceRoleKey: "fixture-service",
         }),
         { mode: 0o600 },
       );
+      await start();
+    }, 30000);
+    async function start(acceptance = "true") {
       app = spawn(
         process.execPath,
         [
@@ -123,9 +118,15 @@ describe.skipIf(!enabled)(
         {
           cwd: process.cwd(),
           env: {
-            ...process.env,
+            ...Object.fromEntries(["PATH", "HOME", "TMPDIR", "LANG"].flatMap(key => process.env[key] ? [[key, process.env[key]]] : [])),
+            NODE_ENV: "production",
+            NEXT_TELEMETRY_DISABLED: "1",
+            NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:55431",
+            NEXT_PUBLIC_SUPABASE_ANON_KEY: "fixture-anon",
+            NAEIL_AUTH_EMAIL_ENABLED: "false",
+            NAEIL_LOCALE_SEND_ENABLED: "0",
             NAEIL_INVITE_CONFIG_FILE: privateFile,
-            NAEIL_INVITE_ACCEPT_ENABLED: "true",
+            NAEIL_INVITE_ACCEPT_ENABLED: acceptance,
             NAEIL_INVITE_DIST_DIR: ".next-console-invite",
           },
           stdio: "ignore",
@@ -147,8 +148,8 @@ describe.skipIf(!enabled)(
       }
       if (!ready)
         throw new Error("Owned production preview did not become ready");
-    }, 30000);
-    afterAll(async () => {
+    }
+    async function stop() {
       if (app && app.exitCode === null) {
         app.kill("SIGTERM");
         await Promise.race([
@@ -157,6 +158,9 @@ describe.skipIf(!enabled)(
         ]);
         if (app.exitCode === null) app.kill("SIGKILL");
       }
+    }
+    afterAll(async () => {
+      await stop();
       if (seam) await new Promise<void>((r) => seam!.close(() => r()));
       if (privateDir) rmSync(privateDir, { recursive: true, force: true });
     }, 10000);
@@ -166,6 +170,8 @@ describe.skipIf(!enabled)(
       expect(r.status).toBe(200);
       protectedHeaders(r);
       const html = await r.text();
+      expect(r.headers.getSetCookie()).toHaveLength(2);
+      expect(r.headers.getSetCookie().map(cookie => cookie.split("=")[0])).toEqual(["naeil_invite_loopback", "naeil_invite_loopback_browser"]);
       const nonce = html.match(/<script nonce="([^"]+)"/);
       expect(Boolean(nonce)).toBe(true);
       expect(r.headers.get("content-security-policy")).toContain(
@@ -204,9 +210,37 @@ describe.skipIf(!enabled)(
       protectedHeaders(closed);
       expect(closed.headers.get("location")).toBeNull();
       const legacy = await fetch(origin + "/ko/", { redirect: "manual" });
-      expect(legacy.status).toBe(308);
-      expect(legacy.headers.get("location")).toBe("/ko");
+      // Current locale proxy canonicalizes UI aliases with a temporary redirect.
+      // The protocol's own slash alias still uses 308 above.
+      expect(legacy.status).toBe(307);
+      expect(new URL(legacy.headers.get("location")!, origin).pathname).toBe("/ko");
     });
+    it("keeps compiled canonical/slash endpoints paused with complete fake config and no upstream or cookies", async () => {
+      await stop();
+      await start("false");
+      const count = upstream.length;
+      try {
+        for (const suffix of ["", "/", "?locale=ja", "/?locale=ko"]) {
+          for (const method of ["GET", "HEAD", "POST"]) {
+            const response = await fetch(origin + "/auth/invite" + suffix, {
+              method, redirect: "manual",
+              headers: { accept: method === "GET" ? "text/html" : "application/json", origin, "content-type": "application/json" },
+              ...(method === "POST" ? { body: JSON.stringify({ action: "confirm", csrf: "retained" }) } : {}),
+            });
+            expect(response.status).toBe(503);
+            expect(response.headers.getSetCookie()).toEqual([]);
+            expect(response.headers.get("location")).toBeNull();
+            protectedHeaders(response);
+            if (method === "POST") expect(await response.json()).toEqual({ status: "paused" });
+            else if (method === "GET") expect(await response.text()).toContain('"status":"paused"');
+          }
+        }
+        expect(upstream).toHaveLength(count);
+      } finally {
+        await stop();
+        await start();
+      }
+    }, 30000);
     it("keeps exact Host and POST Origin while ignoring forwarded authority", async () => {
       const good = await fetch(origin + "/auth/invite", {
         headers: {
@@ -249,7 +283,7 @@ describe.skipIf(!enabled)(
       const r = await fetch(origin + "/auth/invite/");
       expect(r.status).toBe(200);
       const html = await r.text();
-      let cookie = r.headers.get("set-cookie")!.split(";")[0];
+      let cookie = applyCookies("",r);
       type ProbeNode = {
         dataset: Record<string, string>;
         children: unknown[];
@@ -306,8 +340,7 @@ describe.skipIf(!enabled)(
             ...(init.method === "POST" ? { origin } : {}),
           },
         });
-        const next = response.headers.get("set-cookie");
-        if (next) cookie = next.split(";")[0];
+    cookie=applyCookies(cookie,response);
         return response;
       };
       const count = upstream.length;
@@ -339,11 +372,44 @@ describe.skipIf(!enabled)(
         await new Promise((r) => setTimeout(r, 20));
       expect(location.hash).toBe("");
       expect(requests).toEqual(["POST"]);
-      expect(upstream.length).toBe(count);
+      expect(upstream[count]).toBe("/rest/v1/rpc/console_invite_preflight");
+      expect(upstream.slice(count)).toContain(
+        "/rest/v1/rpc/console_invite_tx_admit",
+      );
+      expect(upstream.some((p) => p.endsWith("/verify"))).toBe(false);
+      expect(f.rows.size).toBe(1);
       expect(node("confirm").hidden).toBe(false);
+      const beforeDelivery=cookie;
       await clicks.get("confirm:click")!();
       expect(node("links").children).toHaveLength(1);
-      expect(upstream.length - count).toBe(5);
-    });
+      expect(upstream.filter((p) => p.endsWith("/verify"))).toHaveLength(1);
+      expect(
+        upstream.filter((p) => p.endsWith("accept_console_invite")),
+      ).toHaveLength(1);
+      expect(cookie.includes("sb-127-auth-token=")).toBe(true);
+      // Response/cookie loss after acceptance retries only session delivery.
+      cookie = beforeDelivery; // Lost response includes the binding-clearing header.
+      const accepted = upstream.length;
+      await stop();await start();
+      await clicks.get("confirm:click")!();
+      expect(
+        upstream
+          .slice(accepted)
+          .filter((p) => !p.includes("console_invite_tx_")),
+      ).toEqual(["/auth/v1/user"]);
+      for(const other of [null,"40000000-0000-4000-8000-000000000004"]) {
+        const bootstrap=await fetch(origin+"/auth/invite",{headers:{accept:"application/json"}});
+        let probeCookie=applyCookies("",bootstrap), csrf=(await bootstrap.json()).csrf;
+        if(other){f.newBrowser();f.auth(other);probeCookie+=f.cookie.replace("sb-fictional-","sb-127-");}
+        for(const payload of [{action:"stage",id,version:1,nonce:"n".repeat(48),token_hash:"a".repeat(64)},{action:"status"},{action:"confirm",...(other?{switchFrom:other}:{})}]) {
+          const response=await fetch(origin+"/auth/invite",{method:"POST",headers:{origin,cookie:probeCookie,"content-type":"application/json"},body:JSON.stringify({csrf,...payload})});
+          probeCookie=applyCookies(probeCookie,response);const result=await response.json();csrf=result.csrf;
+          expect(result.status).toBe("signin");
+          expect(response.headers.getSetCookie().some(c=>c.startsWith("sb-"))).toBe(false);
+        }
+      }
+      expect(upstream.filter(p=>p.endsWith("/verify"))).toHaveLength(1);
+      expect(upstream.filter(p=>p.endsWith("accept_console_invite"))).toHaveLength(1);
+    },30000);
   },
 );

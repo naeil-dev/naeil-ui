@@ -1,4 +1,6 @@
-# Jev standing adapter
+# Jev standing adapter — historical protocol
+
+The standing adapter and dispatcher described below were retired on 2026-10-29. This document preserves the old envelope and evidence semantics; its configuration and commands are historical. Current execution uses the [local rollout runner](../../docs/rollout/local-runner.md). The maintained `jev-native.py` accepts only local envelopes; the original helper fixture and retained transaction fingerprints remain unchanged.
 
 `jev-standing-adapter.mjs` implements the standing dispatcher envelope. `jev-native.py` owns the native transaction; `jev-candidate.mjs` prepares the isolated consumer browser suite. Historical Jev CLIs and the owner checkout remain unchanged. The dedicated clone is `~/.local/share/naeil-ui-rollout/consumers/jev`, branch `rollout/standing`.
 

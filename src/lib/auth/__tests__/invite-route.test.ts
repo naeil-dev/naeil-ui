@@ -39,11 +39,15 @@ describe("actual exported invitation route", () => {
     expect(r.headers.get("referrer-policy")).toBe("no-referrer");
     expect(r.headers.get("cache-control")).toContain("no-store");
   });
-  it("uses __Host secure HTTPS cookies and stages with no upstream request", async () => {
+  it("uses host-only receipt cookies and validates proof before staging", async () => {
     config();
-    const network = vi.fn(() => {
-      throw new Error("No upstream during stage");
-    });
+    const network = vi.fn<typeof fetch>(async () =>
+      Response.json({
+        userId: "20000000-0000-4000-8000-000000000002",
+        email: "recipient@example.test",
+        verificationType: "invite",
+      }),
+    );
     vi.stubGlobal("fetch", network);
     const r = await GET(
       new Request("https://naeil.dev/auth/invite", {
@@ -76,7 +80,10 @@ describe("actual exported invitation route", () => {
     );
     expect(staged.status).toBe(200);
     expect((await staged.json()).status).toBe("staged");
-    expect(network).not.toHaveBeenCalled();
+    expect(network).toHaveBeenCalledTimes(1);
+    expect(String(network.mock.calls[0]?.[0])).toContain(
+      "console_invite_preflight",
+    );
   });
   it("rejects authority in query, forwarded origin and duplicate invitation cookies", async () => {
     config();
@@ -163,3 +170,35 @@ it("uses exact configured Host/Origin rather than Next internal request URL auth
 // Enabled-path regressions explicitly opt in; production defaults OFF.
 beforeEach(() => vi.stubEnv("NAEIL_INVITE_ACCEPT_ENABLED", "true"));
 afterEach(() => vi.unstubAllEnvs());
+
+
+it.each(["en", "ko", "ja"])("keeps both independent HTML bootstrap cookies and CSP in %s", async (locale) => {
+  config();
+  const network = vi.fn(() => { throw new Error("GET must not call upstream"); });
+  vi.stubGlobal("fetch", network);
+  const r = await GET(new Request(`https://naeil.dev/auth/invite?locale=${locale}`, {
+    headers: { host: "naeil.dev", accept: "text/html", "x-naeil-invite-nonce": "n".repeat(43) },
+  }));
+  expect(r.status).toBe(200);
+  const cookies = r.headers.getSetCookie();
+  expect(cookies).toHaveLength(2);
+  expect(cookies[0]).toMatch(/^__Host-naeil_invite=[A-Za-z0-9_-]{43};/);
+  expect(cookies[1]).toMatch(/^__Host-naeil_invite_browser=[A-Za-z0-9_-]{43};/);
+  for (const cookie of cookies) {
+    expect(cookie).toContain("Path=/; Max-Age=600; HttpOnly; SameSite=Lax; Secure");
+    expect(cookie).not.toContain("Domain=");
+  }
+  const html = await r.text();
+  expect(html).toContain(`lang="${locale}"`);
+  expect(html).toContain('"status":"empty"');
+  const nonce = html.match(/<script nonce="([^"]+)"/)![1];
+  expect(r.headers.get("content-security-policy")).toContain(`'nonce-${nonce}'`);
+  expect(network).not.toHaveBeenCalled();
+});
+
+it("rejects an invalid protocol locale while enabled", async () => {
+  config();
+  const response = await GET(new Request("https://naeil.dev/auth/invite?locale=invalid", { headers: { host: "naeil.dev", accept: "text/html" } }));
+  expect(response.status).toBe(400);
+  expect(response.headers.getSetCookie()).toEqual([]);
+});

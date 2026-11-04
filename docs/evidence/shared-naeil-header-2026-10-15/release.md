@@ -1,3 +1,5 @@
+> **Historical candidate checkpoint.** The original body below is unchanged and its pending status describes the pre-publication checkpoint. Completed 0.5.0 publication receipts are preserved in the verified historical archive; see the [2026-11-04 closeout index](../../design/project-closeout-2026-11-04.md#verified-private-archives). This is not the current package release status.
+
 # Shared-header release checkpoint — 2026-10-15
 
 The owner authorized npm publication, reviewed main integration and naeil.dev deployment. This checkpoint records the frozen candidate; external completion is pending.
