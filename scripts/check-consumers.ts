@@ -174,11 +174,18 @@ import * as ui from '@naeil/ui/ui';
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
 import { uiRelease } from '@naeil/ui/release';
+import { localeHref, resolveLocaleUrl } from '@naeil/ui/naeil-locale';
 import { cn } from '@naeil/ui/utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: 'ja', variant: 'compact'}));
 export const release = uiRelease;
+export const abstorm = {
+  href: localeHref('abstorm', '/runs/example/report?tab=1#summary', 'ja'),
+  protected: resolveLocaleUrl('abstorm', '/ko/new'),
+  protocol: resolveLocaleUrl('abstorm', '/auth/session'),
+  invalid: resolveLocaleUrl('abstorm', '/ko/auth/session'),
+};
 export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: createElement(NaeilHeaderAccountControl, {locale: 'ja', account: {status: 'signed-in', onLogout: () => {}}}) }));
 export const home = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ko', showProjects: false, showBlog: false, appNavigation: [{id:'ai',label:'AI',items:[{id:'keys',label:'API keys',href:'/keys'}]},{id:'console',label:'Console',href:'/console'}], brandSuffix:'Home', brandLinkProps:{'aria-label':'Naeil Home'}, statusSlot:createElement('span', {'data-home-status':true}, 'Ready'), mobileOpen:false, onMobileOpenChange:()=>{} }));
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
@@ -196,6 +203,11 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   ]);
   const result = await import(pathToFileURL(join(core, "contract.mjs")).href);
   assert.equal(result.release.version, version);
+  assert.equal(result.abstorm.href, 'https://abstorm.naeil.dev/ja/runs/example/report?tab=1#summary');
+  assert.equal(result.abstorm.protected.kind, 'ui');
+  assert.equal(result.abstorm.protected.route.protected, true);
+  assert.equal(result.abstorm.protocol.kind, 'protocol');
+  assert.equal(result.abstorm.invalid.kind, 'invalid');
   assert.match(result.footer, /data-naeil-footer/);
   assert.match(result.footer, /https:\/\/naeil.dev\/ja\/projects/);
   assert(result.valid, "Packed React exports failed");

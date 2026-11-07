@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0 — AB Storm locale registration (unpublished candidate)
+
+- Add the exact owned `abstorm` origin and five protected UI routes to the opt-in locale runtime, with English, Korean and Japanese paths. Keep auth/API/health endpoints outside localized UI routing.
+- Render localized fail-closed documents with the app’s `abstorm` identity; no favicon is declared by the current app.
+- Additive public API release; existing services, default chrome/footer catalogs, messages and chrome contract 1 remain unchanged. Publish the reviewed exact archive to `next`; package publication and consumer adoption remain separate.
+
 ## 0.10.0 — shared language runtime (unpublished candidate)
 
 - Add opt-in `naeil-locale` root, client, server, messages, checker and chrome entries for the owned Next applications. English uses unprefixed paths; Korean/Japanese use `/ko` and `/ja`. Strict route/protocol parsing, legacy receiving aliases, selected JSON loading, ICU validation and committed-intent preference writes share one implementation.

@@ -37,6 +37,12 @@ Render complete paths with `localePath` for same-service navigation and `localeH
 
 The canonical chrome can be imported from `/naeil-locale/chrome` under the shared provider. Existing `/naeil-header` and `/naeil-footer` remain standalone compatibility adapters and include the small three-language common dictionary. Consumer Link, auth, save guards, frame overrides, desktop/mobile account locks and project data remain consumer-owned.
 
+## AB Storm registration (0.11.0 candidate)
+
+`service="abstorm"` binds to exactly `https://abstorm.naeil.dev`. Its protected UI inventory is `/`, `/new`, `/runs/[id]`, `/runs/[id]/report` and `/experts`; `/new?copy=<id>` uses the same registered page. All support English, Korean and Japanese paths. `/auth/session`, `/auth/logout`, `/api/*` and `/health` remain unlocalized protocol endpoints, with no UI exceptions. Unknown UI paths are rejected instead of inheriting the app’s catch-all history fallback.
+
+The inventory was checked against AB Storm source `087e67239db26506a73c51fde7a6d246e4a0d0d9`. Generic error documents use its existing `abstorm` title and no favicon. This registration does not add a default header/footer destination or application translations. Consumer provider, routing, authentication, message loading and upgrade remain app-owned; package registration alone does not establish production adoption.
+
 ## Security and rollout
 
 The proxy runs exact existing protocol boundaries first, strips external private markers, strictly classifies UI paths, applies the existing app authorizer, and then runs next-intl. Protected entries without an authorizer fail closed. A marker is only a rendering hint: every protected server data read must independently authorize. RSC denial renders a valid localized access boundary and retains the root draft; it must not send login HTML or redirect an in-progress editor to another document. Keep the root beforeunload guard active during RSC failure and access recovery.

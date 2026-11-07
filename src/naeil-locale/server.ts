@@ -96,7 +96,7 @@ async function invalidResponse(status: number, service: LocaleServiceInput, kind
   const copy = (await loadSharedMessages(locale)).naeil.locale;
   const message = copy.errors[status === 400 ? "badRequest" : status === 401 ? "unauthenticated" : status === 403 ? "forbidden" : status === 503 ? "unavailable" : "notFound"];
   const id = getLocaleService(service).id;
-  const identity = { main: { name: ".naeil", icon: "/icon.svg" }, jev: { name: "Jev", icon: null }, estimate: { name: "AB Estimate", icon: "/favicon.svg" } }[id];
+  const identity = { abstorm: { name: "abstorm", icon: null }, main: { name: ".naeil", icon: "/icon.svg" }, jev: { name: "Jev", icon: null }, estimate: { name: "AB Estimate", icon: "/favicon.svg" } }[id];
   const links = naeilLocales.map(language => `<li><a lang="${language}" href="${escapeHtml(localePath(service, "/", language))}">${escapeHtml(copy.names[language])}</a></li>`).join("");
   return markPrivate(new NextResponse(`<!doctype html><html lang="${locale}"><head><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1">${identity.icon ? `<link rel="icon" href="${identity.icon}">` : ""}<title>${escapeHtml(message)} — ${identity.name}</title></head><body><h1>${status}</h1><p>${escapeHtml(message)}</p><ul>${links}</ul></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } }));
 }

@@ -19,7 +19,7 @@ export function assertLocale(value: unknown): NaeilLocale {
   return value;
 }
 
-export type NaeilServiceId = "main" | "jev" | "estimate";
+export type NaeilServiceId = "main" | "jev" | "estimate" | "abstorm";
 export interface NaeilRoute { path: string; protected?: boolean }
 export interface NaeilLocaleService {
   id: NaeilServiceId;
@@ -30,6 +30,7 @@ export interface NaeilLocaleService {
   uiProtocolExceptions?: readonly string[];
 }
 const origins = {
+  abstorm: "https://abstorm.naeil.dev",
   main: "https://naeil.dev", jev: "https://jev.naeil.dev", estimate: "https://abestimate.naeil.dev",
 } as const;
 const protocolPrefixes = ["/api", "/auth", "/_next", "/_vercel", "/.well-known", "/health", "/invite", "/return", "/webhook", "/images", "/fonts"];
@@ -48,6 +49,11 @@ export function defineLocaleService(service: NaeilLocaleService): NaeilLocaleSer
 }
 const main = defineLocaleService({ id: "main", origin: origins.main, routes: ["/", "/projects", "/design", "/blog", "/blog/[slug]", "/login", { path: "/login/change-password", protected: true }] });
 export const naeilServices = {
+  abstorm: defineLocaleService({
+    id: "abstorm", origin: origins.abstorm,
+    routes: ["/", "/new", "/runs/[id]", "/runs/[id]/report", "/experts"]
+      .map(path => ({ path, protected: true })),
+  }),
   main,
   site: main,
   jev: defineLocaleService({ id: "jev", origin: origins.jev, routes: [{ path: "/", protected: true }, "/login"] }),

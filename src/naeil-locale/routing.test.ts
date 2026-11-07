@@ -4,7 +4,7 @@ import { defineLocaleService, localeHref, localePath, naeilRouting, naeilService
 describe("owned locale routing", () => {
   it("uses deterministic paths with all next-intl personalization disabled", () => {
     expect(naeilRouting).toEqual({ locales: ["en", "ko", "ja"], defaultLocale: "en", localePrefix: "as-needed", localeDetection: false, localeCookie: false, alternateLinks: false });
-    for (const service of ["main", "jev", "estimate"] as const) for (const locale of ["en", "ko", "ja"] as const) {
+    for (const service of ["main", "jev", "estimate", "abstorm"] as const) for (const locale of ["en", "ko", "ja"] as const) {
       expect(localeHref(service, "/", locale)).toBe(naeilServices[service].origin + (locale === "en" ? "/" : "/" + locale));
     }
   });
@@ -45,5 +45,29 @@ describe("owned locale routing", () => {
   it("distinguishes locale-only navigation from entity, query and fragment changes", () => {
     expect(sameLogicalRoute("estimate", "/ko/estimates/one?tab=1#row", "/ja/estimates/one?tab=1#row")).toBe(true);
     for (const target of ["/ja/estimates/two?tab=1#row", "/ja/estimates/one?tab=2#row", "/ja/estimates/one?tab=1#other"]) expect(sameLogicalRoute("estimate", "/ko/estimates/one?tab=1#row", target)).toBe(false);
+  });
+});
+
+describe("abstorm registered UI and protocol boundaries", () => {
+  it.each(["/", "/new", "/runs/example", "/runs/example/report", "/experts"])("protects %s in each language", path => {
+    for (const locale of ["en", "ko", "ja"] as const) {
+      const href = localeHref("abstorm", path, locale);
+      expect(href.startsWith("https://abstorm.naeil.dev/")).toBe(true);
+      expect(resolveLocaleUrl("abstorm", href)).toMatchObject({ kind: "ui", locale, route: { protected: true } });
+    }
+  });
+  it("does not localize auth/api or allow other origins", () => {
+    for (const path of ["/auth/session", "/auth/logout", "/api/runs", "/health"]) {
+      expect(resolveLocaleUrl("abstorm", path).kind).toBe("protocol");
+      for (const locale of ["en", "ko", "ja"] as const) {
+        expect(resolveLocaleUrl("abstorm", `/${locale}${path}`).kind).toBe("invalid");
+        expect(() => localePath("abstorm", path, locale)).toThrow();
+      }
+    }
+    expect(() => defineLocaleService({id: "abstorm", origin: "https://abstorm.naeil.dev.evil.test", routes: ["/"]})).toThrow();
+  });
+  it("preserves AB Storm copy queries and rejects unregistered or foreign routes", () => {
+    expect(localeHref("abstorm", "/new?copy=one#review", "ja")).toBe("https://abstorm.naeil.dev/ja/new?copy=one#review");
+    for (const path of ["/settings", "/runs", "/runs/one/extra", "https://x.abstorm.naeil.dev/", "https://abstorm.naeil.dev.evil.example/", "http://abstorm.naeil.dev/"]) expect(resolveLocaleUrl("abstorm", path).kind).toBe("invalid");
   });
 });
