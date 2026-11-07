@@ -4,6 +4,7 @@
 
 - Add the exact owned `abstorm` origin and five protected UI routes to the opt-in locale runtime, with English, Korean and Japanese paths. Keep auth/API/health endpoints outside localized UI routing.
 - Render localized fail-closed documents with the app’s `abstorm` identity; no favicon is declared by the current app.
+- Fix generated locale declarations: JSON imports previously left variable initializers in `.d.ts` output and failed installed-consumer TypeScript checks with library checking enabled. Normalize only those declarations to ambient JSON types; runtime imports and message loading remain unchanged. Clean packed-consumer tests now import the locale API and run `tsc` without `skipLibCheck`.
 - Additive public API release; existing services, default chrome/footer catalogs, messages and chrome contract 1 remain unchanged. Publish the reviewed exact archive to `next`; package publication and consumer adoption remain separate.
 
 ## 0.10.0 — shared language runtime (unpublished candidate)
