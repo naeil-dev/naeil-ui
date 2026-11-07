@@ -21,7 +21,7 @@ Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation ind
 pnpm add --save-exact @naeil/ui@0.10.0
 ```
 
-The [npm 0.10.0 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.10.0.tgz) is byte-identical to its frozen release archive. Bundled guides record the preparation snapshot; maintained guides record later publication outcomes. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-0.10.0.tgz` from the checked-out source. Use the exact reviewed archive for release verification; later source or guide changes require a new freeze. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
+The [npm 0.10.0 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.10.0.tgz) is byte-identical to its frozen release archive. Bundled guides record the preparation snapshot; maintained guides record later publication outcomes. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-VERSION.tgz`, where `VERSION` is the checked-out `package.json` version (currently the unpublished 0.11.0 candidate). Use the exact reviewed archive for release verification; later source or guide changes require a new freeze. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
 
 The preceding [0.5.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0) was published on 2026-10-15 and introduced the whole shared header. Version 0.6.0 adds the shared 1600px frame; existing applications must upgrade and adopt its layout composition.
 
