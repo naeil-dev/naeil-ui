@@ -54,6 +54,11 @@ describe("canonical return destination", () => {
     "https://user@naeil.dev/",
     "https://naeil.dev.evil.example/",
     "https://x.jev.naeil.dev/",
+    "https://x.abstorm.naeil.dev/",
+    "https://abstorm.naeil.dev.evil.example/",
+    "http://abstorm.naeil.dev/",
+    "https://abstorm.naeil.dev:444/",
+    "https://user@abstorm.naeil.dev/",
     "https://naeil.dev/with%0acontrol",
   ])("rejects %s", (value) => {
     expect(canonicalRedirect(value)).toBeNull();
@@ -63,6 +68,7 @@ describe("canonical return destination", () => {
     "https://naeil.dev/a",
     "https://jev.naeil.dev/a",
     "https://abestimate.naeil.dev/a",
+    "https://abstorm.naeil.dev/ko/runs/example?tab=1",
   ])("allows exact canonical service %s", (value) =>
     expect(canonicalRedirect(value)).toBe(value),
   );
