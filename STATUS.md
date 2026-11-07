@@ -1,3 +1,9 @@
+# Status — 2026-11-07 AB Storm locale release candidate
+
+Preparing unpublished `@naeil/ui@0.11.0` through the manual exact-archive procedure, with additive `abstorm` locale routing and fail-closed document identity. App route inventory checked at `087e67239db26506a73c51fde7a6d246e4a0d0d9`; no default chrome catalog, translation or contract change. The release PR records final archive/source identities and checks. npm publication to `next`, tag `v0.11.0`, GitHub Release, hosted Docs and consumer adoption remain pending separate maintainer actions.
+
+---
+
 # Status — 2026-10-23 shared-login follow-up complete; production rebuilt from main
 
 The production site source is merged into `main` (PR #12, `e757f8d`), and Production rebuilt from `main` with the shared login intact (anonymous Estimate/Jev 307 to `naeil.dev/login?next=`, console relay 303, retired relays 404, signed in across all three services in the browser). Estimate/Jev commits are archived as local bundles only (no git remote yet). Old Estimate/Jev releases and the unused control wrapper are moved to `~/.Trash/naeil-cleanup-20261022/`; health 200. The service login contract is in [application layout](docs/components/application-layout.md#shared-naeildev-login-services-on-naeildev). [Handoff §3/§9](docs/rollout/auth-sso-handoff-2026-10-22.md).

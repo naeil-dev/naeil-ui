@@ -140,3 +140,19 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     expect(localeMetadata({ service: "estimate", route: "/calendar", locale: "ko", title: "달력", serviceName: "Estimate" })).not.toHaveProperty("alternates");
   });
 });
+
+describe("AB Storm protected locale documents", () => {
+  it.each(["en", "ko", "ja"] as const)("fails closed with app identity in %s", async locale => {
+    const proxy = createNaeilLocaleProxy({ service: "abstorm" });
+    const prefix = locale === "en" ? "" : `/${locale}`;
+    const response = await proxy(new NextRequest(`https://abstorm.naeil.dev${prefix}/new`));
+    expect(response.status).toBe(503);
+    expect(response.headers.get("cache-control")).toContain("no-store");
+    const html = await response.text();
+    expect(html).toContain(`<html lang="${locale}">`);
+    expect(html).toContain(" — abstorm</title>");
+    expect(html).not.toContain('rel="icon"');
+    for (const href of ["/", "/ko", "/ja"]) expect(html).toContain(`href="${href}"`);
+    expect((await proxy(new NextRequest(`https://abstorm.naeil.dev${prefix}/unknown`))).status).toBe(404);
+  });
+});
