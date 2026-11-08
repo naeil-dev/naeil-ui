@@ -91,6 +91,7 @@ export async function checkConsumerBrowser(root: string) {
           assert(Math.abs(frame.x - frames[0].x) < 0.1, "Packed header/main/footer alignment drift");
         }
         if (width >= 1440) assert.equal((await page.locator('[data-ui-layout="settings"]').boundingBox())!.width, 640, "A wide frame must preserve the narrow settings form");
+        if (width >= 1440) assert.equal((await page.locator('[data-ui-layout="workflow"]').boundingBox())!.width, 896, "Packed workflow region must cap at 896px");
         const mobile = width === 390;
         const open = async (locale: "en" | "ja") => {
           if (mobile) {

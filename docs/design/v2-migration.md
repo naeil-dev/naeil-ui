@@ -55,7 +55,7 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 - 기본 컨트롤 높이 40px. 문서 루트에 `data-ui-density="compact"`를 주면 36px가 된다. 작은 화면과 거친 포인터에서는 최소 44px를 유지한다. 데스크톱에서 `className="h-8"` 같은 높이 재정의는 적용되며, 모바일의 44px 최소 터치 크기는 유지된다.
 - `.light`/`.dark`는 OS 테마보다 우선한다. 기존 ThemeProvider를 사용할 수 있다.
 - 공통 바깥 틀은 최대 1600px, 좌우 여백은 `clamp(16px, 2.4vw, 40px)`다. 본문의 `.ui-app-frame`과 공통 헤더·푸터 내부 프레임이 같은 토큰을 사용한다.
-- `data-ui-layout="reading|settings|list|short-form|fluid"`로 내부 콘텐츠 폭을 적용한다. 각각 최대 640/640/1600/480px 또는 가용 폭이다. 목록은 바깥 틀의 여백을 제외한 공간을 사용하고, 설정·읽기 영역은 그 안에서 좁게 유지한다.
+- `data-ui-layout="reading|settings|list|short-form|workflow|fluid"`로 내부 콘텐츠 폭을 적용한다. 각각 최대 640/640/1600/480/896px 또는 가용 폭이다. `workflow`(2026-11-09 승인)는 단계형·카드 선택형 입력 화면용이며, 그 안의 개별 입력 필드는 계속 640/480px 이하로 둔다. 목록은 바깥 틀의 여백을 제외한 공간을 사용하고, 설정·읽기 영역은 그 안에서 좁게 유지한다.
 - 레이블·도움말·오류 문구는 소비 화면이 연결한다. Input의 `aria-invalid`와 `aria-describedby`를 사용하고, 로딩 중에는 Button의 `disabled`와 `aria-busy`를 함께 지정한다.
 - 성공·경고·오류·안내에는 Badge의 `success`, `warning`, `error`, `info` variant를 사용할 수 있다. 색만으로 의미를 전달하지 않는다.
 

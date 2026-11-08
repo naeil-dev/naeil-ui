@@ -60,6 +60,10 @@
       "$type": "dimension",
       "$value": "480px"
     },
+    "width-workflow": {
+      "$type": "dimension",
+      "$value": "896px"
+    },
     "motion-fast": {
       "$type": "duration",
       "$value": "120ms"

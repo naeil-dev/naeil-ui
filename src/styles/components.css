@@ -481,6 +481,9 @@
   [data-ui-layout="short-form"] {
     max-width: var(--ui-width-short-form);
   }
+  [data-ui-layout="workflow"] {
+    max-width: var(--ui-width-workflow);
+  }
   [data-ui-layout="fluid"] {
     max-width: none;
   }

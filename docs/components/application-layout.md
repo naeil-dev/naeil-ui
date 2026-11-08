@@ -24,6 +24,7 @@ Choose one header per application frame. Supply menu data, links, route guards, 
 | Inline gutters | `clamp(16px, 2.4vw, 40px)` | `--ui-frame-gutter` |
 | Reading / settings | Maximum 640px | `data-ui-layout="reading"` / `"settings"` |
 | Short form | Maximum 480px | `data-ui-layout="short-form"` |
+| Multi-step / card-choice input (workflow) | Maximum 896px; fields inside stay within 640/480px | `data-ui-layout="workflow"` |
 | List / dashboard / table region | Available space inside the frame, capped at 1600px | `data-ui-layout="list"` |
 | Intentionally unrestricted region | Available parent width | `data-ui-layout="fluid"` |
 
