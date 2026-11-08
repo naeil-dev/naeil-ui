@@ -1,0 +1,158 @@
+[
+  {
+    "locale": "ko",
+    "width": 390,
+    "theme": "light",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ko",
+    "width": 390,
+    "theme": "dark",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ko",
+    "width": 1440,
+    "theme": "light",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ko",
+    "width": 1440,
+    "theme": "dark",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ja",
+    "width": 390,
+    "theme": "light",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ja",
+    "width": 390,
+    "theme": "dark",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ja",
+    "width": 1440,
+    "theme": "light",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "ja",
+    "width": 1440,
+    "theme": "dark",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "en",
+    "width": 390,
+    "theme": "light",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "en",
+    "width": 390,
+    "theme": "dark",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "en",
+    "width": 1440,
+    "theme": "light",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  },
+  {
+    "locale": "en",
+    "width": 1440,
+    "theme": "dark",
+    "titles": [
+      437,
+      459
+    ],
+    "offset": 22,
+    "frameTop": 421,
+    "frameHeight": 149.875,
+    "brandTop": 473.9375
+  }
+]
