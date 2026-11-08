@@ -140,6 +140,7 @@ try {
     "card",
     "checkbox",
     "dialog",
+    "sheet",
     "dropdown-menu",
     "input",
     "select",
@@ -171,6 +172,7 @@ try {
     join(core, "src/packed-contract.tsx"),
     `${imports}
 import * as ui from '@naeil/ui/ui';
+import { Sheet as DeepSheet, SheetTrigger as DeepSheetTrigger } from '@naeil/ui/components/ui/sheet';
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
 import { uiRelease } from '@naeil/ui/release';
@@ -189,6 +191,8 @@ export const abstorm = {
 export const header = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ja', authSlot: createElement(NaeilHeaderAccountControl, {locale: 'ja', account: {status: 'signed-in', onLogout: () => {}}}) }));
 export const home = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'ko', showProjects: false, showBlog: false, appNavigation: [{id:'ai',label:'AI',items:[{id:'keys',label:'API keys',href:'/keys'}]},{id:'console',label:'Console',href:'/console'}], brandSuffix:'Home', brandLinkProps:{'aria-label':'Naeil Home'}, statusSlot:createElement('span', {'data-home-status':true}, 'Ready'), mobileOpen:false, onMobileOpenChange:()=>{} }));
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
+export const sheet = renderToStaticMarkup(createElement(ui.Sheet, null, createElement(ui.SheetTrigger, null, "Packed React Sheet")));
+export const deepSheet = renderToStaticMarkup(createElement(DeepSheet, null, createElement(DeepSheetTrigger, null, "Packed React deep Sheet")));
 export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
 `,
   );
@@ -211,6 +215,8 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(result.footer, /data-naeil-footer/);
   assert.match(result.footer, /https:\/\/naeil.dev\/ja\/projects/);
   assert(result.valid, "Packed React exports failed");
+  assert.match(result.sheet, /Packed React Sheet/);
+  assert.match(result.deepSheet, /Packed React deep Sheet/);
   assert.match(result.header, /data-naeil-header/);
   assert.match(result.header, /https:\/\/naeil.dev\/ja\/blog/);
   assert.match(result.header, /プロジェクト/);
@@ -270,6 +276,8 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(html, /Consumer-owned messages/);
   assert.match(html, /Consumer action/);
   assert.match(html, /Packed multiline value/);
+  assert.match(html, /Packed Next Sheet/);
+  assert.match(html, /Packed Next deep Sheet/);
   assert.match(html, /role="tablist"/);
   console.log(
     "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",

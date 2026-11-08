@@ -189,6 +189,7 @@ components/ui/button
 components/ui/card
 components/ui/checkbox
 components/ui/dialog
+components/ui/sheet
 components/ui/dropdown-menu
 components/ui/input
 components/ui/navigation

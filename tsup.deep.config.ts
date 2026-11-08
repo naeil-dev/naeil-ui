@@ -12,6 +12,7 @@ export default defineConfig({
     "src/components/ui/card.tsx",
     "src/components/ui/checkbox.tsx",
     "src/components/ui/dialog.tsx",
+    "src/components/ui/sheet.tsx",
     "src/components/ui/dropdown-menu.tsx",
     "src/components/ui/input.tsx",
     "src/components/ui/select.tsx",

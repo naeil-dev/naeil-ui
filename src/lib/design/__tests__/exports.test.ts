@@ -10,6 +10,8 @@ it("provides the form controls required by the approved shared compositions", ()
     "SelectItem",
     "Switch",
     "Checkbox",
+    "Sheet",
+    "SheetContent",
   ]) {
     expect(ui, `missing public ${name}`).toHaveProperty(name);
   }

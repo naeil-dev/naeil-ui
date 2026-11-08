@@ -36,6 +36,19 @@ export {
 } from "./dialog";
 
 export {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetOverlay,
+  SheetPortal,
+  SheetTitle,
+  SheetTrigger,
+} from "./sheet";
+
+export {
   DropdownMenu,
   DropdownMenuPortal,
   DropdownMenuTrigger,

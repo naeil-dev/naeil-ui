@@ -1,8 +1,9 @@
+import { mkdirSync } from "node:fs";
 import { frameState, stableFrame } from "../scripts/page-frame-browser";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const families = ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea"];
+const families = ["button", "input", "card", "dialog", "sheet", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea"];
 async function usage(page: Page, family: string, theme = "light", density = "comfortable") {
   await page.goto(`/iframe.html?id=ui-${family}--usage&viewMode=story&globals=theme:${theme};density:${density};a11y.manual:!true`);
   await expect(page.locator("#storybook-root")).not.toBeEmpty();
@@ -58,6 +59,7 @@ for (const family of families) {
     await page.setViewportSize({ width: 320, height: 900 });
     await usage(page, family, theme, "compact");
     await expect(page.locator("html")).toHaveAttribute("data-ui-density", "compact");
+    if (family === "sheet") await page.getByRole("button", { name: "View evidence", exact: true }).click();
     if (family === "dialog") await page.getByRole("button", { name: "Edit workspace", exact: true }).click();
     if (family === "dropdownmenu") await page.getByRole("button", { name: "Workspace actions" }).click();
     if (family === "select") await page.getByRole("combobox", { name: "Language" }).click();
@@ -360,3 +362,77 @@ test("Nested Dialog/Select restores each focus layer and cleans inert on forced 
   await expect(page.getByTestId("preexisting-inert")).toHaveAttribute("inert", "");
   await expect(page.getByTestId("overlay-ref")).toHaveText("Consumer ref: cleanup");
 });
+
+
+for (const theme of ["light", "dark"]) {
+  for (const width of [320, 390, 1440]) {
+    for (const [locale, triggerName, title, closeLabel] of [
+      ["ko", "근거 보기", "근거", "닫기"],
+      ["ja", "根拠を表示", "根拠", "閉じる"],
+      ["en", "View evidence", "Evidence", "Close"],
+    ]) test(`Sheet: ${theme} ${width}px ${locale} focus, close, accessibility`, async ({ page, browserName }, info) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/iframe.html?id=ui-sheet--localized-close&globals=theme:${theme};a11y.manual:!true`);
+      await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+      await page.evaluate(() => document.fonts.ready);
+      const trigger = page.getByRole("button", { name: triggerName, exact: true });
+      await trigger.focus(); await trigger.press("Enter");
+      const sheet = page.getByRole("dialog", { name: title, exact: true });
+      await expect(sheet).toBeVisible();
+      const close = sheet.getByRole("button", { name: closeLabel, exact: true });
+      await expect(close).toBeFocused();
+      for (const key of ["Tab", "Shift+Tab"]) {
+        await page.keyboard.press(key);
+        expect(await sheet.evaluate(element => element.contains(document.activeElement))).toBe(true);
+      }
+      await noOverflow(page);
+      expect(await sheet.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+      const box = await sheet.boundingBox();
+      // Fixed surfaces use the available root width, including its stable gutter policy.
+      const availableWidth = await page.evaluate(() => document.documentElement.getBoundingClientRect().width);
+      expect(box!.width).toBe(Math.min(availableWidth, 480));
+      expect(box!.height).toBe(900);
+      expect(box!.x + box!.width).toBe(availableWidth);
+      const closeBox = await close.boundingBox();
+      expect(closeBox!.width).toBeGreaterThanOrEqual(width < 560 ? 44 : 40);
+      expect(closeBox!.height).toBeGreaterThanOrEqual(width < 560 ? 44 : 40);
+      await axe(page, info, `sheet-${theme}-${width}-${locale}`);
+      if (browserName === "chromium" && width !== 320) {
+        mkdirSync("test-results/sheet", { recursive: true });
+        await page.screenshot({ path: `test-results/sheet/${theme}-${width}-${locale}.png` });
+      }
+      await page.keyboard.press("Escape");
+      await expect(sheet).toHaveCount(0); await expect(trigger).toBeFocused();
+      await trigger.press("Enter"); await close.click();
+      await expect(sheet).toHaveCount(0); await expect(trigger).toBeFocused();
+    });
+  }
+  test(`Sheet: ${theme} all edges, internal scrolling and reduced motion`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 600 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`/iframe.html?id=ui-sheet--sides&globals=theme:${theme};a11y.manual:!true`);
+    for (const side of ["right", "left", "top", "bottom"]) {
+      const trigger = page.getByRole("button", { name: `Open ${side} sheet` });
+      await trigger.click();
+      const sheet = page.getByRole("dialog");
+      await expect(sheet).toHaveAttribute("data-side", side);
+      await expect(sheet).toHaveCSS("animation-name", "none");
+      await expect(sheet).toHaveCSS("transition-duration", "0s");
+      await noOverflow(page);
+      const geometry = await sheet.evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        element.scrollTop = 0;
+        element.scrollTop = 100;
+        return { x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom, scrollTop: element.scrollTop, scrollWidth: element.scrollWidth, clientWidth: element.clientWidth };
+      });
+      expect(geometry.x).toBeGreaterThanOrEqual(0);
+      expect(geometry.y).toBeGreaterThanOrEqual(0);
+      expect(geometry.right).toBeLessThanOrEqual(320);
+      expect(geometry.bottom).toBeLessThanOrEqual(600);
+      expect(geometry.scrollWidth).toBe(geometry.clientWidth);
+      expect(geometry.scrollTop).toBeGreaterThan(0);
+      await page.keyboard.press("Escape");
+      await expect(sheet).toHaveCount(0); await expect(trigger).toBeFocused();
+    }
+  });
+}
