@@ -692,11 +692,13 @@ html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
 @media (max-width: 560px), (pointer: coarse) {
   .ui-control,
   .ui-textarea,
-  [data-slot="dialog-close"] {
+  [data-slot="dialog-close"],
+  [data-slot="sheet-close"] {
     min-height: 44px;
   }
   .ui-control[data-size^="icon"],
-  [data-slot="dialog-close"] {
+  [data-slot="dialog-close"],
+  [data-slot="sheet-close"] {
     min-width: 44px;
   }
 }

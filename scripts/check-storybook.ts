@@ -7,7 +7,7 @@ for (const path of ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/Pretendard-OF
 for (const path of ["images", "svg", "coral-concepts.html", "next.svg", "vercel.svg"])
   assert(!existsSync(`${root}/${path}`), `Website asset copied into preview: ${path}`);
 const index = JSON.parse(readFileSync(`${root}/index.json`, "utf8"));
-for (const family of ["button", "input", "card", "dialog", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea", "navigation", "sitefooter"]) {
+for (const family of ["button", "input", "card", "dialog", "sheet", "dropdownmenu", "badge", "avatar", "toaster", "select", "switch", "checkbox", "tabs", "textarea", "navigation", "sitefooter"]) {
   assert.equal(index.entries[`ui-${family}--docs`]?.type, "docs", `Missing actual Docs page for ${family}`);
   assert.equal(index.entries[`ui-${family}--usage`]?.type, "story", `Missing runnable example for ${family}`);
 }
@@ -38,6 +38,6 @@ assert.equal(index.entries["brand-logo--usage"]?.type, "story", "Missing Brand L
 assert.equal(index.entries["brand-naeilheader--docs"]?.type, "docs", "Missing actual whole-header Docs");
 assert.equal(index.entries["brand-naeilheader--usage"]?.type, "story", "Missing runnable whole-header website example");
 assert.equal(index.entries["brand-naeilheader--japanese-application"]?.type, "story", "Missing Japanese-only application adapter example");
-console.log("Storybook artifact: PASS (15 UI + 2 Brand Docs pages, runnable Usage/application stories, exact notices, fonts, no website public assets)");
+console.log("Storybook artifact: PASS (16 UI + 2 Brand Docs pages, runnable Usage/application stories, exact notices, fonts, no website public assets)");
 const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
 assert.equal(readFileSync(`${root}/brand/naeil-horizontal-color.svg`, "utf8"), readFileSync(`brand/naeil/${brandVersion}/svg/naeil-horizontal-color.svg`, "utf8"));

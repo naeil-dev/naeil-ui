@@ -7,7 +7,8 @@ import { Footer } from "@naeil/ui/components/footer";
 import { ThemeToggleIcon } from "@naeil/ui/components/theme-toggle-icon";
 import { LocaleSwitcher } from "@naeil/ui/components/locale-switcher";
 import { Logo, PageTitle, ThemeToggle } from "@naeil/ui";
-import { Button, Tabs, TabsList, TabsTrigger, TabsContent, Textarea } from "@naeil/ui/ui";
+import { Sheet, SheetTrigger, Button, Tabs, TabsList, TabsTrigger, TabsContent, Textarea } from "@naeil/ui/ui";
+import { Sheet as DeepSheet, SheetTrigger as DeepSheetTrigger } from "@naeil/ui/components/ui/sheet";
 import { locales } from "@naeil/ui/i18n/config";
 import { routing } from "@naeil/ui/i18n/routing";
 
@@ -34,6 +35,8 @@ export default function Page() {
         <Logo variant="horizontal" size={28} />
         <PageTitle>Packed Next compatibility</PageTitle>
         <Button>Consumer action</Button>
+        <Sheet><SheetTrigger>Packed Next Sheet</SheetTrigger></Sheet>
+        <DeepSheet><DeepSheetTrigger>Packed Next deep Sheet</DeepSheetTrigger></DeepSheet>
         <Tabs defaultValue="notes">
           <TabsList aria-label="Compatibility sections"><TabsTrigger value="notes">Notes</TabsTrigger></TabsList>
           <TabsContent value="notes"><label>Compatibility notes<Textarea name="notes" defaultValue="Packed multiline value" /></label></TabsContent>
