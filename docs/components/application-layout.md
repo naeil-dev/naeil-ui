@@ -56,6 +56,8 @@ Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter th
 
 ## Canonical naeil application starter
 
+Owned services use NaeilFooter's shared `full` default as-is; omit `variant`. `compact` is a deliberate, recorded exception (for example, a focused task screen), not the starter default.
+
 ```tsx
 import type { ReactNode } from "react";
 import { NaeilHeader, NaeilHeaderAccountControl,
@@ -82,7 +84,7 @@ export function ApplicationLayout({ children, locale, Link, currentHref,
       style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }}>
       {children}
     </main>
-    <NaeilFooter locale={locale} variant="compact" Link={Link} />
+    <NaeilFooter locale={locale} Link={Link} />
   </>;
 }
 

@@ -51,7 +51,7 @@ function GuardedFooterExample() {
   };
   return <>
     <p role="status">{destination}</p>
-    <NaeilFooter locale="en" variant="compact" onNavigate={guard} />
+    <NaeilFooter locale="en" onNavigate={guard} />
     <SiteFooter aria-label="Native external guard" onNavigate={guard}
       groups={[{ id: "native", label: "Explicit external override", links: [{ id: "native", label: "External same-tab destination", href: "https://example.org/leave", external: true }] }]} />
   </>;

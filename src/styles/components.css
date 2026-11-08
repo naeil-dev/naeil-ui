@@ -335,6 +335,9 @@
     padding-block: var(--spacing-4-value);
     gap: var(--spacing-4-value);
   }
+  .ui-site-footer[data-variant="compact"] .ui-site-footer-frame > nav {
+    align-self: flex-start;
+  }
   .ui-site-footer[data-variant="compact"] .ui-site-footer-meta {
     width: auto;
   }
