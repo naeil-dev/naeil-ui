@@ -335,7 +335,8 @@
     padding-block: var(--spacing-4-value);
     gap: var(--spacing-4-value);
   }
-  .ui-site-footer[data-variant="compact"] .ui-site-footer-frame > nav {
+  /* Top-align link groups by default; a consumer items-* containerClassName keeps aligning every child. */
+  .ui-site-footer[data-variant="compact"] .ui-site-footer-frame:not([class*="items-"]) > nav {
     align-self: flex-start;
   }
   .ui-site-footer[data-variant="compact"] .ui-site-footer-meta {

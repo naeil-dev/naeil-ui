@@ -126,7 +126,7 @@ async function snapshot(page: Page, home = false) {
   }, { properties, home });
 }
 
-const COMPACT_FOOTER_TOP_ALIGNMENT = '.ui-site-footer[data-variant="compact"] .ui-site-footer-frame > nav { align-self: flex-start; }';
+const COMPACT_FOOTER_TOP_ALIGNMENT = '.ui-site-footer[data-variant="compact"] .ui-site-footer-frame:not([class*="items-"]) > nav { align-self: flex-start; }';
 function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): string[] {
   if (typeof a === "number" && typeof b === "number") { if (Math.abs(a - b) > 0.01) failures.push(`${prefix}: ${a} != ${b}`); }
   else if (a && b && typeof a === "object" && typeof b === "object") {

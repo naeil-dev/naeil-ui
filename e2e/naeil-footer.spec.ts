@@ -65,3 +65,15 @@ for (const locale of ['ko', 'ja', 'en']) for (const width of [390, 1440]) for (c
     if (width === 1440) expect(geometry.offset).toBeLessThanOrEqual(1);
   });
 }
+
+test("compact footer keeps a consumer items-* containerClassName in charge of alignment", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/iframe.html?id=brand-naeilheader--reference-compact-en&viewMode=story');
+  const frame = page.locator('[data-naeil-footer] .ui-site-footer-frame');
+  const bottoms = () => frame.evaluate(element => [...element.querySelectorAll(':scope > nav')].map(nav => Math.round(nav.getBoundingClientRect().bottom)));
+  const tops = () => frame.evaluate(element => [...element.querySelectorAll(':scope > nav')].map(nav => Math.round(nav.getBoundingClientRect().top)));
+  expect(new Set(await tops()).size, "default compact link groups share a top edge").toBe(1);
+  await frame.evaluate(element => element.classList.add('items-end'));
+  expect(await frame.evaluate(element => getComputedStyle(element).alignItems)).toBe('flex-end');
+  expect(new Set(await bottoms()).size, "items-end override aligns link group bottoms").toBe(1);
+});

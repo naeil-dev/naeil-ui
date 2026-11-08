@@ -9,7 +9,7 @@ import { NaeilFooter } from '@naeil/ui/naeil-footer';
 
 Use with [NaeilHeader and its account control](naeil-header.md) on owned user-facing services. Both `full` and `compact` contain the .naeil home link, Projects, Blog and the official naeil GitHub link. Full also displays the existing tagline. Compact reduces spacing/description, not the destinations. No social account or legal claim is invented. The website's former generic X homepage icon is not a canonical account link.
 
-Owned services use the shared default (`full`) as-is, matching naeil.dev; omit `variant` in starters. Use `compact` only as a deliberate, recorded exception, such as a focused task screen.
+Owned services use the shared default (`full`) as-is, matching naeil.dev; omit `variant` in starters. Use `compact` only as a deliberate, recorded exception, such as a focused task screen. Compact link groups are top-aligned so their titles line up; an `items-*` utility in `containerClassName` still controls every child's vertical alignment.
 
 `locale` selects `en`, `ko`, or `ja`. `resolveHref(path)` defaults to official localized naeil.dev destinations; a local website router may resolve unlocalized paths itself. `Link` handles **every** canonical anchor, including absolute GitHub URLs. It must forward href, target, rel, onClick, className and children. GitHub opens a new tab with noopener/noreferrer. The shared implementation does not itself trigger navigation or await saves.
 
