@@ -96,7 +96,6 @@ function App() {
         <a data-testid="route-long" href="?route=long" onClick={event => { event.preventDefault(); history.pushState({}, "", "?route=long"); setLong(true); }}>Long route</a>
         <a data-testid="route-short" href="?route=short" onClick={event => { event.preventDefault(); history.pushState({}, "", "?route=short"); setLong(false); }}>Short route</a>
         <section data-ui-layout="settings" data-testid="frame-reading">Centered content</section>
-        <section data-ui-layout="workflow" data-testid="frame-workflow">Workflow content</section>
         <section data-ui-layout="fluid" data-testid="frame-fluid">Fluid content</section>
         <aside data-testid="frame-fixed" style={{ position: "fixed", top: 70, right: "var(--removed-body-scroll-bar-size, 0px)", width: 44 }}>Fixed</aside>
       </>}

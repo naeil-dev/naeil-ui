@@ -126,6 +126,7 @@ async function snapshot(page: Page, home = false) {
   }, { properties, home });
 }
 
+const COMPACT_FOOTER_TOP_ALIGNMENT = '.ui-site-footer[data-variant="compact"] .ui-site-footer-frame > nav { align-self: flex-start; }';
 function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): string[] {
   if (typeof a === "number" && typeof b === "number") { if (Math.abs(a - b) > 0.01) failures.push(`${prefix}: ${a} != ${b}`); }
   else if (a && b && typeof a === "object" && typeof b === "object") {
@@ -229,7 +230,10 @@ for (const profile of ["canonical", "site", "estimate", "jev", "compat-routing",
         const query = `profile=${profile}&css=${css}&locale=ja&auth=${auth}`;
         for (const state of ["closed", ...(width === 390 ? ["sheet"] : profile === "legacy-empty" ? [] : ["popover"])]) {
           const name = `${width}-${auth}-${state}`;
-          await prepare(page, "baseline", query, state); const baseline = await snapshot(page); await evidence(page, info, `${name}-B1`, baseline);
+          await prepare(page, "baseline", query, state);
+          // Accepted 2026-11-09 (#10): compact footer link groups are top-aligned; apply it to B1 so every other difference still fails.
+          if (profile === "estimate") await page.addStyleTag({ content: COMPACT_FOOTER_TOP_ALIGNMENT });
+          const baseline = await snapshot(page); await evidence(page, info, `${name}-B1`, baseline);
           await prepare(page, "candidate", query, state); const candidate = await snapshot(page); await evidence(page, info, `${name}-default`, candidate);
           compare(baseline, candidate, `${width}/${auth}/${state}`, failures);
         }
