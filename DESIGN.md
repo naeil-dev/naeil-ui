@@ -60,6 +60,8 @@ Define semantic roles before choosing final palette values:
 | focus | Keyboard focus indicator |
 | success / warning / error / info | Feedback, each with text and subtle-surface companions |
 
+Use `text-error` / `bg-error-bg` / `border-error` for error feedback; reserve `destructive` / `destructive-foreground` for filled dangerous-action pairs, never `text-destructive` for error copy on canvas/card (insufficient dark-mode contrast).
+
 Use neutral surfaces, neutral selection backgrounds, and a neutral action palette as the shared default. The user selected neutral over blue and teal after comparing the revised study. Purple actions and purple selection backgrounds were rejected. Blue and teal remain comparison history, not required shipped themes. Provide complete light/dark roles and validate actual text and control states before publishing.
 
 Brand/action, muted surface, and focus are separate semantic decisions even when some share a color. A project accent override must include its foreground and interaction states; replacing a single hue must not silently break legibility.

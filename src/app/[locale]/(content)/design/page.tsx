@@ -563,7 +563,7 @@ export default function DesignPage() {
           <DialogTrigger asChild>
             <Button variant="outline">{t("openDialog")}</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent showCloseButton={false}>
             <DialogHeader>
               <DialogTitle>{t("confirmTitle")}</DialogTitle>
               <DialogDescription>{t("confirmDescription")}</DialogDescription>
