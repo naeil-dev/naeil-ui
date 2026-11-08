@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.0 — shared UI refinements and Sheet (unpublished candidate)
+
+- Add public `Sheet` primitives through `@naeil/ui/ui` and `@naeil/ui/components/ui/sheet`, using the existing Radix dialog behavior.
+- Add optional `closeLabel` to `DialogContent` and `DialogFooter`; existing English defaults remain unchanged.
+- Clarify error feedback versus destructive actions and test the documented error contrast. Application starters use NaeilFooter's default `full` variant; compact footer link groups align to the top unless the consumer supplies an `items-*` container override.
+- Add `ui.width-workflow` (896px) and `data-ui-layout="workflow"` for workflow content within the existing application frame. Retain the locale service registration proposal as documentation only.
+- Additive minor API candidate from PR #42 (`0d1cb08`) and PR #43 (`047de96`). Publish the frozen archive to `next`, preserve `latest` (0.7.2) unless separately approved, and tag the frozen source as `v0.12.0`. Promotion of 0.11.0 remains a separate owner action; publication, consumer adoption and hosted Docs are separate.
+
 ## 0.11.0 — AB Storm locale registration (unpublished candidate)
 
 - Add the exact owned `abstorm` origin and five protected UI routes to the opt-in locale runtime, with English, Korean and Japanese paths. Keep auth/API/health endpoints outside localized UI routing.

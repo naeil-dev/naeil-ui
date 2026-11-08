@@ -1,3 +1,11 @@
+# Status — 2026-11-09 shared UI 0.12.0 release candidate
+
+Preparing unpublished `@naeil/ui@0.12.0` through the manual exact-archive procedure from merged PR #42 (`0d1cb08`) and PR #43 (`047de96`). The additive minor includes Dialog close labels, error/destructive guidance and checks, full-footer starters, compact-footer alignment, the 896px workflow width and public Sheet; locale registration remains a docs-only proposal. Package metadata and clean React/Next fixture versions move together. Freeze the source before recording the archive digest, inventory and final gate results in a separate evidence commit.
+
+Publish only the reviewed frozen archive to `next`; preserve `latest=0.7.2` unless separately approved. Promotion of 0.11.0 remains a separate owner action. Intended tag `v0.12.0` must point to the frozen source. npm publication, push/merge, tag, GitHub Release, hosted Docs and consumer adoption are not performed by this candidate preparation. Earlier status entries below retain their dated preparation context.
+
+---
+
 # Status — 2026-11-07 AB Storm locale release candidate
 
 Preparing unpublished `@naeil/ui@0.11.0` through the manual exact-archive procedure, with additive `abstorm` locale routing and fail-closed document identity. App route inventory checked at `087e67239db26506a73c51fde7a6d246e4a0d0d9`; no default chrome catalog, translation or contract change. The release PR records final archive/source identities and checks. npm publication to `next`, tag `v0.11.0`, GitHub Release, hosted Docs and consumer adoption remain pending separate maintainer actions.
