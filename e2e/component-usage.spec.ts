@@ -84,6 +84,33 @@ for (const family of families) {
   });
 }
 
+for (const theme of ["light", "dark"]) {
+  test(`Dialog localized close: ${theme}`, async ({ page }, info) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto(`/iframe.html?id=ui-dialog--localized-close&globals=theme:${theme};a11y.manual:!true`);
+    await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+    for (const [title, label] of [["작업 안내", "닫기"], ["作業のお知らせ", "閉じる"], ["Workspace update", "Close"]]) {
+      const trigger = page.getByRole("button", { name: title, exact: true });
+      await trigger.click();
+      const dialog = page.getByRole("dialog", { name: title });
+      await expect(dialog.getByRole("button")).toHaveCount(1);
+      await noOverflow(page);
+      await axe(page, info, `localized-close-${theme}-${label}`);
+      await dialog.getByRole("button", { name: label, exact: true }).click();
+      await expect(dialog).toHaveCount(0);
+      await expect(trigger).toBeFocused();
+    }
+  });
+
+  test(`Feedback colors: ${theme}`, async ({ page }, info) => {
+    await page.goto(`/iframe.html?id=ui-button--feedback-colors&globals=theme:${theme};a11y.manual:!true`);
+    await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+    await expect(page.getByText("Could not delete the draft. Try again.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Delete draft" })).toBeVisible();
+    await axe(page, info, `feedback-colors-${theme}`);
+  });
+}
+
 test("Dialog traps focus, preserves invalid input, recovers and restores trigger", async ({ page }, info) => {
   await usage(page, "dialog");
   const trigger = page.getByRole("button", { name: "Edit workspace", exact: true });

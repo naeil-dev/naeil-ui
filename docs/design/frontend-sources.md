@@ -1,5 +1,9 @@
 # 프론트엔드 참고 출처
 
+## 2026-11-09 — Dialog 닫기 다국어 및 오류 색상 안내
+
+기존 DESIGN.md와 실제 Dialog/Button/Badge 구현을 기준으로 수정했다. Impeccable `context`를 실행하고 harden/craft-floor 지침을 읽었다. 외부 디자인 검색·코드 채택 없이 기존 컴포넌트와 토큰을 사용했다.
+
 ## 2026-10-16 — 서비스 공통 UI 이행
 
 기존 DESIGN.md·0.6.0 frame과 site footer 번역/공식 GitHub 링크를 사용했다. 새 외부 디자인 출처나 디자인 도구 검색은 없다. Impeccable context/harden/craft-floor와 Aside guide를 읽었고, 실제 렌더·Storybook/packed 브라우저 검증 결과는 rollout 검증 기록에 별도로 남긴다. 설치 상태를 실행 결과로 간주하지 않는다.

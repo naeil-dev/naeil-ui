@@ -1,6 +1,6 @@
 import usageGuide from "../../../docs/components/button.md?raw";
 import { guide } from "../../stories/guide";
-import { ButtonUsage } from "../../stories/component-examples";
+import { ButtonUsage, FeedbackColors as FeedbackColorsExample } from "../../stories/component-examples";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Button } from "./button"
@@ -68,3 +68,4 @@ export const Sizes: Story = {
 }
 
 export const Usage: Story = { render: () => <ButtonUsage /> };
+export const FeedbackColors: Story = { render: () => <FeedbackColorsExample /> };

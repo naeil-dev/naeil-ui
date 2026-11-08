@@ -24,6 +24,8 @@ Static badges are not focusable. Name status by text, not only color/icon. Dynam
 
 ## States, resilience and mistakes
 
+Use `variant="error"` for error feedback; destructive badges retain the filled background/foreground pair described in [feedback and destructive color roles](common.md#feedback-and-destructive-color-roles).
+
 Pending/empty/error are literal status content; disabled is inapplicable to a static badge. Avoid essential long text in tiny tags; use a paragraph instead, or deliberate `whitespace-normal break-words max-w-full` overrides and review. Do not infer interactivity from hover or pass disabled to a span/link.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).

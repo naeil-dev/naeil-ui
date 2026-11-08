@@ -335,6 +335,10 @@
     padding-block: var(--spacing-4-value);
     gap: var(--spacing-4-value);
   }
+  /* Top-align link groups by default; a consumer items-* containerClassName keeps aligning every child. */
+  .ui-site-footer[data-variant="compact"] .ui-site-footer-frame:not([class*="items-"]) > nav {
+    align-self: flex-start;
+  }
   .ui-site-footer[data-variant="compact"] .ui-site-footer-meta {
     width: auto;
   }
@@ -477,6 +481,9 @@
   }
   [data-ui-layout="short-form"] {
     max-width: var(--ui-width-short-form);
+  }
+  [data-ui-layout="workflow"] {
+    max-width: var(--ui-width-workflow);
   }
   [data-ui-layout="fluid"] {
     max-width: none;
