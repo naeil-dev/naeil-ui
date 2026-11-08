@@ -17,7 +17,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function HeaderExample({ locale: initialLocale, japaneseOnly = false, variant = "compact", reference = false }: {
+function HeaderExample({ locale: initialLocale, japaneseOnly = false, variant, reference = false }: {
   locale: NaeilHeaderLocale; japaneseOnly?: boolean; variant?: "full" | "compact"; reference?: boolean;
 }) {
   const [locale, setLocale] = useState(initialLocale);

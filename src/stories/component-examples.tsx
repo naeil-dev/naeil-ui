@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Avatar, AvatarImage, AvatarFallback, AvatarBadge, AvatarGroup, AvatarGroupCount,
   Badge, Button, Card, CardElevated, CardHeader, CardTitle, CardDescription,
@@ -114,11 +114,32 @@ export function DialogUsage() {
           <DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
             <Button type="submit" disabled={saving} aria-busy={saving}>{saving ? "Saving…" : "Save workspace"}</Button></DialogFooter>
         </form>
-        <DialogClose asChild><Button type="button" variant="ghost" size="icon" className="absolute right-2 top-2" aria-label="닫기 / Close / 閉じる"><X /></Button></DialogClose>
       </DialogContent>
     </Dialog>
     <p role="status">{status}</p>
     <Button disabled type="button">Editing unavailable</Button>
+  </div>;
+}
+
+export function DialogLocalizedClose() {
+  return <div className="flex flex-wrap gap-3">
+    {[
+      { lang: "ko", label: "닫기", title: "작업 안내", description: "변경 사항이 저장되었습니다." },
+      { lang: "ja", label: "閉じる", title: "作業のお知らせ", description: "変更を保存しました。" },
+      { lang: "en", label: "Close", title: "Workspace update", description: "Your changes have been saved." },
+    ].map(({ lang, label, title, description }) => <Dialog key={lang}>
+      <DialogTrigger asChild><Button type="button" variant="outline" lang={lang}>{title}</Button></DialogTrigger>
+      <DialogContent lang={lang} closeLabel={label}>
+        <DialogHeader><DialogTitle>{title}</DialogTitle><DialogDescription>{description}</DialogDescription></DialogHeader>
+      </DialogContent>
+    </Dialog>)}
+  </div>;
+}
+
+export function FeedbackColors() {
+  return <div className="flex flex-wrap items-center gap-4">
+    <p className="text-error">Could not delete the draft. Try again.</p>
+    <Button type="button" variant="destructive">Delete draft</Button>
   </div>;
 }
 
@@ -276,7 +297,7 @@ export function OverlayResilienceUsage() {
       </DropdownMenuContent>
     </DropdownMenu>}
     <Dialog><DialogTrigger asChild><Button type="button">Open nested dialog</Button></DialogTrigger>
-      <DialogContent onOpenAutoFocus={() => setEvents(values => [...values, "dialog open handler"])}>
+      <DialogContent showCloseButton={false} onOpenAutoFocus={() => setEvents(values => [...values, "dialog open handler"])}>
         <DialogHeader><DialogTitle>Nested value selection</DialogTitle><DialogDescription>Choose a value without losing modal focus.</DialogDescription></DialogHeader>
         <label htmlFor="nested-language">Nested language</label>
         <Select defaultValue="en"><SelectTrigger id="nested-language"><SelectValue /></SelectTrigger>

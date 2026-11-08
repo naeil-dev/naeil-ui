@@ -18,6 +18,12 @@ Loading is composition: state + meaningful text + `aria-busy`, with `disabled` w
 
 Avoid nested buttons/links or embedding unrelated controls in a single clickable surface. A small Switch/Checkbox graphic has a 44px pseudo-element target; keep label rows at least 44px and leave room so adjacent targets do not overlap. Test actual pointer hit areas, keyboard focus and text wrapping in the consumer.
 
+### Feedback and destructive color roles
+
+Use `text-error` for error message text/icons, `bg-error-bg` for subtle error surfaces, and `border-error` for invalid boundaries. Reserve `destructive` / `destructive-foreground` for the filled background/foreground pair of a dangerous action (`Button variant="destructive"`) or destructive Badge.
+
+Never use `text-destructive` (or destructive as text on canvas/card) for error copy: it fails normal-text contrast in dark mode (about 3.45:1 on the background, below 4.5:1). Use `text-error` instead.
+
 ## Long and localized content
 
 Examples include Korean, English and Japanese. Set `lang` on translated content (Japanese selects Noto Sans JP in shared globals). Use responsive widths, `min-width: 0`, flexible heights and consumer wrapping classes for long actions/status text. The wrappers may use single-line truncation; retain the complete accessible name and offer the full value elsewhere if necessary. Do not shrink essential text to fit.

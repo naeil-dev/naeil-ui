@@ -204,7 +204,7 @@ function Tasks() {
                 <Plus />새 작업
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent showCloseButton={false}>
               <DialogHeader>
                 <DialogTitle>새 작업 만들기</DialogTitle>
                 <DialogDescription>

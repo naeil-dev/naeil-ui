@@ -60,6 +60,8 @@ Define semantic roles before choosing final palette values:
 | focus | Keyboard focus indicator |
 | success / warning / error / info | Feedback, each with text and subtle-surface companions |
 
+Use `text-error` / `bg-error-bg` / `border-error` for error feedback; reserve `destructive` / `destructive-foreground` for filled dangerous-action pairs, never `text-destructive` for error copy on canvas/card (insufficient dark-mode contrast).
+
 Use neutral surfaces, neutral selection backgrounds, and a neutral action palette as the shared default. The user selected neutral over blue and teal after comparing the revised study. Purple actions and purple selection backgrounds were rejected. Blue and teal remain comparison history, not required shipped themes. Provide complete light/dark roles and validate actual text and control states before publishing.
 
 Brand/action, muted surface, and focus are separate semantic decisions even when some share a color. A project accent override must include its foreground and interaction states; replacing a single hue must not silently break legibility.
@@ -122,7 +124,7 @@ Application navigation and footer must use the shared compositions: complete `Na
 
 The application frame owns navigation placement and outer gutters; each content region owns its purpose-specific width. A narrow settings form inside that frame must not move the shared navigation. For routes using the same frame, keep navigation anchors stable at the same viewport, language and theme, including loading and changing summary counts. A shared Header import alone does not establish this consistency.
 
-Content caps are reading **640px**, settings **640px**, short form **480px**, and lists **1600px** (updated from 1200px on 2026-10-16). Put lists, tables and dashboards inside `.ui-app-frame` so they use the space remaining after its gutters. Narrow reading/forms stay inside that stable outer frame. `data-ui-layout="fluid"` uses the available region. At a 1920px viewport the default frame has 1520px of usable width.
+Content caps are reading **640px**, settings **640px**, short form **480px**, and lists **1600px** (updated from 1200px on 2026-10-16). On 2026-11-09 the owner approved a **workflow** cap of **896px** (`ui.width-workflow`, `data-ui-layout="workflow"`) for multi-step or card-choice input screens whose step cards or option grids are cramped at 640px; it matches the 848–896px main content measured on naeil.dev. Individual fields and helper text inside a workflow still follow the 640/480px caps. Put lists, tables and dashboards inside `.ui-app-frame` so they use the space remaining after its gutters. Narrow reading/forms stay inside that stable outer frame. `data-ui-layout="fluid"` uses the available region. At a 1920px viewport the default frame has 1520px of usable width.
 
 Products may deliberately override `--ui-width-frame`, `--ui-frame-gutter`, content tokens or `containerClassName`; apply frame overrides consistently to header, main and footer. Choose exceptions from representative tasks and sparse/dense content, and record the reason. An override is not permission to fork shared chrome. Keep the old list cap with `--ui-width-list: 1200px` where required. The earlier product-specific 1600px observation alone was not a shared rule; the owner's explicit 2026-10-16 decision establishes this new default.
 

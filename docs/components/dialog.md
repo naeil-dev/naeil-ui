@@ -6,13 +6,19 @@ Use Dialog for a focused modal task or detail that requires an interruption. Pre
 
 Exports: `Dialog`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription`, `DialogClose`, `DialogPortal`, `DialogOverlay`.
 
-Root forwards Radix `open`/`defaultOpen`/`onOpenChange`/`modal`; wrapper adds no root defaults. Trigger/Close accept primitive button props including `asChild`. Content forwards primitive focus/outside/Escape handlers and **defaults `showCloseButton=true`**; it creates its own Portal and Overlay. Footer is a div with **`showCloseButton=false`**. Header is a div; Title/Description wrap primitive semantic elements. Built-in close labels are English `Close`. For localized close controls set Content showCloseButton=false and compose DialogClose. Content does not expose a portal `container` prop; the separately exported DialogPortal is for a custom composition.
+Root forwards Radix `open`/`defaultOpen`/`onOpenChange`/`modal`; wrapper adds no root defaults. Trigger/Close accept primitive button props including `asChild`. Content forwards primitive focus/outside/Escape handlers and **defaults `showCloseButton=true`**; it creates its own Portal and Overlay. Footer is a div with **`showCloseButton=false`**. Header is a div; Title/Description wrap primitive semantic elements. Content and Footer each accept `closeLabel?: string` (default `"Close"`) for their built-in X accessible name and footer button text, respectively. Content does not expose a portal `container` prop; the separately exported DialogPortal is for a custom composition.
 
 Inherited [Dialog 1.1.15 declaration](https://unpkg.com/@radix-ui/react-dialog@1.1.15/dist/index.d.ts).
 
 The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/dialog.tsx) is the API authority.
 
+## Compatibility decision (2026-11-09)
+
+Keep Content `showCloseButton=true`: changing it would silently remove the only visible pointer exit in pinned consumers that rely on it. Adding `closeLabel` is additive and non-breaking; Footer still defaults to `showCloseButton=false`.
+
 ## Composition
+
+Choose one close affordance: either the built-in X with a localized `closeLabel`, or `showCloseButton={false}` plus a footer `DialogClose` (including Footer's built-in close button). Never ship English defaults in ko/ja UIs or add a second close control.
 
 ```tsx
 <Dialog>
@@ -28,7 +34,7 @@ The [shared usage contract](common.md) covers setup, inherited/native prop typin
 </Dialog>
 ```
 
-Import the named components from `@naeil/ui/ui`. Variables/handlers in snippets are consumer-owned. Run **UI / Dialog / Usage** in Storybook for a complete interactive example; its Docs page renders this same guide.
+Import the named components from `@naeil/ui/ui`. Variables/handlers in snippets are consumer-owned. Run **UI / Dialog / Usage** in Storybook for a complete interactive example; its Docs page renders this same guide. **UI / Dialog / Localized Close** demonstrates built-in X labels in Korean, Japanese and English.
 
 ## Keyboard, focus and accessible content
 

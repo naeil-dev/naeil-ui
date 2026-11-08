@@ -34,6 +34,8 @@ Native buttons activate with Enter/Space and show focus-visible; disabled button
 
 ## States, resilience and mistakes
 
+Use `variant="destructive"` for the filled dangerous-action pair and `text-error` for error copy; see [feedback and destructive color roles](common.md#feedback-and-destructive-color-roles).
+
 Demonstrate normal, disabled, saving and recovery; no-data/error belong to the operation. Do not nest Button in a link or treat variant="link" as navigation. With asChild anchors, own href/activation/disabled policy. For long translated actions use `className="h-auto min-h-11 whitespace-normal py-2"` and check both densities.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).
