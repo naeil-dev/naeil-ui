@@ -1,8 +1,11 @@
-# Status — 2026-11-09 shared UI 0.12.0 release candidate
+# Status — 2026-11-11 shared UI 0.12.0 published
 
-Preparing unpublished `@naeil/ui@0.12.0` through the manual exact-archive procedure from merged PR #42 (`0d1cb08`) and PR #43 (`047de96`). The additive minor includes Dialog close labels, error/destructive guidance and checks, full-footer starters, compact-footer alignment, the 896px workflow width and public Sheet; locale registration remains a docs-only proposal. Package metadata and clean React/Next fixture versions move together. Freeze the source before recording the archive digest, inventory and final gate results in a separate evidence commit.
+`@naeil/ui@0.12.0` is published from the frozen archive (source `e03af076b725d742c4b319aca5ebb2379e2f0258`, SHA-256 `7f5f01407c576e3c5fa956cf76ebfb3a8ef59b58619de99da68351974aca721b`, 178 files). It contains PR #42 (`0d1cb08`: Dialog close labels, error/destructive guidance, full-footer starters, compact-footer alignment, 896px workflow width) and PR #43 (`047de96`: Sheet); locale registration remains a docs-only proposal.
 
-Publish only the reviewed frozen archive to `next`; preserve `latest` unless separately approved. On 2026-11-11 the owner promoted exact 0.11.0 to `latest` (registry verified: `latest=0.11.0`, `next=0.11.0`, shasum `dfc03ce5c17c2989d0fcdd9600555f22cbb3ba7c` matching the frozen archive). Intended tag `v0.12.0` must point to the frozen source. npm publication, push/merge, tag, GitHub Release, hosted Docs and consumer adoption are not performed by this candidate preparation. Earlier status entries below retain their dated preparation context.
+- Registry: published 2026-11-10T21:39:32Z; downloaded tarball byte-identical to the frozen archive (SHA-256, SHA-1, SRI, size). A fresh `npm i @naeil/ui@0.12.0` consumer passed root `/ui` and deep `components/ui/sheet` imports, SSR with `closeLabel`, strict type checks and the workflow token. Tags verified 2026-11-11: `latest=0.12.0`, `next=0.12.0` (owner promoted 0.11.0 and then 0.12.0 to `latest` the same day).
+- Tag `v0.12.0` → frozen source; [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.12.0) carries the tgz, `archive.json` and `npm-registry-verification.json`.
+- Hosted Docs: [Pages run 42915799165](https://github.com/naeil-dev/naeil-ui/actions/runs/42915799165) for reviewed main `230998fad53da253ffa8b96726a6087a56f65e0c` (12 browser cells + deploy) after PR #45 sharded the manual Docs workflow; the prior unsharded run 42907951172 timed out with no failures. Sheet/Dialog localized-close and Feedback Colors stories, LICENSE and notices were checked over HTTP.
+- Not performed: consumer service upgrades (abstorm/Home/Estimate/Jev), native screen-reader or physical-device acceptance.
 
 ---
 
