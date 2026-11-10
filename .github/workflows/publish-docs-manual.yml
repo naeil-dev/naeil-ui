@@ -22,6 +22,13 @@ concurrency:
 jobs:
   build:
     if: inputs.confirmation == 'PUBLISH_REVIEWED_DOCS'
+    # Same browser split as verify.yml: one unsharded job exceeds the timeout.
+    # deploy waits for every cell; only one cell uploads the Pages artifact.
+    strategy:
+      fail-fast: true
+      matrix:
+        browser: [chromium, firefox, webkit]
+        suite: [other, pairs-1, pairs-2, pairs-3]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # Match verify.yml and the locked Playwright version; browsers and OS deps
@@ -55,8 +62,19 @@ jobs:
       - name: Verify preinstalled Playwright browsers
         run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm build:storybook
-      - run: pnpm test:browser
+      - name: Run browser coverage
+        env:
+          NAEIL_UI_TEST_BROWSER: ${{ matrix.browser }}
+          NAEIL_UI_TEST_SUITE: ${{ matrix.suite }}
+        run: |
+          if [ "$NAEIL_UI_TEST_SUITE" = other ]; then
+            printf '%s\n' chrome-pairs.spec.ts > "$RUNNER_TEMP/paired-tests.txt"
+            pnpm test:browser --project="$NAEIL_UI_TEST_BROWSER" --test-list-invert "$RUNNER_TEMP/paired-tests.txt"
+          else
+            pnpm test:browser e2e/chrome-pairs.spec.ts --project="$NAEIL_UI_TEST_BROWSER" --fully-parallel --shard="${NAEIL_UI_TEST_SUITE#pairs-}/3"
+          fi
       - uses: actions/upload-pages-artifact@v3
+        if: matrix.browser == 'chromium' && matrix.suite == 'other'
         with:
           path: storybook-static
   deploy:
