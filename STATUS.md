@@ -2,7 +2,7 @@
 
 Preparing unpublished `@naeil/ui@0.12.0` through the manual exact-archive procedure from merged PR #42 (`0d1cb08`) and PR #43 (`047de96`). The additive minor includes Dialog close labels, error/destructive guidance and checks, full-footer starters, compact-footer alignment, the 896px workflow width and public Sheet; locale registration remains a docs-only proposal. Package metadata and clean React/Next fixture versions move together. Freeze the source before recording the archive digest, inventory and final gate results in a separate evidence commit.
 
-Publish only the reviewed frozen archive to `next`; preserve `latest=0.7.2` unless separately approved. Promotion of 0.11.0 remains a separate owner action. Intended tag `v0.12.0` must point to the frozen source. npm publication, push/merge, tag, GitHub Release, hosted Docs and consumer adoption are not performed by this candidate preparation. Earlier status entries below retain their dated preparation context.
+Publish only the reviewed frozen archive to `next`; preserve `latest` unless separately approved. On 2026-11-11 the owner promoted exact 0.11.0 to `latest` (registry verified: `latest=0.11.0`, `next=0.11.0`, shasum `dfc03ce5c17c2989d0fcdd9600555f22cbb3ba7c` matching the frozen archive). Intended tag `v0.12.0` must point to the frozen source. npm publication, push/merge, tag, GitHub Release, hosted Docs and consumer adoption are not performed by this candidate preparation. Earlier status entries below retain their dated preparation context.
 
 ---
 
