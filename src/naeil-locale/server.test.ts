@@ -122,10 +122,36 @@ describe("common proxy preserves auth and protocol boundaries", () => {
   });
   it("removes external markers when an existing protocol hook passes a request through", async () => {
     const proxy = createNaeilLocaleProxy({ service: "estimate", protocol: () => NextResponse.next() });
-    const response = await proxy(request("/api/private", { headers: { "x-naeil-locale": "ja", "x-next-intl-locale": "ko", "x-naeil-locale-access": "allowed" } }));
+    const response = await proxy(request("/api/private", { headers: { "x-naeil-locale": "ja", "x-next-intl-locale": "ko", "x-naeil-locale-access": "allowed", cookie: "session=original" } }));
     expect(response.headers.has("x-middleware-override-headers")).toBe(true);
     expect(response.headers.get("x-middleware-override-headers")).not.toContain("x-naeil-locale");
     expect(response.headers.get("x-middleware-override-headers")).not.toContain("x-next-intl-locale");
+    expect(response.headers.get("x-middleware-request-cookie")).toBe("session=original");
+  });
+  it.each(["next", "rewrite"] as const)("preserves protocol hook header deletions and replacements on %s", async mode => {
+    const proxy = createNaeilLocaleProxy({ service: "estimate", protocol: incoming => {
+      const headers = new Headers(incoming.headers);
+      headers.delete("x-user-id");
+      headers.set("cookie", "session=refreshed");
+      headers.set("x-naeil-locale", "ja");
+      headers.set("x-next-intl-locale", "ja");
+      headers.set("x-naeil-locale-access", "allowed");
+      headers.set("x-naeil-locale-path", "/calendar");
+      return mode === "next" ? NextResponse.next({ request: { headers } }) : NextResponse.rewrite("https://abestimate.naeil.dev/api/target", { request: { headers } });
+    } });
+    const response = await proxy(request("/api/private", { headers: { "x-user-id": "spoofed", cookie: "session=old", accept: "application/json" } }));
+    expect(response.headers.get("x-middleware-request-x-user-id")).toBeNull();
+    expect(response.headers.get("x-middleware-request-cookie")).toBe("session=refreshed");
+    expect(response.headers.get("x-middleware-request-accept")).toBe("application/json");
+    expect(response.headers.get("x-middleware-override-headers")?.split(",").sort()).toEqual(["accept", "cookie"]);
+    for (const marker of ["x-naeil-locale", "x-next-intl-locale", "x-naeil-locale-access", "x-naeil-locale-path"]) expect(response.headers.get(`x-middleware-request-${marker}`)).toBeNull();
+    if (mode === "rewrite") expect(response.headers.get("x-middleware-rewrite")).toBe("https://abestimate.naeil.dev/api/target");
+  });
+  it("preserves an explicitly empty protocol request header override", async () => {
+    const proxy = createNaeilLocaleProxy({ service: "estimate", protocol: () => NextResponse.next({ request: { headers: new Headers() } }) });
+    const response = await proxy(request("/api/private", { headers: { "x-user-id": "spoofed" } }));
+    expect(response.headers.get("x-middleware-override-headers")).toBe("");
+    expect(response.headers.get("x-middleware-request-x-user-id")).toBeNull();
   });
   it("allows safe English config outside locale routes and rejects supplied unsupported locales", async () => {
     const config = createNaeilRequestConfig({ namespace: "app", messages: { en: async () => ({ app: { save: "Save" } }), ko: async () => ({ app: { save: "저장" } }), ja: async () => ({ app: { save: "保存" } }) } });

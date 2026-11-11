@@ -75,10 +75,11 @@ function stripMarkers(headers: Headers): Headers {
 }
 function sanitizeProtocolPassThrough(response: NextResponse, requestHeaders: Headers): NextResponse {
   if (response.headers.get("x-middleware-next") !== "1" && !response.headers.has("x-middleware-rewrite")) return response;
-  const forwarded = new Headers(requestHeaders);
-  // Preserve an existing auth hook's request cookie refresh, then remove every
-  // untrusted internal locale/access marker even on an excluded protocol path.
-  for (const key of (response.headers.get("x-middleware-override-headers") ?? "").split(",")) {
+  const overrides = response.headers.get("x-middleware-override-headers");
+  // Next's override list is the complete resulting request header set, including
+  // deletions. Only a response without overrides inherits the incoming headers.
+  const forwarded = new Headers(overrides === null ? requestHeaders : undefined);
+  for (const key of (overrides ?? "").split(",").map(name => name.trim())) {
     if (!key) continue;
     const value = response.headers.get(`x-middleware-request-${key}`);
     if (value !== null) forwarded.set(key, value);
