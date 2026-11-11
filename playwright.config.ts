@@ -13,6 +13,7 @@ const scrollbarLaunch = scrollbarMode && process.platform === "darwin" ? {
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
+  forbidOnly: !!process.env.CI,
   workers: 1,
   outputDir: fixtureResults,
   reporter: [["list"], ["html", { open: "never", outputFolder: fixtureReport }]],
@@ -30,7 +31,7 @@ export default defineConfig({
   webServer: [...(process.env.NAEIL_UI_CHROME_ONLY ? [] : [{
     command: `NAEIL_UI_PREVIEW_PORT=${previewPort} tsx scripts/serve-storybook.ts`,
     url: `http://127.0.0.1:${previewPort}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     stdout: "ignore" as const,
     stderr: "ignore" as const,
   }]), {
