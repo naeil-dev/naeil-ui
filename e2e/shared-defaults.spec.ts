@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 const directory = "/tmp/naeil-audit-ui-shots";
 mkdirSync(directory, { recursive: true });
 async function story(page: Page, name: string, theme: string, locale = "en") {
-  await page.goto(`/iframe.html?id=ui-audit-defaults--${name}&globals=theme:${theme};a11y.manual:!true&args=locale:${locale}`);
+  await page.goto(`/iframe.html?id=checks-shared-defaults--${name}&globals=theme:${theme};a11y.manual:!true&args=locale:${locale}`);
   await expect(page.locator("#storybook-root")).not.toBeEmpty();
   await expect(page.locator("html")).toHaveClass(new RegExp(theme));
   await page.evaluate(() => document.fonts.ready);
@@ -16,7 +16,7 @@ async function settle(page: Page) {
   });
 }
 for (const theme of ["light", "dark"]) for (const width of [390, 1440]) for (const locale of ["ko", "ja", "en"]) {
-  test(`audit defaults ${theme} ${width} ${locale}`, async ({ page }) => {
+  test(`shared defaults ${theme} ${width} ${locale}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     const suffix = `${theme}-${width}-${locale}`;

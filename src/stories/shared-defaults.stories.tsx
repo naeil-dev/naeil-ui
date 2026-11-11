@@ -10,7 +10,7 @@ const copy = {
   en: { title: "Workspace settings", section: "Notifications", body: "Review the changes before saving your workspace preferences.", action: "Confirm", close: "Close", undo: "Undo", toast: "Settings saved." },
 };
 type Props = { locale: keyof typeof copy };
-const meta = { title: "UI/Audit defaults", args: { locale: "en" }, argTypes: { locale: { control: "select", options: ["ko", "ja", "en"] } } } satisfies Meta<Props>;
+const meta = { title: "Checks/Shared defaults", args: { locale: "en" }, argTypes: { locale: { control: "select", options: ["ko", "ja", "en"] } } } satisfies Meta<Props>;
 export default meta;
 type Story = StoryObj<Props>;
 

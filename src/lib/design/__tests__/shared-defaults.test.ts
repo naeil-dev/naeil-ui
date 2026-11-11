@@ -6,7 +6,7 @@ import { Button } from "../../../components/ui/button";
 import { CardTitle } from "../../../components/ui/card";
 import { PageTitle } from "../../../components/typography";
 
-describe("audit defaults preserve consumer overrides", () => {
+describe("shared defaults preserve consumer overrides", () => {
   it.each(["default", "destructive", "outline", "secondary", "ghost", "link"] as const)("%s has a persistent pressed indicator", variant => {
     const html = renderToStaticMarkup(createElement(Button, { variant, "aria-pressed": true }, "Toggle"));
     expect(html).toContain(`aria-pressed:inset-ring-${["default", "destructive"].includes(variant) ? 4 : 2}`);
