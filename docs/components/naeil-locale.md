@@ -35,6 +35,8 @@ Use `createNaeilRequestConfig({namespace: "estimate", messages: {en: () => impor
 
 Render complete paths with `localePath` for same-service navigation and `localeHref` for owned service links. Pass those paths to base Next Link/router or anchors without another locale option. The controller performs `router.replace(href, {scroll: false})`, serializes requests and waits for the matching provider arrival. It restores a stable `data-naeil-focus-id`, input `name`, or `id`. Only a successful explicit selection may write preference; history, prefetch and direct visits do not. Storage failure cannot block a path change.
 
+Compatibility note: timeout releases the pending lock but retains the failed intent so a matching late provider arrival clears the error and applies the normal preference-write opt-in. The full destination (including query and fragment) must match. Cancel, history navigation, departure to another logical route, or a newer selection discards that late-arrival eligibility. `retry()` now uses the latest failed request, including unsupported-route failures and destination options; if the URL already has the requested locale, it clears the error and returns `false` without starting another navigation. A URL change alone never writes preference: a matching provider must commit.
+
 The canonical chrome can be imported from `/naeil-locale/chrome` under the shared provider. Existing `/naeil-header` and `/naeil-footer` remain standalone compatibility adapters and include the small three-language common dictionary. Consumer Link, auth, save guards, frame overrides, desktop/mobile account locks and project data remain consumer-owned.
 
 ## AB Storm registration (0.11.0 candidate)
