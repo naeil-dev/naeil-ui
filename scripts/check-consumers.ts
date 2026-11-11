@@ -80,7 +80,7 @@ function prepareFrameConsumer(cwd: string, framework: "react" | "next", css: "gl
   const base = framework === "react" ? "src" : "app/frame";
   mkdirSync(join(cwd, base), { recursive: true });
   const imports = css === "globals" ? '@import "@naeil/ui/globals.css";'
-    : '@import "tailwindcss"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark (&:is(.dark *)); @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
+    : '@import "tailwindcss"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark { &:where(.dark, .dark *) { @slot; } @media (prefers-color-scheme: dark) { &:where(:root:not(.light), :root:not(.light) *) { @slot; } } } @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
   const fonts = ['import "pretendard/dist/web/variable/pretendardvariable.css";', ...[400, 500, 600].map(weight => `import "@fontsource/noto-sans-jp/${weight}.css";`)].join("\n");
   const app = readFileSync("scripts/fixtures/chrome/app.tsx", "utf8");
   for (const control of ["", "-theme", "-js"]) {

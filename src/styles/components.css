@@ -745,7 +745,6 @@ html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
    Unlayered selectors match Sonner's injected, unlayered default styles. */
 [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button] {
   position: relative;
-  min-width: var(--ui-touch-target);
 }
 [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button]::after,
 [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button]::after {

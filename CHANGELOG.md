@@ -15,7 +15,7 @@ Not published. Fixes the verified findings of the 2026-11-12 design-system audit
 - CI: `forbidOnly` on CI, no reuse of a stale local Storybook server, and 40-minute browser/package job limits.
 
 Compatibility:
-- Visual defaults changed: pressed Buttons, Card/Dialog/Page title and `text-sm`/`text-xs` line heights (14/22, 13/20), Dialog max height with scrolling, and `dark:` utilities under OS dark without a theme class. Opt-outs are in the component guides.
+- Visual defaults changed: pressed Buttons; generated line heights for every type size used by the roles (`text-xs` 13/20, `text-sm` 14/22, `text-base` 16/25, `text-xl` 20/29, `text-3xl` 32/42), which also applies to consumer text without an explicit `leading-*` (explicit `leading-*` still wins); Card/Dialog/Page titles follow those roles; `DialogContent` caps its height and scrolls, so its close button scrolls with the content and non-portaled popups inside a dialog are clipped (portaled Radix popups are not); `dark:` utilities under OS dark without a theme class. Opt-outs are in the component guides.
 - Apps that used tw-animate-css utilities (`animate-in`, `fade-in`, ...) only through `@naeil/ui/globals.css` must add `tw-animate-css` themselves. No owned service does (checked AB Storm, Estimate, Home, Persona, Jev).
 - Package-internal Storybook tooling notices are no longer in the npm archive; they stay in the repository and the Docs preview.
 

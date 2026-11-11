@@ -7,7 +7,8 @@
  *   dist/tokens.ts   — TypeScript constants with type helpers
  */
 
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
+import { realpathSync } from "node:fs";
 import StyleDictionary from "style-dictionary";
 import type {
   TransformedToken,
@@ -399,7 +400,8 @@ async function main() {
   console.log("\n🎨 Token build complete!");
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// Compare real paths: a symlinked checkout must not turn the generator into a silent no-op.
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch((err) => {
     console.error("❌ Build failed:", err);
     process.exit(1);

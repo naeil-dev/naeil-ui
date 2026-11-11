@@ -10,7 +10,7 @@ Root: primitive `open`/`defaultOpen`/`onOpenChange`, `modal`, `dir`; no wrapper 
 
 Inherited [DropdownMenu 2.1.16 declaration](https://unpkg.com/@radix-ui/react-dropdown-menu@2.1.16/dist/index.d.ts), including its inherited Menu types.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](../../src/components/ui/dropdown-menu.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/dropdown-menu.tsx) is the API authority.
 
 ## Composition
 

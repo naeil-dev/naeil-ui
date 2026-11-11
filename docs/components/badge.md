@@ -8,7 +8,7 @@ Exports: `Badge`, `badgeVariants`. Native span props plus `variant` and `asChild
 
 **Server Components:** To call `badgeVariants` on the server, import it from `@naeil/ui/components/ui/badge`. The `@naeil/ui/ui` component barrel remains a client boundary. Import `cn` from `@naeil/ui/utils` or the RSC-safe deep path `@naeil/ui/lib/utils`.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](../../src/components/ui/badge.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/badge.tsx) is the API authority.
 
 ## Composition
 

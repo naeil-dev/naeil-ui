@@ -12,6 +12,12 @@
     ".next",
     "src/**/*.test.*",
     "src/**/*.spec.*",
-    "src/**/*.stories.*"
+    "src/**/*.stories.*",
+    "examples",
+    "scripts",
+    "e2e",
+    "docs",
+    "dist",
+    "storybook-static"
   ]
 }

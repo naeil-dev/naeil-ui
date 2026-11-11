@@ -82,6 +82,8 @@ export function NaeilLocaleController({ service, children, preferenceWritesEnabl
     if (gate.current()?.token !== token) return;
     // Releasing the request lock cannot cancel Next's in-flight navigation.
     timedOutIntent.current = reason === "timeout" ? gate.current() : undefined;
+    // A late commit must not pull focus back after the user has moved on.
+    focus.current = undefined;
     gate.cancel(token); clearTimer(); setIntent(undefined); setError(reason);
   }, [gate, clearTimer]);
   const changeLocale = useCallback((language: NaeilLocale, options?: LocaleChangeOptions): boolean => {

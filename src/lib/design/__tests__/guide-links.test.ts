@@ -11,7 +11,7 @@ describe("downloaded Storybook guide links", () => {
   });
 
   it("resolves source authority links against the same release tag", () => {
-    const rendered = guide("[Dialog source](../../src/components/ui/dialog.tsx#L1) [Sheet source](../../src/components/ui/sheet.tsx)");
+    const rendered = guide("[Dialog source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/dialog.tsx#L1) [Sheet source](../../src/components/ui/sheet.tsx)");
     expect(rendered).toContain(`](https://github.com/naeil-dev/naeil-ui/blob/v${version}/src/components/ui/dialog.tsx#L1)`);
     expect(rendered).toContain(`](https://github.com/naeil-dev/naeil-ui/blob/v${version}/src/components/ui/sheet.tsx)`);
   });

@@ -87,7 +87,9 @@ function sanitizeProtocolPassThrough(response: NextResponse, requestHeaders: Hea
   for (const key of privateHeaders) { forwarded.delete(key); response.headers.delete(`x-middleware-request-${key}`); }
   const names: string[] = [];
   for (const [key, value] of forwarded) { names.push(key); response.headers.set(`x-middleware-request-${key}`, value); }
-  response.headers.set("x-middleware-override-headers", names.join(","));
+  // Listing the private markers without values deletes them and keeps the list
+  // non-empty: Next ignores an empty override list and would forward raw headers.
+  response.headers.set("x-middleware-override-headers", [...names, ...privateHeaders].join(","));
   return response;
 }
 function markPrivate(response: NextResponse): NextResponse { response.headers.set("Cache-Control", "private, no-store"); return response; }
