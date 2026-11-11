@@ -35,3 +35,18 @@ Run each affected composition under matching light/dark, comfortable/compact, mo
 ## Exact inherited contracts
 
 Native wrappers use React 19 element props: inspect your installed `@types/react/index.d.ts`, or infer `React.ComponentProps<typeof Component>`. Radix wrappers use `React.ComponentProps<typeof Primitive.Part>`; inspect the installed declarations reached through `radix-ui/dist/index.d.ts`. Per-family guides link pinned declarations inspected locally during this work. Those links describe the inherited contract, not a promise that all primitive configurations have been tested. Wrapper defaults below are separate from primitive defaults; omitted primitive defaults are not invented here. Consumer examples and browser checks demonstrate only their recorded configuration.
+
+## Theme and typography compatibility (2026-11-12)
+
+The `dark:` variant in globals.css now follows the same conditions as generated dark tokens: `.dark` on an element or ancestor, plus OS dark under `:root:not(.light)` (including the root itself). Root `.light` opts out of OS dark; a deliberately nested `.dark` still opts into dark. Use only one root theme class. `.light` is a root OS opt-out, not a nested light-theme reset. Consumers composing theme.css + components.css with their own Tailwind entry must copy this variant into that entry to match the token contract:
+
+```css
+@custom-variant dark {
+  &:where(.dark, .dark *) { @slot; }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not(.light), :root:not(.light) *) { @slot; }
+  }
+}
+```
+
+Generated font-size utilities now include the approved line heights: `text-3xl` 32/42px, `text-xl` 20/29px, `text-base` 16/25px (UI body, component title and controls), `text-sm` 14/22px and `text-xs` 13/20px at a 16px root. Reading body uses `text-base leading-relaxed` (16/30px). PageTitle, DialogTitle and CardTitle no longer override their role line heights. This changes wrapping and vertical rhythm; recheck constrained layouts. Explicit consumer `leading-*` utilities remain supported. Numeric values live in typography.json; regenerate with `pnpm build:tokens`.

@@ -1,7 +1,7 @@
 /**
  * WCAG 2.1 contrast ratio checker for naeil-ui design tokens.
  *
- * Parses src/styles/theme.css to extract OKLCH color values from :root (light)
+ * Parses src/styles/theme.css to extract hex and OKLCH color values from :root (light)
  * and .dark blocks, converts them to sRGB, and checks contrast ratios.
  *
  * Usage: pnpm check:contrast
@@ -56,7 +56,7 @@ function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
 
-/** Parse an OKLCH value string → [r, g, b] in 0-255, plus alpha */
+/** Parse a hex or OKLCH value string → [r, g, b] in 0-255, plus alpha */
 function parseOklch(
   value: string,
 ): { r: number; g: number; b: number; a: number } | null {
@@ -120,9 +120,9 @@ function compositeOver(
 ): { r: number; g: number; b: number; a: number } {
   const a = fg.a;
   return {
-    r: Math.round(fg.r * a + bg.r * (1 - a)),
-    g: Math.round(fg.g * a + bg.g * (1 - a)),
-    b: Math.round(fg.b * a + bg.b * (1 - a)),
+    r: fg.r * a + bg.r * (1 - a),
+    g: fg.g * a + bg.g * (1 - a),
+    b: fg.b * a + bg.b * (1 - a),
     a: 1,
   };
 }
@@ -220,6 +220,32 @@ const REQUIRED_CHECKS = [
   ["info", "info-bg", 4.5, "info badge"],
 ] as const;
 
+// Opacity utilities composite over the surface that actually hosts the control.
+// [foreground/indicator, painted background, minimum, description, underlying surface]
+type Check = readonly [string, string, number, string, string?];
+function renderedChecks(mode: "light" | "dark"): Check[] {
+  const checks: Check[] = [
+    ["error", mode === "dark" ? "destructive/20" : "destructive/10", 4.5, "destructive menu focus", "popover"],
+    ["muted-foreground", "popover", 4.5, "muted text on popover"],
+    ["muted-foreground", "surface-selected", 4.5, "muted text on selection"],
+    ["#ffffff", "border-strong", 3, "unchecked switch thumb/track"],
+    ["primary-foreground", "primary", 3, "checked switch thumb/track"],
+    ["primary-foreground", "primary-hover", 4.5, "default pressed text"],
+    ["primary-foreground", "primary-hover", 3, "default pressed inset indicator"],
+    ["destructive-foreground", "destructive", 3, "destructive pressed inset indicator"],
+    ["foreground", "border-strong", 3, "outline pressed indicator against border"],
+  ];
+  for (const status of ["success", "warning", "info", "error"])
+    checks.push([status, "popover", 4.5, `toast ${status} text`]);
+  for (const surface of ["background", "card", "popover", "surface-selected", "surface-subtle"])
+    checks.push(["destructive-foreground", "destructive/90", 4.5, `destructive hover text/pressed indicator over ${surface}`, surface]);
+  for (const variant of ["outline", "secondary", "ghost", "link"]) {
+    checks.push(["foreground", "surface-selected", 4.5, `${variant} pressed text`]);
+    checks.push(["foreground", "surface-selected", 3, `${variant} pressed inset indicator`]);
+  }
+  return checks;
+}
+
 function main() {
   const cssArg = process.argv.indexOf("--css");
   const cssPath =
@@ -236,51 +262,34 @@ function main() {
 
   for (const mode of ["light", "dark"] as const) {
     const tokens = mode === "light" ? lightTokens : darkTokens;
-    const bgTokens = mode === "light" ? lightTokens : darkTokens;
-
     results.push(`\n📋 ${mode.toUpperCase()} mode:`);
-
-    for (const [fgName, bgName, minRatio, desc] of REQUIRED_CHECKS) {
-      const fgVal = tokens[fgName];
-      const bgVal = bgTokens[bgName];
-
-      if (!fgVal || !bgVal) {
-        allPassed = false;
-        results.push(
-          `  ⚠️  ${desc}: missing token (fg=${fgName}: ${fgVal || "N/A"}, bg=${bgName}: ${bgVal || "N/A"})`,
-        );
-        continue;
-      }
-
-      const fgColor = parseOklch(fgVal);
-      const bgColor = parseOklch(bgVal);
-
-      if (!fgColor || !bgColor) {
-        allPassed = false;
-        results.push(
-          `  ⚠️  ${desc}: could not parse color (fg=${fgVal}, bg=${bgVal})`,
-        );
-        continue;
-      }
-
-      // For semi-transparent colors, composite over the mode's background
-      const modeBg = parseOklch(bgTokens["background"] || "oklch(0 0 0)") || {
-        r: 0,
-        g: 0,
-        b: 0,
-        a: 1,
+    let lowestMargin = Infinity;
+    let lowestDescription = "";
+    for (const [fgName, bgName, minRatio, desc, surface = "background"] of [...REQUIRED_CHECKS, ...renderedChecks(mode)] as Check[]) {
+      const paint = (name: string) => {
+        const [token, percent] = name.split("/");
+        const value = token.startsWith("#") ? token : tokens[token];
+        if (!value) throw new Error(`missing token ${token}`);
+        const color = parseOklch(value);
+        if (!color) throw new Error(`could not parse color ${value}`);
+        return { ...color, a: color.a * (percent === undefined ? 1 : Number(percent) / 100) };
       };
-
-      const ratio = contrastRatio(fgColor, bgColor, modeBg);
-      const pass = ratio >= minRatio;
-
-      if (!pass) allPassed = false;
-
-      const icon = pass ? "✅" : "🔴";
-      results.push(
-        `  ${icon} ${desc}: ${ratio.toFixed(2)}:1 ${pass ? "" : `(FAIL: need ${minRatio}:1)`}`,
-      );
+      try {
+        const underlay = paint(surface);
+        const bg = compositeOver(paint(bgName), underlay);
+        const fg = compositeOver(paint(fgName), bg);
+        const ratio = contrastRatio(fg, bg);
+        const pass = ratio >= minRatio;
+        if (!pass) allPassed = false;
+        const margin = ratio - minRatio;
+        if (margin < lowestMargin) { lowestMargin = margin; lowestDescription = desc; }
+        results.push(`  ${pass ? "✅" : "🔴"} ${desc}: ${ratio.toFixed(2)}:1 (need ${minRatio}:1; margin ${margin.toFixed(2)})`);
+      } catch (error) {
+        allPassed = false;
+        results.push(`  ⚠️  ${desc}: ${error instanceof Error ? error.message : error}`);
+      }
     }
+    results.push(`  Lowest margin: ${lowestMargin.toFixed(2)} — ${lowestDescription}`);
   }
 
   console.log("🎨 WCAG Contrast Check — naeil-ui design tokens");

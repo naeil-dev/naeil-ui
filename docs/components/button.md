@@ -39,3 +39,7 @@ Use `variant="destructive"` for the filled dangerous-action pair and `text-error
 Demonstrate normal, disabled, saving and recovery; no-data/error belong to the operation. Do not nest Button in a link or treat variant="link" as navigation. With asChild anchors, own href/activation/disabled policy. For long translated actions use `className="h-auto min-h-11 whitespace-normal py-2"` and check both densities.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).
+
+## Pressed state and compatibility (2026-11-12)
+
+Use `aria-pressed={selected}` for toggle actions. Every variant now shows a persistent 2px inset indicator; default uses its hover surface, and outline/secondary/ghost/link use `surface-selected` with foreground text. The destructive variant retains its dangerous-action fill. Filled variants inset the indicator 2px from the edge so it is surrounded by the contrasting fill. Indicators meet 3:1 against their adjacent fill and text meets 4.5:1 in both themes, including destructive hover. This changes the appearance of existing toggle buttons. Consumer `aria-pressed:*` classes still merge last; override the indicator and its contrast deliberately. `aria-pressed={false}` and ordinary actions retain their existing appearance.

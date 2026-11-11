@@ -1,6 +1,6 @@
 {
   "radius": {
-    "$description": "Border radius \u2014 mechanical aesthetic, no excessive rounding. lg(8px) is the maximum.",
+    "$description": "Border radius \u2014 mechanical aesthetic, no excessive rounding. lg(12px) is the maximum panel radius.",
     "none": {
       "$type": "dimension",
       "$value": "0px"

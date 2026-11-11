@@ -1,6 +1,6 @@
 {
   "semantic": {
-    "$description": "Semantic token mappings \u2014 references primitive tokens. Dark-first design.",
+    "$description": "Semantic roles with explicit light/dark values and selected primitive aliases.",
     "light": {
       "$description": "Light mode values (`:root`)",
       "background": {
@@ -193,7 +193,7 @@
       }
     },
     "dark": {
-      "$description": "Dark mode values (`.dark`) \u2014 default theme",
+      "$description": "Dark values for `.dark` or OS dark unless the root has `.light`",
       "background": {
         "$type": "color",
         "$value": "#0b0c0e"

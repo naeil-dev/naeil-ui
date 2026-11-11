@@ -5,19 +5,19 @@ import { Slot } from "radix-ui";
 import { cn } from "../../lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap ui-control ui-focus rounded-md text-base font-medium transition-colors duration-(--ui-motion-fast) cursor-pointer  disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0  ui-focus aria-invalid:border-error",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap ui-control ui-focus rounded-md text-base font-medium transition-colors duration-(--ui-motion-fast) cursor-pointer  disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0  ui-focus aria-invalid:border-error aria-pressed:inset-ring-2",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover aria-pressed:bg-primary-hover aria-pressed:inset-ring-4 aria-pressed:inset-ring-primary-foreground aria-pressed:inset-shadow-[0_0_0_2px_var(--primary-hover)]",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 ",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 aria-pressed:inset-ring-4 aria-pressed:inset-ring-destructive-foreground aria-pressed:inset-shadow-[0_0_0_2px_var(--destructive)]",
         outline:
-          "border border-border-strong bg-background hover:bg-surface-subtle",
+          "border border-border-strong bg-background hover:bg-surface-subtle aria-pressed:bg-surface-selected aria-pressed:text-foreground aria-pressed:inset-ring-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-surface-subtle",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-pressed:bg-surface-selected aria-pressed:text-foreground aria-pressed:inset-ring-foreground",
+        ghost: "hover:bg-surface-subtle aria-pressed:bg-surface-selected aria-pressed:text-foreground aria-pressed:inset-ring-foreground",
+        link: "text-primary underline-offset-4 hover:underline aria-pressed:bg-surface-selected aria-pressed:text-foreground aria-pressed:inset-ring-foreground",
       },
       size: {
         default: "px-4 has-[>svg]:px-3",

@@ -7,6 +7,7 @@
  *   dist/tokens.ts   — TypeScript constants with type helpers
  */
 
+import { pathToFileURL } from "node:url";
 import StyleDictionary from "style-dictionary";
 import type {
   TransformedToken,
@@ -100,6 +101,8 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
 
   for (const t of allTokens.filter((t) => pathStartsWith(t, "font", "size")))
     lines.push(`  --text-${tokenName(t)}: ${tokenValue(t)};`);
+  for (const t of allTokens.filter((t) => pathStartsWith(t, "font", "sizeLineHeight")))
+    lines.push(`  --text-${tokenName(t)}--line-height: ${tokenValue(t)};`);
   for (const t of allTokens.filter((t) => pathStartsWith(t, "font", "weight")))
     lines.push(`  --font-weight-${tokenName(t)}: ${tokenValue(t)};`);
   for (const t of allTokens.filter((t) =>
@@ -166,7 +169,7 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   lines.push("");
 
   // --- @media (prefers-color-scheme: dark) fallback ---
-  // Priority: user override (class) > system preference > fallback dark
+  // Root .light opts out of OS dark; otherwise :root defaults to light.
   lines.push("@media (prefers-color-scheme: dark) {");
   lines.push("  :root:not(.light) {");
   for (const t of darkTokens) {
@@ -191,8 +194,10 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   }
   lines.push("}");
   lines.push("@media (max-width: 560px), (pointer: coarse) {");
+  const rowHeight = allTokens.find((t) => t.path.join(".") === "ui.row-height");
+  if (!rowHeight) throw new Error("Missing ui.row-height token");
   lines.push(
-    '  :root, :root[data-ui-density="compact"] { --ui-control-height: var(--ui-touch-target); --ui-row-height: 72px; }',
+    `  :root, :root[data-ui-density="compact"] { --ui-control-height: var(--ui-touch-target); --ui-row-height: ${tokenValue(rowHeight)}; }`,
   );
   lines.push("}");
   return lines.join("\n");
@@ -342,7 +347,7 @@ function formatTokensTS({ dictionary }: FormatFnArguments): string {
 // Build
 // ---------------------------------------------------------------------------
 
-async function main() {
+function createDictionary() {
   // Register custom formats
   StyleDictionary.registerFormat({
     name: "custom/theme-css",
@@ -354,7 +359,7 @@ async function main() {
     format: formatTokensTS,
   });
 
-  const sd = new StyleDictionary({
+  return new StyleDictionary({
     source: ["src/tokens/*.json"],
     usesDtcg: true,
     log: { verbosity: "verbose" },
@@ -381,12 +386,22 @@ async function main() {
       },
     },
   });
+}
 
-  await sd.buildAllPlatforms();
+/** Format in memory: never writes the committed CSS or dist artifacts. */
+export async function generateThemeCSS(): Promise<string> {
+  const files = await createDictionary().formatPlatform("css");
+  return String(files[0].output);
+}
+
+async function main() {
+  await createDictionary().buildAllPlatforms();
   console.log("\n🎨 Token build complete!");
 }
 
-main().catch((err) => {
-  console.error("❌ Build failed:", err);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error("❌ Build failed:", err);
+    process.exit(1);
+  });
+}

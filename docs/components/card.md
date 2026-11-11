@@ -30,3 +30,7 @@ Static cards are not tab stops. Put real buttons/links inside and a semantic hea
 Loading/empty/error are consumer content with status/retry actions, not Card props; disabled is inapplicable to the static surface. Keep CardAction concise, wrap long localized headings and use `w-full max-w-*` instead of fixed widths. Avoid nested cards and implicit clickable-card behavior; an entire link card must contain no nested controls.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).
+
+## Typography and theme compatibility (2026-11-12)
+
+CardTitle now uses the component-title role (16/25px), replacing `leading-none`; CardDescription uses supporting text (14/22px). Wrapped titles and descriptions can make cards taller. Explicit `className` typography/leading overrides still win. CardElevated now also uses its elevated dark surface under OS dark with no root theme class when importing globals.css.

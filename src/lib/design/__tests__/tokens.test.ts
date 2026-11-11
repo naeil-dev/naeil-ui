@@ -1,12 +1,12 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-const build = () => execFileSync("pnpm", ["build:tokens"], { stdio: "pipe" });
+import { generateThemeCSS } from "../../../../scripts/build-tokens";
 const cssPath = "src/styles/theme.css";
-beforeAll(build, 30000);
+
 describe("the CSS consumed by the public package", () => {
   it("ships the approved neutral roles and generated dimensions", () => {
     const css = readFileSync(cssPath, "utf8");
@@ -54,11 +54,24 @@ describe("the CSS consumed by the public package", () => {
       }
     },
   );
-  it("can be regenerated without changing the shipped artifact", () => {
-    const first = readFileSync(cssPath, "utf8");
-    build();
-    expect(readFileSync(cssPath, "utf8")).toBe(first);
+  it("can be regenerated without changing the shipped artifact", async () => {
+    const committed = readFileSync(cssPath, "utf8");
+    expect(await generateThemeCSS()).toBe(committed);
+    expect(readFileSync(cssPath, "utf8")).toBe(committed);
   }, 30000);
+  it("rejects rendered destructive hover even when the opaque pair passes", () => {
+    const dir = mkdtempSync(join(tmpdir(), "naeil-contrast-state-"));
+    try {
+      const file = join(dir, "hover.css");
+      writeFileSync(file, readFileSync(cssPath, "utf8").replace(/--destructive: [^;]+;/g, "--destructive: #bd414b;"));
+      const result = spawnSync("pnpm", ["exec", "tsx", "scripts/check-contrast.ts", "--css", file], { encoding: "utf8" });
+      expect(result.status).toBe(1);
+      expect(result.stdout).toContain("✅ destructive-fg on destructive: 5.22:1");
+      expect(result.stdout).toContain("🔴 destructive hover text/pressed indicator over popover: 4.41:1");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
   it("fails contrast verification when required colors are missing", () => {
     const dir = mkdtempSync(join(tmpdir(), "naeil-contrast-"));
     try {
