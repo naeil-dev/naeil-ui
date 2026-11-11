@@ -178,7 +178,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:pkg": "pnpm check:messages && pnpm build:release && pnpm check:brand && tsup && tsup --config tsup.deep.config.ts && tsup --config tsup.locale.config.ts && tsx scripts/fix-locale-declarations.ts && tsx scripts/copy-locale-json.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens && node scripts/build-release-entry.mjs && pnpm check:locale:package",
+    "build:pkg": "pnpm check:messages && pnpm build:release && pnpm check:brand && tsup && tsup --config tsup.deep.config.ts && tsup --config tsup.locale.config.ts && tsx scripts/fix-locale-declarations.ts && tsx scripts/copy-locale-json.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens && node scripts/build-release-entry.mjs && node scripts/build-utils-entry.mjs && pnpm check:locale:package",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

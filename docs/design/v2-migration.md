@@ -212,6 +212,8 @@ i18n/config
 i18n/routing
 ```
 
+**Server Components:** `@naeil/ui/ui` remains a client component barrel; do not call its `buttonVariants` or `badgeVariants` exports on the server. Use `@naeil/ui/components/ui/button` and `@naeil/ui/components/ui/badge` for those server-side helper calls. Both `@naeil/ui/utils` and `@naeil/ui/lib/utils` provide RSC-safe `cn`.
+
 `components/index` has the same framework requirements as root. `/utils` and `lib/utils` remain aliases for `cn`. `i18n/config` preserves the compatibility locale names; products may instead own their locale list and routing. There are no open-ended component/lib/i18n export patterns. Root, `/ui`, `/utils`, `/theme.css`, `/globals.css` and `/components.css` remain public. `/naeil-header`, `/naeil-footer` and `/release` are explicit dedicated entries; they do not create open-ended component export patterns.
 
 Every excluded source path stays in this repository for the brand/example website. Move any local-source consumer use into the consumer application before upgrading:
