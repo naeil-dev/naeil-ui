@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — 2026-11-12 design-system audit fixes (planned 0.13.0)
+
+Not published. Fixes the verified findings of the 2026-11-12 design-system audit (b17a015). Public imports, exports, types and consumer `className` overrides are preserved; changed defaults are listed under compatibility.
+
+- Locale runtime: protocol-hook request-header deletions and replacements are preserved instead of restoring incoming headers (security hardening). Literal backslashes in query/fragment no longer invalidate a registered route (path backslashes still 404). A late commit after a transition timeout clears the error, `retry()` replays the latest failed request and clears an already-satisfied one. Encoded spellings of every reserved protocol segment, including service `protocolPrefixes`, are rejected. `/favicon.svg` passes as a public file; the matcher/public-file contract is documented.
+- `@naeil/ui/utils` is safe to call from React Server Components. `buttonVariants`/`badgeVariants` stay on the client `/ui` barrel; call them on the server through `@naeil/ui/components/ui/button` and `/badge`. Packed Next consumers are now built with both webpack and Turbopack, including a Server Component page.
+- `Button` with `aria-pressed="true"` shows a token-based pressed indicator in every variant.
+- `DialogContent` caps its height to the viewport and scrolls; Toaster dismiss and action controls get 44px hit areas; Toaster follows a forced next-themes theme.
+- `dark:` utilities follow the same OS-dark / `.dark` / root `.light` conditions as the theme tokens.
+- Typography roles carry the DESIGN.md line heights through generated `--text-*--line-height` tokens. The contrast gate checks rendered opacity/state combinations (98 pairs), and the token test compares generated CSS with the committed file without rewriting it.
+- Docs: README and guides no longer pin stale release states; Storybook guide links follow the built version tag; the `/naeil-locale` runtime is linked from entry docs and agent guidance; production login topology was removed from the shipped application-layout guide.
+- Removed: unused `tw-animate-css` runtime dependency and its `globals.css` import; unreachable site components (hero scene, cursor, accent picker, site controls) with their three.js devDependencies; dead `src/lib/axe.ts`, `src/types/i18n.d.ts`, unused one-off scripts and `.prettierrc`. The npm package ships only the license notices the package needs (178 → 172 files).
+- CI: `forbidOnly` on CI, no reuse of a stale local Storybook server, and 40-minute browser/package job limits.
+
+Compatibility:
+- Visual defaults changed: pressed Buttons, Card/Dialog/Page title and `text-sm`/`text-xs` line heights (14/22, 13/20), Dialog max height with scrolling, and `dark:` utilities under OS dark without a theme class. Opt-outs are in the component guides.
+- Apps that used tw-animate-css utilities (`animate-in`, `fade-in`, ...) only through `@naeil/ui/globals.css` must add `tw-animate-css` themselves. No owned service does (checked AB Storm, Estimate, Home, Persona, Jev).
+- Package-internal Storybook tooling notices are no longer in the npm archive; they stay in the repository and the Docs preview.
+
 ## 0.12.0 — shared UI refinements and Sheet (published 2026-11-10)
 
 Published to npm with dist-tag `next` on 2026-11-10 and promoted to `latest` on 2026-11-11. Frozen source/tag `v0.12.0`: `e03af076b725d742c4b319aca5ebb2379e2f0258`; archive SHA-256 `7f5f01407c576e3c5fa956cf76ebfb3a8ef59b58619de99da68351974aca721b` (178 files). See the [receipt](https://github.com/naeil-dev/naeil-ui/blob/main/docs/releases/0.12.0/README.md). The publication plan below is the preparation-time record.
