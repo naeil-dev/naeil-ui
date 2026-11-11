@@ -52,4 +52,4 @@ Radix, Sonner, Lucide, React, Next.js and other npm dependencies carry licenses 
 
 ### Optional branded header candidate
 
-The0.5.0candidate header refers to the five decorative project images at their official https://naeil.dev/images/ URLs. It does not embed or redistribute those public/images bytes; their unresolved provenance above remains open. Site-adapter extraction does not establish artwork rights or clear unrelated website assets.
+Since 0.7.2, the branded header’s default naeil-ui catalog references one decorative image, https://naeil.dev/images/whale.png. It does not embed or redistribute those public/images bytes; their unresolved provenance above remains open. Site-adapter extraction does not establish artwork rights or clear unrelated website assets.

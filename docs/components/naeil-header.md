@@ -1,6 +1,6 @@
 # NaeilHeader — branded whole-header composition
 
-Exact **@naeil/ui 0.8.0 is published** (registry `next`; `latest=0.7.2` verified 2026-10-29). These Home APIs are available in that exact version. The **0.9.0 candidate** adds shared root reservation and remains unpublished. Hosted Docs and service activation have separate receipts. See [release identities](../package-release.md#publication-and-deployment).
+Product navigation and controlled mobile APIs are available since 0.8.0; shared root reservation is available since 0.9.0. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release; hosted Docs and service activation have separate receipts.
 
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
@@ -43,6 +43,15 @@ Only provide `onLocaleChange` when the application's interface supports all thre
 | `mobileFooter`, `className`, `containerClassName` | Inherited mobile slot and style overrides; recheck frame/behavior after changes. |
 
 Standard header attributes and the remaining inherited [Navigation props](navigation.md) remain available. Compatibility overrides preserve existing consumers; new applications normally use the canonical composition.
+
+## Standalone theme and locale controls
+
+`NaeilHeaderThemeControl` and `NaeilHeaderLocaleControl` are public exports from `@naeil/ui/naeil-header` and `@naeil/ui/naeil-locale/chrome`. The latter uses the shared provider’s selected messages; the standalone entry supplies its own common dictionaries. Prefer the complete header’s default toolbar.
+
+- `NaeilHeaderThemeControl({ locale })` accepts `en | ko | ja`, reads the consumer’s next-themes provider and toggles its resolved light/dark theme. The localized 44px icon button is disabled until mount.
+- `NaeilHeaderLocaleControl({ locale, onLocaleChange })` requires the same locale union and a `(locale) => void` callback. It renders the shared three-language Select; routing, persistence and supported application translations belong to the consumer.
+
+See [the locale runtime](naeil-locale.md) before using provider-backed chrome in an owned Next service.
 
 ## Account presentation
 
@@ -95,7 +104,7 @@ The empty-menu desktop exception is intentional B1 compatibility: a zero-width d
 
 Keep the default theme/locale/separator/account toolbar for this profile; `toolbarSlot` is a compatibility override, not the Home migration path. Omitting all new props preserves the 0.7.2 canonical profile, apart from markers, language correction, release identity and Radix-generated IDs. SVG/Logo IDs and consumer-supplied IDs are not normalized away. See the `docs/superpowers/specs/2026-10-28-canonical-home-chrome.md` acceptance contract for gates and the four allowed Home differences.
 
-## Page-root frame policy (0.9.0 candidate)
+## Page-root frame policy (since 0.9.0)
 
 Both supported CSS paths obtain the stable root rule and scoped Radix duplicate-compensation correction from `components.css`. Theme-only and JS-only imports do not set document scrolling. Declare `<html data-naeil-scrollbar-gutter="auto">` before first paint to disable both pieces for a custom policy. See [application layout](application-layout.md) for custom-body/scroller/helper-class limits, fallback and the [adopted contract](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md) for required probes and capture ordering.
 

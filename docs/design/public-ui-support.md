@@ -1,6 +1,8 @@
 # Public UI support and manual acceptance
 
-This support matrix targets published `@naeil/ui@0.4.0` (2026-10-11); the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) and [publication report](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md) identify its source, npm archive, independent brand 1.1.1 and deployed Docs/site. Current documentation covers 13 component families plus Brand / Logo. Coverage describes the checked examples and dependency versions; native/manual acceptance remains open.
+This support matrix targets published `@naeil/ui@0.4.0` (2026-10-11); the [release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) and [publication report](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/naeil-brand-0.4.0-publication.md) identify its source, npm archive, independent brand 1.1.1 and deployed Docs/site. That release’s documentation covered 13 component families plus Brand / Logo; the [maintained component index](../components/README.md) describes the repository API surface. Coverage describes the checked examples and dependency versions; native/manual acceptance remains open.
+
+The [owned-service language runtime](../components/naeil-locale.md) documents `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker` and `/chrome`. Owned Next services use provider-backed chrome with exact `next-intl@4.14.8`; standalone React header/footer adapters remain available. These entries have their own release and consumer receipts; the historical foundation matrix below does not certify their routing, authentication or production adoption.
 
 ## 0.4.0 publication coverage
 
