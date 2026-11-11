@@ -133,7 +133,6 @@ export default async function BlogPostPage({
         <MarkdownRenderer
           content={post.content}
           title={post.title}
-          myStackLabel={t("myStack")}
           codeBlockLabel={t("codeBlock")}
           tableLabel={t("dataTable")}
         />

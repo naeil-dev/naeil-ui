@@ -8,7 +8,7 @@ export default defineConfig({
     "src/components/index.ts",
     "src/components/naeil-header.tsx",
     "src/components/naeil-footer.tsx",
-    "src/lib/utils.ts",
+    "src/lib/utils.ts", // Preserve declarations; build-utils-entry.mjs replaces the client JS entry.
   ],
   format: ["esm"],
   dts: true,

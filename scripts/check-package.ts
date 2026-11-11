@@ -144,6 +144,22 @@ try {
     }
   }
   checkModules(join(root, "dist"));
+  // /utils must never regain the client banner or import a client chunk.
+  function checkServerModule(file: string, seen = new Set<string>()) {
+    if (seen.has(file)) return;
+    seen.add(file);
+    const source = readFileSync(file, "utf8");
+    assert(!/["']use client["']/.test(source), `Client directive in server utility graph: ${file}`);
+    const parsed = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+    for (const statement of parsed.statements) {
+      if ((ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) &&
+          statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier) &&
+          statement.moduleSpecifier.text.startsWith(".")) {
+        checkServerModule(resolve(dirname(file), statement.moduleSpecifier.text), seen);
+      }
+    }
+  }
+  checkServerModule(join(root, pkg.exports["./utils"].import));
   assert(pkg.sideEffects.includes("**/*.css"), "CSS must survive tree shaking");
   for (const path of [
     "dist/tokens.ts",
@@ -157,6 +173,7 @@ try {
     "licenses/Pretendard-OFL.txt",
     "licenses/Noto-Sans-JP-OFL.txt",
     "licenses/Lato-OFL.txt",
+    "licenses/react-remove-scroll-bar-MIT.txt",
   ])
     assert(existsSync(join(root, path)), `Required artifact missing: ${path}`);
   for (const path of paths.filter((path) => path.endsWith(".md"))) {

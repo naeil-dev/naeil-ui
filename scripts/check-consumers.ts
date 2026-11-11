@@ -56,7 +56,7 @@ function recordBuild(name: string, cwd: string, tarball: string) {
   if (!output) return;
   mkdirSync(output, { recursive: true });
   const next = existsSync(join(cwd, ".next/BUILD_ID"));
-  const files = next ? [".next/BUILD_ID", ".next/server/app/header.html", ".next/server/app/index.html", ...(existsSync(join(cwd, ".next/static/css")) ? readdirSync(join(cwd, ".next/static/css")).map(file => `.next/static/css/${file}`) : [])]
+  const files = next ? [".next/BUILD_ID", ".next/server/app/header.html", ".next/server/app/index.html", ...(existsSync(join(cwd, ".next/server/app/rsc.html")) ? [".next/server/app/rsc.html"] : []), ...(existsSync(join(cwd, ".next/static/css")) ? readdirSync(join(cwd, ".next/static/css")).map(file => `.next/static/css/${file}`) : [])]
     : readdirSync(join(cwd, "dist/assets")).filter(file => /\.(css|js|woff2)$/.test(file)).map(file => `dist/assets/${file}`);
   if (!next && existsSync(join(cwd, "frame-dist/assets"))) files.push(...readdirSync(join(cwd, "frame-dist/assets")).filter(file => /\.(css|js|woff2)$/.test(file)).map(file => `frame-dist/assets/${file}`));
   const consumerRequire = createRequire(join(cwd, "package.json"));
@@ -80,7 +80,7 @@ function prepareFrameConsumer(cwd: string, framework: "react" | "next", css: "gl
   const base = framework === "react" ? "src" : "app/frame";
   mkdirSync(join(cwd, base), { recursive: true });
   const imports = css === "globals" ? '@import "@naeil/ui/globals.css";'
-    : '@import "tailwindcss"; @import "tw-animate-css"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark (&:is(.dark *)); @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
+    : '@import "tailwindcss"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark (&:is(.dark *)); @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
   const fonts = ['import "pretendard/dist/web/variable/pretendardvariable.css";', ...[400, 500, 600].map(weight => `import "@fontsource/noto-sans-jp/${weight}.css";`)].join("\n");
   const app = readFileSync("scripts/fixtures/chrome/app.tsx", "utf8");
   for (const control of ["", "-theme", "-js"]) {
@@ -241,7 +241,6 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     "Clean React consumer: PASS (types, Vite production JS/CSS, SSR, deep imports; Next absent)",
   );
 
-  await checkConsumerBrowser(core);
   recordBuild("candidate-react", core, tarball);
   for (const css of ["globals", "split"] as const) {
     prepareFrameConsumer(core, "react", css);
@@ -262,33 +261,54 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
       !existsSync(join(next, "node_modules", name)),
       `Unexpected framework consumer dependency: ${name}`,
     );
-  run(next, "npm", ["run", "build"]);
-  const html = readFileSync(join(next, ".next/server/app/index.html"), "utf8");
-  const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
-  assert(html.includes(`data-naeil-brand="${brandVersion}"`));
-  assert.match(html, /data-naeil-variant="horizontal"/);
-  assert.match(html, /data-naeil-variant="footer"/);
-  const headerHtml = readFileSync(join(next, ".next/server/app/header.html"), "utf8");
-  assert.match(headerHtml, /data-naeil-header/);
-  assert.match(headerHtml, /data-naeil-account-trigger/);
-  assert.match(headerHtml, /https:\/\/naeil.dev\/ja\/blog/);
-  assert.match(html, /Packed Next compatibility/);
-  assert.match(html, /Consumer-owned messages/);
-  assert.match(html, /Consumer action/);
-  assert.match(html, /Packed multiline value/);
-  assert.match(html, /Packed Next Sheet/);
-  assert.match(html, /Packed Next deep Sheet/);
-  assert.match(html, /role="tablist"/);
-  console.log(
-    "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",
-  );
-  recordBuild("candidate-next", next, tarball);
-  for (const css of ["globals", "split"] as const) {
-    prepareFrameConsumer(next, "next", css);
-    run(next, "npm", ["run", "build"]);
-    await checkFrameConsumer(next, "next", css);
-    recordBuild(`candidate-next-${css}`, next, tarball);
+  let headerHtml = "";
+  for (const bundler of ["webpack", "turbopack"] as const) {
+    for (const route of ["frame", "frame-theme", "frame-js"]) rmSync(join(next, "app", route), { recursive: true, force: true });
+    const suffix = bundler === "webpack" ? "" : "-turbopack";
+    function buildNext() {
+      // Clean output prevents a prior compiler's prerender from satisfying this gate.
+      rmSync(join(next, ".next"), { recursive: true, force: true });
+      const started = performance.now();
+      run(next, "npm", ["run", bundler === "webpack" ? "build" : "build:turbopack"]);
+      const rsc = readFileSync(join(next, ".next/server/app/rsc.html"), "utf8");
+      assert.match(rsc, /data-rsc-cn="p-2"/);
+      assert.match(rsc, /data-rsc-deep-cn="m-2"/);
+      assert.match(rsc, /<a[^>]+class="[^"]*border-border-strong[^"]*"[^>]*>Server button variants<\/a>/);
+      assert.match(rsc, /<span[^>]+class="[^"]*bg-success-bg[^"]*"[^>]*>Server badge variants<\/span>/);
+      const prerender = JSON.parse(readFileSync(join(next, ".next/prerender-manifest.json"), "utf8"));
+      assert(prerender.routes["/rsc"], "RSC helper page must be statically prerendered");
+      console.log(`Clean Next ${bundler}: RSC prerender PASS (${((performance.now() - started) / 1000).toFixed(1)}s)`);
+    }
+    buildNext();
+    const html = readFileSync(join(next, ".next/server/app/index.html"), "utf8");
+    const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
+    assert(html.includes(`data-naeil-brand="${brandVersion}"`));
+    assert.match(html, /data-naeil-variant="horizontal"/);
+    assert.match(html, /data-naeil-variant="footer"/);
+    headerHtml = readFileSync(join(next, ".next/server/app/header.html"), "utf8");
+    assert.match(headerHtml, /data-naeil-header/);
+    assert.match(headerHtml, /data-naeil-account-trigger/);
+    assert.match(headerHtml, /https:\/\/naeil.dev\/ja\/blog/);
+    assert.match(html, /Packed Next compatibility/);
+    assert.match(html, /Consumer-owned messages/);
+    assert.match(html, /Consumer action/);
+    assert.match(html, /Packed multiline value/);
+    assert.match(html, /Packed Next Sheet/);
+    assert.match(html, /Packed Next deep Sheet/);
+    assert.match(html, /role="tablist"/);
+    console.log(
+      "Clean Next consumer: PASS (production build, types and prerendered observed deep/root imports)",
+    );
+    recordBuild(`candidate-next${suffix}`, next, tarball);
+    for (const css of ["globals", "split"] as const) {
+      prepareFrameConsumer(next, "next", css);
+      buildNext();
+      await checkFrameConsumer(next, "next", css);
+      recordBuild(`candidate-next-${css}${suffix}`, next, tarball);
+    }
   }
+  // Run local compiler/frame gates before checks that require live remote artwork.
+  await checkConsumerBrowser(core);
   if (process.env.NAEIL_UI_BASELINE_CONSUMERS === "1") {
     // Use the existing fixtures unchanged for B1, rather than inventing a
     // second compatibility app. buildChromeFixtures verifies the pinned SRI.
@@ -299,6 +319,8 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     await checkConsumerBrowser(baselineReact);
     recordBuild("baseline-react", baselineReact, baselineArchive);
     const baselineNext = fixture("next-baseline", resolve("scripts/fixtures/next"), baselineArchive);
+    // The frozen 0.7.x baseline predates the server-safe /utils contract.
+    rmSync(join(baselineNext, "app/rsc"), { recursive: true, force: true });
     run(baselineNext, "npm", ["run", "build"]);
     recordBuild("baseline-next", baselineNext, baselineArchive);
     const baselineHeader = readFileSync(join(baselineNext, ".next/server/app/header.html"), "utf8");

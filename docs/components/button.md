@@ -6,6 +6,8 @@ Use Button for an action, a native anchor for navigation, and Select for a value
 
 Exports: `Button`, `buttonVariants`.
 
+**Server Components:** To call `buttonVariants` on the server, import it from `@naeil/ui/components/ui/button`. The `@naeil/ui/ui` component barrel remains a client boundary. Import `cn` from `@naeil/ui/utils` or the RSC-safe deep path `@naeil/ui/lib/utils`.
+
 | Prop | Contract / wrapper default |
 | --- | --- |
 | `variant` | `default` (default), `destructive`, `outline`, `secondary`, `ghost`, `link` |
