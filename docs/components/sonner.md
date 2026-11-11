@@ -35,3 +35,9 @@ Sonner creates its notification region; meaningful text should convey status wit
 Demonstrate success/info/warning/error, loading updated by the same id, and an action. Toaster has no disabled/loading prop; those belong to toast calls and initiating controls. With no notifications it renders no message. Keep long multilingual text wrap-safe, use mobileOffset deliberately, avoid duplicate toasters and move persistent errors/retry to the page. Custom style/icons/animations need contrast and reduced-motion verification.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).
+
+## Touch target compatibility (2026-11-12)
+
+Styled toast dismiss and action/cancel controls now have at least 44px pointer targets. Pseudo-elements preserve the existing visible 20px dismiss and 24px action heights; action/cancel width is at least 44px. The close target extends inward from the toast corner to stay inside mobile viewport offsets. This can add a few pixels to very short action labels. Keep space between actions, and recheck target overlap with custom toast content, offsets, stacking or styles. Unstyled/custom toast rendering owns its target sizing.
+
+Toaster also honors next-themes `forcedTheme` before its configured/system theme, keeping the dismiss icon legible when a preview or consumer forces dark mode. Explicit consumer `theme` still overrides this default.

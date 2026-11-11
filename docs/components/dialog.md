@@ -42,6 +42,10 @@ For the modal example, opening moves focus inside, Tab/Shift+Tab stay inside, Es
 
 ## States, resilience and mistakes
 
-Disabled applies to triggers/actions; loading/error/empty are content state. Keep failed input inside the dialog and enable retry. Long/mobile content should remain scrollable within the viewport (e.g. max-h-[calc(100%-2rem)] overflow-y-auto); do not hide all close actions. Consumer outside-dismissal overrides need keyboard/focus review. Do not nest modal roots casually or prevent Escape without an accessible exit.
+Disabled applies to triggers/actions; loading/error/empty are content state. Keep failed input inside the dialog and enable retry. Long/mobile content is scrollable within the dynamic viewport by default; preserve that behavior and do not hide all close actions. Consumer outside-dismissal overrides need keyboard/focus review. Do not nest modal roots casually or prevent Escape without an accessible exit.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).
+
+## Scroll default compatibility (2026-11-12)
+
+Content now defaults to `max-h-[min(calc(100%-2rem),calc(100dvh-2rem))] overflow-y-auto`, keeping tall content and footer actions reachable inside the dynamic viewport. The percentage cap also respects CSS zoom, where viewport units alone can exceed the visible area. Remove equivalent consumer classes. To own a different scroll layout, pass a replacement max-height/overflow class; `className="max-h-[none] overflow-y-visible"` opts out (the consumer must keep all actions reachable). Title now follows the section-title 20/29px typography role.

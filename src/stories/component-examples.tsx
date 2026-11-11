@@ -97,7 +97,7 @@ export function DialogUsage() {
   return <div className="grid gap-4">
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button type="button">Edit workspace</Button></DialogTrigger>
-      <DialogContent showCloseButton={false} className="max-h-[calc(100%-2rem)] overflow-y-auto">
+      <DialogContent showCloseButton={false}>
         <DialogHeader><DialogTitle>Edit workspace</DialogTitle>
           <DialogDescription>Update the name. This example keeps failed input for correction.</DialogDescription></DialogHeader>
         <form noValidate className="grid gap-5" onSubmit={event => {
