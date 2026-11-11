@@ -112,6 +112,17 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     const invalidOrigin = createNaeilLocaleProxy({ service: "estimate", requestOrigin: () => "https://abestimate.naeil.dev/path" });
     await expect(invalidOrigin(request("/calendar"))).rejects.toThrow("validated HTTP request origin");
   });
+  it.each(["main", "estimate"] as const)("passes through the icon linked by the %s error document", async service => {
+    const proxy = createNaeilLocaleProxy({ service });
+    const response = await proxy(request("/missing"));
+    const icon = (await response.text()).match(/<link rel="icon" href="([^"]+)">/)?.[1];
+    expect(icon).toBeTruthy();
+    const asset = await proxy(request(icon!));
+    expect(asset.status).toBe(200);
+    expect(asset.headers.get("x-middleware-next")).toBe("1");
+    expect(asset.headers.get("x-middleware-rewrite")).toBeNull();
+    expect((await proxy(request("/ko" + icon))).status).toBe(404);
+  });
   it("uses only a validated explicit path locale for invalid-request documents", async () => {
     const proxy = createNaeilLocaleProxy({ service: "estimate", authorize: allow });
     for (const [path, locale, status] of [["/ko/missing", "ko", 404], ["/ja/calendar?lang=bad", "ja", 400], ["/ko/api/private", "ko", 404], ["/%6ao/calendar", "en", 404]] as const) {

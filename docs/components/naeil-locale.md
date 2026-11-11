@@ -51,4 +51,36 @@ Compatibility note: a protocol hook returning `NextResponse.next({request: {head
 
 `localePath` is not an auth-return validator. Keep existing exact return/invite/callback/relay origin and envelope validation. Protocol paths stay outside `[locale]`; localized protocol aliases are rejected. Public metadata advertises only available translations. Protected/auth/error UI is noindex without SEO alternates.
 
+Compatibility note: literal backslashes in UI query strings and fragments are preserved by `resolveLocaleUrl` and `localePath`; backslashes in the pathname remain invalid. Encoded locale and protocol-prefix segments are rejected using the registered locale and protocol inventories, including consumer `protocolPrefixes`. This also applies to dynamic UI segments; use the literal spelling of reserved segments.
+
+## Proxy matcher and public files
+
+The proxy passes these unlocalized prefixes (exact path or descendants) through without locale rewriting: `/api`, `/auth`, `/_next`, `/_vercel`, `/.well-known`, `/health`, `/invite`, `/return`, `/webhook`, `/images`, `/fonts`, plus the service's `protocolPrefixes`. Exact registered `uiProtocolExceptions`, such as Estimate's `/auth/complete`, remain UI routes. The built-in exact public files are `/favicon.ico`, `/favicon.svg`, `/icon.svg`, `/apple-icon.png`, `/robots.txt` and `/sitemap.xml`. Compatibility note: `/favicon.svg` is now included so Estimate's error-document favicon passes through the same proxy that emitted it.
+
+Other public files, including manifests, Open Graph images and extra icons, must be excluded by the consumer's matcher or explicitly passed by its protocol hook or service `protocolPrefixes`. Unknown paths are otherwise rejected with 404, even when they contain a file extension. A protocol hook runs before classification; keep its allowlist exact and preserve existing auth/invite/return checks.
+
+The site uses the following catch-all matcher and passes its additional public files in the protocol hook. This is the recommended starting point when existing security checks must run on every request:
+
+```ts
+// proxy.ts — retain existing protocol/security checks before this asset branch.
+import { NextResponse, type NextRequest } from "next/server";
+import { createNaeilLocaleProxy } from "@naeil/ui/naeil-locale/server";
+
+async function protocol(request: NextRequest) {
+  const path = new URL(request.url).pathname;
+  // App-owned examples; replace these with the application's actual public files.
+  if (path.startsWith("/svg/") || ["/manifest.webmanifest", "/og.png"].includes(path)) {
+    return NextResponse.next();
+  }
+  return undefined;
+}
+
+export default createNaeilLocaleProxy({ service: "main", protocol /*, authorize: existingAuthorizer */ });
+export const config = { matcher: ["/:path*"] };
+```
+
+Keep the existing authorizer when integrating this example. If the matcher excludes assets instead, those requests bypass both the locale proxy and its protocol hook; exclude only paths that need neither. Passing a path through does not create or serve the file: the consumer still owns its static asset or handler.
+
+## Activation
+
 Receiver deployment and sending are separate gates. `preferenceWritesEnabled` defaults to false. Before first exposure, validate a separate receiver-compatible fallback or the previous build's safe rejection of new paths. After all required receiver and auth receipts pass, enable the reviewed cross-service links and explicit preference writes. Keep package, source, hosted Docs, app identities, activation times and rollback receipts separate. Home and Baby are outside this migration.
