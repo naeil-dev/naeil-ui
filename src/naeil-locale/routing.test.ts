@@ -24,6 +24,27 @@ describe("owned locale routing", () => {
     expect(localePath("estimate", "/calendar?view=a%2Bb&next=https%3A%2F%2Fnaeil.dev%2Fja%3Flang%3Den&lang=ko#one", "ja")).toBe("/ja/calendar?view=a%2Bb&next=https%3A%2F%2Fnaeil.dev%2Fja%3Flang%3Den#one");
     expect(resolveLocaleUrl("main", "/?lang=ko&lang=ja")).toMatchObject({ kind: "ui", locale: "en", canonicalPath: "/?lang=ko&lang=ja", alias: false });
   });
+  it.each(["/estimates?q=a\\b", "/estimates#a\\b", "/estimates?q=a\\b&lang=en#a\\b"])("preserves literal backslashes in query and fragment: %s", input => {
+    const canonicalPath = input.replace("&lang=en", "");
+    expect(resolveLocaleUrl("estimate", input)).toMatchObject({ kind: "ui", canonicalPath });
+    expect(localePath("estimate", input, "ko")).toBe("/ko" + canonicalPath);
+  });
+  it("still rejects literal backslashes in the pathname", () => {
+    expect(resolveLocaleUrl("estimate", "/ko\\calendar?q=a\\b")).toMatchObject({ kind: "invalid", status: 404 });
+    expect(() => localePath("estimate", "/estimates\\one#a\\b", "ja")).toThrow();
+  });
+  it.each(["/%61pi", "/%61uth", "/%5fnext", "/%5fvercel", "/%2ewell-known", "/%68ealth", "/%69nvite", "/%72eturn", "/%77ebhook", "/%69mages", "/%66onts"])("rejects encoded protocol words even in a dynamic route: %s", input => {
+    const service = defineLocaleService({ id: "main", origin: "https://naeil.dev", routes: ["/", "/[slug]"] });
+    expect(resolveLocaleUrl(service, input)).toMatchObject({ kind: "invalid", status: 404, reason: "Malformed or encoded path" });
+    expect(resolveLocaleUrl(service, "/ko" + input)).toMatchObject({ kind: "invalid", status: 404 });
+  });
+  it("includes consumer protocol prefix segments in encoded-word rejection", () => {
+    const service = defineLocaleService({ id: "main", origin: "https://naeil.dev", routes: ["/", "/[slug]/check"], protocolPrefixes: ["/status.v1/check"] });
+    expect(resolveLocaleUrl(service, "/status.v1/check")).toMatchObject({ kind: "protocol" });
+    expect(resolveLocaleUrl(service, "/%73tatus.v1/check")).toMatchObject({ kind: "invalid", status: 404 });
+    expect(resolveLocaleUrl(service, "/status.v1/%63heck")).toMatchObject({ kind: "invalid", status: 404 });
+    expect(resolveLocaleUrl(service, "/%73tatusXv1/check")).toMatchObject({ kind: "ui" });
+  });
   it.each(["?lang=", "?lang=fr", "?lang=ko&lang=ko", "?lang=ko&%6cang=ja"])("rejects invalid legacy input %s even with an explicit path", query => {
     expect(resolveLocaleUrl("estimate", "/ko/calendar" + query)).toMatchObject({ kind: "invalid", status: 400 });
   });
