@@ -44,7 +44,7 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
     for (const path of ["globals", "split"]) for (const hostile of [false, true]) {
       // An extracted archive has no node_modules. Resolve build dependencies
       // from this checker, while reading both public CSS paths from the archive.
-      const dependencies = `@import "${resolve("node_modules/tailwindcss/index.css")}"; @import "${resolve("node_modules/tw-animate-css/dist/tw-animate.css")}";`;
+      const dependencies = `@import "${resolve("node_modules/tailwindcss/index.css")}";`;
       const imports = path === "globals" ? readFileSync(resolve(root, "src/styles/globals.css"), "utf8")
         .replace('@import "tailwindcss";', dependencies).replace('@import "tw-animate-css";', "")
         .replace('"./theme.css"', JSON.stringify(resolve(root, "src/styles/theme.css"))).replace('"./components.css"', JSON.stringify(resolve(root, "src/styles/components.css")))

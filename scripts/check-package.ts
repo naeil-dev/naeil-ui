@@ -173,6 +173,7 @@ try {
     "licenses/Pretendard-OFL.txt",
     "licenses/Noto-Sans-JP-OFL.txt",
     "licenses/Lato-OFL.txt",
+    "licenses/react-remove-scroll-bar-MIT.txt",
   ])
     assert(existsSync(join(root, path)), `Required artifact missing: ${path}`);
   for (const path of paths.filter((path) => path.endsWith(".md"))) {

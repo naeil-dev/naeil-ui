@@ -490,21 +490,6 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.myStack {
-  margin-bottom: var(--spacing-6-value);
-  padding: var(--spacing-6-value);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg-value);
-  background: var(--muted);
-}
-
-.myStackLabel {
-  margin-bottom: var(--spacing-2-value);
-  font-size: var(--text-base);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--leading-normal);
-}
-
 @media (min-width: 640px) {
   .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
