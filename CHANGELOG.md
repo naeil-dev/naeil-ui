@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.12.0 — shared UI refinements and Sheet (unpublished candidate)
+## 0.12.0 — shared UI refinements and Sheet (published 2026-11-10)
+
+Published to npm with dist-tag `next` on 2026-11-10 and promoted to `latest` on 2026-11-11. Frozen source/tag `v0.12.0`: `e03af076b725d742c4b319aca5ebb2379e2f0258`; archive SHA-256 `7f5f01407c576e3c5fa956cf76ebfb3a8ef59b58619de99da68351974aca721b` (178 files). See the [receipt](https://github.com/naeil-dev/naeil-ui/blob/main/docs/releases/0.12.0/README.md). The publication plan below is the preparation-time record.
 
 - Add public `Sheet` primitives through `@naeil/ui/ui` and `@naeil/ui/components/ui/sheet`, using the existing Radix dialog behavior.
 - Add optional `closeLabel` to `DialogContent` and `DialogFooter`; existing English defaults remain unchanged.
@@ -8,14 +10,18 @@
 - Add `ui.width-workflow` (896px) and `data-ui-layout="workflow"` for workflow content within the existing application frame. Retain the locale service registration proposal as documentation only.
 - Additive minor API candidate from PR #42 (`0d1cb08`) and PR #43 (`047de96`). Publish the frozen archive to `next`, preserve `latest` (0.7.2) unless separately approved, and tag the frozen source as `v0.12.0`. Promotion of 0.11.0 remains a separate owner action; publication, consumer adoption and hosted Docs are separate.
 
-## 0.11.0 — AB Storm locale registration (unpublished candidate)
+## 0.11.0 — AB Storm locale registration (published 2026-11-08)
+
+Published to npm with dist-tag `next` on 2026-11-08 and promoted to `latest` on 2026-11-11 before 0.12.0. See the [receipt](https://github.com/naeil-dev/naeil-ui/blob/main/docs/releases/0.11.0/README.md).
 
 - Add the exact owned `abstorm` origin and five protected UI routes to the opt-in locale runtime, with English, Korean and Japanese paths. Keep auth/API/health endpoints outside localized UI routing.
 - Render localized fail-closed documents with the app’s `abstorm` identity; no favicon is declared by the current app.
 - Fix generated locale declarations: JSON imports previously left variable initializers in `.d.ts` output and failed installed-consumer TypeScript checks with library checking enabled. Normalize only those declarations to ambient JSON types; runtime imports and message loading remain unchanged. Clean packed-consumer tests now import the locale API and run `tsc` without `skipLibCheck`.
 - Additive public API release; existing services, default chrome/footer catalogs, messages and chrome contract 1 remain unchanged. Publish the reviewed exact archive to `next`; package publication and consumer adoption remain separate.
 
-## 0.10.0 — shared language runtime (unpublished candidate)
+## 0.10.0 — shared language runtime (published 2026-11-04)
+
+Published to npm with dist-tag `next` on 2026-11-04 (`latest` then remained 0.7.2). Source/tag `455f2f9aedb108606af2f429c18281260eafd2dd`; archive SHA-256 `a4a1e312f2f608358a10f9019c248af37a8172bb116d3bc506144442cb963fb4` (175 files).
 
 - Add opt-in `naeil-locale` root, client, server, messages, checker and chrome entries for the owned Next applications. English uses unprefixed paths; Korean/Japanese use `/ko` and `/ja`. Strict route/protocol parsing, legacy receiving aliases, selected JSON loading, ICU validation and committed-intent preference writes share one implementation.
 - Keep the transition controller above locale layouts, restore stable focus, and share document-departure protection. Consumers retain business/session state, data authorization and logical-navigation guards.

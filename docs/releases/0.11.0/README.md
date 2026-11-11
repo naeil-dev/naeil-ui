@@ -1,5 +1,7 @@
 # 0.11.0 release candidate
 
+**Outcome:** published to npm `next` at 2026-11-08T05:46:51Z from this frozen archive and promoted to `latest` on 2026-11-11 with owner approval. The text below is the unchanged preparation-time record; its "unpublished", "not executed" and "preserve latest" wording describes that stage.
+
 Unpublished additive API candidate (`api` + declaration `fix`). The frozen package source is `3cba75785fb8903eeaeadfb390c64581a34af4e9`; later evidence-only commits do not replace that source. The archive is `naeil-ui-0.11.0.tgz`, SHA-256 `7b59f6556102416d5abcef26f5886335515888a4d2b16c704716821735b6b864`, 175 regular files, 230036 compressed bytes and 1267876 unpacked bytes. `archive.json` contains SHA-1, SRI and every member's SHA-256.
 
 AB Storm gets five protected UI routes at its exact owned origin, plus lowercase `abstorm` identity on fail-closed documents. Existing auth/API/health protocol handling suffices. The current app has no favicon and its `/new?copy=` form uses the same page. Unregistered catch-all history fallbacks are intentionally not registered UI. Consumer integration is separate from this package release.
