@@ -29,3 +29,11 @@ pnpm dev
 `pnpm build` builds the website, whereas `pnpm build:pkg` builds the shared package. The root layout uses `next/font/google` for JetBrains Mono; a site build may need network access to fetch it. Supabase connectivity/OAuth and production deployment must be checked separately. This guide does not configure a deployment or assert that a fork auto-deploys.
 
 Review [asset provenance](../THIRD_PARTY_NOTICES.md) before redistributing site art. Shared UI development starts with [Storybook](../README.md#develop-the-shared-ui).
+
+## Owned-service login integration
+
+Shared UI chrome presents session state; it does not implement SSO. Keep service onboarding in the application’s authenticated operational configuration, outside the shipped component guides. Do not copy production identifiers, cookie names, private repository paths or administrative endpoints into public instructions.
+
+A service owner must validate the session on the server, apply the existing access policy to protected reads, configure approved login-return destinations, and preserve the intended cookie domain/path when refreshing or clearing session chunks. Register and authorize the service through its existing administrative process. Distinguish denied access, expired sessions and temporary backend failures in the application’s recovery UI. Supply the resulting state and guarded logout callback to `NaeilHeaderAccountControl`; keep its pending state and request lock above the header.
+
+Test real login, refresh, logout and access denial in the target service separately from shared-package rendering checks. This outline supplies no production values or authorization to change access or deployment.

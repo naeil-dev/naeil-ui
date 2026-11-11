@@ -8,7 +8,7 @@ Export: `Textarea`. Accepts `React.ComponentProps<"textarea">`, including React 
 
 The wrapper sets only slot/classes; **omitted `rows` retains the native two-row default**. It defaults to vertical resizing, full available width, 16px text, 25px line height and 8px vertical padding. Root density supplies the existing 40/36px minimum, raised to at least 44px on mobile/coarse pointers; rows and text determine the actual multiline height. It has no fixed control height or content autosizing. Consumer `rows`, resizing classes, padding and styles remain available. No label, error, value, validation or disabled default is invented.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/textarea.tsx) is the API authority. Native props are defined by the installed React 19 declarations and HTML textarea behavior.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](../../src/components/ui/textarea.tsx) is the API authority. Native props are defined by the installed React 19 declarations and HTML textarea behavior.
 
 ## Composition
 

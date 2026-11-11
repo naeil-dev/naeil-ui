@@ -1,6 +1,6 @@
 # Component usage guides
 
-These maintained guides cover published exact **@naeil/ui 0.8.0** and the unpublished **0.9.0 frame candidate**. On 2026-10-29 registry tags were latest=0.7.2 and next=0.8.0; see [release policy and identities](../package-release.md#publication-and-deployment). [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 18 Docs pages (16 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) has recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment requires its own receipt. Select chooses a value; DropdownMenu chooses an action.
+These maintained guides describe the repository APIs. See [release policy and identities](../package-release.md#publication-and-deployment) for the current published release. [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 18 Docs pages (16 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) has recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment requires its own receipt. Select chooses a value; DropdownMenu chooses an action.
 
 Start application layouts with the [shared navigation/footer selection and frame guide](application-layout.md). It includes a starter, the 1600px frame contract and instructions to place in consumer repositories so agents reuse the shared implementation.
 
@@ -24,6 +24,8 @@ Start application layouts with the [shared navigation/footer selection and frame
 | SiteFooter | [SiteFooter](./navigation.md) | UI / SiteFooter / Usage |
 | NaeilFooter | [NaeilFooter](./naeil-footer.md) | Brand / NaeilHeader / ReferenceFull, ReferenceCompact |
 | NaeilHeader and account control | [NaeilHeader](./naeil-header.md) | Brand / NaeilHeader / Usage, JapaneseApplication, AccountStates |
+
+[Owned-service language runtime](naeil-locale.md) documents `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker` and `/chrome`. Owned Next services under the shared provider import header/account/footer from `/naeil-locale/chrome`; the standalone React adapters remain available.
 
 [Field, native radio, Select and action composition](./composition.md) explains consumer state and semantic choices. [Demand decision](../design/component-demand.md) records why these two families were added.
 
