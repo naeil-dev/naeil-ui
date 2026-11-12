@@ -1,0 +1,60 @@
+name: Publish frozen npm archive
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Frozen stable version (for example 0.13.0)
+        required: true
+        type: string
+      sha256:
+        description: Reviewed archive SHA-256 (lowercase)
+        required: true
+        type: string
+      dist_tag:
+        description: npm distribution tag
+        required: true
+        type: choice
+        default: next
+        options: [next, latest]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Owner must configure required reviewers BEFORE use; YAML cannot install them.
+    environment: npm-publish
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_SHA256: ${{ inputs.sha256 }}
+      RELEASE_DIST_TAG: ${{ inputs.dist_tag }}
+      NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # Trusted publishing requires npm >=11.5.1 and Node >=22.14.0:
+      # https://docs.npmjs.com/trusted-publishers
+      - run: npm install --global npm@11.21.2
+      - name: Verify frozen archive and registry absence
+        id: archive
+        run: node scripts/ci/npm-release.mjs check
+      - name: Publish exact archive with OIDC
+        env:
+          ARCHIVE_PATH: ${{ steps.archive.outputs.archive_path }}
+        # npm supplies provenance automatically when supported (public repo).
+        run: npm publish "$ARCHIVE_PATH" --access public --tag "$RELEASE_DIST_TAG" --ignore-scripts
+      - name: Verify registry integrity and shasum
+        run: node scripts/ci/npm-release.mjs verify
