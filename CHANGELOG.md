@@ -1,8 +1,15 @@
 # Changelog
 
-## 0.13.0 — design-system audit fixes and owned-service headers (unpublished candidate)
+## 0.13.1 — publication and auto-update policy (unpublished candidate)
 
-Not published. Includes PR #47 (design-system audit fixes, based on the 2026-11-12 audit b17a015) and PR #48 (owned-service header profiles). Public imports, exports, types and consumer `className` overrides are preserved; changed defaults are listed under compatibility.
+Not published. Docs-only patch to exercise the protected npm publishing workflow and the services' auto-update flow. Since frozen 0.13.0 source `08ee159`, the only package-shipped change on main is `docs/package-release.md` from #50: same-major consumer updates, a new major for public API/header-contract breaks (including 1.0.0 for a header break while on 0.x), and protected exact-archive publication guidance.
+
+- Component code, public APIs, header markup/geometry, styles, dependencies and chrome contract 1 are unchanged.
+- Package metadata, generated `/release`, React/Next fixture versions and maintained guidance move to 0.13.1. The owner approved publication directly to `latest` for Dependabot visibility; `next` stays 0.13.0 unless separately moved. Publication, environment approval, source tag/Release and manual service deployments remain separate actions.
+
+## 0.13.0 — design-system audit fixes and owned-service headers (published 2026-11-12)
+
+Published to `next` on 2026-11-12; registry bytes matched the frozen archive on 2026-11-13 JST. The preparation notes below retain their original scope. Includes PR #47 (design-system audit fixes, based on the 2026-11-12 audit b17a015) and PR #48 (owned-service header profiles). Public imports, exports, types and consumer `className` overrides are preserved; changed defaults are listed under compatibility.
 
 - Header: add opt-in `service`, `NaeilService`, `NaeilServiceHeaderProps` and readonly `naeilServices` through standalone/provider chrome entries. The DS owns lowercase service branding, product-only tabs and canonical toolbar; toolbar-only mobile sheets omit empty navigation and restore visible toolbar focus on desktop crossing. Generic Navigation exposes opt-in `omitEmptyNavigation` (default false preserves B1). Keep `NaeilHeaderProps` as the extensible legacy interface; service-first/legacy-last component overloads preserve inferred legacy props. Invalid runtime service ids fall back to the legacy profile with a development-only warning; the warning guard tolerates absent `process`. Add four service stories and matching browser contracts.
 - Locale runtime: protocol-hook request-header deletions and replacements are preserved instead of restoring incoming headers (security hardening). Literal backslashes in query/fragment no longer invalidate a registered route (path backslashes still 404). A late commit after a transition timeout clears the error, `retry()` replays the latest failed request and clears an already-satisfied one. Encoded spellings of every reserved protocol segment, including service `protocolPrefixes`, are rejected. `/favicon.svg` passes as a public file; the matcher/public-file contract is documented.

@@ -1,3 +1,11 @@
+# Status — 2026-11-13 shared UI 0.13.1 release candidate
+
+Preparing unpublished `@naeil/ui@0.13.1` from main `63a032f` (#50), a docs-only patch to exercise protected npm publication and service auto-update. Since frozen 0.13.0 source `08ee159`, only the packaged release guide changed on main; no non-doc package code/API change was found. Version metadata and React/Next fixture pins move together; chrome contract 1 stays unchanged. Freeze the source, then retain the exact archive, inventory and verification in an evidence-only commit.
+
+Registry checked 2026-11-13 JST: 0.13.0 is published, its bytes match the frozen archive, and tags are `latest=0.12.0`, `next=0.13.0`; 0.13.1 is absent. The owner approved publishing the reviewed 0.13.1 archive directly to `latest` through `publish-npm.yml`, followed by `npm-publish` environment approval. Leave `next=0.13.0` unless separately approved. This preparation may push the candidate branch and open a PR; it performs no merge, publish, tag/Release, workflow dispatch, registry/settings mutation or deployment. Earlier status entries below retain their dated context.
+
+---
+
 # Status — 2026-11-12 shared UI 0.13.0 release candidate
 
 Preparing unpublished `@naeil/ui@0.13.0`, stacked on green PR #48 (`3e24950`) and PR #47's design-system audit fixes. The candidate includes server-safe utilities, locale hardening, token/state/accessibility/package-boundary fixes and strict opt-in owned-service header profiles. Package metadata, generated `/release` and clean React/Next fixture versions move together. Chrome contract 1 stays unchanged: service profiles are additive and omitted-service legacy header output remains intact. Freeze this source before retaining its exact archive, inventory and gate results in a separate evidence-only commit.
