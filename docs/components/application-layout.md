@@ -66,23 +66,24 @@ Owned services use NaeilFooter's shared `full` default as-is; omit `variant`. `c
 ```tsx
 import type { ReactNode } from "react";
 import { NaeilHeader, NaeilHeaderAccountControl,
-  type NaeilHeaderAccount, type NaeilHeaderProps } from "@naeil/ui/naeil-header";
+  type NaeilHeaderAccount, type NaeilHeaderProps, type NaeilService } from "@naeil/ui/naeil-header";
 import { NaeilFooter } from "@naeil/ui/naeil-footer";
 
 // Render inside the existing next-themes ThemeProvider.
 // The app owns session state, its guarded logout and pending request lock.
 type ApplicationLayoutProps = {
   children: ReactNode;
+  service: NaeilService;
   locale: NaeilHeaderProps["locale"];
   Link: NaeilHeaderProps["Link"];
   currentHref: string;
   account: NaeilHeaderAccount;
 };
 
-export function ApplicationLayout({ children, locale, Link, currentHref,
+export function ApplicationLayout({ children, service, locale, Link, currentHref,
   account }: ApplicationLayoutProps) {
   return <>
-    <NaeilHeader service="home" locale={locale} Link={Link} currentHref={currentHref}
+    <NaeilHeader service={service} locale={locale} Link={Link} currentHref={currentHref}
       authSlot={<NaeilHeaderAccountControl locale={locale} Link={Link}
         account={account} />} />
     <main className="ui-app-frame"
@@ -93,13 +94,13 @@ export function ApplicationLayout({ children, locale, Link, currentHref,
   </>;
 }
 
-<ApplicationLayout locale="en" Link={GuardedLink} currentHref={pathname}
+<ApplicationLayout service={service} locale="en" Link={GuardedLink} currentHref={pathname}
   account={account}>
   <section data-ui-layout="settings">{/* Settings form */}</section>
 </ApplicationLayout>
 ```
 
-`GuardedLink`, `pathname` and `account` come from the consumer. Use `{ status: 'signed-out', loginHref }` or `{ status: 'signed-in', onLogout, busy, displayName, email }` for `account`; the app handles async cancellation, failure and retry. Keep pending state and the request lock above `NaeilHeader`, since desktop/mobile slot contents mount separately. See the [account contract](naeil-header.md#account-presentation).
+`service`, `GuardedLink`, `pathname` and `account` come from the consumer. Use `{ status: 'signed-out', loginHref }` or `{ status: 'signed-in', onLogout, busy, displayName, email }` for `account`; the app handles async cancellation, failure and retry. Keep pending state and the request lock above `NaeilHeader`, since desktop/mobile slot contents mount separately. See the [account contract](naeil-header.md#account-presentation).
 
 `NaeilHeader` is fixed; reserve its 65px height and account for it in sticky areas and focus/anchor scroll margins. The service brand defaults to `/`; footer destinations remain official naeil.dev URLs. Preserve routing/unsaved-change guards using the [header contract](naeil-header.md) and [footer interception contract](naeil-footer.md); a Link adapter must handle absolute official and GitHub destinations as well as local routes. Only pass `onLocaleChange` when the application supports its complete language set.
 

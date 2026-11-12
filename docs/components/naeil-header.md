@@ -57,6 +57,8 @@ Standard header attributes and appropriate inherited [Navigation props](navigati
 
 The accessible brand name is `.naeil <id>`. `brandHref` can override the local destination. No status dot or extra brand indicator is allowed. The DS fixes tab shape, position, size, spacing and all interaction states. Theme / locale / account retain the canonical presentation; the app supplies routing/guards, locale and shared account state.
 
+`NaeilHeaderProps` remains an extensible legacy interface with `service?: undefined`; `NaeilServiceHeaderProps` is the strict service type. Both are exported from the standalone and provider chrome entries. The component accepts their discriminated union.
+
 The `service` discriminated branch rejects `brandSuffix`, `statusSlot`, `brandSlot`, `toolbarSlot`, `subNav`, `brandLinkComponent`, `projects`, `projectsExternal`, `showProjects`, `showBlog`, `translations`, `className` and `containerClassName`. It also rejects inline `style`, `brandLinkProps`, `mobileFooter` and the inherited empty-navigation policy override. JavaScript/cast attempts are ignored, with one warning per prop name in development and none in production. Root `data-slot`, `data-global-header` and `data-naeil-*` markers cannot be replaced. Root accessible attributes, labels, Link/currentHref/onNavigate, brandHref, appNavigation, authSlot, locale callbacks and controlled mobile state remain available.
 
 `statusSlot`, `brandSuffix`, `brandSlot`, `toolbarSlot`, `subNav` and `brandLinkComponent` are deprecated for owned services and retained for legacy compatibility. They remain functional without `service`.
