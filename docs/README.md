@@ -10,6 +10,7 @@ Maintained guides describe the repository APIs; the [README](../README.md#use-th
 - [Owned-service language runtime](components/naeil-locale.md): `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker` and provider-backed `/chrome` for owned Next services; standalone header/footer adapters remain available.
 - [Current support and manual acceptance](design/public-ui-support.md), [Stage 3 verification](design/public-ui-stage3-verification.md), [Stage 4 extension verification](design/public-ui-stage4-verification.md) and [demand decision](design/component-demand.md) and [preview artifact instructions](package-release.md#storybook-preview-artifact).
 - [UI consumer and migration guide](design/v2-migration.md): imports, styles, fonts, density, layout, compatibility.
+- [Package release policy](package-release.md) and [auto-update operations](rollout/auto-update.md): protected trusted publishing, same-major consumer updates, owner setup, pause and rollback.
 - [0.4.0 publication and brand 1.1.1](design/naeil-brand-0.4.0-publication.md): exact source/archive, npm, GitHub Release, hosted Docs and production results.
 - [Optional frontend-reference workflow setup](design/frontend-tooling.md): tools, keys, no-key fallback, and helper checks.
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.
