@@ -1,8 +1,18 @@
-# Status — 2026-11-13 shared UI 0.13.1 release candidate
+# Status — 2026-11-13 shared UI 0.13.1 published
 
-Preparing unpublished `@naeil/ui@0.13.1` from main `63a032f` (#50), a docs-only patch to exercise protected npm publication and service auto-update. Since frozen 0.13.0 source `08ee159`, only the packaged release guide changed on main; no non-doc package code/API change was found. Version metadata and React/Next fixture pins move together; chrome contract 1 stays unchanged. Freeze the source, then retain the exact archive, inventory and verification in an evidence-only commit.
+`@naeil/ui@0.13.1` is published from frozen source `7cd45d5ea0025f66f486c2e9a6e05de2ddfe6395`. Registry tags verified 2026-11-13 JST: **`latest=0.13.1`, `next=0.13.0`**. Both downloaded tarballs are byte-identical to their frozen archives; SHA-256, registry shasum and SRI match `archive.json`. Chrome contract 1 remains unchanged.
 
-Registry checked 2026-11-13 JST: 0.13.0 is published, its bytes match the frozen archive, and tags are `latest=0.12.0`, `next=0.13.0`; 0.13.1 is absent. The owner approved publishing the reviewed 0.13.1 archive directly to `latest` through `publish-npm.yml`, followed by `npm-publish` environment approval. Leave `next=0.13.0` unless separately approved. This preparation may push the candidate branch and open a PR; it performs no merge, publish, tag/Release, workflow dispatch, registry/settings mutation or deployment. Earlier status entries below retain their dated context.
+| Version | npm publication | GitHub tag / Release | Hosted Docs |
+| --- | --- | --- | --- |
+| 0.13.0 | Owner OTP, 2026-11-12T09:46:59Z | `v0.13.0` at frozen source `08ee159`; [Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.13.0) exists | [Pages run 43199769203](https://github.com/naeil-dev/naeil-ui/actions/runs/43199769203), reviewed source `63a032f` |
+| 0.13.1 | Owner-approved `npm-publish` environment; [workflow run 43312637887](https://github.com/naeil-dev/naeil-ui/actions/runs/43312637887), OIDC + provenance; registry time 2026-11-12T23:24:35Z (2026-11-13 JST) | **Not done:** `v0.13.1` tag and GitHub Release | **Not done:** 0.13.1 Docs |
+
+- 0.13.0 archive: SHA-256 `bbb123d9c07fa58534e7c3e1f8f71207b1ec1ac3a14e076976ea893b96fc762e`, 248044 bytes, 172 files; frozen source `08ee159909c93a6dfd9f18da1b68e9c74f66f672`.
+- 0.13.1 archive: SHA-256 `9503cd729e161b0fe443014c995abdfb0f4e1c4ae8f1b6b3871df17a4b7a032f`, 249361 bytes, 172 files; registry shasum `d30db174f4953e50f51fc3241edc41b6abf0cfc3` and integrity match the frozen [archive metadata](docs/releases/0.13.1/archive.json).
+
+The 0.13.1 **publish step succeeded**, with Sigstore logIndex `3841181029`. The overall run failed only in “Verify registry integrity and shasum”: npm said the package was processing, and metadata propagation outlasted six reads spaced five seconds apart. The owner manually verified registry bytes/shasum/integrity afterwards; the read-only recheck for this record also matched. This is a verification-window failure, not a failed publication; do not republish. The fix retries only failed registry reads for up to ten minutes and fails immediately on present-but-mismatched metadata.
+
+Frozen `docs/releases/*` receipts/archives remain unchanged. This records publication and registry identity; it does not establish service adoption, native screen-reader or physical-device acceptance. Earlier entries retain their dated preparation context.
 
 ---
 
