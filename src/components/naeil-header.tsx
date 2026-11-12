@@ -3,7 +3,8 @@
 import { NaeilHeader as Header, NaeilHeaderThemeControl as ThemeControl, NaeilHeaderLocaleControl as LocaleControl, type NaeilHeaderProps } from "./naeil-header-core";
 import type { NaeilHeaderLocale } from "./naeil-header-data";
 import { NaeilStandaloneMessages } from "./naeil-standalone-messages";
-export type { NaeilHeaderProps, NaeilHeaderLocale } from "./naeil-header-core";
+export { naeilServices } from "./naeil-header-core";
+export type { NaeilHeaderProps, NaeilHeaderLocale, NaeilService } from "./naeil-header-core";
 export { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderAccountControlProps } from "./naeil-header-account";
 
 export function NaeilHeader(props: NaeilHeaderProps) {

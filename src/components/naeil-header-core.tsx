@@ -16,15 +16,16 @@ import { useNaeilMessages } from "./naeil-messages-context";
 export type { NaeilHeaderLocale } from "./naeil-header-data";
 export { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderAccountControlProps } from "./naeil-header-account-core";
 
-export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items" | "toolbar" | "mobileToolbar" | "labels"> {
+interface LegacyHeaderProps extends Omit<NavigationProps, "brand" | "items" | "toolbar" | "mobileToolbar" | "labels"> {
   locale: NaeilHeaderLocale;
   /** Resolve canonical unlocalized paths. Defaults to the official localized site. */
   resolveHref?: (path: string) => string;
   brandHref?: string;
+  /** @deprecated Owned services must use service; retained for compatibility. */
   brandSlot?: ReactNode;
-  /** Ignored when brandSlot replaces the complete brand content. */
+  /** @deprecated Owned services must use service; retained for compatibility. Ignored with brandSlot. */
   brandSuffix?: string;
-  /** After the brand link, outside it; rendered once at every width. */
+  /** @deprecated Owned services must use service with no indicator; retained for compatibility. */
   statusSlot?: ReactNode;
   /** Product menu data, after catalog/blog and before flat subNav links. */
   appNavigation?: NavigationItem[];
@@ -45,13 +46,47 @@ export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items
   };
   showProjects?: boolean;
   showBlog?: boolean;
+  /** @deprecated Owned services must use service and appNavigation; retained for compatibility. */
   subNav?: Array<{ label: string; href: string }>;
   currentProjectKey?: string;
   currentProjectHref?: string;
-  /** Compatibility escape hatch replacing the default theme/locale/auth toolbar. */
+  /** @deprecated Owned services must use service and authSlot; retained for compatibility. */
   toolbarSlot?: ReactNode;
-  /** Compatibility escape hatch for the legacy native external brand link. */
+  /** @deprecated Owned services must use service and Link; retained for compatibility. */
   brandLinkComponent?: NavigationLinkComponent;
+}
+
+/** Canonical owned-service identifiers; their spelling is the visible brand suffix. */
+export const naeilServices = Object.freeze(["abstorm", "home", "estimate", "jev"] as const);
+export type NaeilService = typeof naeilServices[number];
+
+const serviceCompatibilityProps = [
+  "brandSuffix", "statusSlot", "brandSlot", "toolbarSlot", "subNav", "brandLinkComponent",
+  "projects", "projectsExternal", "showProjects", "showBlog", "translations", "className",
+  "containerClassName", "style", "brandLinkProps", "mobileFooter", "omitEmptyNavigation",
+] as const;
+type ServiceCompatibilityProp = typeof serviceCompatibilityProps[number];
+export type NaeilHeaderProps =
+  | (LegacyHeaderProps & { service?: undefined })
+  | (Omit<LegacyHeaderProps, ServiceCompatibilityProp> & { service: NaeilService }
+    & { [Prop in ServiceCompatibilityProp]?: never });
+
+const warnedServiceProps = new Set<string>();
+
+/** Opt into the owned-service contract without changing the legacy composition. */
+export function NaeilHeader(input: NaeilHeaderProps) {
+  if (input.service === undefined) return <HeaderComposition {...input} />;
+  const props = { ...input } as Record<string, unknown>;
+  for (const name of Object.keys(props)) {
+    if (!(serviceCompatibilityProps as readonly string[]).includes(name) &&
+      name !== "data-slot" && name !== "data-global-header" && !name.startsWith("data-naeil-")) continue;
+    delete props[name];
+    if (process.env.NODE_ENV === "development" && !warnedServiceProps.has(name)) {
+      warnedServiceProps.add(name);
+      console.warn(`NaeilHeader: service profile ignores ${name}; use the shared service composition.`);
+    }
+  }
+  return <HeaderComposition {...props as unknown as LegacyHeaderProps} service={input.service} />;
 }
 
 const subscribe = () => () => {};
@@ -95,13 +130,14 @@ export function NaeilHeaderLocaleControl({ locale, onLocaleChange }: {
 const NativeLink: NavigationLinkComponent = (props) => <a {...props} />;
 
 /** One complete, opt-in branded composition shared by naeil.dev and applications. */
-export function NaeilHeader({
-  locale, resolveHref = path => `https://naeil.dev/${locale}${path === "/" ? "" : path}`,
+function HeaderComposition({
+  service, locale, resolveHref = path => `https://naeil.dev/${locale}${path === "/" ? "" : path}`,
   brandHref, brandSlot, brandSuffix, statusSlot, appNavigation, brandLinkProps, brandLinkComponent,
   onLocaleChange, authSlot, toolbarSlot, projects, projectsExternal = false, translations, showProjects = true, showBlog = true,
   subNav, currentProjectKey, currentProjectHref, labels, Link = NativeLink,
   currentHref, onNavigate, className, containerClassName, ...props
-}: NaeilHeaderProps) {
+}: LegacyHeaderProps & { service?: NaeilService }) {
+  if (service) { brandSuffix = service; showProjects = false; showBlog = false; }
   const content = useNaeilMessages(locale).header;
   const projectLinks: NavigationLink[] = !showProjects ? [] : projects ?? headerProjects.map(project => {
     const current = project.key === currentProjectKey;
@@ -123,7 +159,7 @@ export function NaeilHeader({
       badge: project.status === "coming" ? <Badge variant="outline">{translations?.project("status.coming") ?? content.projects.status.coming}</Badge> : undefined,
     };
   });
-  const brandDestination = brandHref ?? resolveHref("/");
+  const brandDestination = brandHref ?? (service ? "/" : resolveHref("/"));
   const BrandLink = brandLinkComponent ?? Link;
   const { onClick: onBrandClick, ...brandProps } = brandLinkProps ?? {};
   const toolbar = <div data-app-toolbar className="naeil-header-controls"
@@ -135,15 +171,15 @@ export function NaeilHeader({
     </>}
   </div>;
   const logo = <Logo variant="horizontal" size={28} className="block" label={null} />;
-  const brand = <BrandLink href={brandDestination} data-app-brand aria-label={brandSlot == null ? ".naeil" : undefined} {...brandProps}
+  const brand = <BrandLink href={brandDestination} data-app-brand aria-label={service ? `.naeil ${service}` : brandSlot == null ? ".naeil" : undefined} {...brandProps}
     onClick={event => {
       onBrandClick?.(event);
-      onNavigate?.(event, { id: "brand", href: brandDestination, label: ".naeil" });
+      onNavigate?.(event, { id: "brand", href: brandDestination, label: service ? `.naeil ${service}` : ".naeil" });
     }}>
     {brandSlot ?? (brandSuffix ? <>{logo}<span className="naeil-header-brand-suffix">{brandSuffix}</span></> : logo)}
   </BrandLink>;
   return (
-    <Navigation {...props} data-global-header data-naeil-header data-naeil-chrome="" lang={locale}
+    <Navigation {...props} {...(service ? { "data-slot": "navigation", omitEmptyNavigation: true } : {})} data-global-header data-naeil-header data-naeil-chrome="" lang={locale}
       data-naeil-ui-version={uiRelease.version} data-naeil-ui-contract={uiRelease.contractVersion}
       Link={Link} currentHref={currentHref} onNavigate={onNavigate}
       brand={statusSlot != null ? <div className="naeil-header-brand-row">{brand}{statusSlot}</div> : brand}

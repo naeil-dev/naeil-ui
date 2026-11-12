@@ -154,3 +154,68 @@ describe("legacy Nav compatibility", () => {
     expect(header({ locale: "en", projectsExternal: true, currentProjectKey: "naeilUi" }).props.items[0].items[0].external).toBe(false);
   });
 });
+
+
+describe("owned service profile", () => {
+  it("exports the readonly service catalog from standalone and provider entries", async () => {
+    const core = await import("../../../naeil-locale/chrome");
+    expect(entry!.naeilServices).toEqual(["abstorm", "home", "estimate", "jev"]);
+    expect(core.naeilServices).toBe(entry!.naeilServices);
+    expect(Object.isFrozen(core.naeilServices)).toBe(true);
+  });
+  it.each(["abstorm", "home", "estimate", "jev"] as const)("owns %s branding and destinations with no catalog or indicator", service => {
+    const element = header({ locale: "en", service });
+    expect(element.html).toContain(`class="naeil-header-brand-suffix">${service}</span>`);
+    expect(element.props.brand.props["aria-label"]).toBe(`.naeil ${service}`);
+    expect(element.props.brand.props.href).toBe("/");
+    expect(element.props.items).toEqual([]);
+    expect(element.html).not.toContain("naeil-header-brand-row");
+    expect(element.html).not.toContain("<nav");
+    expect(element.props.omitEmptyNavigation).toBe(true);
+    expect(header({ locale: "en", service, brandHref: "/workspace" }).props.brand.props.href).toBe("/workspace");
+  });
+  it("passes only the product menu and preserves routing, labels and auth", () => {
+    const items = [{ id: "editor", label: "Editor", href: "/editor" }];
+    const element = header({ locale: "en", service: "home", appNavigation: items, Link, currentHref: "/editor", authSlot: createElement("button", null, "Account"), labels: { navigation: "Product", menu: "Open", close: "Close" } });
+    expect(element.props.items).toEqual(items);
+    expect(element.html).toContain('aria-current="page"');
+    expect(element.html).toContain('aria-label="Product"');
+    expect(element.html).toContain("Account");
+    expect(element.html).toContain('data-consumer-link="true"');
+  });
+  it("ignores escape hatches and protected markers, warning once per name only in development", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const injected = { brandSuffix: "Wrong", statusSlot: "Dot", brandSlot: "Wrong", toolbarSlot: "Wrong", subNav: [], brandLinkComponent: Link,
+      projects: [], projectsExternal: true, showProjects: true, showBlog: true, translations: {}, className: "wrong", containerClassName: "wrong",
+      style: { height: 500 }, brandLinkProps: { "aria-label": "Wrong" }, mobileFooter: "Wrong", omitEmptyNavigation: false,
+      "data-slot": "wrong", "data-naeil-header": "wrong", "data-naeil-chrome": "wrong", "data-naeil-ui-version": "wrong", "data-global-header": "wrong" };
+    try {
+      vi.stubEnv("NODE_ENV", "development");
+      const props = { locale: "en", service: "jev", ...injected } as unknown as NaeilHeaderProps;
+      const first = header(props);
+      expect(first.html).toBe(header({ locale: "en", service: "jev" }).html);
+      header(props);
+      expect(warn).toHaveBeenCalledTimes(Object.keys(injected).length);
+      for (const name of Object.keys(injected)) expect(warn.mock.calls.filter(([message]) => String(message).includes(`ignores ${name};`))).toHaveLength(1);
+      vi.stubEnv("NODE_ENV", "production");
+      warn.mockClear();
+      header({ ...props, "data-naeil-extra": "wrong" } as unknown as NaeilHeaderProps);
+      expect(warn).not.toHaveBeenCalled();
+    } finally { vi.unstubAllEnvs(); warn.mockRestore(); }
+  });
+  it("leaves omitted service markup byte-identical to an explicit undefined service", () => {
+    const props = { locale: "ja" as const, brandSuffix: "Home", statusSlot: createElement("span", null, "Ready"), className: "compat" };
+    expect(header(props).html).toBe(header({ ...props, service: undefined }).html);
+  });
+  it("rejects service escape hatches and unknown ids in the public types", () => {
+    // @ts-expect-error service ids use the lowercase closed catalog
+    const unknown: NaeilHeaderProps = { locale: "en", service: "Home" };
+    // @ts-expect-error owned service profiles cannot override brand or frame
+    const suffix: NaeilHeaderProps = { locale: "en", service: "home", brandSuffix: "Home" };
+    // @ts-expect-error owned service profiles cannot re-enable the global menu
+    const catalog: NaeilHeaderProps = { locale: "en", service: "home", showProjects: true };
+    // @ts-expect-error owned service profiles cannot style the shared frame
+    const frame: NaeilHeaderProps = { locale: "en", service: "home", className: "custom" };
+    expect([unknown, suffix, catalog, frame]).toHaveLength(4);
+  });
+});
