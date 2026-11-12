@@ -241,6 +241,9 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     "Clean React consumer: PASS (types, Vite production JS/CSS, SSR, deep imports; Next absent)",
   );
 
+  // Keep the live naeil.dev artwork check first: the later frame checks request the same image
+  // headlessly many times, after which Vercel may challenge this runner (ORB-blocked image).
+  await checkConsumerBrowser(core);
   recordBuild("candidate-react", core, tarball);
   for (const css of ["globals", "split"] as const) {
     prepareFrameConsumer(core, "react", css);
@@ -307,8 +310,6 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
       recordBuild(`candidate-next-${css}${suffix}`, next, tarball);
     }
   }
-  // Run local compiler/frame gates before checks that require live remote artwork.
-  await checkConsumerBrowser(core);
   if (process.env.NAEIL_UI_BASELINE_CONSUMERS === "1") {
     // Use the existing fixtures unchanged for B1, rather than inventing a
     // second compatibility app. buildChromeFixtures verifies the pinned SRI.
