@@ -1,3 +1,11 @@
+# Status — 2026-11-12 shared UI 0.13.0 release candidate
+
+Preparing unpublished `@naeil/ui@0.13.0`, stacked on green PR #48 (`3e24950`) and PR #47's design-system audit fixes. The candidate includes server-safe utilities, locale hardening, token/state/accessibility/package-boundary fixes and strict opt-in owned-service header profiles. Package metadata, generated `/release` and clean React/Next fixture versions move together. Chrome contract 1 stays unchanged: service profiles are additive and omitted-service legacy header output remains intact. Freeze this source before retaining its exact archive, inventory and gate results in a separate evidence-only commit.
+
+Registry checked 2026-11-12: `latest=0.12.0`, `next=0.12.0`; exact 0.13.0 is absent. The owner publishes the reviewed frozen archive to `next` manually with OTP; preserve `latest` unless separately approved. Intended tag `v0.13.0` identifies the frozen source. This preparation performs no publication, dist-tag mutation, tag/Release, workflow dispatch, push/merge, hosted Docs deployment or consumer upgrade. Earlier status entries below retain their dated context.
+
+---
+
 # Status — 2026-11-11 shared UI 0.12.0 published
 
 `@naeil/ui@0.12.0` is published from the frozen archive (source `e03af076b725d742c4b319aca5ebb2379e2f0258`, SHA-256 `7f5f01407c576e3c5fa956cf76ebfb3a8ef59b58619de99da68351974aca721b`, 178 files). It contains PR #42 (`0d1cb08`: Dialog close labels, error/destructive guidance, full-footer starters, compact-footer alignment, 896px workflow width) and PR #43 (`047de96`: Sheet); locale registration remains a docs-only proposal.

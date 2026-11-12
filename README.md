@@ -2,6 +2,8 @@
 
 React components, semantic design tokens, and shared styles for naeil products. The approved system uses a neutral light/dark palette, Pretendard, 16px controls, comfortable or compact density, purpose-specific content widths, and restrained motion. Radix supplies interaction behavior.
 
+**0.13.0 is an unpublished release candidate.** It combines PR #47's design-system audit fixes with PR #48's opt-in owned-service headers. This checkout and its React/Next fixtures pin 0.13.0; registry tags remain `latest=0.12.0`, `next=0.12.0` (checked 2026-11-12). See the [release procedure](docs/package-release.md) for the source/archive freeze and compatibility notes.
+
 **0.12.0 published and registry-verified — 2026-11-10; `latest=0.12.0`, `next=0.12.0` since 2026-11-11.** It adds public Sheet primitives, optional Dialog close labels and the 896px workflow width on top of 0.10.0's opt-in [`/naeil-locale` runtime](docs/components/naeil-locale.md) for owned Next services. The registry archive matches frozen SHA-256 `7f5f01407c576e3c5fa956cf76ebfb3a8ef59b58619de99da68351974aca721b` (178 files, source/tag `e03af076b725d742c4b319aca5ebb2379e2f0258`); see the [0.12.0 receipt](https://github.com/naeil-dev/naeil-ui/blob/main/docs/releases/0.12.0/README.md) and [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.12.0). Hosted Docs remain separately recorded. The retained [local runner](https://github.com/naeil-dev/naeil-ui/blob/main/docs/rollout/local-runner.md) supports historical **0.7.x only** and cannot deploy or recover current releases.
 
 This repository also contains the **naeil.dev brand/example website** and an **optional agent reference workflow**. Choose the path you need:
@@ -15,13 +17,13 @@ This repository also contains the **naeil.dev brand/example website** and an **o
 
 ## Use the UI
 
-Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. The installation example targets the verified exact 0.12.0 release:
+Use React 19 / ReactDOM 19 and Tailwind 4. UI v2 names the design generation independently of npm versioning. The installation example pins the 0.13.0 candidate and requires its publication first; until then, use the reviewed archive for candidate validation or the published 0.12.0 baseline for registry installs:
 
 ```sh
-pnpm add --save-exact @naeil/ui@0.12.0
+pnpm add --save-exact @naeil/ui@0.13.0
 ```
 
-The [npm 0.12.0 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.12.0.tgz) is byte-identical to its frozen release archive. Bundled guides record the preparation snapshot; maintained guides record later publication outcomes. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-VERSION.tgz`, where `VERSION` is the checked-out `package.json` version (unreleased changes after 0.12.0 keep that version until the next release preparation). Use the exact reviewed archive for release verification; later source or guide changes require a new freeze. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
+The [npm 0.12.0 archive](https://registry.npmjs.org/@naeil/ui/-/ui-0.12.0.tgz) is byte-identical to its frozen release archive. Bundled guides record the preparation snapshot; maintained guides record later publication outcomes. For local development, `pnpm build:pkg` and `npm pack --ignore-scripts --pack-destination /tmp` produce `/tmp/naeil-ui-VERSION.tgz`, where `VERSION` is the checked-out `package.json` version (currently the unpublished 0.13.0 candidate). Use the exact reviewed archive for release verification; later source or guide changes require a new freeze. The [0.6.0 release record](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.6.0) retains its archive, publication and deployment evidence.
 
 The preceding [0.5.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0) was published on 2026-10-15 and introduced the whole shared header. Version 0.6.0 adds the shared 1600px frame; existing applications must upgrade and adopt its layout composition.
 
