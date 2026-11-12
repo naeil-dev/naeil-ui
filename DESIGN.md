@@ -110,6 +110,10 @@ First implement the foundation and existing eight families: Button, Input, Card,
 
 Demonstrate the system in three neutral compositions: a settings form, a selectable list with metadata, and a detail panel with actions. These are library examples, not a redesign of a particular website. Additional public components require a demonstrated composition need.
 
+### Owned-service header rule (2026-11-12)
+
+Owned services set `NaeilHeader service="abstorm" | "home" | "estimate" | "jev"`. The left brand is logo → `.naeil` → lowercase service id, with no status dot or extra indicator; naeil.dev has no service suffix. The service supplies only its own `appNavigation` tabs. The DS owns their shape, placement, sizes, spacing and default/hover/selected/expanded/mobile states; service style or slot overrides are not allowed. Projects/Blog belong only to naeil.dev. A single-screen service leaves the center empty; its mobile menu still exposes theme/locale/account. The right toolbar is unchanged. Omitting `service` preserves the compatibility API and rendered output.
+
 ### Application frame and content widths
 
 On 2026-10-16 the owner approved a shared maximum application frame of **1600px**, with responsive inline gutters **clamp(16px, 2.4vw, 40px)**, after inspecting Naeil Home at mobile and desktop widths. This supersedes the prior 1280px branded-header cap and fixed 24px frame gutters. The frame includes its padding, centers on wider screens and shrinks to available space. Numeric values live in `ui.width-frame` and `ui.frame-gutter`; `.ui-app-frame`, `Navigation`, `SiteFooter`, `NaeilHeader`, and the legacy adapters use those same defaults.

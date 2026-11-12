@@ -26,6 +26,7 @@ Only provide `onLocaleChange` when the application's interface supports all thre
 
 | Prop | Contract |
 | --- | --- |
+| `service` | Opt-in `NaeilService`: `abstorm`, `home`, `estimate`, `jev`; exported readonly `naeilServices` lists these ids. Owns lowercase suffix/name, local `/` brand default and product-only tabs. |
 | `locale` | Required `en`, `ko` or `ja`; selects header-only copy. |
 | `resolveHref` | Resolves canonical unlocalized paths; defaults to the official localized site. |
 | `Link`, `currentHref`, `onNavigate` | Routing adapter, active destination and navigation interception inherited from Navigation. |
@@ -33,7 +34,7 @@ Only provide `onLocaleChange` when the application's interface supports all thre
 | `authSlot` | Canonical `NaeilHeaderAccountControl`, with consumer-owned auth state/actions. Legacy arbitrary markup remains supported. |
 | `brandHref`, `brandSlot`, `brandLinkProps`, `brandLinkComponent` | Explicit brand destination/content/anchor overrides; default accessible brand name is `.naeil`. |
 | `projects`, `projectsExternal`, `showProjects`, `showBlog` | Legacy catalog/visibility/native-link overrides; defaults use the complete canonical catalog. |
-| `appNavigation` (0.8.0) | `NavigationItem[]` passed unchanged after catalog/blog and before flat `subNav`. Owned product menus use this with `showProjects={false} showBlog={false}`. |
+| `appNavigation` (0.8.0) | `NavigationItem[]` passed unchanged after catalog/blog and before flat `subNav`. Owned services set `service` and supply only their own tabs. |
 | `brandSuffix` (0.8.0) | Product qualifier inside the brand link; the package owns its 14px type, 4px gap and optical alignment. Ignored when `brandSlot` replaces the complete content. Set `brandLinkProps["aria-label"]` for a product name. |
 | `statusSlot` (0.8.0) | Exactly once, outside and 8px after the brand link at every width. The consumer owns the content and accessible status. No wrapper is added when omitted. |
 | `mobileOpen`, `onMobileOpenChange` (0.8.0) | Controlled/uncontrolled sheet state, also on generic Navigation. Omit `mobileOpen` for internal state; a callback alone observes it. Accepted transitions notify once. In controlled mode callbacks request a change against the committed prop, so another close request is reported if the parent rejects or delays the previous one; an external prop update emits no request. Route changes, ordinary links, close/overlay/Escape dismiss. Desktop crossing dismisses when the desktop navigation gains width; an empty menu retains B1's open sheet until Escape/close/overlay/route change. Modified/middle clicks preserve it; nested menus consume the first Escape. |
@@ -42,7 +43,25 @@ Only provide `onLocaleChange` when the application's interface supports all thre
 | `toolbarSlot` | Replaces the complete default theme/locale/auth toolbar. |
 | `mobileFooter`, `className`, `containerClassName` | Inherited mobile slot and style overrides; recheck frame/behavior after changes. |
 
-Standard header attributes and the remaining inherited [Navigation props](navigation.md) remain available. Compatibility overrides preserve existing consumers; new applications normally use the canonical composition.
+Standard header attributes and appropriate inherited [Navigation props](navigation.md) remain available. Omitting `service` preserves all legacy overrides and output.
+
+## Owned-service profiles
+
+| Profile | Left brand | Center | Brand default |
+| --- | --- | --- | --- |
+| naeil.dev (no `service`) | Logo + `.naeil` | Projects / Blog | Official localized site |
+| `service="abstorm"` | Logo + `.naeil` + `abstorm` | Service's own tabs | `/` |
+| `service="home"` | Logo + `.naeil` + `home` | Service's own tabs | `/` |
+| `service="estimate"` | Logo + `.naeil` + `estimate` | Service's own flat/grouped tabs | `/` |
+| `service="jev"` | Logo + `.naeil` + `jev` | Empty for this single-screen service | `/` |
+
+The accessible brand name is `.naeil <id>`. `brandHref` can override the local destination. No status dot or extra brand indicator is allowed. The DS fixes tab shape, position, size, spacing and all interaction states. Theme / locale / account retain the canonical presentation; the app supplies routing/guards, locale and shared account state.
+
+The `service` discriminated branch rejects `brandSuffix`, `statusSlot`, `brandSlot`, `toolbarSlot`, `subNav`, `brandLinkComponent`, `projects`, `projectsExternal`, `showProjects`, `showBlog`, `translations`, `className` and `containerClassName`. It also rejects inline `style`, `brandLinkProps`, `mobileFooter` and the inherited empty-navigation policy override. JavaScript/cast attempts are ignored, with one warning per prop name in development and none in production. Root `data-slot`, `data-global-header` and `data-naeil-*` markers cannot be replaced. Root accessible attributes, labels, Link/currentHref/onNavigate, brandHref, appNavigation, authSlot, locale callbacks and controlled mobile state remain available.
+
+`statusSlot`, `brandSuffix`, `brandSlot`, `toolbarSlot`, `subNav` and `brandLinkComponent` are deprecated for owned services and retained for legacy compatibility. They remain functional without `service`.
+
+With no `appNavigation`, the desktop center stays empty and the toolbar remains right-aligned. The mobile menu button stays available; its sheet contains the toolbar without an empty navigation landmark/list. Resizing to desktop dismisses a service sheet by observing the desktop toolbar, including an empty-center profile. Legacy empty-menu headers retain the B1 resize exception described below.
 
 ## Standalone theme and locale controls
 
@@ -76,7 +95,7 @@ The fixed header is 65px: the current 64px navigation token plus a 1px border. C
 
 The 0.7.2 default catalog contains naeil-ui and references only `https://naeil.dev/images/whale.png`. Rendering that decorative image requires network access to the official origin. Its bytes are not redistributed in npm; [third-party notices](../../THIRD_PARTY_NOTICES.md) retain unresolved artwork provenance and redistribution limits. Brand marks are not relicensed by the repository MIT license. Captions and links remain usable when images fail.
 
-This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication, AccountStates, ReferenceFull, ReferenceCompact**; the Japanese example omits unsupported locale switching and supplies application state to the shared account control. Local examples do not establish hosted deployment.
+This entry requires no Next.js, next-intl, site session/auth backend, full application message catalog, hero or site public folder. Generic `/ui` imports do not import its catalog. Storybook provides **Brand / NaeilHeader / Docs, Usage, JapaneseApplication, AccountStates, Abstorm, Home, Estimate, Jev, ReferenceFull, ReferenceCompact**; the Japanese example omits unsupported locale switching and supplies application state to the shared account control. Local examples do not establish hosted deployment.
 
 Verify actual packed consumption, Storybook behavior and rendered comparisons at matching viewport/language/theme. Source imports alone do not prove visual parity. Native Safari, devices, assistive technology, full OAuth and unresolved accessibility observations retain the [documented support limits](../design/public-ui-support.md).
 
@@ -91,18 +110,17 @@ Marker-and-language-scoped final typography uses a package-local font stack and 
 
 A controlled mobile sheet defers its shared account action until the account menu and sheet finish closing and restore a surviving header control. The consumer still owns dirty state, confirmation, logout, busy state and the request lock; `onLogout` must tolerate this asynchronous handoff. When a confirmation saves its opener, its restoration policy must also handle a viewport change hiding that opener. Verify normal and reduced motion, cancellation after a desktop transition, pending requests, reopen and retry in the actual application; package verification does not replace actual product acceptance.
 
-The empty-menu desktop exception is intentional B1 compatibility: a zero-width desktop navigation cannot signal the crossing, so the sheet stays open. Escape, its close button, the overlay or a `currentHref` change still close it. Home owns the confirmation's desktop cancel fallback to the visible row account trigger; the package supplies a visible, focusable control and does not implement the confirmation's restoration policy.
+Without `service`, the empty-menu desktop exception is intentional B1 compatibility: a zero-width desktop navigation cannot signal the crossing, so the sheet stays open. Escape, its close button, the overlay or a `currentHref` change still close it. Home owns the confirmation's desktop cancel fallback to the visible row account trigger; the package supplies a visible, focusable control and does not implement the confirmation's restoration policy.
 
 ```tsx
-<NaeilHeader locale={locale} currentHref={pathname} Link={GuardedLink}
-  showProjects={false} showBlog={false} appNavigation={navigationItems}
-  brandHref="/" brandSuffix="Home" brandLinkProps={{ 'aria-label': 'Naeil Home' }}
-  statusSlot={readinessStatus} mobileOpen={mobileOpen} onMobileOpenChange={setMobileOpen}
+<NaeilHeader service="home" locale={locale} currentHref={pathname} Link={GuardedLink}
+  appNavigation={navigationItems}
+  mobileOpen={mobileOpen} onMobileOpenChange={setMobileOpen}
   onLocaleChange={changeLanguage}
   authSlot={<NaeilHeaderAccountControl locale={locale} account={account} />} />
 ```
 
-Keep the default theme/locale/separator/account toolbar for this profile; `toolbarSlot` is a compatibility override, not the Home migration path. Omitting all new props preserves the 0.7.2 canonical profile, apart from markers, language correction, release identity and Radix-generated IDs. SVG/Logo IDs and consumer-supplied IDs are not normalized away. See the `docs/superpowers/specs/2026-10-28-canonical-home-chrome.md` acceptance contract for gates and the four allowed Home differences.
+Keep the shared theme/locale/separator/account toolbar; the service profile rejects toolbar replacement. Omitting all new props preserves the 0.7.2 canonical profile, apart from markers, language correction, release identity and Radix-generated IDs. SVG/Logo IDs and consumer-supplied IDs are not normalized away. See the `docs/superpowers/specs/2026-10-28-canonical-home-chrome.md` acceptance contract for gates and the four allowed Home differences.
 
 ## Page-root frame policy (since 0.9.0)
 

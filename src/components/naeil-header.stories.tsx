@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale } from "./naeil-header";
+import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale, type NaeilService } from "./naeil-header";
 import { NaeilFooter } from "./naeil-footer";
 
 const meta = {
@@ -79,3 +79,33 @@ function AccountExample() {
   </>;
 }
 export const AccountStates: Story = { render: () => <AccountExample /> };
+
+
+function ServiceExample({ service, locale: initialLocale }: { service: NaeilService; locale: NaeilHeaderLocale }) {
+  const [locale, setLocale] = useState(initialLocale);
+  const [href, setHref] = useState("/overview");
+  const [notice, setNotice] = useState("");
+  useEffect(() => { setLocale(initialLocale); }, [initialLocale]);
+  useEffect(() => { document.documentElement.lang = locale; }, [locale]);
+  const tabs = [{ id: "overview", label: "Overview", href: "/overview" }, { id: "settings", label: "Settings", href: "/settings" }];
+  return <>
+    <NaeilHeader service={service} locale={locale} currentHref={href} onLocaleChange={setLocale}
+      appNavigation={service === "jev" ? undefined : service === "estimate"
+        ? [{ id: "estimates", label: "Estimates", items: tabs }, { id: "history", label: "History", href: "/history" }]
+        : tabs}
+      authSlot={<NaeilHeaderAccountControl locale={locale} account={{ status: "signed-in", onLogout: () => setNotice("Application session callback") }} />}
+      onNavigate={(event, item) => {
+        if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault(); setHref(item.href); setNotice(item.href);
+      }} />
+    <main className="ui-app-frame pt-28 min-h-[420px]">
+      <h1 className="text-3xl font-semibold">{service}</h1>
+      <p role="status">{notice}</p>
+    </main>
+    <NaeilFooter locale={locale} />
+  </>;
+}
+export const Abstorm: Story = { render: args => <ServiceExample service="abstorm" locale={args.locale} /> };
+export const Home: Story = { render: args => <ServiceExample service="home" locale={args.locale} /> };
+export const Estimate: Story = { render: args => <ServiceExample service="estimate" locale={args.locale} /> };
+export const Jev: Story = { render: args => <ServiceExample service="jev" locale={args.locale} /> };

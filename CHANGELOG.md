@@ -4,6 +4,7 @@
 
 Not published. Fixes the verified findings of the 2026-11-12 design-system audit (b17a015). Public imports, exports, types and consumer `className` overrides are preserved; changed defaults are listed under compatibility.
 
+- Header: add opt-in `service`, `NaeilService` and readonly `naeilServices` through standalone/provider chrome entries. The DS owns lowercase service branding, product-only tabs and canonical toolbar; toolbar-only mobile sheets omit empty navigation and dismiss on desktop crossing. Add four service stories and matching browser contracts.
 - Locale runtime: protocol-hook request-header deletions and replacements are preserved instead of restoring incoming headers (security hardening). Literal backslashes in query/fragment no longer invalidate a registered route (path backslashes still 404). A late commit after a transition timeout clears the error, `retry()` replays the latest failed request and clears an already-satisfied one. Encoded spellings of every reserved protocol segment, including service `protocolPrefixes`, are rejected. `/favicon.svg` passes as a public file; the matcher/public-file contract is documented.
 - `@naeil/ui/utils` is safe to call from React Server Components. `buttonVariants`/`badgeVariants` stay on the client `/ui` barrel; call them on the server through `@naeil/ui/components/ui/button` and `/badge`. Packed Next consumers are now built with both webpack and Turbopack, including a Server Component page.
 - `Button` with `aria-pressed="true"` shows a token-based pressed indicator in every variant.
@@ -15,6 +16,7 @@ Not published. Fixes the verified findings of the 2026-11-12 design-system audit
 - CI: `forbidOnly` on CI, no reuse of a stale local Storybook server, and 40-minute browser/package job limits.
 
 Compatibility:
+- Omitting `service` preserves legacy header output and overrides. `statusSlot`, `brandSuffix`, `brandSlot`, `toolbarSlot`, `subNav` and `brandLinkComponent` are deprecated for owned services, retained for compatibility. The opt-in service branch rejects brand/catalog/style escape hatches and ignores cast/JavaScript attempts with development-only warnings once per prop; root chrome markers are protected.
 - Visual defaults changed: pressed Buttons; generated line heights for every type size used by the roles (`text-xs` 13/20, `text-sm` 14/22, `text-base` 16/25, `text-xl` 20/29, `text-3xl` 32/42), which also applies to consumer text without an explicit `leading-*` (explicit `leading-*` still wins); Card/Dialog/Page titles follow those roles; `DialogContent` caps its height and scrolls, so its close button scrolls with the content and non-portaled popups inside a dialog are clipped (portaled Radix popups are not); `dark:` utilities under OS dark without a theme class. Opt-outs are in the component guides.
 - Apps that used tw-animate-css utilities (`animate-in`, `fade-in`, ...) only through `@naeil/ui/globals.css` must add `tw-animate-css` themselves. No owned service does (checked AB Storm, Estimate, Home, Persona, Jev).
 - Package-internal Storybook tooling notices are no longer in the npm archive; they stay in the repository and the Docs preview.
