@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import { Nav } from "../../../components/nav";
 import type { NavigationProps } from "../../../components/ui/navigation";
-import type { NaeilHeaderProps } from "../../../components/naeil-header";
+import type { NaeilHeaderProps, NaeilServiceHeaderProps } from "../../../components/naeil-header";
 
 const navigationCapture = vi.hoisted(() => ({ props: null as NavigationProps | null }));
 vi.mock("../../../components/ui/navigation", async (importOriginal) => {
@@ -19,10 +19,11 @@ vi.mock("../../../components/ui/navigation", async (importOriginal) => {
 // Navigation boundary. A wrapper implementation is not part of the public API.
 // A missing optional entry is a contract failure, with a useful RED assertion.
 const entry = await import("../../../components/naeil-header").catch(() => null);
-function header(props: NaeilHeaderProps) {
+type HeaderProps = NaeilHeaderProps | NaeilServiceHeaderProps;
+function header(props: HeaderProps) {
   expect(entry?.NaeilHeader, "the complete React-only header is exported").toBeTypeOf("function");
   navigationCapture.props = null;
-  const html = renderToStaticMarkup(createElement(entry!.NaeilHeader, props));
+  const html = renderToStaticMarkup(createElement(entry!.NaeilHeader as (props: HeaderProps) => ReturnType<NonNullable<typeof entry>["NaeilHeader"]>, props));
   expect(navigationCapture.props).not.toBeNull();
   return { props: navigationCapture.props! as ReturnType<NonNullable<typeof entry>["NaeilHeader"]>["props"], html };
 }
@@ -152,5 +153,97 @@ describe("legacy Nav compatibility", () => {
     const element = header({ locale: "en", resolveHref: path => `https://naeil.dev${path}`, projectsExternal: true });
     expect(element.props.items[0].items[0].external).toBe(true);
     expect(header({ locale: "en", projectsExternal: true, currentProjectKey: "naeilUi" }).props.items[0].items[0].external).toBe(false);
+  });
+});
+
+
+describe("owned service profile", () => {
+  it("falls back to legacy without leaking invalid service values or stripping overrides", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const legacy = { locale: "en" as const, brandSuffix: "Legacy", className: "custom", "data-slot": "custom", showBlog: false };
+    try {
+      vi.stubEnv("NODE_ENV", "production");
+      expect(header({ ...legacy, service: "main" } as unknown as HeaderProps).html).toBe(header(legacy).html);
+      expect(warn).not.toHaveBeenCalled();
+      vi.stubEnv("NODE_ENV", "development");
+      for (const service of ["main", "", null, "main"]) {
+        const rendered = header({ ...legacy, service } as unknown as HeaderProps);
+        expect(rendered.html).toBe(header(legacy).html);
+        expect(rendered.html).not.toContain(' service=');
+      }
+      expect(warn).toHaveBeenCalledExactlyOnceWith("NaeilHeader: invalid service; rendering the legacy profile.");
+    } finally { vi.unstubAllEnvs(); warn.mockRestore(); }
+  });
+  it("does not require process for the runtime service guards", async () => {
+    const { NaeilHeader: CoreHeader } = await import("../../../components/naeil-header-core");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      vi.stubGlobal("process", undefined);
+      // Inspect the guard's returned element without invoking unrelated provider SSR.
+      expect(() => CoreHeader({ locale: "en", service: "home", "data-naeil-cdn": "ignored" } as unknown as NaeilServiceHeaderProps)).not.toThrow();
+      expect(() => CoreHeader({ locale: "en", service: null } as unknown as NaeilServiceHeaderProps)).not.toThrow();
+      expect(warn).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); warn.mockRestore(); }
+  });
+  it("exports the readonly service catalog from standalone and provider entries", async () => {
+    const core = await import("../../../naeil-locale/chrome");
+    expect(entry!.naeilServices).toEqual(["abstorm", "home", "estimate", "jev"]);
+    expect(core.naeilServices).toBe(entry!.naeilServices);
+    expect(Object.isFrozen(core.naeilServices)).toBe(true);
+  });
+  it.each(["abstorm", "home", "estimate", "jev"] as const)("owns %s branding and destinations with no catalog or indicator", service => {
+    const element = header({ locale: "en", service });
+    expect(element.html).toContain(`class="naeil-header-brand-suffix">${service}</span>`);
+    expect(element.props.brand.props["aria-label"]).toBe(`.naeil ${service}`);
+    expect(element.props.brand.props.href).toBe("/");
+    expect(element.props.items).toEqual([]);
+    expect(element.html).not.toContain("naeil-header-brand-row");
+    expect(element.html).not.toContain("<nav");
+    expect(element.props.omitEmptyNavigation).toBe(true);
+    expect(header({ locale: "en", service, brandHref: "/workspace" }).props.brand.props.href).toBe("/workspace");
+  });
+  it("passes only the product menu and preserves routing, labels and auth", () => {
+    const items = [{ id: "editor", label: "Editor", href: "/editor" }];
+    const element = header({ locale: "en", service: "home", appNavigation: items, Link, currentHref: "/editor", authSlot: createElement("button", null, "Account"), labels: { navigation: "Product", menu: "Open", close: "Close" } });
+    expect(element.props.items).toEqual(items);
+    expect(element.html).toContain('aria-current="page"');
+    expect(element.html).toContain('aria-label="Product"');
+    expect(element.html).toContain("Account");
+    expect(element.html).toContain('data-consumer-link="true"');
+  });
+  it("ignores escape hatches and protected markers, warning once per name only in development", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const injected = { brandSuffix: "Wrong", statusSlot: "Dot", brandSlot: "Wrong", toolbarSlot: "Wrong", subNav: [], brandLinkComponent: Link,
+      projects: [], projectsExternal: true, showProjects: true, showBlog: true, translations: {}, className: "wrong", containerClassName: "wrong",
+      style: { height: 500 }, brandLinkProps: { "aria-label": "Wrong" }, mobileFooter: "Wrong", omitEmptyNavigation: false,
+      "data-slot": "wrong", "data-naeil-header": "wrong", "data-naeil-chrome": "wrong", "data-naeil-ui-version": "wrong", "data-global-header": "wrong" };
+    try {
+      vi.stubEnv("NODE_ENV", "development");
+      const props = { locale: "en", service: "jev", ...injected } as unknown as HeaderProps;
+      const first = header(props);
+      expect(first.html).toBe(header({ locale: "en", service: "jev" }).html);
+      header(props);
+      expect(warn).toHaveBeenCalledTimes(Object.keys(injected).length);
+      for (const name of Object.keys(injected)) expect(warn.mock.calls.filter(([message]) => String(message).includes(`ignores ${name};`))).toHaveLength(1);
+      vi.stubEnv("NODE_ENV", "production");
+      warn.mockClear();
+      header({ ...props, "data-naeil-extra": "wrong" } as unknown as HeaderProps);
+      expect(warn).not.toHaveBeenCalled();
+    } finally { vi.unstubAllEnvs(); warn.mockRestore(); }
+  });
+  it("leaves omitted service markup byte-identical to an explicit undefined service", () => {
+    const props = { locale: "ja" as const, brandSuffix: "Home", statusSlot: createElement("span", null, "Ready"), className: "compat" };
+    expect(header(props).html).toBe(header({ ...props, service: undefined }).html);
+  });
+  it("rejects service escape hatches and unknown ids in the public types", () => {
+    // @ts-expect-error service ids use the lowercase closed catalog
+    const unknown: HeaderProps = { locale: "en", service: "Home" };
+    // @ts-expect-error owned service profiles cannot override brand or frame
+    const suffix: HeaderProps = { locale: "en", service: "home", brandSuffix: "Home" };
+    // @ts-expect-error owned service profiles cannot re-enable the global menu
+    const catalog: HeaderProps = { locale: "en", service: "home", showProjects: true };
+    // @ts-expect-error owned service profiles cannot style the shared frame
+    const frame: HeaderProps = { locale: "en", service: "home", className: "custom" };
+    expect([unknown, suffix, catalog, frame]).toHaveLength(4);
   });
 });

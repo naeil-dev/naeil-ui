@@ -33,6 +33,8 @@ export interface NavigationProps extends Omit<
   React.ComponentPropsWithoutRef<"header">,
   "children" | "onSelect"
 > {
+  /** Omit empty landmarks and dismiss toolbar-only sheets on desktop crossing. */
+  omitEmptyNavigation?: boolean;
   brand: React.ReactNode;
   items: NavigationItem[];
   /** Translated landmark/dialog/close labels are supplied by the application. */
@@ -217,6 +219,7 @@ export function Navigation({
   toolbar,
   mobileToolbar,
   mobileFooter,
+  omitEmptyNavigation = false,
   mobileOpen: controlledOpen,
   onMobileOpenChange,
   containerClassName,
@@ -288,7 +291,9 @@ export function Navigation({
   }, [currentHref, setMobileOpen]);
   // Container width, rather than viewport width, determines which navigation is visible.
   React.useEffect(() => {
-    const element = desktop.current;
+    const element = omitEmptyNavigation && !items.length
+      ? desktop.current?.parentElement?.querySelector<HTMLElement>(".ui-navigation-toolbar")
+      : desktop.current;
     if (!element || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(() => {
       if (element.getBoundingClientRect().width > 0) setMobileOpen(false);
@@ -296,8 +301,9 @@ export function Navigation({
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, [setMobileOpen]);
+  }, [setMobileOpen, omitEmptyNavigation, items.length]);
 
+  const DesktopElement = omitEmptyNavigation && !items.length ? "div" : "nav";
   const active = (item: NavigationLink) =>
     item.active ?? (!item.external && item.href === currentHref);
   function link(item: NavigationLink, close?: "mobile" | "group", entry = false) {
@@ -359,9 +365,9 @@ export function Navigation({
       <div className={cn("ui-navigation-frame", containerClassName)}>
         <div className="ui-navigation-row">
           <div className="ui-navigation-brand">{brand}</div>
-          <nav
-            ref={desktop}
-            aria-label={labels.navigation}
+          <DesktopElement
+            ref={element => { desktop.current = element; }}
+            aria-label={omitEmptyNavigation && !items.length ? undefined : labels.navigation}
             className="ui-navigation-desktop"
           >
             {items.map((item) =>
@@ -387,7 +393,7 @@ export function Navigation({
                 link(item)
               ),
             )}
-          </nav>
+          </DesktopElement>
           <div className="ui-navigation-toolbar">{toolbar}</div>
           <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
             <Dialog.Trigger
@@ -424,9 +430,16 @@ export function Navigation({
                     trigger.current.getBoundingClientRect().width === 0
                   ) {
                     event.preventDefault();
-                    desktop.current
-                      ?.querySelector<HTMLElement>("button, a")
-                      ?.focus();
+                    const target = desktop.current?.querySelector<HTMLElement>("button, a");
+                    const toolbar = omitEmptyNavigation && !items.length
+                      ? desktop.current?.parentElement?.querySelector(".ui-navigation-toolbar")
+                      : undefined;
+                    const toolbarTarget = !target && toolbar
+                      ? Array.from(toolbar.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]'))
+                        .find(element => element.tabIndex >= 0 && !element.matches(":disabled") &&
+                          element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().height > 0)
+                      : undefined;
+                    (target ?? toolbarTarget)?.focus();
                   }
                 }}
               >
@@ -441,7 +454,7 @@ export function Navigation({
                     <X size={20} aria-hidden="true" />
                   </Dialog.Close>
                 </div>
-                <nav
+                {(!omitEmptyNavigation || items.length > 0) && <nav
                   aria-label={labels.navigation}
                   className="ui-navigation-mobile-links"
                 >
@@ -459,7 +472,7 @@ export function Navigation({
                       link(item, "mobile")
                     ),
                   )}
-                </nav>
+                </nav>}
                 {(mobileToolbar ?? toolbar) && (
                   <div className="ui-navigation-mobile-toolbar">
                     <NavigationSheetAction.Provider value={controlledOpen === undefined ? undefined : action => {

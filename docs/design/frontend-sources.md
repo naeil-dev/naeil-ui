@@ -357,3 +357,7 @@ The three dated entries below are preserved verbatim from the audited Console an
 - 실제 읽음: 사용자 제공 HTML, 현재 DESIGN.md·v2-migration.md·package exports와 UI/Nav 소스, repository frontend-reference-workflow revision2026-10-02.1 및 layout/verification, 설치된 Impeccable/Brainstorming 안내, JEV 실제 로컬 worktree의 auth/session 소스·README·STATUS. 공유 시각 기준과 primitive 재사용을 제안했고 외부 UI 코드는 복사하지 않았다.
 - 실제 실행: Aside 원본 데스크톱 화면/접근성 트리·스크린샷 확인, Node에서 원본 계산·오류 사례 실행, 로컬 source/hash 검사. Aside의 viewport 조절 API가 지원되지 않아 모바일 화면 확인은 미완료다. JEV 운영 인증·새 앱 구현·Storybook·새 앱 브라우저 테스트·독립 critique/detector/polish/distill은 실행하지 않았다.
 - Refero/21st/Component Gallery/Kinetics 검색·retrieval·새 스타일 채택은 하지 않았다. 승인된 디자인 권위와 기존 컴포넌트로 현재 방향이 정해져 있다. 제품 구현 단계에서 실제로 발견한 패턴 공백만 추가 조사한다. 문서만 추가했으며 공유 패키지·사이트 UI·의존성·DNS는 변경하지 않았다.
+
+## 2026-11-12 — owned-service header rule
+
+The owner's approved header rule and DESIGN.md are the authority; existing Logo, brand suffix, Navigation and account controls supply the presentation. No external visual reference or new artwork was adopted. Applied Impeccable context/craft-floor and one detector pass (`[]`). Actual tools: Ego TaskSpace 74 inspection of built Storybook Home desktop and Jev mobile sheet, Playwright profile/computed-style and frozen B1 comparisons, unit/type/lint/contrast/package/Storybook/rollout checks. Exact outcomes and limits are recorded in the [implementation verification receipt](header-rule-2026-11-12-verification.md); this work does not publish, deploy or upgrade a consumer service.
