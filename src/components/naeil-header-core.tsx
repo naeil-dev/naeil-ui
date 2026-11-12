@@ -16,7 +16,8 @@ import { useNaeilMessages } from "./naeil-messages-context";
 export type { NaeilHeaderLocale } from "./naeil-header-data";
 export { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderAccountControlProps } from "./naeil-header-account-core";
 
-interface LegacyHeaderProps extends Omit<NavigationProps, "brand" | "items" | "toolbar" | "mobileToolbar" | "labels"> {
+export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items" | "toolbar" | "mobileToolbar" | "labels"> {
+  service?: undefined;
   locale: NaeilHeaderLocale;
   /** Resolve canonical unlocalized paths. Defaults to the official localized site. */
   resolveHref?: (path: string) => string;
@@ -66,15 +67,15 @@ const serviceCompatibilityProps = [
   "containerClassName", "style", "brandLinkProps", "mobileFooter", "omitEmptyNavigation",
 ] as const;
 type ServiceCompatibilityProp = typeof serviceCompatibilityProps[number];
-export type NaeilHeaderProps =
-  | (LegacyHeaderProps & { service?: undefined })
-  | (Omit<LegacyHeaderProps, ServiceCompatibilityProp> & { service: NaeilService }
-    & { [Prop in ServiceCompatibilityProp]?: never });
+/** Strict owned-service props; the legacy interface remains independently extensible. */
+export type NaeilServiceHeaderProps =
+  Omit<NaeilHeaderProps, ServiceCompatibilityProp | "service"> & { service: NaeilService }
+  & { [Prop in ServiceCompatibilityProp]?: never };
 
 const warnedServiceProps = new Set<string>();
 
 /** Opt into the owned-service contract without changing the legacy composition. */
-export function NaeilHeader(input: NaeilHeaderProps) {
+export function NaeilHeader(input: NaeilHeaderProps | NaeilServiceHeaderProps) {
   if (input.service === undefined) return <HeaderComposition {...input} />;
   const props = { ...input } as Record<string, unknown>;
   for (const name of Object.keys(props)) {
@@ -86,7 +87,7 @@ export function NaeilHeader(input: NaeilHeaderProps) {
       console.warn(`NaeilHeader: service profile ignores ${name}; use the shared service composition.`);
     }
   }
-  return <HeaderComposition {...props as unknown as LegacyHeaderProps} service={input.service} />;
+  return <HeaderComposition {...props as unknown as NaeilHeaderProps} service={input.service} />;
 }
 
 const subscribe = () => () => {};
@@ -136,7 +137,7 @@ function HeaderComposition({
   onLocaleChange, authSlot, toolbarSlot, projects, projectsExternal = false, translations, showProjects = true, showBlog = true,
   subNav, currentProjectKey, currentProjectHref, labels, Link = NativeLink,
   currentHref, onNavigate, className, containerClassName, ...props
-}: LegacyHeaderProps & { service?: NaeilService }) {
+}: Omit<NaeilHeaderProps, "service"> & { service?: NaeilService }) {
   if (service) { brandSuffix = service; showProjects = false; showBlog = false; }
   const content = useNaeilMessages(locale).header;
   const projectLinks: NavigationLink[] = !showProjects ? [] : projects ?? headerProjects.map(project => {

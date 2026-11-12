@@ -1,4 +1,4 @@
-import { createElement, type ComponentPropsWithoutRef, type MouseEvent } from "react";
+import { createElement, type ComponentProps, type ComponentPropsWithoutRef, type MouseEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
@@ -19,7 +19,8 @@ vi.mock("../../../components/ui/navigation", async (importOriginal) => {
 // Navigation boundary. A wrapper implementation is not part of the public API.
 // A missing optional entry is a contract failure, with a useful RED assertion.
 const entry = await import("../../../components/naeil-header").catch(() => null);
-function header(props: NaeilHeaderProps) {
+type HeaderProps = ComponentProps<NonNullable<typeof entry>["NaeilHeader"]>;
+function header(props: HeaderProps) {
   expect(entry?.NaeilHeader, "the complete React-only header is exported").toBeTypeOf("function");
   navigationCapture.props = null;
   const html = renderToStaticMarkup(createElement(entry!.NaeilHeader, props));
@@ -191,7 +192,7 @@ describe("owned service profile", () => {
       "data-slot": "wrong", "data-naeil-header": "wrong", "data-naeil-chrome": "wrong", "data-naeil-ui-version": "wrong", "data-global-header": "wrong" };
     try {
       vi.stubEnv("NODE_ENV", "development");
-      const props = { locale: "en", service: "jev", ...injected } as unknown as NaeilHeaderProps;
+      const props = { locale: "en", service: "jev", ...injected } as unknown as HeaderProps;
       const first = header(props);
       expect(first.html).toBe(header({ locale: "en", service: "jev" }).html);
       header(props);
@@ -199,7 +200,7 @@ describe("owned service profile", () => {
       for (const name of Object.keys(injected)) expect(warn.mock.calls.filter(([message]) => String(message).includes(`ignores ${name};`))).toHaveLength(1);
       vi.stubEnv("NODE_ENV", "production");
       warn.mockClear();
-      header({ ...props, "data-naeil-extra": "wrong" } as unknown as NaeilHeaderProps);
+      header({ ...props, "data-naeil-extra": "wrong" } as unknown as HeaderProps);
       expect(warn).not.toHaveBeenCalled();
     } finally { vi.unstubAllEnvs(); warn.mockRestore(); }
   });
@@ -209,13 +210,13 @@ describe("owned service profile", () => {
   });
   it("rejects service escape hatches and unknown ids in the public types", () => {
     // @ts-expect-error service ids use the lowercase closed catalog
-    const unknown: NaeilHeaderProps = { locale: "en", service: "Home" };
+    const unknown: HeaderProps = { locale: "en", service: "Home" };
     // @ts-expect-error owned service profiles cannot override brand or frame
-    const suffix: NaeilHeaderProps = { locale: "en", service: "home", brandSuffix: "Home" };
+    const suffix: HeaderProps = { locale: "en", service: "home", brandSuffix: "Home" };
     // @ts-expect-error owned service profiles cannot re-enable the global menu
-    const catalog: NaeilHeaderProps = { locale: "en", service: "home", showProjects: true };
+    const catalog: HeaderProps = { locale: "en", service: "home", showProjects: true };
     // @ts-expect-error owned service profiles cannot style the shared frame
-    const frame: NaeilHeaderProps = { locale: "en", service: "home", className: "custom" };
+    const frame: HeaderProps = { locale: "en", service: "home", className: "custom" };
     expect([unknown, suffix, catalog, frame]).toHaveLength(4);
   });
 });
