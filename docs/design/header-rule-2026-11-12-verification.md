@@ -4,7 +4,7 @@ Stage 1 on `feat/header-rule-20261112`, based on `4c53543` (PR #47). Local imple
 
 ## Contract and decisions
 
-- `NaeilHeaderProps` is a discriminated union: legacy `service?: undefined`, or `service: NaeilService` with forbidden compatibility props typed as `never`. `NaeilService` derives from the frozen readonly `naeilServices` tuple (`abstorm`, `home`, `estimate`, `jev`). Both public header entries export them; provider chrome continues re-exporting the core.
+- `NaeilHeaderProps` remains an exported legacy interface with `service?: undefined`, preserving interface extension and `Omit` behavior. The separate exported `NaeilServiceHeaderProps` type requires `service: NaeilService` and types forbidden compatibility props as `never`. Both component entries accept `NaeilHeaderProps | NaeilServiceHeaderProps`. `NaeilService` derives from the frozen readonly `naeilServices` tuple (`abstorm`, `home`, `estimate`, `jev`). Both public header entries export them; provider chrome continues re-exporting the core.
 - The service profile supplies its lowercase suffix and `.naeil <id>` accessible name, defaults the brand to `/`, omits catalog/Blog and keeps only `appNavigation`. `brandHref`, routing/guards, locale, auth, labels, root accessible attributes and controlled mobile state remain available.
 - Besides the requested forbidden props, inline `style`, `brandLinkProps`, `mobileFooter` and the empty-navigation policy override are blocked because they bypass the approved presentation. Runtime attempts are stripped; each prop name warns once in development, never in production. Root `data-slot`, `data-global-header` and `data-naeil-*` cannot be overridden.
 - Generic Navigation's additive `omitEmptyNavigation` defaults to false. Service headers enable it: an empty desktop center uses a neutral container, the mobile sheet omits empty navigation and observes the desktop toolbar to dismiss on resize. Legacy empty-menu resize behavior and markup remain unchanged.
@@ -19,9 +19,9 @@ Stage 1 on `feat/header-rule-20261112`, based on `4c53543` (PR #47). Local imple
 
 Runtime: `src/components/naeil-header-core.tsx`, `src/components/naeil-header.tsx`, `src/components/ui/navigation.tsx`. Examples/tests: `src/components/naeil-header.stories.tsx`, `src/lib/design/__tests__/naeil-header.test.ts`, `src/lib/design/__tests__/service-header-sheet.test.ts`, `scripts/fixtures/chrome/app.tsx`, `e2e/service-header.spec.ts`. Guidance/evidence: `DESIGN.md`, `CHANGELOG.md`, `docs/components/naeil-header.md`, `docs/components/application-layout.md`, `docs/design/frontend-sources.md` and this receipt. `src/naeil-locale/chrome.ts` already re-exports the core; its public export flow is tested without changing that file.
 
-## Commands and outcomes
+## Initial stage-1 commands and outcomes
 
-All required commands completed successfully; the initial failures and their fixes are retained below. Local logs are `/tmp/header-rule-*.log`; browser JSON/trace artifacts are under ignored `test-results/fixture-6107`, `fixture-6113` and `fixture-6115`.
+The initial stage-1 commands completed successfully; their initial failures and fixes are retained below. Review follow-up results are recorded separately at the end. Local logs are `/tmp/header-rule-*.log`; browser JSON/trace artifacts are under ignored `test-results/fixture-6107`, `fixture-6113` and `fixture-6115`.
 
 | Command | Outcome |
 | --- | --- |
@@ -60,4 +60,46 @@ Impeccable context/craft-floor and one `detect --json src/components/naeil-heade
 
 ## Limits
 
-The public props are now a union as requested; consumer prop extensions should use a type intersection rather than `interface extends NaeilHeaderProps`. The required legacy suites run in Chromium; Firefox/WebKit additionally exercise the new service matrix. Existing native-device/assistive-technology/hosted-auth limits remain. CI placement is based on inspected shard configuration, not a new hosted CI timing receipt. Publication, hosted Docs, main integration and consumer rollout need their own execution/receipts.
+Legacy consumers can continue using `interface extends NaeilHeaderProps` and `Omit<NaeilHeaderProps, ...>`; service consumers can use `NaeilServiceHeaderProps` or infer the component union with `ComponentProps<typeof NaeilHeader>`. The required legacy suites run in Chromium; Firefox/WebKit additionally exercise the new service matrix. Existing native-device/assistive-technology/hosted-auth limits remain. CI placement is based on inspected shard configuration, not a new hosted CI timing receipt. Publication, hosted Docs, main integration and consumer rollout need their own execution/receipts.
+
+
+## Review follow-up — public type compatibility and consumer guidance
+
+New commits preserve the public `NaeilHeaderProps` interface, export `NaeilServiceHeaderProps` and accept their discriminated union on both component entries. Type-level tests cover interface extension, legacy keys through `Omit`, and service rejection in object literals and JSX through both public entries. Vitest now includes `.test.tsx` so it executes those JSX cases alongside the `tsc` checks. The starter takes `service: NaeilService` from the consumer; Navigation's opt-in `omitEmptyNavigation` is documented in its guide and the Unreleased header entry.
+
+- `2d80481` — `fix(header): preserve extensible legacy props interface`
+- `470067f` — `docs(header): parameterize service starter and explain empty navigation`
+
+| Rerun command | Outcome |
+| --- | --- |
+| `pnpm check:types` | PASS |
+| `pnpm test` | PASS: 927 tests, 6 existing production-invite opt-in skips |
+| `pnpm lint` | PASS: no errors, 3 existing warnings in unchanged files |
+| `pnpm build:pkg` | PASS; both public declaration entries expose the interface, strict service type and union component parameter |
+| `pnpm check:package` | FAIL / external blocker after 3 unchanged attempts: live whale image gets a Vercel 403 challenge. Package boundary and clean React build/types/SSR passed; later frame/Next phases were not reached. The second attempt passed 5 of 6 artwork cases before failing. |
+| Extracted-archive declaration compatibility check below | PASS: legacy interface extension/Omit and strict service props on both entries |
+| Chromium command below | PASS: 126 tests (9.5 minutes) |
+
+```sh
+NAEIL_UI_STORYBOOK_PORT=6106 NAEIL_UI_FIXTURE_PORT=6107 pnpm exec playwright test e2e/service-header.spec.ts e2e/chrome-pairs.spec.ts e2e/naeil-header.spec.ts --project=chromium --workers=3 --fully-parallel
+```
+
+The same JSX/object-literal compatibility test was compiled against both public declaration files extracted from the npm archive, using:
+
+```sh
+npm pack --ignore-scripts --json --pack-destination test-results/header-review-package
+# Extracted to test-results/header-review-package/package; test imports point at its dist entries.
+pnpm exec tsc --noEmit --strict --skipLibCheck --jsx react-jsx --esModuleInterop --module esnext --moduleResolution bundler --target es2017 test-results/header-review-package/types.test.tsx
+```
+
+Archive SHA-256: `f53ae7c2b7fe7828906cd1343ee47ba44c6879a24f34bceb51e25ae23897d4a9`, matching all three package attempts. Logs: `/tmp/header-rule-review-{types,test,lint,build-pkg,package,browser,packed-types}.log`. The initial `pnpm test` run still used the prior `.test.ts` pattern and passed 924 tests; after enabling the `.tsx` pattern it passed 927. Package retries used the same `pnpm check:package` command, first after the Chromium batch completed and again after an idle pause. Their logs are `/tmp/header-rule-review-package-retry.log` and `/tmp/header-rule-review-package-retry-2.log`. A direct HTTP HEAD probe returned 200/image/png; a separate headless Chromium probe from a local HTML page confirmed the relevant browser failure:
+
+```json
+{"status":403,"contentType":"text/html; charset=utf-8","mitigated":"challenge"}
+{"failure":{"errorText":"net::ERR_BLOCKED_BY_ORB"}}
+{"complete":true,"naturalWidth":0}
+```
+
+Probe evidence: `/tmp/header-rule-review-image-probe-retry.log`. The initial standalone probe omitted an HTML Content-Type and timed out finding its image; the corrected probe above supplied `text/html` and captured the response through CDP. The probes did not alter any package/test code or mock the official image.
+
+The live artwork gate remains before the frame matrix, unchanged. No history rewrite or remote action was performed. The three review fixes are implemented; a successful current package gate remains pending external artwork availability. Earlier stage-1 frame/Next results above do not stand in for this rerun.
