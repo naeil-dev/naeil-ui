@@ -60,7 +60,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-popover ui-popup fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border border-border-strong p-6  sm:max-w-lg",
+          "bg-popover ui-popup fixed top-[50%] left-[50%] z-50 grid w-full max-h-[min(calc(100%-2rem),calc(100dvh-2rem))] overflow-y-auto max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border border-border-strong p-6  sm:max-w-lg",
           className,
         )}
         {...props}
@@ -126,7 +126,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-xl leading-normal font-semibold", className)}
+      className={cn("text-xl font-semibold", className)}
       {...props}
     />
   );

@@ -16,6 +16,13 @@ function renderContent(props: ComponentProps<typeof DialogContent> = {}, footer?
 }
 
 describe("Dialog close labels", () => {
+  it("limits tall content while preserving consumer scrolling overrides", () => {
+    expect(renderContent()).toContain("max-h-[min(calc(100%-2rem),calc(100dvh-2rem))] overflow-y-auto");
+    const html = renderContent({ className: "max-h-[none] overflow-y-visible" });
+    expect(html).not.toContain("max-h-[min(calc(100%-2rem),calc(100dvh-2rem))]");
+    expect(html).not.toContain("overflow-y-auto");
+    expect(html).toContain("max-h-[none] overflow-y-visible");
+  });
   it("preserves the default Close label", () => {
     expect(renderContent()).toContain('<span class="sr-only">Close</span>');
   });

@@ -1,6 +1,6 @@
 # NaeilFooter — canonical service footer
 
-Included in **published and registry-verified 0.7.1**, from the unpublished 0.7.0 candidate. Install exact `@naeil/ui@0.7.1` from npm; hosted Docs and service activation have separate receipts. See [release identities and publication status](../package-release.md#publication-and-deployment). React-only opt-in entry:
+Available since **0.7.1**, the first published release containing this entry. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release; hosted Docs and service activation have separate receipts. React-only opt-in entry:
 
 ```tsx
 import { NaeilFooter } from '@naeil/ui/naeil-footer';

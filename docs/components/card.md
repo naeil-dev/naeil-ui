@@ -6,7 +6,7 @@ Use Card to group related information or a form. Use plain sections/headings for
 
 Exports: `Card`, `CardElevated`, `CardHeader`, `CardFooter`, `CardTitle`, `CardAction`, `CardDescription`, `CardContent`. All accept `React.ComponentProps<"div">`; no variant/size/asChild/loading API. Card and CardElevated use `data-slot="card"`, default panel spacing and consumer className; CardElevated adds shadow/elevated dark surface. CardTitle is a **div**, not a semantic heading. CardAction occupies the second header column.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/card.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/card.tsx) is the API authority.
 
 ## Composition
 
@@ -30,3 +30,7 @@ Static cards are not tab stops. Put real buttons/links inside and a semantic hea
 Loading/empty/error are consumer content with status/retry actions, not Card props; disabled is inapplicable to the static surface. Keep CardAction concise, wrap long localized headings and use `w-full max-w-*` instead of fixed widths. Avoid nested cards and implicit clickable-card behavior; an entire link card must contain no nested controls.
 
 Check this example in light/dark, comfortable/compact and mobile, including long Korean, English and Japanese text. Consumer overrides remain supported; follow the [shared override and acceptance guidance](common.md#styling-themes-and-overrides). Actual engine results and manual limits are in the [support matrix](../design/public-ui-support.md).
+
+## Typography and theme compatibility (2026-11-12)
+
+CardTitle now uses the component-title role (16/25px), replacing `leading-none`; CardDescription uses supporting text (14/22px). Wrapped titles and descriptions can make cards taller. Explicit `className` typography/leading overrides still win. CardElevated now also uses its elevated dark surface under OS dark with no root theme class when importing globals.css.

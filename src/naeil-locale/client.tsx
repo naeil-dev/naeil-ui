@@ -72,21 +72,28 @@ export function NaeilLocaleController({ service, children, preferenceWritesEnabl
   const [intent, setIntent] = useState<LocaleIntent>();
   const [error, setError] = useState<LocaleTransitionError>();
   const lastRequest = useRef<{ locale: NaeilLocale; options?: LocaleChangeOptions } | undefined>(undefined);
+  const timedOutIntent = useRef<LocaleIntent | undefined>(undefined);
   const focus = useRef<FocusSnapshot | undefined>(undefined);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const guards = useRef(new Set<() => boolean>());
   const clearTimer = useCallback(() => { if (timer.current !== undefined) clearTimeout(timer.current); timer.current = undefined; }, []);
-  const cancel = useCallback(() => { gate.cancel(); clearTimer(); setIntent(undefined); setError(undefined); focus.current = undefined; }, [gate, clearTimer]);
+  const cancel = useCallback(() => { gate.cancel(); timedOutIntent.current = undefined; clearTimer(); setIntent(undefined); setError(undefined); focus.current = undefined; }, [gate, clearTimer]);
   const fail = useCallback((token: number, reason: LocaleTransitionError) => {
     if (gate.current()?.token !== token) return;
+    // Releasing the request lock cannot cancel Next's in-flight navigation.
+    timedOutIntent.current = reason === "timeout" ? gate.current() : undefined;
+    // A late commit must not pull focus back after the user has moved on.
+    focus.current = undefined;
     gate.cancel(token); clearTimer(); setIntent(undefined); setError(reason);
   }, [gate, clearTimer]);
   const changeLocale = useCallback((language: NaeilLocale, options?: LocaleChangeOptions): boolean => {
     const locale = assertLocale(language);
     if (gate.current()) return false;
+    lastRequest.current = { locale, options: options ? { ...options } : undefined };
+    timedOutIntent.current = undefined;
     const current = resolveLocaleUrl(service, browserHref());
     if (current.kind !== "ui") { setError("unsupported-route"); return false; }
-    if (current.locale === locale && !options?.route && !options?.href) return false;
+    if (current.locale === locale && !options?.route && !options?.href) { setError(undefined); return false; }
     const suffix = current.canonicalPath.slice(localePath(service, current.logicalPath, current.locale).length);
     let href: string;
     try {
@@ -100,7 +107,6 @@ export function NaeilLocaleController({ service, children, preferenceWritesEnabl
     catch { setError("unsupported-route"); return false; }
     const request = gate.begin(href, locale);
     if (!request) return false;
-    lastRequest.current = { locale, options };
     focus.current = captureFocus();
     setIntent(request); setError(undefined);
     timer.current = setTimeout(() => fail(request.token, "timeout"), transitionTimeoutMs);
@@ -111,16 +117,28 @@ export function NaeilLocaleController({ service, children, preferenceWritesEnabl
       return true;
     } catch { fail(request.token, "navigation-failed"); return false; }
   }, [service, gate, router, fail, transitionTimeoutMs]);
-  const retry = useCallback(() => lastRequest.current ? changeLocale(lastRequest.current.locale, lastRequest.current.options) : false, [changeLocale]);
+  const retry = useCallback(() => {
+    const request = lastRequest.current;
+    if (!request || gate.current()) return false;
+    const current = resolveLocaleUrl(service, browserHref());
+    if (current.kind === "ui" && current.locale === request.locale) { setError(undefined); return false; }
+    return changeLocale(request.locale, request.options);
+  }, [service, gate, changeLocale]);
   const arrive = useCallback((token: number | undefined, locale: NaeilLocale, committedPathname: string) => {
-    if (token === undefined || committedPathname !== window.location.pathname) return;
-    const committed = gate.arrive(token, browserHref(), locale);
+    if (committedPathname !== window.location.pathname) return;
+    let committed = token === undefined ? undefined : gate.arrive(token, browserHref(), locale);
+    const late = timedOutIntent.current;
+    if (!committed && !gate.current() && late && (token === undefined || token === late.token)) {
+      const current = resolveLocaleUrl(service, browserHref());
+      if (late.locale === locale && current.kind === "ui" && !current.alias && current.locale === locale && current.canonicalPath === late.href) committed = late;
+    }
     if (!committed) return;
+    timedOutIntent.current = undefined;
     clearTimer(); setIntent(undefined); setError(undefined);
     writeLocalePreference(locale, { location: window.location, writeCookie: cookie => { document.cookie = cookie; } }, preferenceWritesEnabled);
     const savedFocus = focus.current; focus.current = undefined;
     requestAnimationFrame(() => restoreFocus(savedFocus));
-  }, [gate, clearTimer, preferenceWritesEnabled]);
+  }, [service, gate, clearTimer, preferenceWritesEnabled]);
   const registerDepartureGuard = useCallback((guard: () => boolean) => { guards.current.add(guard); return () => { guards.current.delete(guard); }; }, []);
 
   useEffect(() => {
@@ -133,7 +151,7 @@ export function NaeilLocaleController({ service, children, preferenceWritesEnabl
     return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener("beforeunload", beforeUnload); gate.cancel(); clearTimer(); };
   }, [cancel, gate, clearTimer]);
   useEffect(() => {
-    const pending = gate.current();
+    const pending = gate.current() ?? timedOutIntent.current;
     if (!pending) return;
     const target = pending.href.split(/[?#]/, 1)[0];
     const current = resolveLocaleUrl(service, pathname ?? "/");

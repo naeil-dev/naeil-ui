@@ -740,3 +740,32 @@ html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
     background: GrayText;
   }
 }
+
+/* Sonner keeps its compact visuals; reserve non-overlapping pointer targets.
+   Unlayered selectors match Sonner's injected, unlayered default styles. */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button] {
+  position: relative;
+}
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button]::after,
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button]::after {
+  content: "";
+  position: absolute;
+  min-width: var(--ui-touch-target);
+  min-height: var(--ui-touch-target);
+  width: 100%;
+  height: 100%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Anchor the close target inward so mobile offsets do not clip it. */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button]::after {
+  left: 0;
+  top: 0;
+  transform: none;
+}
+[data-sonner-toaster][dir="rtl"] [data-sonner-toast][data-styled="true"] [data-close-button]::after {
+  left: auto;
+  right: 0;
+}

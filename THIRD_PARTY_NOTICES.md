@@ -36,13 +36,15 @@ SOFTWARE.
 
 Shared package styles declare families; consumers own font delivery. The website imports Pretendard Variable from `pretendard`; Storybook imports Pretendard static CSS and `@fontsource/noto-sans-jp` 400/500/600. Both installed packages carry SIL Open Font License 1.1. Exact installed notices are preserved in [Pretendard](licenses/Pretendard-OFL.txt) and [Noto Sans JP](licenses/Noto-Sans-JP-OFL.txt). Keep the notice/license when redistributing font files; modified fonts must follow reserved-name rules.
 
-Storybook 10.4.6 also bundles Nunito Sans for its manager interface. The original Google Fonts OFL body was read on 2026-10-02 and is preserved in [Nunito Sans](licenses/Nunito-Sans-OFL.txt), including the original project-author notice; documentation preview output carries this notice as well. This manager font is Storybook tooling, not a new shared UI font choice.
+Storybook 10.4.6 also bundles Nunito Sans for its manager interface. The original Google Fonts OFL body was read on 2026-10-02 and is preserved in [Nunito Sans](https://github.com/naeil-dev/naeil-ui/blob/main/licenses/Nunito-Sans-OFL.txt), including the original project-author notice; documentation preview output carries this notice as well. This manager font is Storybook tooling, not a new shared UI font choice.
 
 The site's `src/app/layout.tsx` separately requests JetBrains Mono via `next/font/google`; no copied font binary is tracked here. Before redistributing fetched site-build fonts, retain the original license/notice supplied with that font (https://github.com/JetBrains/JetBrainsMono). This audit did not inspect the fetched Google font binary/license and does not certify a deployed site's font-notice bundle. Prototype HTML uses external CDNs separately from packed UI styles.
 
 The naeil brand wordmark uses outlined Lato Regular 400 from Google Fonts commit `bd8f81ddb5c74d5c8897b36ad88b440266245103`, `ofl/lato/Lato-Regular.ttf`. The exact [Lato OFL 1.1 notice](licenses/Lato-OFL.txt) accompanies generated artwork in the package and Storybook. The independent brand kit retains the original font and source hashes; the UI package does not redistribute a runtime Lato font. Logo graphics do not become OFL-licensed font software, and naeil brand rights are separate from repository code licensing.
 
 ## Dependencies and references
+
+The package also retains the [react-remove-scroll-bar MIT notice](licenses/react-remove-scroll-bar-MIT.txt) for consumer bundle notice generation. Storybook-only notices remain in the repository and documentation preview output.
 
 Radix, Sonner, Lucide, React, Next.js and other npm dependencies carry licenses in their own distributions. They are not newly attributed as copied sources here; preserve their notices if bundling their code. DESIGN.md's Linear analysis is design reference material, not an official Linear specification or a component license. The optional workflow grants no blanket license to 21st catalog code; inspect each retrieved original before adoption.
 
@@ -52,4 +54,4 @@ Radix, Sonner, Lucide, React, Next.js and other npm dependencies carry licenses 
 
 ### Optional branded header candidate
 
-The0.5.0candidate header refers to the five decorative project images at their official https://naeil.dev/images/ URLs. It does not embed or redistribute those public/images bytes; their unresolved provenance above remains open. Site-adapter extraction does not establish artwork rights or clear unrelated website assets.
+Since 0.7.2, the branded header’s default naeil-ui catalog references one decorative image, https://naeil.dev/images/whale.png. It does not embed or redistribute those public/images bytes; their unresolved provenance above remains open. Site-adapter extraction does not establish artwork rights or clear unrelated website assets.

@@ -10,7 +10,7 @@ The wrappers set only slots/classes. Installed [Radix Tabs 1.1.13 declarations](
 
 `forceMount` retains children and makes inactive panels present too. Consumers must explicitly hide inactive content, for example `hidden={value !== 'draft'}`, so it cannot receive focus or appear as a second visible panel. Root has no group-wide `disabled` prop; disable individual triggers. Keep matching values, generated IDs/roles and focus handlers intact.
 
-The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/81fd395031dc5b20074c4d915a8585360ce2d28a/src/components/ui/tabs.tsx) is the API authority.
+The [shared usage contract](common.md) covers setup, inherited/native prop typing, themes, density, font delivery and overrides. [Wrapper source](https://github.com/naeil-dev/naeil-ui/blob/main/src/components/ui/tabs.tsx) is the API authority.
 
 ## Composition
 

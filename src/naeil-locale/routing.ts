@@ -2,6 +2,8 @@
 export const naeilLocales = ["en", "ko", "ja"] as const;
 export type NaeilLocale = (typeof naeilLocales)[number];
 export const defaultLocale: NaeilLocale = "en";
+function escapeRegExp(value: string): string { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+const localePrefix = new RegExp(`^/(?:${naeilLocales.map(escapeRegExp).join("|")})(?:/|$)`);
 export const naeilRouting = {
   locales: naeilLocales,
   defaultLocale,
@@ -34,7 +36,7 @@ const origins = {
   main: "https://naeil.dev", jev: "https://jev.naeil.dev", estimate: "https://abestimate.naeil.dev",
 } as const;
 const protocolPrefixes = ["/api", "/auth", "/_next", "/_vercel", "/.well-known", "/health", "/invite", "/return", "/webhook", "/images", "/fonts"];
-const protocolFiles = ["/favicon.ico", "/icon.svg", "/apple-icon.png", "/robots.txt", "/sitemap.xml"];
+const protocolFiles = ["/favicon.ico", "/favicon.svg", "/icon.svg", "/apple-icon.png", "/robots.txt", "/sitemap.xml"];
 
 export function defineLocaleService(service: NaeilLocaleService): NaeilLocaleService {
   if (origins[service.id] !== service.origin) throw new Error("Service origin must match the exact owned origin");
@@ -42,7 +44,7 @@ export function defineLocaleService(service: NaeilLocaleService): NaeilLocaleSer
   if (!paths.length || new Set(paths).size !== paths.length) throw new Error("Route inventory is empty or duplicated");
   for (const path of paths) {
     if (!/^\/(?:[A-Za-z0-9._~-]+|\[[A-Za-z][A-Za-z0-9_]*\])(?:\/(?:[A-Za-z0-9._~-]+|\[[A-Za-z][A-Za-z0-9_]*\]))*$/.test(path) && path !== "/") throw new Error(`Invalid registered route: ${path}`);
-    if (/^\/(?:en|ko|ja)(?:\/|$)/.test(path) || (isProtocolPath(path, service) && !service.uiProtocolExceptions?.includes(path)) || path.split("/").some(segment => segment === "." || segment === "..")) throw new Error(`Locale/protocol path cannot be a UI route: ${path}`);
+    if (localePrefix.test(path) || (isProtocolPath(path, service) && !service.uiProtocolExceptions?.includes(path)) || path.split("/").some(segment => segment === "." || segment === "..")) throw new Error(`Locale/protocol path cannot be a UI route: ${path}`);
   }
   for (const exception of service.uiProtocolExceptions ?? []) if (exception.includes("[") || !paths.includes(exception)) throw new Error("Protocol UI exceptions must be exact registered routes");
   return Object.freeze({ ...service, routes: Object.freeze(service.routes.map(route => typeof route === "string" ? route : Object.freeze({ ...route }))), protocolPrefixes: Object.freeze([...(service.protocolPrefixes ?? [])]), uiProtocolExceptions: Object.freeze([...(service.uiProtocolExceptions ?? [])]) });
@@ -88,7 +90,7 @@ export type LocaleUrlResolution = ResolvedLocaleRoute | { kind: "protocol"; path
 
 function invalid(reason: string, status: 400 | 404 = 404, locale?: NaeilLocale): LocaleUrlResolution { return { kind: "invalid", status, reason, ...(locale ? { locale } : {}) }; }
 function splitInput(input: string, origin: string): { pathname: string; search: string; hash: string } | undefined {
-  if (!input || /[\u0000-\u0020\u007f\\]/.test(input)) return;
+  if (!input || /[\u0000-\u0020\u007f]/.test(input)) return;
   let path = input;
   if (!path.startsWith("/")) {
     if (!path.startsWith(origin + "/") && path !== origin) return;
@@ -101,12 +103,13 @@ function splitInput(input: string, origin: string): { pathname: string; search: 
   const queryAt = withoutHash.indexOf("?");
   return { pathname: queryAt < 0 ? withoutHash : withoutHash.slice(0, queryAt), search: queryAt < 0 ? "" : withoutHash.slice(queryAt), hash };
 }
-function safePath(path: string): boolean {
+function safePath(path: string, service: NaeilLocaleService): boolean {
   if (!path.startsWith("/") || path.includes("//")) return false;
+  const reserved = new Set<string>([...naeilLocales, ...[...protocolPrefixes, ...(service.protocolPrefixes ?? [])].flatMap(prefix => prefix.split("/").filter(Boolean))]);
   return path.split("/").every(segment => {
     try {
       const decoded = decodeURIComponent(segment);
-      return !/[\u0000-\u001f\u007f/\\%?#]/.test(decoded) && decoded !== "." && decoded !== ".." && (!/^(?:en|ko|ja|api|auth|_next|invite|return|webhook)$/.test(decoded) || decoded === segment);
+      return !/[\u0000-\u001f\u007f/\\%?#]/.test(decoded) && decoded !== "." && decoded !== ".." && (!reserved.has(decoded) || decoded === segment);
     } catch { return false; }
   });
 }
@@ -122,7 +125,7 @@ function prefixPath(path: string, locale: NaeilLocale): string { return locale =
 export function resolveLocaleUrl(inputService: LocaleServiceInput, input: string): LocaleUrlResolution {
   const service = getLocaleService(inputService);
   const parts = splitInput(input, service.origin);
-  if (!parts || !safePath(parts.pathname)) return invalid("Malformed or encoded path");
+  if (!parts || !safePath(parts.pathname, service)) return invalid("Malformed or encoded path");
   const rawPathname = parts.pathname;
   const pathname = rawPathname !== "/" && rawPathname.endsWith("/") ? rawPathname.slice(0, -1) : rawPathname;
   if (isProtocolPath(pathname, service) && !service.uiProtocolExceptions?.includes(pathname)) return { kind: "protocol", pathname };
@@ -130,7 +133,7 @@ export function resolveLocaleUrl(inputService: LocaleServiceInput, input: string
   const explicit = isNaeilLocale(segments[1]);
   const pathLocale = explicit ? segments[1] as NaeilLocale : undefined;
   const logicalPath = explicit ? "/" + segments.slice(2).join("/") : pathname;
-  if (/^\/(?:en|ko|ja)(?:\/|$)/.test(logicalPath) || (isProtocolPath(logicalPath, service) && !service.uiProtocolExceptions?.includes(logicalPath))) return invalid("Nested locale or localized protocol path", 404, pathLocale);
+  if (localePrefix.test(logicalPath) || (isProtocolPath(logicalPath, service) && !service.uiProtocolExceptions?.includes(logicalPath))) return invalid("Nested locale or localized protocol path", 404, pathLocale);
   const route = matchRoute(service, logicalPath);
   if (!route) return invalid("Unregistered UI route", 404, pathLocale);
   const legacy = service.id !== "main";
@@ -148,7 +151,7 @@ export function localePath(inputService: LocaleServiceInput, unlocalizedRoute: s
   assertLocale(locale);
   const service = getLocaleService(inputService);
   const parts = splitInput(unlocalizedRoute, service.origin);
-  if (!parts || /^\/(?:en|ko|ja)(?:\/|$)/.test(parts.pathname)) throw new Error("localePath requires an unlocalized route");
+  if (!parts || localePrefix.test(parts.pathname)) throw new Error("localePath requires an unlocalized route");
   const result = resolveLocaleUrl(service, parts.pathname);
   if (result.kind !== "ui") throw new Error("Unregistered UI destination");
   return prefixPath(result.logicalPath, locale) + (service.id === "main" ? parts.search : stripLegacyLang(parts.search)) + parts.hash;

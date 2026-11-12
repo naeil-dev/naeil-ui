@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build --webpack"
+    "build": "next build --webpack",
+    "build:turbopack": "next build"
   },
   "dependencies": {
     "@naeil/ui": "0.12.0",

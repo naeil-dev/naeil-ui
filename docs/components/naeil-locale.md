@@ -35,6 +35,8 @@ Use `createNaeilRequestConfig({namespace: "estimate", messages: {en: () => impor
 
 Render complete paths with `localePath` for same-service navigation and `localeHref` for owned service links. Pass those paths to base Next Link/router or anchors without another locale option. The controller performs `router.replace(href, {scroll: false})`, serializes requests and waits for the matching provider arrival. It restores a stable `data-naeil-focus-id`, input `name`, or `id`. Only a successful explicit selection may write preference; history, prefetch and direct visits do not. Storage failure cannot block a path change.
 
+Compatibility note: timeout releases the pending lock but retains the failed intent so a matching late provider arrival clears the error and applies the normal preference-write opt-in. The full destination (including query and fragment) must match. Cancel, history navigation, departure to another logical route, or a newer selection discards that late-arrival eligibility. `retry()` now uses the latest failed request, including unsupported-route failures and destination options; if the URL already has the requested locale, it clears the error and returns `false` without starting another navigation. A URL change alone never writes preference: a matching provider must commit.
+
 The canonical chrome can be imported from `/naeil-locale/chrome` under the shared provider. Existing `/naeil-header` and `/naeil-footer` remain standalone compatibility adapters and include the small three-language common dictionary. Consumer Link, auth, save guards, frame overrides, desktop/mobile account locks and project data remain consumer-owned.
 
 ## AB Storm registration (0.11.0 candidate)
@@ -47,6 +49,40 @@ The inventory was checked against AB Storm source `087e67239db26506a73c51fde7a6d
 
 The proxy runs exact existing protocol boundaries first, strips external private markers, strictly classifies UI paths, applies the existing app authorizer, and then runs next-intl. Protected entries without an authorizer fail closed. A marker is only a rendering hint: every protected server data read must independently authorize. RSC denial renders a valid localized access boundary and retains the root draft; it must not send login HTML or redirect an in-progress editor to another document. Keep the root beforeunload guard active during RSC failure and access recovery.
 
+Compatibility note: a protocol hook returning `NextResponse.next({request: {headers}})` or `NextResponse.rewrite(url, {request: {headers}})` now preserves the complete supplied request header set, including deletions and replacements. Internal locale/access markers are still removed. Plain `NextResponse.next()` without request overrides retains the sanitized incoming headers.
+
 `localePath` is not an auth-return validator. Keep existing exact return/invite/callback/relay origin and envelope validation. Protocol paths stay outside `[locale]`; localized protocol aliases are rejected. Public metadata advertises only available translations. Protected/auth/error UI is noindex without SEO alternates.
+
+Compatibility note: literal backslashes in UI query strings and fragments are preserved by `resolveLocaleUrl` and `localePath`; backslashes in the pathname remain invalid. Encoded locale and protocol-prefix segments are rejected using the registered locale and protocol inventories, including consumer `protocolPrefixes`. This also applies to dynamic UI segments; use the literal spelling of reserved segments.
+
+## Proxy matcher and public files
+
+The proxy passes these unlocalized prefixes (exact path or descendants) through without locale rewriting: `/api`, `/auth`, `/_next`, `/_vercel`, `/.well-known`, `/health`, `/invite`, `/return`, `/webhook`, `/images`, `/fonts`, plus the service's `protocolPrefixes`. Exact registered `uiProtocolExceptions`, such as Estimate's `/auth/complete`, remain UI routes. The built-in exact public files are `/favicon.ico`, `/favicon.svg`, `/icon.svg`, `/apple-icon.png`, `/robots.txt` and `/sitemap.xml`. Compatibility note: `/favicon.svg` is now included so Estimate's error-document favicon passes through the same proxy that emitted it.
+
+Other public files, including manifests, Open Graph images and extra icons, must be excluded by the consumer's matcher or explicitly passed by its protocol hook or service `protocolPrefixes`. Unknown paths are otherwise rejected with 404, even when they contain a file extension. A protocol hook runs before classification; keep its allowlist exact and preserve existing auth/invite/return checks.
+
+The site uses the following catch-all matcher and passes its additional public files in the protocol hook. This is the recommended starting point when existing security checks must run on every request:
+
+```ts
+// proxy.ts — retain existing protocol/security checks before this asset branch.
+import { NextResponse, type NextRequest } from "next/server";
+import { createNaeilLocaleProxy } from "@naeil/ui/naeil-locale/server";
+
+async function protocol(request: NextRequest) {
+  const path = new URL(request.url).pathname;
+  // App-owned examples; replace these with the application's actual public files.
+  if (path.startsWith("/svg/") || ["/manifest.webmanifest", "/og.png"].includes(path)) {
+    return NextResponse.next();
+  }
+  return undefined;
+}
+
+export default createNaeilLocaleProxy({ service: "main", protocol /*, authorize: existingAuthorizer */ });
+export const config = { matcher: ["/:path*"] };
+```
+
+Keep the existing authorizer when integrating this example. If the matcher excludes assets instead, those requests bypass both the locale proxy and its protocol hook; exclude only paths that need neither. Passing a path through does not create or serve the file: the consumer still owns its static asset or handler.
+
+## Activation
 
 Receiver deployment and sending are separate gates. `preferenceWritesEnabled` defaults to false. Before first exposure, validate a separate receiver-compatible fallback or the previous build's safe rejection of new paths. After all required receiver and auth receipts pass, enable the reviewed cross-service links and explicit preference writes. Keep package, source, hosted Docs, app identities, activation times and rollback receipts separate. Home and Baby are outside this migration.

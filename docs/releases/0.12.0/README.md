@@ -1,5 +1,7 @@
 # 0.12.0 release candidate
 
+**Outcome:** published to npm `next` at 2026-11-10T21:39:32Z from this frozen archive and promoted to `latest` on 2026-11-11 with owner approval. Tag `v0.12.0`, the GitHub Release and hosted Docs are recorded in [STATUS.md](../../../STATUS.md) and [package-release.md](../../package-release.md). The text below is the unchanged preparation-time record; its "unpublished", "not executed" and "preserve latest" wording describes that stage.
+
 Unpublished additive minor API candidate. The frozen package source is `e03af076b725d742c4b319aca5ebb2379e2f0258`; later evidence-only commits do not replace that source. The archive is `naeil-ui-0.12.0.tgz`, SHA-256 `7f5f01407c576e3c5fa956cf76ebfb3a8ef59b58619de99da68351974aca721b`, 178 regular files, 236177 compressed bytes and 1292928 unpacked bytes. `archive.json` contains SHA-1, SRI and every member's SHA-256.
 
 PR #42 (`0d1cb08`) adds optional `closeLabel` to DialogContent/DialogFooter with unchanged defaults, documents and tests error versus destructive roles, uses NaeilFooter's default `full` in starters, aligns compact footer link groups to the top unless the consumer supplies an `items-*` container override, and adds the 896px `ui.width-workflow` token / `data-ui-layout="workflow"`. Locale service registration remains a documentation-only proposal. PR #43 (`047de96`) adds public Sheet primitives at `@naeil/ui/ui` and `@naeil/ui/components/ui/sheet`.

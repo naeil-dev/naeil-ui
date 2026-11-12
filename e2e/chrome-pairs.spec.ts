@@ -56,7 +56,9 @@ async function snapshot(page: Page, home = false) {
       const html = roots.map(root => { const clone = root.cloneNode(true) as Element; for (const e of [clone, ...clone.querySelectorAll("*")]) { const marked = e.hasAttribute("data-naeil-chrome"); for (const a of [...e.attributes]) {
         if ((["data-naeil-chrome", "data-naeil-locale-menu", "data-naeil-ui-version"].includes(a.name) || (a.name === "lang" && marked)
           || (a.name === "data-naeil-focus-id" && a.value === "locale-control" && e.matches('.naeil-header-controls [role="combobox"][data-slot="select-trigger"]')))) e.removeAttribute(a.name);
-        else e.setAttribute(a.name, a.value.replace(/radix-(?:_r_[\w]+_|_R_[\w]+_)/g, "GENERATED_ID"));
+        // Accepted 2026-11-12 (UIX-03-A1): Button carries aria-pressed:* utilities that are inert on chrome
+        // buttons (none set aria-pressed); computed styles below still catch any rendered change.
+        else e.setAttribute(a.name, (a.name === "class" ? a.value.replace(/\s+aria-pressed:\S+/g, "") : a.value).replace(/radix-(?:_r_[\w]+_|_R_[\w]+_)/g, "GENERATED_ID"));
       } } return clone.outerHTML; });
       return { nodes, html, common: common() };
     }
@@ -126,6 +128,9 @@ async function snapshot(page: Page, home = false) {
   }, { properties, home });
 }
 
+// Accepted 2026-11-12 (REQ-02-A1): the metadata role is 13/20px. Canonical chrome keeps its own line heights,
+// but consumer toolbar slot content (Button size="xs") uses the token. Apply it to B1 so every other difference still fails.
+const TYPOGRAPHY_LINE_HEIGHTS = ":root { --text-xs--line-height: 1.25rem; }";
 const COMPACT_FOOTER_TOP_ALIGNMENT = '.ui-site-footer[data-variant="compact"] .ui-site-footer-frame:not([class*="items-"]) > nav { align-self: flex-start; }';
 function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): string[] {
   if (typeof a === "number" && typeof b === "number") { if (Math.abs(a - b) > 0.01) failures.push(`${prefix}: ${a} != ${b}`); }
@@ -233,6 +238,7 @@ for (const profile of ["canonical", "site", "estimate", "jev", "compat-routing",
           await prepare(page, "baseline", query, state);
           // Accepted 2026-11-09 (#10): compact footer link groups are top-aligned; apply it to B1 so every other difference still fails.
           if (profile === "estimate") await page.addStyleTag({ content: COMPACT_FOOTER_TOP_ALIGNMENT });
+          await page.addStyleTag({ content: TYPOGRAPHY_LINE_HEIGHTS });
           const baseline = await snapshot(page); await evidence(page, info, `${name}-B1`, baseline);
           await prepare(page, "candidate", query, state); const candidate = await snapshot(page); await evidence(page, info, `${name}-default`, candidate);
           compare(baseline, candidate, `${width}/${auth}/${state}`, failures);

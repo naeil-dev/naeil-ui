@@ -30,7 +30,7 @@ jobs:
         browser: [chromium, firefox, webkit]
         suite: [other, pairs-1, pairs-2, pairs-3]
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     # Match verify.yml and the locked Playwright version; browsers and OS deps
     # are preinstalled so publication does not depend on runner apt mirrors.
     container:

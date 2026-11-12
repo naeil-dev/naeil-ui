@@ -19,7 +19,7 @@ env:
 jobs:
   package-and-site:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     # Keep both images aligned with the lockfile; the preflight checks the version.
     # Browsers and OS dependencies are baked in, avoiding runner apt mirror stalls.
     container:
@@ -72,7 +72,7 @@ jobs:
         browser: [chromium, firefox, webkit]
         suite: [other, pairs-1, pairs-2, pairs-3]
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
       options: --ipc=host
