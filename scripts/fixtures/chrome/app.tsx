@@ -56,6 +56,8 @@ function App() {
   }, [lifecycle, policy]);
   const signedOut = query.get("auth") === "out" || loginGate;
   const profile = query.get("profile");
+  const service = query.get("service") as "canonical" | "home" | "estimate" | "jev" | null;
+  const serviceTabs = [{ id: "overview", label: "Overview", href: "/overview" }, { id: "settings", label: "Settings", href: "/settings" }];
   const account = <NaeilHeaderAccountControl locale={locale} account={signedOut ? { status: "signed-out", loginHref: profile === "jev" ? `/login?lang=${locale}` : profile === "site" ? "/login?next=%2F" : "/login" } : {
     status: "signed-in", ...(profile === "estimate" || profile === "jev" ? {} : { displayName: "Example account", email: "account@example.invalid" }), busy: busy || query.get("auth") === "busy",
     onLogout: () => {
@@ -81,6 +83,12 @@ function App() {
   };
   return <>
     {!mounted ? null : profile === "generic" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} /> :
+      service ? <NaeilHeader locale={locale} {...(service === "canonical" ? {} : { service })}
+        resolveHref={path => path} currentHref={href} onNavigate={navigate}
+        onLocaleChange={setLocale} authSlot={account}
+        appNavigation={service === "canonical" || service === "jev" ? undefined : service === "estimate"
+          ? [{ id: "estimates", label: "Estimates", items: serviceTabs }, { id: "history", label: "History", href: "/history" }]
+          : serviceTabs} /> :
       <NaeilHeader locale={locale} currentHref={href} onNavigate={navigate} onLocaleChange={profile === "estimate" ? undefined : setLocale} authSlot={loginGate ? undefined : profile === "jev" && !signedOut ? <div className="session-control">{account}</div> : account}
         {...(home ? { showProjects: false, showBlog: false, appNavigation: query.has("empty") || loginGate ? [] : appNavigation, brandSuffix: "Home", brandHref: "/", brandLinkProps: { "aria-label": "Naeil Home" }, statusSlot: loginGate ? undefined : <span data-testid="readiness" role="status" aria-label="Ready" style={{ display: "block", width: 8, height: 8, borderRadius: "50%", background: "green" }} /> } : {})}
         {...sheetProps}
