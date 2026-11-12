@@ -28,9 +28,10 @@ export function validateArchive({ version, sha256, distTag, root = "." }) {
   return { archivePath, metadata };
 }
 
-/** @type {(args: string[]) => {status: number | null, stdout: string, stderr: string}} */
-const npm = (args) => spawnSync("npm", args, { encoding: "utf8", timeout: 120_000 });
+/** @type {(args: string[], timeout?: number) => {status: number | null, stdout: string, stderr: string}} */
+const npm = (args, timeout = 120_000) => spawnSync("npm", args, { encoding: "utf8", timeout });
 const registryArgs = (version, field) => ["view", `@naeil/ui@${version}`, field, "--json", "--registry", "https://registry.npmjs.org"];
+class RegistryRequestError extends Error {}
 
 export function assertUnpublished(version, run = npm) {
   const response = run(registryArgs(version, "version"));
@@ -43,10 +44,36 @@ export function assertUnpublished(version, run = npm) {
 
 export function verifyRegistry(version, metadata, run = npm) {
   const response = run(registryArgs(version, "dist"));
-  assert.equal(response.status, 0, "Registry verification request failed");
+  if (response.status !== 0) throw new RegistryRequestError("Registry verification request failed");
   const dist = JSON.parse(response.stdout);
   assert.equal(dist.shasum, metadata.sha1, "Registry shasum mismatch");
   assert.equal(dist.integrity, metadata.integrity, "Registry integrity mismatch");
+}
+
+/**
+ * @param {string} version
+ * @param {{sha1: string, integrity: string}} metadata
+ * @param {{run?: typeof npm, wait?: (milliseconds: number) => Promise<void>}} [options]
+ */
+export async function verifyRegistryWithRetry(version, metadata, { run = npm, wait = setTimeout } = {}) {
+  const deadline = Date.now() + 600_000;
+  let lastError = new RegistryRequestError("Registry verification request failed: propagation window expired");
+  // Bound both reads and elapsed time, including slow npm requests. Never retry a
+  // present version's mismatched/malformed metadata, or the publish operation.
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw lastError;
+    try {
+      verifyRegistry(version, metadata, (args) => run(args, Math.min(120_000, remaining)));
+      return;
+    } catch (error) {
+      if (!(error instanceof RegistryRequestError)) throw error;
+      lastError = error;
+      const remaining = deadline - Date.now();
+      if (attempt === 39 || remaining <= 0) throw error;
+      await wait(Math.min(15_000, remaining));
+    }
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -58,13 +85,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `archive_path=${archivePath}\n`);
     console.log(`Verified frozen @naeil/ui@${version}; version absent from npm`);
   } else if (mode === "verify") {
-    // Read retries tolerate registry propagation; never retry the publish itself.
-    for (let attempt = 0; ; attempt++) {
-      try { verifyRegistry(version, metadata); break; } catch (error) {
-        if (attempt === 5) throw error;
-        await setTimeout(5_000);
-      }
-    }
+    await verifyRegistryWithRetry(version, metadata);
     console.log(`Registry identity matches frozen @naeil/ui@${version}`);
   } else {
     throw new Error("Expected check or verify");
