@@ -11,7 +11,7 @@ test.beforeEach(({ browserName }) => {
     "Service presentation matrix runs in Chromium; existing chrome suites cover all engines");
 });
 
-const profiles = ["canonical", "home", "estimate", "jev"] as const;
+const profiles = ["canonical", "abstorm", "home", "estimate", "jev"] as const;
 const styleProperties = ["font-family", "font-size", "font-weight", "line-height", "letter-spacing", "color", "background-color", "padding", "gap", "min-height", "border-radius", "text-decoration-line"];
 async function styles(target: Locator) {
   return target.evaluate((element, properties) => Object.fromEntries(properties.map(p => [p, getComputedStyle(element).getPropertyValue(p)])), styleProperties);
@@ -108,8 +108,16 @@ for (const width of [390, 1440]) for (const locale of ["ko", "ja", "en"]) for (c
       if (profile === 'jev') {
         await expect(page.locator('header nav, [data-slot="navigation-sheet"] nav, [data-slot="navigation-sheet"] ul')).toHaveCount(0);
         if (mobile) {
+          const localeControl = page.locator('.ui-navigation-mobile-toolbar [role="combobox"]');
+          await localeControl.focus();
+          await expect(localeControl).toBeFocused();
           await page.setViewportSize({ width: 1440, height: 900 });
           await expect(page.locator('[data-slot="navigation-sheet"]')).toBeHidden();
+          await expect.poll(() => page.evaluate(() => {
+            const focused = document.activeElement;
+            return focused instanceof HTMLElement && !!focused.closest('.ui-navigation-toolbar') &&
+              focused.getBoundingClientRect().width > 0 && focused.getBoundingClientRect().height > 0;
+          })).toBe(true);
           await page.setViewportSize({ width, height: 900 });
         }
         continue;
@@ -128,7 +136,7 @@ for (const width of [390, 1440]) for (const locale of ["ko", "ja", "en"]) for (c
         if (!states.has(key)) states.set(key, state[key]);
         expect(state[key], `${profile} ${key} tab`).toEqual(states.get(key));
       }
-      if (profile !== 'home') {
+      if (profile === 'canonical' || profile === 'estimate') {
         if (mobile) {
           state.group = await styles(scope.locator('.ui-navigation-group-label').first());
           state.entry = await styles(scope.locator('.ui-navigation-entry').first());

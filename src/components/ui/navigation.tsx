@@ -430,9 +430,16 @@ export function Navigation({
                     trigger.current.getBoundingClientRect().width === 0
                   ) {
                     event.preventDefault();
-                    desktop.current
-                      ?.querySelector<HTMLElement>("button, a")
-                      ?.focus();
+                    const target = desktop.current?.querySelector<HTMLElement>("button, a");
+                    const toolbar = omitEmptyNavigation && !items.length
+                      ? desktop.current?.parentElement?.querySelector(".ui-navigation-toolbar")
+                      : undefined;
+                    const toolbarTarget = !target && toolbar
+                      ? Array.from(toolbar.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]'))
+                        .find(element => element.tabIndex >= 0 && !element.matches(":disabled") &&
+                          element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().height > 0)
+                      : undefined;
+                    (target ?? toolbarTarget)?.focus();
                   }
                 }}
               >
