@@ -4,12 +4,12 @@ Stage 1 on `feat/header-rule-20261112`, based on `4c53543` (PR #47). Local imple
 
 ## Contract and decisions
 
-- `NaeilHeaderProps` remains an exported legacy interface with `service?: undefined`, preserving interface extension and `Omit` behavior. The separate exported `NaeilServiceHeaderProps` type requires `service: NaeilService` and types forbidden compatibility props as `never`. Both component entries accept `NaeilHeaderProps | NaeilServiceHeaderProps`. `NaeilService` derives from the frozen readonly `naeilServices` tuple (`abstorm`, `home`, `estimate`, `jev`). Both public header entries export them; provider chrome continues re-exporting the core.
+- `NaeilHeaderProps` remains an exported legacy interface with `service?: undefined`, preserving interface extension and `Omit` behavior. The separate exported `NaeilServiceHeaderProps` type requires `service: NaeilService` and types forbidden compatibility props as `never`. Both component entries expose service-first, legacy-last overloads, preserving `ComponentProps<typeof NaeilHeader>` as `NaeilHeaderProps`; their implementation accepts the union. `NaeilService` derives from the frozen readonly `naeilServices` tuple (`abstorm`, `home`, `estimate`, `jev`). Both public header entries export them; provider chrome continues re-exporting the core.
 - The service profile supplies its lowercase suffix and `.naeil <id>` accessible name, defaults the brand to `/`, omits catalog/Blog and keeps only `appNavigation`. `brandHref`, routing/guards, locale, auth, labels, root accessible attributes and controlled mobile state remain available.
 - Besides the requested forbidden props, inline `style`, `brandLinkProps`, `mobileFooter` and the empty-navigation policy override are blocked because they bypass the approved presentation. Runtime attempts are stripped; each prop name warns once in development, never in production. Root `data-slot`, `data-global-header` and `data-naeil-*` cannot be overridden.
 - Generic Navigation's additive `omitEmptyNavigation` defaults to false. Service headers enable it: an empty desktop center uses a neutral container, the mobile sheet omits empty navigation and observes the desktop toolbar to dismiss on resize. Legacy empty-menu resize behavior and markup remain unchanged.
 - Existing suffix CSS and the fixed desktop brand column are reused. Tabs align after that column, independent of visible suffix width. No service styles or numeric token changes were introduced.
-- The new 24-case matrix covers canonical, flat Home, grouped Estimate and empty Jev at 390/1440px, ko/ja/en, light/dark and signed-in/out. Inspected CI uses `other` plus `pairs-1/2/3` per browser (current 40-minute job limit), and Playwright defaults to one worker. CI runs the new matrix in Chromium's `other` suite; the existing costly paired file keeps its three shards. Firefox/WebKit use the same matrix locally with `NAEIL_UI_SERVICE_ALL_BROWSERS=1`.
+- The new 24-case matrix covers canonical, flat Abstorm/Home, grouped Estimate and empty Jev at 390/1440px, ko/ja/en, light/dark and signed-in/out. Inspected CI uses `other` plus `pairs-1/2/3` per browser (current 40-minute job limit), and Playwright defaults to one worker. CI runs the new matrix in Chromium's `other` suite; the existing costly paired file keeps its three shards. Firefox/WebKit use the same matrix locally with `NAEIL_UI_SERVICE_ALL_BROWSERS=1`.
 
 ## Local implementation commits and files
 
@@ -60,7 +60,7 @@ Impeccable context/craft-floor and one `detect --json src/components/naeil-heade
 
 ## Limits
 
-Legacy consumers can continue using `interface extends NaeilHeaderProps` and `Omit<NaeilHeaderProps, ...>`; service consumers can use `NaeilServiceHeaderProps` or infer the component union with `ComponentProps<typeof NaeilHeader>`. The required legacy suites run in Chromium; Firefox/WebKit additionally exercise the new service matrix. Existing native-device/assistive-technology/hosted-auth limits remain. CI placement is based on inspected shard configuration, not a new hosted CI timing receipt. Publication, hosted Docs, main integration and consumer rollout need their own execution/receipts.
+Legacy consumers can continue using `interface extends NaeilHeaderProps` and `Omit<NaeilHeaderProps, ...>`; service consumers use `NaeilServiceHeaderProps`. `ComponentProps<typeof NaeilHeader>` remains the legacy interface through the last overload, preserving existing assignments and `Omit` wrappers. The required legacy suites run in Chromium; Firefox/WebKit additionally exercise the new service matrix. Existing native-device/assistive-technology/hosted-auth limits remain. CI placement is based on inspected shard configuration, not a new hosted CI timing receipt. Publication, hosted Docs, main integration and consumer rollout need their own execution/receipts.
 
 
 ## Review follow-up — public type compatibility and consumer guidance
@@ -103,3 +103,38 @@ Archive SHA-256: `f53ae7c2b7fe7828906cd1343ee47ba44c6879a24f34bceb51e25ae23897d4
 Probe evidence: `/tmp/header-rule-review-image-probe-retry.log`. The initial standalone probe omitted an HTML Content-Type and timed out finding its image; the corrected probe above supplied `text/html` and captured the response through CDP. The probes did not alter any package/test code or mock the official image.
 
 The live artwork gate remains before the frame matrix, unchanged. No history rewrite or remote action was performed. The three review fixes are implemented; a successful current package gate remains pending external artwork availability. Earlier stage-1 frame/Next results above do not stand in for this rerun.
+
+
+## Independent review follow-up — overloads, runtime guards and focus
+
+The standalone and core/provider headers now use service-first, legacy-last overloads. Source and packed declaration tests cover exact inferred legacy props, assignment to `NaeilHeaderProps`, `Omit<ComponentProps<typeof NaeilHeader>, "locale">` wrappers, and strict service JSX rejection. Runtime service ids are validated against the readonly catalog; invalid/empty/null ids render legacy markup with all legacy overrides preserved and no `service` attribute. Their warning is development-only and once per prop name. The development guard tolerates absent `process`.
+
+Empty-center desktop crossing now falls back to a visible focusable desktop toolbar control, only when `omitEmptyNavigation` is enabled and items are empty. The Jev matrix focuses the sheet locale combobox before widening and asserts visible toolbar focus after dismissal. Abstorm joins canonical/Home/Estimate/Jev in every matrix case. Guidance lists the enforced props/markers and keeps root `id`/`aria-*`/`dir`, `Link` and `authSlot` consumer-owned, with no styling through those surfaces. The mobile state row qualifies the B1 exception as legacy-only; the application chooser now points at `service`.
+
+- `b3fe379` — `fix(header): preserve inferred legacy props and guard service inputs`
+- `33fce6a` — `fix(navigation): restore toolbar focus for empty service sheets`
+
+Changed files: header core/standalone adapters and their three unit/type/sheet tests; Navigation, chrome fixture and service e2e spec; `DESIGN.md`, header/application-layout guides and this receipt. Provider chrome inherits the overloads through its existing re-export.
+
+| Rerun command | Outcome |
+| --- | --- |
+| `pnpm check:types` | PASS |
+| `pnpm test` | PASS: 930 tests, 6 existing production-invite opt-in skips |
+| `pnpm lint` | PASS: no errors; 3 pre-existing warnings in unchanged files |
+| `pnpm build:pkg` | PASS: all public/deep header declarations retain both overloads |
+| `pnpm build:storybook` | PASS: Docs, runnable stories and bundled notice checks |
+| Extracted-archive declaration command below | PASS: both public entries, inferred legacy wrappers/assignments and strict service JSX |
+| Chromium command below | PASS: 136 tests (10.7 minutes), including all 24 five-profile service cases and unchanged B1 comparisons |
+
+```sh
+npm pack --ignore-scripts --json --pack-destination test-results/header-review2-package
+tar -xzf test-results/header-review2-package/naeil-ui-0.12.0.tgz -C test-results/header-review2-package
+# Copy the source type test with imports redirected to the extracted public entries.
+pnpm exec tsc --noEmit --strict --skipLibCheck --jsx react-jsx --esModuleInterop --module esnext --moduleResolution bundler --target es2017 test-results/header-review2-package/types.test.tsx
+
+NAEIL_UI_STORYBOOK_PORT=6106 NAEIL_UI_FIXTURE_PORT=6107 pnpm exec playwright test e2e/service-header.spec.ts e2e/chrome-pairs.spec.ts e2e/naeil-header.spec.ts e2e/navigation.spec.ts --project=chromium --workers=3 --fully-parallel
+```
+
+Archive SHA-256: `eaf77924aa9cee6e20f4c2e94ff4f2722c676e74689f5d3e71d369681d4e06e5`. Logs: `/tmp/header-review2-{types,test,lint,build-pkg,storybook,packed-types,browser}.log`. The type tests first reproduced the original wrapper errors. An initial implementation returned an overly broad React element prop type and used a cast rejected by the declaration build; both were corrected. A type check overlapping package cleanup also hit a missing generated `dist/tokens.ts`; final package build and type check ran sequentially. The first lint run found one new unused local; final lint has only the original three warnings.
+
+`pnpm check:package` was deliberately not rerun: the parent agent owns that external-artwork retry and requested no concurrent execution. Firefox/WebKit were not rerun for this follow-up; earlier engine results remain historical. No frozen baseline or normalization, token, generated source or remote state changed.

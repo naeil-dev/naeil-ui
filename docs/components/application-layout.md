@@ -8,7 +8,7 @@ Product navigation and controlled mobile APIs are available since 0.8.0; shared 
 | --- | --- |
 | The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
 | Owned-service login/account/logout presentation | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header` in `authSlot` |
-| Owned naeil service with product menu data (0.8.0) | Complete `NaeilHeader`, with `appNavigation`, catalog/blog hidden, optional `brandSuffix` and `statusSlot` |
+| Owned naeil service with product menu data (0.8.0) | Complete `NaeilHeader` with `service` and its own `appNavigation` |
 | A different product menu without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
 | Owned naeil service footer | `NaeilFooter` from `@naeil/ui/naeil-footer` |
 | Different product footer or explicit content override | `SiteFooter` from `@naeil/ui/ui` |
