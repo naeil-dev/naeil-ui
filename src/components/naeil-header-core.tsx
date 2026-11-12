@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useSyncExternalStore, type JSX, type ReactNode } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { Logo } from "./logo";
@@ -73,19 +73,36 @@ export type NaeilServiceHeaderProps =
   & { [Prop in ServiceCompatibilityProp]?: never };
 
 const warnedServiceProps = new Set<string>();
+function isDevelopment() {
+  try { return process.env.NODE_ENV === "development"; }
+  catch { return false; }
+}
+function warnServiceProp(name: string, message: string) {
+  if (!isDevelopment() || warnedServiceProps.has(name)) return;
+  warnedServiceProps.add(name);
+  console.warn(message);
+}
+function isNaeilService(value: unknown): value is NaeilService {
+  return (naeilServices as readonly unknown[]).includes(value);
+}
 
 /** Opt into the owned-service contract without changing the legacy composition. */
+export function NaeilHeader(props: NaeilServiceHeaderProps): JSX.Element;
+export function NaeilHeader(props: NaeilHeaderProps): JSX.Element;
 export function NaeilHeader(input: NaeilHeaderProps | NaeilServiceHeaderProps) {
   if (input.service === undefined) return <HeaderComposition {...input} />;
+  if (!isNaeilService(input.service)) {
+    warnServiceProp("service", "NaeilHeader: invalid service; rendering the legacy profile.");
+    const legacy: NaeilHeaderProps = { ...input, service: undefined };
+    delete legacy.service;
+    return <HeaderComposition {...legacy} />;
+  }
   const props = { ...input } as Record<string, unknown>;
   for (const name of Object.keys(props)) {
     if (!(serviceCompatibilityProps as readonly string[]).includes(name) &&
       name !== "data-slot" && name !== "data-global-header" && !name.startsWith("data-naeil-")) continue;
     delete props[name];
-    if (process.env.NODE_ENV === "development" && !warnedServiceProps.has(name)) {
-      warnedServiceProps.add(name);
-      console.warn(`NaeilHeader: service profile ignores ${name}; use the shared service composition.`);
-    }
+    warnServiceProp(name, `NaeilHeader: service profile ignores ${name}; use the shared service composition.`);
   }
   return <HeaderComposition {...props as unknown as NaeilHeaderProps} service={input.service} />;
 }

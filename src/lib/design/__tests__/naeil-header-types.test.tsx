@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { NaeilHeader, type NaeilHeaderProps, type NaeilServiceHeaderProps } from "../../../components/naeil-header";
 import { NaeilHeader as ProviderHeader, type NaeilHeaderProps as ProviderHeaderProps, type NaeilServiceHeaderProps as ProviderServiceHeaderProps } from "../../../naeil-locale/chrome";
 
@@ -19,12 +19,29 @@ describe("public header prop compatibility", () => {
     expect(providerOmitted.brandSuffix).toBe("Home");
     expect(element.props.className).toBe("custom");
   });
+  it("preserves inferred legacy props for assignments and Omit wrappers", () => {
+    function Wrapper(props: Omit<HeaderProps, "locale">) {
+      return <NaeilHeader locale="en" {...props} />;
+    }
+    function ProviderWrapper(props: Omit<ProviderProps, "locale">) {
+      return <ProviderHeader locale="en" {...props} />;
+    }
+    expectTypeOf<HeaderProps>().toEqualTypeOf<NaeilHeaderProps>();
+    expectTypeOf<ProviderProps>().toEqualTypeOf<ProviderHeaderProps>();
+    function legacyAssignment(props: HeaderProps): NaeilHeaderProps { return props; }
+    function providerAssignment(props: ProviderProps): ProviderHeaderProps { return props; }
+    const props: HeaderProps = { locale: "en", brandSuffix: "Home", className: "custom" };
+    const legacy: NaeilHeaderProps = legacyAssignment(props);
+    const providerProps: ProviderProps = props;
+    const providerLegacy: ProviderHeaderProps = providerAssignment(providerProps);
+    expect(legacy).toBe(providerLegacy);
+    expect(Wrapper({ brandSuffix: "Home" }).props.brandSuffix).toBe("Home");
+    expect(ProviderWrapper({ brandSuffix: "Home" }).props.brandSuffix).toBe("Home");
+  });
   it("exports strict service types and component props through both public entries", () => {
     const service: NaeilServiceHeaderProps = { locale: "en", service: "home" };
     const providerService: ProviderServiceHeaderProps = service;
-    const props: HeaderProps = service;
-    const providerProps: ProviderProps = providerService;
-    const elements = [<NaeilHeader {...props} key="standalone" />, <ProviderHeader {...providerProps} key="provider" />];
+    const elements = [<NaeilHeader {...service} key="standalone" />, <ProviderHeader {...providerService} key="provider" />];
     expect(elements.map(element => element.props.service)).toEqual(["home", "home"]);
   });
   it("rejects service escape hatches in object literals and JSX on both entries", () => {

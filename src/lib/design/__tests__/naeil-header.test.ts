@@ -1,10 +1,10 @@
-import { createElement, type ComponentProps, type ComponentPropsWithoutRef, type MouseEvent } from "react";
+import { createElement, type ComponentPropsWithoutRef, type MouseEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import { Nav } from "../../../components/nav";
 import type { NavigationProps } from "../../../components/ui/navigation";
-import type { NaeilHeaderProps } from "../../../components/naeil-header";
+import type { NaeilHeaderProps, NaeilServiceHeaderProps } from "../../../components/naeil-header";
 
 const navigationCapture = vi.hoisted(() => ({ props: null as NavigationProps | null }));
 vi.mock("../../../components/ui/navigation", async (importOriginal) => {
@@ -19,11 +19,11 @@ vi.mock("../../../components/ui/navigation", async (importOriginal) => {
 // Navigation boundary. A wrapper implementation is not part of the public API.
 // A missing optional entry is a contract failure, with a useful RED assertion.
 const entry = await import("../../../components/naeil-header").catch(() => null);
-type HeaderProps = ComponentProps<NonNullable<typeof entry>["NaeilHeader"]>;
+type HeaderProps = NaeilHeaderProps | NaeilServiceHeaderProps;
 function header(props: HeaderProps) {
   expect(entry?.NaeilHeader, "the complete React-only header is exported").toBeTypeOf("function");
   navigationCapture.props = null;
-  const html = renderToStaticMarkup(createElement(entry!.NaeilHeader, props));
+  const html = renderToStaticMarkup(createElement(entry!.NaeilHeader as (props: HeaderProps) => ReturnType<NonNullable<typeof entry>["NaeilHeader"]>, props));
   expect(navigationCapture.props).not.toBeNull();
   return { props: navigationCapture.props! as ReturnType<NonNullable<typeof entry>["NaeilHeader"]>["props"], html };
 }
@@ -158,6 +158,33 @@ describe("legacy Nav compatibility", () => {
 
 
 describe("owned service profile", () => {
+  it("falls back to legacy without leaking invalid service values or stripping overrides", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const legacy = { locale: "en" as const, brandSuffix: "Legacy", className: "custom", "data-slot": "custom", showBlog: false };
+    try {
+      vi.stubEnv("NODE_ENV", "production");
+      expect(header({ ...legacy, service: "main" } as unknown as HeaderProps).html).toBe(header(legacy).html);
+      expect(warn).not.toHaveBeenCalled();
+      vi.stubEnv("NODE_ENV", "development");
+      for (const service of ["main", "", null, "main"]) {
+        const rendered = header({ ...legacy, service } as unknown as HeaderProps);
+        expect(rendered.html).toBe(header(legacy).html);
+        expect(rendered.html).not.toContain(' service=');
+      }
+      expect(warn).toHaveBeenCalledExactlyOnceWith("NaeilHeader: invalid service; rendering the legacy profile.");
+    } finally { vi.unstubAllEnvs(); warn.mockRestore(); }
+  });
+  it("does not require process for the runtime service guards", async () => {
+    const { NaeilHeader: CoreHeader } = await import("../../../components/naeil-header-core");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      vi.stubGlobal("process", undefined);
+      // Inspect the guard's returned element without invoking unrelated provider SSR.
+      expect(() => CoreHeader({ locale: "en", service: "home", "data-naeil-cdn": "ignored" } as unknown as NaeilServiceHeaderProps)).not.toThrow();
+      expect(() => CoreHeader({ locale: "en", service: null } as unknown as NaeilServiceHeaderProps)).not.toThrow();
+      expect(warn).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); warn.mockRestore(); }
+  });
   it("exports the readonly service catalog from standalone and provider entries", async () => {
     const core = await import("../../../naeil-locale/chrome");
     expect(entry!.naeilServices).toEqual(["abstorm", "home", "estimate", "jev"]);

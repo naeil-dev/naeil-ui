@@ -11,7 +11,7 @@ import { NaeilHeader } from "../../../components/naeil-header";
 
 describe("service toolbar-only sheet", () => {
   it("keeps menu and controls without an empty navigation landmark/list", () => {
-    const html = renderToStaticMarkup(createElement(NaeilHeader, { service: "jev", locale: "en", mobileOpen: true, onLocaleChange: () => {} }));
+    const html = renderToStaticMarkup(NaeilHeader({ service: "jev", locale: "en", mobileOpen: true, onLocaleChange: () => {} }));
     expect(html).toContain('data-slot="navigation-sheet"');
     expect(html).toContain('aria-label="Menu"');
     expect(html).toContain('class="ui-navigation-mobile-toolbar"');
