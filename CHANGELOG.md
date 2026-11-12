@@ -11,7 +11,7 @@ Not published. Fixes the verified findings of the 2026-11-12 design-system audit
 - `dark:` utilities follow the same OS-dark / `.dark` / root `.light` conditions as the theme tokens.
 - Typography roles carry the DESIGN.md line heights through generated `--text-*--line-height` tokens. The contrast gate checks rendered opacity/state combinations (98 pairs), and the token test compares generated CSS with the committed file without rewriting it.
 - Docs: README and guides no longer pin stale release states; Storybook guide links follow the built version tag; the `/naeil-locale` runtime is linked from entry docs and agent guidance; production login topology was removed from the shipped application-layout guide.
-- Removed: unused `tw-animate-css` runtime dependency and its `globals.css` import; unreachable site components (hero scene, cursor, accent picker, site controls) with their three.js devDependencies; dead `src/lib/axe.ts`, `src/types/i18n.d.ts`, unused one-off scripts and `.prettierrc`. The npm package ships only the license notices the package needs (178 → 172 files).
+- Removed: the unused `tw-animate-css` runtime dependency and its `globals.css` import (kept as a devDependency only so frozen 0.7.x rollout fixtures still render); unreachable site components (hero scene, cursor, accent picker, site controls) with their three.js devDependencies; dead `src/lib/axe.ts`, `src/types/i18n.d.ts`, unused one-off scripts and `.prettierrc`. The npm package ships only the license notices the package needs (178 → 172 files).
 - CI: `forbidOnly` on CI, no reuse of a stale local Storybook server, and 40-minute browser/package job limits.
 
 Compatibility:
