@@ -176,11 +176,13 @@ import { Sheet as DeepSheet, SheetTrigger as DeepSheetTrigger } from '@naeil/ui/
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
 import { uiRelease } from '@naeil/ui/release';
-import { localeHref, resolveLocaleUrl } from '@naeil/ui/naeil-locale';
+import { localeHref, resolveLocaleUrl, naeilDocumentTitle } from '@naeil/ui/naeil-locale';
 import { cn } from '@naeil/ui/utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: 'ja', variant: 'compact'}));
+export const serviceFooter = renderToStaticMarkup(createElement(NaeilFooter as (props: {service: 'home'; locale: 'ja'; meta: string}) => ReturnType<typeof NaeilFooter>, {service: 'home', locale: 'ja', meta: 'Version 2'}));
+export const title = naeilDocumentTitle('home', 'ダッシュボード');
 export const release = uiRelease;
 export const abstorm = {
   href: localeHref('abstorm', '/runs/example/report?tab=1#summary', 'ja'),
@@ -214,6 +216,9 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.equal(result.abstorm.invalid.kind, 'invalid');
   assert.match(result.footer, /data-naeil-footer/);
   assert.match(result.footer, /https:\/\/naeil.dev\/ja\/projects/);
+  assert.match(result.serviceFooter, /data-variant="full"/);
+  assert.match(result.serviceFooter, /Version 2/);
+  assert.equal(result.title, 'ダッシュボード — .naeil home');
   assert(result.valid, "Packed React exports failed");
   assert.match(result.sheet, /Packed React Sheet/);
   assert.match(result.deepSheet, /Packed React deep Sheet/);
@@ -276,6 +281,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
       const rsc = readFileSync(join(next, ".next/server/app/rsc.html"), "utf8");
       assert.match(rsc, /data-rsc-cn="p-2"/);
       assert.match(rsc, /data-rsc-deep-cn="m-2"/);
+      assert.match(rsc, /data-rsc-title="見積 — \.naeil estimate"/);
       assert.match(rsc, /<a[^>]+class="[^"]*border-border-strong[^"]*"[^>]*>Server button variants<\/a>/);
       assert.match(rsc, /<span[^>]+class="[^"]*bg-success-bg[^"]*"[^>]*>Server badge variants<\/span>/);
       const prerender = JSON.parse(readFileSync(join(next, ".next/prerender-manifest.json"), "utf8"));

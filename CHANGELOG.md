@@ -4,12 +4,12 @@
 
 Implements the 2026-11-13 owner decision: owned-service tab titles `Page — .naeil <service>`, one shared `.naeil` favicon, and one shared full footer. Additive; omitting the new options keeps existing output, including B1 chrome comparisons.
 
-- Identity: `naeilServiceName(service?)` and `naeilDocumentTitle(service?, page?)` from `/naeil-header` and `/naeil-locale/chrome` (server-safe module). `localeMetadata` derives the service name from the service id when `serviceName` is omitted; `serviceName` is deprecated and still honored when passed.
+- Identity: `naeilServiceName(service?)` and `naeilDocumentTitle(service?, page?)` from server-safe `/naeil-locale`, plus client entries `/naeil-header` and `/naeil-locale/chrome`. `localeMetadata` derives the service name from the service id when `serviceName` is omitted; `serviceName` is deprecated and still honored when passed.
 - Footer: `NaeilFooter` accepts `service` (`NaeilServiceFooterProps`): always `full`, `.naeil` brand only, and only `locale`/`resolveHref`/`Link`/`onNavigate`/`meta`. Other props are rejected by type and ignored at runtime with development-only warnings. Invalid runtime ids fall back to the legacy profile.
 - Locale error documents: title `<message> — .naeil <service>` (`.naeil` for main) and `<link rel="icon" href="/icon.svg">` for every service (previously `abstorm`/`Jev`/`AB Estimate` names and per-service icons).
 - Docs: DESIGN.md Browser identity, migration guide favicon mapping (brand kit 1.1.1 → Next `app/favicon.ico`, `app/icon.svg`, `app/apple-icon.png`), footer/header/locale/application-layout guides.
 
-Compatibility: no public export is removed. Services that keep passing `serviceName` keep their current titles until they remove it; owned services remove it in their adoption PRs. Error-document titles and icon links change for every locale service.
+Compatibility: no public export is removed. Services that keep passing `serviceName` keep their current titles until they remove it; owned services remove it in their adoption PRs. Error-document titles and icon links change for every locale service: serve the brand-kit `/icon.svg` before deploying 0.14.0 (Estimate previously served only `/favicon.svg`; AB Storm and Jev served none). Owned services adopt 0.14.0 through their identity PRs, not a bare dependency bump.
 
 ## 0.13.1 — publication and auto-update policy (unpublished candidate)
 

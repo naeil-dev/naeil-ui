@@ -21,7 +21,9 @@ export interface NaeilFooterProps extends Omit<SiteFooterProps, "brand" | "descr
 
 const serviceFooterProps = ["service", "locale", "resolveHref", "Link", "onNavigate", "meta"] as const;
 /** Owned-service footer: always full, no frame/style/attribute overrides. `meta` holds product status. */
-export type NaeilServiceFooterProps = Pick<NaeilFooterProps, Exclude<typeof serviceFooterProps[number], "service">> & { service: NaeilService };
+type ServiceFooterProp = Exclude<typeof serviceFooterProps[number], "service">;
+export type NaeilServiceFooterProps = Pick<NaeilFooterProps, ServiceFooterProp> & { service: NaeilService }
+  & { [Prop in Exclude<keyof NaeilFooterProps, ServiceFooterProp | "service">]?: never };
 
 const warnedServiceProps = new Set<string>();
 function warnServiceProp(name: string, message: string) {

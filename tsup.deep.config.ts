@@ -31,6 +31,7 @@ export default defineConfig({
     "src/components/naeil-messages-context.tsx",
     "src/components/naeil-standalone-messages.tsx",
     "src/components/naeil-header-data.ts",
+    "src/components/naeil-services.ts", // Server-safe service identity, imported by header/footer cores.
     "src/components/naeil-header-content.ts",
     "src/components/naeil-footer.tsx",
     "src/lib/ui-release.ts",

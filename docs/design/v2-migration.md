@@ -79,7 +79,7 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 
 - 이름이 있는 페이지는 `페이지 이름 — 서비스 이름`으로 작성한다. 구분자는 양옆 공백이 있는 em dash(` — `)이며, 서비스 이름은 한 번만 붙인다.
 - 서비스 홈/소개 화면은 서비스 이름만 사용할 수 있다. 대시보드처럼 이름이 있는 업무 화면은 첫 진입 경로이더라도 페이지 이름을 포함한다.
-- 서비스 이름은 헤더 브랜드와 같다. naeil.dev는 `.naeil`, 소유 서비스는 `.naeil home`·`.naeil estimate`·`.naeil abstorm`·`.naeil jev`다. 앞의 마침표까지 공식 이름이며 언어와 무관하게 소문자 그대로 쓴다. 이름은 패키지가 service id로 정한다. Next 앱은 `@naeil/ui/naeil-locale/server`의 `localeMetadata`에서 `serviceName`을 생략하고, Next가 아닌 앱은 `@naeil/ui/naeil-header`의 `naeilDocumentTitle(service, page)`를 쓴다. `serviceName`은 0.14.0부터 deprecated이며 호환을 위해 넘긴 값은 그대로 쓰지만 소유 서비스는 넘기지 않는다.
+- 서비스 이름은 헤더 브랜드와 같다. naeil.dev는 `.naeil`, 소유 서비스는 `.naeil home`·`.naeil estimate`·`.naeil abstorm`·`.naeil jev`다. 앞의 마침표까지 공식 이름이며 언어와 무관하게 소문자 그대로 쓴다. 이름은 패키지가 service id로 정한다. Next 앱은 `@naeil/ui/naeil-locale/server`의 `localeMetadata`에서 `serviceName`을 생략하고, 제목을 직접 조립해야 하면 `naeilDocumentTitle(service, page)`를 쓴다. Next 서버 코드는 서버 안전 경로 `@naeil/ui/naeil-locale`에서, Next가 아닌 React 앱은 `@naeil/ui/naeil-header`에서도 가져올 수 있다. `serviceName`은 0.14.0부터 deprecated이며 호환을 위해 넘긴 값은 그대로 쓰지만 소유 서비스는 넘기지 않는다.
 - 페이지 이름은 현재 UI 언어에 맞춰 번역하고, 서비스 이름의 대소문자·띄어쓰기는 언어가 바뀌어도 유지한다. 본문 제목이나 글 제목을 사용해 현재 화면을 식별할 수 있게 한다.
 - 다섯 곳 모두 브랜드 키트 `brand/naeil/1.1.1/icons/`의 같은 `.naeil` 파비콘을 모든 경로에서 쓴다. 파일은 수정 없이 복사하고 `SHA256SUMS.txt`와 대조한다. Next 앱은 파일 규약을 따른다: `app/favicon.ico` ← `favicon.ico`, `app/icon.svg` ← `favicon.svg`, `app/apple-icon.png` ← `apple-touch-icon.png`(naeil.dev의 `pnpm build:brand`와 같은 대응). Next가 아닌 앱은 같은 세 파일을 정적 경로로 제공하고 `<link rel="icon">`로 연결한다. 이전 서비스별 아이콘(예: Estimate의 `favicon.svg`)은 제거한다. 공용 locale 오류 문서는 `/icon.svg`를 링크한다. 키트와 고해상도 PNG는 npm 패키지에 넣지 않으며 파일 제공·manifest·배포는 서비스가 관리한다.
 

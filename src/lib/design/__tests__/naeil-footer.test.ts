@@ -95,6 +95,9 @@ describe("owned service footer profile", () => {
     const variant: NaeilServiceFooterProps = { locale: "en", service: "home", variant: "compact" };
     // @ts-expect-error service footers cannot add classes
     const element = createElement(ProviderServiceFooter, { locale: "en", service: "home", className: "app-footer" });
-    expect([variant.service, Boolean(element)]).toEqual(["home", true]);
+    const extra = { className: "app-footer", style: { margin: 0 } };
+    // @ts-expect-error spread overrides are rejected too
+    const spread: NaeilServiceFooterProps = { locale: "en", service: "home", ...extra };
+    expect([variant.service, spread.service, Boolean(element)]).toEqual(["home", "home", true]);
   });
 });

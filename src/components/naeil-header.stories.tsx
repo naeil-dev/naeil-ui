@@ -102,7 +102,7 @@ function ServiceExample({ service, locale: initialLocale }: { service: NaeilServ
       <h1 className="text-3xl font-semibold">{service}</h1>
       <p role="status">{notice}</p>
     </main>
-    <NaeilFooter locale={locale} />
+    <NaeilFooter service={service} locale={locale} />
   </>;
 }
 export const Abstorm: Story = { render: args => <ServiceExample service="abstorm" locale={args.locale} /> };
