@@ -166,16 +166,18 @@ Lato Regular 400 is outlined lettering inside the logo only. It does not replace
 
 ## Browser identity — tab title and favicon
 
-Accepted on 2026-10-13; naeil.dev spelling revised to `.naeil` by the user on 2026-10-14. Browser identity is part of the shared brand/content contract. The browser owns tab typography and sizing; this is a metadata rule, not a visual component or numeric token.
+Accepted on 2026-10-13; naeil.dev spelling revised to `.naeil` by the user on 2026-10-14; owned-service names, one shared favicon and one shared footer approved by the user on 2026-11-13. Browser identity is part of the shared brand/content contract. The browser owns tab typography and sizing; this is a metadata rule, not a visual component or numeric token.
 
 - Use `Page name — Service name` for named pages, with one space on each side of the em dash. Put the page first so tabs remain distinguishable when titles are truncated.
 - A service home/landing page may use the service name alone. A named task screen such as a dashboard keeps its page name, even when it is the application's entry route.
-- Keep one canonical service spelling: `.naeil` for naeil.dev and `Naeil Home` for Home. The leading period is part of the official brand spelling in both the graphical wordmark and browser metadata. Other products define their canonical service name in their application configuration.
+- The service name matches the header brand: `.naeil` for naeil.dev and `.naeil <service>` for owned services (`.naeil home`, `.naeil estimate`, `.naeil abstorm`, `.naeil jev`). The shared package derives it from the service id (`localeMetadata`, `naeilDocumentTitle`); applications do not pass their own service string. The leading period is part of the official brand spelling. This replaces the earlier `Naeil Home` spelling.
 - Localize the page name with the active UI language; keep the canonical service name unchanged. Use the visible page name or content title, and append the service suffix exactly once.
-- Keep the same service favicon across its routes. Use an approved brand asset; each service owns its icon files, metadata/manifest configuration and deployment.
+- naeil.dev and every owned service use the same `.naeil` favicon from the current brand kit (`brand/naeil/1.1.1/icons/`: `favicon.ico`, `favicon.svg`, `apple-touch-icon.png`) on every route. Each service copies those unmodified files into its app and owns their serving, metadata/manifest configuration and deployment; the kit stays out of the npm package.
 - Each application implements the title through its framework metadata or router and updates it on client-side navigation and language changes. Shared Navigation/Logo components do not set document metadata implicitly.
 
-Examples: `Naeil Home`, `대시보드 — Naeil Home`, `API 키 — Naeil Home`, `프로젝트 — .naeil`, `Dashboard — Naeil Home`. See [consumer implementation and verification guidance](docs/design/v2-migration.md#브라우저-탭-제목과-파비콘).
+Examples: `.naeil home`, `대시보드 — .naeil home`, `API 키 — .naeil home`, `프로젝트 — .naeil`, `見積 — .naeil estimate`, `New review — .naeil abstorm`.
+
+Owned services render the full `NaeilFooter` with their `service` id and no density, class, style or attribute overrides. Its brand is `.naeil` alone; the tagline and naeil.dev Projects/Blog/GitHub destinations stay. Recorded exceptions: Home's version `meta`, and screens without the shared chrome (Home's login screen) omit the footer. See [consumer implementation and verification guidance](docs/design/v2-migration.md#브라우저-탭-제목과-파비콘).
 
 This records the approved rule; it does not assert that existing service metadata has been migrated or deployed.
 

@@ -1,8 +1,19 @@
 # Changelog
 
-## 0.13.1 — publication and auto-update policy (unpublished candidate)
+## 0.14.0 — owned-service identity and footer (unpublished candidate)
 
-Not published. Docs-only patch to exercise the protected npm publishing workflow and the services' auto-update flow. Since frozen 0.13.0 source `08ee159`, the only package-shipped change on main is `docs/package-release.md` from #50: same-major consumer updates, a new major for public API/header-contract breaks (including 1.0.0 for a header break while on 0.x), and protected exact-archive publication guidance.
+Implements the 2026-11-13 owner decision: owned-service tab titles `Page — .naeil <service>`, one shared `.naeil` favicon, and one shared full footer. Additive; omitting the new options keeps existing output, including B1 chrome comparisons.
+
+- Identity: `naeilServiceName(service?)` and `naeilDocumentTitle(service?, page?)` from server-safe `/naeil-locale`, plus client entries `/naeil-header` and `/naeil-locale/chrome`. `localeMetadata` derives the service name from the service id when `serviceName` is omitted; `serviceName` is deprecated and still honored when passed.
+- Footer: `NaeilFooter` accepts `service` (`NaeilServiceFooterProps`): always `full`, `.naeil` brand only, and only `locale`/`resolveHref`/`Link`/`onNavigate`/`meta`. Other props are rejected by type and ignored at runtime with development-only warnings. Invalid runtime ids fall back to the legacy profile.
+- Locale error documents: title `<message> — .naeil <service>` (`.naeil` for main) and `<link rel="icon" href="/icon.svg">` for every service (previously `abstorm`/`Jev`/`AB Estimate` names and per-service icons).
+- Docs: DESIGN.md Browser identity, migration guide favicon mapping (brand kit 1.1.1 → Next `app/favicon.ico`, `app/icon.svg`, `app/apple-icon.png`), footer/header/locale/application-layout guides.
+
+Compatibility: no public export is removed. Services that keep passing `serviceName` keep their current titles until they remove it; owned services remove it in their adoption PRs. Error-document titles and icon links change for every locale service: serve the brand-kit `/icon.svg` before deploying 0.14.0 (Estimate previously served only `/favicon.svg`; AB Storm and Jev served none). Owned services adopt 0.14.0 through their identity PRs, not a bare dependency bump.
+
+## 0.13.1 — publication and auto-update policy (published 2026-11-13 JST)
+
+Published to `latest` through protected trusted publishing; registry bytes verified on 2026-11-13 JST. See [publication receipts](docs/package-release.md#publication-receipts); the frozen preparation receipt remains unchanged. The preparation notes below retain their original scope. Docs-only patch to exercise the protected npm publishing workflow and the services' auto-update flow. Since frozen 0.13.0 source `08ee159`, the only package-shipped change on main is `docs/package-release.md` from #50: same-major consumer updates, a new major for public API/header-contract breaks (including 1.0.0 for a header break while on 0.x), and protected exact-archive publication guidance.
 
 - Component code, public APIs, header markup/geometry, styles, dependencies and chrome contract 1 are unchanged.
 - Package metadata, generated `/release`, React/Next fixture versions and maintained guidance move to 0.13.1. The owner approved publication directly to `latest` for Dependabot visibility; `next` stays 0.13.0 unless separately moved. Publication, environment approval, source tag/Release and manual service deployments remain separate actions.

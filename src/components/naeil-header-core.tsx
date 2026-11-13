@@ -12,6 +12,8 @@ import { cn } from "../lib/utils";
 import { uiRelease } from "../lib/ui-release";
 import { headerLocales, headerProjects, type NaeilHeaderLocale } from "./naeil-header-data";
 import { useNaeilMessages } from "./naeil-messages-context";
+import { isNaeilService, type NaeilService } from "./naeil-services";
+export { naeilServices, naeilServiceName, naeilDocumentTitle, type NaeilService } from "./naeil-services";
 
 export type { NaeilHeaderLocale } from "./naeil-header-data";
 export { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderAccountControlProps } from "./naeil-header-account-core";
@@ -57,9 +59,6 @@ export interface NaeilHeaderProps extends Omit<NavigationProps, "brand" | "items
   brandLinkComponent?: NavigationLinkComponent;
 }
 
-/** Canonical owned-service identifiers; their spelling is the visible brand suffix. */
-export const naeilServices = Object.freeze(["abstorm", "home", "estimate", "jev"] as const);
-export type NaeilService = typeof naeilServices[number];
 
 const serviceCompatibilityProps = [
   "brandSuffix", "statusSlot", "brandSlot", "toolbarSlot", "subNav", "brandLinkComponent",
@@ -81,9 +80,6 @@ function warnServiceProp(name: string, message: string) {
   if (!isDevelopment() || warnedServiceProps.has(name)) return;
   warnedServiceProps.add(name);
   console.warn(message);
-}
-function isNaeilService(value: unknown): value is NaeilService {
-  return (naeilServices as readonly unknown[]).includes(value);
 }
 
 /** Opt into the owned-service contract without changing the legacy composition. */

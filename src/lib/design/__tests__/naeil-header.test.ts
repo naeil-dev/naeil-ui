@@ -191,6 +191,17 @@ describe("owned service profile", () => {
     expect(core.naeilServices).toBe(entry!.naeilServices);
     expect(Object.isFrozen(core.naeilServices)).toBe(true);
   });
+  it("derives document titles from the service id on standalone and provider entries", async () => {
+    const core = await import("../../../naeil-locale/chrome");
+    for (const helpers of [entry!, core]) {
+      expect(helpers.naeilDocumentTitle()).toBe(".naeil");
+      expect(helpers.naeilDocumentTitle(undefined, "블로그")).toBe("블로그 — .naeil");
+      expect(helpers.naeilDocumentTitle("home")).toBe(".naeil home");
+      expect(helpers.naeilDocumentTitle("home", "대시보드")).toBe("대시보드 — .naeil home");
+      expect(helpers.naeilServiceName("estimate")).toBe(".naeil estimate");
+      expect(() => helpers.naeilServiceName("Home" as never)).toThrow("Unknown naeil service");
+    }
+  });
   it.each(["abstorm", "home", "estimate", "jev"] as const)("owns %s branding and destinations with no catalog or indicator", service => {
     const element = header({ locale: "en", service });
     expect(element.html).toContain(`class="naeil-header-brand-suffix">${service}</span>`);

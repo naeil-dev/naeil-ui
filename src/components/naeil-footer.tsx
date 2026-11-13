@@ -1,7 +1,10 @@
 "use client";
-import { NaeilFooter as Footer, type NaeilFooterProps } from "./naeil-footer-core";
+import type { JSX } from "react";
+import { NaeilFooter as Footer, type NaeilFooterProps, type NaeilServiceFooterProps } from "./naeil-footer-core";
 import { NaeilStandaloneMessages } from "./naeil-standalone-messages";
-export type { NaeilFooterLocale, NaeilFooterProps } from "./naeil-footer-core";
-export function NaeilFooter(props: NaeilFooterProps) {
-  return <NaeilStandaloneMessages locale={props.locale}><Footer {...props} /></NaeilStandaloneMessages>;
+export type { NaeilFooterLocale, NaeilFooterProps, NaeilServiceFooterProps } from "./naeil-footer-core";
+export function NaeilFooter(props: NaeilServiceFooterProps): JSX.Element;
+export function NaeilFooter(props: NaeilFooterProps): JSX.Element;
+export function NaeilFooter(props: NaeilFooterProps | NaeilServiceFooterProps) {
+  return <NaeilStandaloneMessages locale={props.locale}>{props.service === undefined ? <Footer {...props} /> : <Footer {...props} />}</NaeilStandaloneMessages>;
 }

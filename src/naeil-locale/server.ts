@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { getRequestConfig } from "next-intl/server";
 import { assertLocale, getLocaleService, localeHref, localePath, naeilLocales, naeilRouting, resolveLocaleUrl, type LocaleServiceInput, type NaeilLocale, type ResolvedLocaleRoute } from "./routing";
+import { naeilDocumentTitle } from "../components/naeil-services";
 import { createLocaleMessageLoader, recoverMissingMessages, loadSharedMessages, type LocaleMessageLoaders } from "./messages";
 export { naeilRouting } from "./routing";
 export { createLocaleMessageLoader } from "./messages";
@@ -98,10 +99,9 @@ async function invalidResponse(status: number, service: LocaleServiceInput, kind
   if (kind !== "document") return markPrivate(new NextResponse(null, { status }));
   const copy = (await loadSharedMessages(locale)).naeil.locale;
   const message = copy.errors[status === 400 ? "badRequest" : status === 401 ? "unauthenticated" : status === 403 ? "forbidden" : status === 503 ? "unavailable" : "notFound"];
-  const id = getLocaleService(service).id;
-  const identity = { abstorm: { name: "abstorm", icon: null }, main: { name: ".naeil", icon: "/icon.svg" }, jev: { name: "Jev", icon: null }, estimate: { name: "AB Estimate", icon: "/favicon.svg" } }[id];
+  const title = localeServiceTitle(service, message);
   const links = naeilLocales.map(language => `<li><a lang="${language}" href="${escapeHtml(localePath(service, "/", language))}">${escapeHtml(copy.names[language])}</a></li>`).join("");
-  return markPrivate(new NextResponse(`<!doctype html><html lang="${locale}"><head><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1">${identity.icon ? `<link rel="icon" href="${identity.icon}">` : ""}<title>${escapeHtml(message)} — ${identity.name}</title></head><body><h1>${status}</h1><p>${escapeHtml(message)}</p><ul>${links}</ul></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } }));
+  return markPrivate(new NextResponse(`<!doctype html><html lang="${locale}"><head><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/icon.svg"><title>${escapeHtml(title)}</title></head><body><h1>${status}</h1><p>${escapeHtml(message)}</p><ul>${links}</ul></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } }));
 }
 
 /** Auth decisions precede alias canonicalization; no locale rewrite reaches protocol handlers. */
@@ -160,9 +160,21 @@ export function createNaeilLocaleProxy(options: NaeilLocaleProxyOptions) {
   };
 }
 
-export function localeMetadata(options: { service: LocaleServiceInput; route: string; locale: NaeilLocale; title: string; serviceName: string; public?: boolean; translatedLocales?: readonly NaeilLocale[]; description?: string }) {
+/** Title from the canonical service name: `.naeil` for main, otherwise `.naeil <id>`. */
+function localeServiceTitle(service: LocaleServiceInput, page?: string): string {
+  const id = getLocaleService(service).id;
+  return naeilDocumentTitle(id === "main" ? undefined : id, page);
+}
+
+export function localeMetadata(options: {
+  service: LocaleServiceInput; route: string; locale: NaeilLocale; title: string;
+  /** @deprecated The service id determines the canonical name; owned services must omit this. Still honored for compatibility. */
+  serviceName?: string;
+  public?: boolean; translatedLocales?: readonly NaeilLocale[]; description?: string;
+}) {
   const locale = assertLocale(options.locale);
-  const title = options.title ? `${options.title} — ${options.serviceName}` : options.serviceName;
+  const title = options.serviceName === undefined ? localeServiceTitle(options.service, options.title)
+    : options.title ? `${options.title} — ${options.serviceName}` : options.serviceName;
   if (!options.public) return { title, description: options.description, robots: { index: false, follow: false } };
   const translated = options.translatedLocales ?? naeilLocales;
   if (!translated.includes(locale)) throw new Error("Cannot advertise untranslated page");

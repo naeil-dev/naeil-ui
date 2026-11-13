@@ -37,7 +37,7 @@ export async function siteMetadata({
   const access = getRequestLocaleAccess(await headers());
   if (access && access !== "allowed") return { title: SITE_NAME, robots: { index: false, follow: false }, alternates: null };
   const publicTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
-  const shared = localeMetadata({ service: "main", route: path, locale: currentLocale, title: title ?? "", serviceName: SITE_NAME, public: true, translatedLocales: availableLocales, description });
+  const shared = localeMetadata({ service: "main", route: path, locale: currentLocale, title: title ?? "", public: true, translatedLocales: availableLocales, description });
 
   return {
     ...(title ? { title } : {}),
