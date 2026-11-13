@@ -2,6 +2,8 @@ import { createElement, type MouseEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { NaeilFooter } from "../../../components/naeil-footer";
+import { NaeilFooter as ProviderFooter } from "../../../naeil-locale/chrome";
+import type { NaeilServiceFooterProps } from "../../../components/naeil-footer";
 import type { SiteFooterProps } from "../../../components/ui/site-footer";
 import type { NavigationLinkProps } from "../../../components/ui/navigation";
 import { uiRelease } from "../../ui-release";
@@ -51,5 +53,48 @@ describe("canonical footer", () => {
   it("binds rendered package identity to the release manifest and independently versioned contract", () => {
     expect(uiRelease.version).toBe(JSON.parse(readFileSync("package.json", "utf8")).version);
     expect(uiRelease.contractVersion).toBe(JSON.parse(readFileSync("contracts/naeil-chrome.v1.json", "utf8")).contractVersion);
+  });
+});
+
+// createElement resolves the last overload; select the service overload explicitly.
+const ServiceFooter = NaeilFooter as (props: NaeilServiceFooterProps) => ReturnType<typeof NaeilFooter>;
+const ProviderServiceFooter = ProviderFooter as (props: NaeilServiceFooterProps) => ReturnType<typeof ProviderFooter>;
+describe("owned service footer profile", () => {
+  const legacy = renderToStaticMarkup(createElement(NaeilFooter, { locale: "ko" }));
+  it.each(["abstorm", "home", "estimate", "jev"] as const)("renders the canonical full .naeil footer for %s and drops overrides", service => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const overrides = { variant: "compact", className: "app-footer", containerClassName: "x", style: { color: "red" }, "data-app-footer": "", "data-naeil-ui-version": "0", children: "extra" };
+      const html = renderToStaticMarkup(createElement(ServiceFooter, { locale: "ko", service, ...overrides } as unknown as NaeilServiceFooterProps));
+      expect(html).toBe(legacy);
+      expect(footerCapture.props!.variant).toBe("full");
+      expect(html).toContain('aria-label=".naeil"');
+      expect(html).not.toContain(`.naeil ${service}`);
+    } finally { warn.mockRestore(); }
+  });
+  it("keeps the routing adapter, guard and product meta", () => {
+    const guard = vi.fn();
+    const html = renderToStaticMarkup(createElement(ServiceFooter, { service: "home", locale: "en", meta: "Version 1.2.3", Link, resolveHref: (path: string) => `/en${path}`, onNavigate: guard }));
+    expect(html).toContain("Version 1.2.3");
+    expect(html).toContain('href="/en/projects"');
+    expect(html.match(/data-guarded="true"/g)).toHaveLength(4);
+    expect(footerCapture.props!.onNavigate).toBe(guard);
+  });
+  it("warns once per ignored prop in development and falls back to legacy for unknown services", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      vi.stubEnv("NODE_ENV", "development");
+      for (let i = 0; i < 2; i++) renderToStaticMarkup(createElement(ServiceFooter, { service: "jev", locale: "en", id: "dup" } as unknown as NaeilServiceFooterProps));
+      expect(warn).toHaveBeenCalledExactlyOnceWith("NaeilFooter: service profile ignores id; use the shared service composition.");
+      const fallback = renderToStaticMarkup(createElement(ServiceFooter, { service: "Main", locale: "en", variant: "compact" } as unknown as NaeilServiceFooterProps));
+      expect(fallback).toBe(renderToStaticMarkup(createElement(NaeilFooter, { locale: "en", variant: "compact" })));
+    } finally { vi.unstubAllEnvs(); warn.mockRestore(); }
+  });
+  it("types reject overrides on both entries", () => {
+    // @ts-expect-error service footers cannot change density
+    const variant: NaeilServiceFooterProps = { locale: "en", service: "home", variant: "compact" };
+    // @ts-expect-error service footers cannot add classes
+    const element = createElement(ProviderServiceFooter, { locale: "en", service: "home", className: "app-footer" });
+    expect([variant.service, Boolean(element)]).toEqual(["home", true]);
   });
 });

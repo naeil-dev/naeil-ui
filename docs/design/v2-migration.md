@@ -64,24 +64,26 @@ Select는 값 선택, DropdownMenu는 행동 선택에 사용한다. Switch와 C
 
 ## 브라우저 탭 제목과 파비콘
 
-2026-10-13 승인한 공통 브랜드·콘텐츠 규칙이며, 2026-10-14 사용자 요청으로 naeil.dev의 서비스명을 `.naeil`로 통일했다. 기준은 [DESIGN.md의 Browser identity](../../DESIGN.md#browser-identity--tab-title-and-favicon)이며, 브라우저 탭의 글꼴·크기는 브라우저가 결정한다.
+2026-10-13 승인한 공통 브랜드·콘텐츠 규칙이며, 2026-10-14 사용자 요청으로 naeil.dev의 서비스명을 `.naeil`로 통일했다. 2026-11-13 사용자 결정으로 소유 서비스의 이름을 헤더와 같은 `.naeil <service>`로 바꾸고, 파비콘과 풋터를 다섯 곳에서 통일했다. 기준은 [DESIGN.md의 Browser identity](../../DESIGN.md#browser-identity--tab-title-and-favicon)이며, 브라우저 탭의 글꼴·크기는 브라우저가 결정한다.
 
 | 화면 | 탭 제목 예시 |
 | --- | --- |
 | naeil.dev 홈 | `.naeil` |
-| Home 홈/소개 화면 | `Naeil Home` |
-| Home 대시보드 | `대시보드 — Naeil Home` |
-| Home API 키 관리 | `API 키 — Naeil Home` |
+| Home 홈/소개 화면 | `.naeil home` |
+| Home 대시보드 | `대시보드 — .naeil home` |
+| Home API 키 관리 | `API 키 — .naeil home` |
 | naeil.dev 프로젝트 목록 | `프로젝트 — .naeil` |
-| Home 영문 대시보드 | `Dashboard — Naeil Home` |
+| Home 영문 대시보드 | `Dashboard — .naeil home` |
+| Estimate 견적 목록(일본어) | `見積一覧 — .naeil estimate` |
+| AB Storm 새 검토 | `새 검토 — .naeil abstorm` |
 
 - 이름이 있는 페이지는 `페이지 이름 — 서비스 이름`으로 작성한다. 구분자는 양옆 공백이 있는 em dash(` — `)이며, 서비스 이름은 한 번만 붙인다.
 - 서비스 홈/소개 화면은 서비스 이름만 사용할 수 있다. 대시보드처럼 이름이 있는 업무 화면은 첫 진입 경로이더라도 페이지 이름을 포함한다.
-- 서비스 이름은 naeil.dev의 경우 `.naeil`, Home의 경우 `Naeil Home`으로 고정한다. 앞의 마침표까지 공식 이름에 포함하며 로고와 탭 제목·공유 메타데이터에 같은 표기를 쓴다. 다른 서비스는 앱 설정에 공식 표기를 한 번 정의해 재사용한다.
+- 서비스 이름은 헤더 브랜드와 같다. naeil.dev는 `.naeil`, 소유 서비스는 `.naeil home`·`.naeil estimate`·`.naeil abstorm`·`.naeil jev`다. 앞의 마침표까지 공식 이름이며 언어와 무관하게 소문자 그대로 쓴다. 이름은 패키지가 service id로 정한다. Next 앱은 `@naeil/ui/naeil-locale/server`의 `localeMetadata`에서 `serviceName`을 생략하고, Next가 아닌 앱은 `@naeil/ui/naeil-header`의 `naeilDocumentTitle(service, page)`를 쓴다. `serviceName`은 0.14.0부터 deprecated이며 호환을 위해 넘긴 값은 그대로 쓰지만 소유 서비스는 넘기지 않는다.
 - 페이지 이름은 현재 UI 언어에 맞춰 번역하고, 서비스 이름의 대소문자·띄어쓰기는 언어가 바뀌어도 유지한다. 본문 제목이나 글 제목을 사용해 현재 화면을 식별할 수 있게 한다.
-- 같은 서비스의 페이지를 이동할 때 파비콘은 유지한다. 승인된 브랜드 자산을 사용하며 파일·메타데이터·앱 manifest와 배포는 소비 서비스가 관리한다.
+- 다섯 곳 모두 브랜드 키트 `brand/naeil/1.1.1/icons/`의 같은 `.naeil` 파비콘을 모든 경로에서 쓴다. 파일은 수정 없이 복사하고 `SHA256SUMS.txt`와 대조한다. Next 앱은 파일 규약을 따른다: `app/favicon.ico` ← `favicon.ico`, `app/icon.svg` ← `favicon.svg`, `app/apple-icon.png` ← `apple-touch-icon.png`(naeil.dev의 `pnpm build:brand`와 같은 대응). Next가 아닌 앱은 같은 세 파일을 정적 경로로 제공하고 `<link rel="icon">`로 연결한다. 이전 서비스별 아이콘(예: Estimate의 `favicon.svg`)은 제거한다. 공용 locale 오류 문서는 `/icon.svg`를 링크한다. 키트와 고해상도 PNG는 npm 패키지에 넣지 않으며 파일 제공·manifest·배포는 서비스가 관리한다.
 
-Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지별 title을 연결하고, 일반 React 앱은 라우터의 페이지 메타데이터에서 같은 규칙으로 document.title을 설정한다. 제목 조립은 한 곳에서 담당해 `API 키 — Naeil Home — Naeil Home`처럼 중복되지 않게 한다. Navigation이나 Logo 렌더링에 문서 제목 변경을 숨겨 넣지 않는다.
+Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지별 title을 연결하고, 일반 React 앱은 라우터의 페이지 메타데이터에서 같은 규칙으로 document.title을 설정한다. 제목 조립은 한 곳에서 담당해 `API 키 — .naeil home — .naeil home`처럼 중복되지 않게 한다. Navigation이나 Logo 렌더링에 문서 제목 변경을 숨겨 넣지 않는다.
 
 적용 확인은 실제 브라우저에서 홈·하위 페이지의 직접 진입, 클라이언트 경로 이동, 뒤로 가기, 언어 전환 후 제목과 파비콘을 확인한다. 제목은 현재 페이지와 일치하고 서비스 접미사가 중복되지 않아야 하며, 파비콘 파일 요청도 성공해야 한다. 이 문서 변경은 규칙 등록이며 기존 naeil.dev/Home의 메타데이터 수정·배포 완료를 의미하지 않는다.
 

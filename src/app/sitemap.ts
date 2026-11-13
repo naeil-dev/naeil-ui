@@ -12,7 +12,7 @@ const staticPages = [
 ];
 
 function languageAlternates(path: string, availableLocales: readonly Locale[]) {
-  return localeMetadata({ service: "main", route: path, locale: availableLocales[0], title: "", serviceName: ".naeil", public: true, translatedLocales: availableLocales }).alternates!.languages;
+  return localeMetadata({ service: "main", route: path, locale: availableLocales[0], title: "", public: true, translatedLocales: availableLocales }).alternates!.languages;
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {

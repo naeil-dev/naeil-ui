@@ -9,7 +9,7 @@ Use exact `next-intl@4.14.8` with the shared server/client entries. Next and Rea
 | Import | Responsibility |
 | --- | --- |
 | `@naeil/ui/naeil-locale` | Supported locales, strict service/route registry, `localePath`, `localeHref`, legacy receiving aliases and logical-route comparison |
-| `/naeil-locale/server` | `createNaeilLocaleProxy`, `createNaeilRequestConfig`, request access markers and `localeMetadata` |
+| `/naeil-locale/server` | `createNaeilLocaleProxy`, `createNaeilRequestConfig`, request access markers and `localeMetadata` (title `Page — .naeil <service>` from the service id; `serviceName` is deprecated since 0.14.0 and only honored for compatibility) |
 | `/naeil-locale/client` | Root `NaeilLocaleController`, locale `NaeilLocaleProvider`, `useLocaleController`, `useLocaleBeforeUnload` |
 | `/naeil-locale/messages` | Selected common/application JSON loading and namespace merge |
 | `/naeil-locale/checker` | Three-language key, nonempty value, ICU syntax and argument compatibility checks |
@@ -43,7 +43,7 @@ The canonical chrome can be imported from `/naeil-locale/chrome` under the share
 
 `service="abstorm"` binds to exactly `https://abstorm.naeil.dev`. Its protected UI inventory is `/`, `/new`, `/runs/[id]`, `/runs/[id]/report` and `/experts`; `/new?copy=<id>` uses the same registered page. All support English, Korean and Japanese paths. `/auth/session`, `/auth/logout`, `/api/*` and `/health` remain unlocalized protocol endpoints, with no UI exceptions. Unknown UI paths are rejected instead of inheriting the app’s catch-all history fallback.
 
-The inventory was checked against AB Storm source `087e67239db26506a73c51fde7a6d246e4a0d0d9`. Generic error documents use its existing `abstorm` title and no favicon. This registration does not add a default header/footer destination or application translations. Consumer provider, routing, authentication, message loading and upgrade remain app-owned; package registration alone does not establish production adoption.
+The inventory was checked against AB Storm source `087e67239db26506a73c51fde7a6d246e4a0d0d9`. Generic error documents originally used its `abstorm` title and no favicon; since 0.14.0 every service's error document uses the canonical `<message> — .naeil <service>` title (`.naeil` for naeil.dev) and links the shared `/icon.svg`. This registration does not add a default header/footer destination or application translations. Consumer provider, routing, authentication, message loading and upgrade remain app-owned; package registration alone does not establish production adoption.
 
 ## Security and rollout
 

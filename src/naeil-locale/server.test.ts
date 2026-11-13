@@ -100,7 +100,8 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     const html = await response.text();
     expect(html).toContain(`<html lang="${locale}">`);
     expect(html).toContain('name="robots" content="noindex"');
-    expect(html).toContain('href="/favicon.svg"');
+    expect(html).toContain('<link rel="icon" href="/icon.svg">');
+    expect(html).toContain(" — .naeil estimate</title>");
     expect(html).not.toContain('rel="alternate"');
   });
   it("keeps internal rewrites and aliases on the app-validated request authority", async () => {
@@ -112,7 +113,7 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     const invalidOrigin = createNaeilLocaleProxy({ service: "estimate", requestOrigin: () => "https://abestimate.naeil.dev/path" });
     await expect(invalidOrigin(request("/calendar"))).rejects.toThrow("validated HTTP request origin");
   });
-  it.each(["main", "estimate"] as const)("passes through the icon linked by the %s error document", async service => {
+  it.each(["main", "estimate", "jev", "abstorm"] as const)("passes through the icon linked by the %s error document", async service => {
     const proxy = createNaeilLocaleProxy({ service });
     const response = await proxy(request("/missing"));
     const icon = (await response.text()).match(/<link rel="icon" href="([^"]+)">/)?.[1];
@@ -179,6 +180,16 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     expect(localeMetadata({ service: "main", route: "/design", locale: "ko", title: "디자인", serviceName: ".naeil", public: true, translatedLocales: ["en", "ko"] })).toMatchObject({ title: "디자인 — .naeil", alternates: { canonical: "https://naeil.dev/ko/design", languages: { en: "https://naeil.dev/design", ko: "https://naeil.dev/ko/design", "x-default": "https://naeil.dev/design" } } });
     expect(localeMetadata({ service: "estimate", route: "/calendar", locale: "ko", title: "달력", serviceName: "Estimate" })).not.toHaveProperty("alternates");
   });
+  it("derives the canonical service name from the service id", () => {
+    const title = (service: "main" | "abstorm" | "jev" | "estimate", page: string) => localeMetadata({ service, route: "/", locale: "ja", title: page }).title;
+    expect(title("main", "ブログ")).toBe("ブログ — .naeil");
+    expect(title("main", "")).toBe(".naeil");
+    expect(title("abstorm", "新しいレビュー")).toBe("新しいレビュー — .naeil abstorm");
+    expect(title("jev", "")).toBe(".naeil jev");
+    expect(title("estimate", "見積")).toBe("見積 — .naeil estimate");
+    // Deprecated explicit names remain honored for compatibility until 1.0.
+    expect(localeMetadata({ service: "jev", route: "/", locale: "en", title: "Home", serviceName: "Jev" }).title).toBe("Home — Jev");
+  });
 });
 
 describe("AB Storm protected locale documents", () => {
@@ -190,8 +201,8 @@ describe("AB Storm protected locale documents", () => {
     expect(response.headers.get("cache-control")).toContain("no-store");
     const html = await response.text();
     expect(html).toContain(`<html lang="${locale}">`);
-    expect(html).toContain(" — abstorm</title>");
-    expect(html).not.toContain('rel="icon"');
+    expect(html).toContain(" — .naeil abstorm</title>");
+    expect(html).toContain('<link rel="icon" href="/icon.svg">');
     for (const href of ["/", "/ko", "/ja"]) expect(html).toContain(`href="${href}"`);
     expect((await proxy(new NextRequest(`https://abstorm.naeil.dev${prefix}/unknown`))).status).toBe(404);
   });

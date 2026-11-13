@@ -61,7 +61,7 @@ Owned Next services under `NaeilLocaleProvider` import header/account/footer chr
 
 For the standalone React adapter:
 
-Owned services use NaeilFooter's shared `full` default as-is; omit `variant`. `compact` is a deliberate, recorded exception (for example, a focused task screen), not the starter default.
+Owned services pass their `service` id to NaeilFooter (0.14.0): it is always `full`, with no `variant`, class, style or attribute overrides; only `meta` carries product status. Set browser titles with `localeMetadata` (Next, omit `serviceName`) or `naeilDocumentTitle(service, page)` so they read `Page — .naeil <service>`, and serve the shared brand-kit favicon; see [Browser identity](../design/v2-migration.md#브라우저-탭-제목과-파비콘).
 
 ```tsx
 import type { ReactNode } from "react";
@@ -90,7 +90,7 @@ export function ApplicationLayout({ children, service, locale, Link, currentHref
       style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }}>
       {children}
     </main>
-    <NaeilFooter locale={locale} Link={Link} />
+    <NaeilFooter service={service} locale={locale} Link={Link} />
   </>;
 }
 

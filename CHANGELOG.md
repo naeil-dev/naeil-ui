@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased — owned-service identity and footer (planned 0.14.0)
+
+Implements the 2026-11-13 owner decision: owned-service tab titles `Page — .naeil <service>`, one shared `.naeil` favicon, and one shared full footer. Additive; omitting the new options keeps existing output, including B1 chrome comparisons.
+
+- Identity: `naeilServiceName(service?)` and `naeilDocumentTitle(service?, page?)` from `/naeil-header` and `/naeil-locale/chrome` (server-safe module). `localeMetadata` derives the service name from the service id when `serviceName` is omitted; `serviceName` is deprecated and still honored when passed.
+- Footer: `NaeilFooter` accepts `service` (`NaeilServiceFooterProps`): always `full`, `.naeil` brand only, and only `locale`/`resolveHref`/`Link`/`onNavigate`/`meta`. Other props are rejected by type and ignored at runtime with development-only warnings. Invalid runtime ids fall back to the legacy profile.
+- Locale error documents: title `<message> — .naeil <service>` (`.naeil` for main) and `<link rel="icon" href="/icon.svg">` for every service (previously `abstorm`/`Jev`/`AB Estimate` names and per-service icons).
+- Docs: DESIGN.md Browser identity, migration guide favicon mapping (brand kit 1.1.1 → Next `app/favicon.ico`, `app/icon.svg`, `app/apple-icon.png`), footer/header/locale/application-layout guides.
+
+Compatibility: no public export is removed. Services that keep passing `serviceName` keep their current titles until they remove it; owned services remove it in their adoption PRs. Error-document titles and icon links change for every locale service.
+
 ## 0.13.1 — publication and auto-update policy (unpublished candidate)
 
 Not published. Docs-only patch to exercise the protected npm publishing workflow and the services' auto-update flow. Since frozen 0.13.0 source `08ee159`, the only package-shipped change on main is `docs/package-release.md` from #50: same-major consumer updates, a new major for public API/header-contract breaks (including 1.0.0 for a header break while on 0.x), and protected exact-archive publication guidance.

@@ -4,7 +4,7 @@ import type { JSX } from "react";
 import { NaeilHeader as Header, NaeilHeaderThemeControl as ThemeControl, NaeilHeaderLocaleControl as LocaleControl, type NaeilHeaderProps, type NaeilServiceHeaderProps } from "./naeil-header-core";
 import type { NaeilHeaderLocale } from "./naeil-header-data";
 import { NaeilStandaloneMessages } from "./naeil-standalone-messages";
-export { naeilServices } from "./naeil-header-core";
+export { naeilServices, naeilServiceName, naeilDocumentTitle } from "./naeil-services";
 export type { NaeilHeaderProps, NaeilHeaderLocale, NaeilService, NaeilServiceHeaderProps } from "./naeil-header-core";
 export { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderAccountControlProps } from "./naeil-header-account";
 

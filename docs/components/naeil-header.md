@@ -26,7 +26,7 @@ Only provide `onLocaleChange` when the application's interface supports all thre
 
 | Prop | Contract |
 | --- | --- |
-| `service` | Opt-in `NaeilService`: `abstorm`, `home`, `estimate`, `jev`; exported readonly `naeilServices` lists these ids. Owns lowercase suffix/name, local `/` brand default and product-only tabs. |
+| `service` | Opt-in `NaeilService`: `abstorm`, `home`, `estimate`, `jev`; exported readonly `naeilServices` lists these ids. Owns lowercase suffix/name, local `/` brand default and product-only tabs. The same entries export `naeilServiceName(service?)` (`.naeil` / `.naeil <service>`) and `naeilDocumentTitle(service?, page?)` (`Page — .naeil <service>`) for browser titles (0.14.0); they are plain functions safe on the server. |
 | `locale` | Required `en`, `ko` or `ja`; selects header-only copy. |
 | `resolveHref` | Resolves canonical unlocalized paths; defaults to the official localized site. |
 | `Link`, `currentHref`, `onNavigate` | Routing adapter, active destination and navigation interception inherited from Navigation. |
