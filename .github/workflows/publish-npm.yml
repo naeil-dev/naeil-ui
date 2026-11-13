@@ -29,7 +29,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     # Owner must configure required reviewers BEFORE use; YAML cannot install them.
     environment: npm-publish
     env:

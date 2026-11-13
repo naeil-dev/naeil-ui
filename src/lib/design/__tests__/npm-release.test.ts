@@ -1,10 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { assertUnpublished, validateArchive, verifyRegistry } from "../../../../scripts/ci/npm-release.mjs";
+import { assertUnpublished, validateArchive, verifyRegistry, verifyRegistryWithRetry } from "../../../../scripts/ci/npm-release.mjs";
 
 describe("frozen npm publication guards", () => {
   let root: string;
@@ -75,5 +75,61 @@ describe("frozen npm publication guards", () => {
     expect(() => verifyRegistry("1.2.3", metadata, () => result(0, { ...dist, shasum: "wrong" }))).toThrow();
     expect(() => verifyRegistry("1.2.3", metadata, () => result(0, { ...dist, integrity: "wrong" }))).toThrow();
     expect(() => verifyRegistry("1.2.3", metadata, () => result(1, dist))).toThrow();
+  });
+
+  describe("post-publication propagation", () => {
+    beforeEach(() => { vi.useFakeTimers({ toFake: ["Date"] }); });
+    afterEach(() => { vi.useRealTimers(); });
+    const wait = async (milliseconds: number) => { vi.setSystemTime(Date.now() + milliseconds); };
+
+    it("accepts matching metadata that appears after the former 25-second window", async () => {
+      const start = Date.now();
+      const run = () => Date.now() - start < 90_000
+        ? result(1, { error: { code: "E404" } })
+        : result(0, { shasum: metadata.sha1, integrity: metadata.integrity });
+      await verifyRegistryWithRetry("1.2.3", metadata, { run, wait });
+      expect(Date.now() - start).toBe(90_000);
+    });
+    it("retries failed requests as well as missing versions", async () => {
+      const responses = [result(null, {}), result(1, { error: { code: "E503" } }), result(0, { shasum: metadata.sha1, integrity: metadata.integrity })];
+      const start = Date.now();
+      await verifyRegistryWithRetry("1.2.3", metadata, { run: () => responses.shift()!, wait });
+      expect(Date.now() - start).toBe(30_000);
+    });
+    it.each(["shasum", "integrity"])("fails immediately on a present version's %s mismatch, even after a request failure", async (field) => {
+      let reads = 0;
+      const run = () => ++reads === 1 ? result(1, {}) : result(0, { shasum: metadata.sha1, integrity: metadata.integrity, [field]: "wrong" });
+      const start = Date.now();
+      await expect(verifyRegistryWithRetry("1.2.3", metadata, { run, wait })).rejects.toThrow(new RegExp(`Registry ${field} mismatch`));
+      expect(reads).toBe(2);
+      expect(Date.now() - start).toBe(15_000);
+    });
+    it.each(["{}", "null", "not JSON"])("does not retry malformed or incomplete successful metadata: %s", async (stdout) => {
+      let waited = false;
+      await expect(verifyRegistryWithRetry("1.2.3", metadata, {
+        run: () => ({ status: 0, stdout, stderr: "" }),
+        wait: async () => { waited = true; },
+      })).rejects.toThrow();
+      expect(waited).toBe(false);
+    });
+    it("stops after 40 unsuccessful reads spaced 15 seconds apart", async () => {
+      let reads = 0;
+      const start = Date.now();
+      await expect(verifyRegistryWithRetry("1.2.3", metadata, { run: () => { reads++; return result(1, {}); }, wait })).rejects.toThrow(/Registry verification request failed/);
+      expect(reads).toBe(40);
+      expect(Date.now() - start).toBe(39 * 15_000);
+    });
+    it("bounds slow requests by the remaining ten-minute budget", async () => {
+      const start = Date.now();
+      const timeouts: number[] = [];
+      const run = (_args: string[], timeout = 0) => {
+        timeouts.push(timeout);
+        vi.setSystemTime(Date.now() + timeout);
+        return result(null, {});
+      };
+      await expect(verifyRegistryWithRetry("1.2.3", metadata, { run, wait })).rejects.toThrow(/Registry verification request failed/);
+      expect(Date.now() - start).toBe(600_000);
+      expect(timeouts).toEqual([120_000, 120_000, 120_000, 120_000, 60_000]);
+    });
   });
 });
