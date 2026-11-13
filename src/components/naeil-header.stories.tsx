@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { NaeilHeader, NaeilHeaderAccountControl, type NaeilHeaderLocale, type NaeilService } from "./naeil-header";
 import { NaeilFooter } from "./naeil-footer";
+import { PageHeader } from "./typography";
 
 const meta = {
   title: "Brand/NaeilHeader",
@@ -98,8 +99,8 @@ function ServiceExample({ service, locale: initialLocale }: { service: NaeilServ
         if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault(); setHref(item.href); setNotice(item.href);
       }} />
-    <main className="ui-app-frame pt-28 min-h-[420px]">
-      <h1 className="text-3xl font-semibold">{service}</h1>
+    <main className="ui-app-frame ui-app-main min-h-[420px]">
+      <PageHeader title={service} description="Shared page rhythm: 48px below the header, 12px title gap, 96px before the footer." />
       <p role="status">{notice}</p>
     </main>
     <NaeilFooter service={service} locale={locale} />

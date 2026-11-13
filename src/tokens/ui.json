@@ -64,6 +64,26 @@
       "$type": "dimension",
       "$value": "896px"
     },
+    "page-top": {
+      "$type": "dimension",
+      "$value": "48px",
+      "$description": "Space between the fixed header's bottom border and the page header (naeil.dev reference)."
+    },
+    "page-title-gap": {
+      "$type": "dimension",
+      "$value": "12px",
+      "$description": "Space between the page title and its description."
+    },
+    "page-header-gap": {
+      "$type": "dimension",
+      "$value": "32px",
+      "$description": "Space between the page header and the page content."
+    },
+    "page-bottom": {
+      "$type": "dimension",
+      "$value": "96px",
+      "$description": "Space between the end of page content and the footer (naeil.dev reference)."
+    },
     "motion-fast": {
       "$type": "duration",
       "$value": "120ms"

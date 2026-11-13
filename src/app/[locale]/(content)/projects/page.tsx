@@ -9,7 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PageTitle } from "@/components/typography";
+import { PageHeader } from "@/components/typography";
 
 export default async function ProjectsPage({
   params,
@@ -37,13 +37,8 @@ function ProjectsContent() {
   ];
 
   return (
-    <section className="mx-auto max-w-4xl px-6 pb-24">
-      <div className="mb-10">
-        <PageTitle className="mb-3">{t("projects.title")}</PageTitle>
-        <p className="text-muted-foreground text-lg">
-          {t("projects.subtitle")}
-        </p>
-      </div>
+    <section className="mx-auto max-w-4xl px-6">
+      <PageHeader title={t("projects.title")} description={t("projects.subtitle")} />
 
       <div className="grid gap-4">
         {PROJECTS.map((project) => (

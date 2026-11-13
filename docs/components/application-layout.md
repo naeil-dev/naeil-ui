@@ -86,8 +86,7 @@ export function ApplicationLayout({ children, service, locale, Link, currentHref
     <NaeilHeader service={service} locale={locale} Link={Link} currentHref={currentHref}
       authSlot={<NaeilHeaderAccountControl locale={locale} Link={Link}
         account={account} />} />
-    <main className="ui-app-frame"
-      style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }}>
+    <main className="ui-app-frame ui-app-main">
       {children}
     </main>
     <NaeilFooter service={service} locale={locale} Link={Link} />

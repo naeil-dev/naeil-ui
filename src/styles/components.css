@@ -98,6 +98,36 @@
     margin-inline: auto;
     padding-inline: var(--ui-frame-gutter);
   }
+  /* Shared page rhythm: fixed-header clearance, page header and footer spacing. */
+  .ui-app-main {
+    padding-top: calc(var(--ui-navigation-height) + 1px + var(--ui-page-top));
+    padding-bottom: var(--ui-page-bottom);
+  }
+  .ui-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-4-value);
+    margin-bottom: var(--ui-page-header-gap);
+  }
+  .ui-page-header-text {
+    min-width: 0;
+    flex: 1 1 20rem;
+  }
+  .ui-page-description {
+    margin-top: var(--ui-page-title-gap);
+    max-width: var(--ui-width-reading);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    color: var(--muted-foreground);
+  }
+  .ui-page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2-value);
+  }
   .ui-navigation-frame {
     container-type: inline-size;
   }

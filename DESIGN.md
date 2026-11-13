@@ -136,6 +136,18 @@ Content caps are reading **640px**, settings **640px**, short form **480px**, an
 
 Products may deliberately override `--ui-width-frame`, `--ui-frame-gutter`, content tokens or `containerClassName`; apply frame overrides consistently to header, main and footer. Choose exceptions from representative tasks and sparse/dense content, and record the reason. An override is not permission to fork shared chrome. Keep the old list cap with `--ui-width-list: 1200px` where required. The earlier product-specific 1600px observation alone was not a shared rule; the owner's explicit 2026-10-16 decision establishes this new default.
 
+### Page rhythm, theme and base text (2026-11-14)
+
+The owner required naeil.dev and every owned service to look the same outside their content, not only in the header and footer. Measured differences (header→title 32–92px, title→description 8–12px, content→footer 49–168px, an abstorm light-only default, Home's 14px base text, a 24px mobile title) are removed by shared values taken from naeil.dev:
+
+- `.ui-app-main` on the main region clears the fixed header and adds `ui.page-top` (48px) above the page header and `ui.page-bottom` (96px) before the footer. Pages do not add their own top/bottom page padding.
+- `PageHeader` (or `PageTitle` + `.ui-page-description`) renders the 32/42 semibold title at every width, a 12px (`ui.page-title-gap`) gap, a 16/25 secondary description capped at the reading width, end-aligned actions, and 32px (`ui.page-header-gap`) before content.
+- Theme follows the system setting by default on every site (`attribute="class"`, `defaultTheme="system"`, `enableSystem`); users switch it with the shared toolbar control. No site forces light or dark.
+- Base body text is 16px Pretendard (`ui` font stack) everywhere.
+- Favicons are declared exactly like naeil.dev: ICO `sizes="16x16"` as legacy fallback, SVG `sizes="any"`, apple-touch-icon 180×180, so browsers select the SVG mark.
+
+Horizontal content widths remain purpose-specific (reading/settings 640px, forms 480px, lists 1600px). Verify with screenshots of matching routes, not only DOM attributes.
+
 Internal columns must respond to the space available inside their region. Use container queries or an equivalent content-aware layout when viewport breakpoints no longer represent that space. Keep wide tables locally scrollable; check localized labels, wrapping and controls inside cells as well as page overflow. See the [consumer composition guide](docs/design/v2-migration.md#앱-전체-틀과-콘텐츠-폭) for application ownership and checks.
 
 ## Connection to implementation

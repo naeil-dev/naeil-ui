@@ -87,6 +87,10 @@ Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지�
 
 적용 확인은 실제 브라우저에서 홈·하위 페이지의 직접 진입, 클라이언트 경로 이동, 뒤로 가기, 언어 전환 후 제목과 파비콘을 확인한다. 제목은 현재 페이지와 일치하고 서비스 접미사가 중복되지 않아야 하며, 파비콘 파일 요청도 성공해야 한다. 이 문서 변경은 규칙 등록이며 기존 naeil.dev/Home의 메타데이터 수정·배포 완료를 의미하지 않는다.
 
+## 페이지 리듬·테마·기본 글자 (0.15.0)
+
+2026-11-14 사용자 결정: 다섯 곳은 헤더·풋터뿐 아니라 그 사이 페이지 리듬도 같아야 한다. 본문 영역은 `className="ui-app-frame ui-app-main"`(헤더 높이 확보 + 위 48px + 아래 96px)을 쓰고, 페이지는 `PageHeader`(`@naeil/ui/components/typography`, 루트 `@naeil/ui`)로 시작한다. 제목 32/42 600(모바일도 동일), 제목→설명 12px, 설명 16/25 보조색, 헤더→본문 32px. 페이지가 자체 위/아래 여백·제목 크기를 따로 두지 않는다. 테마 기본값은 모든 곳에서 시스템 설정(`attribute="class"`, `defaultTheme="system"`, `enableSystem`), 기본 본문 글자는 16px Pretendard, 파비콘 선언은 naeil.dev와 같다(ICO `sizes="16x16"` → SVG `sizes="any"` → apple-touch-icon 180×180). 가로 콘텐츠 폭은 용도별 값을 유지한다. 확인은 같은 경로의 실제 스크린샷 비교로 한다.
+
 ## 앱 전체 틀과 콘텐츠 폭
 
 실제 naeil.dev 브랜드 헤더를 이어받는 앱은 선택적 React 전용 `@naeil/ui/naeil-header`의 `NaeilHeader`를 사용하고, 소유 서비스 푸터는 `@naeil/ui/naeil-footer`의 `NaeilFooter`로 구성한다. 전체 프로젝트 메뉴·헤더 번역·테마/선택적 언어 컨트롤·toolbar·반응형 스타일과 canonical 푸터 목적지를 소비 앱에 다시 복사하지 않는다. 소비 앱은 기존 theme provider, 라우팅·저장 guard와 현재 언어를 연결한다. `authSlot`에는 같은 모듈의 `NaeilHeaderAccountControl`을 두고 실제 세션 상태·busy·guarded logout 콜백을 전달한다. pending 상태와 요청 잠금은 헤더 위에서 소유해 데스크톱/모바일 슬롯이 공유한다. 언어 변경을 지원하지 않으면 `onLocaleChange`를 생략한다. [전체 헤더 계약](../components/naeil-header.md)과 [푸터 계약](../components/naeil-footer.md)을 참조한다.

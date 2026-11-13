@@ -10,6 +10,7 @@ export { ThemeProvider } from "./theme-provider";
 export { ThemeToggleIcon } from "./theme-toggle-icon";
 export { Logo, type LogoProps } from "./logo";
 export {
+  PageHeader,
   PageTitle,
   SectionTitle,
   pageTitleClass,

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — shared page rhythm (planned 0.15.0)
+
+- Tokens `ui.page-top` 48px, `ui.page-title-gap` 12px, `ui.page-header-gap` 32px, `ui.page-bottom` 96px (values from naeil.dev).
+- `.ui-app-main` (fixed-header clearance + page top/bottom spacing), `.ui-page-header`, `.ui-page-description`, `.ui-page-header-actions`.
+- `PageHeader` (`title`, `description`, `actions`, `titleId`) from `@naeil/ui` and `@naeil/ui/components/typography`.
+- DESIGN.md "Page rhythm": system theme default everywhere, 16px base text, naeil.dev favicon declarations, no per-page vertical padding.
+- naeil.dev content pages use `.ui-app-main` and the shared header spacing (title 1px lower, projects description 16px instead of 18px).
+
+Additive: existing classes, `PageTitle` and tokens are unchanged.
+
 ## 0.14.0 — owned-service identity and footer (published 2026-11-13)
 
 Published to `latest` through protected trusted publishing; registry bytes verified on 2026-11-13. See [publication and service adoption receipts](docs/package-release.md#publication-receipts); frozen preparation files remain unchanged.
