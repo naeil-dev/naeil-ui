@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.14.0 — owned-service identity and footer (unpublished candidate)
+## 0.14.0 — owned-service identity and footer (published 2026-11-13)
+
+Published to `latest` through protected trusted publishing; registry bytes verified on 2026-11-13. See [publication and service adoption receipts](docs/package-release.md#publication-receipts); frozen preparation files remain unchanged.
 
 Implements the 2026-11-13 owner decision: owned-service tab titles `Page — .naeil <service>`, one shared `.naeil` favicon, and one shared full footer. Additive; omitting the new options keeps existing output, including B1 chrome comparisons.
 
