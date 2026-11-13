@@ -1,3 +1,11 @@
+# Status — 2026-11-13 shared UI 0.14.0 release candidate
+
+Preparing unpublished `@naeil/ui@0.14.0` from identity/footer commits `1b25ea2` and `bb255f3` on main `dbf069b`. This additive minor adds server-safe owned-service title helpers, derived locale metadata, strict service footer profiles and shared error-document titles/favicon. Package metadata, generated `/release` and React/Next fixture pins move together. Chrome contract 1 and omitted-service legacy output remain unchanged; services must serve the shared brand-kit `/icon.svg` before deployment and adopt through their identity PRs.
+
+Published registry baseline verified 2026-11-13 JST: `latest=0.13.1`, `next=0.13.0`. Publication is intended directly to `latest` through `publish-npm.yml` with owner `npm-publish` environment approval after the four service adoption PRs are ready. Leave `next` unchanged unless separately moved. Freeze the source, then retain the exact archive, inventory and local verification in an evidence-only commit; preserve both commits without squashing. This preparation performs no push, PR, merge, publish, tag/Release, workflow dispatch, registry/settings change or deployment. Earlier entries below retain their dated context.
+
+---
+
 # Status — 2026-11-13 shared UI 0.13.1 published
 
 `@naeil/ui@0.13.1` is published from frozen source `7cd45d5ea0025f66f486c2e9a6e05de2ddfe6395`. Registry tags verified 2026-11-13 JST: **`latest=0.13.1`, `next=0.13.0`**. Both downloaded tarballs are byte-identical to their frozen archives; SHA-256, registry shasum and SRI match `archive.json`. Chrome contract 1 remains unchanged.
