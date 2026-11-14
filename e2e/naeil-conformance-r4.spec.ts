@@ -33,7 +33,8 @@ test.beforeAll(async () => {
     if (path === '/') { response.writeHead(307, {location: '/en'}).end(); return; }
     if (path === '/authenticated' && (!request.headers.cookie?.includes('session=fixture') || request.headers['x-first'] !== 'one:two' || request.headers['x-second'] !== 'second')) { response.writeHead(401, {'content-type':'text/html'}).end(html()); return; }
     const status = path === '/unknown' ? 404 : path === '/access-denied' ? 403 : 200;
-    let document = html(path === '/bad-error' ? '<section style="padding-bottom:64px"><p>Content</p></section>' : undefined);
+    let document = html(path === '/bad-error' ? '<section style="padding-bottom:64px"><p>Content</p></section>'
+      : path === '/closed-details' ? `<section><p>Content</p><details><summary style="line-height:25px">More</summary><pre>${'hidden line\n'.repeat(120)}</pre></details></section>` : undefined);
     if (path === '/client-redirect') document = document.replace('</body>', '<script>requestAnimationFrame(()=>requestAnimationFrame(()=>history.replaceState({},"","/settings")))</script></body>');
     if (path === '/client-error') document = document.replace('</body>', '<script>addEventListener("load",()=>requestAnimationFrame(()=>location.replace("/unknown")))</script></body>');
     response.writeHead(status, {'content-type':'text/html', 'cache-control':'no-store'}).end(document);
@@ -114,4 +115,11 @@ test('transparent header wrappers and direct main text retain measured boundarie
     return document.querySelector('footer')!.getBoundingClientRect().top - range.getBoundingClientRect().bottom;
   });
   expect(values.contentFooter).toBe(actual);
+});
+
+test('closed <details> content does not count as the last visible content', async () => {
+  test.setTimeout(90000);
+  const result = await cli(['/closed-details']);
+  expect(result.code, result.stdout + result.stderr).toBe(0);
+  expect(result.stdout).toContain('4 checks, 0 failures');
 });

@@ -37,8 +37,12 @@ export function measureNaeilPage(): NaeilPageMeasurements {
   function blocks(parent: Element): Element[] {
     return Array.from(parent.children).flatMap(child => {
       const style = getComputedStyle(child);
+      // Closed <details> keep layout boxes for their hidden content; only the summary is visible.
+      if (parent.tagName === 'DETAILS' && !(parent as HTMLDetailsElement).open && child.tagName !== 'SUMMARY') return [];
       if (['SCRIPT', 'STYLE', 'TEMPLATE'].includes(child.tagName) || style.display === 'none' || ['hidden', 'collapse'].includes(style.visibility) || style.opacity === '0' || ['fixed', 'absolute'].includes(style.position)) return [];
       if (style.display === 'contents') return blocks(child);
+      // display:contents has no box, so check visibility only after unwrapping it.
+      if (typeof child.checkVisibility === 'function' && !child.checkVisibility({ contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true })) return [];
       return Array.from(child.getClientRects()).some(rect => rect.width > 0 && rect.height > 0) ? [child] : [];
     });
   }
