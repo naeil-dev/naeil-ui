@@ -47,7 +47,7 @@
 
 - [x] Update shell API/CLI docs, changelog and package required-file checks; request one fresh final review and fix substantive findings RED→GREEN.
 - [x] Run CLI suites, pnpm test/check:types/lint/build:pkg and full check:package (6107/6108); retain outputs and any real Vercel retry failures.
-- [ ] Commit/push, rebuild and pack r4, verify artifact CLI/boundary and SHA-256; report in Korean.
+- [x] Commit/push, rebuild and pack r4, verify artifact CLI/boundary and SHA-256; report in Korean.
 
 ## Execution ledger
 
@@ -61,3 +61,4 @@
 - Latest verification: 211 static/runtime unit cases green (176 static + 35 runtime), full unit suite 1,199 passed/6 skipped; types and lint pass (three historical warnings), package build passes. Runtime/browser file set 12/12 passed, including actual Storybook shell, real auth/error/redirect HTTP fixtures and measurement regressions. No B1 changes or reproduction directories.
 - Review rulings: general JS execution/scoping, runtime module loading, nested CSS interpretation and NodeNext extension substitution remain bounded lexical-analysis limitations; no arbitrary interpreter is added. Terminal-box semantics define layout-wrapper measurement. Full deployed/authenticated service acceptance remains consumer work; this task verifies controlled authenticated fixtures and packed artifacts.
 - Complete package gate exited 0: packed CLI, React and Next webpack/Turbopack RSC/SSR with globals/split frame interactions all passed. Live artwork loaded without a 403 retry. Initial r4 packed snapshot used for that full consumer run; later review fixes have final unit/type/lint/build/runtime coverage and get an exact delivered-archive boundary/CLI check.
+- Delivery: 5f407cd implementation and 0341a82 docs pushed, rebuilt/packed to /tmp/shell-pack/naeil-ui-shell-dev-r4.tgz. SHA-256 15b0e1e1a4b850267b49b3b3c31426ecf5e0d2f1db8a010c9bfc43fdb2c4f511. Exact archive boundary passed (200 files); installed-style Next/Vite CLI passing/failing/dependency fixtures passed; extracted archive CLI passed all five r4 Chromium HTTP/auth/error/redirect cases. Receipt-only files are excluded from the archive.

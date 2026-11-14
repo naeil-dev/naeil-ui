@@ -33,10 +33,21 @@ The focused Chromium set passes 12 tests: actual Storybook shells for ko/ja/en, 
 | pnpm build:pkg | PASS, including messages/brand/tokens/locale boundaries |
 | check:package (6107/6108) | PASS, exit 0: packed CLI, React SSR/browser, Next webpack/Turbopack RSC/SSR and globals/split frame consumers |
 | Focused Chromium runtime files (6107/6108) | PASS: 12/12 |
+| Final archive boundary | PASS: 200 files, exact SHA-256 matched |
+| Final archive installed-style CLI | PASS: Next/Vite valid/invalid fixtures and new runtime flags/dependency hint |
+| Final archive runtime CLI (6107/6108) | PASS: 5/5 authenticated/error/redirect/measurement browser cases |
 
 Historical lint warnings are the logo/account browser evidence scripts and auth rejection route, unchanged by r4.
 
 The full consumer run used the initial r4 packed snapshot and passed real artwork checks without a Vercel 403 retry. Subsequent review corrections to the lexical CLI and measurement function were covered by the final 211-case/full-unit/type/lint/build and 12-case browser runs above; final archive boundary and installed-bin checks verify the delivered bytes separately.
+
+## Development archive
+
+Pushed implementation/docs through `0341a82`, rebuilt, and packed with scripts disabled: `/tmp/shell-pack/naeil-ui-shell-dev-r4.tgz`.
+
+SHA-256: `15b0e1e1a4b850267b49b3b3c31426ecf5e0d2f1db8a010c9bfc43fdb2c4f511`.
+
+The exact archive's bin ran through an installed-style symlink for Next/Vite source fixtures, and all five r4 HTTP/browser cases ran with the CLI extracted from this archive (including cookies/headers/theme stripping, expected/mismatched error statuses and HTTP/client redirects). The boundary check matched the same digest. This receipt and the implementation plan are not packed files, so recording them does not change archive bytes.
 
 ## Limits
 
