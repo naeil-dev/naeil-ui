@@ -40,13 +40,13 @@ import { NaeilHeaderAccountControl } from "@naeil/ui/naeil-header";
 | `locale` | Required `ko`, `ja` or `en` |
 | `children` | Page content; start with `PageHeader` |
 | `Link`, `onNavigate` | Existing header/footer routing adapter and guard |
-| `header` | Exactly `NaeilServiceHeaderProps` minus `service`, `locale`, `Link`, `onNavigate`; includes appNavigation/currentHref/authSlot/brandHref/labels/onLocaleChange/mobileOpen/onMobileOpenChange and existing service-header DOM/routing props |
+| `header` | Only `appNavigation`, `currentHref`, `brandHref`, `authSlot`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`. No header DOM/ARIA attributes or ids; the shell owns the header element. |
 | `footer` | Only `meta` and `resolveHref`, or `false`; defaults to the canonical full footer |
 | `mainLabel` | Accessible label of main |
 
 The shell renders provider → `.ui-skip-link` targeting `#main` → service header → `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>` → service footer. Skip text is shared `naeil.shell.skipToContent`: 본문으로 건너뛰기 / 本文へスキップ / Skip to content. Enter on the focused skip link moves focus to main.
 
-No root `className`, `style`, `id`, `data-*`, container classes, theme options or arbitrary extra props. Footer presentation/attributes and header compatibility escape hatches are also rejected. Strict mapped-never/exact types reject overrides including spreads; JS/cast attempts are dropped with one development-only warning per prop path. They cannot replace the fixed main id/classes or shared routing props. Header DOM attributes permitted by its existing service profile remain available for semantics, never for styling shared chrome. Do not style the shell through ancestors or reserved selectors. Product content styling belongs inside main; purpose widths use `data-ui-layout`, independently of the application frame. Generic/legacy composition overrides remain supported outside this opt-in service contract.
+No root `className`, `style`, `id`, `data-*`, container classes, theme options or arbitrary extra props. Footer presentation/attributes and header compatibility escape hatches are also rejected. Strict mapped-never/exact types reject overrides including spreads; JS/cast attempts are dropped with one development-only warning per prop path. They cannot replace the fixed main id/classes or shared routing props. Do not style the shell through ancestors or reserved selectors. Product content styling belongs inside main; purpose widths use `data-ui-layout`, independently of the application frame. Generic/legacy composition overrides remain supported outside this opt-in service contract.
 
 ### Recorded screens without a footer
 

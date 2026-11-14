@@ -9,7 +9,9 @@ import { isNaeilService } from "./naeil-services";
 export { NaeilThemeProvider } from "./naeil-theme-provider";
 export { PageHeader } from "./typography";
 
-export type NaeilShellHeaderProps = Omit<NaeilServiceHeaderProps, "service" | "locale" | "Link" | "onNavigate">;
+/** The only header inputs a service supplies: its menu, routing state, account slot and locale/mobile callbacks. */
+const headerKeys = ["resolveHref", "brandHref", "appNavigation", "onLocaleChange", "authSlot", "labels", "currentHref", "mobileOpen", "onMobileOpenChange"] as const;
+export type NaeilShellHeaderProps = Pick<NaeilServiceHeaderProps, typeof headerKeys[number]>;
 export type NaeilShellFooterProps = Pick<NaeilServiceFooterProps, "meta" | "resolveHref"> & { [Key in Exclude<keyof NaeilServiceFooterProps, "meta" | "resolveHref">]?: never };
 export type NaeilShellInputs = Pick<NaeilServiceHeaderProps, "service" | "locale" | "Link" | "onNavigate"> & {
   children?: ReactNode;
@@ -31,53 +33,7 @@ export type NaeilServiceShellInput<Props extends NaeilShellInputs, Header extend
 
 const allowed = new Set(["service", "locale", "Link", "onNavigate", "children", "header", "footer", "mainLabel"]);
 const footerAllowed = new Set(["meta", "resolveHref"]);
-const headerBlocked = new Set(["service", "locale", "Link", "onNavigate", "brandSuffix", "statusSlot", "brandSlot", "toolbarSlot", "subNav", "brandLinkComponent", "projects", "projectsExternal", "showProjects", "showBlog", "translations", "className", "containerClassName", "style", "brandLinkProps", "mobileFooter", "omitEmptyNavigation"]);
-// Service header retains its public DOM events/ARIA props, routing and controls.
-const headerAllowed = new Set([
-  "resolveHref", "brandHref", "appNavigation", "onLocaleChange", "authSlot", "labels",
-  "currentProjectKey", "currentProjectHref", "currentHref", "mobileOpen", "onMobileOpenChange",
-  // Existing React HTMLAttributes/DOMAttributes/ARIA contract (no arbitrary on*/aria-* escape).
-  "about", "accessKey", "aria-activedescendant", "aria-atomic", "aria-autocomplete", "aria-braillelabel", "aria-brailleroledescription",
-  "aria-busy", "aria-checked", "aria-colcount", "aria-colindex", "aria-colindextext", "aria-colspan", "aria-controls",
-  "aria-current", "aria-describedby", "aria-description", "aria-details", "aria-disabled", "aria-dropeffect", "aria-errormessage",
-  "aria-expanded", "aria-flowto", "aria-grabbed", "aria-haspopup", "aria-hidden", "aria-invalid", "aria-keyshortcuts",
-  "aria-label", "aria-labelledby", "aria-level", "aria-live", "aria-modal", "aria-multiline", "aria-multiselectable",
-  "aria-orientation", "aria-owns", "aria-placeholder", "aria-posinset", "aria-pressed", "aria-readonly", "aria-relevant",
-  "aria-required", "aria-roledescription", "aria-rowcount", "aria-rowindex", "aria-rowindextext", "aria-rowspan", "aria-selected",
-  "aria-setsize", "aria-sort", "aria-valuemax", "aria-valuemin", "aria-valuenow", "aria-valuetext", "autoCapitalize",
-  "autoCorrect", "autoFocus", "autoSave", "color", "content", "contentEditable", "contextMenu",
-  "dangerouslySetInnerHTML", "datatype", "defaultChecked", "defaultValue", "dir", "draggable", "enterKeyHint",
-  "exportparts", "hidden", "id", "inert", "inlist", "inputMode", "is",
-  "itemID", "itemProp", "itemRef", "itemScope", "itemType", "lang", "nonce",
-  "onAbort", "onAbortCapture", "onAnimationEnd", "onAnimationEndCapture", "onAnimationIteration", "onAnimationIterationCapture", "onAnimationStart",
-  "onAnimationStartCapture", "onAuxClick", "onAuxClickCapture", "onBeforeInput", "onBeforeInputCapture", "onBeforeToggle", "onBlur",
-  "onBlurCapture", "onCanPlay", "onCanPlayCapture", "onCanPlayThrough", "onCanPlayThroughCapture", "onChange", "onChangeCapture",
-  "onClick", "onClickCapture", "onCompositionEnd", "onCompositionEndCapture", "onCompositionStart", "onCompositionStartCapture", "onCompositionUpdate",
-  "onCompositionUpdateCapture", "onContextMenu", "onContextMenuCapture", "onCopy", "onCopyCapture", "onCut", "onCutCapture",
-  "onDoubleClick", "onDoubleClickCapture", "onDrag", "onDragCapture", "onDragEnd", "onDragEndCapture", "onDragEnter",
-  "onDragEnterCapture", "onDragExit", "onDragExitCapture", "onDragLeave", "onDragLeaveCapture", "onDragOver", "onDragOverCapture",
-  "onDragStart", "onDragStartCapture", "onDrop", "onDropCapture", "onDurationChange", "onDurationChangeCapture", "onEmptied",
-  "onEmptiedCapture", "onEncrypted", "onEncryptedCapture", "onEnded", "onEndedCapture", "onError", "onErrorCapture",
-  "onFocus", "onFocusCapture", "onGotPointerCapture", "onGotPointerCaptureCapture", "onInput", "onInputCapture", "onInvalid",
-  "onInvalidCapture", "onKeyDown", "onKeyDownCapture", "onKeyPress", "onKeyPressCapture", "onKeyUp", "onKeyUpCapture",
-  "onLoad", "onLoadCapture", "onLoadStart", "onLoadStartCapture", "onLoadedData", "onLoadedDataCapture", "onLoadedMetadata",
-  "onLoadedMetadataCapture", "onLostPointerCapture", "onLostPointerCaptureCapture", "onMouseDown", "onMouseDownCapture", "onMouseEnter", "onMouseLeave",
-  "onMouseMove", "onMouseMoveCapture", "onMouseOut", "onMouseOutCapture", "onMouseOver", "onMouseOverCapture", "onMouseUp",
-  "onMouseUpCapture", "onPaste", "onPasteCapture", "onPause", "onPauseCapture", "onPlay", "onPlayCapture",
-  "onPlaying", "onPlayingCapture", "onPointerCancel", "onPointerCancelCapture", "onPointerDown", "onPointerDownCapture", "onPointerEnter",
-  "onPointerLeave", "onPointerMove", "onPointerMoveCapture", "onPointerOut", "onPointerOutCapture", "onPointerOver", "onPointerOverCapture",
-  "onPointerUp", "onPointerUpCapture", "onProgress", "onProgressCapture", "onRateChange", "onRateChangeCapture", "onReset",
-  "onResetCapture", "onScroll", "onScrollCapture", "onScrollEnd", "onScrollEndCapture", "onSeeked", "onSeekedCapture",
-  "onSeeking", "onSeekingCapture", "onSelectCapture", "onStalled", "onStalledCapture", "onSubmit", "onSubmitCapture",
-  "onSuspend", "onSuspendCapture", "onTimeUpdate", "onTimeUpdateCapture", "onToggle", "onTouchCancel", "onTouchCancelCapture",
-  "onTouchEnd", "onTouchEndCapture", "onTouchMove", "onTouchMoveCapture", "onTouchStart", "onTouchStartCapture", "onTransitionCancel",
-  "onTransitionCancelCapture", "onTransitionEnd", "onTransitionEndCapture", "onTransitionRun", "onTransitionRunCapture", "onTransitionStart", "onTransitionStartCapture",
-  "onVolumeChange", "onVolumeChangeCapture", "onWaiting", "onWaitingCapture", "onWheel", "onWheelCapture", "part",
-  "popover", "popoverTarget", "popoverTargetAction", "prefix", "property", "radioGroup", "rel",
-  "resource", "results", "rev", "role", "security", "slot", "spellCheck",
-  "suppressContentEditableWarning", "suppressHydrationWarning", "tabIndex", "title", "translate", "typeof", "unselectable",
-  "vocab",
-]);
+const headerAllowed = new Set<string>(headerKeys);
 const warned = new Set<string>();
 function warn(name: string) {
   let development = false;
@@ -100,8 +56,7 @@ export function NaeilServiceShell<const Props extends NaeilShellInputs, const He
   const props = filter(input, name => allowed.has(name)) as NaeilShellInputs;
   const { service, locale, Link, onNavigate, children, mainLabel } = props;
   const copy = useNaeilMessages(locale);
-  const header = filter(props.header ?? {}, name => !headerBlocked.has(name) &&
-    headerAllowed.has(name), "header.") as NaeilShellHeaderProps;
+  const header = filter(props.header ?? {}, name => headerAllowed.has(name), "header.") as NaeilShellHeaderProps;
   const footer = props.footer === false ? false : filter(props.footer ?? {}, name => footerAllowed.has(name), "footer.") as NaeilShellFooterProps;
   return <NaeilThemeProvider>
     <a className="ui-skip-link" href="#main">{copy.shell.skipToContent}</a>
