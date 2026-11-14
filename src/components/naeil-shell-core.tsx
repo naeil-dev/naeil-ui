@@ -7,6 +7,7 @@ import { NaeilThemeProvider } from "./naeil-theme-provider";
 import { useNaeilMessages } from "./naeil-messages-context";
 import { isNaeilService } from "./naeil-services";
 export { NaeilThemeProvider } from "./naeil-theme-provider";
+export { measureNaeilPage, type NaeilPageMeasurements } from "./naeil-page-measure";
 export { PageHeader } from "./typography";
 
 /** The only header inputs a service supplies: its menu, routing state, account slot and locale/mobile callbacks. */
@@ -26,7 +27,10 @@ export type NaeilServiceShellProps = NaeilShellInputs & {
 } & { [Key in `data-${string}`]?: never };
 type Exact<Value, Shape> = Value & { [Key in Exclude<keyof NonNullable<Value>, keyof Shape>]: never };
 /** Also closes unknown keys in root/header/footer spreads, without a string index signature. */
-export type NaeilServiceShellInput<Props extends NaeilShellInputs, Header extends object = NaeilShellHeaderProps> = Exact<Props, NaeilShellInputs> & NaeilServiceShellProps & {
+export type NaeilServiceShellInput<Props extends NaeilShellInputs, Header extends object = NaeilShellHeaderProps> = Exact<Props, NaeilServiceShellProps> & NaeilServiceShellProps & {
+  // JSX permits hyphenated attributes unless their supplied key is explicitly closed.
+  [Key in Extract<keyof Props, `data-${string}`>]: Props[Key] extends undefined ? undefined : never;
+} & {
   header?: Exact<Header, NaeilShellHeaderProps>;
   footer?: Props["footer"] & { [Key in Exclude<keyof Exclude<Props["footer"], false | undefined>, keyof NaeilShellFooterProps>]: never };
 };

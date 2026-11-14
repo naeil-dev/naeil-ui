@@ -177,7 +177,7 @@ import * as ui from '@naeil/ui/ui';
 import { Sheet as DeepSheet, SheetTrigger as DeepSheetTrigger } from '@naeil/ui/components/ui/sheet';
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
-import { NaeilServiceShell, PageHeader, naeilIcons as shellIcons } from '@naeil/ui/naeil-shell';
+import { NaeilServiceShell, PageHeader, measureNaeilPage, type NaeilServiceShellProps, naeilIcons as shellIcons } from '@naeil/ui/naeil-shell';
 import { uiRelease } from '@naeil/ui/release';
 import { localeHref, resolveLocaleUrl, naeilDocumentTitle, naeilIcons } from '@naeil/ui/naeil-locale';
 import { cn } from '@naeil/ui/utils';
@@ -187,6 +187,9 @@ export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: '
 export const serviceFooter = renderToStaticMarkup(createElement(NaeilFooter as (props: {service: 'home'; locale: 'ja'; meta: string}) => ReturnType<typeof NaeilFooter>, {service: 'home', locale: 'ja', meta: 'Version 2'}));
 export const title = naeilDocumentTitle('home', 'ダッシュボード');
 export const shell = renderToStaticMarkup(createElement(NaeilServiceShell, {service: 'estimate', locale: 'en', mainLabel: 'Estimates', children: createElement(PageHeader, {title: 'Packed shell'})}));
+const wrapperProps: NaeilServiceShellProps = {service: 'home', locale: 'en'};
+export const TypedWrapper = () => <NaeilServiceShell {...wrapperProps}/>;
+export const measure = measureNaeilPage;
 export const icons = naeilIcons;
 export const iconsParity = JSON.stringify(shellIcons) === JSON.stringify(naeilIcons);
 export const release = uiRelease;
@@ -222,6 +225,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   assert.match(result.shell, /data-naeil-header/);
   assert.match(result.shell, /data-naeil-footer/);
   assert(result.iconsParity);
+  assert.equal(typeof result.measure, "function");
   assert.equal(result.icons.brandVersion, "1.1.1");
   assert.equal(result.icons.links.length, 3);
   // Execute the installed package bin, with no repository source or runtime deps.
@@ -232,11 +236,14 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     const args = ["--service", "estimate", "--framework", framework, "--app", app];
     let checked = spawnSync(cli, args, { encoding: "utf8" });
     assert.equal(checked.status, 0, checked.stderr);
-    writeFileSync(join(app, "violation.tsx"), '<NaeilHeader defaultTheme="light" />');
+    writeFileSync(join(app, "violation.tsx"), '<NaeilHeader /><NaeilThemeProvider defaultTheme="light" />');
     checked = spawnSync(cli, args, { encoding: "utf8" });
     assert.equal(checked.status, 1);
     assert.match(checked.stderr, /violation.tsx:1 chrome/);
     assert.match(checked.stderr, /violation.tsx:1 theme/);
+    const missingRuntime = spawnSync(cli, ["--service", "estimate", "--url", "http://127.0.0.1:1", "--routes", "/", "--app", app], {encoding: "utf8"});
+    assert.equal(missingRuntime.status, 2, missingRuntime.stderr);
+    assert.match(missingRuntime.stderr, /pnpm add -D @playwright\/test/);
   }
   console.log("Packed conformance bin: PASS (Next/Vite passing and failing fixtures)");
   assert.equal(result.abstorm.href, 'https://abstorm.naeil.dev/ja/runs/example/report?tab=1#summary');

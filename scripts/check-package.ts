@@ -170,6 +170,9 @@ try {
   for (const path of [
     "dist/tokens.ts",
     "bin/naeil-icons.generated.mjs",
+    "bin/conformance-source.mjs",
+    "bin/conformance-runtime.mjs",
+    "dist/source/components/naeil-page-measure.js",
     "bin/naeil-ui-conformance.mjs",
     "docs/components/naeil-shell.md",
     "DESIGN.md",

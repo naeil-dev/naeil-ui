@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { NaeilServiceShell, PageHeader, type NaeilService } from "./naeil-shell";
+import { NaeilServiceShell, PageHeader, naeilDocumentTitle, naeilIcons, type NaeilService } from "./naeil-shell";
 import { NaeilHeaderAccountControl, type NaeilHeaderLocale } from "./naeil-header";
 import { Button } from "./ui/button";
 
@@ -23,7 +23,17 @@ function Example({ service }: { service: NaeilService }) {
   const [locale, setLocale] = useState<NaeilHeaderLocale>(initial === "ko" || initial === "ja" ? initial : "en");
   const [notice, setNotice] = useState("");
   const [signedIn, setSignedIn] = useState(params.get("shellAuth") !== "out");
-  useEffect(() => { document.documentElement.lang = locale; }, [locale]);
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.title = naeilDocumentTitle(service, copy[locale].title);
+    // Story-specific document identity, just as a consuming application's metadata owns it.
+    const links = naeilIcons.links.map(attrs => {
+      const link = document.createElement("link");
+      Object.entries(attrs).forEach(([key, value]) => link.setAttribute(key, value));
+      document.head.append(link); return link;
+    });
+    return () => links.forEach(link => link.remove());
+  }, [locale, service]);
   const text = copy[locale];
   return <NaeilServiceShell service={service} locale={locale} mainLabel={text.title}
     footer={params.has("noFooter") ? false : { meta: ".naeil service shell" }}
@@ -42,3 +52,5 @@ export const Abstorm: Story = { render: () => <Example service="abstorm" /> };
 export const Home: Story = { render: () => <Example service="home" /> };
 export const Estimate: Story = { render: () => <Example service="estimate" /> };
 export const Jev: Story = { render: () => <Example service="jev" /> };
+// Deliberate failing runtime fixture; never used by consuming applications.
+export const RuntimeViolation: Story = { render: () => <><Example service="estimate" /><style>{'body { font-size: 14px !important; }'}</style></> };

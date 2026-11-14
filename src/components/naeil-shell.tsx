@@ -2,7 +2,7 @@
 
 import { NaeilServiceShell as Shell, type NaeilShellInputs, type NaeilShellHeaderProps, type NaeilServiceShellInput } from "./naeil-shell-core";
 import { NaeilStandaloneMessages } from "./naeil-standalone-messages";
-export { NaeilThemeProvider, PageHeader } from "./naeil-shell-core";
+export { NaeilThemeProvider, PageHeader, measureNaeilPage, type NaeilPageMeasurements } from "./naeil-shell-core";
 export type { NaeilServiceShellProps, NaeilShellHeaderProps, NaeilShellFooterProps } from "./naeil-shell-core";
 export { naeilIcons } from "../naeil-locale/icons.generated";
 export { naeilServices, naeilServiceName, naeilDocumentTitle, type NaeilService } from "./naeil-services";

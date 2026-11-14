@@ -35,6 +35,7 @@ export default defineConfig({
     "src/components/naeil-header-content.ts",
     "src/components/naeil-footer.tsx",
     "src/components/naeil-shell.tsx",
+    "src/components/naeil-page-measure.ts",
     "src/components/naeil-shell-core.tsx",
     "src/components/naeil-theme-provider.tsx",
     "src/naeil-locale/icons.generated.ts",

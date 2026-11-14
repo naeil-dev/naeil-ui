@@ -90,6 +90,13 @@ describe("owned service shell", () => {
     for (const [name, source] of Object.entries(kit)) expect(naeilIcons.files[name as keyof typeof kit]).toBe(createHash("sha256").update(readFileSync(`brand/naeil/1.1.1/icons/${source}`)).digest("hex"));
     expect(naeilIcons.links.map(link => link.href)).toEqual(["/favicon.ico", "/icon.svg", "/apple-icon.png"]);
   });
+  it("accepts typed public props spread through either shell wrapper", () => {
+    const props: NaeilServiceShellProps = { service: "home", locale: "en", footer: {meta: "v1"} };
+    const Wrapper = (input: NaeilServiceShellProps) => <NaeilServiceShell {...input} />;
+    const ProviderWrapper = (input: NaeilServiceShellProps) => <ProviderShell {...input} />;
+    expect(renderToStaticMarkup(<Wrapper {...props}/>)).toContain('id="main"');
+    expect(ProviderWrapper(props).props).toMatchObject(props);
+  });
   it("rejects override props including unknown spreads on both entries", () => {
     expectTypeOf<ComponentProps<typeof ProviderShell>>().toEqualTypeOf<ComponentProps<typeof NaeilServiceShell>>();
     const base = { service: "home", locale: "en" } as const;
