@@ -188,6 +188,8 @@ it("allows product icon directories and rejects root public duplicates in Vite",
 });
 it.each([
   ['const iconData = { icons: { icon: "/other.svg" } }; export const metadata = iconData;', 'icons'],
+  ['export let metadata = { icons: { icon: "/wrong.svg" } };', 'icons'],
+  ['export var metadata = { icons: { icon: "/wrong.svg" } };', 'icons'],
   ['const base = {icons: []}; const more = {...base}; export const metadata = {...more};', 'icons'],
   ['import { info } from "./unknown"; export const metadata = {...info};', 'review-needed'],
   ['export const metadata = getMetadata();', 'review-needed'],

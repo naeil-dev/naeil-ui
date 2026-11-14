@@ -180,25 +180,25 @@ export function checkConformance({ service, framework, app }) {
 }
 export async function main(args = process.argv.slice(2)) {
   try {
-    if (args.includes('--help')) { console.log('naeil-ui-conformance --service abstorm|home|estimate|jev --framework next|vite --app <dir>\nnaeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--app <consumer-dir>] [--storage-state <file>] [--header name:value] [--expect-status /unknown=404] [--allow-redirect /old=/new]\n--header, --expect-status and --allow-redirect are repeatable.'); return 0; }
+    if (args.includes('--help')) { console.log('naeil-ui-conformance --service abstorm|home|estimate|jev --framework next|vite --app <dir>\nnaeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--app <consumer-dir>] [--storage-state <file>] [--header name:value] [--expect-status /unknown=404] [--allow-redirect /old=/new] [--wait-for /route=<selector>]\n--header, --expect-status, --allow-redirect and --wait-for are repeatable. Measurement waits for network idle and no aria-busy region in main.'); return 0; }
     const options = {};
     for (let i = 0; i < args.length; i += 2) {
       const key = args[i].replace(/^--/, '');
-      if (!['service', 'framework', 'app', 'url', 'routes', 'no-footer', 'storage-state', 'header', 'expect-status', 'allow-redirect'].includes(key) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`Invalid argument: ${args[i]}`);
-      if (['header', 'expect-status', 'allow-redirect'].includes(key)) (options[key] ??= []).push(args[i + 1]);
+      if (!['service', 'framework', 'app', 'url', 'routes', 'no-footer', 'storage-state', 'header', 'expect-status', 'allow-redirect', 'wait-for'].includes(key) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`Invalid argument: ${args[i]}`);
+      if (['header', 'expect-status', 'allow-redirect', 'wait-for'].includes(key)) (options[key] ??= []).push(args[i + 1]);
       else options[key] = args[i + 1];
     }
     if (!services.includes(options.service)) throw new Error(`--service must be ${services.join('|')}`);
     if (options.url) {
       if (!options.routes) throw new Error('--routes is required with --url');
       const {checkRuntimeConformance} = await import('./conformance-runtime.mjs');
-      const rows = await checkRuntimeConformance({...options, routes: options.routes.split(','), noFooter: options['no-footer']?.split(',') ?? [], storageState: options['storage-state'], headers: options.header, expectStatus: options['expect-status'], allowRedirect: options['allow-redirect']});
+      const rows = await checkRuntimeConformance({...options, routes: options.routes.split(','), noFooter: options['no-footer']?.split(',') ?? [], storageState: options['storage-state'], headers: options.header, expectStatus: options['expect-status'], allowRedirect: options['allow-redirect'], waitFor: options['wait-for']});
       console.table(rows.map(row => ({route: row.route, viewport: row.viewport, scheme: row.scheme, result: row.errors.length ? 'FAIL' : 'PASS', details: row.errors.join('; ')})));
       const failures = rows.filter(row => row.errors.length).length;
       console.log(`naeil-ui-conformance runtime: ${failures ? 'FAIL' : 'PASS'} (${rows.length} checks, ${failures} failures)`);
       return failures ? 1 : 0;
     }
-    if (['routes','no-footer','storage-state','header','expect-status','allow-redirect'].some(key => options[key])) throw new Error('Runtime route/auth/status/redirect options require --url');
+    if (['routes','no-footer','storage-state','header','expect-status','allow-redirect','wait-for'].some(key => options[key])) throw new Error('Runtime route/auth/status/redirect options require --url');
     if (!options.app) throw new Error('--app is required');
     const report = checkConformance(options);
     for (const item of report.ignores) console.log(`${relative(report.root, item.file) || basename(item.file)}:${item.line} ignore ${item.rule}: ${item.reason}`);

@@ -34,6 +34,12 @@ test.beforeAll(async () => {
     if (path === '/authenticated' && (!request.headers.cookie?.includes('session=fixture') || request.headers['x-first'] !== 'one:two' || request.headers['x-second'] !== 'second')) { response.writeHead(401, {'content-type':'text/html'}).end(html()); return; }
     const status = path === '/unknown' ? 404 : path === '/access-denied' ? 403 : 200;
     let document = html(path === '/bad-error' ? '<section style="padding-bottom:64px"><p>Content</p></section>'
+      : path === '/painted-card' ? '<section><div style="border:1px solid #888;padding:24px"><p>Card</p></div></section>'
+      : path === '/padded-wrapper' ? '<section><div style="padding-bottom:64px"><p>Content</p></div></section>'
+      : path === '/scroll-svg' ? '<section><div style="overflow:auto;height:100px"><div style="height:2000px">Tall</div></div><svg width="40" height="40" style="display:block"><rect width="40" height="40"/></svg></section>'
+      : path === '/inline-only' ? '<section><p style="line-height:25px"><span style="font-size:16px">Only inline text</span></p></section>'
+      : path === '/busy' ? '<section aria-busy="true" style="padding-bottom:64px"><p>Loading</p></section><script>setTimeout(()=>{const s=document.querySelector("section");s.removeAttribute("aria-busy");s.style.paddingBottom="0";s.innerHTML="<p>Loaded</p>";},800)</script>'
+      : path === '/late' ? '<section style="padding-bottom:64px"><p>Loading</p></section><script>setTimeout(()=>{const s=document.querySelector("section");s.style.paddingBottom="0";s.innerHTML="<p id=ready>Loaded</p>";},800)</script>'
       : path === '/closed-details' ? `<section><p>Content</p><details><summary style="line-height:25px">More</summary><pre>${'hidden line\n'.repeat(120)}</pre></details></section>` : undefined);
     if (path === '/client-redirect') document = document.replace('</body>', '<script>requestAnimationFrame(()=>requestAnimationFrame(()=>history.replaceState({},"","/settings")))</script></body>');
     if (path === '/client-error') document = document.replace('</body>', '<script>addEventListener("load",()=>requestAnimationFrame(()=>location.replace("/unknown")))</script></body>');
@@ -122,4 +128,25 @@ test('closed <details> content does not count as the last visible content', asyn
   const result = await cli(['/closed-details']);
   expect(result.code, result.stdout + result.stderr).toBe(0);
   expect(result.stdout).toContain('4 checks, 0 failures');
+});
+
+test('content boundary: painted boxes, scroll containers, replaced and inline-only blocks end the content; transparent wrapper padding stays in the gap', async () => {
+  test.setTimeout(120000);
+  for (const route of ['/painted-card', '/scroll-svg', '/inline-only']) {
+    const result = await cli([route]);
+    expect(result.code, route + result.stdout + result.stderr).toBe(0);
+  }
+  const padded = await cli(['/padded-wrapper']);
+  expect(padded.code).toBe(1);
+  expect(padded.stdout + padded.stderr).toContain('160');
+});
+
+test('runtime waits for aria-busy to clear and for --wait-for selectors before measuring', async () => {
+  test.setTimeout(120000);
+  const busy = await cli(['/busy']);
+  expect(busy.code, busy.stdout + busy.stderr).toBe(0);
+  const late = await cli(['/late'], ['--wait-for', '/late=#ready']);
+  expect(late.code, late.stdout + late.stderr).toBe(0);
+  const unwaited = await cli(['/late']);
+  expect(unwaited.code).toBe(1);
 });

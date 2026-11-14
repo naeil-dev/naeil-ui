@@ -43,7 +43,7 @@ export function assessNaeilPage(value, {service, noFooter = false}) {
   return errors;
 }
 
-export async function checkRuntimeConformance({service, url, routes, noFooter = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = []}) {
+export async function checkRuntimeConformance({service, url, routes, noFooter = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = []}) {
   const origin = new URL(url);
   if (!['http:', 'https:'].includes(origin.protocol)) throw new Error('--url must be an http(s) origin');
   if (!routes.length || routes.some(route => !route.startsWith('/') || route.startsWith('//'))) throw new Error('--routes requires comma-separated local /paths');
@@ -78,7 +78,7 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
     }
     return result;
   }
-  const statuses = mappings(expectStatus, 'expect-status'), redirects = mappings(allowRedirect, 'allow-redirect');
+  const statuses = mappings(expectStatus, 'expect-status'), redirects = mappings(allowRedirect, 'allow-redirect'), waits = mappings(waitFor, 'wait-for');
   for (const code of statuses.values()) if (!/^[1-5]\d\d$/.test(code)) throw new Error('--expect-status requires an HTTP status code (100–599)');
   for (const path of redirects.values()) if (!path.startsWith('/') || path.startsWith('//')) throw new Error('--allow-redirect target must be a local /path');
   const {chromium} = await resolveConsumerPlaywright(app);
@@ -98,6 +98,10 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
           if (!response || (expectedStatus ? response.status() !== Number(expectedStatus) : !response.ok())) throw new Error(`HTTP ${response?.status() ?? 'no response'} (expected ${expectedStatus ?? '2xx'})`);
           throw error;
         });
+        // Measure the settled screen, not a loading state: network idle, no busy region, optional route selector.
+        await page.waitForLoadState('networkidle', {timeout: 15000}).catch(() => {});
+        await page.waitForFunction(() => !document.querySelector('main [aria-busy="true"], main[aria-busy="true"]'), null, {timeout: 15000});
+        if (waits.get(route)) await page.locator(waits.get(route)).first().waitFor({state: 'visible', timeout: 15000});
         await page.evaluate(() => document.fonts.ready);
         // Let provider effects and the next paint settle without modifying app state.
         await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));

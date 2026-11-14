@@ -46,20 +46,37 @@ export function measureNaeilPage(): NaeilPageMeasurements {
       return Array.from(child.getClientRects()).some(rect => rect.width > 0 && rect.height > 0) ? [child] : [];
     });
   }
-  function bottoms(parent: Element): number[] {
-    const children = blocks(parent);
-    const result = children.flatMap(child => {
-      const descendants = bottoms(child);
-      return descendants.length ? descendants : [child.getBoundingClientRect().bottom];
-    });
-    // Include main's own text and text around child elements in nonterminal wrappers.
-    if (parent === main || children.length) for (const node of Array.from(parent.childNodes)) if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
-        const range = document.createRange(); range.selectNodeContents(node);
-        for (const rect of Array.from(range.getClientRects())) if (rect.width > 0 && rect.height > 0) result.push(rect.bottom);
-      }
-    return result;
+  // Content boundary: follow the visually lowest visible child through transparent block wrappers
+  // (their padding/margins stay in the measured gap) and stop at painted, clipped, replaced,
+  // non-block or text-bearing boxes, whose border box is the visible content edge.
+  function directTextBottom(element: Element): number | null {
+    let bottom: number | null = null;
+    for (const node of Array.from(element.childNodes)) if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+      const range = document.createRange(); range.selectNodeContents(node);
+      for (const rect of Array.from(range.getClientRects())) if (rect.width > 0 && rect.height > 0) bottom = Math.max(bottom ?? rect.bottom, rect.bottom);
+    }
+    return bottom;
   }
-  const contentBottoms = main ? bottoms(main) : [];
+  function isBoundary(element: Element, style: CSSStyleDeclaration): boolean {
+    const transparent = (value: string) => value === 'transparent' || /^rgba\(.*,\s*0\)$/.test(value);
+    return (parseFloat(style.borderBottomWidth) > 0 && style.borderBottomStyle !== 'none') || !transparent(style.backgroundColor)
+      || style.backgroundImage !== 'none' || style.boxShadow !== 'none' || style.overflowX !== 'visible' || style.overflowY !== 'visible'
+      || !['block', 'flex', 'grid', 'flow-root', 'list-item'].includes(style.display)
+      || ['IMG', 'SVG', 'CANVAS', 'VIDEO', 'IFRAME', 'PRE', 'TEXTAREA', 'INPUT', 'SELECT', 'BUTTON', 'TABLE', 'PICTURE', 'OBJECT'].includes(element.tagName.toUpperCase())
+      || directTextBottom(element) !== null;
+  }
+  function contentEdge(element: Element): number | null {
+    const children = blocks(element);
+    const text = directTextBottom(element);
+    if (!children.length) return element === main ? text : element.getBoundingClientRect().bottom;
+    // A block holding only inline content is one line-box container: its box is the edge, not glyph boxes.
+    const blockLevel = (child: Element) => ['block', 'flex', 'grid', 'flow-root', 'list-item', 'table'].includes(getComputedStyle(child).display);
+    if (element !== main && !children.some(blockLevel)) return element.getBoundingClientRect().bottom;
+    const last = children.reduce((a, b) => b.getBoundingClientRect().bottom > a.getBoundingClientRect().bottom ? b : a);
+    const edge = isBoundary(last, getComputedStyle(last)) ? last.getBoundingClientRect().bottom : contentEdge(last) ?? last.getBoundingClientRect().bottom;
+    return text === null ? edge : Math.max(edge, text);
+  }
+  const contentBottoms = main ? [contentEdge(main)].filter((value): value is number => value !== null) : [];
   const lastBottom = contentBottoms.length ? Math.max(...contentBottoms) : null;
   const pageHeader = main?.querySelector('.ui-page-header');
   let nextContent: Element | undefined;

@@ -154,7 +154,7 @@ export function* metadataExpressions(text) {
     if (!found) yield {index: start, expression: ''};
   }
   const code = codeOnly(text);
-  for (const m of code.matchAll(/\bexport\s+const\s+metadata\s*(?::[^=;\n]+)?=\s*/g)) yield {index: m.index, expression: expressionAt(text, m.index + m[0].length)};
+  for (const m of code.matchAll(/\bexport\s+(?:const|let|var)\s+metadata\s*(?::[^=;\n]+)?=\s*/g)) yield {index: m.index, expression: expressionAt(text, m.index + m[0].length)};
   for (const m of code.matchAll(/\bexport\s+(?:async\s+)?function\s+generateMetadata\s*\([^)]*\)[^{]*\{/g)) yield* returned(m.index + m[0].length - 1);
   for (const m of code.matchAll(/\bexport\s+const\s+generateMetadata\s*(?::[^=;\n]+)?=\s*/g)) {
     const start = m.index + m[0].length;
