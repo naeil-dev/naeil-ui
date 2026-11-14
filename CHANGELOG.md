@@ -1,13 +1,13 @@
 # Changelog
 
-## Unreleased — planned 0.16.0
+## 0.16.0 — shell-owned login and account control (unpublished candidate)
 
 - Add optional `NaeilServiceShell.account: NaeilHeaderAccount` to standalone `/naeil-shell` and provider-backed `/naeil-locale/chrome`, with the type exported from both. The shell renders the existing localized account control using the shared Link and header desktop/mobile composition; consumers retain session state, busy/request locks and guarded logout callbacks.
-- Signed-out login links are hidden only when loginHref/currentHref URL pathnames match (query/hash/origin ignored); missing currentHref keeps login, and signed-in menus remain. Account takes precedence over deprecated header.authSlot with a once-only development warning. Omitting account preserves the 0.15.0 component behavior; standalone header APIs remain unchanged.
+- Signed-out login links are hidden only when loginHref is a same-app relative route and its URL pathname matches currentHref (query/hash ignored); absolute and protocol-relative login URLs never hide the control; missing currentHref keeps login, and signed-in menus remain. Account takes precedence over deprecated header.authSlot with a once-only development warning. Omitting account preserves the 0.15.0 component behavior; standalone header APIs remain unchanged.
 - Static conformance requires explicit account= on every shell and rejects header.authSlot, including same-file variables/object spreads. Runtime measurements expose accountCount for all markers inside the header regardless of visibility; 1440px checks require at least one, with repeatable/comma-list --no-account exact-route exceptions for recorded login pages.
 - Update application starter, shell/design/agent guidance, Storybook, packed React/Next SSR consumers and unit/type/browser fixtures for signed-in/out, login suppression, precedence, route guards and CI pass/fail paths. Frozen B1 remains unchanged.
 
-Additive minor candidate only. Package/fixture version remains 0.15.0 until the separate release step; no freeze, publication, tag or deployment is included.
+Additive minor; chrome contract 1 remains unchanged. Package metadata, generated `/release` and React/Next fixture pins are 0.16.0. Publish only the reviewed frozen archive; publication, source tag/Release, hosted Docs and service adoption require separate receipts.
 
 ## 0.15.0 — shared page rhythm, service shell and conformance (published 2026-11-14)
 
