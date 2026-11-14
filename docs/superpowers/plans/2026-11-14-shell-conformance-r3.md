@@ -64,3 +64,5 @@
 - Ruling: harmless document class reads remain valid; className writes are forbidden alongside classList/setAttribute mutations — enforcement follows theme-write policy without blocking read-only feature checks.
 - Ruling: Vite shorthand/unresolved base also fails review — an unresolved base is not evidence for the required root deployment.
 - Review scope: deployed consumer/authenticated service behavior is outside this library implementation; packed/runtime fixtures and the requested complete gates provide local evidence. No release/publish/deployment is performed.
+
+- Gate investigation: the first packed Next/split run failed G1 unlock restoration (before margin 8px, closed 0px). Generated Next frame imports its CSS asynchronously with the client app; DOM readiness/two paints did not prove CSS readiness. Added a sentinel in the generated fixture's actual stylesheet and wait for it before baseline measurements. This changes only verification infrastructure, not shipped styles or runtime behavior; all original compensation assertions remain exact.

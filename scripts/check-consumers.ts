@@ -89,7 +89,9 @@ function prepareFrameConsumer(cwd: string, framework: "react" | "next", css: "gl
     mkdirSync(join(cwd, folder), { recursive: true });
     const style = control === "-theme" ? '@import "@naeil/ui/theme.css"; body { margin: 0; }'
       : control === "-js" ? 'body { margin: 0; }' : `${imports}\n@source "${join(cwd, "node_modules/@naeil/ui/dist")}";`;
-    writeFileSync(join(cwd, folder, `frame${control}.css`), style);
+    // Next loads this stylesheet with a client-side dynamic import. The DOM can
+    // mount before its CSS arrives; expose readiness from that actual stylesheet.
+    writeFileSync(join(cwd, folder, `frame${control}.css`), `${style}\n:root { --naeil-consumer-frame-css: ready; }`);
     writeFileSync(join(cwd, folder, `frame${control}-app.tsx`), `"use client";\n${fonts}\nimport "./frame${control}.css";\n${app}`);
     if (framework === "react") {
       writeFileSync(join(cwd, `frame${control}.html`), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(new URLSearchParams(location.search).has("optout"))document.documentElement.setAttribute("data-naeil-scrollbar-gutter","auto")</script></head><body><div id="root"></div><script type="module" src="/src/frame${control}-app.tsx"></script></body></html>`);

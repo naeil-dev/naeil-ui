@@ -50,7 +50,9 @@ export async function checkFrameConsumer(root: string, framework: "react" | "nex
         await cdp.detach();
         const path = (control = "") => `${origin}/frame${control}${framework === "react" ? ".html" : ""}`;
         const visit = async (page: Page, query: string, control = "") => {
-          await page.goto(`${path(control)}?frame&${query}`); await page.getByTestId("length").waitFor(); await settleFrame(page);
+          await page.goto(`${path(control)}?frame&${query}`); await page.getByTestId("length").waitFor();
+          await page.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue("--naeil-consumer-frame-css").trim() === "ready");
+          await settleFrame(page);
           const state = await frameState(page);
           if (mode !== "default") assert.equal(state.scrollbar, mode === "classic" ? 15 : 0, "Actual mode probe");
           return state;
