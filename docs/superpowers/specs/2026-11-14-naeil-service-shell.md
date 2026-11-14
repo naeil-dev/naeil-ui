@@ -16,7 +16,7 @@ Standalone entry `@naeil/ui/naeil-shell` (new package export, React-only like `/
 <NaeilServiceShell
   service="estimate" locale={locale}
   Link={GuardedLink} onNavigate={guard}            // shared by header and footer
-  header={{ appNavigation, currentHref, authSlot, brandHref, labels, onLocaleChange, mobileOpen, onMobileOpenChange }}
+  header={{ appNavigation, currentHref, authSlot, brandHref, labels, resolveHref, onLocaleChange, mobileOpen, onMobileOpenChange }}
   footer={{ meta, resolveHref }}                    // or footer={false} for recorded no-footer screens (Home login)
   mainLabel="견적 목록">
   <PageHeader title=… description=… actions=… />
@@ -26,7 +26,7 @@ Standalone entry `@naeil/ui/naeil-shell` (new package export, React-only like `/
 
 Renders, in order: `NaeilThemeProvider` (no-op under the root one), a skip link (`.ui-skip-link`, shared message `naeil.shell.skipToContent`: ko 본문으로 건너뛰기 / ja 本文へスキップ / en Skip to content) targeting `#main`, `NaeilHeader service=…`, `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>`, `NaeilFooter service=…` unless `footer={false}`.
 
-- `header` accepts exactly what `NaeilServiceHeaderProps` accepts minus `service`, `locale`, `Link`, `onNavigate`. `footer` accepts only `meta` and `resolveHref`.
+- `header` accepts only `appNavigation`, `currentHref`, `brandHref`, `authSlot`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`. The shell owns the header element; navigation `labels` supplies accessible names. No header id/aria/dir DOM attributes pass through the shell. Standalone `NaeilHeader` retains those compatibility semantics for non-shell use. `footer` accepts only `meta` and `resolveHref`.
 - Strict types reject `className`, `style`, `id`, `data-*`-style overrides, `containerClassName`, theme props, and anything else (mapped `never` like the header/footer service profiles, including spreads). JS/cast attempts are ignored with one development-only warning per prop. An unknown `service` throws an Error (a shell without an owned service is meaningless; there is no legacy profile to fall back to).
 - `PageHeader` remains the page start; re-exported from `/naeil-shell`.
 
@@ -41,13 +41,14 @@ Unchanged from 0.14.0: `localeMetadata` without `serviceName`, or `naeilDocument
 
 ## 5. Conformance check (CI)
 Package bin `naeil-ui-conformance` (plain Node ESM, no dependencies, shipped in the npm files list). Services add `naeil-ui-conformance --service <id> --framework next|vite --app <dir>` to CI. Static checks over the app source (ts/tsx/js/jsx/css/html, excluding node_modules, build output, tests):
-1. Theme: no import of `ThemeProvider` from `next-themes` or `@naeil/ui/components/theme-provider`; no `defaultTheme=`/`forcedTheme=`/`storageKey=` props; at least one `NaeilThemeProvider` (or shell) usage.
-2. Chrome: no direct `<NaeilHeader`/`<NaeilFooter` JSX; at least one `<NaeilServiceShell`.
-3. Rhythm: no `ui-app-main`/`ui-app-frame` class used by the app; no app CSS selectors targeting `.ui-app-`, `.ui-page-`, `.ui-site-footer`, `.naeil-header`, `[data-naeil-`, `[data-slot="site-footer"]`, `[data-slot="navigation"]`; no `font-size`/`font-family` on `html`/`body`/`:root`.
-4. Icons: the three files exist at the framework's root location with the exact `naeilIcons.files` digests; Next: no `icons:` key in metadata; Vite: `index.html` icon links equal `naeilIcons.links` (attribute set and order); no other `rel=icon` declarations.
-5. Titles: no `serviceName:` passed to `localeMetadata`; Vite `index.html` `<title>` equals `naeilServiceName(service)`.
+1. Theme: reject import/re-export of ThemeProvider from next-themes, @naeil/ui or @naeil/ui/components/theme-provider (aliases/namespaces included), any forcedTheme token, document root class/classList and colorScheme writes. defaultTheme/storageKey prop checks apply only to provider-like tags. Require reachable NaeilThemeProvider or shell.
+2. Chrome: require shell JSX reachable through relative imports from Next app/**/layout.* or Vite index.html → main script, with literal service matching --service. Recognize named/namespace/local aliases. Reject direct NaeilHeader/NaeilFooter, app main JSX/role=main/id=main. Vite config base must be / or absent.
+3. Rhythm: require shared globals CSS (or theme + components CSS); reject actual ui-app-main/frame class tokens in className/cn/clsx and CSS selectors, reserved chrome selectors, global main/h1/header/footer selectors, PageHeader style/className, protected --ui-/--text-/--spacing-/--radius-/--color-/semantic color declarations, font/font-size/font-family/line-height on html/body/:root. Unrelated data strings/class substrings/storage props are valid.
+4. Icons: exact three generated root file digests; reject nested/static/dynamic icon/apple-icon/favicon files and public duplicates (opengraph images unaffected). Next metadata object variables/spreads cannot include icons; unresolved metadata requires review. Vite index links equal naeilIcons.links, with no extra declarations.
+5. Titles: localeMetadata aliases and same-file object variables/spreads cannot include serviceName; unresolved options require review. Vite title equals naeilServiceName(service).
 - Escape hatch: `naeil-conformance-ignore <rule>: <reason>` comment on the line above; the report lists every ignore with its reason. Exit 1 on any violation; print `file:line rule message`.
-- Tests with passing and failing fixture apps for each rule.
+- Tests with passing and failing fixture apps for each rule. A review-needed diagnostic fails the gate; static graph resolution is limited to relative imports.
+- Runtime mode: `naeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--app <consumer-dir>]`. Resolve playwright or @playwright/test from consumer node_modules only; no new dependency. Missing dependency exits 2 with installation hint. For each route create fresh 1440×900/390×844 contexts under OS light/dark; print a result table and exit 1 for failures. Verify one main#main.ui-app-main, one header, 48 ±0.5 header→h1, 32/42/600 title, optional description gap 12 ±0.5, final content→footer 96 ±0.5, body 16, fresh dark, canonical icon rel/path/type (Next sizes variants allowed, ICO must not list 32x32), and title suffix naeilServiceName(service). Footer is absent only for exact --no-footer routes. Export self-contained `measureNaeilPage` from /naeil-shell and /naeil-locale/chrome for consumer tests.
 
 ## 6. Verification
 - Unit/type tests for shell (structure, footer=false, override rejection incl. spreads and casts, provider entry parity), icons digests vs kit, conformance fixtures.

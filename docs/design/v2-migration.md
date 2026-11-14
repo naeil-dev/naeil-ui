@@ -99,6 +99,7 @@ naeil.dev는 `service` 없는 카탈로그 헤더·기존 푸터 구성을 유�
 
 ```sh
 naeil-ui-conformance --service estimate --framework next --app .
+naeil-ui-conformance --service estimate --url http://127.0.0.1:4173 --routes /en/estimates,/login --no-footer /login
 # Vite: --framework vite
 ```
 

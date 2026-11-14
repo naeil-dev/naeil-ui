@@ -16,6 +16,13 @@
 - Packed checks cover the standalone entry, React SSR, provider-backed Next RSC and standalone Next SSR (webpack/Turbopack), server-safe icon/title imports and installed CLI execution. Four shell Storybook stories and a browser contract cover all services at 1440/390, ko/ja/en, fresh dark under OS light/dark, skip focus, persisted theme, account action and footer=false. Frozen B1 chrome-pairs are unchanged.
 - DESIGN/agent rules, shell API/CI guide, application starter and migration guidance now require using the shared shell/policy instead of reconstructing them. The stale 0.15.0 archive was withdrawn for a later re-freeze; package version stays 0.15.0. No publication/tag/workflow/deployment is part of this implementation.
 
+- Conformance r3: require matching literal service on an entry-reachable shell (Next layouts/relative imports or Vite index/main graph); detect namespace/local aliases, direct chrome and app main landmarks. Restrict Vite base to root and require shared CSS imports.
+- Harden static theme imports/re-exports, forcedTheme/document theme writes, provider-only storage/default checks; protect token declarations/global element typography, exact class tokens and PageHeader presentation. Resolve metadata/title aliases, object variables and spreads, with review-needed failures for unresolved values; reject nested/dynamic/public duplicate icons.
+- Runtime `--url/--routes/--no-footer` CI mode uses consumer-installed Playwright with four fresh viewport/scheme contexts per route, measurement tables and explicit missing-dependency exit 2. Export serializable `measureNaeilPage`/`NaeilPageMeasurements`; verify real main identity, rhythm/type, body/dark, icons/SVG preference and title suffix. Add paired measurement/static fixtures, a deliberate broken Storybook fixture, packed type-wrapper/export checks and runtime CLI e2e.
+- Live artwork verification retries only explicit HTTP 403 responses, honors Retry-After, and still fails after three attempts; real HTTP fixture cases cover recovery and persistent failure.
+- Packed frame verification waits for the actual dynamically imported fixture stylesheet before baseline measurements, avoiding an unstyled Next baseline without weakening restoration assertions.
+- Fix public `NaeilServiceShellProps` JSX wrapper spreads while retaining optional-never forbidden keys and exact unknown-key rejection. Document shell-owned header DOM/nine inputs and navigation labels consistently; standalone header compatibility stays available.
+
 Additive: existing classes, `PageTitle` and tokens are unchanged.
 
 ## 0.14.0 — owned-service identity and footer (published 2026-11-13)

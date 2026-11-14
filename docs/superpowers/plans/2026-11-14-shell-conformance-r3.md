@@ -49,7 +49,7 @@
 **Files:** `DESIGN.md`, spec, `docs/components/naeil-shell.md`, AGENTS/CHANGELOG/verification evidence as needed.
 
 - [x] Make shell-owned header/nine-input contract consistent while preserving standalone semantics; document every static/runtime rule, review-needed diagnostics and consumer Playwright installation.
-- [ ] Run all requested unit/rollout/types/lint/contrast/build/package/Storybook/browser gates; inspect results, fix failures, retain evidence.
+- [x] Run all requested unit/rollout/types/lint/contrast/build/package/Storybook/browser gates; inspect results, fix failures, retain evidence.
 - [x] Request one independent final review and address substantive findings with regression tests.
 - [ ] Commit, push feature branch, rebuild/pack r3 artifact and record hash; report in Korean.
 
@@ -71,3 +71,7 @@
 - Network: subsequent packed runs hit live naeil.dev Vercel 403 (root and whale image). Retried with backoff, no image mocks or weakened assertions. Once HTTP 200 recovered, stopped the separate direct checks and restarted the exact full package gate with one runner.
 
 - Added bounded live-artwork 403 retry to verification only: same URL, Retry-After honored, maximum three attempts, persistent 403 remains failure. Two real local-HTTP fixture cases (403→200, permanent 403) were observed RED→GREEN; the complete runtime e2e file passed 7/7. The next exact package run passed live artwork and all React browser checks without substituted bytes. Latest full browser set reruns 349 cases.
+
+- Final requirement audit added --color-* alias protection (two Next/Vite fixtures RED→GREEN). Full unit suite: 1,154 passed/6 skipped. A freshly packed installed-bin check passed for Next/Vite passing apps, failing color aliases and runtime dependency exit 2. Latest full Chromium set: 349/349 passed in 8.5m; B1 source unchanged. No shipped React/CSS runtime changed in this final static-only correction.
+
+- Final complete package gate exited 0: live artwork, React SSR/browser and globals/split frames, Next webpack/Turbopack RSC/SSR and globals/split frames all passed. This closes the earlier CSS-readiness/network failures; the final static-only color-alias patch also passed a fresh packed-bin check for both frameworks.
