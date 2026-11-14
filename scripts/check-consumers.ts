@@ -1,9 +1,10 @@
+import { conformanceFixture } from "./conformance-fixture";
 import { checkConsumerBrowser } from "./check-consumer-browser";
 import { checkFrameConsumer } from "./check-frame-consumer";
 import { buildChromeFixtures, chromeOutput } from "./build-chrome-fixtures";
 import { assertConsumerVersion } from "./consumer-version";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import {
@@ -154,6 +155,7 @@ try {
   corePaths.push(
     "naeil-header",
     "naeil-footer",
+    "naeil-shell",
     "release",
     "components/ui/index",
     "components/typography",
@@ -175,14 +177,18 @@ import * as ui from '@naeil/ui/ui';
 import { Sheet as DeepSheet, SheetTrigger as DeepSheetTrigger } from '@naeil/ui/components/ui/sheet';
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
+import { NaeilServiceShell, PageHeader, naeilIcons as shellIcons } from '@naeil/ui/naeil-shell';
 import { uiRelease } from '@naeil/ui/release';
-import { localeHref, resolveLocaleUrl, naeilDocumentTitle } from '@naeil/ui/naeil-locale';
+import { localeHref, resolveLocaleUrl, naeilDocumentTitle, naeilIcons } from '@naeil/ui/naeil-locale';
 import { cn } from '@naeil/ui/utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 export const footer = renderToStaticMarkup(createElement(NaeilFooter, {locale: 'ja', variant: 'compact'}));
 export const serviceFooter = renderToStaticMarkup(createElement(NaeilFooter as (props: {service: 'home'; locale: 'ja'; meta: string}) => ReturnType<typeof NaeilFooter>, {service: 'home', locale: 'ja', meta: 'Version 2'}));
 export const title = naeilDocumentTitle('home', 'ダッシュボード');
+export const shell = renderToStaticMarkup(createElement(NaeilServiceShell, {service: 'estimate', locale: 'en', mainLabel: 'Estimates', children: createElement(PageHeader, {title: 'Packed shell'})}));
+export const icons = naeilIcons;
+export const iconsParity = JSON.stringify(shellIcons) === JSON.stringify(naeilIcons);
 export const release = uiRelease;
 export const abstorm = {
   href: localeHref('abstorm', '/runs/example/report?tab=1#summary', 'ja'),
@@ -209,6 +215,30 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
   ]);
   const result = await import(pathToFileURL(join(core, "contract.mjs")).href);
   assert.equal(result.release.version, version);
+  assert.match(result.shell, /class="ui-skip-link" href="#main"/);
+  assert.match(result.shell, /id="main"/);
+  assert.match(result.shell, /ui-app-frame ui-app-main/);
+  assert.match(result.shell, /Packed shell/);
+  assert.match(result.shell, /data-naeil-header/);
+  assert.match(result.shell, /data-naeil-footer/);
+  assert(result.iconsParity);
+  assert.equal(result.icons.brandVersion, "1.1.1");
+  assert.equal(result.icons.links.length, 3);
+  // Execute the installed package bin, with no repository source or runtime deps.
+  for (const framework of ["next", "vite"] as const) {
+    const app = join(dir, `conformance-${framework}`);
+    conformanceFixture(app, framework);
+    const cli = join(core, "node_modules/.bin/naeil-ui-conformance");
+    const args = ["--service", "estimate", "--framework", framework, "--app", app];
+    let checked = spawnSync(cli, args, { encoding: "utf8" });
+    assert.equal(checked.status, 0, checked.stderr);
+    writeFileSync(join(app, "violation.tsx"), '<NaeilHeader defaultTheme="light" />');
+    checked = spawnSync(cli, args, { encoding: "utf8" });
+    assert.equal(checked.status, 1);
+    assert.match(checked.stderr, /violation.tsx:1 chrome/);
+    assert.match(checked.stderr, /violation.tsx:1 theme/);
+  }
+  console.log("Packed conformance bin: PASS (Next/Vite passing and failing fixtures)");
   assert.equal(result.abstorm.href, 'https://abstorm.naeil.dev/ja/runs/example/report?tab=1#summary');
   assert.equal(result.abstorm.protected.kind, 'ui');
   assert.equal(result.abstorm.protected.route.protected, true);
@@ -282,6 +312,16 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
       assert.match(rsc, /data-rsc-cn="p-2"/);
       assert.match(rsc, /data-rsc-deep-cn="m-2"/);
       assert.match(rsc, /data-rsc-title="見積 — \.naeil estimate"/);
+      assert.match(rsc, /data-rsc-icons="1.1.1"/);
+      assert.match(rsc, /data-rsc-icon-href="\/icon.svg"/);
+      assert.match(rsc, /class="ui-skip-link" href="#main"/);
+      assert.match(rsc, /ui-app-frame ui-app-main/);
+      assert.match(rsc, /data-naeil-footer/);
+      const shell = readFileSync(join(next, ".next/server/app/shell.html"), "utf8");
+      assert.match(shell, /Packed Next standalone shell/);
+      assert.match(shell, /data-naeil-header/);
+      assert.match(shell, /ui-app-frame ui-app-main/);
+      assert.match(shell, /data-naeil-footer/);
       assert.match(rsc, /<a[^>]+class="[^"]*border-border-strong[^"]*"[^>]*>Server button variants<\/a>/);
       assert.match(rsc, /<span[^>]+class="[^"]*bg-success-bg[^"]*"[^>]*>Server badge variants<\/span>/);
       const prerender = JSON.parse(readFileSync(join(next, ".next/prerender-manifest.json"), "utf8"));
@@ -328,6 +368,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     const baselineNext = fixture("next-baseline", resolve("scripts/fixtures/next"), baselineArchive);
     // The frozen 0.7.x baseline predates the server-safe /utils contract.
     rmSync(join(baselineNext, "app/rsc"), { recursive: true, force: true });
+    rmSync(join(baselineNext, "app/shell"), { recursive: true, force: true });
     run(baselineNext, "npm", ["run", "build"]);
     recordBuild("baseline-next", baselineNext, baselineArchive);
     const baselineHeader = readFileSync(join(baselineNext, ".next/server/app/header.html"), "utf8");

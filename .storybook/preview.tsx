@@ -33,7 +33,7 @@ const preview: Preview = {
       return () => { delete document.documentElement.dataset.uiDensity; };
     }, [density, workspace]);
     // Workspace keeps its explicit theme/density controls for composition checks.
-    if (workspace) return <Story />;
+    if (workspace || context.title === "Brand/NaeilServiceShell") return <Story />;
     if (context.title === "Brand/NaeilHeader") return <ThemeProvider attribute="class" defaultTheme={context.globals.theme} enableSystem={false} storageKey="storybook-naeil-header">
       <HeaderTheme theme={context.globals.theme}><Story /></HeaderTheme>
     </ThemeProvider>;

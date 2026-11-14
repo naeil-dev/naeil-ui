@@ -160,9 +160,18 @@ try {
     }
   }
   checkServerModule(join(root, pkg.exports["./utils"].import));
+  checkServerModule(join(root, pkg.exports["./naeil-locale"].import));
+  assert(pkg.exports["./naeil-shell"], "Standalone shell export missing");
+  assert.equal(pkg.bin["naeil-ui-conformance"], "./bin/naeil-ui-conformance.mjs");
+  const cli = join(root, pkg.bin["naeil-ui-conformance"]);
+  assert(readFileSync(cli, "utf8").startsWith("#!/usr/bin/env node\n"), "CLI must be directly executable");
+  assert.match(execFileSync(process.execPath, [cli, "--help"], { encoding: "utf8" }), /--framework next\|vite/);
   assert(pkg.sideEffects.includes("**/*.css"), "CSS must survive tree shaking");
   for (const path of [
     "dist/tokens.ts",
+    "bin/naeil-icons.generated.mjs",
+    "bin/naeil-ui-conformance.mjs",
+    "docs/components/naeil-shell.md",
     "DESIGN.md",
     "docs/design/v2-migration.md",
     "docs/components/README.md",

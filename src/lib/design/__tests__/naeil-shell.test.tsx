@@ -78,6 +78,11 @@ describe("owned service shell", () => {
     const provider = NaeilThemeProvider({ children: "Child", defaultTheme: "light", storageKey: "custom" } as unknown as ComponentProps<typeof NaeilThemeProvider>);
     expect(provider.props).toEqual({ attribute: "class", defaultTheme: "dark", enableSystem: true, disableTransitionOnChange: true, storageKey: "theme", children: "Child" });
   });
+  it("uses the root provider without adding a second theme bootstrap", () => {
+    const html = renderToStaticMarkup(<NaeilThemeProvider><NaeilServiceShell service="home" locale="en" /></NaeilThemeProvider>);
+    expect(html.match(/<script>/g)).toHaveLength(1);
+    expect(html).toContain('"theme","dark"');
+  });
   it("keeps icons server-safe and matches every released brand byte", () => {
     expect(serverIcons).toBe(naeilIcons);
     expect(naeilIcons.brandVersion).toBe("1.1.1");
