@@ -12,7 +12,7 @@ import { loadSharedMessages } from "@naeil/ui/naeil-locale/messages";
 export default async function ServerUtilities() {
   const messages = await loadSharedMessages("ja");
   return (
-    <NaeilLocaleProvider locale="ja" messages={messages}><NaeilServiceShell service="estimate" locale="ja" mainLabel="見積">
+    <NaeilLocaleProvider locale="ja" messages={messages}><NaeilServiceShell service="estimate" locale="ja" account={{status:"signed-out",loginHref:"/ja/login"}} mainLabel="見積">
     <PageHeader title="Packed Next provider shell" />
     <div data-rsc-icons={naeilIcons.brandVersion} data-rsc-icon-href={naeilIcons.links[1].href} data-rsc-cn={cn("p-6", "p-2")} data-rsc-deep-cn={deepCn("m-6", "m-2")} data-rsc-title={naeilDocumentTitle("estimate", "見積")}>
       <a href="https://example.com/" className={buttonVariants({ variant: "outline" })}>Server button variants</a>

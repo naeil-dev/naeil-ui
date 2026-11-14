@@ -1,3 +1,11 @@
+# Status — 2026-11-14 shared UI 0.16.0 candidate
+
+Preparing unpublished `@naeil/ui@0.16.0` from shell-account implementation through `fd40dcd`, based on published 0.15.0 main `85b1461`. The shell accepts optional `account`, owns login/account presentation, and hides signed-out login only for a same-app relative login route with matching URL pathnames; absolute/protocol-relative login URLs remain visible. Static conformance requires `account` and rejects deprecated `header.authSlot`; runtime checks desktop `accountCount` with explicit `--no-account` route exceptions. Omitted `account` preserves 0.15.0 component behavior; standalone header APIs, existing chrome and contract 1 remain unchanged.
+
+Package metadata, generated `/release` and React/Next fixture pins advance together to 0.16.0. Freeze source and exact archive evidence in two separate commits without squashing, compare against immutable 0.15.0, and require fresh Git-source byte-identical reproduction. The published baseline remains `latest=0.15.0`, `next=0.13.0`; intended publication is to `latest` with owner environment approval. Preparation pushes and opens a PR; merge, publication, tag/Release, workflow dispatch and deployment remain separate. Service runtime checks reported with the development tarball were abstorm 52/52, jev 24/24, Home 36/36 and estimate 44/44; these are pre-release checks, not production adoption of the frozen archive. See [release guidance](docs/package-release.md#0160-candidate--shell-owned-login-and-account-control). Earlier publication entries retain their dated context.
+
+---
+
 # Status — 2026-11-14 shared UI 0.15.0 published and services deployed
 
 `@naeil/ui@0.15.0` is published from frozen source `0c952a1065f65427d0dabf66142ec3b62345fab4`; [PR #55](https://github.com/naeil-dev/naeil-ui/pull/55) merged as `f53d101`. Verified tags: **`latest=0.15.0`, `next=0.13.0`**. Chrome contract 1 remains unchanged.

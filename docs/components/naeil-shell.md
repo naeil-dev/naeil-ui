@@ -1,4 +1,4 @@
-# NaeilServiceShell (0.15.0 candidate)
+# NaeilServiceShell
 
 One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Existing header/footer, generic Navigation/SiteFooter and legacy Next adapters retain their compatibility APIs. naeil.dev itself retains its catalog composition and uses the same theme provider.
 
@@ -17,13 +17,12 @@ The provider accepts `children` only. It sets next-themes `attribute="class"`, `
 
 ```tsx
 import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
-import { NaeilHeaderAccountControl } from "@naeil/ui/naeil-header";
 // With NaeilLocaleProvider, import all these from @naeil/ui/naeil-locale/chrome.
 
 <NaeilServiceShell service="estimate" locale={locale}
+  account={account}
   Link={GuardedLink} onNavigate={guard} mainLabel={pageTitle}
-  header={{ appNavigation, currentHref, brandHref, onLocaleChange,
-    authSlot: <NaeilHeaderAccountControl locale={locale} account={account} /> }}
+  header={{ appNavigation, currentHref, brandHref, onLocaleChange }}
   footer={{ meta: version, resolveHref }}>
   <PageHeader title={pageTitle} description={description} actions={actions} />
   <section data-ui-layout="list">{children}</section>
@@ -38,13 +37,22 @@ import { NaeilHeaderAccountControl } from "@naeil/ui/naeil-header";
 | --- | --- |
 | `service` | Required closed lowercase service id; unknown JS/cast values throw `Error` |
 | `locale` | Required `ko`, `ja` or `en` |
+| `account` | Optional `NaeilHeaderAccount` in the component API (planned 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
 | `children` | Page content; start with `PageHeader` |
 | `Link`, `onNavigate` | Existing header/footer routing adapter and guard |
-| `header` | Only `appNavigation`, `currentHref`, `brandHref`, `authSlot`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
+| `header` | Only `appNavigation`, `currentHref`, `brandHref`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`, plus deprecated `authSlot` for 0.15.0 compatibility. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
 | `footer` | Only `meta` and `resolveHref`, or `false`; defaults to the canonical full footer |
 | `mainLabel` | Accessible label of main |
 
 The shell renders provider → `.ui-skip-link` targeting `#main` → service header → `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>` → service footer. Skip text is shared `naeil.shell.skipToContent`: 본문으로 건너뛰기 / 本文へスキップ / Skip to content. Enter on the focused skip link moves focus to main.
+
+### Account ownership and login pages (planned 0.16.0)
+
+Pass session state through `account`; the shell renders `NaeilHeaderAccountControl` with its own locale and the shared `Link`. The header retains its existing desktop/mobile composition. Signed-out pages, including error pages, show the shared login link. Signed-in pages show the shared account menu; the consumer owns logout I/O, busy state, request locks and routing guards above the shell.
+
+When signed out, the shell hides the login control only if `account.loginHref` is a same-app relative route and its URL pathname exactly equals `header.currentHref`'s. Queries and hashes are ignored; an absolute or protocol-relative login URL (e.g. the central `https://naeil.dev/<locale>/login?next=…`) never hides the control, even when a service route shares the pathname. Supply the real localized current path: `/ja/login` matches `/ja/login?next=/console`, while `/login` does not match `/ja/login`. Missing currentHref or an invalid URL keeps the control. Signed-in accounts are never hidden by this rule.
+
+Migrate `header={{authSlot:<NaeilHeaderAccountControl account={account} .../>}}` to `account={account}` and remove authSlot. `header.authSlot` remains accepted when account is omitted for 0.15.0 compatibility, but owned-service conformance rejects it. When both are supplied, account wins (including login-page suppression), with a one-time development warning; production emits no warning. Standalone `NaeilHeader` continues using its existing authSlot contract.
 
 No root `className`, `style`, `id`, `data-*`, container classes, theme options or arbitrary extra props. Footer presentation/attributes and header compatibility escape hatches are also rejected. Strict mapped-never/exact types reject overrides including spreads; JS/cast attempts are dropped with one development-only warning per prop path. They cannot replace the fixed main id/classes or shared routing props. Do not style the shell through ancestors or reserved selectors. Product content styling belongs inside main; purpose widths use `data-ui-layout`, independently of the application frame. Generic/legacy composition overrides remain supported outside this opt-in service contract.
 
@@ -90,7 +98,7 @@ Every violation prints `file:line rule message`; exit 1 means violations or inva
 | Rule | Every enforced requirement |
 | --- | --- |
 | `theme` | No import/re-export of `ThemeProvider` from `next-themes`, `@naeil/ui` or `@naeil/ui/components/theme-provider` (aliases/namespaces included); no document root classList/class writes or colorScheme writes. `forcedTheme`/`defaultTheme`/`storageKey` inputs are forbidden on theme-provider-like tags, including resolved object spreads. Unrelated data strings/object fields and product component props are valid. Render a reachable shared provider or shell. |
-| `chrome` | Render a shell reachable from Next `app/**/layout.*` (also `src/app`) or Vite `index.html`'s main script. Resolve relative imports, baseUrl and tsconfig/jsconfig paths. Its `service` is the literal matching `--service`; unresolved/mismatched services fail. Named aliases, namespace JSX and local component aliases are recognized. No direct header/footer JSX, app `<main>`, `role="main"` or `id="main"`. Vite config `base` must be absent or `/`. |
+| `chrome` | Render a shell reachable from Next `app/**/layout.*` (also `src/app`) or Vite `index.html`'s main script. Every shell must pass explicit `account=` (expressions allowed); root spread-only account inputs are insufficient evidence. No shell header.authSlot, including same-file variables/object spreads. Resolve relative imports, baseUrl and tsconfig/jsconfig paths. Its `service` is the literal matching `--service`; unresolved/mismatched services fail. Named aliases, namespace JSX and local component aliases are recognized. No direct header/footer JSX, app `<main>`, `role="main"` or `id="main"`. Vite config `base` must be absent or `/`. |
 | `rhythm` | Import `@naeil/ui/globals.css`, or both `theme.css` and `components.css`. No real `ui-app-main`/`ui-app-frame` class tokens in className strings/cn()/clsx() arguments; unrelated strings and class substrings are allowed. No PageHeader's own `style`/`className`, including expressions and resolved spreads; descendants inside actions/description may use them. No protected `--ui-*`, `--text-*`, `--spacing-*`, `--radius-*`, `--color-*` or semantic color-token redefinitions. No CSS selectors targeting `.ui-app-`, `.ui-page-`, `.ui-site-footer`, `.naeil-header`, `[data-naeil-`, `[data-slot="site-footer"]`, `[data-slot="navigation"]` or bare global main/h1/header/footer selectors (including after html/body); scoped `.article header` is valid. No font/font-size/font-family/line-height on html/body/:root. |
 | `icons` | Exact three root icon SHA-256 digests. Root public aliases (including apple-touch-icon.png/favicon.svg) and static route aliases may use any canonical file's bytes. Different root aliases/automatic Next route icons fail; dynamic icon.tsx/apple-icon.tsx and directory handlers such as icon.svg/route.ts always fail. Unreferenced historical assets in nested public folders and product icon directories are valid, even with different bytes. No extra icon link declarations or Next route metadata `icons`, including referenced objects/spreads/imported helpers. Unresolved route metadata/helper reports `review-needed`. Opengraph images are independent. Vite links equal the shared attribute sets and order. |
 | `titles` | Next identity roots are exported `metadata` or `generateMetadata` in app layout/page/template/route files. Inspect imported helper bodies through relative/path imports; no `serviceName` override through `localeMetadata`, aliases or object variables/spreads. Unresolvable helpers/options report `review-needed`. Ignore unrelated locals/exports named metadata outside route identity roots. Vite initial title equals `naeilServiceName(service)`. |
@@ -115,13 +123,15 @@ Run against the built application's origin (start its preview/server first). Ins
 pnpm add -D @playwright/test
 pnpm exec playwright install chromium
 naeil-ui-conformance --service estimate --url http://127.0.0.1:4173 \
-  --routes /en/estimates,/unknown,/login --no-footer /login \
+  --routes /en/estimates,/unknown,/login --no-footer /login --no-account /login \
   --storage-state ./playwright/.auth/session.json \
   --header 'X-Test-Session: value' --header 'X-Tenant: example' \
   --expect-status /unknown=404
 ```
 
 `--app <consumer-dir>` optionally selects the project whose node_modules contains `playwright` or `@playwright/test`; by default it is the current directory. `--routes` is a comma-separated list of local paths (queries are allowed). `--no-footer` lists the exact recorded route(s) that must have no footer; each must appear in `--routes`. These are explicit route exceptions, not an inferred permission to omit footers elsewhere.
+
+At 1440px the runtime requires at least one `[data-naeil-account-state]` inside the shared header. `accountCount` counts all such elements, including CSS-hidden desktop/mobile copies, and ignores markers outside the header. Repeatable `--no-account /login,/gate` records exact requested-route exceptions; all listed routes must appear in --routes. The option permits absence rather than requiring zero. Use it for a recorded login page where the shell intentionally suppresses the redundant login link. Mobile measurements report the count but do not require a marker. Neither exception changes the static account= requirement.
 
 `--storage-state <file>` applies a Playwright storageState JSON to every new context, preserving cookies and other stored data. The verifier removes only localStorage entries named `theme` from every supplied origin so dark-default verification remains fresh; it does not modify the file. Repeat `--header name:value` to apply authentication/tenant headers to every context (values may contain colons).
 
@@ -130,6 +140,7 @@ All routes require a final 2xx HTTP response unless repeatable `--expect-status 
 For every route, the CLI creates four fresh contexts: 1440×900 and 390×844 under emulated OS light and dark. The table lists route, viewport, scheme, result and failures. It asserts:
 
 - Exactly one main landmark and exactly one `main#main.ui-app-main`; exactly one shared header.
+- At 1440px, header accountCount is at least 1 unless the route is recorded with --no-account.
 - Header bottom → first h1 is 48px ±0.5; h1 is 32px/42px/600.
 - h1 → `.ui-page-description` is 12px ±0.5 when a description exists.
 - `.ui-page-header` → next visible normal-flow sibling content is 32px ±0.5 when present (following ancestor siblings within main when the header is wrapped).
@@ -150,4 +161,4 @@ const measurements: NaeilPageMeasurements = await page.evaluate(measureNaeilPage
 expect(measurements.headerTitle).toBeCloseTo(48, 1);
 ```
 
-Call after the title is visible and fonts are ready. Missing required elements return null measurements, permitting a test to report the absent element. Results include `pageHeaderContent`, the actual document `url`, and absolute icon hrefs. The function closes over no module state and can be serialized directly by Playwright.
+Call after the title is visible and fonts are ready. Missing required elements return null measurements, permitting a test to report the absent element. Results include `accountCount`, `pageHeaderContent`, the actual document `url`, and absolute icon hrefs. The function closes over no module state and can be serialized directly by Playwright.

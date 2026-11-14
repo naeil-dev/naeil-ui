@@ -34,6 +34,14 @@ test('runtime CLI enforces route-specific no-footer and reports actual divergenc
   expect(broken.code, broken.stdout + broken.stderr).toBe(1);
   expect(broken.stdout).toContain('body font-size: 14');
 });
+test('real shell login pages need an explicit runtime account exception', async ({baseURL}) => {
+  test.setTimeout(90000);
+  const login=route('estimate','en','&shellAuth=out&noFooter&loginPage');
+  const accepted=await cli(baseURL!,[login],['--no-footer',login,'--no-account',login]);
+  expect(accepted.code,accepted.stdout+accepted.stderr).toBe(0);
+  const rejected=await cli(baseURL!,[login],['--no-footer',login]);
+  expect(rejected.code).toBe(1); expect(rejected.stdout).toContain('header account count: 0');
+});
 test('exported measurement function is serializable and observes DOM changes', async ({page}) => {
   await page.goto(route('estimate'));
   await expect(page.locator('main h1')).toBeVisible();

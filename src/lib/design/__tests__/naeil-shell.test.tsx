@@ -12,6 +12,57 @@ import type { NavigationLinkProps } from "../../../components/ui/navigation";
 
 const render = (props: NaeilServiceShellProps) => renderToStaticMarkup(createElement(NaeilServiceShell, props));
 describe("owned service shell", () => {
+  describe.each(['standalone', 'provider'] as const)('%s account ownership', entry => {
+    const accountRender = async (props: NaeilServiceShellProps) => entry === 'standalone' ? render(props) : renderToStaticMarkup(
+      <NaeilMessagesProvider locale={props.locale} messages={(await loadSharedMessages(props.locale)).naeil}><ProviderShell {...props}/></NaeilMessagesProvider>);
+    it.each([['ko', '로그인'], ['ja', 'ログイン'], ['en', 'Log in']] as const)('renders shared signed-out SSR control with its Link in %s', async (locale, label) => {
+      const html = await accountRender({service:'abstorm', locale, account:{status:'signed-out',loginHref:'/login?next=%2F404'}, header:{currentHref:'/404'}, Link: props => <a {...props} data-account-link="shared"/>});
+      expect(html).toContain('data-naeil-account-state="signed-out"');
+      expect(html).toContain('href="/login?next=%2F404"');
+      expect(html).toContain('data-account-link="shared"');
+      expect(html).toContain(label);
+    });
+    it.each(['/login', '/login?next=/console#form', 'https://home.naeil.dev/login?next=/console'])('hides the signed-out control only on matching login pathname %s', async currentHref => {
+      const html = await accountRender({service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login#start'},header:{currentHref}});
+      expect(html).not.toContain('data-naeil-account-state');
+    });
+    it.each([undefined, '/404', '/login-help', '/ja/login'])('keeps login on a different/missing current pathname %s', async currentHref => {
+      expect(await accountRender({service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{currentHref}})).toContain('data-naeil-account-state="signed-out"');
+    });
+    it('never hides an absolute central login URL, even when a service route shares its pathname', async () => {
+      const html = await accountRender({service:'jev',locale:'ko',account:{status:'signed-out',loginHref:'https://naeil.dev/ko/login?next=https%3A%2F%2Fjev.naeil.dev%2Fko%2Flogin'},header:{currentHref:'/ko/login'}});
+      expect(html).toContain('data-naeil-account-state="signed-out"');
+      expect(await accountRender({service:'jev',locale:'en',account:{status:'signed-out',loginHref:'//naeil.dev/login'},header:{currentHref:'/login'}})).toContain('data-naeil-account-state="signed-out"');
+    });
+    it('renders signed-in SSR including busy state even on the login pathname', async () => {
+      const html = await accountRender({service:'home',locale:'en',account:{status:'signed-in',onLogout:()=>{},busy:true,displayName:'Jay',email:'jay@example.test'},header:{currentHref:'/login'}});
+      expect(html).toContain('data-naeil-account-state="signed-in"'); expect(html).toContain('aria-busy="true"');
+    });
+    it('account wins over the compatible slot, including on login screens', async () => {
+      vi.stubEnv('NODE_ENV','production');
+      try {
+        const base = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{authSlot:<button>Legacy account</button>}} as const;
+        const html = await accountRender(base); expect(html).not.toContain('Legacy account'); expect(html).toContain('data-naeil-account-state="signed-out"');
+        const login = await accountRender({...base,header:{...base.header,currentHref:'/login'}}); expect(login).not.toContain('Legacy account'); expect(login).not.toContain('data-naeil-account-state');
+      } finally {vi.unstubAllEnvs();}
+    });
+  });
+  it('warns once in development when account replaces header.authSlot', () => {
+    const warning = vi.spyOn(console,'warn').mockImplementation(()=>{}); vi.stubEnv('NODE_ENV','development');
+    try {
+      const props: NaeilServiceShellProps = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{authSlot:<button>Legacy</button>}};
+      render(props); render(props); expect(warning).toHaveBeenCalledTimes(1); expect(warning.mock.calls[0][0]).toContain('account'); expect(warning.mock.calls[0][0]).toContain('header.authSlot');
+    } finally {vi.unstubAllEnvs();warning.mockRestore();}
+  });
+  it('accepts both account variants in public wrappers and rejects incomplete variants on both entries', () => {
+    const props: NaeilServiceShellProps = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'}};
+    const standalone = <NaeilServiceShell {...props}/>; const provider = <ProviderShell {...props} account={{status:'signed-in',onLogout:()=>{},busy:true,displayName:'Jay',email:'jay@example.test'}}/>;
+    // @ts-expect-error signed-out requires loginHref
+    const out = <NaeilServiceShell {...props} account={{status:'signed-out'}}/>;
+    // @ts-expect-error signed-in requires onLogout
+    const signedIn = <ProviderShell {...props} account={{status:'signed-in'}}/>;
+    expect([standalone,provider,out,signedIn]).toHaveLength(4);
+  });
   it.each(["abstorm", "home", "estimate", "jev"] as const)("renders ordered canonical regions for %s", service => {
     const html = render({ service, locale: "en", mainLabel: "Estimates", children: <PageHeader title="Estimates" description="Your estimates" /> });
     expect(html).toContain('<a class="ui-skip-link" href="#main">Skip to content</a>');

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { NaeilServiceShell, PageHeader, naeilDocumentTitle, naeilIcons, type NaeilService } from "./naeil-shell";
-import { NaeilHeaderAccountControl, type NaeilHeaderLocale } from "./naeil-header";
+import type { NaeilHeaderLocale } from "./naeil-header";
 import { Button } from "./ui/button";
+import type { NavigationLinkComponent } from "./ui/navigation";
 
 const meta = {
   title: "Brand/NaeilServiceShell",
@@ -23,6 +24,11 @@ function Example({ service }: { service: NaeilService }) {
   const [locale, setLocale] = useState<NaeilHeaderLocale>(initial === "ko" || initial === "ja" ? initial : "en");
   const [notice, setNotice] = useState("");
   const [signedIn, setSignedIn] = useState(params.get("shellAuth") !== "out");
+  const GuardedLink = useCallback<NavigationLinkComponent>(({onClick, ...props}) => <a {...props} onClick={event => {
+    onClick?.(event);
+    if (event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || props.target === "_blank") return;
+    event.preventDefault(); setNotice(props.href);
+  }} />, [setNotice]);
   useEffect(() => {
     document.documentElement.lang = locale;
     document.title = naeilDocumentTitle(service, copy[locale].title);
@@ -35,15 +41,16 @@ function Example({ service }: { service: NaeilService }) {
     return () => links.forEach(link => link.remove());
   }, [locale, service]);
   const text = copy[locale];
-  return <NaeilServiceShell service={service} locale={locale} mainLabel={text.title}
+  return <NaeilServiceShell service={service} locale={locale} mainLabel={text.title} Link={GuardedLink}
+    account={signedIn
+      ? { status: "signed-in", onLogout: () => { setSignedIn(false); setNotice("Signed out"); } }
+      : { status: "signed-out", loginHref: "/login" }}
     footer={params.has("noFooter") ? false : { meta: ".naeil service shell" }}
     onNavigate={(event, item) => {
       if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || item.target === "_blank") return;
       event.preventDefault(); setNotice(item.href);
     }}
-    header={{ onLocaleChange: setLocale, authSlot: <NaeilHeaderAccountControl locale={locale} account={signedIn
-      ? { status: "signed-in", onLogout: () => { setSignedIn(false); setNotice("Signed out"); } }
-      : { status: "signed-out", loginHref: "/login" }} /> }}>
+    header={{ onLocaleChange: setLocale, currentHref: params.has("loginPage") ? "/login?from=console#form" : "/estimates" }}>
     <PageHeader title={text.title} description={text.description} actions={<Button onClick={() => setNotice(text.action)}>{text.action}</Button>} />
     <section data-ui-layout="list" data-shell-content><p>{text.content}</p><p role="status">{notice}</p></section>
   </NaeilServiceShell>;

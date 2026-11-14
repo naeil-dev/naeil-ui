@@ -3,6 +3,7 @@ export interface NaeilPageMeasurements {
   mainCount: number;
   ownedMainCount: number;
   headerCount: number;
+  accountCount: number;
   footerCount: number;
   headerTitle: number | null;
   titleDescription: number | null;
@@ -88,6 +89,7 @@ export function measureNaeilPage(): NaeilPageMeasurements {
   return {
     mainCount: mains.length, ownedMainCount: owned.length,
     headerCount: headers.length, footerCount: footers.length,
+    accountCount: document.querySelectorAll('[data-naeil-header] [data-naeil-account-state]').length,
     headerTitle: header && title ? title.getBoundingClientRect().top - header.getBoundingClientRect().bottom : null,
     titleDescription: title && description ? description.getBoundingClientRect().top - title.getBoundingClientRect().bottom : null,
     pageHeaderContent: pageHeader && nextContent ? nextContent.getBoundingClientRect().top - pageHeader.getBoundingClientRect().bottom : null,
