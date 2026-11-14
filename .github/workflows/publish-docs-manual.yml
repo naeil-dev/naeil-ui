@@ -62,6 +62,9 @@ jobs:
       - name: Verify preinstalled Playwright browsers
         run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm build:storybook
+      - name: Build package for runtime conformance specs
+        if: matrix.suite == 'other'
+        run: pnpm build:pkg
       - name: Run browser coverage
         env:
           NAEIL_UI_TEST_BROWSER: ${{ matrix.browser }}
