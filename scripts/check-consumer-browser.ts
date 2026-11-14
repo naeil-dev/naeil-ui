@@ -1,3 +1,4 @@
+import {observeArtworkResponses, waitForLiveArtwork} from "./live-artwork";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
@@ -70,6 +71,7 @@ export async function checkConsumerBrowser(root: string) {
     // The fixture has no Next/site backend or consumer-owned artwork directory.
     for (const width of [390, 1440, 1920]) for (const theme of ["light", "dark"] as const) {
       const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: theme });
+      const artworkResponses = observeArtworkResponses(page);
       try {
         await page.goto(`http://127.0.0.1:${address.port}`);
         const header = page.locator("[data-naeil-header]");
@@ -112,7 +114,7 @@ export async function checkConsumerBrowser(root: string) {
         const images = panel.locator("img");
         await expect(images).toHaveCount(1);
         for (const image of await images.all()) {
-          await expect.poll(() => image.evaluate(element => (element as HTMLImageElement).complete && (element as HTMLImageElement).naturalWidth > 0)).toBe(true);
+          await waitForLiveArtwork(image, artworkResponses);
           assert.match((await image.getAttribute("src"))!, /^https:\/\/naeil.dev\/images\/whale\.png$/);
         }
         await panel.getByRole("link", { name: /naeil-ui/ }).click();

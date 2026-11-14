@@ -33,7 +33,7 @@
 - [x] Add paired fixtures for entry reachability/service aliases, theme imports/writes, protected CSS/classes/PageHeader, metadata/icons/title resolution and Vite base. Run the focused Vitest suite and observe the new failures.
 - [x] Implement import graph/alias resolution and conservative object traversal; require CSS and restrict theme props to provider tags. Keep existing diagnostics/ignores and realpath bin entry handling.
 - [x] Reproduce typed `NaeilServiceShellProps` JSX spreads; change Exact's shape to include known optional-never keys while rejecting unknown keys. Check both shell entries and forbidden root/nested inputs.
-- [ ] Run focused tests and types; commit the independently testable correction.
+- [x] Run focused tests and types; commit the independently testable correction.
 
 ### Task 2: Runtime gate
 
@@ -42,7 +42,7 @@
 - [x] Add failing runtime/measurement tests for valid pages and each failing measurement, dependency errors and no-footer routes.
 - [x] Export self-contained `measureNaeilPage()` and add CLI `--url`, `--routes`, `--no-footer`; resolve consumer Playwright, create four fresh contexts per route and print a table with exit 1/2 semantics.
 - [x] Check main identity, 48/12/96 ±0.5 gaps, 32/42/600 title, body 16, fresh dark, canonical icon rel/path/type and ICO size, title suffix.
-- [ ] Run CLI against real shell Storybook pages; exercise packed export and bin; commit.
+- [x] Run CLI against real shell Storybook pages; exercise packed export and bin; commit.
 
 ### Task 3: Docs, review and delivery
 
@@ -50,7 +50,7 @@
 
 - [x] Make shell-owned header/nine-input contract consistent while preserving standalone semantics; document every static/runtime rule, review-needed diagnostics and consumer Playwright installation.
 - [ ] Run all requested unit/rollout/types/lint/contrast/build/package/Storybook/browser gates; inspect results, fix failures, retain evidence.
-- [ ] Request one independent final review and address substantive findings with regression tests.
+- [x] Request one independent final review and address substantive findings with regression tests.
 - [ ] Commit, push feature branch, rebuild/pack r3 artifact and record hash; report in Korean.
 
 ## Execution ledger
@@ -66,3 +66,8 @@
 - Review scope: deployed consumer/authenticated service behavior is outside this library implementation; packed/runtime fixtures and the requested complete gates provide local evidence. No release/publish/deployment is performed.
 
 - Gate investigation: the first packed Next/split run failed G1 unlock restoration (before margin 8px, closed 0px). Generated Next frame imports its CSS asynchronously with the client app; DOM readiness/two paints did not prove CSS readiness. Added a sentinel in the generated fixture's actual stylesheet and wait for it before baseline measurements. This changes only verification infrastructure, not shipped styles or runtime behavior; all original compensation assertions remain exact.
+
+- Final local gates: pnpm test 1,152 passed/6 skipped; rollout 351 passed/1 skipped; types, lint (three pre-existing warnings), contrast, package build and Storybook passed. Requested Chromium set 347/347 passed in 10.1m, including new runtime mode. Evidence retains 48 real geometry measurements and inspected desktop/mobile screenshots.
+- Network: subsequent packed runs hit live naeil.dev Vercel 403 (root and whale image). Retried with backoff, no image mocks or weakened assertions. Once HTTP 200 recovered, stopped the separate direct checks and restarted the exact full package gate with one runner.
+
+- Added bounded live-artwork 403 retry to verification only: same URL, Retry-After honored, maximum three attempts, persistent 403 remains failure. Two real local-HTTP fixture cases (403→200, permanent 403) were observed RED→GREEN; the complete runtime e2e file passed 7/7. The next exact package run passed live artwork and all React browser checks without substituted bytes. Latest full browser set reruns 349 cases.

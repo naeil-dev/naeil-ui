@@ -47,3 +47,29 @@ test('exported measurement function is serializable and observes DOM changes', a
   expect(values.contentFooter).toBe(96); // hidden trailing elements cannot hide the final content block
   expect(assessNaeilPage(values, {service: 'estimate'})).toContain('body font-size: 14 (expected 16)');
 });
+
+for (const recovers of [true, false]) test(`artwork HTTP 403 retry ${recovers ? 'recovers' : 'remains a failure'}`, async ({page}) => {
+  const {createServer} = await import('node:http');
+  const {readFileSync} = await import('node:fs');
+  const {observeArtworkResponses, waitForLiveArtwork} = await import('../scripts/live-artwork');
+  let requests = 0;
+  const server = createServer((_, response) => {
+    requests++;
+    if (!recovers || requests === 1) response.writeHead(403, {'retry-after':'0', 'cache-control':'no-store'}).end('Temporary challenge');
+    else response.writeHead(200, {'content-type':'image/svg+xml'}).end(readFileSync('brand/naeil/1.1.1/icons/favicon.svg'));
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const address = server.address(); if (!address || typeof address === 'string') throw Error('No local server');
+    const responses = observeArtworkResponses(page);
+    await page.setContent(`<img src="http://127.0.0.1:${address.port}/art.svg">`);
+    if (recovers) {
+      await waitForLiveArtwork(page.locator('img'), responses);
+      expect(await page.locator('img').evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+      expect(requests).toBe(2);
+    } else {
+      await expect(waitForLiveArtwork(page.locator('img'), responses)).rejects.toThrow('HTTP 403 after 3 attempts');
+      expect(requests).toBe(3);
+    }
+  } finally { await new Promise<void>(resolve => server.close(() => resolve())); }
+});
