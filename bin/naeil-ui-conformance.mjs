@@ -10,7 +10,9 @@ const rules = new Set(['theme', 'chrome', 'rhythm', 'icons', 'titles']);
 const excluded = /^(?:node_modules|\.next|\.git|dist|build|out|coverage|storybook-static|test-results|playwright-report|__tests__|__mocks__|tests?|e2e)$/;
 const sourceFile = /\.(?:[cm]?[jt]sx?|css|html)$/;
 const testFile = /\.(?:test|spec|stories)\.[^.]+$|(?:^|[-.])test[-.]harness\./;
-import { withoutComments, closing, openingTags, attributes, bindings, imports, objectResolver, metadataExpressions, hasFrameClass, splitTop } from './conformance-source.mjs';
+import { withoutComments, closing, openingTags, attributes, bindings, imports, objectResolver, hasFrameClass, splitTop, spreads, targetsGlobalElement } from './conformance-source.mjs';
+import { projectResolver } from './conformance-project.mjs';
+import { checkNextMetadata } from './conformance-metadata.mjs';
 function sameAttributes(a, b) {
   return Object.keys(a).length === Object.keys(b).length && Object.entries(b).every(([key, value]) => a[key] === value);
 }
@@ -22,16 +24,20 @@ export function checkConformance({ service, framework, app }) {
   const root = resolve(app);
   if (!existsSync(root)) throw new Error(`App directory does not exist: ${root}`);
   const files = [], assets = [];
-  function walk(dir) {
+  const resolveImport = projectResolver(root), publicRoot = join(resolveImport.projectRoot, 'public');
+  function walk(dir, scanSources = true) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.isDirectory() && !excluded.test(entry.name) && !entry.name.startsWith('.')) walk(join(dir, entry.name));
-      else if (entry.isFile()) { assets.push(join(dir, entry.name)); if (sourceFile.test(entry.name) && !testFile.test(entry.name)) files.push(join(dir, entry.name)); }
+      if (entry.isDirectory() && !excluded.test(entry.name) && !entry.name.startsWith('.')) walk(join(dir, entry.name), scanSources);
+      else if (entry.isFile()) { assets.push(join(dir, entry.name)); if (scanSources && sourceFile.test(entry.name) && !testFile.test(entry.name)) files.push(join(dir, entry.name)); }
     }
   }
   walk(root);
+  if (!publicRoot.startsWith(root + '/') && existsSync(publicRoot)) walk(publicRoot, false);
   files.sort();
   const issues = [], ignores = [], sources = new Map();
-  for (const file of files) {
+  function load(file) {
+    if (sources.has(file)) return sources.get(file);
+    if (!sourceFile.test(file) || !existsSync(file)) return;
     const raw = readFileSync(file, 'utf8');
     const lines = raw.split('\n');
     const exemptions = new Map();
@@ -44,7 +50,9 @@ export function checkConformance({ service, framework, app }) {
       else { exemptions.set(`${index + 2}:${rule}`, true); ignores.push({ file, line: index + 1, rule, reason }); }
     });
     sources.set(file, { text: withoutComments(raw), exemptions });
+    return sources.get(file);
   }
+  for (const file of files) load(file);
   function report(file, offset, rule, message) {
     const source = sources.get(file);
     const line = source ? source.text.slice(0, offset).split('\n').length : 1;
@@ -52,12 +60,10 @@ export function checkConformance({ service, framework, app }) {
   }
   const reachable = new Set();
   function visit(file) {
-    if (reachable.has(file) || !sources.has(file)) return;
+    if (reachable.has(file) || !load(file)) return;
     reachable.add(file);
     for (const name of imports(sources.get(file).text)) {
-      if (!name.startsWith('.')) continue;
-      const base = resolve(dirname(file), name);
-      const target = [base, ...['.tsx','.ts','.jsx','.js','.mts','.mjs','.cts','.cjs'].map(ext => base + ext), ...['tsx','ts','jsx','js'].map(ext => join(base, `index.${ext}`))].find(candidate => sources.has(candidate));
+      const target = resolveImport(file, name);
       if (target) visit(target);
     }
   }
@@ -87,10 +93,9 @@ export function checkConformance({ service, framework, app }) {
       const ns = /\*\s+as\s+(\w+)/.exec(m[2]);
       if (ns && new RegExp(`\\b${ns[1]}\\.ThemeProvider\\b`).test(text)) report(file, m.index, 'theme', 'Use NaeilThemeProvider');
     }
-    scan(/\bforcedTheme\b/g, 'theme', 'forcedTheme bypasses shared theme policy');
     scan(/document\s*\.\s*documentElement\s*\.\s*(?:classList\s*\.\s*(?:(?:add|remove|toggle|replace)\s*\(|value\s*=)|className\s*(?:=(?!=)|\+=|\|\|=|\?\?=)|setAttribute\s*\(\s*["']class["'])|\bcolorScheme\s*(?:=|\+=|\|\|=|\?\?=)|\.setProperty\s*\(\s*["']color-scheme["']/g, 'theme', 'Do not write document theme classes or colorScheme');
     for (const tag of openingTags(text)) {
-      const name = names.get(tag.name), attrs = attributes(tag.text);
+      const positions = {}, name = names.get(tag.name), attrs = attributes(tag.text, positions);
       if (name === 'NaeilServiceShell') {
         if (attrs.service !== service) report(file, tag.index, 'chrome', `Shell service must be the literal "${service}"${attrs.service === undefined ? ' (review-needed: unresolved service)' : ''}`);
         else if (reachable.has(file)) shell = true;
@@ -98,9 +103,13 @@ export function checkConformance({ service, framework, app }) {
       if (name === 'NaeilThemeProvider' && reachable.has(file)) theme = true;
       if (['NaeilHeader', 'NaeilFooter'].includes(name)) report(file, tag.index, 'chrome', 'Use NaeilServiceShell instead of direct header/footer JSX');
       if (tag.name === 'main' || attrs.role === 'main' || attrs.id === 'main') report(file, tag.index, 'chrome', 'The shell owns main, role="main" and id="main"');
-      if (name === 'PageHeader' && /\b(?:style|className)\s*=/.test(tag.text)) report(file, tag.index, 'rhythm', 'Owned-service PageHeader accepts no style/className overrides');
-      if (name === 'NaeilThemeProvider' || /ThemeProvider$/.test(tag.name)) for (const attr of tag.text.matchAll(/\b(?:defaultTheme|storageKey)\s*=/g))
-        report(file, tag.index + attr.index, 'theme', 'Theme policy belongs to NaeilThemeProvider');
+      const spreadKeys = new Set(spreads(tag.text).flatMap(value => [...inspect(value).keys]));
+      if (name === 'PageHeader' && (['style', 'classname'].some(key => Object.hasOwn(attrs, key)) || ['style', 'className'].some(key => spreadKeys.has(key)))) report(file, tag.index, 'rhythm', 'Owned-service PageHeader accepts no style/className overrides');
+      if (name === 'NaeilThemeProvider' || /ThemeProvider$/.test(tag.name)) {
+        const own = ['defaulttheme', 'storagekey', 'forcedtheme'].find(key => Object.hasOwn(attrs, key));
+        if (own || ['defaultTheme', 'storageKey', 'forcedTheme'].some(key => spreadKeys.has(key)))
+          report(file, tag.index + (positions[own] ?? 0), 'theme', 'Theme policy belongs to NaeilThemeProvider');
+      }
     }
     if (!/\.(?:css|html)$/.test(file)) {
       const offset = hasFrameClass(text);
@@ -111,18 +120,15 @@ export function checkConformance({ service, framework, app }) {
       for (const block of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
         const selector = block[1];
         if (/\.ui-app-|\.ui-page-|\.ui-site-footer|\.naeil-header|\[\s*data-naeil-|\[\s*data-slot\s*=\s*["']?(?:site-footer|navigation)\b/.test(selector)
-          || /(?:^|[\s,>+~(])(?:main|h1|header|footer)(?=[\s,.#:[>+~)]|$)/.test(selector))
+          || targetsGlobalElement(selector))
           report(file, block.index + selector.search(/\S/), 'rhythm', 'Do not style shared frame, page, chrome or global main/h1/header/footer selectors');
         if (/(?:^|[\s,>+~(])(?:html|body|:root)(?=[\s,.#:[>+~)]|$)/.test(selector) && /(?:^|[;{}\s])(?:font(?:-(?:size|family))?|line-height)\s*:/.test(block[2]))
           report(file, block.index + selector.search(/\S/), 'rhythm', 'Use the shared body typography');
       }
     }
-    if (framework === 'next') for (const metadata of metadataExpressions(text)) {
-      const result = inspect(metadata.expression);
-      if (result.keys.has('icons')) report(file, metadata.index, 'icons', 'Use Next root icon files without metadata icons overrides');
-      if (result.unresolved) report(file, metadata.index, 'icons', 'review-needed: cannot resolve metadata object/spread; verify it has no icons');
-    }
-    for (const match of text.matchAll(/\b([\w$.]+)\s*\(/g)) {
+    if (framework === 'next' && file.startsWith(nextApp + '/') && /^(?:layout|page|template|route)\.[cm]?[jt]sx?$/.test(basename(file)))
+      checkNextMetadata(file, {load, resolveImport, report});
+    if (framework === 'vite') for (const match of text.matchAll(/\b([\w$.]+)\s*\(/g)) {
       if (names.get(match[1]) !== 'localeMetadata') continue;
       const start = match.index + match[0].length - 1;
       const args = splitTop(text.slice(start + 1, closing(text, start)));
@@ -149,13 +155,17 @@ export function checkConformance({ service, framework, app }) {
   let iconRoot = join(root, 'public');
   if (framework === 'next') iconRoot = existsSync(join(root, 'app')) ? join(root, 'app') : existsSync(join(root, 'src/app')) ? join(root, 'src/app') : root;
   for (const file of assets) {
-    const inIcons = file.startsWith(iconRoot + '/') || file.startsWith(join(root, 'public') + '/');
-    if (inIcons && /^(?:favicon|icon|apple-icon|apple-touch-icon)(?:[.\d-].*)?$/i.test(basename(file)) && !(dirname(file) === iconRoot && Object.hasOwn(naeilIcons.files, basename(file))))
-      report(file, 0, 'icons', 'Remove duplicate/static/dynamic route icons; only three canonical root files are allowed');
+    const routeIcon = framework === 'next' && file.startsWith(nextApp + '/') && relative(nextApp, file).split('/').slice(0, -1).some(part => /^(?:favicon|icon|apple-icon)(?:[.\d-].*)?$/i.test(part));
+    const inIcons = file.startsWith(nextApp + '/') && framework === 'next' || dirname(file) === publicRoot;
+    if (routeIcon && /^route\.[cm]?[jt]sx?$/.test(basename(file))) report(file, 0, 'icons', 'Remove directory-based route icon handlers');
+    if (inIcons && /^(?:favicon|icon|apple-icon|apple-touch-icon)(?:[.\d-].*)?$/i.test(basename(file)) && !(dirname(file) === iconRoot && Object.hasOwn(naeilIcons.files, basename(file)))) {
+      const canonicalBytes = Object.values(naeilIcons.files).includes(createHash('sha256').update(readFileSync(file)).digest('hex'));
+      if (/\.[cm]?[jt]sx?$/.test(file) || !canonicalBytes) report(file, 0, 'icons', 'Icon aliases must match canonical bytes; dynamic icons are forbidden');
+    }
   }
   for (const [name, digest] of Object.entries(naeilIcons.files)) {
     const file = join(iconRoot, name);
-    if (!existsSync(file)) report(file, 0, 'icons', `Missing brand ${naeilIcons.brandVersion} icon`);
+    if (!assets.includes(file)) report(file, 0, 'icons', `Missing brand ${naeilIcons.brandVersion} icon`);
     else if (createHash('sha256').update(readFileSync(file)).digest('hex') !== digest) report(file, 0, 'icons', `Icon must match brand ${naeilIcons.brandVersion} SHA-256 ${digest}`);
   }
   if (framework === 'vite') {
@@ -170,24 +180,25 @@ export function checkConformance({ service, framework, app }) {
 }
 export async function main(args = process.argv.slice(2)) {
   try {
-    if (args.includes('--help')) { console.log('naeil-ui-conformance --service abstorm|home|estimate|jev --framework next|vite --app <dir>\nnaeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--app <consumer-dir>]'); return 0; }
+    if (args.includes('--help')) { console.log('naeil-ui-conformance --service abstorm|home|estimate|jev --framework next|vite --app <dir>\nnaeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--app <consumer-dir>] [--storage-state <file>] [--header name:value] [--expect-status /unknown=404] [--allow-redirect /old=/new]\n--header, --expect-status and --allow-redirect are repeatable.'); return 0; }
     const options = {};
     for (let i = 0; i < args.length; i += 2) {
       const key = args[i].replace(/^--/, '');
-      if (!['service', 'framework', 'app', 'url', 'routes', 'no-footer'].includes(key) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`Invalid argument: ${args[i]}`);
-      options[key] = args[i + 1];
+      if (!['service', 'framework', 'app', 'url', 'routes', 'no-footer', 'storage-state', 'header', 'expect-status', 'allow-redirect'].includes(key) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`Invalid argument: ${args[i]}`);
+      if (['header', 'expect-status', 'allow-redirect'].includes(key)) (options[key] ??= []).push(args[i + 1]);
+      else options[key] = args[i + 1];
     }
     if (!services.includes(options.service)) throw new Error(`--service must be ${services.join('|')}`);
     if (options.url) {
       if (!options.routes) throw new Error('--routes is required with --url');
       const {checkRuntimeConformance} = await import('./conformance-runtime.mjs');
-      const rows = await checkRuntimeConformance({...options, routes: options.routes.split(','), noFooter: options['no-footer']?.split(',') ?? []});
+      const rows = await checkRuntimeConformance({...options, routes: options.routes.split(','), noFooter: options['no-footer']?.split(',') ?? [], storageState: options['storage-state'], headers: options.header, expectStatus: options['expect-status'], allowRedirect: options['allow-redirect']});
       console.table(rows.map(row => ({route: row.route, viewport: row.viewport, scheme: row.scheme, result: row.errors.length ? 'FAIL' : 'PASS', details: row.errors.join('; ')})));
       const failures = rows.filter(row => row.errors.length).length;
       console.log(`naeil-ui-conformance runtime: ${failures ? 'FAIL' : 'PASS'} (${rows.length} checks, ${failures} failures)`);
       return failures ? 1 : 0;
     }
-    if (options.routes || options['no-footer']) throw new Error('--routes/--no-footer require --url');
+    if (['routes','no-footer','storage-state','header','expect-status','allow-redirect'].some(key => options[key])) throw new Error('Runtime route/auth/status/redirect options require --url');
     if (!options.app) throw new Error('--app is required');
     const report = checkConformance(options);
     for (const item of report.ignores) console.log(`${relative(report.root, item.file) || basename(item.file)}:${item.line} ignore ${item.rule}: ${item.reason}`);

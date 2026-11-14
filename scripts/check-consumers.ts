@@ -238,6 +238,18 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     const args = ["--service", "estimate", "--framework", framework, "--app", app];
     let checked = spawnSync(cli, args, { encoding: "utf8" });
     assert.equal(checked.status, 0, checked.stderr);
+    mkdirSync(join(app, "src"), {recursive: true});
+    writeFileSync(join(app, "src/content.tsx"), '<PageHeader actions={<Action className="button"/>}/>; const metadata = user.user_metadata; const sample = "forcedTheme";');
+    if (framework === 'next') {
+      writeFileSync(join(app, 'tsconfig.json'), JSON.stringify({compilerOptions:{baseUrl:'.',paths:{'@/*':['src/*']}}}));
+      writeFileSync(join(app, 'app/page.tsx'), 'import {pageMetadata} from "@/metadata"; export const generateMetadata = pageMetadata;');
+      writeFileSync(join(app, 'src/metadata.ts'), 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export function pageMetadata(){return localeMetadata({service:"estimate"});}');
+      checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr);
+      writeFileSync(join(app, 'src/metadata.ts'), 'export function pageMetadata(){return {icons:[]};}');
+      checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 1); assert.match(checked.stderr, /icons/);
+      writeFileSync(join(app, 'src/metadata.ts'), 'export function pageMetadata(){return {description:"ok"};}');
+    }
+    checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr);
     writeFileSync(join(app, "violation.css"), ":root { --color-background: pink; }");
     writeFileSync(join(app, "violation.tsx"), '<NaeilHeader /><NaeilThemeProvider defaultTheme="light" />');
     checked = spawnSync(cli, args, { encoding: "utf8" });
@@ -245,7 +257,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     assert.match(checked.stderr, /violation.tsx:1 chrome/);
     assert.match(checked.stderr, /violation.tsx:1 theme/);
     assert.match(checked.stderr, /violation.css:1 rhythm/);
-    const missingRuntime = spawnSync(cli, ["--service", "estimate", "--url", "http://127.0.0.1:1", "--routes", "/", "--app", app], {encoding: "utf8"});
+    const missingRuntime = spawnSync(cli, ["--service", "estimate", "--url", "http://127.0.0.1:1", "--routes", "/", "--app", app, '--header', 'X-Fixture:accepted', '--expect-status', '/=200', '--allow-redirect', '/=/en'], {encoding: "utf8"});
     assert.equal(missingRuntime.status, 2, missingRuntime.stderr);
     assert.match(missingRuntime.stderr, /pnpm add -D @playwright\/test/);
   }

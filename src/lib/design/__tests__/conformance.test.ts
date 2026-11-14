@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync, symlinkSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
@@ -10,7 +10,7 @@ function fixture(framework: "next" | "vite") {
   const root = mkdtempSync(join(tmpdir(), "naeil-conformance-")); roots.push(root);
   conformanceFixture(root, framework);
   const check = () => checkConformance({ service: "estimate", framework, app: root });
-  return { root, check, add: (file: string, text: string) => { const path = join(root, file); mkdirSync(join(path, ".."), { recursive: true }); writeFileSync(path, text); } };
+  return { root, check, add: (file: string, text: string | Uint8Array) => { const path = join(root, file); mkdirSync(join(path, ".."), { recursive: true }); writeFileSync(path, text); } };
 }
 afterEach(() => roots.splice(0).forEach(root => rmSync(root, { force: true, recursive: true })));
 describe.each(["next", "vite"] as const)("%s conformance fixture", framework => {
@@ -27,7 +27,8 @@ describe.each(["next", "vite"] as const)("%s conformance fixture", framework => 
     ["icons", '<link rel="icon" href="/other.svg"/>'],
     ["titles", 'localeMetadata({ service: "estimate", serviceName: "Wrong" })'],
   ])("rejects %s source fixture: %s", (rule, source) => {
-    const { add, check } = fixture(framework); add("violation.tsx", source);
+    const { add, check } = fixture(framework);
+    add(rule === 'titles' && framework === 'next' ? 'app/page.tsx' : 'violation.tsx', rule === 'titles' && framework === 'next' ? `export const metadata = ${source};` : source);
     expect(check().issues).toEqual(expect.arrayContaining([expect.objectContaining({ rule, line: 1 })]));
   });
   it.each(['.ui-app-frame', '.ui-page-header', '.ui-site-footer', '.naeil-header', '[data-naeil-header]', '[data-slot="site-footer"]', '[data-slot="navigation"]', 'html', 'body', ':root', '@layer base { html, body'])('rejects rhythm CSS fixture %s', selector => {
@@ -94,7 +95,7 @@ it("runs through the installed-bin style symlink as well as a realpath", () => {
 });
 it("checks nested metadata calls without rejecting unrelated product icons", () => {
   const { add, check } = fixture("next");
-  add("app/page.tsx", 'const data = { icons: [] }; const result = localeMetadata({ page: t("title"), serviceName: "Wrong" });');
+  add("app/page.tsx", 'const data = { icons: [] }; export const metadata = localeMetadata({ page: t("title"), serviceName: "Wrong" });');
   expect(check().issues.map(issue => issue.rule)).toEqual(["titles"]);
   add("app/page.tsx", 'export async function generateMetadata() { const description = t("description"); return { icons: { icon: "/other.svg" } }; }');
   expect(check().issues.map(issue => issue.rule)).toEqual(["icons"]);
@@ -121,7 +122,7 @@ describe.each(["next", "vite"] as const)("%s r3 source policy", framework => {
     ["theme", 'export { ThemeProvider as AppTheme } from "next-themes";'],
     ["theme", 'import { ThemeProvider as AppTheme } from "@naeil/ui";'],
     ["theme", 'export { ThemeProvider as X } from "@naeil/ui/components/theme-provider";'],
-    ["theme", 'const options = { forcedTheme: "light" };'],
+    ["theme", 'const options = { forcedTheme: "light" }; <NaeilThemeProvider {...options}/>;'],
     ["theme", 'document.documentElement.classList.add("light");'],
     ["theme", 'document.documentElement.setAttribute("class", "light");'],
     ["theme", 'document.documentElement.style.colorScheme = "light";'],
@@ -176,21 +177,22 @@ describe.each(["next", "vite"] as const)("%s r3 source policy", framework => {
     expect(f.check().issues).toEqual([]);
   });
 });
-it.each(['app/child/icon.svg', 'app/child/icon.tsx', 'app/child/apple-icon.tsx', 'app/child/favicon.ico', 'public/other/icon.png', 'public/favicon.ico'])("rejects duplicate Next icon %s", file => {
+  it.each(['app/child/icon.svg', 'app/child/icon.tsx', 'app/child/apple-icon.tsx', 'app/child/favicon.ico', 'public/favicon.ico'])("rejects duplicate Next icon %s", file => {
   const f = fixture('next'); expect(f.check().issues).toEqual([]); f.add(file, 'duplicate');
   expect(f.check().issues.some(i => i.rule === 'icons' && i.file.endsWith(file))).toBe(true);
 });
-it("allows opengraph images and rejects public duplicates in Vite", () => {
+it("allows product icon directories and rejects root public duplicates in Vite", () => {
   const f = fixture('vite'); f.add('public/opengraph-image.png', 'image'); expect(f.check().issues).toEqual([]);
-  f.add('public/nested/favicon.svg', 'duplicate'); expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+  f.add('public/product-icons/icon.svg', 'product image'); expect(f.check().issues).toEqual([]);
+  f.add('public/favicon.svg', 'duplicate'); expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
 });
 it.each([
   ['const iconData = { icons: { icon: "/other.svg" } }; export const metadata = iconData;', 'icons'],
   ['const base = {icons: []}; const more = {...base}; export const metadata = {...more};', 'icons'],
   ['import { info } from "./unknown"; export const metadata = {...info};', 'review-needed'],
   ['export const metadata = getMetadata();', 'review-needed'],
-  ['import { localeMetadata as metadataFor } from "@naeil/ui/naeil-locale/server"; const options = {service: "estimate", serviceName: "Wrong"}; metadataFor(options);', 'titles'],
-  ['import { localeMetadata as metadataFor } from "@naeil/ui/naeil-locale/server"; metadataFor(unknownOptions);', 'review-needed'],
+  ['import { localeMetadata as metadataFor } from "@naeil/ui/naeil-locale/server"; const options = {service: "estimate", serviceName: "Wrong"}; export const metadata = metadataFor(options);', 'titles'],
+  ['import { localeMetadata as metadataFor } from "@naeil/ui/naeil-locale/server"; export const metadata = metadataFor(unknownOptions);', 'review-needed'],
 ])("resolves metadata or asks for review: %s", (source, expected) => {
   const f = fixture('next'); expect(f.check().issues).toEqual([]); f.add('app/page.tsx', source);
   expect(f.check().issues.some(i => expected === 'review-needed' ? /review-needed/.test(i.message) : i.rule === expected)).toBe(true);
@@ -236,4 +238,175 @@ it('distinguishes product data attributes, JSX text apostrophes and document rea
 });
 it.each(['const base="/nested/"; export default {base};', 'export default {"base": prefix};'])('rejects shorthand/unresolved Vite base: %s', source => {
   const f = fixture('vite'); f.add('vite.config.ts', source); expect(f.check().issues.some(i => i.rule === 'chrome')).toBe(true);
+});
+
+describe('r4 source analysis boundaries', () => {
+  it('distinguishes selector-list commas inside scoped functions from qualified global roots', () => {
+    const f = fixture('next');
+    f.add('src/product.css', '.article :is(header, footer) {padding:4px} .article :where(header, h1) {padding:4px}');
+    expect(f.check().issues).toEqual([]);
+    for (const selector of ['body.dark > header', 'html[data-locale="ja"] body > h1', ':where(body) footer']) {
+      f.add('src/product.css', `${selector} {padding:4px}`);
+      expect(f.check().issues.some(i => i.rule === 'rhythm')).toBe(true);
+    }
+  });
+  it('does not treat descendant JSX attributes inside a spread as PageHeader props', () => {
+    const f = fixture('next');
+    f.add('src/content.tsx', '<PageHeader {...{title:"Title",actions:<button className="button">Action</button>}}/>');
+    expect(f.check().issues).toEqual([]);
+    f.add('src/content.tsx', '<PageHeader {...{title:"Title",actions:<button className="button">Action</button>,style:{margin:0}}}/>');
+    expect(f.check().issues.some(i => i.rule === 'rhythm')).toBe(true);
+  });
+  it.each([
+    'const identity={icons:[]}; export {identity as metadata};',
+    'export {identity as metadata} from "../src/metadata";',
+    'export {make as generateMetadata} from "../src/metadata";',
+  ])('recognizes route metadata export lists/re-exports: %s', source => {
+    const f = fixture('next'); f.add('app/page.tsx', source);
+    f.add('src/metadata.ts', 'export const identity={icons:[]}; export const make=()=>({icons:[]});');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+  });
+  it.each([
+    'export async function generateMetadata(){const example="return {icons: []}";return {description:"ok"};}',
+    'export async function generateMetadata(){function unrelated(){return {icons:[]}}return {description:"ok"};}',
+    'export async function generateMetadata(){const unrelated=()=>localeMetadata({serviceName:"Product"});return {description:"ok"};}',
+  ])('ignores strings and uncalled nested metadata functions: %s', source => {
+    const f = fixture('next'); f.add('app/page.tsx', source);
+    expect(f.check().issues).toEqual([]);
+    f.add('src/metadata.ts', source.replace('generateMetadata', 'make'));
+    f.add('app/page.tsx', 'import {make} from "../src/metadata"; export const generateMetadata=make;');
+    expect(f.check().issues).toEqual([]);
+  });
+  it.each(['const props = {className: "override"}; <PageHeader {...props}/>;', 'const props = {style: {margin: 0}}; <PageHeader {...props}/>;', '<PageHeader {...{className: "override"}}/>;'])('rejects PageHeader presentation props in spreads: %s', source => {
+    const f = fixture('next'); f.add('src/content.tsx', source);
+    expect(f.check().issues.some(i => i.rule === 'rhythm')).toBe(true);
+  });
+  it('allows forcedTheme product data and scoped article elements but rejects provider spreads and global selectors', () => {
+    const f = fixture('next');
+    f.add('src/product.tsx', 'const data = {name: "forcedTheme", forcedTheme: "example"}; const label = "forcedTheme"; <FilterTable forcedTheme="dense"/>;');
+    f.add('src/product.css', '.article header {padding: 4px} .article h1 {color:red} .article footer {margin:2px}');
+    f.add('public/product-icons/icon.svg', 'product image');
+    expect(f.check().issues).toEqual([]);
+    f.add('src/product.tsx', 'const options = {forcedTheme: "light"}; <CustomThemeProvider {...options}/>;');
+    expect(f.check().issues.some(i => i.rule === 'theme')).toBe(true);
+    f.add('src/product.css', 'body > header {padding: 4px}');
+    expect(f.check().issues.some(i => i.rule === 'rhythm')).toBe(true);
+  });
+  it.each(['app/nested/icon.svg/route.ts', 'app/(owned)/nested/favicon.ico/route.ts', 'app/ja/apple-icon-120/route.tsx'])('rejects directory route icon handler %s', file => {
+    const f = fixture('next'); f.add(file, 'export function GET() {}');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+  });
+  it.each(['actions', 'description'])('allows descendant styling in PageHeader %s while rejecting its own props', slot => {
+    const f = fixture('next');
+    f.add('src/content.tsx', `<PageHeader title="Title" ${slot}={<GuardedLink className="button" style={{display: "flex"}}>Open</GuardedLink>} />`);
+    expect(f.check().issues).toEqual([]);
+    f.add('src/content.tsx', `<PageHeader ${slot}={<GuardedLink className="button"/>} className="override" />`);
+    expect(f.check().issues.some(i => i.rule === 'rhythm')).toBe(true);
+  });
+  it('ignores unrelated local metadata and non-route metadata exports', () => {
+    const f = fixture('next');
+    f.add('src/session.ts', 'const metadata = user.user_metadata; export function session() { return metadata; }');
+    f.add('src/catalog.ts', 'export const metadata = {icons: []}; localeMetadata({serviceName: "Product"});');
+    f.add('app/page.tsx', 'const metadata = user.user_metadata; const sample = "export const metadata = unknown"; export default function Page() { return <div/>; }');
+    f.add('app/ui.ts', 'export const metadata = unknown;');
+    expect(f.check().issues).toEqual([]);
+  });
+  it.each([
+    'export const metadata = createPageMetadata();',
+    'export async function generateMetadata() { return createPageMetadata(); }',
+    'export const generateMetadata = async () => createPageMetadata();',
+    'export const generateMetadata = createPageMetadata;',
+  ])('inspects imported helper metadata: %s', route => {
+    const f = fixture('next');
+    f.add('app/page.tsx', `import { pageMetadata as createPageMetadata } from "../src/metadata"; ${route}`);
+    f.add('src/metadata.ts', 'import {localeMetadata as localized} from "@naeil/ui/naeil-locale/server"; export async function pageMetadata() { return localized({service: "estimate", page: "Page"}); }');
+    expect(f.check().issues).toEqual([]);
+    f.add('src/metadata.ts', 'export function pageMetadata() { return {icons: {icon: "/wrong.svg"}}; }');
+    expect(f.check().issues.some(i => i.rule === 'icons' && !/review-needed/.test(i.message))).toBe(true);
+    f.add('src/metadata.ts', 'import {localeMetadata as localized} from "@naeil/ui/naeil-locale/server"; export function pageMetadata() { return localized({service: "estimate", serviceName: "Wrong"}); }');
+    expect(f.check().issues.some(i => i.rule === 'titles')).toBe(true);
+    rmSync(join(f.root, 'src/metadata.ts'));
+    expect(f.check().issues.some(i => /review-needed/.test(i.message))).toBe(true);
+  });
+  it('follows helper re-exports and ignores unrelated metadata in the helper module', () => {
+    const f = fixture('next');
+    f.add('app/page.tsx', 'import {pageMetadata} from "../src/metadata"; export const generateMetadata = pageMetadata;');
+    f.add('src/metadata.ts', 'export { makeMetadata as pageMetadata } from "./identity"; const metadata = user.user_metadata;');
+    f.add('src/identity.ts', 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export const makeMetadata = async () => localeMetadata({service: "estimate"});');
+    expect(f.check().issues).toEqual([]);
+    f.add('src/identity.ts', 'export const makeMetadata = () => ({icons: []});');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+  });
+  it('resolves default and local callable helper forms without certifying cycles', () => {
+    const f = fixture('next');
+    f.add('app/page.tsx', 'import make from "../src/metadata"; const wrap = () => make(); export const generateMetadata = () => wrap();');
+    f.add('src/metadata.ts', 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export default async function metadataForPage() { return localeMetadata({service: "estimate"}); }');
+    expect(f.check().issues).toEqual([]);
+    f.add('src/metadata.ts', 'export default async function metadataForPage() { return {icons: []}; }');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+    f.add('src/metadata.ts', 'const cycle = () => cycle(); export default cycle;');
+    expect(f.check().issues.some(i => /review-needed/.test(i.message))).toBe(true);
+  });
+  it('diagnoses a root icon handler directory instead of attempting to read it as bytes', () => {
+    const f = fixture('next'); rmSync(join(f.root, 'app/icon.svg'));
+    f.add('app/icon.svg/route.ts', 'export function GET() {}');
+    expect(f.check().issues.some(i => i.rule === 'icons' && /directory-based/.test(i.message))).toBe(true);
+  });
+  it('allows canonical-byte public aliases and unreferenced historical assets, while rejecting different root aliases and declarations', () => {
+    const f = fixture('next');
+    f.add('public/apple-touch-icon.png', readFileSync(join(f.root, 'app/apple-icon.png')));
+    f.add('public/favicon.svg', readFileSync(join(f.root, 'app/icon.svg')));
+    f.add('public/brand/naeil/1.0.1/icons/favicon.ico', 'historical bytes');
+    f.add('public/brand/naeil/1.0.1/icons/favicon-transparent.png', 'historical transparent bytes');
+    expect(f.check().issues).toEqual([]);
+    f.add('public/favicon.svg', 'different bytes');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+    rmSync(join(f.root, 'public/favicon.svg'));
+    f.add('app/page.tsx', 'export const metadata = {icons: {icon: "/brand/naeil/1.0.1/icons/favicon.ico"}};');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+    f.add('app/page.tsx', '<link rel="icon" href="/brand/naeil/1.0.1/icons/favicon-transparent.png"/>');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+  });
+  it.each(['layout', 'page', 'template', 'route'])('checks only exported %s route metadata roots, retaining object/spread bypass coverage', file => {
+    const f = fixture('next');
+    f.add(`app/(owned)/nested/${file}.tsx`, 'const base = {icons: []}; export const metadata = {...base};');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+    f.add(`app/(owned)/nested/${file}.tsx`, 'export const metadata = localeMetadata({service:"estimate"}) && {icons: []};');
+    expect(f.check().issues.some(i => i.rule === 'icons')).toBe(true);
+  });
+  it('finds parent tsconfig paths with --app src for graph and metadata helpers', () => {
+    const f = fixture('next');
+    mkdirSync(join(f.root, 'src'), {recursive: true}); renameSync(join(f.root, 'app'), join(f.root, 'src/app'));
+    f.add('tsconfig.json', '{ "compilerOptions": {"baseUrl": ".", "paths": {"@/*": ["src/*"]}}}');
+    f.add('src/app/layout.tsx', 'import "@naeil/ui/globals.css"; import {Shell} from "@/chrome"; export default Shell;');
+    f.add('src/chrome.tsx', 'import {NaeilServiceShell} from "@naeil/ui/naeil-shell"; export const Shell = () => <NaeilServiceShell service="estimate" locale="en"/>;');
+    f.add('src/app/page.tsx', 'import {pageMetadata} from "@/metadata"; export const generateMetadata = pageMetadata;');
+    f.add('src/metadata.ts', 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export const pageMetadata = () => localeMetadata({service: "estimate"});');
+    const check = () => checkConformance({service: 'estimate', framework: 'next', app: join(f.root, 'src')});
+    expect(check().issues).toEqual([]);
+    f.add('src/metadata.ts', 'export const pageMetadata = () => ({icons: []});');
+    expect(check().issues.some(i => i.rule === 'icons')).toBe(true);
+    rmSync(join(f.root, 'src/chrome.tsx'));
+    expect(check().issues.some(i => i.rule === 'chrome')).toBe(true);
+  });
+  it('also checks project-root public icon aliases when --app is src', () => {
+    const f = fixture('next'); mkdirSync(join(f.root, 'src'), {recursive:true}); renameSync(join(f.root, 'app'), join(f.root, 'src/app'));
+    f.add('tsconfig.json', '{"compilerOptions":{}}');
+    const check = () => checkConformance({service:'estimate', framework:'next', app:join(f.root,'src')});
+    f.add('public/apple-touch-icon.png', readFileSync(join(f.root, 'src/app/apple-icon.png')));
+    expect(check().issues).toEqual([]);
+    f.add('public/apple-touch-icon.png', 'noncanonical root alias');
+    expect(check().issues.some(i => i.rule === 'icons')).toBe(true);
+  });
+  it.each(['next', 'vite'] as const)('resolves %s jsconfig baseUrl and paths, including JSONC and relative extends', framework => {
+    const f = fixture(framework);
+    f.add('config/base.json', '{"compilerOptions": {"baseUrl": "../src", "paths": {"@chrome": ["chrome"]}}}');
+    f.add('jsconfig.json', '{ // application config\n "extends": "./config/base.json",\n}');
+    const entry = framework === 'next' ? 'app/layout.tsx' : 'src/App.tsx';
+    f.add(entry, 'import "@naeil/ui/globals.css"; import {Shell} from "@chrome"; export default Shell;');
+    f.add('src/chrome.tsx', 'import {NaeilServiceShell} from "@naeil/ui/naeil-shell"; export const Shell = () => <NaeilServiceShell service="estimate" locale="en"/>;');
+    expect(f.check().issues).toEqual([]);
+    f.add(entry, 'import "@naeil/ui/globals.css"; import {Shell} from "chrome"; export default Shell;');
+    expect(f.check().issues).toEqual([]);
+  });
 });
