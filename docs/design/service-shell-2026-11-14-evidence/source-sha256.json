@@ -1,0 +1,16 @@
+{
+  "src/components/naeil-shell-core.tsx": "ffaa28ea87dc2c74d0168966cdff95fdbd59b7c6bbcf5651dc237ec4ee2a5207",
+  "src/components/naeil-shell.tsx": "51dd08c6a939f9708e459810302878fffb62e481ece4e6e66da222dd12ba385f",
+  "src/components/naeil-theme-provider.tsx": "db61113ac241edfb4c437895f2de9ecdba148e0aa533a3d39c9d3ebe5628aa4b",
+  "src/naeil-locale/icons.generated.ts": "997795200b58c02fef84901e762db02c6e297e9d67b8261a3f7a7b223651a126",
+  "src/naeil-locale/index.ts": "f645228e04c32a82aab97102c1d7947d2aea66e23f045dece1740826251699ee",
+  "src/naeil-locale/chrome.ts": "9c79b61e247af29240fb781a83ed855d8a9e86e9a893977e022bed21385a1b93",
+  "src/styles/components.css": "3778df0c7a89a30fb92043e9f652d171ed78b50f05c2346bfe2a42590806553e",
+  "src/components/naeil-shell.stories.tsx": "80a6d80b5db3baf7dd3a61603b5fb06efba2180daf0b006e9d0879c6bc5d48c6",
+  "e2e/naeil-shell.spec.ts": "bcdc89518219ec090dedbb1646dc4db0722d0ce25d0eb2cdc98b105053bfde33",
+  "bin/naeil-ui-conformance.mjs": "3c526a23e9a337a8bd583553f05aaa4face6dc129c2a48c1397988b78bcb101c",
+  "bin/naeil-icons.generated.mjs": "2ae6e8d1943c2f791677ca517ac124d1a742e8bdf758a96e95ae5fbb7541c101",
+  "scripts/build-brand.ts": "1c04b2d9651dd4849e071b8f4a641e2b8e31244ac6ddbd7073ce2d2b4e38427c",
+  "scripts/check-consumers.ts": "d66b4d34c4f9ec7e68c72e4fec2137047330ee0d26809209f26a81d6f172ea08",
+  "scripts/check-package.ts": "3fa736d2d4b2675ee8fe612ed9c1a4b36dd65835f6337fa8af0bdd18b12b3d93"
+}

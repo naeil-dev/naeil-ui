@@ -1,12 +1,20 @@
 # Changelog
 
-## 0.15.0 — shared page rhythm (unpublished candidate)
+## 0.15.0 — shared page rhythm and owned-service shell (Unreleased candidate)
 
 - Tokens `ui.page-top` 48px, `ui.page-title-gap` 12px, `ui.page-header-gap` 32px, `ui.page-bottom` 96px (values from naeil.dev).
 - `.ui-app-main` (fixed-header clearance + page top/bottom spacing), `.ui-page-header`, `.ui-page-description`, `.ui-page-header-actions`.
 - `PageHeader` (`title`, `description`, `actions`, `titleId`) from `@naeil/ui` and `@naeil/ui/components/typography`.
 - DESIGN.md "Page rhythm": dark theme default everywhere (as naeil.dev), 16px base text, naeil.dev favicon declarations, no per-page vertical padding.
 - naeil.dev content pages use `.ui-app-frame .ui-app-main` (shared gutters instead of their own 24px side padding) and the shared header spacing (title 1px lower, projects description 16px instead of 18px).
+
+- New React-only `@naeil/ui/naeil-shell`: strict `NaeilServiceShell`, `NaeilThemeProvider`, `PageHeader`, service/title helpers and `naeilIcons`. Provider-backed shell/theme/PageHeader exports from `/naeil-locale/chrome` reuse the selected messages. Unknown services throw; forbidden root/nested overrides (including spreads) are type-rejected and runtime casts are ignored with development warnings once per prop.
+- Shell owns localized skip-to-main, canonical service header, focusable `main#main`, shared gutters/page rhythm and full footer; common Link/guard preserve consumer routing. Footer options are only meta/resolveHref or recorded `false` screens. Add `naeil.shell.skipToContent` in ko/ja/en and shared focus-visible skip-link styles.
+- Fixed dark-default `NaeilThemeProvider` accepts children only; naeil.dev replaces its local configurable provider with it. next-themes attribute/class, theme storage, system support and transition behavior remain consistent.
+- Generated server-safe `naeilIcons` from `/naeil-locale`: brand 1.1.1, exact root-file SHA-256 and ICO/SVG/apple link declarations. `build:brand` generates and `check:brand` verifies both library and CLI data from immutable kit bytes; the kit stays outside npm.
+- Dependency-free Node ESM `naeil-ui-conformance` bin ships with the package. CI rejects divergent theme providers/props, direct header/footer use, frame/page/chrome CSS or base-font overrides, icon bytes/declarations and service-title overrides; line-scoped reviewed ignores are all reported. Next/Vite passing/failing fixtures cover every rule.
+- Packed checks cover the standalone entry, React SSR, provider-backed Next RSC and standalone Next SSR (webpack/Turbopack), server-safe icon/title imports and installed CLI execution. Four shell Storybook stories and a browser contract cover all services at 1440/390, ko/ja/en, fresh dark under OS light/dark, skip focus, persisted theme, account action and footer=false. Frozen B1 chrome-pairs are unchanged.
+- DESIGN/agent rules, shell API/CI guide, application starter and migration guidance now require using the shared shell/policy instead of reconstructing them. The stale 0.15.0 archive was withdrawn for a later re-freeze; package version stays 0.15.0. No publication/tag/workflow/deployment is part of this implementation.
 
 Additive: existing classes, `PageTitle` and tokens are unchanged.
 

@@ -2,11 +2,13 @@
 
 Product navigation and controlled mobile APIs are available since 0.8.0; shared root reservation is available since 0.9.0. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release; hosted Docs and service activation have separate receipts.
 
+For new owned-service adoption, use [NaeilServiceShell with root NaeilThemeProvider](naeil-shell.md); the shell composes this header and the canonical footer. Pass product menu/auth/locale state through `header` and shared routing guards through the shell. naeil.dev keeps its direct no-service catalog composition. The examples and API below document the supported standalone/legacy header as well as the service-header profile reused by the shell.
+
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import '@naeil/ui/globals.css';
 
-// Inside the consumer's existing next-themes ThemeProvider:
+// Standalone catalog example under the root NaeilThemeProvider:
 <NaeilHeader locale="ja" Link={GuardedLink} currentHref={pathname}
   authSlot={<NaeilHeaderAccountControl locale="ja" Link={GuardedLink}
     account={authenticated
@@ -20,7 +22,7 @@ The module owns the brand, single-project naeil-ui catalog and header-only trans
 
 ## Consumer contract
 
-Consumers provide an existing next-themes provider, routing/dirty-save guard, current locale and real authentication behavior. Default destinations point to `https://naeil.dev/{locale}`; the site's localized Link instead uses `resolveHref={path => path}`. A supplied `Link` handles default official destinations, including cross-origin URLs. `onNavigate` can intercept brand and menu links; honor modified clicks and target behavior. Explicit `external: true` project overrides and `projectsExternal` use native anchors, so intercept them with `onNavigate` when a dirty guard is required.
+Owned services and naeil.dev replace the existing root provider with `NaeilThemeProvider`; nesting it inside another next-themes provider does not apply its policy. Existing standalone/legacy next-themes integration remains compatible. Consumers supply routing/dirty-save guards, current locale and real authentication behavior. Default destinations point to `https://naeil.dev/{locale}`; the site's localized Link instead uses `resolveHref={path => path}`. A supplied `Link` handles default official destinations, including cross-origin URLs. `onNavigate` can intercept brand and menu links; honor modified clicks and target behavior. Explicit `external: true` project overrides and `projectsExternal` use native anchors, so intercept them with `onNavigate` when a dirty guard is required.
 
 Only provide `onLocaleChange` when the application's interface supports all three canonical locales (`en`, `ko`, `ja`). Omitting it removes the locale control; the component does not create application translations or shared preferences. `authSlot` uses `NaeilHeaderAccountControl` in owned applications: a shared 44px neutral account trigger and localized Radix logout menu. Consumers supply their real session state/callbacks, not alternative account markup. The legacy slot remains public for deliberate compatibility overrides. It does not integrate site SSO, share credentials or create accounts. Theme preferences remain consumer-origin state. Without a working provider, rendering alone does not establish theme switching.
 
@@ -34,7 +36,7 @@ Only provide `onLocaleChange` when the application's interface supports all thre
 | `authSlot` | Canonical `NaeilHeaderAccountControl`, with consumer-owned auth state/actions. Legacy arbitrary markup remains supported. |
 | `brandHref`, `brandSlot`, `brandLinkProps`, `brandLinkComponent` | Explicit brand destination/content/anchor overrides; default accessible brand name is `.naeil`. |
 | `projects`, `projectsExternal`, `showProjects`, `showBlog` | Legacy catalog/visibility/native-link overrides; defaults use the complete canonical catalog. |
-| `appNavigation` (0.8.0) | `NavigationItem[]` passed unchanged after catalog/blog and before flat `subNav`. Owned services set `service` and supply only their own tabs. |
+| `appNavigation` (0.8.0) | `NavigationItem[]` passed unchanged after catalog/blog and before flat `subNav`. The service profile supplies only product tabs; owned services pass them as the shell's `header.appNavigation`. |
 | `brandSuffix` (0.8.0) | Product qualifier inside the brand link; the package owns its 14px type, 4px gap and optical alignment. Ignored when `brandSlot` replaces the complete content. Set `brandLinkProps["aria-label"]` for a product name. |
 | `statusSlot` (0.8.0) | Exactly once, outside and 8px after the brand link at every width. The consumer owns the content and accessible status. No wrapper is added when omitted. |
 | `mobileOpen`, `onMobileOpenChange` (0.8.0) | Controlled/uncontrolled sheet state, also on generic Navigation. Omit `mobileOpen` for internal state; a callback alone observes it. Accepted transitions notify once. In controlled mode callbacks request a change against the committed prop, so another close request is reported if the parent rejects or delays the previous one; an external prop update emits no request. Route changes, ordinary links, close/overlay/Escape dismiss. Desktop crossing dismisses when the desktop navigation gains width; without `service`, an empty menu retains B1's open sheet until Escape/close/overlay/route change. Modified/middle clicks preserve it; nested menus consume the first Escape. |
@@ -87,11 +89,13 @@ While a controlled parent keeps `mobileOpen=true`, its rejection and delayed acc
 
 Keep errors visible in the consumer's recovery UI or toast. The package never calls an authentication endpoint. Compare signed-in and signed-out render states separately; anonymous-only acceptance cannot establish authenticated parity. `AccountStates` is a synthetic Storybook example for pending/cancel/error/retry.
 
-Own pending state and the in-flight request lock above `NaeilHeader`. Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. Pass the same controller to both through `authSlot`; test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
+Own pending state and the in-flight request lock above the shell (or the standalone `NaeilHeader`). Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. Pass the same controller to both through `header.authSlot` (standalone: `authSlot`); test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
 
 ## Frame and content clearance
 
-The fixed header is 65px: the current 64px navigation token plus a 1px border. Clear it in the application's main, sticky regions and focus/anchor scroll margins with `calc(var(--ui-navigation-height) + 1px)`. The header, main and footer now share a 1600px maximum outer frame, including responsive `clamp(16px, 2.4vw, 40px)` gutters. Put `ui-app-frame` on main and reading/settings or short-form sections inside it; the header and shared footer apply their own internal frame. Do not wrap them in another padded frame. Apply deliberate `--ui-width-frame` / `--ui-frame-gutter` overrides on a common ancestor. Remove old `max-w-7xl` or `px-6` overrides to adopt the new defaults. This width update supersedes the previous 1280px/24px branded frame. See the [application layout starter](application-layout.md).
+The fixed header is 65px: the current 64px navigation token plus a 1px border. The owned-service shell supplies main's clearance, frame classes and page rhythm; do not add them in app source or override the frame through ancestors/reserved selectors. Put purpose-specific `data-ui-layout` sections inside its main. Consumer sticky regions and focus/anchor scroll margins still account for the fixed header.
+
+Standalone/legacy compositions clear main with `calc(var(--ui-navigation-height) + 1px)` and apply `ui-app-frame` themselves. Header, main and footer share a 1600px maximum outer frame with responsive `clamp(16px, 2.4vw, 40px)` gutters; header/footer apply their internal frames, so do not wrap them in another padded frame. Deliberate `--ui-width-frame` / `--ui-frame-gutter` overrides remain available to generic/legacy compositions on a common ancestor. Remove old `max-w-7xl` or `px-6` overrides to adopt the defaults. This width update supersedes the previous 1280px/24px branded frame. See the [application layout starter](application-layout.md).
 
 ## Artwork and package boundary
 
@@ -101,7 +105,7 @@ This entry requires no Next.js, next-intl, site session/auth backend, full appli
 
 Verify actual packed consumption, Storybook behavior and rendered comparisons at matching viewport/language/theme. Source imports alone do not prove visual parity. Native Safari, devices, assistive technology, full OAuth and unresolved accessibility observations retain the [documented support limits](../design/public-ui-support.md).
 
-Pair owned-service headers with [NaeilFooter](naeil-footer.md). The 0.7.2 source is `40a3928e24cd2f0141be3e605eed0a75260938fd`. Both 0.7.2 and 0.8.0 emit package version and chrome contract `1`; archive identities, maintained guidance and hosted Docs remain separate evidence.
+The owned-service [shell](naeil-shell.md) pairs this header with the full [NaeilFooter](naeil-footer.md); standalone pairing remains supported for compatibility. The 0.7.2 source is `40a3928e24cd2f0141be3e605eed0a75260938fd`. Both 0.7.2 and 0.8.0 emit package version and chrome contract `1`; archive identities, maintained guidance and hosted Docs remain separate evidence.
 
 
 ## Host typography and mobile handoff (0.8.0)
@@ -115,6 +119,7 @@ A controlled mobile sheet defers its shared account action until the account men
 Without `service`, the empty-menu desktop exception is intentional B1 compatibility: a zero-width desktop navigation cannot signal the crossing, so the sheet stays open. Escape, its close button, the overlay or a `currentHref` change still close it. Home owns the confirmation's desktop cancel fallback to the visible row account trigger; the package supplies a visible, focusable control and does not implement the confirmation's restoration policy.
 
 ```tsx
+// Standalone API; owned apps use shell service/locale/Link and header menu/account options.
 <NaeilHeader service="home" locale={locale} currentHref={pathname} Link={GuardedLink}
   appNavigation={navigationItems}
   mobileOpen={mobileOpen} onMobileOpenChange={setMobileOpen}

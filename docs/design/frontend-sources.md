@@ -361,3 +361,7 @@ The three dated entries below are preserved verbatim from the audited Console an
 ## 2026-11-12 — owned-service header rule
 
 The owner's approved header rule and DESIGN.md are the authority; existing Logo, brand suffix, Navigation and account controls supply the presentation. No external visual reference or new artwork was adopted. Applied Impeccable context/craft-floor and one detector pass (`[]`). Actual tools: Ego TaskSpace 74 inspection of built Storybook Home desktop and Jev mobile sheet, Playwright profile/computed-style and frozen B1 comparisons, unit/type/lint/contrast/package/Storybook/rollout checks. Exact outcomes and limits are recorded in the [implementation verification receipt](header-rule-2026-11-12-verification.md); this work does not publish, deploy or upgrade a consumer service.
+
+## 2026-11-14 — owned-service shell
+
+Gap → source → decision: per-service frame/theme/icon drift → owner-approved shell spec, DESIGN.md page rhythm and existing shared service profiles → reuse their actual components/messages/styles through `NaeilServiceShell` and enforce static CI adoption. No external reference, new artwork or external design tool was used. Applied repository/installed frontend workflow and Impeccable context/craft-floor; actual verification and source hashes are in the [shell receipt](service-shell-2026-11-14-verification.md). Existing frozen B1 and prior production acceptance findings remain separate.
