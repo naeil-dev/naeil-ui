@@ -18,6 +18,7 @@ describe("shared page rhythm", () => {
     for (const [name, value] of [["page-top", "48px"], ["page-title-gap", "12px"], ["page-header-gap", "32px"], ["page-bottom", "96px"]])
       expect(theme).toContain(`--ui-${name}: ${value};`);
     const css = readFileSync("src/styles/components.css", "utf8");
+    expect(css).toMatch(/\.ui-page-header:last-child \{\s*margin-bottom: 0;/);
     expect(css).toMatch(/\.ui-app-main \{\s*padding-top: calc\(var\(--ui-navigation-height\) \+ 1px \+ var\(--ui-page-top\)\);\s*padding-bottom: var\(--ui-page-bottom\);/);
   });
 });

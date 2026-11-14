@@ -126,6 +126,10 @@
     gap: var(--spacing-4-value);
     margin-bottom: var(--ui-page-header-gap);
   }
+  /* A header-only page ends at the shared page-bottom spacing. */
+  .ui-page-header:last-child {
+    margin-bottom: 0;
+  }
   .ui-page-header-text {
     min-width: 0;
     flex: 1 1 20rem;
