@@ -238,11 +238,13 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     const args = ["--service", "estimate", "--framework", framework, "--app", app];
     let checked = spawnSync(cli, args, { encoding: "utf8" });
     assert.equal(checked.status, 0, checked.stderr);
+    writeFileSync(join(app, "violation.css"), ":root { --color-background: pink; }");
     writeFileSync(join(app, "violation.tsx"), '<NaeilHeader /><NaeilThemeProvider defaultTheme="light" />');
     checked = spawnSync(cli, args, { encoding: "utf8" });
     assert.equal(checked.status, 1);
     assert.match(checked.stderr, /violation.tsx:1 chrome/);
     assert.match(checked.stderr, /violation.tsx:1 theme/);
+    assert.match(checked.stderr, /violation.css:1 rhythm/);
     const missingRuntime = spawnSync(cli, ["--service", "estimate", "--url", "http://127.0.0.1:1", "--routes", "/", "--app", app], {encoding: "utf8"});
     assert.equal(missingRuntime.status, 2, missingRuntime.stderr);
     assert.match(missingRuntime.stderr, /pnpm add -D @playwright\/test/);

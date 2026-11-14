@@ -107,7 +107,7 @@ export function checkConformance({ service, framework, app }) {
       if (offset >= 0) report(file, offset, 'rhythm', 'The shell owns main/frame class tokens');
     }
     if (/\.css$/.test(file)) {
-      scan(/--(?:ui-[\w-]+|text-[\w-]+|spacing-[\w-]+|radius-[\w-]+|(?:background|foreground|border|input|ring|card|popover|primary|secondary|muted|accent|destructive|success|warning|error|info|canvas|surface|action|focus|neutral|sidebar|chart)(?:-[\w-]+)?)\s*:/g, 'rhythm', 'Do not redefine shared design tokens');
+      scan(/--(?:ui-[\w-]+|text-[\w-]+|spacing-[\w-]+|radius-[\w-]+|color-[\w-]+|(?:background|foreground|border|input|ring|card|popover|primary|secondary|muted|accent|destructive|success|warning|error|info|canvas|surface|action|focus|neutral|sidebar|chart)(?:-[\w-]+)?)\s*:/g, 'rhythm', 'Do not redefine shared design tokens');
       for (const block of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
         const selector = block[1];
         if (/\.ui-app-|\.ui-page-|\.ui-site-footer|\.naeil-header|\[\s*data-naeil-|\[\s*data-slot\s*=\s*["']?(?:site-footer|navigation)\b/.test(selector)

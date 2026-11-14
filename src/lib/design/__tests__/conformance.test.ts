@@ -139,7 +139,7 @@ describe.each(["next", "vite"] as const)("%s r3 source policy", framework => {
   });
   it.each([
     ':root { --ui-page-top: 1px }', '.product { --text-body: 12px; }', '.product { --spacing-4: 2px; }',
-    '.product { --radius-panel: 0; }', '.product { --background: pink; --muted-foreground: red; }',
+    '.product { --radius-panel: 0; }', '.product { --background: pink; --muted-foreground: red; }', '.product { --color-background: pink; }',
     'main { padding: 0 }', 'h1, .title { font-size: 24px }', 'body > header { height: 20px }',
     ':where(footer) { margin: 0 }', ':root { font: 14px Arial }', 'html { line-height: 1 }',
   ])("rejects protected CSS: %s", css => {
