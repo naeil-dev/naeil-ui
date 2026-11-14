@@ -89,13 +89,13 @@ Every violation prints `file:line rule message`; exit 1 means violations or inva
 
 | Rule | Every enforced requirement |
 | --- | --- |
-| `theme` | No import/re-export of `ThemeProvider` from `next-themes`, `@naeil/ui` or `@naeil/ui/components/theme-provider` (aliases/namespaces included); no `forcedTheme` token, document root classList/class writes or colorScheme writes. `defaultTheme`/`storageKey` props are forbidden on theme-provider-like tags, while unrelated component storage keys are valid. Render a reachable shared provider or shell. |
-| `chrome` | Render a shell reachable via relative imports from Next `app/**/layout.*` (also `src/app`) or Vite `index.html`'s main script. Its `service` is the literal matching `--service`; unresolved/mismatched services fail. Named aliases, namespace JSX and local component aliases are recognized. No direct header/footer JSX, app `<main>`, `role="main"` or `id="main"`. Vite config `base` must be absent or `/`. |
-| `rhythm` | Import `@naeil/ui/globals.css`, or both `theme.css` and `components.css`. No real `ui-app-main`/`ui-app-frame` class tokens in className strings/cn()/clsx() arguments; unrelated strings and class substrings are allowed. No PageHeader `style`/`className`. No protected `--ui-*`, `--text-*`, `--spacing-*`, `--radius-*`, `--color-*` or semantic color-token redefinitions. No CSS selectors targeting `.ui-app-`, `.ui-page-`, `.ui-site-footer`, `.naeil-header`, `[data-naeil-`, `[data-slot="site-footer"]`, `[data-slot="navigation"]` or element types main/h1/header/footer. No font/font-size/font-family/line-height on html/body/:root. |
-| `icons` | Exact three root icon SHA-256 digests. No other favicon/icon/apple-icon files in nested Next route directories or public, including dynamic icon.tsx/apple-icon.tsx; opengraph images are independent. Next metadata has no `icons`, including same-file referenced objects/spreads. Unresolvable metadata reports `review-needed`. No extra icon link declarations. Vite links equal the shared attribute sets and order. |
-| `titles` | No `serviceName` override through `localeMetadata`, including import aliases and same-file object variables/spreads. Unresolvable options report `review-needed`. Vite initial title equals `naeilServiceName(service)`. |
+| `theme` | No import/re-export of `ThemeProvider` from `next-themes`, `@naeil/ui` or `@naeil/ui/components/theme-provider` (aliases/namespaces included); no document root classList/class writes or colorScheme writes. `forcedTheme`/`defaultTheme`/`storageKey` inputs are forbidden on theme-provider-like tags, including resolved object spreads. Unrelated data strings/object fields and product component props are valid. Render a reachable shared provider or shell. |
+| `chrome` | Render a shell reachable from Next `app/**/layout.*` (also `src/app`) or Vite `index.html`'s main script. Resolve relative imports, baseUrl and tsconfig/jsconfig paths. Its `service` is the literal matching `--service`; unresolved/mismatched services fail. Named aliases, namespace JSX and local component aliases are recognized. No direct header/footer JSX, app `<main>`, `role="main"` or `id="main"`. Vite config `base` must be absent or `/`. |
+| `rhythm` | Import `@naeil/ui/globals.css`, or both `theme.css` and `components.css`. No real `ui-app-main`/`ui-app-frame` class tokens in className strings/cn()/clsx() arguments; unrelated strings and class substrings are allowed. No PageHeader's own `style`/`className`, including expressions and resolved spreads; descendants inside actions/description may use them. No protected `--ui-*`, `--text-*`, `--spacing-*`, `--radius-*`, `--color-*` or semantic color-token redefinitions. No CSS selectors targeting `.ui-app-`, `.ui-page-`, `.ui-site-footer`, `.naeil-header`, `[data-naeil-`, `[data-slot="site-footer"]`, `[data-slot="navigation"]` or bare global main/h1/header/footer selectors (including after html/body); scoped `.article header` is valid. No font/font-size/font-family/line-height on html/body/:root. |
+| `icons` | Exact three root icon SHA-256 digests. Root public aliases (including apple-touch-icon.png/favicon.svg) and static route aliases may use any canonical file's bytes. Different root aliases/automatic Next route icons fail; dynamic icon.tsx/apple-icon.tsx and directory handlers such as icon.svg/route.ts always fail. Unreferenced historical assets in nested public folders and product icon directories are valid, even with different bytes. No extra icon link declarations or Next route metadata `icons`, including referenced objects/spreads/imported helpers. Unresolved route metadata/helper reports `review-needed`. Opengraph images are independent. Vite links equal the shared attribute sets and order. |
+| `titles` | Next identity roots are exported `metadata` or `generateMetadata` in app layout/page/template/route files. Inspect imported helper bodies through relative/path imports; no `serviceName` override through `localeMetadata`, aliases or object variables/spreads. Unresolvable helpers/options report `review-needed`. Ignore unrelated locals/exports named metadata outside route identity roots. Vite initial title equals `naeilServiceName(service)`. |
 
-Static resolution is deliberately conservative: keep metadata/configuration explicit and review unresolved diagnostics instead of treating them as passes. Relative graph walking does not resolve framework path aliases; use a small relative-import adapter for adoption entrypoints or record a reviewed exception. Real geometry and the final document are checked by runtime mode below.
+Static resolution is deliberately conservative: keep metadata/configuration explicit and review unresolved diagnostics instead of treating them as passes. The nearest parent tsconfig.json/jsconfig.json supplies compilerOptions.baseUrl/paths (including relative extends), so `--app src` can use a project-root config. Static reachability follows source imports, not execution: shell JSX inside an uncalled function can satisfy adoption. Runtime mode below provides the route/rendering guarantee.
 
 For an explicitly reviewed source exception, put a comment on the line immediately above the violation:
 
@@ -115,19 +115,27 @@ Run against the built application's origin (start its preview/server first). Ins
 pnpm add -D @playwright/test
 pnpm exec playwright install chromium
 naeil-ui-conformance --service estimate --url http://127.0.0.1:4173 \
-  --routes /en/estimates,/en/settings,/login --no-footer /login
+  --routes /en/estimates,/unknown,/login --no-footer /login \
+  --storage-state ./playwright/.auth/session.json \
+  --header 'X-Test-Session: value' --header 'X-Tenant: example' \
+  --expect-status /unknown=404
 ```
 
 `--app <consumer-dir>` optionally selects the project whose node_modules contains `playwright` or `@playwright/test`; by default it is the current directory. `--routes` is a comma-separated list of local paths (queries are allowed). `--no-footer` lists the exact recorded route(s) that must have no footer; each must appear in `--routes`. These are explicit route exceptions, not an inferred permission to omit footers elsewhere.
+
+`--storage-state <file>` applies a Playwright storageState JSON to every new context, preserving cookies and other stored data. The verifier removes only localStorage entries named `theme` from every supplied origin so dark-default verification remains fresh; it does not modify the file. Repeat `--header name:value` to apply authentication/tenant headers to every context (values may contain colons).
+
+All routes require a final 2xx HTTP response unless repeatable `--expect-status <listed-route>=<code>` specifies the exact final status, e.g. `--expect-status /unknown=404 --expect-status /access-denied=403`. Expected error responses undergo all the same geometry/identity checks. A status mismatch fails. Final URL origin/path must match the requested route; an unlocalized path may acquire a ko/ja/en prefix (including `/` → `/en` or `/en/`). Other redirects fail unless recorded with repeatable `--allow-redirect /old=/new`. Explicitly localized routes cannot silently change locale. Query strings do not change the path comparison. Status, no-footer and redirect permissions are keyed by the requested route.
 
 For every route, the CLI creates four fresh contexts: 1440×900 and 390×844 under emulated OS light and dark. The table lists route, viewport, scheme, result and failures. It asserts:
 
 - Exactly one main landmark and exactly one `main#main.ui-app-main`; exactly one shared header.
 - Header bottom → first h1 is 48px ±0.5; h1 is 32px/42px/600.
 - h1 → `.ui-page-description` is 12px ±0.5 when a description exists.
-- Last visible normal-flow content block → footer top is 96px ±0.5; one footer is required except explicit `--no-footer` routes, which require zero.
+- `.ui-page-header` → next visible normal-flow sibling content is 32px ±0.5 when present (following ancestor siblings within main when the header is wrapped).
+- Last visible normal-flow terminal content box → footer top is 96px ±0.5; one footer is required except explicit `--no-footer` routes, which require zero. Descend layout wrappers and use the lowest terminal element's border-box bottom (or direct trailing text's line box). A wrapper's bottom padding/border/margins remain part of the measured gap; a wrapper adding 64px to a correct 96px gap measures 160px and fails. Empty zero-height, hidden, script, absolute/fixed nodes are excluded; display:contents is transparent. Wrapper decoration does not exempt extra spacing.
 - Body font-size is 16px; fresh html has `dark` under either OS scheme.
-- Icon links match `naeilIcons.links` by rel/href pathname/type. Next query strings and repeated sizes variants are accepted. ICO links must not list 32x32 so the canonical SVG remains preferred.
+- Icon links resolve against the actual document URL, must have that same origin, and match `naeilIcons.links` by rel/href pathname/type. Next query strings and repeated sizes variants are accepted. ICO links must not list 32x32 so the canonical SVG remains preferred.
 - `document.title` ends with `naeilServiceName(service)`.
 
 Exit 0 means every requested check passed; exit 1 means violations, navigation failures or invalid arguments. Missing consumer Playwright exits 2 with an installation hint. Runtime mode does not apply source-ignore comments. It checks the supplied routes only; CI should list representative authenticated, anonymous, localized, loading and no-footer routes.
@@ -141,4 +149,4 @@ const measurements: NaeilPageMeasurements = await page.evaluate(measureNaeilPage
 expect(measurements.headerTitle).toBeCloseTo(48, 1);
 ```
 
-Call after the title is visible and fonts are ready. Missing required elements return null measurements, permitting a test to report the absent element. Hidden/scripts/absolute/fixed trailing nodes do not replace the final normal-flow content block. The function closes over no module state and can be serialized directly by Playwright.
+Call after the title is visible and fonts are ready. Missing required elements return null measurements, permitting a test to report the absent element. Results include `pageHeaderContent`, the actual document `url`, and absolute icon hrefs. The function closes over no module state and can be serialized directly by Playwright.

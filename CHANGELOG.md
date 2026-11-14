@@ -22,6 +22,9 @@
 - Live artwork verification retries only explicit HTTP 403 responses, honors Retry-After, and still fails after three attempts; real HTTP fixture cases cover recovery and persistent failure.
 - Packed frame verification waits for the actual dynamically imported fixture stylesheet before baseline measurements, avoiding an unstyled Next baseline without weakening restoration assertions.
 - Fix public `NaeilServiceShellProps` JSX wrapper spreads while retaining optional-never forbidden keys and exact unknown-key rejection. Document shell-owned header DOM/nine inputs and navigation labels consistently; standalone header compatibility stays available.
+- Conformance r4: inspect PageHeader's own attributes and resolved spreads while permitting styled actions/description descendants. Scope Next identity checks to exported route metadata/generateMetadata, follow relative/path-imported helper bodies, and resolve parent tsconfig/jsconfig baseUrl/paths for shell reachability (`--app src` included). Preserve alias/object/spread bypass checks while ignoring unrelated metadata locals.
+- Permit product forcedTheme data, scoped article header/title/footer selectors, canonical-byte public icon aliases and unreferenced nested historical/product assets. Continue rejecting provider policy inputs, noncanonical root/automatic route icons, extra icon declarations and dynamic/directory icon handlers.
+- Runtime r4 adds storage-state authentication (strip only stored theme), repeatable request headers, exact expected HTTP statuses and explicit redirect permissions. Verify final route/origin, same-origin icons, 32px PageHeader→content spacing and 96px from the final visible terminal content box through layout wrappers. Add authenticated/error-route/redirect/measurement fixtures and document static execution limits.
 
 Additive: existing classes, `PageTitle` and tokens are unchanged.
 
