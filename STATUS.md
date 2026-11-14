@@ -1,3 +1,11 @@
+# Status — 2026-11-14 shared UI 0.15.0 release candidate
+
+Preparing unpublished `@naeil/ui@0.15.0` from page-rhythm commits `70fd5fb`, `e569a11` and `bf1758a` on main `10d799b`. This additive minor adds page top/title/header/bottom tokens, `.ui-app-main`, `PageHeader`, the DESIGN.md page-rhythm/dark-default rule and shared frame composition on naeil.dev content pages. Package metadata, generated `/release` and React/Next fixture pins move together. Existing classes, `PageTitle`, token values and chrome contract 1 remain unchanged; service adoption and site/Docs deployment require separate receipts.
+
+Registry checked 2026-11-14 JST: `latest=0.14.0`, `next=0.13.0`. Publication is intended directly to `latest` through `publish-npm.yml` with owner `npm-publish` environment approval; leave `next` unchanged unless separately moved. Freeze source and evidence in two commits, preserving both without squashing. This preparation commits and pushes the candidate branch; it performs no PR creation, merge, publish, tag/Release, workflow dispatch, registry/settings change or deployment. Remove ignored release reproduction directories after use so generated sources cannot pollute subsequent type checks. Earlier entries below retain their dated context.
+
+---
+
 # Status — 2026-11-13 shared UI 0.14.0 published and services deployed
 
 `@naeil/ui@0.14.0` is published from frozen source `c7dd7655d98134591de2d660f6d9f92b11caffce`; [PR #53](https://github.com/naeil-dev/naeil-ui/pull/53) merged as `c235091`. Verified tags: **`latest=0.14.0`, `next=0.13.0`**. Owner-approved protected [npm run 43386755633](https://github.com/naeil-dev/naeil-ui/actions/runs/43386755633) used OIDC + provenance and passed every step, including registry integrity/shasum verification; registry time 2026-11-13T10:37:22.242Z. Chrome contract 1 remains unchanged.

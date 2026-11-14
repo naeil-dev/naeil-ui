@@ -2,7 +2,7 @@
 
 A React 19 / Vite / Tailwind 4 settings form, using the packaged UI without Next.js or API keys. This consumer owns its local Pretendard and Noto Sans JP dependencies and imports in src/main.tsx; @naeil/ui adds no font runtime dependency. Korean/Latin/Japanese specimens are included. If these font resources fail, shared CSS uses system fallbacks; a family declaration alone is not proof that fonts loaded. Preserve the repository [font OFL notices](../../THIRD_PARTY_NOTICES.md#fonts) with redistributed builds.
 
-The checked-in manifest pins the **unpublished @naeil/ui 0.14.0 candidate**. Validate this checkout with `pnpm build:pkg` and `pnpm check:consumers`; the registry install commands below work after 0.14.0 is published. The example composes React-only `NaeilHeader`, `NaeilHeaderAccountControl` and a deliberately compact `NaeilFooter`. To run that pinned example:
+The checked-in manifest pins the **unpublished @naeil/ui 0.15.0 candidate**. Validate this checkout with `pnpm build:pkg` and `pnpm check:consumers`; the registry install commands below work after 0.15.0 is published. The example composes React-only `NaeilHeader`, `NaeilHeaderAccountControl` and a deliberately compact `NaeilFooter`. To run that pinned example:
 
 ```sh
 # From the repository root:

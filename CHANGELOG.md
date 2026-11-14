@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — shared page rhythm (planned 0.15.0)
+## 0.15.0 — shared page rhythm (unpublished candidate)
 
 - Tokens `ui.page-top` 48px, `ui.page-title-gap` 12px, `ui.page-header-gap` 32px, `ui.page-bottom` 96px (values from naeil.dev).
 - `.ui-app-main` (fixed-header clearance + page top/bottom spacing), `.ui-page-header`, `.ui-page-description`, `.ui-page-header-actions`.
