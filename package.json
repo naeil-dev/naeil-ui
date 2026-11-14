@@ -173,6 +173,10 @@
     "./naeil-locale/chrome": {
       "types": "./dist/naeil-locale/chrome.d.ts",
       "import": "./dist/naeil-locale/chrome.js"
+    },
+    "./naeil-shell": {
+      "types": "./dist/components/naeil-shell.d.ts",
+      "import": "./dist/components/naeil-shell.js"
     }
   },
   "scripts": {
@@ -275,7 +279,8 @@
     "docs/design/public-ui-stage4-verification.md",
     "docs/design/public-ui-final-verification.md",
     "docs/design/public-ui-release-validation.md",
-    "contracts/"
+    "contracts/",
+    "bin/"
   ],
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -313,5 +318,8 @@
       "optional": true
     }
   },
-  "packageManager": "pnpm@10.30.3"
+  "packageManager": "pnpm@10.30.3",
+  "bin": {
+    "naeil-ui-conformance": "./bin/naeil-ui-conformance.mjs"
+  }
 }

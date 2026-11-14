@@ -98,6 +98,21 @@
     margin-inline: auto;
     padding-inline: var(--ui-frame-gutter);
   }
+  .ui-skip-link {
+    position: fixed;
+    top: -100vh;
+    left: var(--ui-frame-gutter);
+    z-index: 100;
+    padding: var(--spacing-3-value) var(--spacing-4-value);
+    color: var(--foreground);
+    background: var(--background);
+    border-radius: var(--radius-lg-value);
+  }
+  .ui-skip-link:focus {
+    top: var(--spacing-3-value);
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
   /* Shared page rhythm: fixed-header clearance, page header and footer spacing. */
   .ui-app-main {
     padding-top: calc(var(--ui-navigation-height) + 1px + var(--ui-page-top));
