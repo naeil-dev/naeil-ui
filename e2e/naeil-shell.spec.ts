@@ -50,12 +50,23 @@ test("skip link focuses main, theme changes persist, and shared account works", 
   await expect(page.locator('[data-app-toolbar] a[href="/login"]')).toBeVisible();
 });
 
-test("recorded Home login has no footer and anonymous mobile chrome", async ({ page }) => {
+test("recorded Home login has no footer or redundant account control", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto('/iframe.html?id=brand-naeilserviceshell--home&viewMode=story&shellLocale=ja&shellAuth=out&noFooter');
+  await page.goto('/iframe.html?id=brand-naeilserviceshell--home&viewMode=story&shellLocale=ja&shellAuth=out&noFooter&loginPage');
   await expect(page.locator('main')).toBeVisible();
   await expect(page.locator('footer')).toHaveCount(0);
   await page.locator('.ui-navigation-toggle').click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'ログイン', exact: true })).toBeVisible();
+  await expect(page.locator('[data-naeil-account-state]')).toHaveCount(0);
 });
+
+for (const [locale,label] of [['ko','로그인'],['ja','ログイン'],['en','Log in']]) for (const width of [1440,390]) {
+  test(`shell owns signed-out login presentation ${locale}/${width}`, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    await page.goto(`/iframe.html?id=brand-naeilserviceshell--abstorm&viewMode=story&shellLocale=${locale}&shellAuth=out`);
+    if (width===390) await page.locator('.ui-navigation-toggle').click();
+    const control=page.getByRole('link',{name:label,exact:true});
+    await expect(control).toBeVisible(); await expect(control).toHaveAttribute('href','/login');
+    await control.click(); await expect(page.locator('main [role="status"]')).toHaveText('/login');
+  });
+}

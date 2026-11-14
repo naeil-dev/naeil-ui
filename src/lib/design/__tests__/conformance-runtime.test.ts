@@ -10,13 +10,20 @@ import { naeilIcons } from "../../../naeil-locale/icons.generated";
 const roots: string[] = [];
 afterEach(() => roots.splice(0).forEach(root => rmSync(root, {recursive: true, force: true})));
 const passing = (): NaeilPageMeasurements => ({
-  mainCount: 1, ownedMainCount: 1, headerCount: 1, footerCount: 1,
+  mainCount: 1, ownedMainCount: 1, headerCount: 1, footerCount: 1, accountCount: 1,
   headerTitle: 48, titleDescription: 12, contentFooter: 96,
   titleSize: 32, titleLineHeight: 42, titleWeight: 600, bodySize: 16, dark: true,
   pageHeaderContent: 32, url: 'https://estimate.example/settings',
   title: "Settings — .naeil estimate", icons: naeilIcons.links.map(link => ({...link})),
 });
 describe("runtime conformance measurements", () => {
+  it('requires an account marker on desktop, allows mobile absence and recorded no-account routes', () => {
+    const value={...passing(),accountCount:0};
+    expect(assessNaeilPage(value,{service:'estimate',viewportWidth:1440})).toContain('header account count: 0 (expected at least 1)');
+    expect(assessNaeilPage(value,{service:'estimate',viewportWidth:390})).toEqual([]);
+    expect(assessNaeilPage(value,{service:'estimate',noAccount:true})).toEqual([]);
+    expect(assessNaeilPage(passing(),{service:'estimate',noAccount:true})).toEqual([]);
+  });
   it("accepts canonical measurements including Next query strings and extra sizes variants", () => {
     const value = passing();
     value.icons = value.icons.map(link => ({...link, href: `${link.href}?build=123`}));

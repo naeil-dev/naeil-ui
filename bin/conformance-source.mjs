@@ -75,7 +75,7 @@ export function* openingTags(text) {
   }
   yield* scan(0, text.length);
 }
-export function attributes(tag, offsets = {}) {
+export function attributes(tag, offsets = {}, expressions = {}) {
   const attrs = {};
   const body = tag.replace(/^<\/?[\w.$-]+/, '').replace(/\/?\s*>$/, '');
   for (let i = 0; i < body.length;) {
@@ -92,6 +92,7 @@ export function attributes(tag, offsets = {}) {
     else if (body[start] === '{') { end = closing(body, start); const inner = body.slice(start + 1, end).trim(); value = /^("[^"]*"|'[^']*')$/.test(inner) ? inner.slice(1, -1) : undefined; }
     else { value = /^[^\s>]+/.exec(body.slice(start))?.[0]; end = start + (value?.length ?? 0) - 1; }
     attrs[m[1].toLowerCase()] = value;
+    if (m[2]) expressions[m[1].toLowerCase()] = body[start] === '{' ? body.slice(start + 1, end).trim() : body.slice(start, end + 1);
     offsets[m[1].toLowerCase()] = tag.match(/^<\/?[\w.$-]+/)[0].length + i;
     i = Math.max(start, end + 1);
   }
@@ -133,16 +134,16 @@ export function objectResolver(text, names, external = () => undefined, onLocale
       onLocale(value); return { keys: new Set(), unresolved: false };
     }
     if (value[0] !== '{' || closing(value, 0) !== value.length - 1) return external(value) ?? { keys: new Set(), unresolved: true };
-    const keys = new Set(); let unresolved = false;
+    const keys = new Set(), values = new Map(); let unresolved = false;
     for (const field of splitTop(value.slice(1, -1))) {
       const part = field.trim(); if (!part) continue;
-      if (part.startsWith('...')) { const result = inspect(part.slice(3), next); for (const k of result.keys) keys.add(k); unresolved ||= result.unresolved; }
+      if (part.startsWith('...')) { const result = inspect(part.slice(3), next); for (const k of result.keys) keys.add(k); for (const [key, value] of result.values ?? []) values.set(key,value); unresolved ||= result.unresolved; }
       else {
         const key = /^(?:([\w$-]+)|["']([^"']+)["'])\s*(?=:|,|$|\()/.exec(part);
-        if (key) keys.add(key[1] ?? key[2]); else unresolved = true;
+        if (key) { const name=key[1] ?? key[2]; keys.add(name); const rest=part.slice(key[0].length).trim(); values.set(name,rest.startsWith(':') ? rest.slice(1).trim() : name); } else unresolved = true;
       }
     }
-    return { keys, unresolved };
+    return { keys, values, unresolved };
   }
   return inspect;
 }

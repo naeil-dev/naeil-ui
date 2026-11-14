@@ -20,12 +20,13 @@ export async function resolveConsumerPlaywright(app) {
 }
 
 /** Pure assessment so consumers can retain the exact failed measurements in reports. */
-export function assessNaeilPage(value, {service, noFooter = false}) {
+export function assessNaeilPage(value, {service, noFooter = false, noAccount = false, viewportWidth = 1440}) {
   const errors = [];
   const exact = (name, actual, expected) => { if (actual !== expected) errors.push(`${name}: ${actual} (expected ${expected})`); };
   const gap = (name, actual, expected) => { if (actual === null || !Number.isFinite(actual) || Math.abs(actual - expected) > 0.5) errors.push(`${name}: ${actual} (expected ${expected} ±0.5px)`); };
   exact('main count', value.mainCount, 1); exact('main#main.ui-app-main count', value.ownedMainCount, 1);
   exact('header count', value.headerCount, 1);
+  if (viewportWidth === 1440 && !noAccount && !(Number.isFinite(value.accountCount) && value.accountCount >= 1)) errors.push(`header account count: ${value.accountCount} (expected at least 1)`);
   gap('header → h1', value.headerTitle, 48);
   exact('h1 font-size', value.titleSize, 32); exact('h1 line-height', value.titleLineHeight, 42); exact('h1 weight', value.titleWeight, 600);
   if (value.titleDescription !== null) gap('h1 → description', value.titleDescription, 12);
@@ -43,11 +44,12 @@ export function assessNaeilPage(value, {service, noFooter = false}) {
   return errors;
 }
 
-export async function checkRuntimeConformance({service, url, routes, noFooter = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = []}) {
+export async function checkRuntimeConformance({service, url, routes, noFooter = [], noAccount = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = []}) {
   const origin = new URL(url);
   if (!['http:', 'https:'].includes(origin.protocol)) throw new Error('--url must be an http(s) origin');
   if (!routes.length || routes.some(route => !route.startsWith('/') || route.startsWith('//'))) throw new Error('--routes requires comma-separated local /paths');
   if (noFooter.some(route => !routes.includes(route))) throw new Error('Every --no-footer route must be listed in --routes');
+  if (noAccount.some(route => !routes.includes(route))) throw new Error('Every --no-account route must be listed in --routes');
   const extraHTTPHeaders = {};
   for (const header of headers) {
     const separator = header.indexOf(':');
@@ -114,7 +116,7 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
         if (actual.origin !== requested.origin || !(actual.pathname === requested.pathname || localizedAlias || allowed && actual.pathname === new URL(allowed, origin).pathname))
           throw new Error(`Unexpected redirect ${requested.pathname} → ${actual.pathname}; use --allow-redirect for a recorded route`);
         rows.push({route, viewport: `${viewport.width}×${viewport.height}`, scheme: colorScheme, measurements,
-          errors: assessNaeilPage(measurements, {service, noFooter: noFooter.includes(route)})});
+          errors: assessNaeilPage(measurements, {service, noFooter: noFooter.includes(route), noAccount: noAccount.includes(route), viewportWidth:viewport.width})});
       } catch (error) { rows.push({route, viewport: `${viewport.width}×${viewport.height}`, scheme: colorScheme, errors: [error.message]}); }
       finally { await context.close(); }
     }

@@ -21,7 +21,7 @@ const html = (content = '<section><p>Content</p></section>') => `<!doctype html>
 .ui-page-header{margin-bottom:32px}h1{font-size:32px;line-height:42px;font-weight:600;margin:0}
 .ui-page-description{margin:12px 0 0;line-height:25px}p{margin:0;line-height:25px}footer{height:100px}</style>
 <script>document.documentElement.className=localStorage.getItem('theme')||'dark';if(location.pathname==='/authenticated'&&localStorage.getItem('session-data')!=='keep')document.title='Lost authentication state';</script></head><body>
-<header data-naeil-header></header><main id="main" class="ui-app-main"><div class="ui-page-header"><h1>Title</h1><p class="ui-page-description">Description</p></div>${content}</main><footer data-naeil-footer></footer></body></html>`;
+<header data-naeil-header><span hidden data-naeil-account-state="signed-out"></span></header><main id="main" class="ui-app-main"><div class="ui-page-header"><h1>Title</h1><p class="ui-page-description">Description</p></div>${content}</main><footer data-naeil-footer></footer></body></html>`;
 
 test.beforeAll(async () => {
   root = mkdtempSync(join(tmpdir(), 'shell-r4-http-'));
@@ -43,6 +43,7 @@ test.beforeAll(async () => {
       : path === '/closed-details' ? `<section><p>Content</p><details><summary style="line-height:25px">More</summary><pre>${'hidden line\n'.repeat(120)}</pre></details></section>` : undefined);
     if (path === '/client-redirect') document = document.replace('</body>', '<script>requestAnimationFrame(()=>requestAnimationFrame(()=>history.replaceState({},"","/settings")))</script></body>');
     if (path === '/client-error') document = document.replace('</body>', '<script>addEventListener("load",()=>requestAnimationFrame(()=>location.replace("/unknown")))</script></body>');
+    if (['/login','/gate','/missing-account'].includes(path)) document=document.replace('<span hidden data-naeil-account-state="signed-out"></span>','<span data-naeil-account-state="signed-out">Outside header</span>').replace('<span data-naeil-account-state="signed-out">Outside header</span></header>','</header><span data-naeil-account-state="signed-out" style="position:absolute">Outside header</span>');
     response.writeHead(status, {'content-type':'text/html', 'cache-control':'no-store'}).end(document);
   });
   await new Promise<void>(done => server.listen(0, '127.0.0.1', done));
@@ -54,6 +55,20 @@ async function cli(routes: string[], args: string[] = []) {
   try { return {...await exec(process.execPath, [process.env.NAEIL_UI_CONFORMANCE_BIN ?? 'bin/naeil-ui-conformance.mjs', '--service','estimate','--url', origin, '--routes', routes.join(','), ...args], {timeout:90000}), code: 0}; }
   catch (error) { return error as unknown as {code: number; stdout: string; stderr: string}; }
 }
+test('runtime enforces desktop account markers and repeatable exact-route exceptions', async ({page}) => {
+  test.setTimeout(90000);
+  await page.goto(origin+'/settings');
+  expect((await page.evaluate(measureNaeilPage)).accountCount).toBe(1); // hidden header controls still count
+  await page.goto(origin+'/login');
+  expect((await page.evaluate(measureNaeilPage)).accountCount).toBe(0); // outside header does not count
+  const missing=await cli(['/login']); expect(missing.code).toBe(1);
+  expect(missing.stdout).toContain('header account count: 0'); expect(missing.stdout).toContain('4 checks, 2 failures');
+  const accepted=await cli(['/login','/gate','/missing-account'],['--no-account','/login,/gate','--no-account','/missing-account']);
+  expect(accepted.code,accepted.stdout+accepted.stderr).toBe(0); expect(accepted.stdout).toContain('12 checks, 0 failures');
+  const scoped=await cli(['/login','/missing-account'],['--no-account','/login']);
+  expect(scoped.code).toBe(1); expect(scoped.stdout).toContain('8 checks, 2 failures');
+  const invalid=await cli(['/login'],['--no-account','/other']); expect(invalid.code).toBe(1); expect(invalid.stderr).toContain('Every --no-account route must be listed');
+});
 test('runtime applies authentication to every fresh context and strips stored theme without mutating the file', async () => {
   test.setTimeout(90000);
   const state = join(root, 'session.json');

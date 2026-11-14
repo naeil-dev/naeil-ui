@@ -57,13 +57,12 @@ Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter th
 
 ## Canonical naeil application starter
 
-Owned Next services under `NaeilLocaleProvider` import shell/provider/account chrome from `@naeil/ui/naeil-locale/chrome`. Standalone React uses `/naeil-shell` and `/naeil-header` for account UI. See [the shell API and every CI rule](naeil-shell.md) and [locale setup](naeil-locale.md).
+Owned Next services under `NaeilLocaleProvider` import shell/provider/account types from `@naeil/ui/naeil-locale/chrome`. Standalone React uses `/naeil-shell`; the shell supplies account UI from its account prop (planned 0.16.0). See [the shell API and every CI rule](naeil-shell.md) and [locale setup](naeil-locale.md).
 
 ```tsx
 import type { ReactNode } from "react";
 import { NaeilServiceShell, NaeilThemeProvider, PageHeader,
-  type NaeilService, type NaeilServiceShellProps } from "@naeil/ui/naeil-shell";
-import { NaeilHeaderAccountControl, type NaeilHeaderAccount } from "@naeil/ui/naeil-header";
+  type NaeilService, type NaeilServiceShellProps, type NaeilHeaderAccount } from "@naeil/ui/naeil-shell";
 
 // At the application root: <NaeilThemeProvider>{children}</NaeilThemeProvider>.
 // Replace the old root theme provider; a nested next-themes provider is ignored.
@@ -79,8 +78,7 @@ type ApplicationLayoutProps = {
 export function ApplicationLayout({ children, service, locale, Link, guard,
   currentHref, account }: ApplicationLayoutProps) {
   return <NaeilServiceShell service={service} locale={locale} Link={Link} onNavigate={guard}
-    header={{ currentHref, authSlot: <NaeilHeaderAccountControl locale={locale}
-      Link={Link} account={account} /> }}>
+    account={account} header={{ currentHref }}>
     {children}
   </NaeilServiceShell>;
 }
@@ -126,7 +124,7 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 ## Shared application layout
 - Read the installed @naeil/ui/DESIGN.md and docs/components/application-layout.md before UI layout work.
 - Owned services use NaeilServiceShell + root NaeilThemeProvider from @naeil/ui/naeil-shell; replace the old root provider. The shell owns header, main, skip link and full footer. naeil.dev keeps its direct catalog composition without service and also uses the root NaeilThemeProvider. Navigation/SiteFooter remain for a different product menu; standalone NaeilHeader/NaeilFooter and Next Nav/Footer compatibility APIs remain available.
-- Put NaeilHeaderAccountControl from @naeil/ui/naeil-header in the shell's header.authSlot. Supply real session state, the busy flag and guarded logout callback. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup.
+- Pass real session state through the shell's account prop, including the busy flag and guarded logout callback. The shell supplies NaeilHeaderAccountControl with locale/Link. header.authSlot is deprecated for owned services. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup. Pass currentHref so the shell hides the signed-out login link on its matching login pathname; record that route with runtime --no-account. Static CI requires account= on every shell and rejects header.authSlot.
 - For owned Next services under NaeilLocaleProvider, import shell/provider/PageHeader/account from @naeil/ui/naeil-locale/chrome. Read docs/components/naeil-locale.md for the root controller, provider, server routing, message loading and checker. /naeil-header and /naeil-footer remain standalone React adapters.
 - Owned services must set the shell's service="abstorm" / "home" / "estimate" / "jev". The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.
 - Supply only the service's own header.appNavigation tabs; never copy naeil.dev Projects/Blog. Single-screen services leave appNavigation empty; the mobile menu still exposes theme/locale/account without empty navigation.

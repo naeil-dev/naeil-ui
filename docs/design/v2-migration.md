@@ -99,7 +99,7 @@ naeil.dev는 `service` 없는 카탈로그 헤더·기존 푸터 구성을 유�
 
 ```sh
 naeil-ui-conformance --service estimate --framework next --app .
-naeil-ui-conformance --service estimate --url http://127.0.0.1:4173 --routes /en/estimates,/login --no-footer /login
+naeil-ui-conformance --service estimate --url http://127.0.0.1:4173 --routes /en/estimates,/login --no-footer /login --no-account /login
 # Vite: --framework vite
 ```
 
@@ -107,7 +107,7 @@ CLI는 theme/chrome/rhythm/icons/titles 규칙, 파일 SHA-256과 선언 순서�
 
 ## 앱 전체 틀과 콘텐츠 폭
 
-소유 서비스는 `NaeilServiceShell`에 `service`·현재 언어·라우팅/저장 guard를 전달한다. 셸이 공통 헤더와 전체 푸터를 구성하므로 앱에서 `NaeilHeader`·`NaeilFooter` JSX를 직접 조합하지 않는다. `header.authSlot`에는 `NaeilHeaderAccountControl`을 두고 실제 세션 상태·busy·guarded logout 콜백을 전달한다. pending 상태와 요청 잠금은 셸 위에서 소유해 데스크톱/모바일 슬롯이 공유한다. 언어 변경을 지원하지 않으면 `header.onLocaleChange`를 생략한다. 전체 프로젝트 메뉴·컨트롤·반응형 스타일과 canonical 푸터 목적지를 복사하지 않는다. [셸 계약](../components/naeil-shell.md), [헤더 계약](../components/naeil-header.md), [푸터 계약](../components/naeil-footer.md)을 참조한다. 독립 헤더·푸터 API는 naeil.dev 카탈로그와 기존 호환 구성에 남는다.
+소유 서비스는 `NaeilServiceShell`에 `service`·현재 언어·라우팅/저장 guard를 전달한다. 셸이 공통 헤더와 전체 푸터를 구성하므로 앱에서 `NaeilHeader`·`NaeilFooter` JSX를 직접 조합하지 않는다. 예정된 0.16.0부터 실제 세션 상태·busy·guarded logout 콜백을 셸의 `account`로 전달하면 셸이 `NaeilHeaderAccountControl`을 구성한다. `header.authSlot`은 0.15.0 호환용으로만 유지하며 소유 서비스 정적 CI에서는 거부한다. 비로그인 상태에서 loginHref/currentHref의 pathname이 같은 로그인 화면은 컨트롤을 숨기며 런타임 `--no-account`로 기록한다. pending 상태와 요청 잠금은 셸 위에서 소유해 데스크톱/모바일 슬롯이 공유한다. 언어 변경을 지원하지 않으면 `header.onLocaleChange`를 생략한다. 전체 프로젝트 메뉴·컨트롤·반응형 스타일과 canonical 푸터 목적지를 복사하지 않는다. [셸 계약](../components/naeil-shell.md), [헤더 계약](../components/naeil-header.md), [푸터 계약](../components/naeil-footer.md)을 참조한다. 독립 헤더·푸터 API는 naeil.dev 카탈로그와 기존 호환 구성에 남는다.
 
 2026-10-16 승인한 기본 프레임은 최대 1600px(여백 포함), 좌우 `clamp(16px, 2.4vw, 40px)`다. 브랜드 헤더·범용 Navigation·SiteFooter·본문 프레임이 `--ui-width-frame`, `--ui-frame-gutter`를 함께 사용한다. 소유 서비스는 셸이 고정 헤더 65px의 main 여유를 적용하므로 별도 페이지 패딩을 더하지 않는다. 소비 앱의 sticky 영역과 초점/anchor 이동은 고정 헤더 높이를 고려한다. 카탈로그 헤더의 공식 장식 이미지 URL에는 네트워크가 필요하다. 이미지 바이트는 npm에 포함하지 않으며 재배포 출처·권리 미해결 사항은 [제3자 고지](../../THIRD_PARTY_NOTICES.md)에 유지한다.
 
@@ -245,7 +245,7 @@ These source paths are not package entries: website-only paths belong to the bra
 | --- | --- |
 | `components/nav-wrapper`, `components/nav-server-wrapper` | Owned services use `NaeilServiceShell`; naeil.dev's catalog can use `/naeil-header`, and existing Nav adapters remain compatible. Your app loads users/sessions. |
 | `components/footer-wrapper` | Owned services use the shell's footer; existing compatibility compositions can use preserved Footer with the app's Link. |
-| `components/auth-slot` | The app owns session state and guarded logout above the shell. Owned services put `NaeilHeaderAccountControl` from `/naeil-header` (or provider-backed `/naeil-locale/chrome`) in `header.authSlot`; legacy custom Nav slots remain compatible. |
+| `components/auth-slot` | The app owns session state and guarded logout above the shell. From planned 0.16.0, owned services pass `account` to the shell; `header.authSlot` is deprecated 0.15.0 compatibility. Standalone header and legacy Nav slots remain compatible. |
 | `components/hero-scene`, `components/hero-section`, `components/paraglider-cursor` | Website scene/cursor source, assets and Three dependencies stay website-owned. |
 | `components/project-layout`, `components/workflow-diagram`, `components/accent-picker` | Website showcase/data/theme editing composition; use shared primitives in product-owned compositions. |
 | `components/blog/MarkdownRenderer`, `lib/blog` | Application-owned content rendering, filesystem and MDX/remark pipeline. |

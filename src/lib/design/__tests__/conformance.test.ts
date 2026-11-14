@@ -13,6 +13,29 @@ function fixture(framework: "next" | "vite") {
   return { root, check, add: (file: string, text: string | Uint8Array) => { const path = join(root, file); mkdirSync(join(path, ".."), { recursive: true }); writeFileSync(path, text); } };
 }
 afterEach(() => roots.splice(0).forEach(root => rmSync(root, { force: true, recursive: true })));
+describe.each(['next','vite'] as const)('%s shell account policy', framework => {
+  it('requires explicit account input on every shell, including aliases and unreachable shells', () => {
+    const f = fixture(framework); expect(f.check().issues).toEqual([]);
+    f.add('src/account.tsx', 'import {NaeilServiceShell as Shell} from "@naeil/ui/naeil-shell"; <Shell service="estimate" locale="en"/>;');
+    expect(f.check().issues.some(i => i.rule === 'chrome' && /account/.test(i.message))).toBe(true);
+    f.add('src/account.tsx', 'import * as Chrome from "@naeil/ui/naeil-shell"; <Chrome.NaeilServiceShell service="estimate" locale="en" account={session}/>;');
+    expect(f.check().issues).toEqual([]);
+  });
+  it.each([
+    '<NaeilServiceShell service="estimate" account={account} header={{authSlot:<CustomAccount/>}}/>;',
+    'const header = {currentHref:"/404",authSlot:null}; <NaeilServiceShell service="estimate" account={account} header={header}/>;',
+    'const slot = {authSlot:<CustomAccount/>}; const header={...slot}; <NaeilServiceShell service="estimate" account={account} header={{...header}}/>;',
+    'const props={header:{authSlot:null}}; <NaeilServiceShell service="estimate" account={account} {...props}/>;',
+  ])('rejects deprecated shell header.authSlot: %s', source => {
+    const f=fixture(framework); f.add('src/account.tsx',source);
+    expect(f.check().issues.some(i=>i.rule==='chrome' && /authSlot/.test(i.message))).toBe(true);
+  });
+  it('does not confuse unrelated account data/descendant authSlot props with the shell header', () => {
+    const f=fixture(framework);
+    f.add('src/account.tsx','const data={authSlot:null}; <NaeilServiceShell service="estimate" account={session} header={{appNavigation:[{id:"x",label:<Widget authSlot={data}/>,href:"/"}]}}/>;');
+    expect(f.check().issues).toEqual([]);
+  });
+});
 describe.each(["next", "vite"] as const)("%s conformance fixture", framework => {
   it("accepts the shell, root policy, exact icons and title", () => {
     expect(fixture(framework).check().issues).toEqual([]);
@@ -59,7 +82,7 @@ describe.each(["next", "vite"] as const)("%s conformance fixture", framework => 
   });
   it("requires an actual shell and theme usage", () => {
     const { add, check } = fixture(framework);
-    add(framework === "next" ? "app/layout.tsx" : "src/App.tsx", '// <NaeilServiceShell />');
+    add(framework === "next" ? "app/layout.tsx" : "src/App.tsx", '// <NaeilServiceShell account={account} />');
     expect(check().issues.map(issue => issue.rule)).toEqual(expect.arrayContaining(["theme", "chrome"]));
   });
   it("prints file:line diagnostics and returns the correct CLI exit code", () => {
@@ -173,7 +196,7 @@ describe.each(["next", "vite"] as const)("%s r3 source policy", framework => {
     expect(f.check().issues.some(i => i.rule === 'chrome' && /reachable/.test(i.message))).toBe(true);
     f.add(file, text.replaceAll('NaeilServiceShell', 'ServiceShell').replace('import { NaeilThemeProvider, ServiceShell,', 'import { NaeilThemeProvider, NaeilServiceShell as ServiceShell,').replace('import { ServiceShell,', 'import { NaeilServiceShell as ServiceShell,'));
     expect(f.check().issues).toEqual([]);
-    f.add(file, 'import * as Chrome from "@naeil/ui/naeil-shell"; import "@naeil/ui/globals.css"; export default function Layout(){return <Chrome.NaeilServiceShell service={"estimate"} locale="en"/>;}');
+    f.add(file, 'import * as Chrome from "@naeil/ui/naeil-shell"; import "@naeil/ui/globals.css"; export default function Layout(){return <Chrome.NaeilServiceShell account={account} service={"estimate"} locale="en"/>;}');
     expect(f.check().issues).toEqual([]);
   });
 });
@@ -226,7 +249,7 @@ it('accepts typed metadata arrows with resolved objects', () => {
 });
 it('does not mistake source strings for shell adoption or JSX violations', () => {
   const f = fixture('next');
-  f.add('app/layout.tsx', 'import "@naeil/ui/globals.css"; const example = \'<NaeilServiceShell service="estimate"/>\'; export default function Layout(){return <html><body><div>Missing shell</div></body></html>;}');
+  f.add('app/layout.tsx', 'import "@naeil/ui/globals.css"; const example = \'<NaeilServiceShell account={account} service="estimate"/>\'; export default function Layout(){return <html><body><div>Missing shell</div></body></html>;}');
   expect(f.check().issues.some(i => i.rule === 'chrome')).toBe(true);
   f.add('src/sample.tsx', 'const examples = [\'<NaeilHeader/>\', "<main>"];');
   expect(f.check().issues.some(i => i.file.endsWith('sample.tsx'))).toBe(false);
@@ -381,7 +404,7 @@ describe('r4 source analysis boundaries', () => {
     mkdirSync(join(f.root, 'src'), {recursive: true}); renameSync(join(f.root, 'app'), join(f.root, 'src/app'));
     f.add('tsconfig.json', '{ "compilerOptions": {"baseUrl": ".", "paths": {"@/*": ["src/*"]}}}');
     f.add('src/app/layout.tsx', 'import "@naeil/ui/globals.css"; import {Shell} from "@/chrome"; export default Shell;');
-    f.add('src/chrome.tsx', 'import {NaeilServiceShell} from "@naeil/ui/naeil-shell"; export const Shell = () => <NaeilServiceShell service="estimate" locale="en"/>;');
+    f.add('src/chrome.tsx', 'import {NaeilServiceShell} from "@naeil/ui/naeil-shell"; export const Shell = () => <NaeilServiceShell account={account} service="estimate" locale="en"/>;');
     f.add('src/app/page.tsx', 'import {pageMetadata} from "@/metadata"; export const generateMetadata = pageMetadata;');
     f.add('src/metadata.ts', 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export const pageMetadata = () => localeMetadata({service: "estimate"});');
     const check = () => checkConformance({service: 'estimate', framework: 'next', app: join(f.root, 'src')});
@@ -406,7 +429,7 @@ describe('r4 source analysis boundaries', () => {
     f.add('jsconfig.json', '{ // application config\n "extends": "./config/base.json",\n}');
     const entry = framework === 'next' ? 'app/layout.tsx' : 'src/App.tsx';
     f.add(entry, 'import "@naeil/ui/globals.css"; import {Shell} from "@chrome"; export default Shell;');
-    f.add('src/chrome.tsx', 'import {NaeilServiceShell} from "@naeil/ui/naeil-shell"; export const Shell = () => <NaeilServiceShell service="estimate" locale="en"/>;');
+    f.add('src/chrome.tsx', 'import {NaeilServiceShell} from "@naeil/ui/naeil-shell"; export const Shell = () => <NaeilServiceShell account={account} service="estimate" locale="en"/>;');
     expect(f.check().issues).toEqual([]);
     f.add(entry, 'import "@naeil/ui/globals.css"; import {Shell} from "chrome"; export default Shell;');
     expect(f.check().issues).toEqual([]);

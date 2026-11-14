@@ -2,7 +2,7 @@
 
 Product navigation and controlled mobile APIs are available since 0.8.0; shared root reservation is available since 0.9.0. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release; hosted Docs and service activation have separate receipts.
 
-For new owned-service adoption, use [NaeilServiceShell with root NaeilThemeProvider](naeil-shell.md); the shell composes this header and the canonical footer. Pass product menu/auth/locale state through `header` and shared routing guards through the shell. naeil.dev keeps its direct no-service catalog composition. The examples and API below document the supported standalone/legacy header as well as the service-header profile reused by the shell.
+For new owned-service adoption, use [NaeilServiceShell with root NaeilThemeProvider](naeil-shell.md); the shell composes this header and the canonical footer. Pass product menu/locale state through `header`, session state through `account` (planned 0.16.0), and shared routing guards through the shell. naeil.dev keeps its direct no-service catalog composition. The examples and API below document the supported standalone/legacy header as well as the service-header profile reused by the shell.
 
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
@@ -89,7 +89,7 @@ While a controlled parent keeps `mobileOpen=true`, its rejection and delayed acc
 
 Keep errors visible in the consumer's recovery UI or toast. The package never calls an authentication endpoint. Compare signed-in and signed-out render states separately; anonymous-only acceptance cannot establish authenticated parity. `AccountStates` is a synthetic Storybook example for pending/cancel/error/retry.
 
-Own pending state and the in-flight request lock above the shell (or the standalone `NaeilHeader`). Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. Pass the same controller to both through `header.authSlot` (standalone: `authSlot`); test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
+Own pending state and the in-flight request lock above the shell (or the standalone `NaeilHeader`). Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. From planned 0.16.0, pass the same controller through shell `account`; `header.authSlot` is deprecated compatibility only. Standalone headers keep `authSlot`. Test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
 
 ## Frame and content clearance
 
