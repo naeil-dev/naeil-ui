@@ -29,6 +29,11 @@ describe("owned service shell", () => {
     it.each([undefined, '/404', '/login-help', '/ja/login'])('keeps login on a different/missing current pathname %s', async currentHref => {
       expect(await accountRender({service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{currentHref}})).toContain('data-naeil-account-state="signed-out"');
     });
+    it('never hides an absolute central login URL, even when a service route shares its pathname', async () => {
+      const html = await accountRender({service:'jev',locale:'ko',account:{status:'signed-out',loginHref:'https://naeil.dev/ko/login?next=https%3A%2F%2Fjev.naeil.dev%2Fko%2Flogin'},header:{currentHref:'/ko/login'}});
+      expect(html).toContain('data-naeil-account-state="signed-out"');
+      expect(await accountRender({service:'jev',locale:'en',account:{status:'signed-out',loginHref:'//naeil.dev/login'},header:{currentHref:'/login'}})).toContain('data-naeil-account-state="signed-out"');
+    });
     it('renders signed-in SSR including busy state even on the login pathname', async () => {
       const html = await accountRender({service:'home',locale:'en',account:{status:'signed-in',onLogout:()=>{},busy:true,displayName:'Jay',email:'jay@example.test'},header:{currentHref:'/login'}});
       expect(html).toContain('data-naeil-account-state="signed-in"'); expect(html).toContain('aria-busy="true"');

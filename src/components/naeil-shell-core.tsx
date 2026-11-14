@@ -71,7 +71,9 @@ export function NaeilServiceShell<const Props extends NaeilShellInputs, const He
   if (account !== undefined) {
     if (Object.hasOwn(props.header ?? {}, "authSlot")) warn("account.authSlot", "NaeilServiceShell: account takes precedence over deprecated header.authSlot; pass account for owned services.");
     let loginPage = false;
-    if (account.status === "signed-out" && header.currentHref !== undefined) {
+    // Only a same-app relative login route can be "this page"; an absolute central login URL never hides the control.
+    const relativeLogin = account.status === "signed-out" && !/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(account.loginHref);
+    if (account.status === "signed-out" && relativeLogin && header.currentHref !== undefined) {
       try { loginPage = new URL(account.loginHref, "https://naeil.invalid").pathname === new URL(header.currentHref, "https://naeil.invalid").pathname; }
       catch { /* An invalid or unresolved route must not hide the login control. */ }
     }
