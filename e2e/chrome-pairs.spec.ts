@@ -30,7 +30,11 @@ async function prepare(page: Page, side: string, query: string, state: string, h
     else { await target.focus(); if (state === "popover") await target.press("Enter"); }
   }
   if (state === "account") await scope.locator("[data-naeil-account-trigger]").click();
-  if (state === "locale") await scope.getByRole("combobox").click();
+  if (state === "locale") {
+    await scope.getByRole("combobox").click();
+    // Radix mounts the listbox a frame after the click; wait for it before the animation settle loop.
+    await page.locator('[data-slot="select-content"]').first().waitFor({ state: "visible" });
+  }
   if (home && process.env.NAEIL_UI_P3_MUTATION === "title-offset") await page.addStyleTag({ content: '[data-slot="navigation-popover"] .ui-navigation-title { margin-top: 8px; }' });
   if (state !== "hover") await page.mouse.move(page.viewportSize()!.width / 2, 850);
   await page.evaluate(async () => {
@@ -42,6 +46,9 @@ async function prepare(page: Page, side: string, query: string, state: string, h
       await Promise.all(animations.map(a => a.finished.catch(() => {})));
     }
   });
+  // Capture only fully faded-in popups (WebKit can report the entrance animation late).
+  await page.waitForFunction(() => [...document.querySelectorAll('[data-slot="select-content"], [data-naeil-account-menu]')]
+    .every(element => getComputedStyle(element).opacity === "1"));
   if (side === "candidate") await assertLocaleFocusMarker(page);
 }
 
