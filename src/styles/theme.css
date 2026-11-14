@@ -162,6 +162,10 @@
   --ui-frame-gutter: clamp(16px, 2.4vw, 40px);
   --ui-width-short-form: 480px;
   --ui-width-workflow: 896px;
+  --ui-page-top: 48px;
+  --ui-page-title-gap: 12px;
+  --ui-page-header-gap: 32px;
+  --ui-page-bottom: 96px;
   --ui-motion-fast: 120ms;
   --ui-motion-standard: 180ms;
   --ui-navigation-height: 64px;

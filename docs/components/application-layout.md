@@ -8,13 +8,13 @@ Product navigation and controlled mobile APIs are available since 0.8.0; shared 
 | --- | --- |
 | The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
 | Owned-service login/account/logout presentation | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header` in `authSlot` |
-| Owned naeil service with product menu data (0.8.0) | Complete `NaeilHeader` with `service` and its own `appNavigation` |
+| Owned naeil service (0.15.0) | `NaeilServiceShell` + root `NaeilThemeProvider` from `/naeil-shell` or `/naeil-locale/chrome` |
 | A different product menu without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
-| Owned naeil service footer | `NaeilFooter` from `@naeil/ui/naeil-footer` |
+| Owned naeil service footer | Included by `NaeilServiceShell`; recorded no-footer screens use `footer={false}` |
 | Different product footer or explicit content override | `SiteFooter` from `@naeil/ui/ui` |
 | An existing Next/next-intl consumer | Keep its `Nav` / `Footer` adapters |
 
-Choose one header per application frame. Supply menu data, links, route guards, authentication and supported locale state through props/slots. Owned services pass session state and guarded callbacks to the shared account control. Local adapters are appropriate; copies of the menu, responsive sheet, account presentation or footer implementation are not. Extend the shared component when a reusable behavior is missing.
+Choose one composition per application frame. Owned services use the shell; naeil.dev keeps its direct catalog header/footer composition without a `service` and switches its root provider to `NaeilThemeProvider`. Supply menu data, links, route guards, authentication and supported locale state through props/slots. Owned services pass session state and guarded callbacks to the shared account control. Local adapters are appropriate; copies of the menu, responsive sheet, account presentation or footer implementation are not. Extend the shared component when a reusable behavior is missing.
 
 ## Width contract
 
@@ -28,7 +28,7 @@ Choose one header per application frame. Supply menu data, links, route guards, 
 | List / dashboard / table region | Available space inside the frame, capped at 1600px | `data-ui-layout="list"` |
 | Intentionally unrestricted region | Available parent width | `data-ui-layout="fluid"` |
 
-Use `.ui-app-frame` on main. Shared header/footer already apply the frame internally; **do not wrap them in another padded frame**. Put purpose-specific sections inside main. At 1920px the default frame has 1520px available after its 40px gutters. Small screens shrink the frame and reduce gutters to at least 16px. A narrow form must not constrain or move navigation.
+Owned services use the shell, which applies `.ui-app-frame ui-app-main` to main. Generic compositions use `.ui-app-frame` on main. Shared header/footer already apply the frame internally; **do not wrap them in another padded frame**. Put purpose-specific sections inside main. At 1920px the default frame has 1520px available after its 40px gutters. Small screens shrink the frame and reduce gutters to at least 16px. A narrow form must not constrain or move navigation.
 
 Since 0.9.0, the package supplies `html { scrollbar-gutter: stable }` once in `components.css`, reached by `globals.css` or `theme.css + components.css`. Classic mode reserves one browser-sized gutter on short and long pages; overlay mode reserves none. The shared lock correction removes duplicate Radix body right-margin/gap compensation and retains its scroll prevention, focus and nested cleanup. Keep header/main/footer and their ordinary content horizontally stable. Compare matching root policies and measure before any fullPage capture. See the [adopted acceptance contract](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md).
 
@@ -57,60 +57,54 @@ Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter th
 
 ## Canonical naeil application starter
 
-Owned Next services under `NaeilLocaleProvider` import header/account/footer chrome from `@naeil/ui/naeil-locale/chrome`; `/naeil-header` and `/naeil-footer` remain standalone React adapters. See [the owned-service language runtime](naeil-locale.md) for `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker` and `/chrome` setup.
-
-For the standalone React adapter:
-
-Owned services pass their `service` id to NaeilFooter (0.14.0): it is always `full`, with no `variant`, class, style or attribute overrides; only `meta` carries product status. Set browser titles with `localeMetadata` (Next, omit `serviceName`) or `naeilDocumentTitle(service, page)` so they read `Page — .naeil <service>`, and serve the shared brand-kit favicon; see [Browser identity](../design/v2-migration.md#브라우저-탭-제목과-파비콘).
+Owned Next services under `NaeilLocaleProvider` import shell/provider/account chrome from `@naeil/ui/naeil-locale/chrome`. Standalone React uses `/naeil-shell` and `/naeil-header` for account UI. See [the shell API and every CI rule](naeil-shell.md) and [locale setup](naeil-locale.md).
 
 ```tsx
 import type { ReactNode } from "react";
-import { NaeilHeader, NaeilHeaderAccountControl,
-  type NaeilHeaderAccount, type NaeilHeaderProps, type NaeilService } from "@naeil/ui/naeil-header";
-import { NaeilFooter } from "@naeil/ui/naeil-footer";
+import { NaeilServiceShell, NaeilThemeProvider, PageHeader,
+  type NaeilService, type NaeilServiceShellProps } from "@naeil/ui/naeil-shell";
+import { NaeilHeaderAccountControl, type NaeilHeaderAccount } from "@naeil/ui/naeil-header";
 
-// Render inside the existing next-themes ThemeProvider.
-// The app owns session state, its guarded logout and pending request lock.
+// At the application root: <NaeilThemeProvider>{children}</NaeilThemeProvider>.
+// Replace the old root theme provider; a nested next-themes provider is ignored.
 type ApplicationLayoutProps = {
   children: ReactNode;
   service: NaeilService;
-  locale: NaeilHeaderProps["locale"];
-  Link: NaeilHeaderProps["Link"];
+  locale: NaeilServiceShellProps["locale"];
+  Link: NaeilServiceShellProps["Link"];
+  guard: NaeilServiceShellProps["onNavigate"];
   currentHref: string;
   account: NaeilHeaderAccount;
 };
-
-export function ApplicationLayout({ children, service, locale, Link, currentHref,
-  account }: ApplicationLayoutProps) {
-  return <>
-    <NaeilHeader service={service} locale={locale} Link={Link} currentHref={currentHref}
-      authSlot={<NaeilHeaderAccountControl locale={locale} Link={Link}
-        account={account} />} />
-    <main className="ui-app-frame"
-      style={{ marginTop: "calc(var(--ui-navigation-height) + 1px)" }}>
-      {children}
-    </main>
-    <NaeilFooter service={service} locale={locale} Link={Link} />
-  </>;
+export function ApplicationLayout({ children, service, locale, Link, guard,
+  currentHref, account }: ApplicationLayoutProps) {
+  return <NaeilServiceShell service={service} locale={locale} Link={Link} onNavigate={guard}
+    header={{ currentHref, authSlot: <NaeilHeaderAccountControl locale={locale}
+      Link={Link} account={account} /> }}>
+    {children}
+  </NaeilServiceShell>;
 }
 
-<ApplicationLayout service={service} locale="en" Link={GuardedLink} currentHref={pathname}
-  account={account}>
+<ApplicationLayout service={service} locale="en" Link={GuardedLink} guard={guard}
+  currentHref={pathname} account={account}>
+  <PageHeader title="Settings" description="Manage your preferences." />
   <section data-ui-layout="settings">{/* Settings form */}</section>
 </ApplicationLayout>
 ```
 
-`service`, `GuardedLink`, `pathname` and `account` come from the consumer. Use `{ status: 'signed-out', loginHref }` or `{ status: 'signed-in', onLogout, busy, displayName, email }` for `account`; the app handles async cancellation, failure and retry. Keep pending state and the request lock above `NaeilHeader`, since desktop/mobile slot contents mount separately. See the [account contract](naeil-header.md#account-presentation).
+Run static `naeil-ui-conformance --service <id> --framework next|vite --app .` and runtime `naeil-ui-conformance --service <id> --url <origin> --routes /a,/b` in CI; see [every rule and runtime setup](naeil-shell.md). The shell owns skip link, canonical chrome, fixed main identity and spacing. `footer` accepts only `meta`/`resolveHref` or `false` for recorded screens. No shell class/style/id/data/theme overrides. Use server-safe `naeilIcons` and `naeilDocumentTitle` from `/naeil-locale`; Next `localeMetadata` omits `serviceName`. Serve the three exact brand files; do not rebuild the icon declarations.
 
-`NaeilHeader` is fixed; reserve its 65px height and account for it in sticky areas and focus/anchor scroll margins. The service brand defaults to `/`; footer destinations remain official naeil.dev URLs. Preserve routing/unsaved-change guards using the [header contract](naeil-header.md) and [footer interception contract](naeil-footer.md); a Link adapter must handle absolute official and GitHub destinations as well as local routes. Only pass `onLocaleChange` when the application supports its complete language set.
+`service`, `GuardedLink`, `pathname` and `account` come from the consumer. Use `{ status: 'signed-out', loginHref }` or `{ status: 'signed-in', onLogout, busy, displayName, email }` for `account`; the app handles async cancellation, failure and retry. Keep pending state and the request lock above the shell, since desktop/mobile slot contents mount separately. See the [account contract](naeil-header.md#account-presentation).
 
-For owned naeil product navigation, set the matching `service` id and pass only product menu data through `appNavigation`; see the [Home profile and host conditions](naeil-header.md#host-typography-and-mobile-handoff-080). `mobileOpen`/`onMobileOpenChange` can coordinate the sheet with a consumer confirmation, while busy state and request locking remain above the header. For a different product menu without canonical chrome, use the [generic Navigation composition](navigation.md) with the same main/footer structure. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the installed header/account control, narrow form and NaeilFooter together.
+`NaeilHeader` is fixed at 65px; the shell supplies main's clearance. Account for that height in consumer sticky areas and focus/anchor scroll margins without adding page padding. The service brand defaults to `/`; footer destinations remain official naeil.dev URLs. Preserve routing/unsaved-change guards using the [header contract](naeil-header.md) and [footer interception contract](naeil-footer.md); a Link adapter must handle absolute official and GitHub destinations as well as local routes. Only pass `onLocaleChange` when the application supports its complete language set.
+
+For owned naeil product navigation, set the shell's matching `service` id and pass only product menu data through `header.appNavigation`; see the [Home profile and host conditions](naeil-header.md#host-typography-and-mobile-handoff-080). `header.mobileOpen`/`header.onMobileOpenChange` can coordinate the sheet with a consumer confirmation, while busy state and request locking remain above the shell. For a different product menu without canonical chrome, use the [generic Navigation composition](navigation.md) with its own main and SiteFooter. Generic Navigation is in document flow by default and needs no fixed-header clearance. The [standalone React example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) exercises the compatible standalone header/account/footer APIs; the shell starter above is the owned-service composition.
 
 Without `service`, an empty desktop menu preserves B1's limitation: resizing alone leaves the sheet open; Escape/close/overlay/route change dismiss it. Service profiles dismiss on desktop crossing even with an empty center; the mobile sheet omits empty navigation. Controlled-mobile account callbacks wait for both closing layers and their focus handoff; desktop and uncontrolled-mobile account callbacks retain B1's selection-time behavior. A consumer confirmation owns cancellation focus, including a visible desktop account fallback after resize.
 
 ## Deliberate overrides
 
-Apply overrides on a common ancestor or document root so header, main and footer inherit them together. Legacy (no `service`) `containerClassName` overrides still work; the owned-service profile rejects header class/style overrides. Do not give each route its own header cap or gutter.
+The owned-service shell prohibits presentation overrides and reserved-selector CSS; request shared changes or record a narrowly reviewed conformance exception. The examples below are for generic/legacy compositions: apply their overrides on a common ancestor or document root so header, main and footer inherit them together. Legacy (no `service`) `containerClassName` overrides still work; the owned-service profile rejects header class/style overrides. Do not give each route its own header cap or gutter.
 
 ```css
 /* Product exception: record why this cap is needed. */
@@ -131,22 +125,22 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 ```markdown
 ## Shared application layout
 - Read the installed @naeil/ui/DESIGN.md and docs/components/application-layout.md before UI layout work.
-- Use @naeil/ui/naeil-header for the canonical naeil header; use Navigation from @naeil/ui/ui for a different product menu. Use NaeilFooter from @naeil/ui/naeil-footer for owned service footers; SiteFooter remains the generic primitive. Keep existing Next Nav/Footer compatibility adapters when applicable.
-- Put NaeilHeaderAccountControl from @naeil/ui/naeil-header in authSlot for owned apps. Supply real session state, the busy flag and guarded logout callback. Keep pending state and the request lock above the header so desktop/mobile copies share them; do not copy account/avatar/menu markup.
-- For owned Next services under NaeilLocaleProvider, import header/account/footer from @naeil/ui/naeil-locale/chrome. Read docs/components/naeil-locale.md for the root controller, provider, server routing, message loading and checker. /naeil-header and /naeil-footer remain standalone React adapters.
-- Owned services must set service="abstorm" / "home" / "estimate" / "jev". The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.
-- Supply only the service's own appNavigation tabs; never copy naeil.dev Projects/Blog. Single-screen services leave appNavigation empty; the mobile menu still exposes theme/locale/account without empty navigation.
+- Owned services use NaeilServiceShell + root NaeilThemeProvider from @naeil/ui/naeil-shell; replace the old root provider. The shell owns header, main, skip link and full footer. naeil.dev keeps its direct catalog composition without service and also uses the root NaeilThemeProvider. Navigation/SiteFooter remain for a different product menu; standalone NaeilHeader/NaeilFooter and Next Nav/Footer compatibility APIs remain available.
+- Put NaeilHeaderAccountControl from @naeil/ui/naeil-header in the shell's header.authSlot. Supply real session state, the busy flag and guarded logout callback. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup.
+- For owned Next services under NaeilLocaleProvider, import shell/provider/PageHeader/account from @naeil/ui/naeil-locale/chrome. Read docs/components/naeil-locale.md for the root controller, provider, server routing, message loading and checker. /naeil-header and /naeil-footer remain standalone React adapters.
+- Owned services must set the shell's service="abstorm" / "home" / "estimate" / "jev". The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.
+- Supply only the service's own header.appNavigation tabs; never copy naeil.dev Projects/Blog. Single-screen services leave appNavigation empty; the mobile menu still exposes theme/locale/account without empty navigation.
 - No header escape hatches: brandSuffix/brandSlot/toolbarSlot/subNav/brandLinkComponent, catalog/translations overrides, brandLinkProps/mobileFooter, className/containerClassName/style or data-slot/data-naeil-* marker overrides. Keep the shared tab and toolbar styles/states.
 - Local wrappers supply menu data, routing/guards, locale and shared auth state. Do not copy the menu, mobile sheet, controls or footer implementation. Extend the shared component for reusable missing behavior.
 - Since 0.9.0, shared CSS reserves a stable root gutter through globals or theme+components; opt out on html with data-naeil-scrollbar-gutter="auto" before first paint to disable both root reservation and lock correction. Compare classic/overlay and short/long body content through menus/dialogs; measure before fullPage screenshots.
-- Use ui-app-frame on main; navigation/footer own their internal frames. Keep reading/settings/short-form sections inside that frame. Apply frame overrides consistently across routes.
+- Owned-service pages start with PageHeader. CI runs static naeil-ui-conformance --service <id> --framework next|vite --app . and runtime naeil-ui-conformance --service <id> --url <origin> --routes /a,/b; follow docs/components/naeil-shell.md for every rule and recorded exceptions. Do not apply ui-app-main/ui-app-frame or shared chrome selectors in app source. Keep purpose widths inside main. footer accepts only meta/resolveHref or false for a recorded no-footer screen; list the exact route in runtime --no-footer (no source-ignore comment is needed).
 - Check the installed package version and CSS before creating a replacement for an apparently missing component.
 - Verify actual shared navigation/footer rendering and stable anchors across routes, themes and supported sizes, including signed-out, signed-in, menu, busy, cancellation/failure and retry states. An import or anonymous-only check is not adoption evidence. Record intentional route exceptions.
 ```
 
 ## Adoption checks
 
-For each consumer, record its installed version, layout adapter, shared imports, CSS entrypoints and intentional exceptions. In that consumer's browser CI, check that expected application routes render `[data-slot="navigation"]` and `[data-slot="site-footer"]`, and that anchors remain stable between wide lists and narrow forms. Include narrow/zoomed screens, localized labels and tall content that introduces a scrollbar. Keep table overflow local.
+For each consumer, record its installed version, layout adapter, shared imports, CSS entrypoints and intentional exceptions. In that consumer's browser CI, check that expected application routes render `[data-slot="navigation"]` and, on footer-bearing routes, `[data-slot="site-footer"]`, and that anchors remain stable between wide lists and narrow forms. For a recorded owned-service `footer={false}` screen, verify the footer is omitted while main and skip link remain. Include narrow/zoomed screens, localized labels and tall content that introduces a scrollbar. Keep table overflow local.
 
 Owned-service checks also verify canonical header/footer destinations, rendered package/contract identity and shared account states. Inspect both signed-in and signed-out chrome, open the account menu, and exercise busy, cancel/failure and retry without duplicate requests when the mobile sheet is reopened or the viewport changes.
 

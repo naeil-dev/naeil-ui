@@ -98,6 +98,57 @@
     margin-inline: auto;
     padding-inline: var(--ui-frame-gutter);
   }
+  .ui-skip-link {
+    position: fixed;
+    top: -100vh;
+    left: var(--ui-frame-gutter);
+    z-index: 100;
+    padding: var(--spacing-3-value) var(--spacing-4-value);
+    color: var(--foreground);
+    background: var(--background);
+    border-radius: var(--radius-lg-value);
+  }
+  .ui-skip-link:focus {
+    top: var(--spacing-3-value);
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Shared page rhythm: fixed-header clearance, page header and footer spacing. */
+  .ui-app-main {
+    padding-top: calc(var(--ui-navigation-height) + 1px + var(--ui-page-top));
+    padding-bottom: var(--ui-page-bottom);
+  }
+  .ui-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-4-value);
+    margin-bottom: var(--ui-page-header-gap);
+  }
+  /* A header-only page ends at the shared page-bottom spacing. */
+  .ui-page-header:last-child {
+    margin-bottom: 0;
+  }
+  .ui-page-header-text {
+    min-width: 0;
+    flex: 1 1 20rem;
+  }
+  .ui-page-description {
+    margin-top: var(--ui-page-title-gap);
+    max-width: var(--ui-width-reading);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    color: var(--muted-foreground);
+  }
+  .ui-page-header-actions {
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2-value);
+  }
   .ui-navigation-frame {
     container-type: inline-size;
   }

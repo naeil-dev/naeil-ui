@@ -22,3 +22,7 @@ cpSync("licenses/Storybook-MIT.txt", `${target}/licenses/Storybook-MIT.txt`);
 // Approved brand assets are separate from website illustrations.
 const { version: brandVersion } = JSON.parse(readFileSync("brand/current.json", "utf8"));
 cpSync(`brand/naeil/${brandVersion}/svg`, `${target}/brand`, { recursive: true });
+
+// Canonical root icon fixtures for shell identity/runtime conformance QA.
+for (const [name, source] of Object.entries({"favicon.ico": "favicon.ico", "icon.svg": "favicon.svg", "apple-icon.png": "apple-touch-icon.png"}))
+  cpSync(`brand/naeil/${brandVersion}/icons/${source}`, `${target}/${name}`);

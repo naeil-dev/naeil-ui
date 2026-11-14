@@ -8,7 +8,7 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { ThemeProvider } from "@/components/theme-provider";
+import { NaeilThemeProvider } from "@/naeil-locale/chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteAccessBoundary } from "@/components/site-access-boundary";
 import { NavServerWrapper } from "@/components/nav-server-wrapper";
@@ -62,12 +62,7 @@ export default async function LocaleLayout({
 
   return (
     <NaeilLocaleProvider locale={locale as Locale} messages={messages}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <NaeilThemeProvider>
         <a
           href="#main-content"
           className="ui-focus fixed -top-24 left-6 z-[100] rounded-md bg-background px-4 py-3 text-base text-foreground focus:top-3"
@@ -80,7 +75,7 @@ export default async function LocaleLayout({
         </main>
         <FooterWrapper />
         <Toaster />
-      </ThemeProvider>
+      </NaeilThemeProvider>
     </NaeilLocaleProvider>
   );
 }

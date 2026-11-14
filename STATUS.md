@@ -1,3 +1,11 @@
+# Status — 2026-11-14 full shared UI 0.15.0 candidate re-freeze
+
+Preparing unpublished `@naeil/ui@0.15.0` from full candidate HEAD `6e234c0` on `feat/page-frame-20261114`. The prior page-rhythm-only freeze (`37187a5`/`70c8222`) was withdrawn in `fcf819c`; its archive is not the current candidate. This re-freeze includes page-rhythm tokens and PageHeader last-child/actions fixes, strict standalone/provider-backed `NaeilServiceShell`, children-only `NaeilThemeProvider`, generated server-safe `naeilIcons`, static/runtime `naeil-ui-conformance` (authentication, request headers, final statuses/redirects and settled visible-content measurements), and naeil.dev frame/provider adoption. See the full changelog and shell guide. Version metadata, generated `/release` and fixture pins remain 0.15.0; chrome contract 1 and compatibility APIs remain unchanged.
+
+The published baseline is `latest=0.14.0`, `next=0.13.0`. Freeze the complete source in a new preparation commit, retain its exact archive and fresh checks in a separate evidence commit, and preserve both without squashing. Publication is intended to `latest` with owner `npm-publish` environment approval; leave `next` unchanged unless separately moved. Preparation commits/pushes this branch and performs no merge, publish, tag/Release, workflow dispatch, registry/settings change or deployment. Keep fresh logs separate from the withdrawn run, remove ignored release reproduction directories after use, and report artwork challenge/retry observations. Earlier publication entries retain their dated context.
+
+---
+
 # Status — 2026-11-13 shared UI 0.14.0 published and services deployed
 
 `@naeil/ui@0.14.0` is published from frozen source `c7dd7655d98134591de2d660f6d9f92b11caffce`; [PR #53](https://github.com/naeil-dev/naeil-ui/pull/53) merged as `c235091`. Verified tags: **`latest=0.14.0`, `next=0.13.0`**. Owner-approved protected [npm run 43386755633](https://github.com/naeil-dev/naeil-ui/actions/runs/43386755633) used OIDC + provenance and passed every step, including registry integrity/shasum verification; registry time 2026-11-13T10:37:22.242Z. Chrome contract 1 remains unchanged.

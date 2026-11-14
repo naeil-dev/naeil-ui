@@ -73,6 +73,9 @@
         "forbidden": "You do not have access to this page.",
         "unavailable": "The service is temporarily unavailable. Please try again."
       }
+    },
+    "shell": {
+      "skipToContent": "Skip to content"
     }
   }
 }

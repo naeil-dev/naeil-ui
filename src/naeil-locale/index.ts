@@ -1,4 +1,5 @@
 export * from "./routing";
+export { naeilIcons } from "./icons.generated";
 export * from "./preference";
 export * from "./intent";
 // Server-safe browser identity (no client boundary): metadata and client code may both call these.
