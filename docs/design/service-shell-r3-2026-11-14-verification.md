@@ -47,3 +47,11 @@ The final color-token-alias correction changes only the static CLI. A freshly pa
 ## Scope and decisions
 
 The implementation follows the requested spec and follow-up. Static graph resolution is deliberately limited to relative imports, as requested; unresolved metadata/base values fail for review. Harmless document class reads are allowed while className/classList/setAttribute writes remain prohibited. Runtime checks apply to the explicitly listed routes and use consumer-installed Playwright without a new DS dependency. Actual deployed service/authenticated-route acceptance remains owned by service rollout work.
+
+## Development artifact receipt
+
+Changes through `90b74fd` were pushed to `origin/feat/page-frame-20261114`, then rebuilt and packed with scripts disabled. Development archive: `/tmp/shell-pack/naeil-ui-shell-dev-r3.tgz`.
+
+SHA-256: `989f2fd5df6b3b77f115ac13d6a596ccd97db3854b3c5fd5e1ed0b2d48215982`.
+
+The final package boundary matched this exact digest. The archive's executable bin was tested via an installed-style symlink for Next and Vite: passing app exit 0, protected color-alias fixture exit 1, absent consumer Playwright exit 2. This receipt and the implementation plan are not packed files; recording delivery does not alter the archive bytes.
