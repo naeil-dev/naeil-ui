@@ -274,7 +274,7 @@ export default function DesignPage() {
   const t = useTranslations("site.design");
   return (
     <div className="space-y-16">
-      <section className="flex flex-col-reverse items-start gap-8 pb-4 sm:flex-row sm:justify-between">
+      <section className="flex flex-col items-start gap-8 pb-4 sm:flex-row sm:justify-between">
         <div className="min-w-0 flex-1">
           <PageTitle className="mb-3">{t("title")}</PageTitle>
           <Description>{t("subtitle")}</Description>
