@@ -31,7 +31,7 @@ The focused Chromium set passes 12 tests: actual Storybook shells for ko/ja/en, 
 | pnpm check:types | PASS; no leftover reproduction directories |
 | pnpm lint | PASS: zero errors, three historical warnings |
 | pnpm build:pkg | PASS, including messages/brand/tokens/locale boundaries |
-| check:package (6107/6108) | PASS, exit 0: packed CLI, React SSR/browser, Next webpack/Turbopack RSC/SSR and globals/split frame consumers |
+| check:package (6107/6108) | PASS, exit 0 against the exact final archive SHA: packed CLI, React SSR/browser, Next webpack/Turbopack RSC/SSR and globals/split frame consumers |
 | Focused Chromium runtime files (6107/6108) | PASS: 12/12 |
 | Final archive boundary | PASS: 200 files, exact SHA-256 matched |
 | Final archive installed-style CLI | PASS: Next/Vite valid/invalid fixtures and new runtime flags/dependency hint |
@@ -39,7 +39,9 @@ The focused Chromium set passes 12 tests: actual Storybook shells for ko/ja/en, 
 
 Historical lint warnings are the logo/account browser evidence scripts and auth rejection route, unchanged by r4.
 
-The full consumer run used the initial r4 packed snapshot and passed real artwork checks without a Vercel 403 retry. Subsequent review corrections to the lexical CLI and measurement function were covered by the final 211-case/full-unit/type/lint/build and 12-case browser runs above; final archive boundary and installed-bin checks verify the delivered bytes separately.
+After the initial complete r4 consumer pass, the entire gate was rerun with NAEIL_UI_EXPECTED_ARCHIVE_SHA256 pinned to the delivered archive digest. Both boundary/consumer pack operations matched that exact SHA, and the final full run exited 0 through the last Next Turbopack split frame phase. The delivered bytes therefore have the full consumer gate as well as the focused archive CLI/browser checks.
+
+Two earlier exact-archive attempts stopped at the official whale image with `Live artwork HTTP unknown` (no response status observed), after React types/SSR and mobile light/dark checks passed. Explicit 403 retry did not apply because neither attempt exposed a 403. Direct HTTP and isolated Chromium checks both loaded the real URL with HTTP 200. The subsequent complete run loaded official images for every tested viewport/theme and passed all phases. A temporary requestfailed diagnostic listener was removed; assertions, URLs and image bytes were not substituted or skipped. No 403 was observed in the successful r4 runs.
 
 ## Development archive
 
@@ -48,6 +50,8 @@ Pushed implementation/docs through `0341a82`, rebuilt, and packed with scripts d
 SHA-256: `15b0e1e1a4b850267b49b3b3c31426ecf5e0d2f1db8a010c9bfc43fdb2c4f511`.
 
 The exact archive's bin ran through an installed-style symlink for Next/Vite source fixtures, and all five r4 HTTP/browser cases ran with the CLI extracted from this archive (including cookies/headers/theme stripping, expected/mismatched error statuses and HTTP/client redirects). The boundary check matched the same digest. This receipt and the implementation plan are not packed files, so recording them does not change archive bytes.
+
+Final full consumer log: `/tmp/shell-r4-package-exact-diagnostic.log`; earlier network stops: `/tmp/shell-r4-package-exact-final.log` and `/tmp/shell-r4-package-exact-retry.log`.
 
 ## Limits
 
