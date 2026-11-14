@@ -37,7 +37,7 @@ function ProjectsContent() {
   ];
 
   return (
-    <section className="mx-auto max-w-4xl px-6">
+    <section data-ui-layout="workflow">
       <PageHeader title={t("projects.title")} description={t("projects.subtitle")} />
 
       <div className="grid gap-4">

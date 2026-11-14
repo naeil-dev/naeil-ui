@@ -89,7 +89,7 @@ Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지�
 
 ## 페이지 리듬·테마·기본 글자 (0.15.0)
 
-2026-11-14 사용자 결정: 다섯 곳은 헤더·풋터뿐 아니라 그 사이 페이지 리듬도 같아야 한다. 본문 영역은 `className="ui-app-frame ui-app-main"`(헤더 높이 확보 + 위 48px + 아래 96px)을 쓰고, 페이지는 `PageHeader`(`@naeil/ui/components/typography`, 루트 `@naeil/ui`)로 시작한다. 제목 32/42 600(모바일도 동일), 제목→설명 12px, 설명 16/25 보조색, 헤더→본문 32px. 페이지가 자체 위/아래 여백·제목 크기를 따로 두지 않는다. 테마 기본값은 모든 곳에서 시스템 설정(`attribute="class"`, `defaultTheme="system"`, `enableSystem`), 기본 본문 글자는 16px Pretendard, 파비콘 선언은 naeil.dev와 같다(ICO `sizes="16x16"` → SVG `sizes="any"` → apple-touch-icon 180×180). 가로 콘텐츠 폭은 용도별 값을 유지한다. 확인은 같은 경로의 실제 스크린샷 비교로 한다.
+2026-11-14 사용자 결정: 다섯 곳은 헤더·풋터뿐 아니라 그 사이 페이지 리듬도 같아야 한다. 본문 영역은 `className="ui-app-frame ui-app-main"`(헤더 높이 확보 + 위 48px + 아래 96px)을 쓰고, 페이지는 `PageHeader`(`@naeil/ui/components/typography`, 루트 `@naeil/ui`)로 시작한다. 제목 32/42 600(모바일도 동일), 제목→설명 12px, 설명 16/25 보조색, 헤더→본문 32px. 페이지가 자체 위/아래 여백·제목 크기를 따로 두지 않는다. 테마 기본값은 모든 곳에서 naeil.dev와 같은 다크(`attribute="class"`, `defaultTheme="dark"`, `enableSystem`; 2026-11-14 사용자 결정), 기본 본문 글자는 16px Pretendard, 파비콘 선언은 naeil.dev와 같다(ICO `sizes="16x16"` → SVG `sizes="any"` → apple-touch-icon 180×180). 좌우 여백은 `.ui-app-frame` 하나로만 두고 용도별 폭(`data-ui-layout`)은 그 안에 둔다(자체 좌우 padding 금지). 확인은 같은 경로의 실제 스크린샷 비교로 한다.
 
 ## 앱 전체 틀과 콘텐츠 폭
 

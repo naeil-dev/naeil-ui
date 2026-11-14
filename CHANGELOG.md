@@ -5,8 +5,8 @@
 - Tokens `ui.page-top` 48px, `ui.page-title-gap` 12px, `ui.page-header-gap` 32px, `ui.page-bottom` 96px (values from naeil.dev).
 - `.ui-app-main` (fixed-header clearance + page top/bottom spacing), `.ui-page-header`, `.ui-page-description`, `.ui-page-header-actions`.
 - `PageHeader` (`title`, `description`, `actions`, `titleId`) from `@naeil/ui` and `@naeil/ui/components/typography`.
-- DESIGN.md "Page rhythm": system theme default everywhere, 16px base text, naeil.dev favicon declarations, no per-page vertical padding.
-- naeil.dev content pages use `.ui-app-main` and the shared header spacing (title 1px lower, projects description 16px instead of 18px).
+- DESIGN.md "Page rhythm": dark theme default everywhere (as naeil.dev), 16px base text, naeil.dev favicon declarations, no per-page vertical padding.
+- naeil.dev content pages use `.ui-app-frame .ui-app-main` (shared gutters instead of their own 24px side padding) and the shared header spacing (title 1px lower, projects description 16px instead of 18px).
 
 Additive: existing classes, `PageTitle` and tokens are unchanged.
 

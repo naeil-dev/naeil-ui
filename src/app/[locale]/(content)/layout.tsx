@@ -4,7 +4,7 @@ export default function ContentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="ui-app-main">
+    <div className="ui-app-frame ui-app-main">
       {children}
     </div>
   );

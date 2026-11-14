@@ -140,9 +140,10 @@ Products may deliberately override `--ui-width-frame`, `--ui-frame-gutter`, cont
 
 The owner required naeil.dev and every owned service to look the same outside their content, not only in the header and footer. Measured differences (header→title 32–92px, title→description 8–12px, content→footer 49–168px, an abstorm light-only default, Home's 14px base text, a 24px mobile title) are removed by shared values taken from naeil.dev:
 
+- One frame for every page: the main region is `.ui-app-frame .ui-app-main` (shared responsive gutters); purpose widths (`data-ui-layout`) sit inside it, never with their own side padding.
 - `.ui-app-main` on the main region clears the fixed header and adds `ui.page-top` (48px) above the page header and `ui.page-bottom` (96px) before the footer. Pages do not add their own top/bottom page padding.
 - `PageHeader` (or `PageTitle` + `.ui-page-description`) renders the 32/42 semibold title at every width, a 12px (`ui.page-title-gap`) gap, a 16/25 secondary description capped at the reading width, end-aligned actions, and 32px (`ui.page-header-gap`) before content.
-- Theme follows the system setting by default on every site (`attribute="class"`, `defaultTheme="system"`, `enableSystem`); users switch it with the shared toolbar control. No site forces light or dark.
+- Theme defaults to dark on every site, as naeil.dev (`attribute="class"`, `defaultTheme="dark"`, `enableSystem`); the owner chose dark over system on 2026-11-14. Users switch it with the shared toolbar control, which is remembered.
 - Base body text is 16px Pretendard (`ui` font stack) everywhere.
 - Favicons are declared exactly like naeil.dev: ICO `sizes="16x16"` as legacy fallback, SVG `sizes="any"`, apple-touch-icon 180×180, so browsers select the SVG mark.
 
