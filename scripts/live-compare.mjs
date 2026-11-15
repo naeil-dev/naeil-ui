@@ -5,6 +5,8 @@ import { dirname, join, resolve, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
 import ts from 'typescript';
+import { MASK_POLICY, STYLE_PROPERTIES, readChrome, maskedRGBA, geometryComparison } from './live-compare-chrome.mjs';
+import { distinctDifferences, rollup, writeReport } from './live-compare-report.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TIMEOUT = 15000;
@@ -17,7 +19,7 @@ export const SITES = [
   { id: 'home', origin: 'https://jay-macmini-2.tail165003.ts.net:2455', short: 'console', error: 'console/audit-missing-20261115' },
 ];
 const CANONICAL_ICONS = ['/favicon.ico', '/icon.svg', '/apple-icon.png'];
-const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels'];
+const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns'];
 const nm = reason => ({ status: 'not measured', reason });
 const verdict = (ok, values) => ({ status: ok ? 'match' : 'differs', values });
 export const near = (actual, expected, tolerance = 0.5) => Number.isFinite(actual) && Math.abs(actual - expected) <= tolerance;
@@ -104,21 +106,46 @@ async function fontsFor(page, context) {
     const body = candidates(document.querySelector('main') ?? document.body);
     const all = [...body, ...chrome];
     const latin = chrome.find(el => /^[\x20-\x7e\xa0-\xff]+$/.test(text(el)) && /[a-z]/i.test(text(el)));
-    const digit = chrome.find(el => /^[\x20-\x7e\xa0-\xff]+$/.test(text(el)) && /\d/.test(text(el)));
+    const digitCandidates = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let node; (node = walker.nextNode());) {
+      const parent = node.parentElement;
+      if (!parent || parent.closest('script,style,noscript,svg,textarea,input') || !visible(parent) || !/\d/.test(node.textContent)) continue;
+      const font = getComputedStyle(parent).fontFamily;
+      digitCandidates.push({ node, parent, priority: parent.closest('.ui-site-footer-meta') ? 0 : parent.closest('header,footer') ? 1 : /mono/i.test(font) ? 3 : 2 });
+    }
+    digitCandidates.sort((a, b) => a.priority - b.priority);
+    let digit = null, digitSource = null;
+    if (digitCandidates.length) {
+      const { node, parent } = digitCandidates[0], match = /\d+/.exec(node.textContent);
+      digitSource = { selector: selector(parent), parentText: node.textContent.trim().slice(0, 140), method: 'Existing digit substring wrapped temporarily; no text invented; parent font styles copied; original text restored' };
+      const span = document.createElement('span'), css = getComputedStyle(parent);
+      for (const property of ['font-family', 'font-size', 'font-style', 'font-weight', 'font-stretch', 'font-feature-settings', 'font-variation-settings', 'font-kerning', 'letter-spacing', 'line-height']) span.style.setProperty(property, css.getPropertyValue(property), 'important');
+      span.setAttribute('data-naeil-digit-probe', '');
+      const range = document.createRange(); range.setStart(node, match.index); range.setEnd(node, match.index + match[0].length); range.surroundContents(span);
+      digit = span;
+    }
     const japanese = document.documentElement.lang.startsWith('ja') ? all.find(el => /[\u3040-\u30ff\u3400-\u9fff]/.test(text(el)) && !/[a-z0-9]/i.test(text(el))) : null;
     const ordinary = body.find(el => ['P', 'LI', 'SPAN', 'DIV'].includes(el.tagName)) ?? body[0];
-    return Object.fromEntries(Object.entries({ body: ordinary, latin, digit, japanese }).map(([key, el]) => [key, el ? { selector: selector(el), text: text(el).slice(0, 100), computedFamily: getComputedStyle(el).fontFamily } : null]));
+    return Object.fromEntries(Object.entries({ body: ordinary, latin, digit, japanese }).map(([key, el]) => [key, el ? { selector: selector(el), text: text(el).slice(0, 100), computedFamily: getComputedStyle(el).fontFamily, ...(key === 'digit' ? { source: digitSource } : {}) } : null]));
   }), 'find visible font samples');
   const cdp = await bounded(context.newCDPSession(page), 'create CDP session');
   try {
     await bounded(cdp.send('DOM.enable'), 'DOM.enable');
     await bounded(cdp.send('CSS.enable'), 'CSS.enable');
+    await bounded(page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))), 'paint original digit substring');
     const { root } = await bounded(cdp.send('DOM.getDocument', { depth: 0 }), 'DOM.getDocument');
     for (const target of Object.values(targets)) if (target) {
       const { nodeId } = await bounded(cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: target.selector }), 'font node');
       target.fonts = (await bounded(cdp.send('CSS.getPlatformFontsForNode', { nodeId }), 'platform fonts')).fonts;
     }
-  } finally { await bounded(cdp.detach(), 'CDP detach'); }
+  } finally {
+    await bounded(cdp.detach(), 'CDP detach');
+    await bounded(page.evaluate(() => {
+      const span = document.querySelector('[data-naeil-digit-probe]');
+      if (span) { const parent = span.parentNode; span.replaceWith(...span.childNodes); parent.normalize(); }
+    }), 'restore original digit text');
+  }
   return targets;
 }
 function fontVerdict(target, expected) {
@@ -145,19 +172,27 @@ async function iconsFor(site, declarations, userAgent) {
   return { collector: 'Anonymous Node GET; browser User-Agent only; no cookies or storage state; redirects recorded without following', declarations, responses };
 }
 export function iconVerdict(actual, reference, site) {
-  if (!reference) return nm('naeil.dev icon baseline unavailable');
   const comparisons = actual.responses.map(response => {
     const path = new URL(response.url).pathname;
-    const expected = reference.responses.find(r => new URL(r.url).pathname === path);
-    return { ...response, expectedSHA256: expected?.sha256 ?? null, matches: !!expected?.sha256 && response.status === 200 && response.sha256 === expected.sha256 };
+    const canonical = /\.svg$/i.test(path) ? '/icon.svg' : /\.ico$/i.test(path) ? '/favicon.ico' : /apple.*\.png$/i.test(path) ? '/apple-icon.png' : null;
+    const candidate = reference?.responses.find(r => new URL(r.url).pathname === path) ?? reference?.responses.find(r => new URL(r.url).pathname === canonical);
+    const expected = candidate?.status === 200 && /^image\//i.test(candidate.type ?? '') ? candidate : null;
+    const accessBlocked = response.status === 403;
+    return { ...response, accessBlocked, expectedSHA256: expected?.sha256 ?? null, matches: !!expected?.sha256 && response.status === 200 && response.sha256 === expected.sha256 };
   });
-  const declared = actual.declarations.map(d => ({ ...d, matches: reference.declarations.some(r => r.rel === d.rel && r.type === d.type && r.sizes === d.sizes && new URL(r.href).pathname === new URL(d.href).pathname) }));
-  const values = { origin: site.origin, declared, responses: comparisons };
-  if (declared.length === 0 || declared.some(d => !d.matches) || comparisons.some(r => !r.error && r.expectedSHA256 && !r.matches)) return verdict(false, values);
-  if (comparisons.some(r => r.error || !r.expectedSHA256)) return { ...nm('Anonymous icon GET or baseline unavailable; response details retained'), values };
+  const metadataNotes = actual.declarations.flatMap(d => {
+    const counterpart = reference?.declarations.find(r => r.rel === d.rel && new URL(r.href).pathname === new URL(d.href).pathname);
+    const differences = ['type', 'sizes'].filter(field => counterpart && counterpart[field] !== d[field]).map(field => ({ field, actual: d[field], reference: counterpart[field] }));
+    return differences.length ? [{ href: d.href, differences }] : [];
+  });
+  actual.metadataNotes = metadataNotes;
+  const values = { origin: site.origin, declared: actual.declarations, metadataNotes, responses: comparisons };
+  // 404 is independently a real failed endpoint, even if reference bytes are unavailable.
+  if (comparisons.some(r => !r.error && !r.accessBlocked && (r.status !== 200 || (r.expectedSHA256 && !r.matches)))) return verdict(false, values);
+  if (comparisons.some(r => r.error || r.accessBlocked || !r.expectedSHA256)) return { ...nm('Icon access or valid image baseline unavailable; HTTP errors/challenge bodies never become reference hashes'), values };
   return verdict(true, values);
 }
-async function capture(job, browser, out, states, measure) {
+async function capture(job, browser, out, states, measure, blockedSites) {
   const { site, locale, viewport, scheme, kind } = job;
   const id = `${site.id}-${locale}-${viewport.width}-${scheme}-${kind}`;
   const requestedURL = address(site, locale, kind);
@@ -166,6 +201,11 @@ async function capture(job, browser, out, states, measure) {
   if (!requestedURL) {
     row.requestedURL = site.origin;
     row.checks = Object.fromEntries(CHECKS.map(k => [k, nm('No audited signed-out long page; business routes require authentication. No substitute route used.')]));
+    return row;
+  }
+  if (blockedSites.has(site.id)) {
+    row.coverageFailure = blockedSites.get(site.id);
+    row.checks = Object.fromEntries(CHECKS.map(k => [k, nm(row.coverageFailure)]));
     return row;
   }
   let context, stage = 'Create fresh browser context (15s)';
@@ -182,17 +222,47 @@ async function capture(job, browser, out, states, measure) {
     }), 'install request guard');
     await bounded(context.routeWebSocket('**/*', socket => socket.close()), 'install WebSocket guard');
     const page = await bounded(context.newPage(), 'new page');
+    row.responses = [];
+    page.on('response', response => {
+      const request = response.request(), url = new URL(response.url());
+      if (url.origin === site.origin && ['document', 'fetch', 'xhr'].includes(request.resourceType())) row.responses.push({ path: url.pathname, status: response.status(), resourceType: request.resourceType(), retryAfter: response.headers()['retry-after'] ?? null });
+    });
     stage = 'Navigate requested address (30s)';
     const response = await page.goto(requestedURL, { waitUntil: 'load', timeout: 30000 });
     row.httpStatus = response?.status();
+    if (row.httpStatus === 403 && response.headers()['x-vercel-mitigated'] === 'challenge') {
+      row.coverageFailure = `HTTP 403 Vercel security checkpoint at ${site.origin}; origin paused for this run, no challenge bypass or substitute baseline`;
+      blockedSites.set(site.id, row.coverageFailure);
+      row.checks = Object.fromEntries(CHECKS.map(k => [k, nm(row.coverageFailure)]));
+      row.screenshot = `screenshots/${id}.png`;
+      await page.screenshot({ path: join(out, row.screenshot), timeout: TIMEOUT });
+      console.log(`${id}: ${row.coverageFailure}`);
+      return row;
+    }
     await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => { row.networkIdleTimedOut = true; });
     stage = 'Wait for rendered fonts (15s)';
     await page.waitForFunction(() => document.fonts.status === 'loaded', null, { timeout: TIMEOUT });
+    // Require a stable rendered title/lang/theme/heading, not the SPA's default title.
+    await page.waitForFunction(() => {
+      const snapshot = JSON.stringify([document.title, document.documentElement.lang, document.documentElement.className, document.querySelector('main h1')?.textContent]);
+      if (globalThis.naeilStableDocument?.snapshot !== snapshot) globalThis.naeilStableDocument = { snapshot, since: performance.now() };
+      const framed = !!document.querySelector('[data-naeil-header]'), heading = document.querySelector('main h1');
+      return (!framed || !!heading?.checkVisibility()) && document.fonts.status === 'loaded' && performance.now() - globalThis.naeilStableDocument.since >= 600;
+    }, null, { polling: 100, timeout: TIMEOUT });
     // Font and hydration waits are bounded; no clicks or form interactions.
     await bounded(page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))), 'two frames');
     stage = 'Read page geometry (15s)';
     row.measurements = await bounded(page.evaluate(measure), 'page rhythm');
     row.layout = await bounded(page.evaluate(readLayout), 'page layout');
+    if (row.httpStatus === 403 && row.layout.title === 'Vercel Security Checkpoint') {
+      row.coverageFailure = `HTTP 403 Vercel security checkpoint at ${site.origin}; origin paused for this run, no challenge bypass or substitute baseline`;
+      blockedSites.set(site.id, row.coverageFailure);
+      row.checks = Object.fromEntries(CHECKS.map(k => [k, nm(row.coverageFailure)]));
+      row.blockedDocument = row.layout; delete row.layout;
+      console.log(`${id}: ${row.coverageFailure}`);
+      return row;
+    }
+    row.chrome = await bounded(page.evaluate(readChrome, { site: site.id, styleProperties: STYLE_PROPERTIES }), 'shared chrome markers and styles');
     row.checks.availability = verdict(new URL(row.layout.url).origin === site.origin, { requested: requestedURL, final: row.layout.url, httpStatus: row.httpStatus });
     row.checks.locale = verdict(row.layout.lang.split('-')[0] === locale, { requested: locale, actual: row.layout.lang });
     const noFooter = site.id === 'home' && kind === 'short';
@@ -207,17 +277,47 @@ async function capture(job, browser, out, states, measure) {
     await page.screenshot({ path: join(out, row.screenshot), timeout: TIMEOUT });
     for (const band of ['header', 'footer']) if (row.layout[band]) {
       row[`${band}Image`] = `bands/${id}-${band}.png`;
-      await page.locator(`[data-naeil-${band}]`).first().screenshot({ path: join(out, row[`${band}Image`]), timeout: TIMEOUT });
+      const locator = page.locator(`[data-naeil-${band}]`).first();
+      await locator.screenshot({ path: join(out, row[`${band}Image`]), timeout: TIMEOUT });
+      const normalization = await bounded(locator.evaluate(el => {
+        const box = el.getBoundingClientRect(), css = getComputedStyle(el);
+        const delta = { x: Math.round(box.x) - box.x, y: Math.round(box.y) - box.y };
+        const previous = Object.fromEntries(['position', 'left', 'top'].map(property => [property, { value: el.style.getPropertyValue(property), priority: el.style.getPropertyPriority(property) }]));
+        // Layout positioning, not compositor transforms: transforms preserve a
+        // layer's old glyph raster phase and can create interpolation differences.
+        if (delta.x || delta.y) {
+          if (css.position === 'static') el.style.setProperty('position', 'relative', 'important');
+          el.style.setProperty('left', `${(parseFloat(css.left) || 0) + delta.x}px`, 'important');
+          el.style.setProperty('top', `${(parseFloat(css.top) || 0) + delta.y}px`, 'important');
+        }
+        return { previous, delta, originalOrigin: { x: box.x, y: box.y }, method: 'Comparison capture only: relative layout offset snaps band origin to integer CSS pixels; original geometry and raw image retained' };
+      }), 'normalize capture origin');
+      row[`${band}NormalizedImage`] = `bands/${id}-${band}-normalized.png`;
+      row.chrome[band].captureNormalization = normalization;
+      try { await locator.screenshot({ path: join(out, row[`${band}NormalizedImage`]), timeout: TIMEOUT }); }
+      finally { await bounded(locator.evaluate((el, previous) => {
+        for (const [property, { value, priority }] of Object.entries(previous)) {
+          if (value) el.style.setProperty(property, value, priority); else el.style.removeProperty(property);
+        }
+      }, normalization.previous), 'restore band positioning'); }
+
     }
     try {
       row.fonts = await fontsFor(page, context);
       row.checks.latinFont = fontVerdict(row.fonts.latin, /Pretendard/i);
-      row.checks.digitFont = fontVerdict(row.fonts.digit, /Pretendard/i);
+      row.checks.digitFont = row.fonts.digit ? fontVerdict(row.fonts.digit, /Pretendard/i) : nm('No visible digit text anywhere in the rendered document (not just chrome)');
       row.checks.japaneseFont = fontVerdict(row.fonts.japanese, /Noto\s*Sans\s*JP|NotoSansJP/i);
       const sample = row.fonts.body;
       row.checks.bodyFont = sample && /[a-z0-9]/i.test(sample.text) && /[\u3040-\u30ff\u3400-\u9fff]/.test(sample.text) && locale === 'ja' ? nm('Mixed-script body sample; aggregate CDP families recorded in JSON, cannot assign font to each glyph') : fontVerdict(sample, locale === 'ja' && /[\u3040-\u30ff\u3400-\u9fff]/.test(sample?.text ?? '') ? /Noto\s*Sans\s*JP|NotoSansJP/i : /Pretendard/i);
     } catch { for (const k of ['bodyFont', 'latinFont', 'digitFont', 'japaneseFont']) row.checks[k] = nm('CDP font measurement failed or exceeded 15s'); }
     row.icons = await iconsFor(site, row.measurements.icons, await bounded(page.evaluate(() => navigator.userAgent), 'browser user agent'));
+    row.documentAtEnd = await bounded(page.evaluate(() => ({ title: document.title, lang: document.documentElement.lang, heading: document.querySelector('main h1')?.textContent ?? null })), 'final document identity');
+    row.checks.title = verdict(validTitle(row.documentAtEnd.title, site.id), { actual: row.documentAtEnd.title, atLayout: row.layout.title, expected: `Page name — ${site.id === 'naeil' ? '.naeil' : `.naeil ${site.id}`}` });
+    const limit = row.responses.find(r => r.status === 429 && r.resourceType !== 'document');
+    if (limit) {
+      row.rateLimited = { ...limit, reason: `HTTP 429 at ${limit.path}: audited page state not measured` };
+      row.checks = Object.fromEntries(CHECKS.map(key => [key, nm(row.rateLimited.reason)]));
+    }
   } catch {
     // Never emit browser errors: a storage-state parser exception can include file contents.
     row.failure = `${stage} failed/timed out; no alternate address used`;
@@ -226,34 +326,37 @@ async function capture(job, browser, out, states, measure) {
   console.log(`${id}: HTTP ${row.httpStatus ?? 'not measured'}; footer gap ${row.layout?.footerGap ?? 'not measured'}; ${row.failure ?? row.layout?.theme ?? ''}`);
   return row;
 }
-async function pixelComparison(page, left, right, out, name) {
-  const [leftPNG, rightPNG] = await Promise.all([left, right].map(async path => (await readFile(join(out, path))).toString('base64')));
-  // Keep raw RGBA in the browser; transferring millions of channel numbers via
-  // the automation protocol makes a full matrix unnecessarily slow.
-  const result = await bounded(page.evaluate(async ({ leftPNG, rightPNG }) => {
+async function pixelComparison(page, row, reference, band, out) {
+  const left = row[`${band}Image`], right = reference[`${band}Image`];
+  const [leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG] = await Promise.all([left, right, row[`${band}NormalizedImage`], reference[`${band}NormalizedImage`]].map(async path => (await readFile(join(out, path))).toString('base64')));
+  const a = row.chrome[band], b = reference.chrome[band];
+  const masks = [...(a?.masks ?? []), ...(b?.masks ?? [])].filter(m => m.status === 'measured').flatMap(m => [m.rect, ...(m.textRects ?? [])]);
+  const result = await bounded(page.evaluate(async ({ leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG, masks, heights }) => {
     const decode = async png => {
       const image = new Image(); image.src = `data:image/png;base64,${png}`; await image.decode();
       const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
       const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
       return { width: image.width, height: image.height, data: ctx.getImageData(0, 0, image.width, image.height).data };
     };
-    const diff = globalThis.naeilDiffRGBA(await decode(leftPNG), await decode(rightPNG));
-    const canvas = document.createElement('canvas'); canvas.width = diff.width; canvas.height = diff.height;
-    canvas.getContext('2d').putImageData(new ImageData(diff.data, diff.width, diff.height), 0, 0);
-    return { width: diff.width, height: diff.height, differentPixels: diff.differentPixels, over16Pixels: diff.over16Pixels, totalPixels: diff.totalPixels, png: canvas.toDataURL('image/png').split(',')[1] };
-  }, { leftPNG, rightPNG }), 'decode/compare/encode bands');
-  const path = `diffs/${name}.png`;
-  await writeFile(join(out, path), Buffer.from(result.png, 'base64'));
-  const values = { width: result.width, height: result.height, differentPixels: result.differentPixels, over16Pixels: result.over16Pixels, totalPixels: result.totalPixels };
-  return verdict(result.differentPixels === 0, { ...values, actual: left, reference: right, diff: path });
+    const encode = diff => {
+      const canvas = document.createElement('canvas'); canvas.width = diff.width; canvas.height = diff.height;
+      canvas.getContext('2d').putImageData(new ImageData(diff.data, diff.width, diff.height), 0, 0);
+      return { width: diff.width, height: diff.height, differentPixels: diff.differentPixels, over16Pixels: diff.over16Pixels, totalPixels: diff.totalPixels, png: canvas.toDataURL('image/png').split(',')[1] };
+    };
+    const leftImage = await decode(leftPNG), rightImage = await decode(rightPNG);
+    const normalizedLeft = await decode(leftNormalizedPNG), normalizedRight = await decode(rightNormalizedPNG);
+    return { raw: encode(globalThis.naeilDiffRGBA(leftImage, rightImage)), masked: encode(globalThis.naeilDiffRGBA(globalThis.naeilMaskedRGBA(normalizedLeft, masks, heights[0] ?? normalizedLeft.height), globalThis.naeilMaskedRGBA(normalizedRight, masks, heights[1] ?? normalizedRight.height))) };
+  }, { leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG, masks, heights: band === 'footer' ? [a?.coreHeight, b?.coreHeight] : [null, null] }), 'decode/compare/encode bands');
+  const paths = {};
+  for (const kind of ['raw', 'masked']) {
+    paths[kind] = `diffs/${row.id}-${band}-${kind}.png`;
+    await writeFile(join(out, paths[kind]), Buffer.from(result[kind].png, 'base64'));
+    delete result[kind].png;
+  }
+  return { counted: verdict(result.masked.over16Pixels === 0, { ...result.masked, channelTolerance: 16, actual: left, reference: right, diff: paths.masked, masks: { actual: a?.masks ?? [], reference: b?.masks ?? [] }, coreHeights: [a?.coreHeight ?? null, b?.coreHeight ?? null] }), supporting: { ...result.raw, diff: paths.raw, counted: false } };
 }
 export function differenceCount(rows) {
   return rows.reduce((n, row) => n + Object.values(row.checks).filter(c => c.status === 'differs').length, 0);
-}
-const cell = value => value.replaceAll('|', '\\|').replaceAll('\n', ' ');
-function checkText(check) {
-  if (check.status === 'not measured') return `재지 않음/not measured: ${check.reason}${check.values ? `; ${JSON.stringify(check.values)}` : ''}`;
-  return `${check.status}: ${JSON.stringify(check.values)}`;
 }
 export async function main(args = process.argv.slice(2)) {
   if (args.length === 1 && args[0] === '--help') {
@@ -266,31 +369,54 @@ export async function main(args = process.argv.slice(2)) {
   const resolvedOut = await realpath(out), resolvedRoot = await realpath(ROOT);
   const fromRoot = relative(resolvedRoot, resolvedOut);
   if (fromRoot !== '..' && !fromRoot.startsWith(`..${sep}`)) throw new Error('--out must be outside repository; evidence must not be committed');
-  for (const dir of ['screenshots', 'bands', 'diffs']) await mkdir(join(out, dir), { recursive: true });
+  for (const dir of ['screenshots', 'bands', 'diffs', 'rows']) await mkdir(join(out, dir), { recursive: true });
   const measure = await loadMeasure();
   const browser = await chromium.launch({ channel: options.channel, headless: true, timeout: 30000 });
-  const rows = [], jobs = [];
+  const rows = [], jobs = [], blockedSites = new Map();
   for (const site of SITES) for (const locale of ['ko', 'ja', 'en']) for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) for (const scheme of ['light', 'dark']) for (const kind of ['short', 'long', 'error']) jobs.push({ site, locale, viewport, scheme, kind });
   try {
     let next = 0;
     await Promise.all(Array.from({ length: 3 }, async () => {
-      while (next < jobs.length) rows.push(await capture(jobs[next++], browser, out, options.states, measure));
+      while (next < jobs.length) rows.push(await capture(jobs[next++], browser, out, options.states, measure, blockedSites));
     }));
+    for (let i = 0; i < rows.length; i++) if (rows[i].rateLimited) {
+      const first = rows[i], seconds = Number(first.rateLimited.retryAfter);
+      const delay = Number.isFinite(seconds) && seconds > 0 ? Math.min(60, seconds) * 1000 : 60000;
+      console.log(`${first.id}: ${first.rateLimited.reason}; one read-only retry after ${delay / 1000}s`);
+      await bounded(new Promise(done => setTimeout(done, delay)), 'rate-limit retry delay', delay + 1000);
+      const job = jobs.find(j => `${j.site.id}-${j.locale}-${j.viewport.width}-${j.scheme}-${j.kind}` === first.id);
+      rows[i] = await capture(job, browser, out, options.states, measure, blockedSites);
+      rows[i].previousAttempt = { at: first.at, rateLimited: first.rateLimited, title: first.documentAtEnd?.title, responses: first.responses };
+    }
     const context = await bounded(browser.newContext(), 'pixel context');
     const page = await bounded(context.newPage(), 'pixel page');
     // Inject only the local, unit-tested pure function into this blank page.
-    await bounded(page.evaluate(`globalThis.naeilDiffRGBA = (${diffRGBA.toString()})`), 'install pixel function');
+    await bounded(page.evaluate(`globalThis.naeilDiffRGBA = (${diffRGBA.toString()}); globalThis.naeilMaskedRGBA = (${maskedRGBA.toString()})`), 'install pixel function');
     for (const row of rows) {
       const reference = rows.find(r => r.site === 'naeil' && r.locale === row.locale && r.viewport.width === row.viewport.width && r.osColorScheme === row.osColorScheme && r.kind === 'short');
       if (row.icons) row.checks.icons = iconVerdict(row.icons, reference?.icons, SITES.find(s => s.id === row.site));
+      row.geometryComparisons = {};
+      row.supportingPixelDiffs = {};
       for (const band of ['header', 'footer']) {
         const key = `${band}Pixels`;
-        if (!row.layout) continue;
-        if (row.layout.lang !== row.locale || reference?.layout?.lang !== row.locale) { row.checks[key] = nm('Requested locale did not render; no same-locale baseline comparison'); continue; }
-        if (!row[`${band}Image`] || !reference?.[`${band}Image`]) { row.checks[key] = nm(`Missing actual or baseline ${band} band${row.site === 'home' && row.kind === 'short' && band === 'footer' ? '; Home login intentionally has no footer' : ''}`); continue; }
-        if (row.layout.theme !== reference.layout.theme) { row.checks[key] = nm('Actual themes differ; no same-theme baseline'); continue; }
-        try { row.checks[key] = await pixelComparison(page, row[`${band}Image`], reference[`${band}Image`], out, `${row.id}-${band}`); }
-        catch { row.checks[key] = nm('Band pixel comparison failed or timed out'); }
+        if (!row.layout || row.rateLimited) continue;
+        const sameCondition = row.layout.lang === row.locale && reference?.layout?.lang === row.locale && row.layout.theme === reference?.layout?.theme;
+        const geometry = sameCondition ? geometryComparison(row.chrome?.[band], reference?.chrome?.[band]) : nm('No same rendered language/theme reference');
+        row.geometryComparisons[band] = geometry;
+        if (band === 'footer') row.checks.footerColumns = geometry;
+        else for (const [name, check] of Object.entries({ logo: 'logo', wordmark: 'wordmark', theme: 'themeControl', locale: 'localeControl', account: 'accountControl' })) {
+          const element = geometry.values?.elements[name];
+          row.checks[check] = element ? { status: element.status, ...(element.reason ? { reason: element.reason } : {}), ...(element.status !== 'not measured' ? { values: element } : {}) } : nm(geometry.reason ?? 'No shared element measurement');
+        }
+        if (!sameCondition) { row.checks[key] = nm('No same rendered language/theme baseline'); continue; }
+        if (!row[`${band}Image`] || !reference?.[`${band}Image`]) { row.checks[key] = nm(`Missing actual or baseline ${band} band`); continue; }
+        const a = row.chrome?.[band], b = reference.chrome?.[band];
+        const problems = [a?.error, b?.error, ...(a?.problems ?? []), ...(b?.problems ?? [])].filter(Boolean);
+        try {
+          const pixels = await pixelComparison(page, row, reference, band, out);
+          row.checks[key] = !a || !b || problems.length ? nm(problems.join('; ') || 'Missing shared band markers; raw diff retained') : pixels.counted;
+          row.supportingPixelDiffs[band] = pixels.supporting;
+        } catch { row.checks[key] = nm('Band pixel comparison failed or timed out'); }
       }
     }
     await bounded(context.close(), 'close pixel context');
@@ -298,15 +424,11 @@ export async function main(args = process.argv.slice(2)) {
   rows.sort((a, b) => a.id.localeCompare(b.id));
   const differences = differenceCount(rows);
   const notMeasured = rows.reduce((n, r) => n + Object.values(r.checks).filter(c => c.status === 'not measured').length, 0);
-  const report = { schemaVersion: 1, measuredAt: new Date().toISOString(), browser: `Chrome ${browser.version()}`, differences, notMeasured, countUnit: 'individual check cells, including each OS-scheme/viewport/locale; not unique defects', pixelPolicy: 'Exact RGBA equality, no masks. Intentional service suffix/account/navigation differences also count. Red >16 channel delta; amber 1–16. Bands aligned at top-left; missing extents differ.', safety: 'GET/HEAD only; service workers and WebSockets blocked; storage state opaque and cross-origin requests blocked when supplied. No login, submit or state-changing click.', rows };
-  await writeFile(join(out, 'comparison.json'), JSON.stringify(report, null, 2));
-  const columns = ['Condition / address', ...CHECKS];
-  const lines = ['# Live site comparison', '', `Measured ${report.measuredAt}. ${report.browser}; DPR 1. Each row uses a fresh context.`, '', report.pixelPolicy, '', 'Long service routes were not measured. No route was invented. Home uses the audited Tailscale proxy; browser language preference is supplied without changing application state. If ignored, the locale check differs and pixels are not compared as that locale.', '', `| ${columns.join(' | ')} |`, `| ${columns.map(() => '---').join(' | ')} |`];
-  for (const row of rows) lines.push(`| ${[`${row.id}; ${row.requestedURL}; ${row.locale}; ${row.viewport.width}×${row.viewport.height}; ${row.session}; ${row.browser}; OS ${row.osColorScheme}${row.screenshot ? `; [screenshot](${row.screenshot})` : ''}`, ...CHECKS.map(k => checkText(row.checks[k]))].map(cell).join(' | ')} |`);
-  lines.push('', `Differences: **${differences}** check cells. Not measured: **${notMeasured}** check cells. Zero differences with unmeasured cells does not establish complete parity.`, '');
-  await writeFile(join(out, 'comparison.md'), lines.join('\n'));
-  console.log(JSON.stringify({ out, rows: rows.length, differences, notMeasured }));
-  return differences > 0 ? 1 : notMeasured > 0 ? 2 : 0;
+  const findings = distinctDifferences(rows);
+  const report = { schemaVersion: 2, measuredAt: new Date().toISOString(), browser: `${options.channel} (Chromium) ${browser.version()}`, differences, distinctDifferences: findings, notMeasured, masks: MASK_POLICY, rollup: rollup(rows, CHECKS, SITES.map(s => s.id)), pixelPolicy: 'Union masks and integer-origin comparison captures; channel tolerance 16 (same as audit visible-pixel metric); original raw differences retained. Geometry/resolved layout lengths tolerance 0.5px; other computed styles exact; inactive border colors recorded but excluded. Optional icon metadata not counted.', safety: 'GET/HEAD only; service workers and WebSockets blocked; opaque per-site state; cross-origin browser requests blocked with state. No login, submit or state-changing click.', coverageFailures: Object.fromEntries(blockedSites), rows };
+  await writeReport(report, out, CHECKS, SITES.map(s => s.id));
+  console.log(JSON.stringify({ out, rows: rows.length, distinctDifferences: findings.length, differingCheckCells: differences, notMeasured }));
+  return findings.length > 0 ? 1 : notMeasured > 0 ? 2 : 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   main().then(code => { process.exitCode = code; }).catch(() => { console.error('Live comparison failed. Check CLI arguments, output path and installed browser. No storage-state contents or raw browser error is logged.'); process.exitCode = 2; });
