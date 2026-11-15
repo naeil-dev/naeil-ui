@@ -35,8 +35,9 @@ for (const family of families) {
   test(`${family}: actual built Docs guide`, async ({ page }) => {
     await page.goto(`/?path=/docs/ui-${family}--docs`);
     const docs = page.frameLocator("#storybook-preview-iframe");
-    await expect(docs.getByRole("heading", { name: "API and wrapper defaults", exact: true })).toBeVisible({ timeout: 15000 });
-    await expect(docs.getByRole("heading", { name: "States, resilience and mistakes", exact: true })).toBeVisible();
+    // Storybook 10.6 includes the copy-heading link in the accessible name.
+    await expect(docs.getByRole("heading", { name: "API and wrapper defaults" })).toBeVisible({ timeout: 15000 });
+    await expect(docs.getByRole("heading", { name: "States, resilience and mistakes" })).toBeVisible();
     await expect(docs.getByRole("link", { name: "shared usage contract", exact: true })).toHaveAttribute("href", /docs\/components\/common.md$/);
     if (family === "avatar") {
       await expect(docs.getByText('For a named group, supply', { exact: false })).toBeVisible();

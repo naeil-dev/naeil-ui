@@ -7,7 +7,7 @@ Product navigation and controlled mobile APIs are available since 0.8.0; shared 
 | Application need | Use |
 | --- | --- |
 | The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
-| Owned-service login/account/logout presentation | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header` in `authSlot` |
+| Owned-service login/account/logout presentation | Pass session state through `NaeilServiceShell.account`; the shell renders the shared control |
 | Owned naeil service (0.15.0) | `NaeilServiceShell` + root `NaeilThemeProvider` from `/naeil-shell` or `/naeil-locale/chrome` |
 | A different product menu without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
 | Owned naeil service footer | Included by `NaeilServiceShell`; recorded no-footer screens use `footer={false}` |
@@ -57,7 +57,7 @@ Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter th
 
 ## Canonical naeil application starter
 
-Owned Next services under `NaeilLocaleProvider` import shell/provider/account types from `@naeil/ui/naeil-locale/chrome`. Standalone React uses `/naeil-shell`; the shell supplies account UI from its account prop (planned 0.16.0). See [the shell API and every CI rule](naeil-shell.md) and [locale setup](naeil-locale.md).
+Owned Next services under `NaeilLocaleProvider` import shell/provider/account types from `@naeil/ui/naeil-locale/chrome`. Standalone React uses `/naeil-shell`; the shell supplies account UI from its account prop (since 0.16.0). See [the shell API and every CI rule](naeil-shell.md) and [locale setup](naeil-locale.md).
 
 ```tsx
 import type { ReactNode } from "react";

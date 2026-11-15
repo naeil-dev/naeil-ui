@@ -22,8 +22,9 @@ export function installedNotice(root: string): PackageNotice {
   }
   if (!notices.length) throw new Error(`Complete notice missing for bundled ${pkg.name}@${pkg.version}`);
   const embedded = !pkg.version;
+  const nextVersion = embedded ? JSON.parse(readFileSync("node_modules/next/package.json", "utf8")).version : undefined;
   return { name: pkg.name, version: pkg.version || "embedded-version-unspecified",
-    source: embedded ? "Embedded in next@16.1.7; original vendored notice, manifest omits version" : `https://registry.npmjs.org/${pkg.name}/${pkg.version}`, notices };
+    source: embedded ? `Embedded in next@${nextVersion}; original vendored notice, manifest omits version` : `https://registry.npmjs.org/${pkg.name}/${pkg.version}`, notices };
 }
 
 export function previewNoticePlugin() {

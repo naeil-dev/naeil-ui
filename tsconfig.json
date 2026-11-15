@@ -32,5 +32,5 @@
     ".next-console-invite/types/**/*.ts",
     ".next-console-invite/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "examples", "scripts/fixtures", "docs/rollout/evidence"]
+  "exclude": ["node_modules", "examples", "scripts/fixtures", "docs/rollout/evidence", "test-results", "playwright-report"]
 }

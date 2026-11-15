@@ -24,7 +24,6 @@ function HeaderExample({ locale: initialLocale, japaneseOnly = false, variant, r
   const [locale, setLocale] = useState(initialLocale);
   const [href, setHref] = useState("/");
   const [notice, setNotice] = useState("");
-  useEffect(() => { setLocale(initialLocale); }, [initialLocale]);
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   return <>
     <NaeilHeader locale={locale} currentHref={href} resolveHref={path => path}
@@ -51,10 +50,10 @@ function HeaderExample({ locale: initialLocale, japaneseOnly = false, variant, r
   </>;
 }
 
-export const Usage: Story = { render: args => <HeaderExample locale={args.locale} /> };
+export const Usage: Story = { render: args => <HeaderExample key={args.locale} locale={args.locale} /> };
 export const JapaneseApplication: Story = { render: () => <HeaderExample locale="ja" japaneseOnly /> };
-export const ReferenceFull: Story = { render: args => <HeaderExample locale={args.locale} variant="full" reference /> };
-export const ReferenceCompact: Story = { render: args => <HeaderExample locale={args.locale} variant="compact" reference /> };
+export const ReferenceFull: Story = { render: args => <HeaderExample key={args.locale} locale={args.locale} variant="full" reference /> };
+export const ReferenceCompact: Story = { render: args => <HeaderExample key={args.locale} locale={args.locale} variant="compact" reference /> };
 // Fixed-locale reference entries avoid relying on manager-only URL args in static iframes.
 export const ReferenceFullEn: Story = { render: () => <HeaderExample locale="en" variant="full" reference /> };
 export const ReferenceCompactEn: Story = { render: () => <HeaderExample locale="en" variant="compact" reference /> };
@@ -86,7 +85,6 @@ function ServiceExample({ service, locale: initialLocale }: { service: NaeilServ
   const [locale, setLocale] = useState(initialLocale);
   const [href, setHref] = useState("/overview");
   const [notice, setNotice] = useState("");
-  useEffect(() => { setLocale(initialLocale); }, [initialLocale]);
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   const tabs = [{ id: "overview", label: "Overview", href: "/overview" }, { id: "settings", label: "Settings", href: "/settings" }];
   return <>
@@ -106,7 +104,7 @@ function ServiceExample({ service, locale: initialLocale }: { service: NaeilServ
     <NaeilFooter service={service} locale={locale} />
   </>;
 }
-export const Abstorm: Story = { render: args => <ServiceExample service="abstorm" locale={args.locale} /> };
-export const Home: Story = { render: args => <ServiceExample service="home" locale={args.locale} /> };
-export const Estimate: Story = { render: args => <ServiceExample service="estimate" locale={args.locale} /> };
-export const Jev: Story = { render: args => <ServiceExample service="jev" locale={args.locale} /> };
+export const Abstorm: Story = { render: args => <ServiceExample key={args.locale} service="abstorm" locale={args.locale} /> };
+export const Home: Story = { render: args => <ServiceExample key={args.locale} service="home" locale={args.locale} /> };
+export const Estimate: Story = { render: args => <ServiceExample key={args.locale} service="estimate" locale={args.locale} /> };
+export const Jev: Story = { render: args => <ServiceExample key={args.locale} service="jev" locale={args.locale} /> };

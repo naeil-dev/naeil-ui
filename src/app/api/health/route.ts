@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const missing = [
+    !process.env.NEXT_PUBLIC_SUPABASE_URL && "NEXT_PUBLIC_SUPABASE_URL",
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  ].filter(Boolean);
 
   return NextResponse.json({
-    ok: !!supabaseUrl,
+    ok: missing.length === 0,
     service: "naeil-ui",
-    ...(supabaseUrl ? {} : { error: "NEXT_PUBLIC_SUPABASE_URL not configured" }),
-  });
+    ...(missing.length ? { error: `${missing.join(", ")} not configured` } : {}),
+  }, { status: missing.length ? 503 : 200 });
 }
