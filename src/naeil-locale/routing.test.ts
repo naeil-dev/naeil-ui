@@ -92,3 +92,8 @@ describe("abstorm registered UI and protocol boundaries", () => {
     for (const path of ["/settings", "/runs", "/runs/one/extra", "https://x.abstorm.naeil.dev/", "https://abstorm.naeil.dev.evil.example/", "http://abstorm.naeil.dev/"]) expect(resolveLocaleUrl("abstorm", path).kind).toBe("invalid");
   });
 });
+
+it("requires a registered root recovery route at definition time", () => {
+  expect(() => defineLocaleService({ id: "jev", origin: "https://jev.naeil.dev", routes: ["/login"] })).toThrow("root route /");
+  expect(() => defineLocaleService({ id: "jev", origin: "https://jev.naeil.dev", routes: [{path: "/", protected: true}] })).not.toThrow();
+});

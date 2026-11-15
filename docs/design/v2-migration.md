@@ -6,6 +6,18 @@ Home API는 0.8.0부터, 공통 root 예약 기본값은 0.9.0부터 제공한�
 
 소유한 Next 서비스는 [공통 언어 런타임](../components/naeil-locale.md)의 `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker`를 사용한다. `NaeilLocaleProvider` 안에서는 `NaeilServiceShell`·`NaeilThemeProvider`·`PageHeader`·계정 컨트롤을 `/naeil-locale/chrome`에서 가져온다. `/naeil-header`와 `/naeil-footer`는 독립 React 어댑터로 유지된다. 공유 server/client 경로에는 정확한 `next-intl@4.14.8`이 필요하다.
 
+## 0.17.0 required consumer migration
+
+For abstorm, estimate, jev and Home, review these required changes before adopting the unpublished candidate; a dependency bump alone is insufficient:
+
+- Import `@naeil/ui/fonts.css` once. Remove the app's own Pretendard/Noto packages, font-face definitions, stylesheet imports and resolver aliases; package-local WOFF2 files now provide the fonts. Keep the packaged OFL notices. Package unpacked size grows to approximately **9.9 MB** because font files are included.
+- Remove app-owned body background, colour, font-family/font-size/line-height rules. The shared baseline is **16px/25px**. Remove app min-height, viewport wrappers and sticky-footer workarounds: `NaeilServiceShell` owns fill, including `footer={false}`. Keep purpose-specific content widths inside main. Use `abstorm`, `estimate`, `jev` or `home`; **`service="main"` is for naeil.dev only**.
+- Static conformance now checks reachable shell import/usage and explicit `account=` only. It no longer claims theme, CSS, spacing, metadata/icon/title or presentation correctness; retain TypeScript, runtime route checks and live comparison. See the [removed rules and bypass coverage](../components/naeil-shell.md#ci-conformance-cli).
+- Runtime requires a shared frame and body 16/25px. Short pages end the footer at the viewport bottom with content→footer ≥96px; long pages require exactly 96px (existing subpixel tolerance); recorded no-footer pages fill main to the viewport. List representative short/long/no-footer, locale, anonymous and authenticated routes. CDP rendered-font evidence is Chromium-only; other engines remain “not measured”.
+- Runtime has a **10-minute overall limit** and **15-second step limits**; timeout is a failure. Repeatable `--header` authentication/tenant values apply only to the configured origin, including same-origin redirect hops; cross-origin redirects/resources receive none. See the [runtime options and exceptions](../components/naeil-shell.md#runtime-ci-and-reusable-measurements).
+- Remove unsupported `asChild` use on Checkbox, Switch, SelectTrigger/SelectContent/SelectItem, DialogContent, SheetContent and DropdownMenuCheckboxItem/DropdownMenuRadioItem/DropdownMenuSubTrigger. These wrappers own multiple children; use their supported structure. Button and supported trigger composition still accept `asChild`.
+- A 0.x minor may require consumer changes. Service auto-merge is **patch-only**; review this minor migration manually. This document changes policy only; service guard updates and service deployments remain separate stages.
+
 ## 시작하기
 
 React 19/ReactDOM 19와 Tailwind 4 앱에서 `/ui`를 사용하며, 소유 서비스의 독립 React 앱 틀은 `/naeil-shell`을 사용한다. 선택적 `/naeil-header`·`/naeil-footer`도 호환 API로 유지된다. 이 React 전용 경로에는 API 키와 Next.js가 필요 없다. 검증한 registry 버전을 고정해 설치한다.
@@ -30,7 +42,7 @@ Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 �
 @source "../node_modules/@naeil/ui/dist";
 ```
 
-이미 Tailwind와 기본 스타일을 구성한 앱은 `@naeil/ui/theme.css`와 `@naeil/ui/components.css`를 함께 불러올 수 있다. 컴포넌트 CSS에는 크기·포커스·밀도·포털·reduced-motion 규칙이 있으므로 theme.css만으로 전체 v2 모양이 완성되지는 않는다.
+이미 Tailwind와 기본 스타일을 구성한 앱은 `@naeil/ui/theme.css`와 `@naeil/ui/components.css`를 함께 불러올 수 있다. 컴포넌트 CSS에는 본문 배경/글자색·16/25px·글꼴 기본값과 크기·포커스·밀도·포털·reduced-motion 규칙이 있으므로 theme.css만으로 전체 v2 모양이 완성되지는 않는다.
 
 0.9.0부터 두 CSS 경로의 `components.css`가 `html { scrollbar-gutter: stable }`과 Radix 이중 보상 제거를 제공한다. classic은 한쪽 공간을 예약하고 overlay는 0px이다. `<html data-naeil-scrollbar-gutter="auto">`를 첫 paint 전에 선언하면 root 예약과 lock 보정을 함께 끈다. theme-only/JS-only는 문서 정책을 바꾸지 않는다. 본문 바깥 여백/custom scroller/helper class는 별도 소비자 통합이나 opt-out이 필요하다. [채택된 계약](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md)과 [layout guide](../components/application-layout.md)의 비교·fallback·일본어 320px F3 wrap 규칙을 따른다.
 
@@ -87,11 +99,11 @@ Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지�
 
 적용 확인은 실제 브라우저에서 홈·하위 페이지의 직접 진입, 클라이언트 경로 이동, 뒤로 가기, 언어 전환 후 제목과 파비콘을 확인한다. 제목은 현재 페이지와 일치하고 서비스 접미사가 중복되지 않아야 하며, 파비콘 파일 요청도 성공해야 한다. 이 문서 변경은 규칙 등록이며 기존 naeil.dev/Home의 메타데이터 수정·배포 완료를 의미하지 않는다.
 
-## 페이지 리듬·테마·기본 글자 (0.15.0)
+## 페이지 리듬·테마·기본 글자 (0.15.0부터, 0.17.0 갱신)
 
 2026-11-14 사용자 결정: 소유 서비스는 `NaeilServiceShell` + 루트 `NaeilThemeProvider`를 사용하고 CI에서 `naeil-ui-conformance`를 실행한다. standalone React는 `@naeil/ui/naeil-shell`, `NaeilLocaleProvider` 안의 Next 서비스는 `@naeil/ui/naeil-locale/chrome`를 사용한다. 루트의 기존 theme provider를 교체한다. 중첩 provider는 next-themes에서 무시된다.
 
-naeil.dev는 `service` 없는 카탈로그 헤더·기존 푸터 구성을 유지하고 루트 provider만 `NaeilThemeProvider`로 교체한다. 소유 서비스용 셸로 바꾸지 않는다.
+0.17.0부터 naeil.dev도 `NaeilServiceShell service="main"`과 루트 `NaeilThemeProvider`를 사용한다. 다른 소유 서비스는 각자의 service id를 사용한다.
 
 셸이 skip link, 헤더, 고정 `main#main`의 `.ui-app-frame ui-app-main`, 전체 풋터를 소유한다. `PageHeader`로 페이지를 시작하며 제목 32/42 600, 제목→설명 12px, PageHeader→콘텐츠 32px, 페이지 위 48px/아래 96px를 유지한다. CSS는 16px 기본 본문, provider는 다크 기본값·저장된 선택·시스템 옵션을 공급한다. 목적별 `data-ui-layout`은 main 안에 둔다. class/style/id/data/theme 속성이나 예약 셀렉터로 공통 틀을 바꾸지 않는다. `header`에는 서비스 메뉴·인증·언어 상태를, 셸의 `Link`/`onNavigate`에는 공통 라우팅 guard를 전달한다. `footer`는 `meta`/`resolveHref` 또는 사유를 기록한 `false`만 허용한다.
 
@@ -103,11 +115,11 @@ naeil-ui-conformance --service estimate --url http://127.0.0.1:4173 --routes /en
 # Vite: --framework vite
 ```
 
-CLI는 theme/chrome/rhythm/icons/titles 규칙, 파일 SHA-256과 선언 순서를 검사하고 위반 시 1로 종료한다. 예외는 위반 바로 위 `naeil-conformance-ignore <rule>: <reason>` 주석으로 남기며 모든 예외가 보고된다. [API·override 정책·전체 규칙](../components/naeil-shell.md)을 따르고 실제 브라우저에서 같은 화면 크기·언어·테마와 로그인 상태도 확인한다.
+0.17.0 정적 CLI는 도달 가능한 셸 import/사용과 명시적 `account=`만 검사한다. 런타임은 전달한 경로의 틀·리듬·본문·기본 테마·아이콘 선언·제목을 검사하고 위반 시 1로 종료한다. 아이콘 HTTP 응답/파일 SHA-256과 픽셀 일치는 별도 live 비교로 확인한다. 정적 예외는 위반 바로 위 `naeil-conformance-ignore chrome: <reason>` 주석으로 남기며 모든 예외가 보고된다. [API·override 정책·전체 규칙](../components/naeil-shell.md)을 따르고 실제 브라우저에서 같은 화면 크기·언어·테마와 로그인 상태도 확인한다.
 
 ## 앱 전체 틀과 콘텐츠 폭
 
-소유 서비스는 `NaeilServiceShell`에 `service`·현재 언어·라우팅/저장 guard를 전달한다. 셸이 공통 헤더와 전체 푸터를 구성하므로 앱에서 `NaeilHeader`·`NaeilFooter` JSX를 직접 조합하지 않는다. 예정된 0.16.0부터 실제 세션 상태·busy·guarded logout 콜백을 셸의 `account`로 전달하면 셸이 `NaeilHeaderAccountControl`을 구성한다. `header.authSlot`은 0.15.0 호환용으로만 유지하며 소유 서비스 정적 CI에서는 거부한다. 비로그인 상태에서 loginHref/currentHref의 pathname이 같은 로그인 화면은 컨트롤을 숨기며 런타임 `--no-account`로 기록한다. pending 상태와 요청 잠금은 셸 위에서 소유해 데스크톱/모바일 슬롯이 공유한다. 언어 변경을 지원하지 않으면 `header.onLocaleChange`를 생략한다. 전체 프로젝트 메뉴·컨트롤·반응형 스타일과 canonical 푸터 목적지를 복사하지 않는다. [셸 계약](../components/naeil-shell.md), [헤더 계약](../components/naeil-header.md), [푸터 계약](../components/naeil-footer.md)을 참조한다. 독립 헤더·푸터 API는 naeil.dev 카탈로그와 기존 호환 구성에 남는다.
+소유 서비스는 `NaeilServiceShell`에 `service`·현재 언어·라우팅/저장 guard를 전달한다. 셸이 공통 헤더와 전체 푸터를 구성하므로 앱에서 `NaeilHeader`·`NaeilFooter` JSX를 직접 조합하지 않는다. 0.16.0부터 실제 세션 상태·busy·guarded logout 콜백을 셸의 `account`로 전달하면 셸이 `NaeilHeaderAccountControl`을 구성한다. `header.authSlot`은 0.15.0 호환용으로만 유지한다. 소유 서비스는 `account`로 이전하며, 0.17.0 정적 CI는 명시적 `account=` 존재만 확인한다. 비로그인 상태에서 loginHref/currentHref의 pathname이 같은 로그인 화면은 컨트롤을 숨기며 런타임 `--no-account`로 기록한다. pending 상태와 요청 잠금은 셸 위에서 소유해 데스크톱/모바일 슬롯이 공유한다. 언어 변경을 지원하지 않으면 `header.onLocaleChange`를 생략한다. 전체 프로젝트 메뉴·컨트롤·반응형 스타일과 canonical 푸터 목적지를 복사하지 않는다. [셸 계약](../components/naeil-shell.md), [헤더 계약](../components/naeil-header.md), [푸터 계약](../components/naeil-footer.md)을 참조한다. 독립 헤더·푸터 API는 기존 호환 구성에 남는다.
 
 2026-10-16 승인한 기본 프레임은 최대 1600px(여백 포함), 좌우 `clamp(16px, 2.4vw, 40px)`다. 브랜드 헤더·범용 Navigation·SiteFooter·본문 프레임이 `--ui-width-frame`, `--ui-frame-gutter`를 함께 사용한다. 소유 서비스는 셸이 고정 헤더 65px의 main 여유를 적용하므로 별도 페이지 패딩을 더하지 않는다. 소비 앱의 sticky 영역과 초점/anchor 이동은 고정 헤더 높이를 고려한다. 카탈로그 헤더의 공식 장식 이미지 URL에는 네트워크가 필요하다. 이미지 바이트는 npm에 포함하지 않으며 재배포 출처·권리 미해결 사항은 [제3자 고지](../../THIRD_PARTY_NOTICES.md)에 유지한다.
 
@@ -155,24 +167,17 @@ import { Navigation, SiteFooter } from "@naeil/ui/ui";
 
 ## 폰트
 
-공통 CSS는 외부 서버에서 폰트를 자동 다운로드하지 않는다. 소비 앱이 Pretendard를 직접 호스팅하거나 자신의 로더로 전달한다. 일본어에는 Noto Sans JP를 제공하고 필요한 글자/굵기만 로드한다. 로딩 실패 시 시스템 글꼴로 표시된다.
-
-소비 앱에서 로컬 번들 폰트를 사용하려면 다음과 같이 설치하고 앱 진입점에서 필요한 굵기를 불러올 수 있다.
-
-```sh
-pnpm add --save-exact pretendard@1.3.9 @fontsource/noto-sans-jp@5.3.0
-```
+소비 앱의 진입점에서 패키지 글꼴 CSS 하나를 가져온다. Pretendard/Noto를 앱이 별도로 설치하거나 import하지 않는다.
 
 ```tsx
-import 'pretendard/dist/web/static/pretendard.css';
-import '@fontsource/noto-sans-jp/400.css';
-import '@fontsource/noto-sans-jp/500.css';
-import '@fontsource/noto-sans-jp/600.css';
+import '@naeil/ui/fonts.css';
 ```
 
-일본어 영역에 `lang="ja"`를 지정하면 globals의 일본어 font-family 규칙이 적용된다. 재배포 빌드에는 [폰트 OFL 고지](../../THIRD_PARTY_NOTICES.md#fonts)를 유지한다. 패키지 자체에는 폰트 런타임 의존성을 추가하지 않았다.
+빌드가 `pretendard@1.3.9`와 `@fontsource-variable/noto-sans-jp@5.3.0`에서 참조된 WOFF2 파일만 `dist/fonts/`에 원본 바이트 그대로 복사한다. 폰트 소스 패키지는 개발 의존성으로 남으며 소비 앱은 추가 설치나 resolver 설정 없이 패키지에 포함된 파일을 받는다. CSS는 번들러가 상대 경로를 처리하며 외부 폰트 CDN에 의존하지 않는다. `unicode-range`에 따라 필요한 파일만 받는다. 일본어 굵기 CSS 네 벌 대신 가변 weight 정의 한 벌을 사용한다. 정적 Noto 패키지는 과거 기준 fixture에만 사용한다.
 
-Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 굵기·언어 폰트를 복사할 필요는 없다. 폰트를 바꾸면 줄바꿈과 밀도를 다시 확인한다. 코드용 폰트는 기존 fallback 체계를 유지한다.
+`lang="ja"`에서도 U+0020–007E, U+00A0–00FF는 Latin 전용 Pretendard face가 먼저 선택된다. 가나·한자·일본어 문장부호는 Noto Sans JP로 그린다. 본문과 canonical header/footer/portal 모두 같은 규칙을 사용한다. 이는 일본어 요소의 모든 글자에 Noto를 쓰던 이전 규칙을 대체한다.
+
+`globals.css`와 `theme.css` + `components.css` 모두 본문 배경/글자색/글꼴과 16/25px 기준을 제공한다. 일반 split 소비자는 기존 16/24px 또는 브라우저 기본값 대신 이 기준을 받는다. 이 규칙은 `@layer base`의 낮은 specificity로 작성되어 일반 소비자의 명시적 본문 스타일이 우선한다. owned service는 본문 기본값을 다시 선언하지 않는다. 글꼴을 재배포하는 빌드는 패키지의 [OFL 고지](../../THIRD_PARTY_NOTICES.md#fonts)를 포함한다. 로딩 실패 시 시스템 fallback을 사용한다. 코드용 글꼴은 기존 fallback 체계를 유지한다.
 
 ## 바뀌는 점과 호환성
 

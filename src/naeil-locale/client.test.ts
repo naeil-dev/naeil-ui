@@ -124,3 +124,11 @@ describe("locale controller recovery with a committed React provider", () => {
     expect(await page.evaluate(() => document.cookie)).toBe("");
   });
 });
+
+// Real browser serialization must still commit the explicit preference.
+it.each(["/calendar#今日", "/calendar?q=日本語", "/estimates/東京"])("commits a raw Unicode destination %s", async route => {
+  expect(await page.evaluate(route => window.localeHarness.request("ja", {route}), route)).toBe(true);
+  await page.evaluate(route => window.localeHarness.commit("/ja" + route, "ja"), route);
+  expect(await page.evaluate(() => document.cookie)).toBe("naeil_locale_dev_v1=ja");
+  expect(await status()).toEqual({pending: false, error: null, intent: null});
+});

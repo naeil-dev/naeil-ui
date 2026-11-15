@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useSiteState } from "@/components/site-session-state";
-import { type OAuthProvider, type OAuthState } from "./oauth-flow";
+import { createOAuthFlow, type OAuthState } from "./oauth-flow";
 import { prepareLogin, updateLoginLocale } from "./actions";
 
 export function OAuthButtons({
@@ -19,39 +19,34 @@ export function OAuthButtons({
   const [state, setState, cell] = useSiteState<OAuthState>(`oauth:${next}`, {
     status: initialError ? "error" : "idle",
   }, "/login", value => value.status === "pending", next);
-  async function flow(provider: OAuthProvider) {
-    if (!cell.active || cell.get().status === "pending") return;
-    setState({ status: "pending", provider });
-    try {
-      const returnLocation = new URL(window.location.href).searchParams.get("next") || next;
-      await prepareLogin(returnLocation, document.documentElement.lang || locale);
-      if (!cell.active) return;
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: true,
-          ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {}),
-        },
-      });
-      if (!error && data.url && cell.active) {
-        // The provider URL can take time to prepare. Capture the last committed
-        // UI locale without changing the independently validated return URL.
-        while (cell.active) {
-          const committedLocale = document.documentElement.lang || locale;
-          await updateLoginLocale(committedLocale);
-          if (!cell.active) return;
-          if ((document.documentElement.lang || locale) === committedLocale) break;
-        }
-        // A successful, explicitly requested OAuth departure is intentional.
-        setState({ status: "idle" });
-        window.location.assign(data.url);
-        return;
+  const flow = createOAuthFlow(async provider => {
+    const returnLocation = new URL(window.location.href).searchParams.get("next") || next;
+    await prepareLogin(returnLocation, document.documentElement.lang || locale);
+    if (!cell.active) return { error: null };
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: true,
+        ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {}),
+      },
+    });
+    if (!error && data.url && cell.active) {
+      // Capture the last committed UI locale without changing the return URL.
+      while (cell.active) {
+        const committedLocale = document.documentElement.lang || locale;
+        await updateLoginLocale(committedLocale);
+        if (!cell.active) return { error: null };
+        if ((document.documentElement.lang || locale) === committedLocale) break;
       }
-    } catch { /* Show a translated recovery key; do not retain provider details. */ }
-    setState({ status: "error" });
-  }
+      setState({ status: "idle" });
+      window.location.assign(data.url);
+      return { error: null };
+    }
+    return { error: error || new Error("OAuth URL unavailable") };
+  }, value => { if (cell.active) setState(value); },
+  () => cell.active && cell.get().status !== "pending");
   const pending = state.status === "pending";
   const pendingText = pending
     ? t(state.provider === "google" ? "pendingGoogle" : "pendingGithub")

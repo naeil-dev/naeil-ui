@@ -107,6 +107,10 @@
     "navigation-menu-wide-width": {
       "$type": "dimension",
       "$value": "640px"
+    },
+    "frame-min-height": {
+      "$type": "dimension",
+      "$value": "100dvh"
     }
   }
 }

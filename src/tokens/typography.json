@@ -20,6 +20,19 @@
           "ui-monospace",
           "monospace"
         ]
+      },
+      "japanese": {
+        "$type": "fontFamily",
+        "$value": [
+          "Pretendard Latin",
+          "Noto Sans JP",
+          "Pretendard Variable",
+          "Pretendard",
+          "Noto Sans JP",
+          "-apple-system",
+          "system-ui",
+          "sans-serif"
+        ]
       }
     },
     "size": {
@@ -108,6 +121,25 @@
       "3xl": {
         "$type": "dimension",
         "$value": "2.625rem"
+      }
+    },
+    "chrome": {
+      "lineHeight": {
+        "sheet": {
+          "$type": "dimension",
+          "$value": "28px",
+          "$description": "Preserves the canonical chrome 20/28 sheet heading, distinct from the 20/29 section title."
+        },
+        "menu": {
+          "$type": "dimension",
+          "$value": "24px",
+          "$description": "Preserves the canonical chrome 16/24 menu/control rows, distinct from the 16/25 body."
+        },
+        "account": {
+          "$type": "dimension",
+          "$value": "20px",
+          "$description": "Preserves 14/20 account metadata; footer/supporting copy uses font.lineHeight.normal (14/21.875)."
+        }
       }
     }
   }

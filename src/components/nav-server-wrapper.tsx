@@ -4,7 +4,7 @@ import { getAllPosts } from "@/lib/blog";
 import { locales, type Locale } from "@/i18n/config";
 import { NavWrapper } from "./nav-wrapper";
 
-export async function NavServerWrapper() {
+export async function NavServerWrapper({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
   const display = (value: unknown, limit: number) => typeof value === "string"
@@ -25,5 +25,5 @@ export async function NavServerWrapper() {
   const translatedBlogLocales: Record<string, Locale[]> = {};
   for (const locale of locales) for (const post of getAllPosts(locale))
     (translatedBlogLocales[post.slug] ??= []).push(locale);
-  return <NavWrapper user={authUser} sessionPresent={sessionPresent} translatedBlogLocales={translatedBlogLocales} />;
+  return <NavWrapper user={authUser} sessionPresent={sessionPresent} translatedBlogLocales={translatedBlogLocales}>{children}</NavWrapper>;
 }

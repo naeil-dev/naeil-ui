@@ -15,7 +15,7 @@ export default defineConfig({ plugins: [tailwindcss(), consumerNotices(), {
     // Vite can close this fixture in a caller whose cwd is another project.
     const output = resolve(consumerConfig.root, consumerConfig.build.outDir, "licenses");
     mkdirSync(output, { recursive: true });
-    cpSync(resolve(consumerConfig.root, "node_modules/pretendard/dist/LICENSE.txt"), resolve(output, "Pretendard-OFL.txt"));
-    cpSync(resolve(consumerConfig.root, "node_modules/@fontsource/noto-sans-jp/LICENSE"), resolve(output, "Noto-Sans-JP-OFL.txt"));
+    cpSync(resolve(consumerConfig.root, "node_modules/@naeil/ui/licenses/Pretendard-OFL.txt"), resolve(output, "Pretendard-OFL.txt"));
+    cpSync(resolve(consumerConfig.root, "node_modules/@naeil/ui/licenses/Noto-Sans-JP-OFL.txt"), resolve(output, "Noto-Sans-JP-OFL.txt"));
   },
 }] });

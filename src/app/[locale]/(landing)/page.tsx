@@ -39,7 +39,7 @@ function HubContent() {
     <>
       <h1 className="sr-only">naeil</h1>
       {/* Hero */}
-      <HeroSection />
+      <div className={styles.landingHero}><HeroSection /></div>
 
       <section id="projects" className={styles.projects} aria-labelledby="projects-title">
         <SectionTitle id="projects-title" className="mb-2">

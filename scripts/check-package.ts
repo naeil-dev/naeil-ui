@@ -43,7 +43,7 @@ try {
     );
   }
   const forbidden =
-    /^(?:@supabase\/|@react-three\/|three$|@mdx-js\/|@next\/mdx$|gray-matter$|reading-time$|remark(?:-html)?$|pretendard$)/;
+    /^(?:@supabase\/|@react-three\/|three$|@mdx-js\/|@next\/mdx$|gray-matter$|reading-time$|remark(?:-html)?$)/;
   for (const name of Object.keys(pkg.dependencies))
     assert(!forbidden.test(name), `Website dependency shipped: ${name}`);
   for (const name of ["react", "react-dom"]) {
@@ -167,13 +167,23 @@ try {
   assert(readFileSync(cli, "utf8").startsWith("#!/usr/bin/env node\n"), "CLI must be directly executable");
   assert.match(execFileSync(process.execPath, [cli, "--help"], { encoding: "utf8" }), /--framework next\|vite/);
   assert(pkg.sideEffects.includes("**/*.css"), "CSS must survive tree shaking");
+  assert(pkg.exports["./fonts.css"], "Public font stylesheet missing");
+  const fontEntry = join(root, pkg.exports["./fonts.css"]);
+  for (const [, path] of readFileSync(fontEntry, "utf8").matchAll(/url\(([^)]+)\)/g)) {
+    assert(existsSync(resolve(dirname(fontEntry), path)), `Packed font file missing: ${path}`);
+  }
+  for (const [name, notice, installed] of [
+    ["pretendard", "Pretendard-OFL.txt", "pretendard/dist/LICENSE.txt"],
+    ["@fontsource-variable/noto-sans-jp", "Noto-Sans-JP-OFL.txt", "@fontsource-variable/noto-sans-jp/LICENSE"],
+  ]) {
+    assert.equal(readFileSync(join(root, "licenses", notice), "utf8").replace(/[ \t]+$/gm, ""), readFileSync(join("node_modules", installed), "utf8").replace(/[ \t]+$/gm, ""), `Font notice drift: ${name}`);
+  }
   for (const path of [
     "dist/tokens.ts",
     "bin/naeil-icons.generated.mjs",
     "bin/conformance-source.mjs",
     "bin/conformance-runtime.mjs",
     "bin/conformance-project.mjs",
-    "bin/conformance-metadata.mjs",
     "dist/source/components/naeil-page-measure.js",
     "bin/naeil-ui-conformance.mjs",
     "docs/components/naeil-shell.md",

@@ -138,7 +138,7 @@
       "primitiveDescription": "基本パレットは互換性のために維持しています。青色は従来の基本色で、既定の操作色ではありません。",
       "semanticDescription": "これらの役割は現在のライトまたはダークテーマに従います。下の色は共通CSS変数から読み取ります。",
       "projectDescription": "プロジェクト色は個々の製品を識別します。共通の操作・フォーカス・選択の役割を置き換えません。",
-      "typeDescription": "韓国語と欧文UIにはPretendard、日本語にはNoto Sans JPを使用します。等幅のサンプルは設定済みの代替フォントを使います。",
+      "typeDescription": "韓国語と各言語の英数字にはPretendard、日本語の文字にはNoto Sans JPを使用します。等幅のサンプルは設定済みの代替フォントを使います。",
       "radiusDescription": "角丸はタグが4px、コントロールが8px、パネルが12pxです。",
       "preview": "プレビュー",
       "interactive": "操作可能",
@@ -352,6 +352,11 @@
       "signin": "このブラウザーでは招待されたアカウントでログインして続けてください。",
       "finish": "ログインを完了",
       "switchButton": "アカウントを切り替えて続ける"
+    },
+    "notFound": {
+      "title": "ページが見つかりません",
+      "description": "ページのアドレスが変わったか、公開が終了した可能性があります。",
+      "backHome": "ホームに戻る"
     }
   }
 }

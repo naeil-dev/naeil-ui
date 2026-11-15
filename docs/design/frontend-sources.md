@@ -365,3 +365,15 @@ The owner's approved header rule and DESIGN.md are the authority; existing Logo,
 ## 2026-11-14 — owned-service shell
 
 Gap → source → decision: per-service frame/theme/icon drift → owner-approved shell spec, DESIGN.md page rhythm and existing shared service profiles → reuse their actual components/messages/styles through `NaeilServiceShell` and enforce static CI adoption. No external reference, new artwork or external design tool was used. Applied repository/installed frontend workflow and Impeccable context/craft-floor; actual verification and source hashes are in the [shell receipt](service-shell-2026-11-14-verification.md). Existing frozen B1 and prior production acceptance findings remain separate.
+
+### 2026-11-15 — screen frame contract (0.17.0 candidate)
+
+- Scope/authority: DESIGN.md “Screen frame contract (2026-11-15)”, approved post-audit D1–D6. Same frame on shell/services and naeil.dev catalog; retain content caps, neutral palette and restrained motion. New site not-found reuses PageHeader/reading width and existing link treatments. No unresolved visual-direction or component-pattern gap; no external reference discovery needed.
+- Read: repository `skills/frontend-reference-workflow/SKILL.md` revision 2026-10-02.1, layout and verification references; installed `impeccable` context + harden/craft-floor instructions. Actual verification uses repository Playwright fixtures/Storybook, CDP platform fonts and built-site captures. No Refero/21st/Component Gallery/Kinetics retrieval or external design tool execution is claimed.
+- Source SHA-256: entry `ecada9f24d5ebbce5ac207d5225200ca2d76d08ea9f9f1d3b46d4e956a17d7b8`; layout `40eb129fcdf1871fcc3cef9c0d0e062c207aeca35f14eb61c00b36a121802d1a`; verification `b504804320724354584885782fe5522ca002028e647b3e146743649cb0a50efe`.
+- Frame: `.ui-service-shell[data-naeil-shell]` owns min-height/column fill; `.ui-app-frame.ui-app-main` owns shared gutters/clearance; content keeps purpose-specific widths. Landing hero remains site-owned. Short/long/no-footer × ko/ja/en × 1440×900 / 390×844; globals/split; dark-default and remembered theme; actual live production comparison remains a separate stage.
+- Carry-forward: icon proxy responses, actual service rollout, authenticated live parity, checker changes and unrelated UI fixes remain outside this branch. Loopback measurements support implementation verification only.
+
+## 2026-11-15 — scoped audit fixes for toast and Sheet
+
+Authority: DESIGN.md, the approved stage-2 audit findings, existing focus/motion tokens and section-title role. No external visual reference or artwork was adopted. Actual tools: Impeccable context for `sonner.tsx`, craft-floor, and one scoped detector run over Sheet/Sonner/component CSS (`[]`); Playwright 1.63 Storybook checks in Chromium, Firefox and WebKit. The final focus contrast is 6.19:1 light / 8.47:1 dark in all three engines; toast/button/close transitions are 180ms (0ms under reduced motion), and SheetTitle is 20/29px. These are local component measurements, not live service parity or publication receipts.

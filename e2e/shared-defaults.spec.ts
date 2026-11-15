@@ -18,10 +18,7 @@ async function settle(page: Page) {
   });
 }
 for (const theme of ["light", "dark"]) for (const width of [390, 1440]) for (const locale of ["ko", "ja", "en"]) {
-  test(`shared defaults ${theme} ${width} ${locale}`, async ({ page, browserName }) => {
-    // ponytail: WebKit stops answering this harness mid-test with Noto Sans JP (the same story stays responsive
-    // when loaded directly); ja is covered in Chromium/Firefox and WebKit covers ko/en. Revisit with a trace.
-    test.skip(browserName === "webkit" && locale === "ja", "WebKit harness stall with Japanese webfonts");
+  test(`shared defaults ${theme} ${width} ${locale}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     const suffix = `${theme}-${width}-${locale}`;

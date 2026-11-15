@@ -1,6 +1,6 @@
 {
   "name": "@naeil/ui",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
@@ -177,22 +177,24 @@
     "./naeil-shell": {
       "types": "./dist/components/naeil-shell.d.ts",
       "import": "./dist/components/naeil-shell.js"
-    }
+    },
+    "./fonts.css": "./src/styles/fonts.css"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "build:pkg": "pnpm check:messages && pnpm build:release && pnpm check:brand && tsup && tsup --config tsup.deep.config.ts && tsup --config tsup.locale.config.ts && tsx scripts/fix-locale-declarations.ts && tsx scripts/copy-locale-json.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens && node scripts/build-release-entry.mjs && node scripts/build-utils-entry.mjs && pnpm check:locale:package",
+    "dev": "pnpm build:fonts && next dev",
+    "build": "pnpm build:fonts && next build",
+    "build:pkg": "pnpm check:messages && pnpm build:release && pnpm check:brand && tsup && tsup --config tsup.deep.config.ts && tsup --config tsup.locale.config.ts && tsx scripts/fix-locale-declarations.ts && tsx scripts/copy-locale-json.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens && pnpm build:fonts && node scripts/build-release-entry.mjs && node scripts/build-utils-entry.mjs && pnpm check:locale:package",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "storybook": "tsx scripts/prepare-storybook.ts && storybook dev -p 6006",
-    "build:storybook": "pnpm check:brand && tsx scripts/prepare-storybook.ts && storybook build && tsx scripts/check-storybook.ts",
+    "storybook": "pnpm build:fonts && tsx scripts/prepare-storybook.ts && storybook dev -p 6006",
+    "build:storybook": "pnpm build:fonts && pnpm check:brand && tsx scripts/prepare-storybook.ts && storybook build && tsx scripts/check-storybook.ts",
     "build:tokens": "tsx scripts/build-tokens.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
     "test:browser": "playwright test",
     "check:package": "tsx scripts/check-package.ts && tsx scripts/check-consumers.ts",
     "check:types": "tsc --noEmit",
+    "compare:live": "node scripts/live-compare.mjs",
     "check:package:boundary": "tsx scripts/check-package.ts",
     "check:consumers": "tsx scripts/check-consumers.ts",
     "preview:storybook": "tsx scripts/serve-storybook.ts",
@@ -202,7 +204,8 @@
     "rollout": "node scripts/rollout/local-cli.mjs",
     "test:rollout": "node --test scripts/rollout/*.test.mjs scripts/verify-ui-production.test.mjs",
     "check:messages": "tsx scripts/check-locale-messages.ts",
-    "check:locale:package": "tsx scripts/check-locale-package.ts"
+    "check:locale:package": "tsx scripts/check-locale-package.ts",
+    "build:fonts": "tsx scripts/build-fonts.ts"
   },
   "peerDependencies": {
     "next": "^15 || ^16",
@@ -223,6 +226,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@fontsource-variable/noto-sans-jp": "5.3.0",
     "@fontsource/noto-sans-jp": "^5.3.0",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
@@ -244,7 +248,7 @@
     "gray-matter": "^4.0.3",
     "next": "16.4.6",
     "next-intl": "4.14.8",
-    "pretendard": "^1.3.9",
+    "pretendard": "1.3.9",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "reading-time": "^1.5.0",

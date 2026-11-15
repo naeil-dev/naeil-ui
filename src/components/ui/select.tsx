@@ -14,7 +14,7 @@ function SelectTrigger({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof Primitive.Trigger>) {
+}: Omit<React.ComponentProps<typeof Primitive.Trigger>, "asChild">) {
   return (
     <Primitive.Trigger
       data-slot="select-trigger"
@@ -39,7 +39,7 @@ function SelectContent({
   position = "popper",
   sideOffset = 6,
   ...props
-}: React.ComponentProps<typeof Primitive.Content>) {
+}: Omit<React.ComponentProps<typeof Primitive.Content>, "asChild">) {
   const [content, contentRef] = useOverlayRef(ref);
   useRadixHiddenInert(content);
   return (
@@ -67,7 +67,7 @@ function SelectItem({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof Primitive.Item>) {
+}: Omit<React.ComponentProps<typeof Primitive.Item>, "asChild">) {
   return (
     <Primitive.Item
       data-slot="select-item"

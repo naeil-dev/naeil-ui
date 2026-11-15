@@ -1,5 +1,15 @@
 /** Serializable browser measurements. Missing elements produce null, never a false pass. */
 export interface NaeilPageMeasurements {
+  frameCount: number;
+  viewportHeight: number;
+  contentBottom: number | null;
+  footerHeight: number | null;
+  footerBottom: number | null;
+  footerViewportGap: number | null;
+  mainBottom: number | null;
+  bodyLineHeight: number;
+  bodyFontFamily: string;
+  renderedFonts: { status: "not measured"; reason: string; selector?: string; text?: string } | { status: "measured"; selector: string; text: string; fonts: { familyName: string; glyphCount: number; isCustomFont: boolean }[] };
   mainCount: number;
   ownedMainCount: number;
   headerCount: number;
@@ -86,7 +96,33 @@ export function measureNaeilPage(): NaeilPageMeasurements {
     const index = siblings.findLastIndex(sibling => sibling === current || current!.contains(sibling));
     if (index >= 0 && siblings[index + 1]) { nextContent = siblings[index + 1]; break; }
   }
+  const bodyStyle = getComputedStyle(document.body);
+  // CDP reports only a node's text, not arbitrary descendants. Pick existing
+  // visible baseline body text; never invent a probe or infer a face from CSS.
+  let fontSample: {selector: string; text: string} | undefined;
+  const walker = document.createTreeWalker(main ?? document.body, NodeFilter.SHOW_TEXT);
+  for (let node; (node = walker.nextNode());) {
+    const parent = node.parentElement;
+    if (!parent || !node.textContent?.trim() || parent.closest('script,style,svg') || !parent.checkVisibility({opacityProperty:true,visibilityProperty:true})) continue;
+    const style = getComputedStyle(parent);
+    if (style.fontFamily !== bodyStyle.fontFamily || style.fontSize !== bodyStyle.fontSize || style.lineHeight !== bodyStyle.lineHeight) continue;
+    const parts: string[] = [];
+    for (let el: Element | null = parent; el && el !== document.documentElement; el = el.parentElement)
+      parts.unshift(`${el.tagName.toLowerCase()}:nth-child(${Array.from(el.parentElement!.children).indexOf(el) + 1})`);
+    fontSample = {selector: `html>${parts.join('>')}`, text: node.textContent.trim().slice(0, 140)};
+    break;
+  }
   return {
+    frameCount: document.querySelectorAll('.ui-service-shell[data-naeil-shell]').length,
+    viewportHeight: window.innerHeight,
+    contentBottom: lastBottom,
+    footerHeight: footer?.getBoundingClientRect().height ?? null,
+    footerBottom: footer?.getBoundingClientRect().bottom ?? null,
+    footerViewportGap: footer ? window.innerHeight - footer.getBoundingClientRect().bottom : null,
+    mainBottom: main?.getBoundingClientRect().bottom ?? null,
+    bodyLineHeight: parseFloat(getComputedStyle(document.body).lineHeight),
+    bodyFontFamily: getComputedStyle(document.body).fontFamily,
+    renderedFonts: { status: "not measured", reason: fontSample ? "Rendered font measurement requires Chromium CDP; computed font-family is not proof" : "No visible baseline body text sample", selector: fontSample?.selector, text: fontSample?.text },
     mainCount: mains.length, ownedMainCount: owned.length,
     headerCount: headers.length, footerCount: footers.length,
     accountCount: document.querySelectorAll('[data-naeil-header] [data-naeil-account-state]').length,

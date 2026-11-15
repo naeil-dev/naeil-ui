@@ -18,7 +18,9 @@ Owner-approved frozen-archive publish → owner-approved promotion to npm `lates
 
 The publish input can select `latest` only with explicit owner approval. Normally publish to `next`, verify the registry archive and clean consumers, then have the owner promote that exact version to `latest` separately. Dependabot proposes versions only up to `latest`; the publish workflow does not perform a later promotion.
 
-Each service's merge workflow must verify the Dependabot author, an update limited to `@naeil/ui` within the installed major, its explicit manifest/lockfile allowlist, all required successful checks on the current PR head SHA, and that the head SHA is still unchanged at merge time. Reject unrelated edits, missing checks, stale results and a changed head. Major updates require manual review. The [version policy](../package-release.md#consumer-auto-update-version-policy) reserves public API/header-contract breaks for a new major; on 0.x, a header break requires 1.0.0 rather than another minor.
+Each service's merge workflow must verify the Dependabot author, a **patch-only** `@naeil/ui` update within the installed major/minor, its explicit manifest/lockfile allowlist, all required successful checks on the current PR head SHA, and that the head SHA is still unchanged at merge time. Reject unrelated edits, missing checks, stale results and a changed head. Minor and major updates require manual migration review. The [version policy](../package-release.md#consumer-auto-update-version-policy) permits required consumer changes in a 0.x minor, including 0.17.0; patches retain compatibility and breaks after 1.0.0 require the next major.
+
+This policy replaces the former same-major rule. Service workflow changes are a separate service-repository stage; they are not implemented or verified here. Hold minor update PRs for manual review until patch-only guards are installed.
 
 ## Stop, pause and rollback
 

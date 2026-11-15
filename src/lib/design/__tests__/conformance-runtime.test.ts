@@ -10,6 +10,10 @@ import { naeilIcons } from "../../../naeil-locale/icons.generated";
 const roots: string[] = [];
 afterEach(() => roots.splice(0).forEach(root => rmSync(root, {recursive: true, force: true})));
 const passing = (): NaeilPageMeasurements => ({
+  frameCount: 1, viewportHeight: 900, contentBottom: 1000, footerHeight: 100,
+  footerBottom: 1196, footerViewportGap: -296, mainBottom: 1096,
+  bodyLineHeight: 25, bodyFontFamily: 'Pretendard Variable',
+  renderedFonts: {status: 'not measured', reason: 'Unit fixture, no browser'},
   mainCount: 1, ownedMainCount: 1, headerCount: 1, footerCount: 1, accountCount: 1,
   headerTitle: 48, titleDescription: 12, contentFooter: 96,
   titleSize: 32, titleLineHeight: 42, titleWeight: 600, bodySize: 16, dark: true,
@@ -31,7 +35,7 @@ describe("runtime conformance measurements", () => {
     expect(assessNaeilPage(value, {service: 'estimate'})).toEqual([]);
   });
   it.each([
-    ['mainCount', 2], ['ownedMainCount', 0], ['headerCount', 0], ['headerTitle', 47.4], ['headerTitle', null],
+    ['frameCount', 0], ['bodyLineHeight', 24], ['mainCount', 2], ['ownedMainCount', 0], ['headerCount', 0], ['headerTitle', 47.4], ['headerTitle', null],
     ['titleDescription', 13], ['contentFooter', 95], ['contentFooter', null], ['footerCount', 0],
     ['titleSize', 24], ['titleLineHeight', 40], ['titleWeight', 500], ['bodySize', 14], ['dark', false],
     ['title', 'Wrong service'], ['icons', []], ['pageHeaderContent', 64],
@@ -46,6 +50,16 @@ describe("runtime conformance measurements", () => {
     expect(assessNaeilPage(value, {service: 'estimate'}).length).toBeGreaterThan(0);
     expect(assessNaeilPage(value, {service: 'estimate', noFooter: true})).toEqual([]);
     expect(assessNaeilPage(passing(), {service: 'estimate', noFooter: true}).length).toBeGreaterThan(0);
+  });
+  it('checks short-page fill independently of the actual footer position', () => {
+    const value={...passing(), contentBottom:200, contentFooter:600, footerHeight:100, footerBottom:900, footerViewportGap:0};
+    expect(assessNaeilPage(value,{service:'estimate'})).toEqual([]);
+    // Removing fill leaves the nominal 96px gap but strands the footer above the bottom.
+    expect(assessNaeilPage({...value,contentFooter:96,footerViewportGap:504},{service:'estimate'})).toEqual([expect.stringContaining('footer → viewport bottom')]);
+    expect(assessNaeilPage({...value,contentFooter:95},{service:'estimate'})).toEqual([expect.stringContaining('at least 96px')]);
+  });
+  it('rejects a no-footer main that does not fill the viewport', () => {
+    expect(assessNaeilPage({...passing(),footerCount:0,mainBottom:400},{service:'estimate',noFooter:true})).toEqual([expect.stringContaining('main bottom')]);
   });
   it.each([
     {rel: 'icon', href: '/other.svg', type: 'image/svg+xml', sizes: 'any'},
@@ -86,4 +100,8 @@ it.each([
 ])('rejects invalid runtime options before launching a browser: %s', (args, message) => {
   const result = spawnSync(process.execPath, ['bin/naeil-ui-conformance.mjs', '--service', 'estimate', '--url', 'http://127.0.0.1:1', '--routes', '/', ...args], {encoding:'utf8'});
   expect(result.status).toBe(1); expect(result.stderr).toContain(message);
+});
+
+it("rejects routes that normalize to a foreign origin before launching", async () => {
+  await expect(checkRuntimeConformance({service:'estimate',url:'http://127.0.0.1:1',routes:['/\\foreign.example/escaped']})).rejects.toThrow('--routes requires');
 });

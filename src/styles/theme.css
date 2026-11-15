@@ -172,6 +172,7 @@
   --ui-navigation-brand-width: 160px;
   --ui-navigation-menu-width: 320px;
   --ui-navigation-menu-wide-width: 640px;
+  --ui-frame-min-height: 100dvh;
   --project-cc: oklch(0.704 0.140 181);
   --project-sa: oklch(0.723 0.219 149);
   --project-pkm: oklch(0.627 0.265 303);

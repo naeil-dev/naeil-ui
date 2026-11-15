@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { generateThemeCSS } from "../../../../scripts/build-tokens";
+import { generateThemeCSS, generateTypographyCSS } from "../../../../scripts/build-tokens";
 const cssPath = "src/styles/theme.css";
 
 describe("the CSS consumed by the public package", () => {
@@ -58,6 +58,7 @@ describe("the CSS consumed by the public package", () => {
     const committed = readFileSync(cssPath, "utf8");
     expect(await generateThemeCSS()).toBe(committed);
     expect(readFileSync(cssPath, "utf8")).toBe(committed);
+    expect(await generateTypographyCSS()).toBe(readFileSync("src/styles/typography.css", "utf8"));
   }, 30000);
   it("rejects rendered destructive hover even when the opaque pair passes", () => {
     const dir = mkdtempSync(join(tmpdir(), "naeil-contrast-state-"));

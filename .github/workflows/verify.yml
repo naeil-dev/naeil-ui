@@ -53,6 +53,7 @@ jobs:
       - run: python3 -B scripts/rollout/jev-native.test.py
       - run: node --test scripts/account-render.test.mjs
       - run: node --test scripts/site-auth-slot.test.mjs
+      - run: node --test scripts/site-account-language.test.mjs
       - run: node scripts/build-ui-release.mjs --check
       - run: pnpm check:types
       - run: pnpm lint
@@ -65,8 +66,24 @@ jobs:
       - name: Separate website compatibility build
         run: pnpm build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: public-build-fixture
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:55431
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture-anon
+
+      - name: Pack the verified UI for built-site locale journeys
+        run: pnpm pack --out "$RUNNER_TEMP/naeil-ui-locale.tgz"
+      - name: Built-site locale journeys (sender off and on)
+        run: node scripts/site-language-acceptance.mjs
+        env:
+          NAEIL_LANGUAGE_PACK: ${{ runner.temp }}/naeil-ui-locale.tgz
+          NAEIL_ACCOUNT_EVIDENCE: ${{ github.workspace }}/test-results/site-language-acceptance
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:55431
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture-anon
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: site-language-results
+          path: ${{ github.workspace }}/test-results/site-language-acceptance/
+          if-no-files-found: ignore
 
   storybook-and-browser:
     # Split the slow paired file separately; equal test counts are not equal work.

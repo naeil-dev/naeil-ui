@@ -1,9 +1,10 @@
-# Status — 2026-11-15 audit follow-up in progress
+# Status — 2026-11-16 shared UI 0.17.0 candidate prepared
 
-The independent 2026-11-15 audit (52 confirmed findings) and its owner-approved five-stage plan are being executed. Published state is unchanged: `latest=0.16.0`. "Matching" across services is **not** currently claimed; acceptance is a live comparison table with zero differences reviewed by the owner (see DESIGN.md, screen frame contract, once 0.17.0 lands).
+Stage 1 is merged and deployed: [PR #59](https://github.com/naeil-dev/naeil-ui/pull/59) → `cf28ee1`; production reports Next 16.4.6 (owner/main-agent receipt). Storybook 10.6.7 and the security/fact corrections are included.
 
-- Stage 1 (security and fact corrections, no npm publication): Next 16.4.6, Storybook 10.6.7, site-runtime dependency audit in CI, OAuth callback session preservation, `/api/health` key check, anonymized SSO handoff, pinned Actions. Pending owner-approved merge and production deployment.
-- Stages 2–5 (frame contract 0.17.0, live comparison, service adoption, process/doc reduction): in progress on branches; nothing published or deployed.
+`@naeil/ui@0.17.0` is a prepared, **unpublished candidate** on [PR #60](https://github.com/naeil-dev/naeil-ui/pull/60), awaiting owner approval. D1/D2 preview visuals are owner-approved. The candidate includes the shared screen frame, packaged fonts and post-audit fixes; [migration notes](docs/design/v2-migration.md#0170-required-consumer-migration) list required consumer changes. Merge, npm publication, source tag/GitHub Release, hosted Docs and deployment each require separate approval. Published baseline remains `latest=0.16.0`, `next=0.13.0`.
+
+Four-service migration, live zero-difference comparison and service automation changes remain later stages; service parity is not yet claimed. See the [release procedure](docs/package-release.md#release-procedure) and DESIGN.md's screen frame contract.
 
 ---
 

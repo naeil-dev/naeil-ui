@@ -12,7 +12,6 @@ import { NaeilThemeProvider } from "@/naeil-locale/chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteAccessBoundary } from "@/components/site-access-boundary";
 import { NavServerWrapper } from "@/components/nav-server-wrapper";
-import { FooterWrapper } from "@/components/footer-wrapper";
 import { locales, type Locale } from "@/i18n/config";
 import { siteMetadata, SITE_NAME } from "@/lib/site-metadata";
 
@@ -58,22 +57,13 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   const messages = await getMessages();
-  const t = await getTranslations("site.common");
 
   return (
     <NaeilLocaleProvider locale={locale as Locale} messages={messages}>
       <NaeilThemeProvider>
-        <a
-          href="#main-content"
-          className="ui-focus fixed -top-24 left-6 z-[100] rounded-md bg-background px-4 py-3 text-base text-foreground focus:top-3"
-        >
-          {t("skipToContent")}
-        </a>
-        <NavServerWrapper />
-        <main id="main-content" tabIndex={-1}>
+        <NavServerWrapper>
           <SiteAccessBoundary>{children}</SiteAccessBoundary>
-        </main>
-        <FooterWrapper />
+        </NavServerWrapper>
         <Toaster />
       </NaeilThemeProvider>
     </NaeilLocaleProvider>

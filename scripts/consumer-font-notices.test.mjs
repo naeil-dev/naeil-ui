@@ -22,11 +22,13 @@ test("consumer font notices stay in fixture output when Vite closes from another
     // Use existing fixture versions, not root's transitive Storybook Vite.
     // This isolated install needs network when the npm cache is cold.
     const dependencies = Object.fromEntries(
-      ["vite", "@tailwindcss/vite", "pretendard", "@fontsource/noto-sans-jp"].map(name =>
+      ["vite", "@tailwindcss/vite"].map(name =>
         [name, manifest.dependencies?.[name] ?? manifest.devDependencies[name]]),
     );
     writeFileSync(join(fixture, "package.json"), JSON.stringify({ private: true, type: "module", dependencies }));
     execFileSync("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", "--package-lock=false"], { cwd: fixture, stdio: "inherit" });
+    mkdirSync(join(fixture, "node_modules/@naeil/ui"), { recursive: true });
+    cpSync(new URL("../licenses/", import.meta.url), join(fixture, "node_modules/@naeil/ui/licenses"), { recursive: true });
     // The real repository caller also has these fonts installed. Reproduce
     // that condition entirely inside scratch so a misplaced copy can succeed.
     symlinkSync(join(fixture, "node_modules"), join(caller, "node_modules"), "dir");
@@ -39,8 +41,8 @@ test("consumer font notices stay in fixture output when Vite closes from another
     await plugin.closeBundle();
     assert(!existsSync(join(caller, "dist")), "Closing the fixture must not create caller output");
     for (const [notice, installed] of [
-      ["Pretendard-OFL.txt", "pretendard/dist/LICENSE.txt"],
-      ["Noto-Sans-JP-OFL.txt", "@fontsource/noto-sans-jp/LICENSE"],
+      ["Pretendard-OFL.txt", "@naeil/ui/licenses/Pretendard-OFL.txt"],
+      ["Noto-Sans-JP-OFL.txt", "@naeil/ui/licenses/Noto-Sans-JP-OFL.txt"],
     ]) {
       assert.deepEqual(readFileSync(join(fixture, "dist/licenses", notice)), readFileSync(join(fixture, "node_modules", installed)), `Exact consumer-owned OFL: ${notice}`);
     }

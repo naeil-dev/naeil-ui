@@ -81,8 +81,8 @@ function prepareFrameConsumer(cwd: string, framework: "react" | "next", css: "gl
   const base = framework === "react" ? "src" : "app/frame";
   mkdirSync(join(cwd, base), { recursive: true });
   const imports = css === "globals" ? '@import "@naeil/ui/globals.css";'
-    : '@import "tailwindcss"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark { &:where(.dark, .dark *) { @slot; } @media (prefers-color-scheme: dark) { &:where(:root:not(.light), :root:not(.light) *) { @slot; } } } @layer base { body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }';
-  const fonts = ['import "pretendard/dist/web/variable/pretendardvariable.css";', ...[400, 500, 600].map(weight => `import "@fontsource/noto-sans-jp/${weight}.css";`)].join("\n");
+    : '@import "tailwindcss"; @import "@naeil/ui/theme.css"; @import "@naeil/ui/components.css"; @custom-variant dark { &:where(.dark, .dark *) { @slot; } @media (prefers-color-scheme: dark) { &:where(:root:not(.light), :root:not(.light) *) { @slot; } } }';
+  const fonts = 'import "@naeil/ui/fonts.css";';
   const app = readFileSync("scripts/fixtures/chrome/app.tsx", "utf8");
   for (const control of ["", "-theme", "-js"]) {
     const folder = framework === "react" ? "src" : `app/frame${control}`;
@@ -252,7 +252,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     assert.equal(checked.status, 1); assert.match(checked.stderr, /must pass account=/);
     writeFileSync(entry, source.replace(accountInput, 'account={session} header={{authSlot:null}}'));
     checked = spawnSync(cli, args, {encoding: "utf8"});
-    assert.equal(checked.status, 1); assert.match(checked.stderr, /header.authSlot/);
+    assert.equal(checked.status, 0, checked.stderr); // Presentation is owned by types/runtime.
     writeFileSync(entry, source);
     mkdirSync(join(app, "src"), {recursive: true});
     writeFileSync(join(app, "src/content.tsx"), '<PageHeader actions={<Action className="button"/>}/>; const metadata = user.user_metadata; const sample = "forcedTheme";');
@@ -262,17 +262,18 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
       writeFileSync(join(app, 'src/metadata.ts'), 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export function pageMetadata(){return localeMetadata({service:"estimate"});}');
       checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr);
       writeFileSync(join(app, 'src/metadata.ts'), 'export function pageMetadata(){return {icons:[]};}');
-      checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 1); assert.match(checked.stderr, /icons/);
+      checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr); // Static no longer interprets metadata.
       writeFileSync(join(app, 'src/metadata.ts'), 'export function pageMetadata(){return {description:"ok"};}');
     }
     checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr);
     writeFileSync(join(app, "violation.css"), ":root { --color-background: pink; }");
     writeFileSync(join(app, "violation.tsx"), '<NaeilHeader /><NaeilThemeProvider defaultTheme="light" />');
     checked = spawnSync(cli, args, { encoding: "utf8" });
-    assert.equal(checked.status, 1);
-    assert.match(checked.stderr, /violation.tsx:1 chrome/);
-    assert.match(checked.stderr, /violation.tsx:1 theme/);
-    assert.match(checked.stderr, /violation.css:1 rhythm/);
+    assert.equal(checked.status, 0, checked.stderr); // Removed CSS/theme/chrome heuristics.
+    writeFileSync(entry, 'export default function App(){return <div/>}');
+    checked = spawnSync(cli, args, {encoding:'utf8'});
+    assert.equal(checked.status, 1); assert.match(checked.stderr, /Import and use a reachable NaeilServiceShell/);
+    writeFileSync(entry, source);
     const missingRuntime = spawnSync(cli, ["--service", "estimate", "--url", "http://127.0.0.1:1", "--routes", "/", "--app", app, '--header', 'X-Fixture:accepted', '--expect-status', '/=200', '--allow-redirect', '/=/en'], {encoding: "utf8"});
     assert.equal(missingRuntime.status, 2, missingRuntime.stderr);
     assert.match(missingRuntime.stderr, /pnpm add -D @playwright\/test/);

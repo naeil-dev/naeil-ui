@@ -1,0 +1,2 @@
+// Generated from src/tokens — DO NOT EDIT.
+export const naeilErrorDocumentStyles = "html { color-scheme: dark; background: #0b0c0e; color: #eff0f3; }\nbody { margin: 24px; font-family: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif; font-size: 1rem; line-height: 1.5625; }\n:lang(ja) { font-family: 'Pretendard Latin', 'Noto Sans JP', 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif; }\na { color: inherit; }";

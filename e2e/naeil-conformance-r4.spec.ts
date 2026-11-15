@@ -17,11 +17,11 @@ const html = (content = '<section><p>Content</p></section>') => `<!doctype html>
 <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16">
 <link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180">
-<style>body{margin:0;font-size:16px}header{height:64px}main{padding:48px 16px 96px}
+<style>body{margin:0;font-size:16px;line-height:25px}.ui-service-shell{display:flex;flex-direction:column;min-height:100vh}main{flex:1}section{padding-top:1000px}header{height:64px}main{padding:48px 16px 96px}
 .ui-page-header{margin-bottom:32px}h1{font-size:32px;line-height:42px;font-weight:600;margin:0}
 .ui-page-description{margin:12px 0 0;line-height:25px}p{margin:0;line-height:25px}footer{height:100px}</style>
 <script>document.documentElement.className=localStorage.getItem('theme')||'dark';if(location.pathname==='/authenticated'&&localStorage.getItem('session-data')!=='keep')document.title='Lost authentication state';</script></head><body>
-<header data-naeil-header><span hidden data-naeil-account-state="signed-out"></span></header><main id="main" class="ui-app-main"><div class="ui-page-header"><h1>Title</h1><p class="ui-page-description">Description</p></div>${content}</main><footer data-naeil-footer></footer></body></html>`;
+<div class="ui-service-shell" data-naeil-shell><header data-naeil-header><span hidden data-naeil-account-state="signed-out"></span></header><main id="main" class="ui-app-main"><div class="ui-page-header"><h1>Title</h1><p class="ui-page-description">Description</p></div>${content}</main><footer data-naeil-footer></footer></div></body></html>`;
 
 test.beforeAll(async () => {
   root = mkdtempSync(join(tmpdir(), 'shell-r4-http-'));
@@ -41,6 +41,9 @@ test.beforeAll(async () => {
       : path === '/busy' ? '<section aria-busy="true" style="padding-bottom:64px"><p>Loading</p></section><script>setTimeout(()=>{const s=document.querySelector("section");s.removeAttribute("aria-busy");s.style.paddingBottom="0";s.innerHTML="<p>Loaded</p>";},800)</script>'
       : path === '/late' ? '<section style="padding-bottom:64px"><p>Loading</p></section><script>setTimeout(()=>{const s=document.querySelector("section");s.style.paddingBottom="0";s.innerHTML="<p id=ready>Loaded</p>";},800)</script>'
       : path === '/closed-details' ? `<section><p>Content</p><details><summary style="line-height:25px">More</summary><pre>${'hidden line\n'.repeat(120)}</pre></details></section>` : undefined);
+    if (path.startsWith('/short')) document = document.replace('section{padding-top:1000px}', 'section{padding-top:0}');
+    if (path === '/short-no-fill') document = document.replace('min-height:100vh', 'min-height:0');
+    if (path === '/short-line-height') document = document.replace('font-size:16px;line-height:25px', 'font-size:16px;line-height:24px');
     if (path === '/client-redirect') document = document.replace('</body>', '<script>requestAnimationFrame(()=>requestAnimationFrame(()=>history.replaceState({},"","/settings")))</script></body>');
     if (path === '/client-error') document = document.replace('</body>', '<script>addEventListener("load",()=>requestAnimationFrame(()=>location.replace("/unknown")))</script></body>');
     if (['/login','/gate','/missing-account'].includes(path)) document=document.replace('<span hidden data-naeil-account-state="signed-out"></span>','<span data-naeil-account-state="signed-out">Outside header</span>').replace('<span data-naeil-account-state="signed-out">Outside header</span></header>','</header><span data-naeil-account-state="signed-out" style="position:absolute">Outside header</span>');
@@ -164,4 +167,14 @@ test('runtime waits for aria-busy to clear and for --wait-for selectors before m
   expect(late.code, late.stdout + late.stderr).toBe(0);
   const unwaited = await cli(['/late']);
   expect(unwaited.code).toBe(1);
+});
+
+test('CLI passes short and long geometry and rejects missing fill or 24px body line-height', async () => {
+  test.setTimeout(90000);
+  const passed = await cli(['/short','/settings']);
+  expect(passed.code, passed.stdout + passed.stderr).toBe(0);
+  const failed = await cli(['/short-no-fill','/short-line-height']);
+  expect(failed.code, failed.stdout + failed.stderr).toBe(1);
+  expect(failed.stdout).toContain('footer → viewport bottom');
+  expect(failed.stdout).toContain('body line-height: 24');
 });

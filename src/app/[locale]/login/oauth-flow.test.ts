@@ -25,6 +25,22 @@ describe("OAuth sign-in recovery", () => {
     expect(states.at(-1)?.status).toBe("pending");
   });
 
+  it('uses the shared cell lock across callbacks recreated during a pending login', async () => {
+    let state: OAuthState = {status: 'idle'};
+    let finish!: (value: {error: unknown}) => void;
+    const request = vi.fn(() => new Promise<{error: unknown}>(done => { finish=done; }));
+    const callback = () => createOAuthFlow(request, value => { state=value; }, () => state.status !== 'pending');
+    const first=callback()('google');
+    await callback()('github');
+    expect(request).toHaveBeenCalledTimes(1);
+    finish({error: new Error('private detail')}); await first;
+    expect(state).toEqual({status:'error'});
+    const retry=callback()('github');
+    expect(request).toHaveBeenCalledTimes(2);
+    finish({error:null}); await retry;
+    expect(state).toEqual({status:'pending',provider:'github'});
+  });
+
   it.each(["response", "throw"])(
     "allows a different provider after a %s failure without exposing details",
     async (failure) => {

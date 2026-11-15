@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { assertLocale, localePath } from "@/naeil-locale";
 import { useReturnLocation } from "./use-return-location";
-import { NaeilHeaderAccountControl, type NaeilHeaderLocale } from "@/naeil-locale/chrome";
+import { NaeilHeaderAccountControl, type NaeilHeaderAccount, type NaeilHeaderLocale } from "@/naeil-locale/chrome";
 import { clearLocalSession, logout } from "@/app/[locale]/login/actions";
 
 interface AuthUser {
@@ -17,7 +17,7 @@ interface AuthUser {
 }
 
 /** Call above the header: Navigation renders its auth slot in two locations. */
-export function useAuthSlot(user: AuthUser | null, sessionPresent = false) {
+export function useHeaderAccount(user: AuthUser | null, sessionPresent = false): NaeilHeaderAccount {
   const locale = useLocale() as NaeilHeaderLocale;
   const returnLocation = useReturnLocation();
   const t = useTranslations("site.auth");
@@ -53,10 +53,17 @@ export function useAuthSlot(user: AuthUser | null, sessionPresent = false) {
     });
     return () => { toast.dismiss(id); };
   }, [state.error, t, leaveLocally]);
-  return <NaeilHeaderAccountControl locale={locale} Link={Link} account={user || sessionPresent ? {
+  return user || sessionPresent ? {
     status: "signed-in", displayName: user?.name || user?.email?.split("@")[0], email: user?.email,
     busy: state.busy, onLogout: () => { void signOut(false); },
-  } : { status: "signed-out", loginHref: localePath("main", `/login?next=${encodeURIComponent(returnLocation)}`, locale) }} />;
+  } : { status: "signed-out", loginHref: localePath("main", `/login?next=${encodeURIComponent(returnLocation)}`, locale) };
+}
+
+/** Compatibility wrapper for a standalone header outside the site shell. */
+export function useAuthSlot(user: AuthUser | null, sessionPresent = false) {
+  const locale = useLocale() as NaeilHeaderLocale;
+  const account = useHeaderAccount(user, sessionPresent);
+  return <NaeilHeaderAccountControl locale={locale} Link={Link} account={account} />;
 }
 
 /** Compatibility for a standalone account control outside the shared header. */

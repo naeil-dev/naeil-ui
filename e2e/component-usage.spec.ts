@@ -245,7 +245,7 @@ test("Font faces are delivered locally for Korean/Latin and Japanese", async ({ 
   await usage(page, "input");
   const faces = await page.evaluate(async () => {
     const result = [];
-    for (const [font, text] of [["400 16px Pretendard", "한글 Latin"], ['400 16px "Noto Sans JP"', "日本語"]]) {
+    for (const [font, text] of [['400 16px "Pretendard Variable"', "한글 Latin"], ['400 16px "Noto Sans JP"', "日本語"]]) {
       const loaded = await document.fonts.load(font, text);
       result.push({ font, count: loaded.length, available: document.fonts.check(font, text) });
     }
