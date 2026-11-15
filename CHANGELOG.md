@@ -8,7 +8,11 @@
 - Locale fallback HTML receives generated dark colours, shared font stacks and its existing home links. naeil.dev adds localized framed not-found content for ko/ja/en, including missing blog posts and a return link.
 - Re-capture the chrome baseline with `scripts/capture-chrome-baseline.ts --fixtures` against the checksum-verified 0.16.0 archive. Across 12 locale/width/length pairs, normalized DOM differs only by the new frame element. Korean/English chrome metrics/styles are unchanged within the existing 0.01px geometry tolerance. Japanese raw differences are font-family and the resulting Latin text geometry; after applying only the approved D2 policy outside the historical fixture, all chrome differences are zero. Existing frozen releases, tags and brand directories are unchanged.
 
-Implementation only; package version remains 0.16.0. Publication, live service comparison and deployment have separate acceptance. The existing runtime checker still assumes an exact 96px gap on short pages and needs the separately owned follow-up before it can certify the new short-frame contract.
+- Runtime conformance now checks short-page viewport fill with at least a 96px content/footer gap, exact long-page rhythm, no-footer main fill, one shell frame and body 16/25px. Reusable measurements expose frame/viewport/footer/body metrics and explicitly unmeasured rendered fonts; the Chromium CLI adds CDP font evidence separately from numeric pass/fail.
+- Narrow static conformance to reachable shell import/usage and explicit account input. Remove presentation, theme, CSS, service-literal, metadata/icon/title and Vite-base heuristics; static PASS establishes adoption only. Consumers must retain type checks, runtime routes and live comparison.
+- The site's OAuth buttons use the tested shared flow lock, with real callback duplicate-submit and recovery tests. Built-site locale journeys run in verification CI with a freshly packed package, and WebKit Japanese shared-default cases are enabled with the packaged font harness.
+
+Implementation only; package version remains 0.16.0. Publication, live service comparison and deployment have separate acceptance. Runtime conformance supports the new frame contract; live service rollout acceptance remains separate.
 
 ## 0.16.0 — shell-owned login and account control (published 2026-11-15)
 
