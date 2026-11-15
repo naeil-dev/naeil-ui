@@ -1,0 +1,110 @@
+/* Generated from src/tokens — DO NOT EDIT. */
+@layer base {
+  :where(body) {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5625;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :where(:lang(ja)) {
+    font-family: 'Pretendard Latin', 'Noto Sans JP', 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+  }
+}
+
+/* Canonical chrome owns final typography. These marker-scoped, unlayered
+   rules retain the existing protection against supported hostile host rules. */
+html:root [data-naeil-chrome][lang] {
+  /* Keep the base :lang(ja) fallback local while slot font utilities still win. */
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+  --naeil-chrome-font: 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5625;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-link:not([data-app-toolbar] *):not([data-app-brand]),
+html:root [data-naeil-chrome][lang] .naeil-header-login,
+html:root [data-naeil-chrome][lang] .naeil-header-account-trigger,
+html:root [data-naeil-chrome][lang] .ui-navigation-title,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="select-trigger"]:nth-child(2) {
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5625;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-title, .naeil-header-login) {
+  font-weight: 500;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
+  font-weight: 600;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5625;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-group-label, .ui-site-footer-label) {
+  font-weight: 600;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-sheet-heading > h2 {
+  font-family: var(--naeil-chrome-font);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is([data-slot="select-item"], [data-slot="dropdown-menu-item"]) {
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-base {
+  font-family: var(--naeil-chrome-font);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-sm {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child {
+  font-weight: 500;
+  line-height: 24px;
+}
+html:root [data-naeil-chrome][lang]:lang(ja),
+html:root [data-naeil-locale-menu][lang] :lang(ja) {
+  --naeil-chrome-font: 'Pretendard Latin', 'Noto Sans JP', 'Pretendard Variable', Pretendard, 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+  font-family: var(--naeil-chrome-font);
+}
+
+html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
+  font-family: var(--naeil-chrome-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21.875px;
+  letter-spacing: normal;
+}

@@ -30,7 +30,7 @@ Tailwind 4를 사용하는 앱의 전역 CSS에서 공통 스타일을 한 번 �
 @source "../node_modules/@naeil/ui/dist";
 ```
 
-이미 Tailwind와 기본 스타일을 구성한 앱은 `@naeil/ui/theme.css`와 `@naeil/ui/components.css`를 함께 불러올 수 있다. 컴포넌트 CSS에는 크기·포커스·밀도·포털·reduced-motion 규칙이 있으므로 theme.css만으로 전체 v2 모양이 완성되지는 않는다.
+이미 Tailwind와 기본 스타일을 구성한 앱은 `@naeil/ui/theme.css`와 `@naeil/ui/components.css`를 함께 불러올 수 있다. 컴포넌트 CSS에는 본문 배경/글자색·16/25px·글꼴 기본값과 크기·포커스·밀도·포털·reduced-motion 규칙이 있으므로 theme.css만으로 전체 v2 모양이 완성되지는 않는다.
 
 0.9.0부터 두 CSS 경로의 `components.css`가 `html { scrollbar-gutter: stable }`과 Radix 이중 보상 제거를 제공한다. classic은 한쪽 공간을 예약하고 overlay는 0px이다. `<html data-naeil-scrollbar-gutter="auto">`를 첫 paint 전에 선언하면 root 예약과 lock 보정을 함께 끈다. theme-only/JS-only는 문서 정책을 바꾸지 않는다. 본문 바깥 여백/custom scroller/helper class는 별도 소비자 통합이나 opt-out이 필요하다. [채택된 계약](https://github.com/naeil-dev/naeil-ui/blob/434b7d07235316097ca3a55265ee02c1422b0cfd/docs/superpowers/specs/2026-10-29-page-root-scrollbar-gutter.md)과 [layout guide](../components/application-layout.md)의 비교·fallback·일본어 320px F3 wrap 규칙을 따른다.
 
@@ -155,24 +155,17 @@ import { Navigation, SiteFooter } from "@naeil/ui/ui";
 
 ## 폰트
 
-공통 CSS는 외부 서버에서 폰트를 자동 다운로드하지 않는다. 소비 앱이 Pretendard를 직접 호스팅하거나 자신의 로더로 전달한다. 일본어에는 Noto Sans JP를 제공하고 필요한 글자/굵기만 로드한다. 로딩 실패 시 시스템 글꼴로 표시된다.
-
-소비 앱에서 로컬 번들 폰트를 사용하려면 다음과 같이 설치하고 앱 진입점에서 필요한 굵기를 불러올 수 있다.
-
-```sh
-pnpm add --save-exact pretendard@1.3.9 @fontsource/noto-sans-jp@5.3.0
-```
+소비 앱의 진입점에서 패키지 글꼴 CSS 하나를 가져온다. Pretendard/Noto를 앱이 별도로 설치하거나 import하지 않는다.
 
 ```tsx
-import 'pretendard/dist/web/static/pretendard.css';
-import '@fontsource/noto-sans-jp/400.css';
-import '@fontsource/noto-sans-jp/500.css';
-import '@fontsource/noto-sans-jp/600.css';
+import '@naeil/ui/fonts.css';
 ```
 
-일본어 영역에 `lang="ja"`를 지정하면 globals의 일본어 font-family 규칙이 적용된다. 재배포 빌드에는 [폰트 OFL 고지](../../THIRD_PARTY_NOTICES.md#fonts)를 유지한다. 패키지 자체에는 폰트 런타임 의존성을 추가하지 않았다.
+빌드가 `pretendard@1.3.9`와 `@fontsource-variable/noto-sans-jp@5.3.0`에서 참조된 WOFF2 파일만 `dist/fonts/`에 원본 바이트 그대로 복사한다. 폰트 소스 패키지는 개발 의존성으로 남으며 소비 앱은 추가 설치나 resolver 설정 없이 패키지에 포함된 파일을 받는다. CSS는 번들러가 상대 경로를 처리하며 외부 폰트 CDN에 의존하지 않는다. `unicode-range`에 따라 필요한 파일만 받는다. 일본어 굵기 CSS 네 벌 대신 가변 weight 정의 한 벌을 사용한다. 정적 Noto 패키지는 과거 기준 fixture에만 사용한다.
 
-Storybook의 로컬 폰트 import는 예시다. 그대로 앱 전역에 모든 굵기·언어 폰트를 복사할 필요는 없다. 폰트를 바꾸면 줄바꿈과 밀도를 다시 확인한다. 코드용 폰트는 기존 fallback 체계를 유지한다.
+`lang="ja"`에서도 U+0020–007E, U+00A0–00FF는 Latin 전용 Pretendard face가 먼저 선택된다. 가나·한자·일본어 문장부호는 Noto Sans JP로 그린다. 본문과 canonical header/footer/portal 모두 같은 규칙을 사용한다. 이는 일본어 요소의 모든 글자에 Noto를 쓰던 이전 규칙을 대체한다.
+
+`globals.css`와 `theme.css` + `components.css` 모두 본문 배경/글자색/글꼴과 16/25px 기준을 제공한다. 일반 split 소비자는 기존 16/24px 또는 브라우저 기본값 대신 이 기준을 받는다. 이 규칙은 `@layer base`의 낮은 specificity로 작성되어 일반 소비자의 명시적 본문 스타일이 우선한다. owned service는 본문 기본값을 다시 선언하지 않는다. 글꼴을 재배포하는 빌드는 패키지의 [OFL 고지](../../THIRD_PARTY_NOTICES.md#fonts)를 포함한다. 로딩 실패 시 시스템 fallback을 사용한다. 코드용 글꼴은 기존 fallback 체계를 유지한다.
 
 ## 바뀌는 점과 호환성
 

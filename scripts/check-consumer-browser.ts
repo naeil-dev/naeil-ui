@@ -9,14 +9,14 @@ import { chromium, webkit, expect, type Browser } from "@playwright/test";
 export async function checkConsumerBrowser(root: string) {
   const output = resolve("test-results/packed-consumer");
   mkdirSync(output, { recursive: true });
-  for (const [notice, installed] of [["Pretendard-OFL.txt", "pretendard/dist/LICENSE.txt"], ["Noto-Sans-JP-OFL.txt", "@fontsource/noto-sans-jp/LICENSE"]])
+  for (const [notice, installed] of [["Pretendard-OFL.txt", "@naeil/ui/licenses/Pretendard-OFL.txt"], ["Noto-Sans-JP-OFL.txt", "@naeil/ui/licenses/Noto-Sans-JP-OFL.txt"]])
     assert.equal(readFileSync(join(root, "dist/licenses", notice), "utf8"), readFileSync(join(root, "node_modules", installed), "utf8"), `Packed consumer font notice drift: ${notice}`);
   const codeNotices = JSON.parse(readFileSync(join(root, "dist/licenses/bundled-consumer-code.json"), "utf8"));
   for (const name of ["@naeil/ui", "react", "react-dom", "@radix-ui/react-dropdown-menu"])
     assert(codeNotices.packages.some((entry: { name: string; notices: { text: string }[] }) => entry.name === name && entry.notices.every(notice => !!notice.text.trim())), `Packed consumer code notice missing: ${name}`);
   for (const entry of codeNotices.packages) assert(entry.notices.length && entry.notices.every((notice: { text: string }) => !!notice.text.trim()), `Empty actual consumer package notice: ${entry.name}`);
   assert(!JSON.stringify(codeNotices).includes(root), "Private consumer build path in notices");
-  console.log(`Packed consumer notices: PASS (${codeNotices.packages.length} actual code packages, exact consumer-owned font OFLs)`);
+  console.log(`Packed consumer notices: PASS (${codeNotices.packages.length} actual code packages, exact package font OFLs)`);
   const server = createServer((request, response) => {
     const path = new URL(request.url || "/", "http://localhost").pathname;
     const file = join(root, "dist", path === "/" ? "index.html" : path);
@@ -39,7 +39,7 @@ export async function checkConsumerBrowser(root: string) {
       await page.evaluate(() => document.fonts.ready);
       const result = await page.evaluate(async () => {
         const faces = [];
-        for (const [font, text] of [["400 16px Pretendard", "한글 Latin"], ['400 16px "Noto Sans JP"', "日本語"]]) {
+        for (const [font, text] of [['400 16px "Pretendard Variable"', "한글 Latin"], ['400 16px "Noto Sans JP"', "日本語"]]) {
           const loaded = await document.fonts.load(font, text);
           faces.push({ font, count: loaded.length, loaded: document.fonts.check(font, text) });
         }
@@ -206,7 +206,7 @@ export async function checkConsumerBrowser(root: string) {
     await page.route(/\.(?:woff2?|ttf)(?:\?|$)/, route => route.abort());
     await page.goto(`http://127.0.0.1:${address.port}`);
     const loaded = await page.evaluate(async () => {
-      try { return (await document.fonts.load("400 16px Pretendard", "한글 Latin")).length > 0; }
+      try { return (await document.fonts.load('400 16px "Pretendard Variable"', "한글 Latin")).length > 0; }
       catch { return false; }
     });
     assert(!loaded, "Blocked-font fixture unexpectedly loaded Pretendard");

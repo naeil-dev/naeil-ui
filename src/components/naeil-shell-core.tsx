@@ -6,7 +6,7 @@ import { NaeilHeaderAccountControl, type NaeilHeaderAccount } from "./naeil-head
 import { NaeilFooter, type NaeilServiceFooterProps } from "./naeil-footer-core";
 import { NaeilThemeProvider } from "./naeil-theme-provider";
 import { useNaeilMessages } from "./naeil-messages-context";
-import { isNaeilService } from "./naeil-services";
+import { isNaeilService, type NaeilService } from "./naeil-services";
 export { NaeilThemeProvider } from "./naeil-theme-provider";
 export { measureNaeilPage, type NaeilPageMeasurements } from "./naeil-page-measure";
 export { PageHeader } from "./typography";
@@ -19,7 +19,9 @@ export type NaeilShellHeaderProps = Pick<NaeilServiceHeaderProps, Exclude<typeof
   authSlot?: NaeilServiceHeaderProps["authSlot"];
 };
 export type NaeilShellFooterProps = Pick<NaeilServiceFooterProps, "meta" | "resolveHref"> & { [Key in Exclude<keyof NaeilServiceFooterProps, "meta" | "resolveHref">]?: never };
-export type NaeilShellInputs = Pick<NaeilServiceHeaderProps, "service" | "locale" | "Link" | "onNavigate"> & {
+export type NaeilShellInputs = Pick<NaeilServiceHeaderProps, "locale" | "Link" | "onNavigate"> & {
+  /** `main` is naeil.dev's catalog: Projects/Blog, without a service suffix. */
+  service: NaeilService | "main";
   children?: ReactNode;
   header?: NaeilShellHeaderProps;
   footer?: NaeilShellFooterProps | false;
@@ -63,7 +65,7 @@ function filter(value: object, accepts: (name: string) => boolean, prefix = "") 
 }
 
 export function NaeilServiceShell<const Props extends NaeilShellInputs, const Header extends object = NaeilShellHeaderProps>(input: NaeilServiceShellInput<Props, Header>) {
-  if (!isNaeilService(input.service)) throw new Error(`Unknown naeil service: ${String(input.service)}`);
+  if (input.service !== "main" && !isNaeilService(input.service)) throw new Error(`Unknown naeil service: ${String(input.service)}`);
   const props = filter(input, name => allowed.has(name)) as NaeilShellInputs;
   const { service, locale, Link, onNavigate, children, mainLabel, account } = props;
   const copy = useNaeilMessages(locale);
@@ -81,9 +83,15 @@ export function NaeilServiceShell<const Props extends NaeilShellInputs, const He
   }
   const footer = props.footer === false ? false : filter(props.footer ?? {}, name => footerAllowed.has(name), "footer.") as NaeilShellFooterProps;
   return <NaeilThemeProvider>
+    <div className="ui-service-shell" data-naeil-shell="">
     <a className="ui-skip-link" href="#main">{copy.shell.skipToContent}</a>
-    <NaeilHeader {...header} service={service} locale={locale} Link={Link} onNavigate={onNavigate} />
+    {service === "main"
+      ? <NaeilHeader {...header} locale={locale} Link={Link} onNavigate={onNavigate} />
+      : <NaeilHeader {...header} service={service} locale={locale} Link={Link} onNavigate={onNavigate} />}
     <main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>{children}</main>
-    {footer !== false && <NaeilFooter {...footer} service={service} locale={locale} Link={Link} onNavigate={onNavigate} />}
+    {footer !== false && (service === "main"
+      ? <NaeilFooter {...footer} locale={locale} Link={Link} onNavigate={onNavigate} />
+      : <NaeilFooter {...footer} service={service} locale={locale} Link={Link} onNavigate={onNavigate} />)}
+    </div>
   </NaeilThemeProvider>;
 }

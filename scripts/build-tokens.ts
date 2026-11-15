@@ -204,6 +204,140 @@ function formatThemeCSS({ dictionary }: FormatFnArguments): string {
   return lines.join("\n");
 }
 
+/** Low-specificity document baseline and resolved, host-resistant chrome typography. */
+function formatTypographyCSS({ dictionary }: FormatFnArguments): string {
+  const value = (path: string) => {
+    const token = dictionary.allTokens.find(t => t.path.join(".") === path);
+    if (!token) throw new Error(`Missing typography token: ${path}`);
+    return tokenValue(token);
+  };
+  // Canonical chrome intentionally stays in px even when the host changes rem.
+  const size = (name: string) => `${parseFloat(value(`font.size.${name}`)) * 16}px`;
+  const sans = value("font.family.sans"), japanese = value("font.family.japanese");
+  const supportingLineHeight = `${parseFloat(size("sm")) * Number(value("font.lineHeight.normal"))}px`;
+  return `/* Generated from src/tokens — DO NOT EDIT. */
+@layer base {
+  :where(body) {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: ${sans};
+    font-size: ${value("font.size.base")};
+    line-height: ${value("font.lineHeight.normal")};
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :where(:lang(ja)) {
+    font-family: ${japanese};
+  }
+}
+
+/* Canonical chrome owns final typography. These marker-scoped, unlayered
+   rules retain the existing protection against supported hostile host rules. */
+html:root [data-naeil-chrome][lang] {
+  /* Keep the base :lang(ja) fallback local while slot font utilities still win. */
+  --font-sans: ${sans};
+  --naeil-chrome-font: ${sans};
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("base")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${value("font.lineHeight.normal")};
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-link:not([data-app-toolbar] *):not([data-app-brand]),
+html:root [data-naeil-chrome][lang] .naeil-header-login,
+html:root [data-naeil-chrome][lang] .naeil-header-account-trigger,
+html:root [data-naeil-chrome][lang] .ui-navigation-title,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child,
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="select-trigger"]:nth-child(2) {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("base")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${value("font.lineHeight.normal")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-title, .naeil-header-login) {
+  font-weight: ${value("font.weight.medium")};
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-entry[aria-current="page"] .ui-navigation-title {
+  font-weight: ${value("font.weight.semibold")};
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-description, .ui-navigation-group-label, .ui-site-footer-description, .ui-site-footer-label, .ui-site-footer-link, .ui-site-footer-meta) {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("sm")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${value("font.lineHeight.normal")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is(.ui-navigation-group-label, .ui-site-footer-label) {
+  font-weight: ${value("font.weight.semibold")};
+}
+html:root [data-naeil-chrome][lang] .ui-navigation-sheet-heading > h2 {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("xl")};
+  font-weight: ${value("font.weight.semibold")};
+  line-height: ${value("font.chrome.lineHeight.sheet")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] :is([data-slot="select-item"], [data-slot="dropdown-menu-item"]) {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("base")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${value("font.chrome.lineHeight.menu")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("sm")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${value("font.chrome.lineHeight.account")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-base {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("base")};
+  font-weight: ${value("font.weight.medium")};
+  line-height: ${value("font.chrome.lineHeight.menu")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang] [data-slot="dropdown-menu-label"] > .text-sm {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("sm")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${value("font.chrome.lineHeight.account")};
+  letter-spacing: normal;
+}
+html:root [data-naeil-chrome][lang][data-app-toolbar] > [data-slot="button"]:first-child {
+  font-weight: ${value("font.weight.medium")};
+  line-height: ${value("font.chrome.lineHeight.menu")};
+}
+html:root [data-naeil-chrome][lang]:lang(ja),
+html:root [data-naeil-locale-menu][lang] :lang(ja) {
+  --naeil-chrome-font: ${japanese};
+  font-family: var(--naeil-chrome-font);
+}
+
+html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
+  font-family: var(--naeil-chrome-font);
+  font-size: ${size("sm")};
+  font-weight: ${value("font.weight.normal")};
+  line-height: ${supportingLineHeight};
+  letter-spacing: normal;
+}
+`;
+}
+
+/** Outside-React locale fallback: the package's dark palette and type tokens. */
+function formatErrorStyles({ dictionary }: FormatFnArguments): string {
+  const value = (path: string) => tokenValue(dictionary.allTokens.find(t => t.path.join(".") === path)!);
+  const css = `html { color-scheme: dark; background: ${value("semantic.dark.background")}; color: ${value("semantic.dark.foreground")}; }
+body { margin: ${value("spacing.6")}; font-family: ${value("font.family.sans")}; font-size: ${value("font.size.base")}; line-height: ${value("font.lineHeight.normal")}; }
+:lang(ja) { font-family: ${value("font.family.japanese")}; }
+a { color: inherit; }`;
+  return `// Generated from src/tokens — DO NOT EDIT.\nexport const naeilErrorDocumentStyles = ${JSON.stringify(css)};\n`;
+}
+
 /** TypeScript format: typed constants with autocomplete support */
 function formatTokensTS({ dictionary }: FormatFnArguments): string {
   const allTokens = dictionary.allTokens;
@@ -360,6 +494,9 @@ function createDictionary() {
     format: formatTokensTS,
   });
 
+  StyleDictionary.registerFormat({ name: "custom/typography-css", format: formatTypographyCSS });
+  StyleDictionary.registerFormat({ name: "custom/error-styles", format: formatErrorStyles });
+
   return new StyleDictionary({
     source: ["src/tokens/*.json"],
     usesDtcg: true,
@@ -373,6 +510,8 @@ function createDictionary() {
             destination: "theme.css",
             format: "custom/theme-css",
           },
+          { destination: "typography.css", format: "custom/typography-css" },
+          { destination: "../naeil-locale/error-style.generated.ts", format: "custom/error-styles" },
         ],
       },
       ts: {
@@ -393,6 +532,11 @@ function createDictionary() {
 export async function generateThemeCSS(): Promise<string> {
   const files = await createDictionary().formatPlatform("css");
   return String(files[0].output);
+}
+
+export async function generateTypographyCSS(): Promise<string> {
+  const files = await createDictionary().formatPlatform("css");
+  return String(files[1].output);
 }
 
 async function main() {

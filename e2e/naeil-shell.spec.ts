@@ -24,8 +24,10 @@ for (const service of ["abstorm", "home", "estimate", "jev"]) for (const locale 
         overflow: document.documentElement.scrollWidth > document.documentElement.getBoundingClientRect().width,
       };
     });
-    expect(values).toMatchObject({ headerTitle: 48, titleDescription: 12, headerContent: 32, contentFooter: 96,
+    expect(values).toMatchObject({ headerTitle: 48, titleDescription: 12, headerContent: 32,
       fontSize: "32px", lineHeight: "42px", weight: "600", body: "16px", lang: locale, theme: "dark", stored: null, overflow: false });
+    expect(values.contentFooter).toBeGreaterThanOrEqual(95.99);
+    expect(await page.locator("footer").evaluate(e => e.getBoundingClientRect().bottom)).toBeCloseTo(900, 2);
     const path = info.outputPath("measurements.json"); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(values, null, 2));
     if (service === "estimate" && locale === "ko" && colorScheme === "light") {
       await page.screenshot({ path: info.outputPath(width === 1440 ? "desktop.png" : "mobile.png"), fullPage: true });

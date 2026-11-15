@@ -1,10 +1,10 @@
 # NaeilServiceShell
 
-One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Existing header/footer, generic Navigation/SiteFooter and legacy Next adapters retain their compatibility APIs. naeil.dev itself retains its catalog composition and uses the same theme provider.
+One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Existing header/footer, generic Navigation/SiteFooter and legacy Next adapters retain their compatibility APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
 
 ## Entries and setup
 
-React-only applications use `@naeil/ui/naeil-shell`. Next applications already inside `NaeilLocaleProvider` use `@naeil/ui/naeil-locale/chrome`: this reuses the selected shared messages without bundling all dictionaries. Both export `NaeilServiceShell`, `NaeilThemeProvider` and `PageHeader`. Keep the locale controller above remounting locale layouts; see [locale setup](naeil-locale.md). Import shared CSS, configure Tailwind package sources and deliver Pretendard/Noto Sans JP as described in [migration](../design/v2-migration.md).
+React-only applications use `@naeil/ui/naeil-shell`. Next applications already inside `NaeilLocaleProvider` use `@naeil/ui/naeil-locale/chrome`: this reuses the selected shared messages without bundling all dictionaries. Both export `NaeilServiceShell`, `NaeilThemeProvider` and `PageHeader`. Keep the locale controller above remounting locale layouts; see [locale setup](naeil-locale.md). Import shared CSS, configure Tailwind package sources and import `@naeil/ui/fonts.css` as described in [migration](../design/v2-migration.md).
 
 ```tsx
 import { NaeilThemeProvider } from "@naeil/ui/naeil-shell";
@@ -35,7 +35,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 
 | Prop | Contract |
 | --- | --- |
-| `service` | Required closed lowercase service id; unknown JS/cast values throw `Error` |
+| `service` | Required closed lowercase service id, or `main` for the naeil.dev catalog; unknown JS/cast values throw `Error` |
 | `locale` | Required `ko`, `ja` or `en` |
 | `account` | Optional `NaeilHeaderAccount` in the component API (planned 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
 | `children` | Page content; start with `PageHeader` |
@@ -44,7 +44,17 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 | `footer` | Only `meta` and `resolveHref`, or `false`; defaults to the canonical full footer |
 | `mainLabel` | Accessible label of main |
 
-The shell renders provider → `.ui-skip-link` targeting `#main` → service header → `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>` → service footer. Skip text is shared `naeil.shell.skipToContent`: 본문으로 건너뛰기 / 本文へスキップ / Skip to content. Enter on the focused skip link moves focus to main.
+The shell renders provider → `<div className="ui-service-shell" data-naeil-shell="">` containing `.ui-skip-link` targeting `#main` → service header → `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>` → service footer. Skip text is shared `naeil.shell.skipToContent`: 본문으로 건너뛰기 / 本文へスキップ / Skip to content. Enter on the focused skip link moves focus to main.
+
+### Screen height and base text (0.17.0)
+
+The frame has `min-height:100dvh` and a column layout; main grows to fill remaining height. Short-page footer bottom equals viewport bottom. On long pages content ends 96px before the footer. `footer={false}` still fills the viewport. Applications add no height/flex wrapper. Body background/foreground, font stack and 16/25px text now live in the shared `components.css` import graph, identically for globals and split imports.
+
+Canonical chrome typography is generated in `typography.css` by `pnpm build:tokens`. Existing chrome exceptions are explicit tokens: sheet title 20/28, menu/control 16/24, account metadata 14/20; supporting/footer text remains 14/21.875 from the 1.5625 ratio. They intentionally differ from content title/body/supporting roles (20/29, 16/25, 14/22). No chrome pixels change when generating these rules.
+
+Generic split-import consumers now receive semantic body colours, the shared font stack and 16/25 baseline where they previously inherited browser/Tailwind defaults. Zero-specificity selectors in `@layer base` let their explicit overrides win. Generic/legacy header/footer APIs and frame overrides stay available. Owned services use the baseline without overrides.
+
+The existing runtime checker still assumes an exact terminal-content→footer gap on every page. Until its separate frame-measurement follow-up lands, it can report a false failure on a valid short frame. The browser frame contract tests measure short-page fill directly; the legacy CLI regression uses long content.
 
 ### Account ownership and login pages (planned 0.16.0)
 

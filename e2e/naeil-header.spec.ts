@@ -13,7 +13,7 @@ async function open(page: Page, theme = "light", story = "usage") {
   // WebKit can leave FontFaceSet.ready pending after a document language change
   // even with no loading faces. Verify the actual text/faces instead of that flag.
   const fonts = await page.evaluate(async () => {
-    const family = document.documentElement.lang === "ja" ? "Noto Sans JP" : "Pretendard";
+    const family = document.documentElement.lang === "ja" ? "Noto Sans JP" : "Pretendard Variable";
     const text = document.querySelector('[data-naeil-header]')!.textContent!;
     return Promise.all([400, 500, 600].map(async weight => {
       const font = `${weight} 16px "${family}"`;

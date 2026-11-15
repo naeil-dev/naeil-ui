@@ -54,4 +54,4 @@ Package bin `naeil-ui-conformance` (plain Node ESM, no dependencies, shipped in 
 ## 6. Verification
 - Unit/type tests for shell (structure, footer=false, override rejection incl. spreads and casts, provider entry parity), icons digests vs kit, conformance fixtures.
 - Browser: a Storybook story / chrome fixture page using the shell; Playwright asserts header→h1 48, h1 32/42/600, h1→description 12, PageHeader→content 32, last block→footer 96, body 16px, fresh profile dark under emulated light and dark, at 1440 and 390, ko/ja/en. B1 chrome-pairs unchanged.
-- naeil.dev itself: `NaeilThemeProvider`; content pages already on `.ui-app-frame .ui-app-main` + PageHeader rhythm.
+- naeil.dev itself (updated by the 2026-11-15 screen frame contract): `NaeilServiceShell service="main"` owns the same viewport frame, body baseline and catalog chrome; site-only landing composition remains inside main.

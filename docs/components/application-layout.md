@@ -6,7 +6,7 @@ Product navigation and controlled mobile APIs are available since 0.8.0; shared 
 
 | Application need | Use |
 | --- | --- |
-| The actual naeil.dev brand, project catalog and controls | `NaeilHeader` from `@naeil/ui/naeil-header` |
+| The actual naeil.dev brand, project catalog and controls | `NaeilServiceShell service="main"` from `@naeil/ui/naeil-shell` |
 | Owned-service login/account/logout presentation | `NaeilHeaderAccountControl` from `@naeil/ui/naeil-header` in `authSlot` |
 | Owned naeil service (0.15.0) | `NaeilServiceShell` + root `NaeilThemeProvider` from `/naeil-shell` or `/naeil-locale/chrome` |
 | A different product menu without canonical naeil chrome | `Navigation` from `@naeil/ui/ui` |
@@ -14,7 +14,7 @@ Product navigation and controlled mobile APIs are available since 0.8.0; shared 
 | Different product footer or explicit content override | `SiteFooter` from `@naeil/ui/ui` |
 | An existing Next/next-intl consumer | Keep its `Nav` / `Footer` adapters |
 
-Choose one composition per application frame. Owned services use the shell; naeil.dev keeps its direct catalog header/footer composition without a `service` and switches its root provider to `NaeilThemeProvider`. Supply menu data, links, route guards, authentication and supported locale state through props/slots. Owned services pass session state and guarded callbacks to the shared account control. Local adapters are appropriate; copies of the menu, responsive sheet, account presentation or footer implementation are not. Extend the shared component when a reusable behavior is missing.
+Choose one composition per application frame. Owned services use the shell; naeil.dev uses `service="main"` in the same shell for its no-suffix catalog. Supply menu data, links, route guards, authentication and supported locale state through props/slots. Owned services pass session state and guarded callbacks to the shared account control. Local adapters are appropriate; copies of the menu, responsive sheet, account presentation or footer implementation are not. Extend the shared component when a reusable behavior is missing.
 
 ## Width contract
 
@@ -123,7 +123,7 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 ```markdown
 ## Shared application layout
 - Read the installed @naeil/ui/DESIGN.md and docs/components/application-layout.md before UI layout work.
-- Owned services use NaeilServiceShell + root NaeilThemeProvider from @naeil/ui/naeil-shell; replace the old root provider. The shell owns header, main, skip link and full footer. naeil.dev keeps its direct catalog composition without service and also uses the root NaeilThemeProvider. Navigation/SiteFooter remain for a different product menu; standalone NaeilHeader/NaeilFooter and Next Nav/Footer compatibility APIs remain available.
+- Owned services use NaeilServiceShell + root NaeilThemeProvider from @naeil/ui/naeil-shell; replace the old root provider. The shell owns header, main, skip link and full footer. naeil.dev uses the same shell with service="main" and imports @naeil/ui/fonts.css. Navigation/SiteFooter remain for a different product menu; standalone NaeilHeader/NaeilFooter and Next Nav/Footer compatibility APIs remain available.
 - Pass real session state through the shell's account prop, including the busy flag and guarded logout callback. The shell supplies NaeilHeaderAccountControl with locale/Link. header.authSlot is deprecated for owned services. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup. Pass currentHref so the shell hides the signed-out login link on its matching login pathname; record that route with runtime --no-account. Static CI requires account= on every shell and rejects header.authSlot.
 - For owned Next services under NaeilLocaleProvider, import shell/provider/PageHeader/account from @naeil/ui/naeil-locale/chrome. Read docs/components/naeil-locale.md for the root controller, provider, server routing, message loading and checker. /naeil-header and /naeil-footer remain standalone React adapters.
 - Owned services must set the shell's service="abstorm" / "home" / "estimate" / "jev". The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.

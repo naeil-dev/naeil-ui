@@ -52,7 +52,7 @@ function Example({ service }: { service: NaeilService }) {
     }}
     header={{ onLocaleChange: setLocale, currentHref: params.has("loginPage") ? "/login?from=console#form" : "/estimates" }}>
     <PageHeader title={text.title} description={text.description} actions={<Button onClick={() => setNotice(text.action)}>{text.action}</Button>} />
-    <section data-ui-layout="list" data-shell-content><p>{text.content}</p><p role="status">{notice}</p></section>
+    <section data-ui-layout="list" data-shell-content>{Array.from({ length: params.has("shellLong") ? 60 : 1 }, (_, i) => <p key={i}>{text.content}</p>)}<p role="status">{notice}</p></section>
   </NaeilServiceShell>;
 }
 export const Abstorm: Story = { render: () => <Example service="abstorm" /> };

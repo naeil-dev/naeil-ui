@@ -13,10 +13,4 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground font-sans text-base leading-normal antialiased;
-  }
-  :lang(ja) {
-    font-family: "Noto Sans JP", var(--font-sans);
-  }
 }

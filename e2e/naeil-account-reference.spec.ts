@@ -15,7 +15,7 @@ for (const width of [390, 1440]) for (const theme of ["light", "dark"]) {
     const render = await captureAccountRender(page);
     expect(render.trigger.width).toBe("44px");
     expect(render.avatar.width).toBe("32px");
-    expect(render.fontFamily).toBe("Noto Sans JP");
+    expect(render.fontFamily).toBe("Pretendard Latin");
     const directory = "test-results/account-reference";
     mkdirSync(directory, { recursive: true });
     writeFileSync(`${directory}/${browserName}-${width}-${theme}.json`, JSON.stringify({ width, theme, locale: "ja", render }, null, 2));

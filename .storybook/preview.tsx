@@ -1,11 +1,8 @@
 import type { Preview } from "@storybook/nextjs-vite";
 import { useEffect, useRef, type ReactNode } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
+import "@naeil/ui/fonts.css";
 import "../src/styles/globals.css";
-import "pretendard/dist/web/static/pretendard.css";
-import "@fontsource/noto-sans-jp/400.css";
-import "@fontsource/noto-sans-jp/500.css";
-import "@fontsource/noto-sans-jp/600.css";
 
 function HeaderTheme({ theme, children }: { theme: string; children: ReactNode }) {
   const { setTheme } = useTheme();

@@ -65,6 +65,7 @@ describe("owned service shell", () => {
   });
   it.each(["abstorm", "home", "estimate", "jev"] as const)("renders ordered canonical regions for %s", service => {
     const html = render({ service, locale: "en", mainLabel: "Estimates", children: <PageHeader title="Estimates" description="Your estimates" /> });
+    expect(html).toContain('<div class="ui-service-shell" data-naeil-shell="">');
     expect(html).toContain('<a class="ui-skip-link" href="#main">Skip to content</a>');
     expect(html).toMatch(/<main id="main" tabindex="-1" class="ui-app-frame ui-app-main" aria-label="Estimates">/);
     expect(html.indexOf('class="ui-skip-link"')).toBeLessThan(html.indexOf("<header"));
@@ -73,6 +74,13 @@ describe("owned service shell", () => {
     expect(html).toContain(`aria-label=".naeil ${service}"`);
     expect(html).toContain('data-variant="full"');
     expect(html).toContain('"theme","dark"');
+  });
+  it("uses the same shell frame for the no-suffix catalog", () => {
+    const html = render({ service: "main", locale: "en", children: "Catalog" });
+    expect(html).toContain('data-naeil-shell=""');
+    expect(html).toContain('aria-label=".naeil"');
+    expect(html).not.toContain('naeil-header-brand-suffix');
+    expect(html).toContain("Projects"); expect(html).toContain("Blog");
   });
   it("allows recorded footer-less screens and preserves the main", () => {
     const html = render({ service: "home", locale: "ja", footer: false, children: "Login" });

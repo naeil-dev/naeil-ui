@@ -171,11 +171,11 @@ test("P4 Japanese locale supplies its own stack when document is English", async
   await mobile(page, "locale=ja&documentLang=en");
   for (const root of ["header", "footer", '[data-slot="navigation-sheet"]']) {
     await expect(page.locator(root)).toHaveAttribute("lang", "ja");
-    await expect(page.locator(root)).toHaveCSS("font-family", /^"?Noto Sans JP"?/);
+    await expect(page.locator(root)).toHaveCSS("font-family", /^"?Pretendard Latin"?/);
   }
   for (const selector of ["[data-naeil-account-trigger]", '[role="combobox"]']) {
     await sheet(page).locator(selector).click();
-    await expect(page.locator('[data-naeil-chrome][role="menu"], [data-naeil-locale-menu]')).toHaveCSS("font-family", /^"?Noto Sans JP"?/);
+    await expect(page.locator('[data-naeil-chrome][role="menu"], [data-naeil-locale-menu]')).toHaveCSS("font-family", /^"?Pretendard Latin"?/);
     await page.keyboard.press("Escape"); await settled(page);
   }
 });

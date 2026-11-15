@@ -4,7 +4,9 @@ import { promisify } from 'node:util';
 import { measureNaeilPage } from '../src/components/naeil-page-measure';
 import { assessNaeilPage } from '../bin/conformance-runtime.mjs';
 const exec = promisify(execFile);
-const route = (service: string, locale = 'en', suffix = '') => `/iframe.html?id=brand-naeilserviceshell--${service}&viewMode=story&shellLocale=${locale}${suffix}`;
+// The legacy runtime checker still requires exact 96px. Use long content;
+// short-frame viewport fill is measured directly in frame-contract.spec.ts.
+const route = (service: string, locale = 'en', suffix = '') => `/iframe.html?id=brand-naeilserviceshell--${service}&viewMode=story&shellLocale=${locale}&shellLong${suffix}`;
 async function cli(origin: string, routes: string[], extra: string[] = []) {
   try {
     const result = await exec(process.execPath, ['bin/naeil-ui-conformance.mjs', '--service', 'estimate', '--url', origin, '--routes', routes.join(','), ...extra], {cwd: process.cwd(), timeout: 90000});

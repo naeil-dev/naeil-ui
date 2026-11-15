@@ -3,6 +3,7 @@ import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { frameState, scrollbarLaunch } from "../scripts/page-frame-browser";
+import { frameComparisonPolicy } from "../scripts/frame-comparison-policy";
 
 test.beforeEach(async ({ page, browser, browserName }, info) => {
   await record(info, "launch-and-probe", await scrollbarLaunch(page, browser, browserName));
@@ -20,6 +21,9 @@ async function assertLocaleFocusMarker(page: Page) {
 async function prepare(page: Page, side: string, query: string, state: string, home = false) {
   await page.goto(`${base}/${side}/index.html?${query}${home ? "&profile=home" : ""}${state === "current" ? `&current=${home ? "/" : "/design"}` : ""}`);
   await page.locator("header").waitFor();
+  // Approved D2/D4 policy adjustment; the historical archives remain untouched.
+  // Keep every geometry/style assertion against their actual chrome.
+  if (side !== "candidate") await page.addStyleTag({ content: frameComparisonPolicy });
   await page.evaluate(() => document.fonts.ready);
   const mobile = await page.locator(".ui-navigation-toggle").isVisible();
   if (mobile && ["sheet", "account", "locale", "current"].includes(state)) await page.locator(".ui-navigation-toggle").click();

@@ -12,6 +12,7 @@ const postcss = createRequire(require.resolve("@tailwindcss/postcss"))("postcss"
 const tailwind = require("@tailwindcss/postcss");
 export const chromeOutput = resolve(fixtureDirectory);
 export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROME_PACKAGE) {
+  if (!candidate) execFileSync("pnpm", ["build:fonts"], { stdio: "pipe" });
   const baseline = join(chromeOutput, "baseline");
   mkdirSync(baseline, { recursive: true });
   const archive = join(baseline, "ui-0.7.2.tgz");
@@ -30,10 +31,19 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
   }
   assert.equal(createHash("sha256").update(readFileSync(archive08)).digest("hex"), "6feb5a8cd50265ace584a0855432683b4127119377e08235282eaebd27081084");
   execFileSync("tar", ["-xzf", archive08, "-C", baseline08]);
+  const baseline016 = join(chromeOutput, "baseline016");
+  mkdirSync(baseline016, { recursive: true });
+  const archive016 = join(baseline016, "ui-0.16.0.tgz");
+  if (!existsSync(archive016)) {
+    const response = await fetch("https://registry.npmjs.org/@naeil/ui/-/ui-0.16.0.tgz");
+    assert(response.ok); writeFileSync(archive016, Buffer.from(await response.arrayBuffer()));
+  }
+  assert.equal(createHash("sha256").update(readFileSync(archive016)).digest("hex"), "1c36fcd5aa3147a75e83c60b1e2e1b4289898e0d8d868f758f55b0e963d8321e");
+  execFileSync("tar", ["-xzf", archive016, "-C", baseline016]);
   // Separate comparison adjustment; neither extracted reference package is edited.
-  const framePolicy = readFileSync(resolve(candidate || process.cwd(), "src/styles/components.css"), "utf8").split("@layer components")[0];
+  const framePolicy = readFileSync(resolve(candidate || process.cwd(), "src/styles/components.css"), "utf8").split("@layer components")[0].replace(/@import[^;]+;/g, "");
   writeFileSync(join(chromeOutput, "frame-policy.css"), framePolicy);
-  for (const [name, root] of [["baseline", join(baseline, "package")], ["baseline08", join(baseline08, "package")], ["candidate", candidate || process.cwd()]] as const) {
+  for (const [name, root] of [["baseline", join(baseline, "package")], ["baseline08", join(baseline08, "package")], ["baseline016", join(baseline016, "package")], ["candidate", candidate || process.cwd()]] as const) {
     const output = join(chromeOutput, name); mkdirSync(output, { recursive: true });
     const source = !candidate && name === "candidate";
     const bundle = await build({ entryPoints: ["scripts/fixtures/chrome/app.tsx"], bundle: true, write: false, format: "iife", platform: "browser", define: { "process.env.NODE_ENV": '"production"' },
@@ -41,6 +51,12 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
       alias: Object.fromEntries(["naeil-header", "naeil-footer", "ui"].map(entry => [`@naeil/ui/${entry}`, resolve(root, source ? `src/components/${entry === "ui" ? "ui/index.ts" : `${entry}.tsx`}` : `dist/components/${entry === "ui" ? "ui/index" : entry}.js`)])),
     });
     writeFileSync(join(output, "app.js"), bundle.outputFiles[0].contents);
+    if (name === "candidate" || name === "baseline016") {
+      const shell = await build({ entryPoints: ["scripts/fixtures/chrome/shell.tsx"], bundle: true, write: false, format: "iife", platform: "browser", define: { "process.env.NODE_ENV": '"production"' },
+        nodePaths: [resolve("node_modules")], alias: { "@naeil/ui/naeil-shell": resolve(root, source ? "src/components/naeil-shell.tsx" : "dist/components/naeil-shell.js") },
+      });
+      writeFileSync(join(output, "shell.js"), shell.outputFiles[0].contents);
+    }
     for (const path of ["globals", "split"]) for (const hostile of [false, true]) {
       // An extracted archive has no node_modules. Resolve build dependencies
       // from this checker, while reading both public CSS paths from the archive.
@@ -49,7 +65,8 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
         .replace('@import "tailwindcss";', dependencies).replace('@import "tw-animate-css";', "")
         .replace('"./theme.css"', JSON.stringify(resolve(root, "src/styles/theme.css"))).replace('"./components.css"', JSON.stringify(resolve(root, "src/styles/components.css")))
         : `${dependencies} @import "${resolve(root, "src/styles/theme.css")}"; @import "${resolve(root, "src/styles/components.css")}"; @custom-variant dark (&:is(.dark *)); @layer base { * { @apply border-border; } body { @apply bg-background text-foreground font-sans text-base leading-normal antialiased; } :lang(ja) { font-family: "Noto Sans JP", var(--font-sans); } }`;
-      const css = await postcss([tailwind()]).process(`${imports}\n@source "${resolve(root, source ? "src" : "dist")}";\n${hostile ? readFileSync("scripts/fixtures/chrome/host.css", "utf8") : ""}`, { from: resolve("scripts/chrome-fixture.css") });
+      const effectiveImports = name === "candidate" && path === "split" ? `${dependencies} @import "${resolve(root, "src/styles/theme.css")}"; @import "${resolve(root, "src/styles/components.css")}"; @custom-variant dark (&:is(.dark *)); @layer base { * { @apply border-border; } }` : imports;
+      const css = await postcss([tailwind()]).process(`${effectiveImports}\n@source "${resolve(root, source ? "src" : "dist")}";\n${hostile ? readFileSync("scripts/fixtures/chrome/host.css", "utf8") : ""}`, { from: resolve("scripts/chrome-fixture.css") });
       writeFileSync(join(output, `${path}${hostile ? "-hostile" : ""}.css`), css.css);
       if (!hostile) {
         writeFileSync(join(output, `${path}-no-correction.css`), css.css.replaceAll("@supports (scrollbar-gutter: stable)", "@supports (naeil-frame-unsupported: true)"));
@@ -60,22 +77,38 @@ export async function buildChromeFixtures(candidate = process.env.NAEIL_UI_CHROM
     const tokens = await postcss([tailwind()]).process(`@import "${resolve("node_modules/tailwindcss/index.css")}"; @import "${resolve(root, "src/styles/theme.css")}";`, { from: resolve("scripts/chrome-fixture.css") });
     writeFileSync(join(output, "theme-only.css"), tokens.css);
     writeFileSync(join(output, "js-only.css"), "body { margin: 0; }");
-    writeFileSync(join(output, "index.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/fonts.css"><script>const q=new URLSearchParams(location.search);if(q.has('optout'))document.documentElement.setAttribute('data-naeil-scrollbar-gutter','auto');document.write('<link rel="stylesheet" href="'+(q.get('css')||'globals')+(q.has('hostile')?'-hostile':'')+'.css">')${name !== "candidate" ? ";document.write('<link rel=\"stylesheet\" href=\"/frame-policy.css\">')" : ""}</script></head><body><div id="root"></div><script src="app.js"></script></body></html>`);
+    writeFileSync(join(output, "index.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${name === "candidate" ? "/candidate-fonts.css" : "/fonts.css"}"><script>const q=new URLSearchParams(location.search);if(q.has('optout'))document.documentElement.setAttribute('data-naeil-scrollbar-gutter','auto');document.write('<link rel="stylesheet" href="'+(q.get('css')||'globals')+(q.has('hostile')?'-hostile':'')+'.css">')${name !== "candidate" ? ";document.write('<link rel=\"stylesheet\" href=\"/frame-policy.css\">')" : ""}</script></head><body><div id="root"></div><script src="app.js"></script></body></html>`);
   }
+  for (const name of ["candidate", "baseline016"]) {
+    const html = readFileSync(join(chromeOutput, name, "index.html"), "utf8").replace('src="app.js"', 'src="shell.js"');
+    writeFileSync(join(chromeOutput, name, "shell.html"), html);
+  }
+  const candidateFonts = readFileSync(resolve(candidate || process.cwd(), "src/styles/fonts.css"), "utf8");
+  const fontAssets = new Map<string, string>();
+  const candidateFontCSS = candidateFonts.replace(/url\(([^)]+)\)/g, (_, path: string) => {
+    const url = `/fonts/package/${path.replace(/^\.\.\/\.\.\//, "")}`;
+    fontAssets.set(url, resolve(candidate || process.cwd(), "src/styles", path));
+    return `url(${url})`;
+  });
+  for (const [url, file] of fontAssets) {
+    const target = join(chromeOutput, url); mkdirSync(resolve(target, ".."), { recursive: true }); cpSync(file, target);
+  }
+  writeFileSync(join(chromeOutput, "candidate-fonts.css"), candidateFontCSS);
   const fontRoot = join(chromeOutput, "fonts"); mkdirSync(fontRoot, { recursive: true });
   cpSync("node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2", join(fontRoot, "PretendardVariable.woff2"));
   cpSync("node_modules/@fontsource/noto-sans-jp/files", join(fontRoot, "jp"), { recursive: true });
   const japanese = [400, 500, 600].map(weight => readFileSync(`node_modules/@fontsource/noto-sans-jp/${weight}.css`, "utf8").replaceAll("./files/", "/fonts/jp/")).join("\n");
   writeFileSync(join(chromeOutput, "fonts.css"), `@font-face{font-family:'Pretendard Variable';font-weight:100 900;src:url('/fonts/PretendardVariable.woff2') format('woff2')}\n${japanese}`);
   const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
-  const fontPaths = ["/fonts/PretendardVariable.woff2", ...[...japanese.matchAll(/url\(([^)]+\.woff2)\)/g)].map(match => match[1])];
+  const fontPaths = ["/fonts/PretendardVariable.woff2", ...[...japanese.matchAll(/url\(([^)]+\.woff2)\)/g)].map(match => match[1]), ...fontAssets.keys()];
   writeFileSync(join(chromeOutput, "identity.json"), JSON.stringify({
     candidate: candidate || "source", source: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), baselineSha256: hash(archive),
     archiveSha256: process.env.NAEIL_UI_EXPECTED_ARCHIVE_SHA256 || null,
-    baseline08Sha256: hash(archive08), comparisonPolicySha256: hash(join(chromeOutput, "frame-policy.css")),
+    baseline08Sha256: hash(archive08), baseline016Sha256: hash(archive016), comparisonPolicySha256: hash(join(chromeOutput, "frame-policy.css")),
+    frameComparisonPolicySha256: hash("scripts/frame-comparison-policy.ts"), candidateFontsSha256: hash(join(chromeOutput, "candidate-fonts.css")),
     fontFiles: Object.fromEntries(fontPaths.map(file => [file, hash(join(chromeOutput, file))])),
-    fixtureFiles: Object.fromEntries(["scripts/fixtures/chrome/app.tsx", "scripts/fixtures/chrome/host.css"].map(file => [file, hash(file)])),
-    compiledFiles: Object.fromEntries(["candidate", "baseline", "baseline08"].flatMap(name => readdirSync(join(chromeOutput, name)).filter(file => /\.(css|js|html)$/.test(file)).map(file => [`${name}/${file}`, hash(join(chromeOutput, name, file))]))),
+    fixtureFiles: Object.fromEntries(["scripts/fixtures/chrome/app.tsx", "scripts/fixtures/chrome/shell.tsx", "scripts/fixtures/chrome/host.css"].map(file => [file, hash(file)])),
+    compiledFiles: Object.fromEntries(["candidate", "baseline", "baseline08", "baseline016"].flatMap(name => readdirSync(join(chromeOutput, name)).filter(file => /\.(css|js|html)$/.test(file)).map(file => [`${name}/${file}`, hash(join(chromeOutput, name, file))]))),
   }, null, 2));
 }
 if (process.argv[1]?.endsWith("build-chrome-fixtures.ts")) await buildChromeFixtures();
