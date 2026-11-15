@@ -135,11 +135,12 @@ describe("owned service shell", () => {
   });
   it("retains root theme policy and ignores cast provider overrides", () => {
     const provider = NaeilThemeProvider({ children: "Child", defaultTheme: "light", storageKey: "custom" } as unknown as ComponentProps<typeof NaeilThemeProvider>);
-    expect(provider.props).toEqual({ attribute: "class", defaultTheme: "dark", enableSystem: true, disableTransitionOnChange: true, storageKey: "theme", children: "Child" });
+    expect(provider.props.children[1].props).toEqual({ attribute: "class", defaultTheme: "dark", enableSystem: true, disableTransitionOnChange: true, storageKey: "theme", children: "Child" });
   });
-  it("uses the root provider without adding a second theme bootstrap", () => {
+  it("uses one root theme bootstrap and one storage-denial preflight", () => {
     const html = renderToStaticMarkup(<NaeilThemeProvider><NaeilServiceShell service="home" locale="en" /></NaeilThemeProvider>);
-    expect(html.match(/<script>/g)).toHaveLength(1);
+    expect(html.match(/<script>/g)).toHaveLength(2);
+    expect(html.match(/localStorage.getItem/g)).toHaveLength(2);
     expect(html).toContain('"theme","dark"');
   });
   it("keeps icons server-safe and matches every released brand byte", () => {

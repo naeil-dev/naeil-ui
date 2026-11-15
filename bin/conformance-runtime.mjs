@@ -44,10 +44,28 @@ export function assessNaeilPage(value, {service, noFooter = false, noAccount = f
   return errors;
 }
 
-export async function checkRuntimeConformance({service, url, routes, noFooter = [], noAccount = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = []}) {
+/**
+ * @param {{service: string, url: string, routes: string[], noFooter?: string[], noAccount?: string[], app?: string,
+ * storageState?: string, headers?: string[], expectStatus?: string[], allowRedirect?: string[], waitFor?: string[],
+ * timeoutMs?: number, stepTimeoutMs?: number}} options
+ */
+export async function checkRuntimeConformance({service, url, routes, noFooter = [], noAccount = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = [], timeoutMs = 600000, stepTimeoutMs = 15000}) {
+  if (![timeoutMs, stepTimeoutMs].every(value => Number.isFinite(value) && value > 0)) throw new Error('Runtime timeout budgets must be positive finite milliseconds');
+  const deadline = Date.now() + timeoutMs;
+  async function bounded(label, operation) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new Error(`Runtime conformance overall deadline exceeded (${timeoutMs}ms)`);
+    const duration = Math.min(stepTimeoutMs, remaining);
+    let timer;
+    try {
+      return await Promise.race([Promise.resolve().then(operation), new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timeout after ${duration}ms (overall budget ${timeoutMs}ms)`)), duration);
+      })]);
+    } finally { clearTimeout(timer); }
+  }
   const origin = new URL(url);
   if (!['http:', 'https:'].includes(origin.protocol)) throw new Error('--url must be an http(s) origin');
-  if (!routes.length || routes.some(route => !route.startsWith('/') || route.startsWith('//'))) throw new Error('--routes requires comma-separated local /paths');
+  if (!routes.length || routes.some(route => !route.startsWith('/') || route.startsWith('//') || new URL(route, origin).origin !== origin.origin)) throw new Error('--routes requires comma-separated local /paths');
   if (noFooter.some(route => !routes.includes(route))) throw new Error('Every --no-footer route must be listed in --routes');
   if (noAccount.some(route => !routes.includes(route))) throw new Error('Every --no-account route must be listed in --routes');
   const extraHTTPHeaders = {};
@@ -85,29 +103,51 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
   for (const path of redirects.values()) if (!path.startsWith('/') || path.startsWith('//')) throw new Error('--allow-redirect target must be a local /path');
   const {chromium} = await resolveConsumerPlaywright(app);
   const {measureNaeilPage} = await import('../dist/source/components/naeil-page-measure.js');
-  const browser = await chromium.launch();
+  if (Date.now() >= deadline) throw new Error('Runtime conformance overall deadline exceeded before browser launch');
+  const browser = await chromium.launch({timeout: Math.min(stepTimeoutMs, deadline - Date.now())});
   const rows = [];
   try {
-    for (const route of routes) for (const viewport of [{width: 1440, height: 900}, {width: 390, height: 844}]) for (const colorScheme of ['light', 'dark']) {
-      const context = await browser.newContext({viewport, colorScheme, storageState: state, extraHTTPHeaders});
+    cells: for (const route of routes) for (const viewport of [{width: 1440, height: 900}, {width: 390, height: 844}]) for (const colorScheme of ['light', 'dark']) {
+      if (Date.now() >= deadline) {
+        rows.push({route, viewport: `${viewport.width}×${viewport.height}`, scheme: colorScheme, errors: [`Runtime conformance overall deadline exceeded (${timeoutMs}ms)`]});
+        break cells;
+      }
+      const context = await bounded('context creation', () => browser.newContext({viewport, colorScheme, storageState: state, serviceWorkers: 'block'}));
       try {
-        const page = await context.newPage();
+        const page = await bounded('page creation', () => context.newPage());
+        let headerError;
+        if (Object.keys(extraHTTPHeaders).length) {
+          // Chromium intercepts each hop. Context/route header overrides propagate
+          // to redirects; CDP Fetch overrides apply only to this individual request.
+          const session = await bounded('request session', () => context.newCDPSession(page));
+          session.on('Fetch.requestPaused', event => {
+            const sameOrigin = new URL(event.request.url).origin === origin.origin;
+            const headers = Object.fromEntries(Object.entries(event.request.headers)
+              .filter(([name]) => !(name.toLowerCase() in extraHTTPHeaders)));
+            if (sameOrigin) Object.assign(headers, extraHTTPHeaders);
+            session.send('Fetch.continueRequest', {requestId: event.requestId,
+              headers: Object.entries(headers).map(([name, value]) => ({name, value: String(value)}))})
+              .catch(error => { headerError = error; });
+          });
+          await bounded('request interception', () => session.send('Fetch.enable', {patterns: [{urlPattern: '*', requestStage: 'Request'}]}));
+        }
         let response;
         page.on('response', entry => { if (entry.request().isNavigationRequest() && entry.frame() === page.mainFrame()) response = entry; });
-        response = await page.goto(new URL(route, origin).href, {waitUntil: 'load'});
+        response = await bounded('navigation', () => page.goto(new URL(route, origin).href, {waitUntil: 'domcontentloaded', timeout: stepTimeoutMs}));
         const expectedStatus = statuses.get(route);
-        await page.locator('main h1').first().waitFor({state: 'visible', timeout: 15000}).catch(error => {
+        await bounded('main heading', () => page.locator('main h1').first().waitFor({state: 'visible', timeout: stepTimeoutMs})).catch(error => {
           if (!response || (expectedStatus ? response.status() !== Number(expectedStatus) : !response.ok())) throw new Error(`HTTP ${response?.status() ?? 'no response'} (expected ${expectedStatus ?? '2xx'})`);
           throw error;
         });
         // Measure the settled screen, not a loading state: network idle, no busy region, optional route selector.
-        await page.waitForLoadState('networkidle', {timeout: 15000}).catch(() => {});
-        await page.waitForFunction(() => !document.querySelector('main [aria-busy="true"], main[aria-busy="true"]'), null, {timeout: 15000});
-        if (waits.get(route)) await page.locator(waits.get(route)).first().waitFor({state: 'visible', timeout: 15000});
-        await page.evaluate(() => document.fonts.ready);
+        await bounded('network idle', () => page.waitForLoadState('networkidle', {timeout: stepTimeoutMs})).catch(() => {});
+        await bounded('busy state', () => page.waitForFunction(() => !document.querySelector('main [aria-busy="true"], main[aria-busy="true"]'), null, {timeout: stepTimeoutMs}));
+        if (waits.get(route)) await bounded('route selector', () => page.locator(waits.get(route)).first().waitFor({state: 'visible', timeout: stepTimeoutMs}));
+        await bounded('font readiness', () => page.evaluate(() => document.fonts.ready));
         // Let provider effects and the next paint settle without modifying app state.
-        await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
-        const measurements = await page.evaluate(measureNaeilPage);
+        await bounded('paint', () => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))));
+        const measurements = await bounded('measurements', () => page.evaluate(measureNaeilPage));
+        if (headerError) throw headerError;
         // Validate the measured document, including client-side redirects after hydration.
         if (!response || (expectedStatus ? response.status() !== Number(expectedStatus) : !response.ok())) throw new Error(`HTTP ${response?.status() ?? 'no response'} (expected ${expectedStatus ?? '2xx'})`);
         const requested = new URL(route, origin), actual = new URL(measurements.url);

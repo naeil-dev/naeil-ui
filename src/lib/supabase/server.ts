@@ -1,3 +1,4 @@
+import { authFetch } from "./fetch";
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { hasSiteSession, siteCookieOptions } from "../auth/site-session";
@@ -14,6 +15,7 @@ export async function createClient({ writeCookies = true }: { writeCookies?: boo
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: authFetch },
       cookieOptions: siteCookieOptions(headerStore.get("host")),
       cookies: {
         getAll() {

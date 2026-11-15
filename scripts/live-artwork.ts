@@ -16,7 +16,7 @@ export async function waitForLiveArtwork(image: Locator, responses: Map<string, 
     const response = responses.get(url);
     if (response?.status !== 403 || attempt === 3) throw new Error(`Live artwork HTTP ${response?.status ?? 'unknown'} after ${attempt} attempts: ${url}`);
     const seconds = response.retryAfter === undefined ? NaN : Number(response.retryAfter);
-    const delay = Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : 30000;
+    const delay = Number.isFinite(seconds) && seconds >= 0 ? Math.min(seconds * 1000, 30000) : 30000;
     console.log(`Live artwork HTTP 403: retry ${attempt}/2 after ${delay / 1000}s (${url})`);
     await new Promise(resolve => setTimeout(resolve, delay));
     responses.delete(url);

@@ -740,3 +740,17 @@ html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
   left: auto;
   right: 0;
 }
+
+/* Sonner injects unlayered CSS: retain the shared semantic focus indicator. */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button]:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+/* Beat Sonner's injected unlayered durations; reduced motion above remains !important. */
+[data-sonner-toaster] [data-sonner-toast],
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button],
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button] {
+  transition-duration: var(--ui-motion-standard);
+}

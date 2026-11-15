@@ -1,3 +1,4 @@
+import { authFetch } from "./fetch";
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import type { CookieOptions } from "@supabase/ssr";
@@ -11,6 +12,7 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: authFetch },
       cookieOptions: siteCookieOptions(request.headers.get("host")),
       cookies: {
         getAll() {

@@ -1,3 +1,4 @@
+import { authFetch } from "./fetch";
 import { createBrowserClient } from "@supabase/ssr";
 import { siteCookieOptions } from "../auth/site-session";
 
@@ -6,6 +7,7 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: authFetch },
       cookieOptions: siteCookieOptions(typeof window === "undefined" ? null : window.location.host),
     },
   );
