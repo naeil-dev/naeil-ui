@@ -44,6 +44,8 @@ export async function startSiteDestinationProxy(privateDir) {
   await new Promise((yes, no) => { destination.once('error', no); destination.listen(0, '127.0.0.1', yes); });
   const proxy = createHttpServer((request, response) => { blocked.push(request.url); response.writeHead(502).end(); });
   proxy.on('connect', (request, socket, head) => {
+    // Rejected CONNECT clients may reset during browser shutdown too.
+    socket.on('error', () => {});
     if (!['naeil.dev:443', 'jev.naeil.dev:443', 'abestimate.naeil.dev:443'].includes(request.url)) {
       blocked.push(request.url); socket.end('HTTP/1.1 502 Blocked\r\n\r\n'); return;
     }
@@ -92,8 +94,8 @@ const append=fs.appendFileSync.bind(fs),seen=new Set();
 function mapped(input){if(typeof input!=='string')return input;const full=path.resolve(input);for(const root of roots){if(full===root||full.startsWith(root+path.sep)){const next=target+full.slice(root.length);if(!seen.has(full)){seen.add(full);append(log,JSON.stringify({source:full,fixture:next})+'\\n');}return next;}}return input;}
 for(const name of ['readFileSync','readdirSync','existsSync','statSync']){const original=fs[name];fs[name]=function(input,...args){return original.call(fs,mapped(input),...args);};}
 require('node:module').syncBuiltinESMExports();\n`);
-  const pack = process.env.NAEIL_LANGUAGE_PACK || '/Users/jaymini/.local/share/naeil-shared-language/2026-11-04/frozen-0.10.0/naeil-ui-0.10.0.tgz';
-  assert.ok(existsSync(pack), 'A frozen package is required for browser reader checks');
+  const pack = process.env.NAEIL_LANGUAGE_PACK;
+  assert.ok(pack && existsSync(pack), 'Set NAEIL_LANGUAGE_PACK to the current pnpm pack --out <file.tgz> archive');
   const extracted = join(privateDir, 'packed');
   mkdirSync(extracted);
   execFileSync('tar', ['-xzf', pack, '-C', extracted]);

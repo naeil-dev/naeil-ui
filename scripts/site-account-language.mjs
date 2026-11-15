@@ -81,7 +81,7 @@ try {
   }
   await new Promise((yes,no)=>{auth.once('error',no);auth.listen(55431,'127.0.0.1',yes);});
   app = spawn(process.execPath,[...(languageFixture ? ['--require',languageFixture.preload] : []),...(artifact ? [join(artifact,'standalone/server.js')] : ['node_modules/next/dist/bin/next','start','--hostname','localhost','--port','2482'])], {
-    env:{...process.env,PORT:'2482',HOSTNAME:'localhost',NAEIL_INVITE_DIST_DIR:'.next-console-invite',NAEIL_INVITE_CONFIG_FILE:privateConfig,...(acceptanceEnabled ? {NAEIL_INVITE_ACCEPT_ENABLED:'true'} : {}),NEXT_PUBLIC_SUPABASE_URL:authOrigin,NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon'},stdio:['ignore','ignore','pipe'],
+    env:{...process.env,PORT:'2482',HOSTNAME:'localhost',NAEIL_INVITE_DIST_DIR:artifact ? '.next-console-invite' : (process.env.NAEIL_INVITE_DIST_DIR || '.next'),NAEIL_INVITE_CONFIG_FILE:privateConfig,...(acceptanceEnabled ? {NAEIL_INVITE_ACCEPT_ENABLED:'true'} : {}),NEXT_PUBLIC_SUPABASE_URL:authOrigin,NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon'},stdio:['ignore','ignore','pipe'],
   });
   app.stderr.on('data',data=>writeFileSync(join(evidence,'server.log'),data,{flag:'a'}));
   for (let i=0;i<80;i++) { try { if ((await fetch(origin+'/api/health')).ok) break; } catch {} if(i===79) throw Error('Owned app failed to start'); await new Promise(r=>setTimeout(r,250)); }

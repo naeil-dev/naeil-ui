@@ -8,11 +8,13 @@ export type OAuthState =
 export function createOAuthFlow(
   request: (provider: OAuthProvider) => Promise<{ error: unknown }>,
   onState: (state: OAuthState) => void,
+  canStart: () => boolean = () => true,
 ) {
   let inFlight = false;
 
   return async (provider: OAuthProvider) => {
-    if (inFlight) return;
+    // The shared site-state cell also guards new callbacks created by rerenders.
+    if (inFlight || !canStart()) return;
     inFlight = true;
     onState({ status: "pending", provider });
 
