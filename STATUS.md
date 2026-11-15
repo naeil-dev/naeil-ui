@@ -1,3 +1,17 @@
+# Status
+
+## Current state
+
+As of 2026-11-16 (owner handoff): `@naeil/ui@0.17.0` is published as `latest`; naeil.dev production runs `b2aac59` ([merged frame-contract PR #60](https://github.com/naeil-dev/naeil-ui/pull/60)). The [frozen preparation receipt](docs/releases/0.17.0/README.md) records the archive, not publication completion.
+
+The `v0.17.0` tag, GitHub Release and hosted Docs are awaiting the owner. All four services have open, unmerged 0.17.0 adoption PRs. Service matching has not been established; use the [screen frame acceptance contract](DESIGN.md#screen-frame-contract) before claiming it. [Release procedure](docs/package-release.md#release-procedure) and [auto-update policy](docs/rollout/auto-update.md) describe the separate operations.
+
+## Dated records
+
+The entries below are unchanged historical snapshots, including preparation states that were later superseded. Only “Current state” above describes current publication, Docs and service adoption status.
+
+---
+
 # Status — 2026-11-16 shared UI 0.17.0 candidate prepared
 
 Stage 1 is merged and deployed: [PR #59](https://github.com/naeil-dev/naeil-ui/pull/59) → `cf28ee1`; production reports Next 16.4.6 (owner/main-agent receipt). Storybook 10.6.7 and the security/fact corrections are included.

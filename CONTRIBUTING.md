@@ -15,3 +15,5 @@ For workflow helper edits run the relevant tests in `skills/frontend-reference-w
 Chrome fixture tests and the standalone navigation sample share `NAEIL_UI_FIXTURE_PORT`; its default is defined in [`scripts/chrome-fixture-config.ts`](scripts/chrome-fixture-config.ts). For concurrent runs, choose a different port for each run. See the [fixture test commands](docs/package-release.md#checks) for fixture-only runs and output isolation.
 
 A pull request should explain the trigger and resulting behavior, consumer compatibility, validation scope, and remaining limits. Keep generated files synchronized. Publishing an npm package and deploying the website are separate maintainer actions; a successful local build is not either action.
+
+Keep new verification evidence as CI artifacts or GitHub Release attachments, with source SHA, commands, results and limitations recorded in the release/contributing record. Link to that evidence instead of committing screenshots, traces, generated report/viewer copies or logs. Preserve already-committed evidence and frozen archives unchanged; this retention rule applies to new evidence.

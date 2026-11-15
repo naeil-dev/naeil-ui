@@ -1,6 +1,6 @@
 # Navigation and SiteFooter
 
-See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release. These are generic product-menu primitives. Applications inheriting the actual naeil.dev brand/catalog/control composition use the canonical opt-in [NaeilHeader](naeil-header.md) from `@naeil/ui/naeil-header`, with fixed positioning, a 65px height, the shared application frame and official artwork URL dependency.
+See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for current publication, hosted Docs and service adoption. These are generic product-menu primitives. Applications inheriting the actual naeil.dev brand/catalog/control composition use the canonical opt-in [NaeilHeader](naeil-header.md) from `@naeil/ui/naeil-header`, with fixed positioning, a 65px height, the shared application frame and official artwork URL dependency.
 
 `Navigation` and `SiteFooter` are React-only exports from `@naeil/ui/ui` (also `@naeil/ui/components/ui/navigation` and `@naeil/ui/components/ui/site-footer`). They require shared theme/components CSS and the normal consumer font/Tailwind setup. They do not import Next, next-intl, authentication, product routes or message dictionaries.
 

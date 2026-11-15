@@ -1,6 +1,6 @@
 # Sheet
 
-Use Sheet for supporting detail or evidence that belongs at the edge of the current task. AB Storm's repeated 480px evidence panel is the demonstrated composition need. Prefer an inline panel for ordinary editing and [Dialog](dialog.md) for a centered interruption. Available since 0.12.0. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release.
+Use Sheet for supporting detail or evidence that belongs at the edge of the current task. AB Storm's repeated 480px evidence panel is the demonstrated composition need. Prefer an inline panel for ordinary editing and [Dialog](dialog.md) for a centered interruption. Available since 0.12.0. See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for the current published release.
 
 ## API and wrapper defaults
 
