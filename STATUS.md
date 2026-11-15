@@ -1,16 +1,25 @@
+# Status — 2026-11-15 audit follow-up in progress
+
+The independent 2026-11-15 audit (52 confirmed findings) and its owner-approved five-stage plan are being executed. Published state is unchanged: `latest=0.16.0`. "Matching" across services is **not** currently claimed; acceptance is a live comparison table with zero differences reviewed by the owner (see DESIGN.md, screen frame contract, once 0.17.0 lands).
+
+- Stage 1 (security and fact corrections, no npm publication): Next 16.4.6, Storybook 10.6.7, site-runtime dependency audit in CI, OAuth callback session preservation, `/api/health` key check, anonymized SSO handoff, pinned Actions. Pending owner-approved merge and production deployment.
+- Stages 2–5 (frame contract 0.17.0, live comparison, service adoption, process/doc reduction): in progress on branches; nothing published or deployed.
+
+---
+
 # Status — 2026-11-15 shared UI 0.16.0 published and services deployed
 
 `@naeil/ui@0.16.0` is published from frozen source `efb6f104eba93c76bf48afd85e2c9c77517320dd`; [PR #57](https://github.com/naeil-dev/naeil-ui/pull/57) merged as `5df4933`. Verified tags: **`latest=0.16.0`, `next=0.13.0`**. Chrome contract 1 remains unchanged.
 
 | Version | npm publication | GitHub tag / Release | Hosted Docs |
 | --- | --- | --- | --- |
-| 0.16.0 | Owner-approved `npm-publish` environment; [run 43643495809](https://github.com/naeil-dev/naeil-ui/actions/runs/43643495809), OIDC + provenance, success | `v0.16.0` → frozen source `efb6f10`; [Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.16.0) with SHA-256-verified tgz and `archive.json` | Pending: [run 43645985366](https://github.com/naeil-dev/naeil-ui/actions/runs/43645985366) failed on a WebKit locale listbox captured mid-entrance at opacity 0.51. Test fix `77d92f0` waits for popup fade-in; main-agent local WebKit 37/37. Re-publish after merge. |
+| 0.16.0 | Owner-approved `npm-publish` environment; [run 43643495809](https://github.com/naeil-dev/naeil-ui/actions/runs/43643495809), OIDC + provenance, success | `v0.16.0` → frozen source `efb6f10`; [Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.16.0) with SHA-256-verified tgz and `archive.json` | Completed: [run 43650333623](https://github.com/naeil-dev/naeil-ui/actions/runs/43650333623), reviewed source `09f4f97`. |
 
 - Registry tarball returned 200 immediately and is byte-identical to the frozen tgz: SHA-256 `1c36fcd5aa3147a75e83c60b1e2e1b4289898e0d8d868f758f55b0e963d8321e`, SHA-1 `172271a96da66bf02644a4a6d021ba5ede9bc228`, 303066 bytes / 200 files. Full identities are in [publication receipts](docs/package-release.md#publication-receipts); evidence commit `aad2136` and frozen source/tag remain unchanged.
 - naeil.dev production reports `sourceRevision=5df4933`, UI 0.16.0. Owner-approved merges/deployments: Co-STORM-Lab #62 → `0332f23` (abstorm web image `2fb27eb6`, API unchanged); jev #9 → `7a948bd` (release `manual-016-20261114T220954Z`); abestimate #12 → `42b2cb2` (release `42b2cb27bc92-9d248f4c77ee`); naeil-home #217 → `0374b07` (U container `naeil-home-u-current-data-20261115-01`). All static conformance had 0 issues / 0 ignores; runtime passed abstorm 52/52, jev 24/24, estimate 44/44 and Home 36/36.
 - Main-agent live checks with fresh Chrome confirmed signed-out login on naeil.dev, abstorm `/ko/unknown`, estimate `/ko/access-denied` and jev `/ko/login?state=denied`: visible at 1440px and inside the menu at 390px. Home's login gate shows none because it is the login route. Shell screens had header→h1 48px, h1 32px/42px/600, h1→description 12px, content→footer 96px, body 16px, dark default and UI 0.16.0. These live observations cover signed-out screens; authenticated coverage comes from service runtime fixtures.
 
-Hosted 0.15.0 Docs completed in [run 43602056254](https://github.com/naeil-dev/naeil-ui/actions/runs/43602056254), reviewed source `85b1461`, after rerunning the flaky WebKit job. Hosted 0.16.0 Docs remain pending the popup-settle fix and separate re-publication. See [service adoption](docs/package-release.md#0160-service-adoption--2026-11-15). Frozen `docs/releases/*` files remain unchanged; earlier entries retain their dated context.
+Hosted 0.15.0 Docs completed in [run 43602056254](https://github.com/naeil-dev/naeil-ui/actions/runs/43602056254), reviewed source `85b1461`, after rerunning the flaky WebKit job. Hosted 0.16.0 Docs completed in [run 43650333623](https://github.com/naeil-dev/naeil-ui/actions/runs/43650333623), reviewed source `09f4f97`. See [service adoption](docs/package-release.md#0160-service-adoption--2026-11-15). Frozen `docs/releases/*` files remain unchanged; earlier entries retain their dated context.
 
 ---
 

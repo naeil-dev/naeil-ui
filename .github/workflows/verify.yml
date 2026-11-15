@@ -27,7 +27,7 @@ jobs:
       # Rollout process-group tests orphan descendants; reap them after exit.
       options: --init --ipc=host
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # Frozen component regressions archive immutable release source commits.
           fetch-depth: 0
@@ -35,12 +35,16 @@ jobs:
       # Firefox checks HOME ownership and Git checks repository ownership.
       - name: Match mounted directory ownership to the runner user
         run: chown "$(id -u):$(id -g)" "$HOME" "$GITHUB_WORKSPACE"
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Audit deployed site runtime (including development dependencies)
+        run: |
+          node --test scripts/ci/audit-site-runtime.test.mjs
+          node scripts/ci/audit-site-runtime.mjs
       # Rollout regression tests launch Chromium; package checks also use WebKit.
       - name: Verify preinstalled Playwright browsers
         run: node scripts/ci/check-playwright-image.mjs chromium webkit
@@ -77,11 +81,11 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
       options: --ipc=host
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Match mounted directory ownership to the runner user
         run: chown "$(id -u):$(id -g)" "$HOME" "$GITHUB_WORKSPACE"
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -93,7 +97,7 @@ jobs:
       - name: Build package for runtime conformance specs
         if: matrix.suite == 'other'
         run: pnpm build:pkg
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: matrix.browser == 'chromium' && matrix.suite == 'other'
         with:
           name: storybook-preview
@@ -117,7 +121,7 @@ jobs:
           node --test skills/frontend-reference-workflow/tests/browser-check.test.cjs
           node --test skills/frontend-reference-workflow/tests/layout-comparison.test.cjs
           python3 -m unittest discover -s skills/frontend-reference-workflow/tests -p 'test_mcp_client.py'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: browser-results-${{ matrix.browser }}-${{ matrix.suite }}

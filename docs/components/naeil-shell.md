@@ -37,7 +37,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 | --- | --- |
 | `service` | Required closed lowercase service id, or `main` for the naeil.dev catalog; unknown JS/cast values throw `Error` |
 | `locale` | Required `ko`, `ja` or `en` |
-| `account` | Optional `NaeilHeaderAccount` in the component API (planned 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
+| `account` | Optional `NaeilHeaderAccount` in the component API (since 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
 | `children` | Page content; start with `PageHeader` |
 | `Link`, `onNavigate` | Existing header/footer routing adapter and guard |
 | `header` | Only `appNavigation`, `currentHref`, `brandHref`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`, plus deprecated `authSlot` for 0.15.0 compatibility. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
@@ -56,7 +56,7 @@ Generic split-import consumers now receive semantic body colours, the shared fon
 
 The existing runtime checker still assumes an exact terminal-content→footer gap on every page. Until its separate frame-measurement follow-up lands, it can report a false failure on a valid short frame. The browser frame contract tests measure short-page fill directly; the legacy CLI regression uses long content.
 
-### Account ownership and login pages (planned 0.16.0)
+### Account ownership and login pages (since 0.16.0)
 
 Pass session state through `account`; the shell renders `NaeilHeaderAccountControl` with its own locale and the shared `Link`. The header retains its existing desktop/mobile composition. Signed-out pages, including error pages, show the shared login link. Signed-in pages show the shared account menu; the consumer owns logout I/O, busy state, request locks and routing guards above the shell.
 

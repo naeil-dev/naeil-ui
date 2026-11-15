@@ -1,6 +1,6 @@
 import { requiresPasswordChange, passwordChangePath, type AuthUser } from "@/lib/auth/password-policy";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { RETURN_DESTINATION_COOKIE, RETURN_LOCALE_COOKIE, isSiteSessionCookie, siteCookieOptions } from "@/lib/auth/site-session";
 import { redirectCookieTarget } from "@/lib/auth/redirect";
@@ -16,11 +16,11 @@ export async function GET(request: Request) {
   if (code) {
     const headerStore = await headers();
     const options = siteCookieOptions(headerStore.get("host"));
-    // Exchange into a fresh session. A stale session's failed refresh makes the
-    // SDK drop the PKCE verifier before the exchange; leftover chunks expire.
-    const existing = cookieStore.getAll().filter(c => !isSiteSessionCookie(c.name));
-    for (const { name } of cookieStore.getAll())
-      if (isSiteSessionCookie(name)) cookieStore.set(name, "", { ...options, maxAge: 0 });
+    // Hide the stale session: a failed refresh would make the SDK drop the PKCE
+    // verifier before exchange. Stage writes so a bad code cannot clear a session.
+    const original = cookieStore.getAll();
+    const existing = original.filter(c => !isSiteSessionCookie(c.name));
+    const pending: { name: string; value: string; options: CookieOptions }[] = [];
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,13 +32,7 @@ export async function GET(request: Request) {
             return existing;
           },
           setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options),
-              );
-            } catch {
-              // Ignore — cookies can only be set in Server Actions or Route Handlers
-            }
+            pending.push(...cookiesToSet);
           },
         },
       },
@@ -56,6 +50,10 @@ export async function GET(request: Request) {
     }
 
     if (!failed) {
+      // Expire old chunks before writing the replacement, which may be shorter.
+      for (const { name } of original)
+        if (isSiteSessionCookie(name)) cookieStore.set(name, "", { ...options, maxAge: 0 });
+      for (const { name, value, options } of pending) cookieStore.set(name, value, options);
       cookieStore.set(RETURN_DESTINATION_COOKIE, "", { path: "/", maxAge: 0 });
       cookieStore.set(RETURN_LOCALE_COOKIE, "", { path: "/", maxAge: 0 });
       return NextResponse.redirect(new URL(target, origin));
