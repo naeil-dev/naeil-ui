@@ -70,7 +70,7 @@ Normal text must meet 4.5:1 contrast, large text 3:1, and essential control boun
 
 ### Typography
 
-Selected UI family: Pretendard for Korean/Latin UI, with Noto Sans JP used for Japanese in the reviewed samples. JetBrains Mono for code and identifiers is still a proposal; it was not part of the font comparison. Font delivery must be documented for package consumers. Verify all three languages in specimens.
+Selected UI family: Pretendard for Korean and for Latin letters and digits in every language, with Noto Sans JP for Japanese glyphs (see the screen frame contract). JetBrains Mono for code and identifiers is still a proposal; it was not part of the font comparison. Font delivery must be documented for package consumers. Verify all three languages in specimens.
 
 | Role | Size / line height | Weight |
 | --- | --- | --- |
@@ -126,7 +126,7 @@ Since 0.9.0, the package implements this default once in `components.css`, throu
 
 The optional `@naeil/ui/naeil-header` composition centralizes the actual naeil.dev brand/catalog/control/toolbar/responsive implementation approved on 2026-10-15. Official decorative image URLs remain references; no new artwork rights or redistribution is implied. See [NaeilHeader](docs/components/naeil-header.md).
 
-Owned naeil services use `NaeilServiceShell` with root `NaeilThemeProvider`, supplying product menu data through `header.appNavigation`. The shell composes the canonical header/main/footer; services own menu data, route guards, locale and authentication through adapters and slots. naeil.dev keeps its direct no-service catalog header/footer composition and switches only its root theme provider to `NaeilThemeProvider`. Generic `Navigation`/`SiteFooter` remain for a different product without canonical naeil chrome; standalone header/footer and existing `Nav`/`Footer` preserve their compatibility APIs. Extend the shared API when a reusable behavior is missing instead of copying menu, responsive or footer implementations. See [the application starter and consumer-agent rules](docs/components/application-layout.md).
+Owned naeil services use `NaeilServiceShell` with root `NaeilThemeProvider`, supplying product menu data through `header.appNavigation`. The shell composes the canonical header/main/footer; services own menu data, route guards, locale and authentication through adapters and slots. naeil.dev is rendered through the same shell with its catalog header/footer (see the screen frame contract below). Generic `Navigation`/`SiteFooter` remain for a different product without canonical naeil chrome; standalone header/footer and existing `Nav`/`Footer` preserve their compatibility APIs. Extend the shared API when a reusable behavior is missing instead of copying menu, responsive or footer implementations. See [the application starter and consumer-agent rules](docs/components/application-layout.md).
 
 Owned Next services under the shared locale provider import shell/provider/PageHeader/account chrome from `@naeil/ui/naeil-locale/chrome`; standalone React services use `/naeil-shell` with its account prop for account presentation (planned 0.16.0). `/naeil-header` and `/naeil-footer` remain standalone React adapters (see [the locale runtime](docs/components/naeil-locale.md)).
 
@@ -146,6 +146,32 @@ The owner required naeil.dev and every owned service to look the same outside th
 - Shared CSS supplies 16px Pretendard base text. The root provider supplies the owner's dark default, remembered theme and system option. Generated `naeilIcons` supplies the exact brand-file digests and naeil.dev icon declarations; the conformance CLI rejects divergence.
 
 Horizontal content widths remain purpose-specific (reading/settings 640px, forms 480px, lists 1600px). Verify with screenshots of matching routes, not only DOM attributes.
+
+### Screen frame contract (2026-11-15)
+
+The owner approved this contract on 2026-11-15 after an independent audit found that pages passed every check while still looking different. It closes what the shell owns in one place. Where an earlier paragraph in this document or a dated specification disagrees, this section wins. It applies to naeil.dev and every owned service alike; naeil.dev is rendered through the same shell and is not an exception.
+
+**Frame.** `NaeilServiceShell` renders one frame element around skip link, header, main and footer. The frame is at least one viewport tall (`100dvh`) and lays out in a column; main takes the remaining height.
+- Short page: the footer's bottom edge sits on the viewport's bottom edge. No blank canvas appears below the footer.
+- Long page: the footer follows the content, with the existing 96px (`ui.page-bottom`) between the end of content and the footer.
+- A recorded no-footer screen (`footer={false}`, e.g. Home login) still fills the viewport with main.
+- Applications add no `min-height`, flex or wrapper of their own to achieve this.
+
+**Fonts.** The package delivers its fonts through one entry, `@naeil/ui/fonts.css`. Applications import that entry and do not install or import Pretendard or Noto Sans JP themselves.
+- Latin letters and digits (U+0020–007E, U+00A0–00FF) render in Pretendard in every language, including inside Japanese text and Japanese chrome.
+- Kana, kanji and Japanese punctuation render in Noto Sans JP. Korean renders in Pretendard.
+- This replaces the earlier rule that Japanese elements use the Noto Sans JP stack for all glyphs.
+- A page that needs no Japanese glyphs downloads no Japanese font file, and at most one Japanese font stylesheet.
+
+**Base text.** Shared CSS sets the body baseline — semantic background and foreground, the font stack above and 16/25px text — identically whether an application imports `globals.css` or `theme.css` + `components.css`. Applications do not restate body colour, font or line height. Chrome typography values are generated from the token source, not maintained beside it.
+
+**Icons.** `/favicon.ico`, `/icon.svg` and `/apple-icon.png` return 200 with the current brand kit's bytes at every address users actually open, including reverse-proxied and private-network addresses. A declaration in metadata is not sufficient; the response is the requirement.
+
+**Error and not-found screens.** They use the same frame: header, main and footer, the remembered or default dark theme, the shared fonts and a link back. Error documents generated outside React (the locale layer's fallback document) carry at least the dark colours, the shared font stack and their home links. naeil.dev has a localized not-found screen.
+
+**Signed-in state.** The same frame, fonts and rhythm hold when signed in. The header shows the shell's account control: visible in the toolbar at desktop width, inside the menu at mobile width. Signed-out pages show the login control except on the login route itself.
+
+**Acceptance.** "Matching" is claimed only from a comparison of the addresses users actually open — naeil.dev and the four services, Home through its private-network address — across ko/ja/en, 1440 and 390px widths, and a short and a long page, with zero differences in: footer-to-viewport gap, rendered fonts, body text metrics, icon responses, title format, first-visit theme and header/footer pixels. Conformance checks, hashes, fixtures and loopback runs are supporting evidence only. A report states address, language, width, sign-in state and browser, and writes "not measured" for anything it did not measure.
 
 Internal columns must respond to the space available inside their region. Use container queries or an equivalent content-aware layout when viewport breakpoints no longer represent that space. Keep wide tables locally scrollable; check localized labels, wrapping and controls inside cells as well as page overflow. See the [consumer composition guide](docs/design/v2-migration.md#앱-전체-틀과-콘텐츠-폭) for application ownership and checks.
 
