@@ -120,6 +120,10 @@ function stripLegacyLang(search: string): string {
   });
   return retained.length && retained.join("&") ? "?" + retained.join("&") : "";
 }
+function serializePath(path: string): string {
+  const url = new URL(path, "https://naeil.dev");
+  return url.pathname + url.search + url.hash;
+}
 function prefixPath(path: string, locale: NaeilLocale): string { return locale === "en" ? path : `/${locale}${path === "/" ? "" : path}`; }
 
 /** Strict UI classification is not an auth/return validator. Call existing security validators separately. */
@@ -142,9 +146,9 @@ export function resolveLocaleUrl(inputService: LocaleServiceInput, input: string
   if (legacy && languages.length && (languages.length !== 1 || !isNaeilLocale(languages[0]))) return invalid("Invalid legacy language", 400, pathLocale);
   const locale = pathLocale ?? (legacy && languages.length ? languages[0] as NaeilLocale : "en");
   const search = legacy ? stripLegacyLang(parts.search) : parts.search;
-  const canonicalPath = prefixPath(logicalPath, locale) + search + parts.hash;
+  const canonicalPath = serializePath(prefixPath(logicalPath, locale) + search + parts.hash);
   const originalPath = rawPathname + parts.search + parts.hash;
-  return { kind: "ui", locale, logicalPath, route, canonicalPath, originalPath, alias: canonicalPath !== originalPath };
+  return { kind: "ui", locale, logicalPath: serializePath(logicalPath), route, canonicalPath, originalPath, alias: canonicalPath !== serializePath(originalPath) };
 }
 
 /** Input must be an unlocalized registered UI route. Does not validate login return destinations. */
@@ -155,7 +159,7 @@ export function localePath(inputService: LocaleServiceInput, unlocalizedRoute: s
   if (!parts || localePrefix.test(parts.pathname)) throw new Error("localePath requires an unlocalized route");
   const result = resolveLocaleUrl(service, parts.pathname);
   if (result.kind !== "ui") throw new Error("Unregistered UI destination");
-  return prefixPath(result.logicalPath, locale) + (service.id === "main" ? parts.search : stripLegacyLang(parts.search)) + parts.hash;
+  return serializePath(prefixPath(result.logicalPath, locale) + (service.id === "main" ? parts.search : stripLegacyLang(parts.search)) + parts.hash);
 }
 export function localeHref(service: LocaleServiceInput, unlocalizedRoute: string, locale: NaeilLocale): string {
   return getLocaleService(service).origin + localePath(service, unlocalizedRoute, locale);
