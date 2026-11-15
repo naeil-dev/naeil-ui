@@ -19,6 +19,7 @@ for (const locale of ['ko', 'ja', 'en']) test(`runtime CLI measures real shell /
   const result = await cli(baseURL!, [route('estimate', locale), route('estimate', locale, '&shellLong')]);
   expect(result.code, result.stdout + result.stderr).toBe(0);
   expect(result.stdout).toContain('8 checks, 0 failures');
+  expect(result.stdout).toMatch(/Pretendard|Noto Sans JP/);
   expect(result.stdout).toContain('1440×900');
   expect(result.stdout).toContain('390×844');
 });
@@ -42,7 +43,7 @@ test('real shell login pages need an explicit runtime account exception', async 
   const rejected=await cli(baseURL!,[login],['--no-footer',login]);
   expect(rejected.code).toBe(1); expect(rejected.stdout).toContain('header account count: 0');
 });
-test('exported measurement function is serializable and observes DOM changes', async ({page}) => {
+test('exported measurement function is serializable and observes DOM changes', async ({page}, info) => {
   await page.goto(route('estimate'));
   await expect(page.locator('main h1')).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
@@ -52,6 +53,8 @@ test('exported measurement function is serializable and observes DOM changes', a
     document.querySelector('main')!.append(Object.assign(document.createElement('div'), {hidden: true}));
   });
   const values = await page.evaluate(measureNaeilPage);
+  expect(values.renderedFonts.status).toBe('not measured');
+  await info.attach('page-measurements', {body: JSON.stringify(values), contentType:'application/json'});
   // Firefox can return 95.999969px after the frame adds a fractional flex size.
   // Keep the same sub-pixel tolerance as the frame/chrome geometry assertions.
   expect(values.contentFooter).toBeGreaterThanOrEqual(95.5); // hidden trailing elements cannot hide the final content block
