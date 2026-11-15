@@ -55,3 +55,7 @@ Radix, Sonner, Lucide, React, Next.js and other npm dependencies carry licenses 
 ### Optional branded header candidate
 
 Since 0.7.2, the branded header’s default naeil-ui catalog references one decorative image, https://naeil.dev/images/whale.png. It does not embed or redistribute those public/images bytes; their unresolved provenance above remains open. Site-adapter extraction does not establish artwork rights or clear unrelated website assets.
+
+## Archived Playwright trace viewers
+
+The retained viewer copies under `docs/evidence/shared-naeil-header-2026-10-15/storybook/` are third-party Playwright tooling. Their [directory-level attribution and full licence texts](https://github.com/naeil-dev/naeil-ui/blob/main/docs/evidence/shared-naeil-header-2026-10-15/storybook/PLAYWRIGHT-NOTICE.md) identify Microsoft/Puppeteer, bundled libraries, VS Code codicon/font assets and Chromium/WebKit-derived code. They are separate from the public UI package.
