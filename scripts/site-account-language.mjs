@@ -11,8 +11,8 @@ import { prepareSiteLanguageFixture, runSiteLanguageAcceptance, startSiteDestina
 // Actual built Next application; only Auth/provider transport and invite RPC are
 // synthetic. Never accepts an external URL, live cookie, environment or user data.
 const origin = 'http://localhost:2482';
-// Linux containers resolve listen('localhost') to ::1, while Node fetch uses
-// 127.0.0.1. Keep localhost URL/cookie semantics, but bind the server explicitly.
+// Linux containers can bind localhost to ::1 while fetch connects to 127.0.0.1.
+// Prefer IPv4 in the child, retaining localhost as Next's redirect hostname.
 const bindHost = '127.0.0.1';
 const authOrigin = 'http://127.0.0.1:55431';
 const evidence = resolve(process.env.NAEIL_ACCOUNT_EVIDENCE || 'test-results/site-account-language');
@@ -87,8 +87,8 @@ try {
     await new Promise(yes=>guard.close(yes));
   }
   await new Promise((yes,no)=>{auth.once('error',no);auth.listen(55431,'127.0.0.1',yes);});
-  app = spawn(process.execPath,[...(languageFixture ? ['--require',languageFixture.preload] : []),...(artifact ? [join(artifact,'standalone/server.js')] : ['node_modules/next/dist/bin/next','start','--hostname',bindHost,'--port','2482'])], {
-    env:{...process.env,PORT:'2482',HOSTNAME:bindHost,NAEIL_INVITE_DIST_DIR:artifact ? '.next-console-invite' : (process.env.NAEIL_INVITE_DIST_DIR || '.next'),NAEIL_INVITE_CONFIG_FILE:privateConfig,...(acceptanceEnabled ? {NAEIL_INVITE_ACCEPT_ENABLED:'true'} : {}),NEXT_PUBLIC_SUPABASE_URL:authOrigin,NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon'},stdio:['ignore','pipe','pipe'],
+  app = spawn(process.execPath,['--dns-result-order=ipv4first',...(languageFixture ? ['--require',languageFixture.preload] : []),...(artifact ? [join(artifact,'standalone/server.js')] : ['node_modules/next/dist/bin/next','start','--hostname','localhost','--port','2482'])], {
+    env:{...process.env,PORT:'2482',HOSTNAME:'localhost',NAEIL_INVITE_DIST_DIR:artifact ? '.next-console-invite' : (process.env.NAEIL_INVITE_DIST_DIR || '.next'),NAEIL_INVITE_CONFIG_FILE:privateConfig,...(acceptanceEnabled ? {NAEIL_INVITE_ACCEPT_ENABLED:'true'} : {}),NEXT_PUBLIC_SUPABASE_URL:authOrigin,NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon'},stdio:['ignore','pipe','pipe'],
   });
   appClosed = new Promise(resolve => app.once('close', resolve));
   let stdout = '', stderr = '', spawnError;
