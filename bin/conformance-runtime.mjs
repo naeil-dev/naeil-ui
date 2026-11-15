@@ -24,6 +24,7 @@ export function assessNaeilPage(value, {service, noFooter = false, noAccount = f
   const errors = [];
   const exact = (name, actual, expected) => { if (actual !== expected) errors.push(`${name}: ${actual} (expected ${expected})`); };
   const gap = (name, actual, expected) => { if (actual === null || !Number.isFinite(actual) || Math.abs(actual - expected) > 0.5) errors.push(`${name}: ${actual} (expected ${expected} ±0.5px)`); };
+  exact('frame count', value.frameCount, 1);
   exact('main count', value.mainCount, 1); exact('main#main.ui-app-main count', value.ownedMainCount, 1);
   exact('header count', value.headerCount, 1);
   if (viewportWidth === 1440 && !noAccount && !(Number.isFinite(value.accountCount) && value.accountCount >= 1)) errors.push(`header account count: ${value.accountCount} (expected at least 1)`);
@@ -32,7 +33,21 @@ export function assessNaeilPage(value, {service, noFooter = false, noAccount = f
   if (value.titleDescription !== null) gap('h1 → description', value.titleDescription, 12);
   if (value.pageHeaderContent !== null) gap('PageHeader → content', value.pageHeaderContent, 32);
   exact('footer count', value.footerCount, noFooter ? 0 : 1);
-  if (!noFooter) gap('last content → footer', value.contentFooter, 96);
+  if (noFooter) {
+    if (!Number.isFinite(value.mainBottom) || value.mainBottom < value.viewportHeight - 0.5)
+      errors.push(`main bottom: ${value.mainBottom} (expected at least viewport ${value.viewportHeight})`);
+  } else {
+    // Classify by the content's natural minimum, independently of the actual footer
+    // position. Otherwise removing flex fill would misclassify a short page as long.
+    const short = Number.isFinite(value.contentBottom) && Number.isFinite(value.footerHeight)
+      && value.contentBottom + 96 + value.footerHeight <= value.viewportHeight + 0.5;
+    if (short) {
+      gap('footer → viewport bottom', value.footerViewportGap, 0);
+      if (!Number.isFinite(value.contentFooter) || value.contentFooter < 95.5)
+        errors.push(`last content → footer: ${value.contentFooter} (expected at least 96px ±0.5px on a short page)`);
+    } else gap('last content → footer', value.contentFooter, 96);
+  }
+  exact('body line-height', value.bodyLineHeight, 25);
   exact('body font-size', value.bodySize, 16); exact('fresh html dark', value.dark, true);
   if (!value.title.endsWith(`.naeil ${service}`)) errors.push(`document.title: ${JSON.stringify(value.title)} (expected suffix .naeil ${service})`);
   const documentURL = new URL(value.url);
@@ -147,6 +162,20 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
         // Let provider effects and the next paint settle without modifying app state.
         await bounded('paint', () => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))));
         const measurements = await bounded('measurements', () => page.evaluate(measureNaeilPage));
+        if (measurements.renderedFonts.selector) {
+          const sample = measurements.renderedFonts;
+          const session = await bounded('font session', () => context.newCDPSession(page));
+          try {
+            await bounded('font DOM', () => session.send('DOM.enable'));
+            await bounded('font CSS', () => session.send('CSS.enable'));
+            const {root} = await bounded('font document', () => session.send('DOM.getDocument'));
+            const {nodeId} = await bounded('font body', () => session.send('DOM.querySelector', {nodeId: root.nodeId, selector: sample.selector}));
+            const {fonts} = await bounded('rendered fonts', () => session.send('CSS.getPlatformFontsForNode', {nodeId}));
+            measurements.renderedFonts = fonts.some(font => font.glyphCount > 0)
+              ? {status: 'measured', selector: sample.selector, text: sample.text, fonts}
+              : {status: 'not measured', reason: 'CDP returned no rendered body glyphs', selector: sample.selector, text: sample.text};
+          } finally { await session.detach(); }
+        }
         if (headerError) throw headerError;
         // Validate the measured document, including client-side redirects after hydration.
         if (!response || (expectedStatus ? response.status() !== Number(expectedStatus) : !response.ok())) throw new Error(`HTTP ${response?.status() ?? 'no response'} (expected ${expectedStatus ?? '2xx'})`);

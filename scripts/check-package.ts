@@ -184,7 +184,6 @@ try {
     "bin/conformance-source.mjs",
     "bin/conformance-runtime.mjs",
     "bin/conformance-project.mjs",
-    "bin/conformance-metadata.mjs",
     "dist/source/components/naeil-page-measure.js",
     "bin/naeil-ui-conformance.mjs",
     "docs/components/naeil-shell.md",

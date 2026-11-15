@@ -252,7 +252,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     assert.equal(checked.status, 1); assert.match(checked.stderr, /must pass account=/);
     writeFileSync(entry, source.replace(accountInput, 'account={session} header={{authSlot:null}}'));
     checked = spawnSync(cli, args, {encoding: "utf8"});
-    assert.equal(checked.status, 1); assert.match(checked.stderr, /header.authSlot/);
+    assert.equal(checked.status, 0, checked.stderr); // Presentation is owned by types/runtime.
     writeFileSync(entry, source);
     mkdirSync(join(app, "src"), {recursive: true});
     writeFileSync(join(app, "src/content.tsx"), '<PageHeader actions={<Action className="button"/>}/>; const metadata = user.user_metadata; const sample = "forcedTheme";');
@@ -262,17 +262,18 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
       writeFileSync(join(app, 'src/metadata.ts'), 'import {localeMetadata} from "@naeil/ui/naeil-locale/server"; export function pageMetadata(){return localeMetadata({service:"estimate"});}');
       checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr);
       writeFileSync(join(app, 'src/metadata.ts'), 'export function pageMetadata(){return {icons:[]};}');
-      checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 1); assert.match(checked.stderr, /icons/);
+      checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr); // Static no longer interprets metadata.
       writeFileSync(join(app, 'src/metadata.ts'), 'export function pageMetadata(){return {description:"ok"};}');
     }
     checked = spawnSync(cli, args, {encoding:'utf8'}); assert.equal(checked.status, 0, checked.stderr);
     writeFileSync(join(app, "violation.css"), ":root { --color-background: pink; }");
     writeFileSync(join(app, "violation.tsx"), '<NaeilHeader /><NaeilThemeProvider defaultTheme="light" />');
     checked = spawnSync(cli, args, { encoding: "utf8" });
-    assert.equal(checked.status, 1);
-    assert.match(checked.stderr, /violation.tsx:1 chrome/);
-    assert.match(checked.stderr, /violation.tsx:1 theme/);
-    assert.match(checked.stderr, /violation.css:1 rhythm/);
+    assert.equal(checked.status, 0, checked.stderr); // Removed CSS/theme/chrome heuristics.
+    writeFileSync(entry, 'export default function App(){return <div/>}');
+    checked = spawnSync(cli, args, {encoding:'utf8'});
+    assert.equal(checked.status, 1); assert.match(checked.stderr, /Import and use a reachable NaeilServiceShell/);
+    writeFileSync(entry, source);
     const missingRuntime = spawnSync(cli, ["--service", "estimate", "--url", "http://127.0.0.1:1", "--routes", "/", "--app", app, '--header', 'X-Fixture:accepted', '--expect-status', '/=200', '--allow-redirect', '/=/en'], {encoding: "utf8"});
     assert.equal(missingRuntime.status, 2, missingRuntime.stderr);
     assert.match(missingRuntime.stderr, /pnpm add -D @playwright\/test/);
