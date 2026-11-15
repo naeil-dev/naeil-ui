@@ -365,3 +365,7 @@ The owner's approved header rule and DESIGN.md are the authority; existing Logo,
 ## 2026-11-14 — owned-service shell
 
 Gap → source → decision: per-service frame/theme/icon drift → owner-approved shell spec, DESIGN.md page rhythm and existing shared service profiles → reuse their actual components/messages/styles through `NaeilServiceShell` and enforce static CI adoption. No external reference, new artwork or external design tool was used. Applied repository/installed frontend workflow and Impeccable context/craft-floor; actual verification and source hashes are in the [shell receipt](service-shell-2026-11-14-verification.md). Existing frozen B1 and prior production acceptance findings remain separate.
+
+## 2026-11-15 — scoped audit fixes for toast and Sheet
+
+Authority: DESIGN.md, the approved stage-2 audit findings, existing focus/motion tokens and section-title role. No external visual reference or artwork was adopted. Actual tools: Impeccable context for `sonner.tsx`, craft-floor, and one scoped detector run over Sheet/Sonner/component CSS (`[]`); Playwright 1.63 Storybook checks in Chromium, Firefox and WebKit. The final focus contrast is 6.19:1 light / 8.47:1 dark in all three engines; toast/button/close transitions are 180ms (0ms under reduced motion), and SheetTitle is 20/29px. These are local component measurements, not live service parity or publication receipts.
