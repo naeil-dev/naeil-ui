@@ -1,3 +1,20 @@
+/* Landing composition remains site-owned inside the shared frame. */
+:global([data-naeil-shell]):has(.landingHero) {
+  position: relative;
+}
+
+.landingHero {
+  min-height: 100svh;
+  margin-top: calc(-1 * (var(--ui-navigation-height) + 1px + var(--ui-page-top)));
+}
+
+/* Anchor artwork to the full shell without changing main's content width.
+   Unlike 100vw, this also respects a reserved classic scrollbar gutter. */
+.landingHero > section {
+  position: absolute;
+  inset: 0 0 auto;
+}
+
 .projects,
 .blogIntro,
 .blogList {

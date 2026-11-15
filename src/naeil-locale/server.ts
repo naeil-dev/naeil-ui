@@ -1,3 +1,4 @@
+import { naeilErrorDocumentStyles } from "./error-style.generated";
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
@@ -101,7 +102,7 @@ async function invalidResponse(status: number, service: LocaleServiceInput, kind
   const message = copy.errors[status === 400 ? "badRequest" : status === 401 ? "unauthenticated" : status === 403 ? "forbidden" : status === 503 ? "unavailable" : "notFound"];
   const title = localeServiceTitle(service, message);
   const links = naeilLocales.map(language => `<li><a lang="${language}" href="${escapeHtml(localePath(service, "/", language))}">${escapeHtml(copy.names[language])}</a></li>`).join("");
-  return markPrivate(new NextResponse(`<!doctype html><html lang="${locale}"><head><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/icon.svg"><title>${escapeHtml(title)}</title></head><body><h1>${status}</h1><p>${escapeHtml(message)}</p><ul>${links}</ul></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } }));
+  return markPrivate(new NextResponse(`<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="color-scheme" content="dark"><style>${naeilErrorDocumentStyles}</style><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/icon.svg"><title>${escapeHtml(title)}</title></head><body><h1>${status}</h1><p>${escapeHtml(message)}</p><ul>${links}</ul></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } }));
 }
 
 /** Auth decisions precede alias canonicalization; no locale rewrite reaches protocol handlers. */

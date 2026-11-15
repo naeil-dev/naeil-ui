@@ -352,6 +352,11 @@
       "signin": "Sign in with the invited account to continue in this browser.",
       "finish": "Finish signing in",
       "switchButton": "Switch account and continue"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The address may have changed or this page is no longer available.",
+      "backHome": "Back to home"
     }
   }
 }

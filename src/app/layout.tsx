@@ -2,11 +2,7 @@ import { JetBrains_Mono } from "next/font/google";
 import { SiteSessionStateProvider } from "@/components/site-session-state";
 import { NaeilLocaleController } from "@/naeil-locale/client";
 import { getLocale } from "next-intl/server";
-import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
-import "@fontsource/noto-sans-jp/400.css";
-import "@fontsource/noto-sans-jp/500.css";
-import "@fontsource/noto-sans-jp/600.css";
-import "@fontsource/noto-sans-jp/700.css";
+import "@naeil/ui/fonts.css";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
