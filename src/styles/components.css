@@ -827,3 +827,10 @@ html:root [data-naeil-chrome][lang] .naeil-header-brand-suffix {
   outline-offset: 3px;
   box-shadow: none;
 }
+
+/* Beat Sonner's injected unlayered durations; reduced motion above remains !important. */
+[data-sonner-toaster] [data-sonner-toast],
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-button],
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button] {
+  transition-duration: var(--ui-motion-standard);
+}
