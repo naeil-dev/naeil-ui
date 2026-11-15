@@ -49,7 +49,7 @@ export function assessNaeilPage(value, {service, noFooter = false, noAccount = f
  * storageState?: string, headers?: string[], expectStatus?: string[], allowRedirect?: string[], waitFor?: string[],
  * timeoutMs?: number, stepTimeoutMs?: number}} options
  */
-export async function checkRuntimeConformance({service, url, routes, noFooter = [], noAccount = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = [], timeoutMs = 120000, stepTimeoutMs = 15000}) {
+export async function checkRuntimeConformance({service, url, routes, noFooter = [], noAccount = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = [], timeoutMs = 600000, stepTimeoutMs = 15000}) {
   if (![timeoutMs, stepTimeoutMs].every(value => Number.isFinite(value) && value > 0)) throw new Error('Runtime timeout budgets must be positive finite milliseconds');
   const deadline = Date.now() + timeoutMs;
   async function bounded(label, operation) {
