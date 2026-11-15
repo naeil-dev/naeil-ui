@@ -37,7 +37,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 | --- | --- |
 | `service` | Required closed lowercase service id; unknown JS/cast values throw `Error` |
 | `locale` | Required `ko`, `ja` or `en` |
-| `account` | Optional `NaeilHeaderAccount` in the component API (planned 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
+| `account` | Optional `NaeilHeaderAccount` in the component API (since 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
 | `children` | Page content; start with `PageHeader` |
 | `Link`, `onNavigate` | Existing header/footer routing adapter and guard |
 | `header` | Only `appNavigation`, `currentHref`, `brandHref`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`, plus deprecated `authSlot` for 0.15.0 compatibility. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
@@ -46,7 +46,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 
 The shell renders provider → `.ui-skip-link` targeting `#main` → service header → `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>` → service footer. Skip text is shared `naeil.shell.skipToContent`: 본문으로 건너뛰기 / 本文へスキップ / Skip to content. Enter on the focused skip link moves focus to main.
 
-### Account ownership and login pages (planned 0.16.0)
+### Account ownership and login pages (since 0.16.0)
 
 Pass session state through `account`; the shell renders `NaeilHeaderAccountControl` with its own locale and the shared `Link`. The header retains its existing desktop/mobile composition. Signed-out pages, including error pages, show the shared login link. Signed-in pages show the shared account menu; the consumer owns logout I/O, busy state, request locks and routing guards above the shell.
 
