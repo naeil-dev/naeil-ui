@@ -193,6 +193,7 @@
     "test:browser": "playwright test",
     "check:package": "tsx scripts/check-package.ts && tsx scripts/check-consumers.ts",
     "check:types": "tsc --noEmit",
+    "compare:live": "node scripts/live-compare.mjs",
     "check:package:boundary": "tsx scripts/check-package.ts",
     "check:consumers": "tsx scripts/check-consumers.ts",
     "preview:storybook": "tsx scripts/serve-storybook.ts",
