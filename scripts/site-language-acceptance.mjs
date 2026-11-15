@@ -498,6 +498,9 @@ export async function runSiteLanguageAcceptance({ browser, origin, authOrigin, i
           if (edge.openProjects) await page.getByRole('button', { name: { en: 'Projects', ko: '프로젝트', ja: 'プロジェクト' }[locale], exact: true }).click();
           const anchor = page.locator(edge.selector).first();
           await expect(anchor).toBeVisible();
+          // The server cannot see #fragments; wait for the client return URL
+          // before testing copied hrefs, modifier clicks and normal navigation.
+          await expect(anchor).toHaveAttribute('href', edge.href);
           const href = await anchor.getAttribute('href');
           assert.equal(href, edge.href);
           assert.doesNotMatch(href, /^\/en(?:\/|$)|[?&]lang=/);
