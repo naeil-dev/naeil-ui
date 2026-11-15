@@ -1,3 +1,12 @@
+# Status — 2026-11-15 audit follow-up in progress
+
+The independent 2026-11-15 audit (52 confirmed findings) and its owner-approved five-stage plan are being executed. Published state is unchanged: `latest=0.16.0`. "Matching" across services is **not** currently claimed; acceptance is a live comparison table with zero differences reviewed by the owner (see DESIGN.md, screen frame contract, once 0.17.0 lands).
+
+- Stage 1 (security and fact corrections, no npm publication): Next 16.4.6, Storybook 10.6.7, site-runtime dependency audit in CI, OAuth callback session preservation, `/api/health` key check, anonymized SSO handoff, pinned Actions. Pending owner-approved merge and production deployment.
+- Stages 2–5 (frame contract 0.17.0, live comparison, service adoption, process/doc reduction): in progress on branches; nothing published or deployed.
+
+---
+
 # Status — 2026-11-15 shared UI 0.16.0 published and services deployed
 
 `@naeil/ui@0.16.0` is published from frozen source `efb6f104eba93c76bf48afd85e2c9c77517320dd`; [PR #57](https://github.com/naeil-dev/naeil-ui/pull/57) merged as `5df4933`. Verified tags: **`latest=0.16.0`, `next=0.13.0`**. Chrome contract 1 remains unchanged.
