@@ -10,11 +10,13 @@ and a unique OS temp output directory. `--out` must be outside this repository.
 `--channel chromium` selects an already-installed browser; nothing is installed.
 
 The fixed audit matrix is five sites × ko/ja/en × 1440×900 and 390×844 × OS
-light/dark × short/long/error. The four services have no audited signed-out long
+light/dark × short/long/error, plus naeil's `/{locale}/blog/does-not-exist`
+as `error-blog` (192 conditions total). The four services have no audited signed-out long
 route: those 48 rows are unmeasured. No authenticated business route is invented.
 Home always uses **https://jay-macmini-2.tail165003.ts.net:2455/console**, with
 browser language preference. An unreachable proxy is unmeasured; no fallback.
-The 404 probes remain real measured documents, even when chrome is absent.
+The 404 probes remain real measured documents. React not-found screens require
+the full frame; positively identified locale-layer fallbacks use the D6 contract.
 
 All browser requests except GET/HEAD are aborted, and service workers/WebSockets
 are blocked. No login, submit or state-changing click is performed. Navigation
@@ -76,18 +78,40 @@ in a closed mobile menu are unmeasured; this script does not open that menu.
 
 ## Fonts, icons and page checks
 
-CDP `CSS.getPlatformFontsForNode` records actually rendered families/glyph counts.
-Digits are sought first in footer meta, then chrome, then ordinary body text,
-then remaining visible text. A real digit substring is temporarily wrapped in a
-font-neutral inline span, preserving its parent's computed font properties;
-CDP measures that exact substring, and the original text is restored. No sample
-text is invented. The parent text/selector and method are retained. A page with
-no rendered digits is unmeasured; absence from chrome alone is not sufficient.
+CDP `CSS.getPlatformFontsForNode` records actually rendered families/glyph counts
+per script run. U+0020–007E and U+00A0–00FF (including `·`) expect Pretendard;
+Japanese kana/kanji/punctuation outside those ranges expect Noto Sans JP.
+A mixed Japanese body sample checks each run independently. Digits are sought
+first in footer meta, then chrome, ordinary body and remaining visible text.
+Only real text is copied into temporary fixed-position probes with the source's
+resolved typography. No original text is changed, and probes cannot reflow the
+page. Fonts are measured last, after all geometry/screenshots/icons/identity
+checks; the probes are then removed. Source selectors, exact runs and CDP
+families are retained. No invented sample text or aggregate mixed-font verdict.
 
 Body size/line-height expects 16/25; short footer-to-viewport 0px; long
 content-to-footer 96px. Home login intentionally has no footer. The terminal
 content algorithm reuses runtime conformance with a catalog `main` fallback.
 Missing body metrics on raw errors remain visible (`normal`, Times), not a pass.
+
+D6 classification requires no shell/main/React root, a direct `body > h1`
+matching the HTTP error status, a direct message paragraph and the locale-layer
+`ul > li > a[lang]` structure. Detection does not depend on passing lang, title
+or style requirements. Evidence is retained in `document.evidence`. A bare Home
+proxy 404 has no such structure and retains all ordinary checks.
+
+The separate fallback item set is **colours / stack / metrics / links / lang /
+title**, plus the existing icon response check. Colours require an opaque dark
+computed background (relative luminance ≤0.1), light foreground (≥0.5), contrast
+≥7 and `color-scheme: dark`. Stack requires declared Pretendard before Noto Sans
+JP plus system/sans fallbacks; loaded webfonts are not required. Body is 16/25;
+ko/ja/en home links must be nonempty and same-origin (`/` is the default English
+home alias); lang/title retain their
+normal rules. Frame/gap, theme class, rendered fonts and chrome comparisons are
+explicitly **not required (fallback document, D6)**, shown as `n/r` in the header,
+rollup and each row, separate from unmeasured. D6-only checks are n/r on ordinary
+documents. An informational, uncounted line records framed/fallback/unframed
+unknown/error routes per site so the owner can decide whether to frame them.
 
 Playwright 1.63 aborts exact `/favicon.ico` requests before user routing. Icon
 status/SHA-256 collection therefore uses anonymous Node GETs to the exact
@@ -102,15 +126,14 @@ is still reported if the reference is unavailable.
 A Vercel HTTP 403 security checkpoint pauses that origin for the rest of the
 run, records its conditions as unmeasured, and prevents its content or hashes
 from becoming a baseline. No checkpoint bypass or stale/alternate baseline is
-used. An HTTP 429 response gets at most one read-only retry after Retry-After
-(capped at 60s; default 60s); a persistently limited state is unmeasured and the
-first response/title observation is retained. Other measured rows still report
+used. An HTTP 429 response makes the row unmeasured, with response path/status
+and Retry-After retained. There are no automatic retries. Other measured rows still report
 their independent contract failures. Missing baseline comparisons remain –.
 
 ## Output and counting
 
 `comparison.md`: header/policy, item × site rollup, **distinct observable causes**,
-and one compact ✓/✗/– row per condition with screenshot/detail links.
+and one compact ✓/✗/–/n/r row per condition with screenshot/detail links.
 `rows/<id>.json`: full values, masks, geometry/styles and pixel references.
 `comparison.json`: aggregate machine-readable data, rollup, grouped causes and
 all rows. `screenshots/`, `bands/`, `diffs/`: PNG evidence outside git.
@@ -118,7 +141,8 @@ all rows. `screenshots/`, `bands/`, `diffs/`: PNG evidence outside git.
 Distinct IDs group identical observations across sites/locales/widths/OS
 schemes, independent of numeric variation. They are not claims about code root
 causes. For example, missing frame and missing-footer gap on the same bare
-error document share one cause; 180 repetitions do not become 180 defects.
+non-fallback error document share one cause; matrix repetitions do not become
+separate defects.
 Per-check-cell counts remain secondary, with partial coverage explicit.
 Exit 1: distinct differences >0; exit 2: incomplete without differences or setup
 failure; exit 0: measured complete and matching. Unmasked diffs never count.
