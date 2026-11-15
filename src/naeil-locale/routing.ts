@@ -42,6 +42,7 @@ export function defineLocaleService(service: NaeilLocaleService): NaeilLocaleSer
   if (origins[service.id] !== service.origin) throw new Error("Service origin must match the exact owned origin");
   const paths = service.routes.map(route => typeof route === "string" ? route : route.path);
   if (!paths.length || new Set(paths).size !== paths.length) throw new Error("Route inventory is empty or duplicated");
+  if (!paths.includes("/")) throw new Error("Service requires the root route / for recovery links");
   for (const path of paths) {
     if (!/^\/(?:[A-Za-z0-9._~-]+|\[[A-Za-z][A-Za-z0-9_]*\])(?:\/(?:[A-Za-z0-9._~-]+|\[[A-Za-z][A-Za-z0-9_]*\]))*$/.test(path) && path !== "/") throw new Error(`Invalid registered route: ${path}`);
     if (localePrefix.test(path) || (isProtocolPath(path, service) && !service.uiProtocolExceptions?.includes(path)) || path.split("/").some(segment => segment === "." || segment === "..")) throw new Error(`Locale/protocol path cannot be a UI route: ${path}`);
