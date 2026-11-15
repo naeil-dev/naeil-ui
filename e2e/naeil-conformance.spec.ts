@@ -54,7 +54,9 @@ test('exported measurement function is serializable and observes DOM changes', a
     document.querySelector('main')!.append(Object.assign(document.createElement('div'), {hidden: true}));
   });
   const values = await page.evaluate(measureNaeilPage);
-  expect(values.contentFooter).toBe(96); // hidden trailing elements cannot hide the final content block
+  // Firefox can return 95.999969px after the frame adds a fractional flex size.
+  // Keep the same sub-pixel tolerance as the frame/chrome geometry assertions.
+  expect(values.contentFooter).toBeCloseTo(96, 2); // hidden trailing elements cannot hide the final content block
   expect(assessNaeilPage(values, {service: 'estimate'})).toContain('body font-size: 14 (expected 16)');
 });
 
