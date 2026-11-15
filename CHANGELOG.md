@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.17.0 — screen frame contract (unreleased)
+## 0.17.0 — screen frame contract (unpublished candidate)
 
 - `NaeilServiceShell` owns one `.ui-service-shell[data-naeil-shell]` around skip link/header/main/footer, with a token-generated `100dvh` minimum and a growing main. Short screens end at the viewport bottom; long content retains the 96px footer gap; recorded `footer={false}` screens still fill the viewport. naeil.dev uses the same frame through the additive `service="main"` catalog profile (Projects/Blog, no service suffix). Landing artwork remains site-owned and spans the shell independently of the content cap.
 - Add `@naeil/ui/fonts.css`: one stylesheet with Pretendard Variable and variable Noto Sans JP, package-local unchanged WOFF2 build assets and OFL notices. No consumer font installation or resolver aliases are needed. A Latin-only Pretendard face leads Japanese body/chrome/locale-menu stacks; kana, kanji and Japanese punctuation remain Noto Sans JP. Variable Noto replaces four site weight stylesheets (127,688 → 31,249 gzip bytes for the source Noto definitions); Korean-only pages request no Japanese font files.
@@ -12,7 +12,11 @@
 - Narrow static conformance to reachable shell import/usage and explicit account input. Remove presentation, theme, CSS, service-literal, metadata/icon/title and Vite-base heuristics; static PASS establishes adoption only. Consumers must retain type checks, runtime routes and live comparison.
 - The site's OAuth buttons use the tested shared flow lock, with real callback duplicate-submit and recovery tests. Built-site locale journeys run in verification CI with a freshly packed package, and WebKit Japanese shared-default cases are enabled with the packaged font harness.
 
-Implementation only; package version remains 0.16.0. Publication, live service comparison and deployment have separate acceptance. Runtime conformance supports the new frame contract; live service rollout acceptance remains separate.
+- Required consumer migration: import `@naeil/ui/fonts.css`, remove app-owned Pretendard/Noto dependencies/imports, body background/colour/font/line-height rules and viewport-fill/sticky-footer workarounds. Use each service's own id; `service="main"` is for naeil.dev only. WOFF2 assets increase the package to approximately 9.9 MB unpacked. See the [short four-service migration checklist](docs/design/v2-migration.md#0170-required-consumer-migration).
+- Remove unsupported `asChild` from the public types of Checkbox, Switch, SelectTrigger/Content/Item, DialogContent, SheetContent and DropdownMenuCheckboxItem/RadioItem/SubTrigger. Their wrappers own multiple children; migrate callers to the supported component structure. Button and supported trigger composition retain `asChild`.
+- Runtime conformance uses a 10-minute overall budget and 15-second step limits; `--header` values are scoped to the configured origin, including redirects. Service auto-merge policy is patch-only; a 0.x minor may require consumer changes and manual migration review. Service automation changes follow separately.
+
+Package metadata, generated `/release` and React/Next fixture pins are 0.17.0. Unpublished candidate; publication, live service comparison and deployment retain separate approval and acceptance.
 
 ## 0.16.0 — shell-owned login and account control (published 2026-11-15)
 
