@@ -11,6 +11,9 @@ import { prepareSiteLanguageFixture, runSiteLanguageAcceptance, startSiteDestina
 // Actual built Next application; only Auth/provider transport and invite RPC are
 // synthetic. Never accepts an external URL, live cookie, environment or user data.
 const origin = 'http://localhost:2482';
+// Linux containers resolve listen('localhost') to ::1, while Node fetch uses
+// 127.0.0.1. Keep localhost URL/cookie semantics, but bind the server explicitly.
+const bindHost = '127.0.0.1';
 const authOrigin = 'http://127.0.0.1:55431';
 const evidence = resolve(process.env.NAEIL_ACCOUNT_EVIDENCE || 'test-results/site-account-language');
 const acceptanceEnabled = process.env.NAEIL_LANGUAGE_ACCEPTANCE === '1';
@@ -23,6 +26,10 @@ if (receipt) {
   assert.equal(receipt.publicAuthOrigin,authOrigin);
 }
 mkdirSync(evidence, { recursive: true });
+const startup = { status: 'preparing', origin, bindHost, exitCode: null, signal: null, lastProbe: null };
+const recordStartup = () => writeFileSync(join(evidence, 'startup.json'), JSON.stringify(startup, null, 2));
+recordStartup();
+for (const file of ['server.log', 'server.stdout.log']) writeFileSync(join(evidence, file), '');
 const privateDir = mkdtempSync(join(realpathSync(tmpdir()), 'site-account-language-'));
 const languageFixture = acceptanceEnabled ? prepareSiteLanguageFixture(privateDir, evidence, artifact) : undefined;
 const privateConfig = join(privateDir, 'invite.json');
@@ -48,7 +55,7 @@ const auth = createServer((req, res) => {
   res.writeHead(outage ? 503 : expired ? 401 : 200, {'Content-Type':'application/json'});
   res.end(JSON.stringify(outage ? {error_code:'unexpected_failure'} : expired ? {error_code:'session_not_found'} : authUser));
 });
-let app, browser, destinationProxy;
+let app, appClosed, browser, destinationProxy;
 const checks = [];
 const packageVersion=JSON.parse(readFileSync('package.json','utf8')).version;
 const ui = {
@@ -74,17 +81,42 @@ async function headerAccount(page, labels) {
 }
 try {
   // Refuse preexisting listeners instead of reusing another worker's process.
-  for (const [port, host] of [[2482,'localhost'],[55431,'127.0.0.1']]) {
+  for (const [port, host] of [[2482,bindHost],[55431,'127.0.0.1']]) {
     const guard = createServer();
     await new Promise((yes,no)=>{guard.once('error',no);guard.listen(port,host,yes);});
     await new Promise(yes=>guard.close(yes));
   }
   await new Promise((yes,no)=>{auth.once('error',no);auth.listen(55431,'127.0.0.1',yes);});
-  app = spawn(process.execPath,[...(languageFixture ? ['--require',languageFixture.preload] : []),...(artifact ? [join(artifact,'standalone/server.js')] : ['node_modules/next/dist/bin/next','start','--hostname','localhost','--port','2482'])], {
-    env:{...process.env,PORT:'2482',HOSTNAME:'localhost',NAEIL_INVITE_DIST_DIR:artifact ? '.next-console-invite' : (process.env.NAEIL_INVITE_DIST_DIR || '.next'),NAEIL_INVITE_CONFIG_FILE:privateConfig,...(acceptanceEnabled ? {NAEIL_INVITE_ACCEPT_ENABLED:'true'} : {}),NEXT_PUBLIC_SUPABASE_URL:authOrigin,NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon'},stdio:['ignore','ignore','pipe'],
+  app = spawn(process.execPath,[...(languageFixture ? ['--require',languageFixture.preload] : []),...(artifact ? [join(artifact,'standalone/server.js')] : ['node_modules/next/dist/bin/next','start','--hostname',bindHost,'--port','2482'])], {
+    env:{...process.env,PORT:'2482',HOSTNAME:bindHost,NAEIL_INVITE_DIST_DIR:artifact ? '.next-console-invite' : (process.env.NAEIL_INVITE_DIST_DIR || '.next'),NAEIL_INVITE_CONFIG_FILE:privateConfig,...(acceptanceEnabled ? {NAEIL_INVITE_ACCEPT_ENABLED:'true'} : {}),NEXT_PUBLIC_SUPABASE_URL:authOrigin,NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon'},stdio:['ignore','pipe','pipe'],
   });
-  app.stderr.on('data',data=>writeFileSync(join(evidence,'server.log'),data,{flag:'a'}));
-  for (let i=0;i<80;i++) { try { if ((await fetch(origin+'/api/health')).ok) break; } catch {} if(i===79) throw Error('Owned app failed to start'); await new Promise(r=>setTimeout(r,250)); }
+  appClosed = new Promise(resolve => app.once('close', resolve));
+  let stdout = '', stderr = '', spawnError;
+  app.stdout.on('data', data => { stdout += data; writeFileSync(join(evidence,'server.stdout.log'),data,{flag:'a'}); });
+  app.stderr.on('data', data => { stderr += data; writeFileSync(join(evidence,'server.log'),data,{flag:'a'}); });
+  app.once('error', error => { spawnError = error; });
+  app.once('exit', (code, signal) => { startup.exitCode = code; startup.signal = signal; recordStartup(); });
+  startup.status = 'starting'; startup.pid = app.pid; recordStartup();
+  const started = Date.now(), deadline = started + 20000;
+  let ready = false;
+  while (Date.now() < deadline) {
+    if (spawnError || app.exitCode !== null || app.signalCode !== null) { await appClosed; break; }
+    try {
+      const response = await fetch(origin+'/api/health', { signal: AbortSignal.timeout(Math.max(1, Math.min(1000, deadline - Date.now()))) });
+      startup.lastProbe = `HTTP ${response.status}`;
+      if (response.ok) { ready = true; break; }
+    } catch (error) { startup.lastProbe = `${error.message}${error.cause ? ': ' + error.cause.message : ''}`; }
+    await new Promise(resolve => setTimeout(resolve, Math.max(0, Math.min(250, deadline - Date.now()))));
+  }
+  startup.elapsedMs = Date.now() - started;
+  startup.status = ready ? 'ready' : 'failed';
+  if (spawnError) startup.error = spawnError.message;
+  recordStartup();
+  if (!ready) {
+    const failure = `Owned app failed to start: exit code ${app.exitCode}, signal ${app.signalCode}; ${spawnError?.message || startup.lastProbe}`;
+    console.error(`${failure}\nServer stdout:\n${stdout || '(empty)'}\nServer stderr:\n${stderr || '(empty)'}\nEvidence: ${evidence}`);
+    throw Error(failure);
+  }
   const identity = await (await fetch(origin+'/.well-known/naeil-ui.json')).json();
   if (receipt) assert.deepEqual(identity,receipt.identity);
   for (const asset of ['/console-invite/naeil-wordmark-color.svg','/console-invite/PretendardVariable.woff2','/icon.svg']) {
@@ -312,7 +344,8 @@ try {
 } finally {
   await browser?.close();
   await destinationProxy?.close();
-  if(app && app.exitCode===null) {const ended=new Promise(resolve=>app.once('exit',resolve));app.kill('SIGTERM');await ended;}
+  if(app?.pid && app.exitCode===null && app.signalCode===null) app.kill('SIGTERM');
+  await appClosed;
   auth.closeAllConnections();
   await new Promise(resolve=>auth.close(resolve));
   rmSync(privateDir,{recursive:true,force:true});
