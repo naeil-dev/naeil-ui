@@ -87,3 +87,7 @@ it.each([
   const result = spawnSync(process.execPath, ['bin/naeil-ui-conformance.mjs', '--service', 'estimate', '--url', 'http://127.0.0.1:1', '--routes', '/', ...args], {encoding:'utf8'});
   expect(result.status).toBe(1); expect(result.stderr).toContain(message);
 });
+
+it("rejects routes that normalize to a foreign origin before launching", async () => {
+  await expect(checkRuntimeConformance({service:'estimate',url:'http://127.0.0.1:1',routes:['/\\foreign.example/escaped']})).rejects.toThrow('--routes requires');
+});

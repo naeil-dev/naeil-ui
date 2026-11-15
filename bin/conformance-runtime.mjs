@@ -47,7 +47,7 @@ export function assessNaeilPage(value, {service, noFooter = false, noAccount = f
 export async function checkRuntimeConformance({service, url, routes, noFooter = [], noAccount = [], app = process.cwd(), storageState, headers = [], expectStatus = [], allowRedirect = [], waitFor = []}) {
   const origin = new URL(url);
   if (!['http:', 'https:'].includes(origin.protocol)) throw new Error('--url must be an http(s) origin');
-  if (!routes.length || routes.some(route => !route.startsWith('/') || route.startsWith('//'))) throw new Error('--routes requires comma-separated local /paths');
+  if (!routes.length || routes.some(route => !route.startsWith('/') || route.startsWith('//') || new URL(route, origin).origin !== origin.origin)) throw new Error('--routes requires comma-separated local /paths');
   if (noFooter.some(route => !routes.includes(route))) throw new Error('Every --no-footer route must be listed in --routes');
   if (noAccount.some(route => !routes.includes(route))) throw new Error('Every --no-account route must be listed in --routes');
   const extraHTTPHeaders = {};
@@ -89,9 +89,25 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
   const rows = [];
   try {
     for (const route of routes) for (const viewport of [{width: 1440, height: 900}, {width: 390, height: 844}]) for (const colorScheme of ['light', 'dark']) {
-      const context = await browser.newContext({viewport, colorScheme, storageState: state, extraHTTPHeaders});
+      const context = await browser.newContext({viewport, colorScheme, storageState: state, serviceWorkers: 'block'});
       try {
         const page = await context.newPage();
+        let headerError;
+        if (Object.keys(extraHTTPHeaders).length) {
+          // Chromium intercepts each hop. Context/route header overrides propagate
+          // to redirects; CDP Fetch overrides apply only to this individual request.
+          const session = await context.newCDPSession(page);
+          session.on('Fetch.requestPaused', event => {
+            const sameOrigin = new URL(event.request.url).origin === origin.origin;
+            const headers = Object.fromEntries(Object.entries(event.request.headers)
+              .filter(([name]) => !(name.toLowerCase() in extraHTTPHeaders)));
+            if (sameOrigin) Object.assign(headers, extraHTTPHeaders);
+            session.send('Fetch.continueRequest', {requestId: event.requestId,
+              headers: Object.entries(headers).map(([name, value]) => ({name, value: String(value)}))})
+              .catch(error => { headerError = error; });
+          });
+          await session.send('Fetch.enable', {patterns: [{urlPattern: '*', requestStage: 'Request'}]});
+        }
         let response;
         page.on('response', entry => { if (entry.request().isNavigationRequest() && entry.frame() === page.mainFrame()) response = entry; });
         response = await page.goto(new URL(route, origin).href, {waitUntil: 'load'});
@@ -108,6 +124,7 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
         // Let provider effects and the next paint settle without modifying app state.
         await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
         const measurements = await page.evaluate(measureNaeilPage);
+        if (headerError) throw headerError;
         // Validate the measured document, including client-side redirects after hydration.
         if (!response || (expectedStatus ? response.status() !== Number(expectedStatus) : !response.ok())) throw new Error(`HTTP ${response?.status() ?? 'no response'} (expected ${expectedStatus ?? '2xx'})`);
         const requested = new URL(route, origin), actual = new URL(measurements.url);
