@@ -50,7 +50,7 @@ function DialogContent({
   showCloseButton = true,
   closeLabel = "Close",
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+}: Omit<React.ComponentProps<typeof DialogPrimitive.Content>, "asChild"> & {
   showCloseButton?: boolean;
   closeLabel?: string;
 }) {

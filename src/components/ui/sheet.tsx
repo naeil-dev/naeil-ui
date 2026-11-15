@@ -50,7 +50,7 @@ function SheetContent({
   showCloseButton = true,
   closeLabel = "Close",
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+}: Omit<React.ComponentProps<typeof DialogPrimitive.Content>, "asChild"> & {
   side?: "right" | "left" | "top" | "bottom";
   showCloseButton?: boolean;
   closeLabel?: string;
