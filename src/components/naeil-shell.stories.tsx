@@ -45,7 +45,7 @@ function Example({ service }: { service: NaeilService }) {
     account={signedIn
       ? { status: "signed-in", onLogout: () => { setSignedIn(false); setNotice("Signed out"); } }
       : { status: "signed-out", loginHref: "/login" }}
-    footer={params.has("noFooter") ? false : { meta: ".naeil service shell" }}
+    footer={params.has("noFooter") ? false : {}}
     onNavigate={(event, item) => {
       if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || item.target === "_blank") return;
       event.preventDefault(); setNotice(item.href);

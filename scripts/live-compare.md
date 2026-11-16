@@ -43,15 +43,17 @@ frame measurements and element styles before any screenshot can scroll.
   separately, so masking placement does not suppress those invariant checks.
 - Account state: `[data-naeil-account-state]`, plus optional
   `.naeil-header-separator`; Home login has an explicit account suppression.
-- Optional footer product status/version: `.ui-site-footer-meta`.
 
 Both sides use the **union** of measured actual/reference rectangles, including
 real text Range rectangles when the suffix overflows its tight line-height box,
 rounded outward only to device pixels. No visual heuristics or padding guesses. A missing
 required marker makes the band unmeasured. Optional absent slots are explicitly
-recorded. Footer comparison crops to the shared brand/column bottoms plus the
-real frame bottom padding, excluding optional meta's extra flex row/gap.
-Full-height **unmasked** diff images remain supporting evidence and never count.
+recorded. Footer comparison has **no masks or height cropping**: the entire
+footer band and extra height count. Raw supporting diff images never count.
+The counted `footerMeta` check requires no non-empty meta row on every site;
+absent/empty passes, and non-empty reports its text. The public meta API remains
+available to standalone/generic compositions and existing consumers, while
+owned services leave it empty.
 Comparison-only band captures snap their origin to integer CSS pixels, removing
 raster-phase changes caused by a page's fractional content height. The relative layout offset
 is recorded and restored (not a compositor transform); original viewport/band images remain untouched.
@@ -142,7 +144,11 @@ Distinct IDs group identical observations across sites/locales/widths/OS
 schemes, independent of numeric variation. They are not claims about code root
 causes. For example, missing frame and missing-footer gap on the same bare
 non-fallback error document share one cause; matrix repetitions do not become
-separate defects.
+separate defects. A footer pixel failure shares the `footer-meta` cause only
+when the row has non-empty meta and every above-tolerance changed pixel lies
+inside measured meta boxes or extra height explained by measured meta flow with unchanged frame styles. This is diagnostic
+attribution only: all pixels/height remain counted, and any change outside that
+footprint keeps a separate pixel cause.
 Per-check-cell counts remain secondary, with partial coverage explicit.
 Exit 1: distinct differences >0; exit 2: incomplete without differences or setup
 failure; exit 0: measured complete and matching. Unmasked diffs never count.
@@ -159,5 +165,4 @@ browser requests (even sibling subdomains/redirects) are blocked with supplied
 state, which can leave fonts/assets unmeasured. Icon GETs remain anonymous.
 Supplied state is not proof of authentication; shared account-state markers
 are recorded. Remembered theme is not labeled as first visit. No authenticated
-long routes are invented. This change does not modify package contracts, CI,
-service applications, publication or deployments.
+long routes are invented. The comparison does not modify service applications, publish packages or deploy.

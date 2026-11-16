@@ -105,7 +105,7 @@ Next.js 소비자는 layout의 metadata title 기본값/템플릿과 페이지�
 
 0.17.0부터 naeil.dev도 `NaeilServiceShell service="main"`과 루트 `NaeilThemeProvider`를 사용한다. 다른 소유 서비스는 각자의 service id를 사용한다.
 
-셸이 skip link, 헤더, 고정 `main#main`의 `.ui-app-frame ui-app-main`, 전체 풋터를 소유한다. `PageHeader`로 페이지를 시작하며 제목 32/42 600, 제목→설명 12px, PageHeader→콘텐츠 32px, 페이지 위 48px/아래 96px를 유지한다. CSS는 16px 기본 본문, provider는 다크 기본값·저장된 선택·시스템 옵션을 공급한다. 목적별 `data-ui-layout`은 main 안에 둔다. class/style/id/data/theme 속성이나 예약 셀렉터로 공통 틀을 바꾸지 않는다. `header`에는 서비스 메뉴·인증·언어 상태를, 셸의 `Link`/`onNavigate`에는 공통 라우팅 guard를 전달한다. `footer`는 `meta`/`resolveHref` 또는 사유를 기록한 `false`만 허용한다.
+셸이 skip link, 헤더, 고정 `main#main`의 `.ui-app-frame ui-app-main`, 전체 풋터를 소유한다. `PageHeader`로 페이지를 시작하며 제목 32/42 600, 제목→설명 12px, PageHeader→콘텐츠 32px, 페이지 위 48px/아래 96px를 유지한다. CSS는 16px 기본 본문, provider는 다크 기본값·저장된 선택·시스템 옵션을 공급한다. 목적별 `data-ui-layout`은 main 안에 둔다. class/style/id/data/theme 속성이나 예약 셀렉터로 공통 틀을 바꾸지 않는다. `header`에는 서비스 메뉴·인증·언어 상태를, 셸의 `Link`/`onNavigate`에는 공통 라우팅 guard를 전달한다. `footer`는 `resolveHref` 또는 사유를 기록한 `false`를 사용한다. 소유 서비스는 `meta`를 비워 다섯 사이트에 meta 행 없는 같은 풋터를 렌더링한다. 앱 버전과 제품 상태는 설정이나 페이지 콘텐츠에 둔다. 공개 `meta` API는 standalone/generic 구성과 기존 소비자 호환용으로 유지한다.
 
 아이콘과 제목 함수는 서버 안전 `@naeil/ui/naeil-locale`에서 가져온다. `naeilIcons`의 생성된 digests/links에 맞는 세 파일을 제공하며 Next metadata `icons`나 `localeMetadata`의 `serviceName`을 재정의하지 않는다. Vite `index.html` 제목은 `naeilServiceName(service)`, 아이콘 link는 `naeilIcons.links`와 같아야 한다. 키트 bytes는 npm에 들어가지 않는다.
 

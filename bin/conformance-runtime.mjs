@@ -33,6 +33,13 @@ export function assessNaeilPage(value, {service, noFooter = false, noAccount = f
   if (value.titleDescription !== null) gap('h1 → description', value.titleDescription, 12);
   if (value.pageHeaderContent !== null) gap('PageHeader → content', value.pageHeaderContent, 32);
   exact('footer count', value.footerCount, noFooter ? 0 : 1);
+  if (value.frameCount > 0) {
+    if (!Array.isArray(value.footerMetaTexts)) errors.push('footer meta: not measured on owned-service shell');
+    else {
+      const texts = value.footerMetaTexts.map(text => text.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      if (texts.length) errors.push(`footer meta must be empty on owned-service shells: ${JSON.stringify(texts)}`);
+    }
+  }
   if (noFooter) {
     if (!Number.isFinite(value.mainBottom) || value.mainBottom < value.viewportHeight - 0.5)
       errors.push(`main bottom: ${value.mainBottom} (expected at least viewport ${value.viewportHeight})`);

@@ -5,7 +5,7 @@ import { dirname, join, resolve, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
 import ts from 'typescript';
-import { MASK_POLICY, STYLE_PROPERTIES, readChrome, maskedRGBA, geometryComparison } from './live-compare-chrome.mjs';
+import { MASK_POLICY, STYLE_PROPERTIES, readChrome, maskedRGBA, geometryComparison, footerMetaVerdict, metaHeightAttribution } from './live-compare-chrome.mjs';
 import { distinctDifferences, rollup, writeReport } from './live-compare-report.mjs';
 import { FALLBACK_CHECKS, FALLBACK_REASON, notRequired, scriptRuns, perScriptFontVerdict, classifyDocument, readDocumentContract, fallbackChecks, errorDocumentSummary } from './live-compare-contract.mjs';
 import { prepareFontProbes } from './live-compare-fonts.mjs';
@@ -21,7 +21,7 @@ export const SITES = [
   { id: 'home', origin: 'https://jay-macmini-2.tail165003.ts.net:2455', short: 'console', error: 'console/audit-missing-20261115' },
 ];
 const CANONICAL_ICONS = ['/favicon.ico', '/icon.svg', '/apple-icon.png'];
-const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns', ...FALLBACK_CHECKS];
+const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'footerMeta', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns', ...FALLBACK_CHECKS];
 const nm = reason => ({ status: 'not measured', reason });
 const verdict = (ok, values) => ({ status: ok ? 'match' : 'differs', values });
 export const near = (actual, expected, tolerance = 0.5) => Number.isFinite(actual) && Math.abs(actual - expected) <= tolerance;
@@ -29,10 +29,10 @@ export function validTitle(title, service, landing = false) {
   const brand = service === 'naeil' ? '.naeil' : `.naeil ${service}`;
   return (landing && title === brand) || (title.endsWith(` — ${brand}`) && title.slice(0, -` — ${brand}`.length).trim().length > 0 && title.split(' — ').length === 2);
 }
-export function diffRGBA(a, b) {
+export function diffRGBA(a, b, { metaRectangles = [], metaExtraHeight = 0 } = {}) {
   const width = Math.max(a.width, b.width), height = Math.max(a.height, b.height);
   const data = new Uint8ClampedArray(width * height * 4);
-  let differentPixels = 0, over16Pixels = 0;
+  let differentPixels = 0, over16Pixels = 0, outsideMetaOver16Pixels = 0;
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     let delta = 255;
     if (x < a.width && y < a.height && x < b.width && y < b.height) {
@@ -40,11 +40,18 @@ export function diffRGBA(a, b) {
       for (let c = 0; c < 4; c++) delta = Math.max(delta, Math.abs(a.data[(y * a.width + x) * 4 + c] - b.data[(y * b.width + x) * 4 + c]));
     }
     if (delta) differentPixels++;
-    if (delta > 16) over16Pixels++;
+    if (delta > 16) {
+      over16Pixels++;
+      // Attribution only: every pixel and the entire extra height still fail.
+      // Separate unrelated pixel defects from a measured meta row's footprint.
+      const meta = metaRectangles.some(r => x >= Math.floor(r.x) && x < Math.ceil(r.x + r.width) && y >= Math.floor(r.y) && y < Math.ceil(r.y + r.height));
+      const extraHeight = metaExtraHeight > 0 && Math.abs(Math.abs(a.height - b.height) - metaExtraHeight) <= 1 && y >= Math.min(a.height, b.height) && x < Math.min(a.width, b.width);
+      if (!meta && !extraHeight) outsideMetaOver16Pixels++;
+    }
     const i = (y * width + x) * 4;
     data.set(delta > 16 ? [255, 40, 40, 255] : delta ? [255, 190, 40, 255] : [24, 24, 24, 255], i);
   }
-  return { width, height, data, differentPixels, over16Pixels, totalPixels: width * height };
+  return { width, height, data, differentPixels, over16Pixels, outsideMetaOver16Pixels, totalPixels: width * height };
 }
 export function requestAllowed(method, url, origin, hasState) {
   return ['GET', 'HEAD'].includes(method) && (!hasState || new URL(url).origin === origin);
@@ -87,6 +94,7 @@ function readLayout() {
     body: { size: parseFloat(body.fontSize), lineHeight: parseFloat(body.lineHeight), family: body.fontFamily },
     header: rect(header), footer: rect(footer), scrollHeight: html.scrollHeight, viewportHeight: innerHeight,
     footerGap: footer ? innerHeight - (footer.getBoundingClientRect().bottom + scrollY) : null,
+    footerMetaTexts: [...document.querySelectorAll('[data-naeil-footer] .ui-site-footer-meta')].map(el => (el.textContent ?? '').replace(/\s+/g, ' ').trim()),
     versions: [...document.querySelectorAll('[data-naeil-ui-version]')].map(e => e.getAttribute('data-naeil-ui-version')),
     accountStates: [...document.querySelectorAll('[data-naeil-account-state]')].map(e => e.getAttribute('data-naeil-account-state')) };
 }
@@ -227,6 +235,7 @@ async function capture(job, browser, out, states, measure, blockedSites) {
     for (const key of FALLBACK_CHECKS) row.checks[key] = notRequired('D6-only check; this document is not a locale-layer fallback');
     row.chrome = await bounded(page.evaluate(readChrome, { site: site.id, styleProperties: STYLE_PROPERTIES }), 'shared chrome markers and styles');
     row.checks.availability = verdict(new URL(row.layout.url).origin === site.origin, { requested: requestedURL, final: row.layout.url, httpStatus: row.httpStatus });
+    row.checks.footerMeta = footerMetaVerdict(row.layout.footerMetaTexts);
     row.checks.locale = verdict(row.layout.lang.split('-')[0] === locale, { requested: locale, actual: row.layout.lang });
     const noFooter = site.id === 'home' && kind === 'short';
     const shortPage = kind === 'short' || kind.startsWith('error');
@@ -299,7 +308,9 @@ async function pixelComparison(page, row, reference, band, out) {
   const [leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG] = await Promise.all([left, right, row[`${band}NormalizedImage`], reference[`${band}NormalizedImage`]].map(async path => (await readFile(join(out, path))).toString('base64')));
   const a = row.chrome[band], b = reference.chrome[band];
   const masks = [...(a?.masks ?? []), ...(b?.masks ?? [])].filter(m => m.status === 'measured').flatMap(m => [m.rect, ...(m.textRects ?? [])]);
-  const result = await bounded(page.evaluate(async ({ leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG, masks, heights }) => {
+  const metaRows = band === 'footer' ? [...(a?.metaRows ?? []), ...(b?.metaRows ?? [])].filter(meta => meta.text) : [];
+  const attribution = { metaRectangles: metaRows.map(meta => meta.rect), metaExtraHeight: metaRows.length > 0 ? metaHeightAttribution(a, b) : 0 };
+  const result = await bounded(page.evaluate(async ({ leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG, masks, attribution }) => {
     const decode = async png => {
       const image = new Image(); image.src = `data:image/png;base64,${png}`; await image.decode();
       const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
@@ -309,19 +320,19 @@ async function pixelComparison(page, row, reference, band, out) {
     const encode = diff => {
       const canvas = document.createElement('canvas'); canvas.width = diff.width; canvas.height = diff.height;
       canvas.getContext('2d').putImageData(new ImageData(diff.data, diff.width, diff.height), 0, 0);
-      return { width: diff.width, height: diff.height, differentPixels: diff.differentPixels, over16Pixels: diff.over16Pixels, totalPixels: diff.totalPixels, png: canvas.toDataURL('image/png').split(',')[1] };
+      return { width: diff.width, height: diff.height, differentPixels: diff.differentPixels, over16Pixels: diff.over16Pixels, outsideMetaOver16Pixels: diff.outsideMetaOver16Pixels, totalPixels: diff.totalPixels, png: canvas.toDataURL('image/png').split(',')[1] };
     };
     const leftImage = await decode(leftPNG), rightImage = await decode(rightPNG);
     const normalizedLeft = await decode(leftNormalizedPNG), normalizedRight = await decode(rightNormalizedPNG);
-    return { raw: encode(globalThis.naeilDiffRGBA(leftImage, rightImage)), masked: encode(globalThis.naeilDiffRGBA(globalThis.naeilMaskedRGBA(normalizedLeft, masks, heights[0] ?? normalizedLeft.height), globalThis.naeilMaskedRGBA(normalizedRight, masks, heights[1] ?? normalizedRight.height))) };
-  }, { leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG, masks, heights: band === 'footer' ? [a?.coreHeight, b?.coreHeight] : [null, null] }), 'decode/compare/encode bands');
+    return { raw: encode(globalThis.naeilDiffRGBA(leftImage, rightImage)), masked: encode(globalThis.naeilDiffRGBA(globalThis.naeilMaskedRGBA(normalizedLeft, masks), globalThis.naeilMaskedRGBA(normalizedRight, masks), attribution)) };
+  }, { leftPNG, rightPNG, leftNormalizedPNG, rightNormalizedPNG, masks, attribution }), 'decode/compare/encode bands');
   const paths = {};
   for (const kind of ['raw', 'masked']) {
     paths[kind] = `diffs/${row.id}-${band}-${kind}.png`;
     await writeFile(join(out, paths[kind]), Buffer.from(result[kind].png, 'base64'));
     delete result[kind].png;
   }
-  return { counted: verdict(result.masked.over16Pixels === 0, { ...result.masked, channelTolerance: 16, actual: left, reference: right, diff: paths.masked, masks: { actual: a?.masks ?? [], reference: b?.masks ?? [] }, coreHeights: [a?.coreHeight ?? null, b?.coreHeight ?? null] }), supporting: { ...result.raw, diff: paths.raw, counted: false } };
+  return { counted: verdict(result.masked.over16Pixels === 0, { ...result.masked, channelTolerance: 16, actual: left, reference: right, diff: paths.masked, masks: { actual: a?.masks ?? [], reference: b?.masks ?? [] }, bandHeights: [a?.size.height ?? null, b?.size.height ?? null], metaAttribution: attribution }), supporting: { ...result.raw, diff: paths.raw, counted: false } };
 }
 export function differenceCount(rows) {
   return rows.reduce((n, row) => n + Object.values(row.checks).filter(c => c.status === 'differs').length, 0);
