@@ -2,6 +2,10 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
+## Unreleased
+
+- Runtime conformance reports non-empty footer meta inside owned-service shells. Owned services leave the row empty; public `meta` props and standalone/generic rendering remain compatible. `measureNaeilPage` exposes `footerMetaTexts` for this check. No version bump.
+
 ## 0.17.0 — screen frame contract
 
 - `NaeilServiceShell` owns one `.ui-service-shell[data-naeil-shell]` around skip link/header/main/footer, with a token-generated `100dvh` minimum and a growing main. Short screens end at the viewport bottom; long content retains the 96px footer gap; recorded `footer={false}` screens still fill the viewport. naeil.dev uses the same frame through the additive `service="main"` catalog profile (Projects/Blog, no service suffix). Landing artwork remains site-owned and spans the shell independently of the content cap.

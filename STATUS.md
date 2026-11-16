@@ -2,13 +2,13 @@
 
 ## Current state
 
-As of 2026-11-16: `@naeil/ui@0.17.0` is published as `latest` ([run 43770011113](https://github.com/naeil-dev/naeil-ui/actions/runs/43770011113), registry tarball byte-identical to the [frozen archive](docs/releases/0.17.0/README.md)); tag `v0.17.0` and its [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.17.0) exist. naeil.dev production runs `b2aac59`. Hosted Docs serve 0.17.0 from `24e2553` ([run 43823533355](https://github.com/naeil-dev/naeil-ui/actions/runs/43823533355)).
+As of 2026-11-17: `@naeil/ui@0.17.0` is published as `latest` ([run 43770011113](https://github.com/naeil-dev/naeil-ui/actions/runs/43770011113), registry tarball byte-identical to the [frozen archive](docs/releases/0.17.0/README.md)); tag `v0.17.0` and its [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.17.0) exist. naeil.dev production runs `b2aac59`. Hosted Docs serve 0.17.0 from `24e2553` ([run 43823533355](https://github.com/naeil-dev/naeil-ui/actions/runs/43823533355)).
 
-All four owned services run UI 0.17.0: abstorm `e431b79`, jev `cfd3d63` (deploy → rollback → redeploy rehearsed from the repository runbook), abestimate `2ad2400`, naeil-home `1eb13ae` with a replaced console proxy that forwards `/icon.svg` and `/apple-icon.png`. Hosted CI was not run for the service repositories (Actions unavailable); their suites ran locally.
+All four owned services run UI 0.17.0: abstorm `e431b79`, jev `cfd3d63` (deploy → rollback → redeploy rehearsed from the repository runbook), abestimate `e387ff5`, naeil-home `8413ff7` with a replaced console proxy that forwards `/icon.svg` and `/apple-icon.png`. Hosted CI was not run for the service repositories (Actions unavailable); their suites ran locally.
 
-**Live comparison, owner-reviewed on 2026-11-16.** The five addresses users actually open (Home through its private-network address), signed out, Chrome 157, ko/ja/en, 1440×900 and 390×844, OS light and dark: naeil.dev, abstorm, estimate and jev have zero differences against the [screen frame contract](DESIGN.md#screen-frame-contract). Home has four remaining differences, all in the proxy-generated document for an unknown path: English-only `lang`, no header or footer, and system fonts.
+**Live comparison, owner-reviewed on 2026-11-16 evening.** The five addresses users actually open (Home through its private-network address), signed out, Chrome 157, ko/ja/en, 1440×900 and 390×844, OS light and dark: zero differences in the measured items. Home now serves the app's framed not-found screen. Home's footer version line was masked in that comparison; removing it is pending deployment of the separate Home change.
 
-Not measured: every signed-in screen (including service long pages and Home's footer and account control), Firefox and WebKit, real devices. Locale-layer fallback documents are judged by their reduced contract (dark colours, declared font stack, 16/25, home links), not the full frame.
+Not measured: signed-in screens (including service long pages), Firefox and WebKit, real devices. Locale-layer fallback documents use their reduced contract (dark colours, declared stack, 16/25, home links).
 
 ## Dated records
 

@@ -6,8 +6,21 @@ export const MASK_POLICY = [
   ['header', '[data-app-toolbar]', 'State-dependent toolbar placement; its controls are compared separately for geometry and computed style'],
   ['header', '[data-naeil-account-state]', 'Session presentation; same-state controls compared separately, no signed-in/out pixel equality'],
   ['header', '.naeil-header-separator', 'Optional separator accompanying account slot'],
-  ['footer', '.ui-site-footer-meta', 'Optional product version/status; also excluded from normalized core-band height'],
 ];
+export function footerMetaVerdict(texts) {
+  if (!Array.isArray(texts)) return { status: 'not measured', reason: 'Footer meta markers were not measured' };
+  const normalized = texts.map(text => text.replace(/\s+/g, ' ').trim());
+  return { status: normalized.some(Boolean) ? 'differs' : 'match', values: { texts: normalized, expected: 'Owned services leave footer meta empty (absent or empty row)' } };
+}
+/** Diagnostic only: extra height belongs to meta only when measured flow and frame styles explain it. */
+export function metaHeightAttribution(actual, reference, tolerance = 0.5) {
+  const a = actual?.metaFlow, b = reference?.metaFlow;
+  if (!a || !b || !Number.isFinite(a.extension) || !Number.isFinite(b.extension)
+    || JSON.stringify(a.frameStyles) !== JSON.stringify(b.frameStyles)) return 0;
+  const extension = a.extension - b.extension;
+  const height = actual.size.height - reference.size.height;
+  return Math.abs(extension) > tolerance && Math.abs(height - extension) <= tolerance ? Math.abs(extension) : 0;
+}
 export const STYLE_PROPERTIES = ['display', 'position', 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'color', 'backgroundColor', 'borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth', 'borderTopStyle', 'borderBottomStyle', 'borderColor', 'borderRadius', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'gap', 'alignItems', 'justifyContent', 'opacity', 'boxShadow', 'textDecorationLine', 'fill', 'stroke', 'strokeWidth'];
 
 /** Runs before any screenshot/scroll. Rectangles are relative to original band/frame. */
@@ -73,7 +86,7 @@ export function readChrome({ site, styleProperties }) {
       addElement('account', '[data-app-toolbar] [data-naeil-account-state]', 'right', { optional: site === 'home' });
       addElement('mobileToggle', '.ui-navigation-toggle', 'right');
     } else {
-      addMask('product meta', '.ui-site-footer-meta');
+      data.metaRows = [...scope.querySelectorAll('.ui-site-footer-meta')].map(el => ({ text: el.textContent.replace(/\s+/g, ' ').trim(), rect: relative(el.getBoundingClientRect()) }));
       addElement('brand', '.ui-site-footer-brand', 'left');
       const columns = [...frame.querySelectorAll(':scope > nav')];
       if (columns.length !== 2) data.problems.push(`Expected two shared footer column markers, found ${columns.length}`);
@@ -85,11 +98,15 @@ export function readChrome({ site, styleProperties }) {
         const links = scope.querySelectorAll(`${column} > .ui-site-footer-link`);
         for (let j = 0; j < links.length; j++) addElement(`column${i + 1}Link${j + 1}`, `${column} > .ui-site-footer-link:nth-of-type(${j + 1})`, anchor);
       });
-      // meta adds an optional extra flex row. Compare invariant core plus real frame padding,
-      // not the optional row's height/gap. Original full band remains supporting evidence.
+      // Measure the meta's actual flow extension for diagnostic grouping only.
+      // The complete band still counts; changed padding/gap/min-height cannot be attributed to meta.
       const core = [frame.querySelector('.ui-site-footer-brand'), ...columns].filter(visible);
-      data.coreHeight = core.length ? Math.max(...core.map(e => e.getBoundingClientRect().bottom)) - base.top + parseFloat(fs.paddingBottom) : null;
-      if (data.coreHeight === null) data.problems.push('Missing measurable footer core markers');
+      const metas = [...frame.querySelectorAll(':scope > .ui-site-footer-meta')].filter(visible);
+      const coreBottom = core.length ? Math.max(...core.map(el => el.getBoundingClientRect().bottom)) : null;
+      data.metaFlow = {
+        extension: coreBottom === null ? null : Math.max(0, ...metas.map(el => el.getBoundingClientRect().bottom - coreBottom)),
+        frameStyles: Object.fromEntries(['display', 'flexWrap', 'rowGap', 'paddingTop', 'paddingBottom', 'minHeight'].map(key => [key, fs[key]])),
+      };
     }
     result[band] = data;
   }
@@ -97,15 +114,14 @@ export function readChrome({ site, styleProperties }) {
 }
 
 /** Union masks in both images, never paint over only one side. No guessed padding. */
-export function maskedRGBA(image, rectangles, height = image.height) {
-  const croppedHeight = Math.min(image.height, Math.max(1, Math.ceil(height)));
-  const data = new Uint8ClampedArray(image.data.slice(0, image.width * croppedHeight * 4));
+export function maskedRGBA(image, rectangles) {
+  const data = new Uint8ClampedArray(image.data.slice(0, image.width * image.height * 4));
   for (const r of rectangles) {
     const left = Math.max(0, Math.floor(r.x)), top = Math.max(0, Math.floor(r.y));
-    const right = Math.min(image.width, Math.ceil(r.x + r.width)), bottom = Math.min(croppedHeight, Math.ceil(r.y + r.height));
+    const right = Math.min(image.width, Math.ceil(r.x + r.width)), bottom = Math.min(image.height, Math.ceil(r.y + r.height));
     for (let y = top; y < bottom; y++) for (let x = left; x < right; x++) data.set([16, 16, 16, 255], (y * image.width + x) * 4);
   }
-  return { width: image.width, height: croppedHeight, data };
+  return { width: image.width, height: image.height, data };
 }
 
 export function geometryComparison(actual, reference, tolerance = 0.5) {

@@ -23,7 +23,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
   account={account}
   Link={GuardedLink} onNavigate={guard} mainLabel={pageTitle}
   header={{ appNavigation, currentHref, brandHref, onLocaleChange }}
-  footer={{ meta: version, resolveHref }}>
+  footer={{ resolveHref }}>
   <PageHeader title={pageTitle} description={description} actions={actions} />
   <section data-ui-layout="list">{children}</section>
 </NaeilServiceShell>
@@ -41,7 +41,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 | `children` | Page content; start with `PageHeader` |
 | `Link`, `onNavigate` | Existing header/footer routing adapter and guard |
 | `header` | Only `appNavigation`, `currentHref`, `brandHref`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`, plus deprecated `authSlot` for 0.15.0 compatibility. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
-| `footer` | Only `meta` and `resolveHref`, or `false`; defaults to the canonical full footer |
+| `footer` | `resolveHref` or recorded `false`; defaults to the canonical full footer. `meta` remains in the public compatibility API, but owned services leave it empty (no meta row). |
 | `mainLabel` | Accessible label of main |
 
 The shell renders provider → `<div className="ui-service-shell" data-naeil-shell="">` containing `.ui-skip-link` targeting `#main` → service header → `<main id="main" tabIndex={-1} className="ui-app-frame ui-app-main" aria-label={mainLabel}>` → service footer. Skip text is shared `naeil.shell.skipToContent`: 본문으로 건너뛰기 / 本文へスキップ / Skip to content. Enter on the focused skip link moves focus to main.
@@ -163,11 +163,12 @@ For every route, the CLI creates four fresh contexts: 1440×900 and 390×844 und
 - `.ui-page-header` → next visible normal-flow sibling content is 32px ±0.5 when present (following ancestor siblings within main when the header is wrapped).
 - If content bottom + 96px + footer height fits the viewport, footer bottom must equal viewport bottom (±0.5px) and visible content edge → footer top must be at least 96px (±0.5px). Otherwise that gap must be exactly 96px ±0.5; one footer is required except explicit `--no-footer` routes, which require zero and main bottom at least at viewport bottom. Classification uses the content’s natural minimum, independently of actual footer position, so removing fill fails on short pages. The edge is found from main by following, at each level, the visible child whose box ends lowest: transparent block wrappers are entered (their bottom padding/border-less spacing/margins stay in the gap, so on a long page a wrapper adding 64px measures 160px and fails); the search stops at the first box that is painted (border, background, shadow), clips (overflow ≠ visible), is not block-level, is a replaced/form element (img, svg, canvas, video, iframe, pre, table, input, select, textarea, button), carries text directly, or holds only inline content — that box's border-box bottom is the edge. Hidden content (display none, visibility hidden, opacity 0, closed `<details>` except its summary, `checkVisibility()` false), scripts and absolute/fixed boxes are ignored; display:contents is transparent. Example: a bordered card or panel ending 96px above the footer passes regardless of its inner padding; on a long page an unbordered closed `<details>` with 16px bottom padding below its summary shows 16px of extra empty space and fails.
 - Measurement starts after the page settles: load, best-effort network idle (≤15s), no `aria-busy="true"` in main, and any `--wait-for <route>=<selector>`.
+- Owned-service shell footer meta is absent or empty; non-empty text fails and is retained as `footerMetaTexts`. Standalone/generic meta rendering remains compatible.
 - Body font-size is 16px and line-height is 25px; fresh html has `dark` under either OS scheme.
 - Icon links resolve against the actual document URL, must have that same origin, and match `naeilIcons.links` by rel/href pathname/type. Next query strings and repeated sizes variants are accepted. ICO links must not list 32x32 so the canonical SVG remains preferred.
 - `document.title` ends with `naeilServiceName(service)`.
 
-`measureNaeilPage` also records viewport height, terminal content bottom, footer height/bottom/viewport gap, main bottom, configured body family and `renderedFonts`. In-page execution returns `renderedFonts.status="not measured"`: computed font-family does not identify the drawn face. The Chromium CLI fills a visible existing baseline body-text sample’s CDP `CSS.getPlatformFontsForNode` family/glyph/custom-font evidence and reports its status separately. Firefox/WebKit callers retain "not measured"; it is never fabricated as a font pass. The sample selector/text are retained. This aggregate font record is diagnostic, not a per-script font assertion; the live comparison and Chromium frame-font tests isolate Latin/digit/Japanese samples.
+`measureNaeilPage` also records viewport height, terminal content bottom, footer height/bottom/viewport gap, owned-shell `footerMetaTexts`, main bottom, configured body family and `renderedFonts`. In-page execution returns `renderedFonts.status="not measured"`: computed font-family does not identify the drawn face. The Chromium CLI fills a visible existing baseline body-text sample’s CDP `CSS.getPlatformFontsForNode` family/glyph/custom-font evidence and reports its status separately. Firefox/WebKit callers retain "not measured"; it is never fabricated as a font pass. The sample selector/text are retained. This aggregate font record is diagnostic, not a per-script font assertion; the live comparison and Chromium frame-font tests isolate Latin/digit/Japanese samples.
 
 Exit 0 means every requested check passed; exit 1 means violations, navigation failures or invalid arguments. Missing consumer Playwright exits 2 with an installation hint. Runtime mode does not apply source-ignore comments. It checks the supplied routes only; CI should list representative authenticated, anonymous, localized, loading and no-footer routes.
 

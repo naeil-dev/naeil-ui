@@ -20,7 +20,7 @@ export interface NaeilFooterProps extends Omit<SiteFooterProps, "brand" | "descr
 }
 
 const serviceFooterProps = ["service", "locale", "resolveHref", "Link", "onNavigate", "meta"] as const;
-/** Owned-service footer: always full, no frame/style/attribute overrides. `meta` holds product status. */
+/** Owned-service footer: always full, no frame/style/attribute overrides. `meta` stays compatible; owned services leave it empty. */
 type ServiceFooterProp = Exclude<typeof serviceFooterProps[number], "service">;
 export type NaeilServiceFooterProps = Pick<NaeilFooterProps, ServiceFooterProp> & { service: NaeilService }
   & { [Prop in Exclude<keyof NaeilFooterProps, ServiceFooterProp | "service">]?: never };
@@ -56,7 +56,7 @@ export function NaeilFooter(input: NaeilFooterProps | NaeilServiceFooterProps) {
 
 const NativeLink: NavigationLinkComponent = (props) => <a {...props} />;
 
-/** Canonical content in full/compact density. Product legal/status copy belongs in meta. */
+/** Canonical content in full/compact density. Standalone/generic legal/status copy may use meta; owned services leave it empty. */
 function FooterComposition({
   locale, resolveHref = path => `https://naeil.dev/${locale}${path === "/" ? "" : path}`,
   variant = "full", Link = NativeLink, onNavigate, ...props

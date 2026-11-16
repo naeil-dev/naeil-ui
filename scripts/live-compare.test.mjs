@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { readFile } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
-import { maskedRGBA, geometryComparison } from './live-compare-chrome.mjs';
+import ts from 'typescript';
+import { maskedRGBA, geometryComparison, footerMetaVerdict, MASK_POLICY, metaHeightAttribution } from './live-compare-chrome.mjs';
 import { scriptRuns, perScriptFontVerdict, classifyDocument, fallbackChecks, readDocumentContract, errorDocumentSummary } from './live-compare-contract.mjs';
 import { prepareFontProbes } from './live-compare-fonts.mjs';
 import { distinctDifferences, rollup } from './live-compare-report.mjs';
@@ -15,6 +17,47 @@ test('pixel diff detects channel/alpha differences and unequal extents', () => {
   assert.equal(diffRGBA(a, b).over16Pixels, 1);
   const c = { width: 1, height: 2, data: [0, 0, 0, 255, 20, 20, 20, 255] };
   assert.equal(diffRGBA(a, c).differentPixels, 3);
+});
+test('owned footer meta must be absent or empty without hiding its pixels or height', () => {
+  assert.equal(footerMetaVerdict([]).status, 'match');
+  assert.equal(footerMetaVerdict(['', ' \n ']).status, 'match');
+  assert.equal(footerMetaVerdict(undefined).status, 'not measured');
+  const meta = footerMetaVerdict([' v1.2.3 ']);
+  assert.equal(meta.status, 'differs');
+  assert.deepEqual(meta.values.texts, ['v1.2.3']);
+  assert(!MASK_POLICY.some(([band]) => band === 'footer'));
+  const reference = { width: 2, height: 2, data: new Uint8ClampedArray(16).fill(255) };
+  const actual = { width: 2, height: 3, data: new Uint8ClampedArray(24).fill(255) };
+  actual.data[8] = 0;
+  const options = { metaRectangles: [{ x: 0, y: 1, width: 1, height: 1 }], metaExtraHeight: 1 };
+  const diff = diffRGBA(actual, reference, options);
+  assert.equal(diff.over16Pixels, 3); // Meta text plus the complete extra height still fail.
+  assert.equal(diff.outsideMetaOver16Pixels, 0);
+  actual.data[0] = 0;
+  assert.equal(diffRGBA(actual, reference, options).outsideMetaOver16Pixels, 1);
+});
+test('meta attribution never absorbs unrelated padding, gaps or minimum height', () => {
+  const frameStyles = { rowGap: '32px', paddingBottom: '32px', minHeight: 'auto' };
+  const reference = { size: { height: 2 }, metaFlow: { extension: 0, frameStyles } };
+  const actual = { size: { height: 3 }, metaFlow: { extension: 1, frameStyles } };
+  assert.equal(metaHeightAttribution(actual, reference), 1);
+  assert.equal(metaHeightAttribution({ ...actual, size: { height: 100 } }, reference), 0);
+  for (const key of ['rowGap', 'paddingBottom', 'minHeight']) {
+    assert.equal(metaHeightAttribution({ ...actual, metaFlow: { ...actual.metaFlow, frameStyles: { ...frameStyles, [key]: '64px' } } }, reference), 0);
+  }
+  const pixels = (height) => ({ width: 2, height, data: new Uint8ClampedArray(2 * height * 4).fill(255) });
+  const diff = diffRGBA(pixels(100), pixels(2), { metaRectangles: [{ x: 0, y: 1, width: 1, height: 1 }], metaExtraHeight: 1 });
+  assert.equal(diff.over16Pixels, 196);
+  assert.equal(diff.outsideMetaOver16Pixels, 196);
+});
+test('only pixel changes contained in measured meta/extra-height footprint share its cause', () => {
+  const row = { id: 'home', site: 'home', checks: {
+    footerMeta: { status: 'differs', values: { texts: ['v1.2.3'] } },
+    footerPixels: { status: 'differs', values: { outsideMetaOver16Pixels: 0, over16Pixels: 30, totalPixels: 100 } },
+  } };
+  assert.equal(distinctDifferences([row]).length, 1);
+  row.checks.footerPixels.values.outsideMetaOver16Pixels = 1;
+  assert.equal(distinctDifferences([row]).length, 2);
 });
 test('title requires exact brand, named page and single separator', () => {
   assert(validTitle('프로젝트 — .naeil', 'naeil'));
@@ -63,14 +106,30 @@ test('optional icon sizes/type notes never become response or byte differences',
 });
 
 
-test('union masks hide only measured boxes, preserve unmasked pixels and crop optional rows', () => {
+test('union masks hide only measured boxes and preserve the complete band height', () => {
   const a = { width: 3, height: 2, data: new Uint8ClampedArray(24).fill(255) };
   const b = { ...a, data: new Uint8ClampedArray(a.data) };
   b.data[0] = 0; b.data[4] = 0; b.data[8] = 0;
   const union = [{ x: 0, y: 0, width: 1, height: 1 }, { x: 1, y: 0, width: 1, height: 1 }];
   assert.equal(diffRGBA(maskedRGBA(a, union), maskedRGBA(b, union)).differentPixels, 1);
-  assert.equal(maskedRGBA(a, [], 1).height, 1);
+  assert.equal(maskedRGBA(a, []).height, 2);
   assert.equal(maskedRGBA(a, [{ x: -5, y: -5, width: 100, height: 100 }]).data.length, 24);
+});
+test('reusable measurement records only owned-shell meta and preserves standalone compatibility', { timeout: 30000 }, async () => {
+  const source = await readFile(new URL('../src/components/naeil-page-measure.ts', import.meta.url), 'utf8');
+  const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2023 } }).outputText;
+  const { measureNaeilPage } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+  const browser = await chromium.launch({ channel: 'chrome', timeout: 15000 });
+  try {
+    const page = await browser.newPage(); page.setDefaultTimeout(5000);
+    await page.setContent('<div class="ui-service-shell" data-naeil-shell><header data-naeil-header></header><main id="main" class="ui-app-main"><h1>Title</h1><p>Body</p></main><footer data-naeil-footer><div class="ui-site-footer-meta"> v1.2.3 </div></footer></div><footer data-naeil-footer><div class="ui-site-footer-meta">Standalone compatibility</div></footer>');
+    assert.deepEqual((await page.evaluate(measureNaeilPage)).footerMetaTexts, ['v1.2.3']);
+    await page.locator('.ui-service-shell .ui-site-footer-meta').evaluate(el => { el.textContent = ' '; });
+    assert.deepEqual((await page.evaluate(measureNaeilPage)).footerMetaTexts, ['']);
+    await page.locator('.ui-service-shell .ui-site-footer-meta').evaluate(el => el.remove());
+    assert.deepEqual((await page.evaluate(measureNaeilPage)).footerMetaTexts, []);
+    assert.equal(await page.locator('body > footer .ui-site-footer-meta').textContent(), 'Standalone compatibility');
+  } finally { await browser.close(); }
 });
 test('relative geometry ignores global placement but catches shared style/size changes', () => {
   const e = { status: 'measured', geometry: { edge: 20, top: 10, width: 44, height: 44 }, styles: { color: 'same' }, state: null };

@@ -15,12 +15,19 @@ const passing = (): NaeilPageMeasurements => ({
   bodyLineHeight: 25, bodyFontFamily: 'Pretendard Variable',
   renderedFonts: {status: 'not measured', reason: 'Unit fixture, no browser'},
   mainCount: 1, ownedMainCount: 1, headerCount: 1, footerCount: 1, accountCount: 1,
+  footerMetaTexts: [],
   headerTitle: 48, titleDescription: 12, contentFooter: 96,
   titleSize: 32, titleLineHeight: 42, titleWeight: 600, bodySize: 16, dark: true,
   pageHeaderContent: 32, url: 'https://estimate.example/settings',
   title: "Settings — .naeil estimate", icons: naeilIcons.links.map(link => ({...link})),
 });
 describe("runtime conformance measurements", () => {
+  it('rejects nonempty owned-shell footer meta while allowing absent/empty meta', () => {
+    expect(assessNaeilPage({...passing(), footerMetaTexts: ['v1.2.3']}, {service: 'estimate'}))
+      .toContain('footer meta must be empty on owned-service shells: ["v1.2.3"]');
+    expect(assessNaeilPage({...passing(), footerMetaTexts: ['', ' \n ']}, {service: 'estimate'})).toEqual([]);
+    expect(assessNaeilPage(passing(), {service: 'estimate'})).toEqual([]);
+  });
   it('requires an account marker on desktop, allows mobile absence and recorded no-account routes', () => {
     const value={...passing(),accountCount:0};
     expect(assessNaeilPage(value,{service:'estimate',viewportWidth:1440})).toContain('header account count: 0 (expected at least 1)');

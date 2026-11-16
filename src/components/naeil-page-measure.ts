@@ -15,6 +15,8 @@ export interface NaeilPageMeasurements {
   headerCount: number;
   accountCount: number;
   footerCount: number;
+  /** Text from meta rows inside owned-service shells; standalone compatibility is outside this rule. */
+  footerMetaTexts: string[];
   headerTitle: number | null;
   titleDescription: number | null;
   pageHeaderContent: number | null;
@@ -125,6 +127,8 @@ export function measureNaeilPage(): NaeilPageMeasurements {
     renderedFonts: { status: "not measured", reason: fontSample ? "Rendered font measurement requires Chromium CDP; computed font-family is not proof" : "No visible baseline body text sample", selector: fontSample?.selector, text: fontSample?.text },
     mainCount: mains.length, ownedMainCount: owned.length,
     headerCount: headers.length, footerCount: footers.length,
+    footerMetaTexts: Array.from(document.querySelectorAll('.ui-service-shell[data-naeil-shell] [data-naeil-footer] .ui-site-footer-meta'))
+      .map(element => (element.textContent ?? '').replace(/\s+/g, ' ').trim()),
     accountCount: document.querySelectorAll('[data-naeil-header] [data-naeil-account-state]').length,
     headerTitle: header && title ? title.getBoundingClientRect().top - header.getBoundingClientRect().bottom : null,
     titleDescription: title && description ? description.getBoundingClientRect().top - title.getBoundingClientRect().bottom : null,
