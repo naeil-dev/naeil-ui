@@ -1,6 +1,6 @@
 # Documentation
 
-Maintained guides describe the repository APIs; the [README](../README.md#use-the-ui) and [release policy and identities](package-release.md#publication-and-deployment) record the current published release. Frozen package source/tag, maintained guides, hosted Docs and service receipts are separate. The retained [local runner](rollout/local-runner.md) supports historical **0.7.x only**.
+Maintained guides describe the repository APIs; [STATUS.md](../STATUS.md#current-state) records current publication, hosted Docs and service adoption. Frozen package source/tag, maintained guides, hosted Docs and service receipts are separate. The retained [local runner](rollout/local-runner.md) supports historical **0.7.x only**.
 
 ## Maintained public guides
 
@@ -16,11 +16,13 @@ Maintained guides describe the repository APIs; the [README](../README.md#use-th
 - [Brand/example site setup](site-development.md): Next.js and separate Supabase auth configuration.
 - [Contributing](../CONTRIBUTING.md), [security](../SECURITY.md), [licenses and provenance](../THIRD_PARTY_NOTICES.md).
 
-Current Storybook source defines 18 Docs pages: 16 UI families plus Brand / Logo and NaeilHeader. Canonical footer full/compact and account-state examples live in the existing NaeilHeader/SiteFooter stories. [Hosted Docs](https://naeil-dev.github.io/naeil-ui/) have recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/download/v0.5.0/hosted-docs-verification.json); current source is not evidence of a later deployment. The [0.4.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.4.0) retains its registry/consumer, hosted Docs and production receipts and [independent brand kit](https://github.com/naeil-dev/naeil-ui/releases/download/v0.4.0/naeil-brand-1.1.1.zip). The approved brand is live on [naeil.dev](https://naeil.dev/). The downloadable Storybook artifact can also be served locally. Native/manual acceptance retains its documented limits; [service adoption and rollout evidence](rollout/inventory.md) has a separate scope.
+Storybook contains component Docs and examples, including canonical footer and account states in NaeilHeader/SiteFooter. The [preview artifact](package-release.md#storybook-preview-artifact) can be served locally. For hosted Docs and service adoption see [STATUS.md](../STATUS.md#current-state); native/manual acceptance has a separate [support scope](design/public-ui-support.md).
 
-Guides bundled in each immutable npm archive are its release-preparation snapshot. Maintained GitHub guides record subsequent publication status; source documentation updates do not alter the archive, tag or release asset. Hosted Docs reflect their separately deployed source, recorded in the Pages run. The [0.3.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) and earlier verification reports remain dated history.
+Guides bundled in each immutable npm archive are its release-preparation snapshot. STATUS.md records subsequent publication status; source documentation updates do not alter the archive, tag or release asset. Hosted Docs reflect their separately deployed source, recorded in the Pages run. The [0.3.0 release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.3.0) and earlier verification reports remain dated history.
 
 ## Dated specifications and evidence
+
+[Design and guidance history](design/history.md) preserves superseded studies and excerpts removed from always-loaded rules.
 
 [Project closeout and historical preservation — 2026-11-04](design/project-closeout-2026-11-04.md) indexes branch/PR dispositions, seven preserved documents and verified private archives. Main integration, PR closure and deployment have separate completion receipts.
 

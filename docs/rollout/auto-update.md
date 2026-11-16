@@ -20,7 +20,7 @@ The publish input can select `latest` only with explicit owner approval. Normall
 
 Each service's merge workflow must verify the Dependabot author, a **patch-only** `@naeil/ui` update within the installed major/minor, its explicit manifest/lockfile allowlist, all required successful checks on the current PR head SHA, and that the head SHA is still unchanged at merge time. Reject unrelated edits, missing checks, stale results and a changed head. Minor and major updates require manual migration review. The [version policy](../package-release.md#consumer-auto-update-version-policy) permits required consumer changes in a 0.x minor, including 0.17.0; patches retain compatibility and breaks after 1.0.0 require the next major.
 
-This policy replaces the former same-major rule. Service workflow changes are a separate service-repository stage; they are not implemented or verified here. Hold minor update PRs for manual review until patch-only guards are installed.
+This policy replaces the former same-major rule. Service workflow changes are separate service-repository operations; consult [STATUS.md](../../STATUS.md#current-state) for adoption status. Hold minor update PRs for manual review until patch-only guards are installed.
 
 ## Stop, pause and rollback
 

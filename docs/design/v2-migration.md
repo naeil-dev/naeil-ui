@@ -2,13 +2,13 @@
 
 이 안내는 `@naeil/ui`의 기본 모양과 재사용 규칙을 설명한다. 패키지 소비와 소비 사이트 배포는 별도 작업이다.
 
-Home API는 0.8.0부터, 공통 root 예약 기본값은 0.9.0부터 제공한다. 현재 게시 버전과 설치 명령은 [README](../../README.md#use-the-ui), 릴리스·hosted Docs·서비스별 기록은 [릴리스 정책](../package-release.md#publication-and-deployment)을 확인한다.
+Home API는 0.8.0부터, 공통 root 예약 기본값은 0.9.0부터 제공한다. 현재 게시·hosted Docs·서비스 채택 상태는 [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state), 설치 명령은 [README](../../README.md#use-the-ui)를 확인한다.
 
 소유한 Next 서비스는 [공통 언어 런타임](../components/naeil-locale.md)의 `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker`를 사용한다. `NaeilLocaleProvider` 안에서는 `NaeilServiceShell`·`NaeilThemeProvider`·`PageHeader`·계정 컨트롤을 `/naeil-locale/chrome`에서 가져온다. `/naeil-header`와 `/naeil-footer`는 독립 React 어댑터로 유지된다. 공유 server/client 경로에는 정확한 `next-intl@4.14.8`이 필요하다.
 
 ## 0.17.0 required consumer migration
 
-For abstorm, estimate, jev and Home, review these required changes before adopting the unpublished candidate; a dependency bump alone is insufficient:
+For abstorm, estimate, jev and Home, review these required changes before adopting 0.17.0; a dependency bump alone is insufficient:
 
 - Import `@naeil/ui/fonts.css` once. Remove the app's own Pretendard/Noto packages, font-face definitions, stylesheet imports and resolver aliases; package-local WOFF2 files now provide the fonts. Keep the packaged OFL notices. Package unpacked size grows to approximately **9.9 MB** because font files are included.
 - Remove app-owned body background, colour, font-family/font-size/line-height rules. The shared baseline is **16px/25px**. Remove app min-height, viewport wrappers and sticky-footer workarounds: `NaeilServiceShell` owns fill, including `footer={false}`. Keep purpose-specific content widths inside main. Use `abstorm`, `estimate`, `jev` or `home`; **`service="main"` is for naeil.dev only**.
@@ -16,7 +16,7 @@ For abstorm, estimate, jev and Home, review these required changes before adopti
 - Runtime requires a shared frame and body 16/25px. Short pages end the footer at the viewport bottom with content→footer ≥96px; long pages require exactly 96px (existing subpixel tolerance); recorded no-footer pages fill main to the viewport. List representative short/long/no-footer, locale, anonymous and authenticated routes. CDP rendered-font evidence is Chromium-only; other engines remain “not measured”.
 - Runtime has a **10-minute overall limit** and **15-second step limits**; timeout is a failure. Repeatable `--header` authentication/tenant values apply only to the configured origin, including same-origin redirect hops; cross-origin redirects/resources receive none. See the [runtime options and exceptions](../components/naeil-shell.md#runtime-ci-and-reusable-measurements).
 - Remove unsupported `asChild` use on Checkbox, Switch, SelectTrigger/SelectContent/SelectItem, DialogContent, SheetContent and DropdownMenuCheckboxItem/DropdownMenuRadioItem/DropdownMenuSubTrigger. These wrappers own multiple children; use their supported structure. Button and supported trigger composition still accept `asChild`.
-- A 0.x minor may require consumer changes. Service auto-merge is **patch-only**; review this minor migration manually. This document changes policy only; service guard updates and service deployments remain separate stages.
+- A 0.x minor may require consumer changes. Service auto-merge is **patch-only**; review this minor migration manually. See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for service adoption; guard changes and deployments are separate operations.
 
 ## 시작하기
 
@@ -202,7 +202,7 @@ import '@naeil/ui/fonts.css';
 
 ## 0.3 package boundary
 
-The heading retains the original 0.3 migration anchor; the boundary below includes published and registry-verified 0.7.1. `/ui` is the React core. Opt-in `/naeil-header` provides the canonical complete branded header and `NaeilHeaderAccountControl`; `/naeil-footer` provides canonical full/compact footers. Both are React-only. `/release` exports server-safe `uiRelease` metadata, without application artifact or environment data. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use the dedicated entries and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts remain consumer-owned.
+The heading retains the original 0.3 migration anchor; the boundary below includes published and registry-verified 0.7.1. `/ui` is the React core. Opt-in `/naeil-header` provides the canonical complete branded header and `NaeilHeaderAccountControl`; `/naeil-footer` provides canonical full/compact footers. Both are React-only. `/release` exports server-safe `uiRelease` metadata, without application artifact or environment data. Root imports preserve Nav, Footer, Logo, LocaleSwitcher, ThemeProvider, ThemeToggle, ThemeToggleIcon, PageTitle, SectionTitle and their class helpers, but root has static Next/next-intl dependencies. React-only apps must use the dedicated entries and appropriate shared deep modules. `next-themes` is a React runtime library; it does not require Next.js. Fonts are package-delivered through `@naeil/ui/fonts.css`; applications own the explicit import.
 
 Next.js `^15 || ^16` and next-intl `4.14.8` are optional peers. Install both when using root, Nav, Footer or `i18n/routing`. This is an existing compatibility contract, not a claim that every peer combination has browser validation; the clean Next fixture checks Next 16.4.6. React/ReactDOM `^19` come from the host. Tailwind 4 is the documented styling pipeline. Explicit `className`, Radix props, Toaster options and compatibility theme-provider props remain consumer overrides on APIs that support them. This does not grant presentation/theme overrides to `NaeilServiceShell` or `NaeilThemeProvider`.
 
@@ -250,7 +250,7 @@ These source paths are not package entries: website-only paths belong to the bra
 | --- | --- |
 | `components/nav-wrapper`, `components/nav-server-wrapper` | Owned services use `NaeilServiceShell`; naeil.dev's catalog can use `/naeil-header`, and existing Nav adapters remain compatible. Your app loads users/sessions. |
 | `components/footer-wrapper` | Owned services use the shell's footer; existing compatibility compositions can use preserved Footer with the app's Link. |
-| `components/auth-slot` | The app owns session state and guarded logout above the shell. From planned 0.16.0, owned services pass `account` to the shell; `header.authSlot` is deprecated 0.15.0 compatibility. Standalone header and legacy Nav slots remain compatible. |
+| `components/auth-slot` | The app owns session state and guarded logout above the shell. Owned services pass `account` to the shell; `header.authSlot` is deprecated 0.15.0 compatibility. Standalone header and legacy Nav slots remain compatible. |
 | `components/hero-scene`, `components/hero-section`, `components/paraglider-cursor` | Website scene/cursor source, assets and Three dependencies stay website-owned. |
 | `components/project-layout`, `components/workflow-diagram`, `components/accent-picker` | Website showcase/data/theme editing composition; use shared primitives in product-owned compositions. |
 | `components/blog/MarkdownRenderer`, `lib/blog` | Application-owned content rendering, filesystem and MDX/remark pipeline. |

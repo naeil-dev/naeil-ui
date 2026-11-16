@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { chromium } from '@playwright/test';
 import { maskedRGBA, geometryComparison } from './live-compare-chrome.mjs';
+import { scriptRuns, perScriptFontVerdict, classifyDocument, fallbackChecks, readDocumentContract, errorDocumentSummary } from './live-compare-contract.mjs';
+import { prepareFontProbes } from './live-compare-fonts.mjs';
 import { distinctDifferences, rollup } from './live-compare-report.mjs';
 import { diffRGBA, differenceCount, iconVerdict, near, parseArgs, requestAllowed, validTitle } from './live-compare.mjs';
 
@@ -108,4 +111,81 @@ test('forbidden/checkpoint response cannot become an icon hash reference', () =>
   assert.equal(iconVerdict(actual, forbidden, { origin: 'https://jev.naeil.dev' }).status, 'not measured');
   const missing = { declarations: [], responses: [{ url: 'https://home.example/icon.svg', status: 404, type: 'text/plain', sha256: 'missing' }] };
   assert.equal(iconVerdict(missing, undefined, { origin: 'https://home.example' }).status, 'differs');
+});
+
+test('script splitting assigns Latin-1 punctuation to Pretendard and Japanese punctuation to Noto', () => {
+  const runs = scriptRuns('デザイン · テーマ — 42 café', 'ja');
+  assert(runs.filter(run => run.script === 'latin').some(run => run.text.includes('·')));
+  assert(runs.filter(run => run.script === 'japanese').some(run => run.text.includes('—')));
+  assert(runs.filter(run => run.script === 'latin').some(run => run.text.includes('42 café')));
+  for (const run of runs.filter(run => run.script === 'japanese')) assert(!/[\u0020-\u007e\u00a0-\u00ff]/.test(run.text));
+  assert.equal(scriptRuns('한국어', 'ko')[0].expected, 'Pretendard');
+  assert.equal(scriptRuns('ショーケース・テーマ', 'ja').length, 1);
+  assert.equal(scriptRuns('ショーケース・テーマ', 'ja')[0].script, 'japanese');
+});
+
+test('mixed Japanese body passes only when each isolated run uses its required family', () => {
+  const runs = scriptRuns('日本語 · 42', 'ja').map(run => ({ ...run, fonts: [{ familyName: run.expected, glyphCount: 2 }] }));
+  assert.equal(perScriptFontVerdict({ locale: 'ja', runs }).status, 'match');
+  const wrong = runs.map(run => run.script === 'latin' ? { ...run, fonts: [{ familyName: 'Noto Sans JP', glyphCount: 2 }] } : run);
+  assert.equal(perScriptFontVerdict({ locale: 'ja', runs: wrong }).status, 'differs');
+  assert.equal(perScriptFontVerdict({ locale: 'ja', runs: [{ script: 'japanese', text: '日本語 ·', fonts: [{ familyName: 'Noto Sans JP', glyphCount: 2 }] }] }).status, 'not measured');
+  assert.equal(perScriptFontVerdict({ locale: 'ja', runs: runs.map(run => ({ ...run, fonts: [] })) }).status, 'not measured');
+  assert.equal(perScriptFontVerdict(null).status, 'not measured');
+});
+
+const fallbackSnapshot = () => ({ shell: false, header: false, mainCount: 0, reactRoot: false, heading: '404', directMessage: true, directList: true,
+  origin: 'https://naeil.dev', homeLinks: ['ko', 'ja', 'en'].map(lang => ({ lang, href: `https://naeil.dev/${lang}`, text: lang })),
+  colours: { background: 'rgb(11, 12, 14)', foreground: 'rgb(239, 240, 243)', colorScheme: 'dark' },
+  stack: '"Pretendard Variable", Pretendard, "Noto Sans JP", -apple-system, system-ui, sans-serif', metrics: { size: 16, lineHeight: 25 }, lang: 'ja', title: '見つかりません — .naeil' });
+
+test('D6 classification uses structure, never broken style/lang/title or route names', () => {
+  const snapshot = fallbackSnapshot();
+  assert.equal(classifyDocument(snapshot, 404).kind, 'locale-fallback');
+  assert.equal(classifyDocument({ ...snapshot, lang: '', title: '', stack: 'Times', colours: {} }, 404).kind, 'locale-fallback');
+  assert.equal(classifyDocument({ ...snapshot, header: true, shell: true, mainCount: 1 }, 404).kind, 'framed');
+  for (const changed of [{ homeLinks: [] }, { directMessage: false }, { directList: false }, { heading: '403' }, { reactRoot: true }, { shell: true }]) assert.equal(classifyDocument({ ...snapshot, ...changed }, 404).kind, 'unframed');
+  const proxy = { ...snapshot, heading: '', homeLinks: [], directMessage: false, directList: false, lang: '', title: '' };
+  assert.equal(classifyDocument(proxy, 404).kind, 'unframed');
+});
+
+test('fallback requirements check declared stack and computed colours without webfont loading', () => {
+  const snapshot = fallbackSnapshot();
+  assert(Object.values(fallbackChecks(snapshot, 'ja', true)).every(check => check.status === 'match'));
+  const defaultEnglish = { ...snapshot, homeLinks: snapshot.homeLinks.map(link => link.lang === 'en' ? { ...link, href: 'https://naeil.dev/' } : link) };
+  assert.equal(fallbackChecks(defaultEnglish, 'ja', true).fallbackLinks.status, 'match');
+  const checks = fallbackChecks({ ...snapshot, stack: 'Times', metrics: { size: 16, lineHeight: 24 }, lang: '', homeLinks: snapshot.homeLinks.slice(0, 1), colours: { background: 'rgb(255, 255, 255)', foreground: 'rgb(0, 0, 0)', colorScheme: 'normal' } }, 'ja', false);
+  assert(Object.values(checks).every(check => check.status === 'differs'));
+  const rows = [{ site: 'naeil', kind: 'error', requestedURL: 'https://naeil.dev/ja/missing', document: classifyDocument(snapshot, 404) }];
+  assert.equal(errorDocumentSummary(rows)[0].routes[0].kind, 'locale-fallback');
+  const counts = rollup([{ site: 'naeil', checks: { frame: { status: 'not required' } } }], ['frame'], ['naeil']);
+  assert.equal(counts.frame.naeil['not required'], 1);
+  assert.equal(counts.frame.naeil['not measured'], 0);
+});
+
+test('CDP probes isolate real text without changing the source layout', { timeout: 30000 }, async () => {
+  const browser = await chromium.launch({ channel: 'chrome', timeout: 15000 });
+  try {
+    const page = await browser.newPage(); page.setDefaultTimeout(5000);
+    await page.setContent('<html lang="ja"><body><main><p style="font:16px/25px Arial">デザイン · テーマ — 42 café</p></main></body></html>');
+    const snapshot = () => ({ html: document.querySelector('main').innerHTML, height: document.documentElement.scrollHeight, box: document.querySelector('main').getBoundingClientRect().toJSON() });
+    const before = await page.evaluate(snapshot);
+    await page.evaluate(`globalThis.naeilScriptRuns = (${scriptRuns.toString()})`);
+    const targets = await page.evaluate(prepareFontProbes, 'ja');
+    await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
+    assert.deepEqual(await page.evaluate(snapshot), before);
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('DOM.enable'); await cdp.send('CSS.enable');
+    const { root } = await cdp.send('DOM.getDocument', { depth: 0 });
+    for (const target of Object.values(targets).filter(Boolean)) for (const run of target.runs) {
+      const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: run.selector });
+      const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId });
+      assert(fonts.some(font => font.glyphCount > 0), run.text);
+    }
+    await cdp.detach();
+    await page.evaluate(() => document.querySelector('[data-naeil-font-probes]').remove());
+    assert.deepEqual(await page.evaluate(snapshot), before);
+    await page.setContent('<html><body><h1>404</h1><p>Not found</p><ul><li><a lang="ko" href="https://naeil.dev/ko">한국어</a></li></ul></body></html>');
+    assert.equal(classifyDocument(await page.evaluate(readDocumentContract), 404).kind, 'locale-fallback');
+  } finally { await browser.close(); }
 });

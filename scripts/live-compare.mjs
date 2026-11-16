@@ -7,11 +7,13 @@ import { chromium } from '@playwright/test';
 import ts from 'typescript';
 import { MASK_POLICY, STYLE_PROPERTIES, readChrome, maskedRGBA, geometryComparison } from './live-compare-chrome.mjs';
 import { distinctDifferences, rollup, writeReport } from './live-compare-report.mjs';
+import { FALLBACK_CHECKS, FALLBACK_REASON, notRequired, scriptRuns, perScriptFontVerdict, classifyDocument, readDocumentContract, fallbackChecks, errorDocumentSummary } from './live-compare-contract.mjs';
+import { prepareFontProbes } from './live-compare-fonts.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TIMEOUT = 15000;
 export const SITES = [
-  { id: 'naeil', origin: 'https://naeil.dev', short: 'projects', long: 'design', error: 'audit-missing-20261115' },
+  { id: 'naeil', origin: 'https://naeil.dev', short: 'projects', long: 'design', error: 'audit-missing-20261115', 'error-blog': 'blog/does-not-exist' },
   { id: 'abstorm', origin: 'https://abstorm.naeil.dev', short: 'unknown', error: 'login' },
   { id: 'estimate', origin: 'https://abestimate.naeil.dev', short: 'access-denied', error: 'audit-missing-20261115' },
   { id: 'jev', origin: 'https://jev.naeil.dev', short: 'login?state=denied', error: 'audit-missing-20261115' },
@@ -19,7 +21,7 @@ export const SITES = [
   { id: 'home', origin: 'https://jay-macmini-2.tail165003.ts.net:2455', short: 'console', error: 'console/audit-missing-20261115' },
 ];
 const CANONICAL_ICONS = ['/favicon.ico', '/icon.svg', '/apple-icon.png'];
-const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns'];
+const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns', ...FALLBACK_CHECKS];
 const nm = reason => ({ status: 'not measured', reason });
 const verdict = (ok, values) => ({ status: ok ? 'match' : 'differs', values });
 export const near = (actual, expected, tolerance = 0.5) => Number.isFinite(actual) && Math.abs(actual - expected) <= tolerance;
@@ -88,70 +90,28 @@ function readLayout() {
     versions: [...document.querySelectorAll('[data-naeil-ui-version]')].map(e => e.getAttribute('data-naeil-ui-version')),
     accountStates: [...document.querySelectorAll('[data-naeil-account-state]')].map(e => e.getAttribute('data-naeil-account-state')) };
 }
-async function fontsFor(page, context) {
-  const targets = await bounded(page.evaluate(() => {
-    const visible = el => el.checkVisibility({ opacityProperty: true, visibilityProperty: true }) && el.getBoundingClientRect().width > 0;
-    const text = el => [...el.childNodes].filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent).join('').trim();
-    const selector = el => {
-      const parts = [];
-      while (el && el !== document.documentElement) {
-        let i = 1;
-        for (let prev = el.previousElementSibling; prev; prev = prev.previousElementSibling) if (prev.tagName === el.tagName) i++;
-        parts.unshift(`${el.tagName.toLowerCase()}:nth-of-type(${i})`); el = el.parentElement;
-      }
-      return `html>${parts.join('>')}`;
-    };
-    const candidates = root => root ? [root, ...root.querySelectorAll('*')].filter(el => !['SCRIPT', 'STYLE', 'SVG', 'PATH'].includes(el.tagName) && visible(el) && text(el) && el.children.length === 0) : [];
-    const chrome = [...candidates(document.querySelector('header')), ...candidates(document.querySelector('footer'))];
-    const body = candidates(document.querySelector('main') ?? document.body);
-    const all = [...body, ...chrome];
-    const latin = chrome.find(el => /^[\x20-\x7e\xa0-\xff]+$/.test(text(el)) && /[a-z]/i.test(text(el)));
-    const digitCandidates = [];
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    for (let node; (node = walker.nextNode());) {
-      const parent = node.parentElement;
-      if (!parent || parent.closest('script,style,noscript,svg,textarea,input') || !visible(parent) || !/\d/.test(node.textContent)) continue;
-      const font = getComputedStyle(parent).fontFamily;
-      digitCandidates.push({ node, parent, priority: parent.closest('.ui-site-footer-meta') ? 0 : parent.closest('header,footer') ? 1 : /mono/i.test(font) ? 3 : 2 });
-    }
-    digitCandidates.sort((a, b) => a.priority - b.priority);
-    let digit = null, digitSource = null;
-    if (digitCandidates.length) {
-      const { node, parent } = digitCandidates[0], match = /\d+/.exec(node.textContent);
-      digitSource = { selector: selector(parent), parentText: node.textContent.trim().slice(0, 140), method: 'Existing digit substring wrapped temporarily; no text invented; parent font styles copied; original text restored' };
-      const span = document.createElement('span'), css = getComputedStyle(parent);
-      for (const property of ['font-family', 'font-size', 'font-style', 'font-weight', 'font-stretch', 'font-feature-settings', 'font-variation-settings', 'font-kerning', 'letter-spacing', 'line-height']) span.style.setProperty(property, css.getPropertyValue(property), 'important');
-      span.setAttribute('data-naeil-digit-probe', '');
-      const range = document.createRange(); range.setStart(node, match.index); range.setEnd(node, match.index + match[0].length); range.surroundContents(span);
-      digit = span;
-    }
-    const japanese = document.documentElement.lang.startsWith('ja') ? all.find(el => /[\u3040-\u30ff\u3400-\u9fff]/.test(text(el)) && !/[a-z0-9]/i.test(text(el))) : null;
-    const ordinary = body.find(el => ['P', 'LI', 'SPAN', 'DIV'].includes(el.tagName)) ?? body[0];
-    return Object.fromEntries(Object.entries({ body: ordinary, latin, digit, japanese }).map(([key, el]) => [key, el ? { selector: selector(el), text: text(el).slice(0, 100), computedFamily: getComputedStyle(el).fontFamily, ...(key === 'digit' ? { source: digitSource } : {}) } : null]));
-  }), 'find visible font samples');
-  const cdp = await bounded(context.newCDPSession(page), 'create CDP session');
+async function fontsFor(page, context, locale) {
+  let cdp;
   try {
+    await bounded(page.evaluate(`globalThis.naeilScriptRuns = (${scriptRuns.toString()})`), 'install script splitter');
+    const targets = await bounded(page.evaluate(prepareFontProbes, locale), 'prepare isolated script probes');
+    await page.waitForFunction(() => document.fonts.status === 'loaded', null, { timeout: TIMEOUT });
+    await bounded(page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))), 'paint isolated script probes');
+    cdp = await bounded(context.newCDPSession(page), 'create CDP session');
     await bounded(cdp.send('DOM.enable'), 'DOM.enable');
     await bounded(cdp.send('CSS.enable'), 'CSS.enable');
-    await bounded(page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))), 'paint original digit substring');
     const { root } = await bounded(cdp.send('DOM.getDocument', { depth: 0 }), 'DOM.getDocument');
     for (const target of Object.values(targets)) if (target) {
-      const { nodeId } = await bounded(cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: target.selector }), 'font node');
-      target.fonts = (await bounded(cdp.send('CSS.getPlatformFontsForNode', { nodeId }), 'platform fonts')).fonts;
+      for (const run of target.runs) {
+        const { nodeId } = await bounded(cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: run.selector }), 'font run node');
+        run.fonts = (await bounded(cdp.send('CSS.getPlatformFontsForNode', { nodeId }), 'platform fonts per script')).fonts;
+      }
     }
+    return targets;
   } finally {
-    await bounded(cdp.detach(), 'CDP detach');
-    await bounded(page.evaluate(() => {
-      const span = document.querySelector('[data-naeil-digit-probe]');
-      if (span) { const parent = span.parentNode; span.replaceWith(...span.childNodes); parent.normalize(); }
-    }), 'restore original digit text');
+    if (cdp) await bounded(cdp.detach(), 'CDP detach').catch(() => {});
+    await bounded(page.evaluate(() => { document.querySelector('[data-naeil-font-probes]')?.remove(); delete globalThis.naeilScriptRuns; }), 'remove measurement-only probes');
   }
-  return targets;
-}
-function fontVerdict(target, expected) {
-  if (!target) return nm('No visible, script-isolated text sample on this page');
-  const fonts = target.fonts.filter(font => font.glyphCount > 0);
-  return fonts.length ? verdict(fonts.every(font => expected.test(`${font.familyName} ${font.postScriptName}`)), target) : nm('CDP returned no rendered glyphs');
 }
 async function iconsFor(site, declarations, userAgent) {
   const urls = [...new Set([...CANONICAL_ICONS.map(p => site.origin + p), ...declarations.map(d => d.href)])];
@@ -262,12 +222,16 @@ async function capture(job, browser, out, states, measure, blockedSites) {
       console.log(`${id}: ${row.coverageFailure}`);
       return row;
     }
+    row.documentSnapshot = await bounded(page.evaluate(readDocumentContract), 'document structure and fallback styles');
+    row.document = classifyDocument(row.documentSnapshot, row.httpStatus);
+    for (const key of FALLBACK_CHECKS) row.checks[key] = notRequired('D6-only check; this document is not a locale-layer fallback');
     row.chrome = await bounded(page.evaluate(readChrome, { site: site.id, styleProperties: STYLE_PROPERTIES }), 'shared chrome markers and styles');
     row.checks.availability = verdict(new URL(row.layout.url).origin === site.origin, { requested: requestedURL, final: row.layout.url, httpStatus: row.httpStatus });
     row.checks.locale = verdict(row.layout.lang.split('-')[0] === locale, { requested: locale, actual: row.layout.lang });
     const noFooter = site.id === 'home' && kind === 'short';
+    const shortPage = kind === 'short' || kind.startsWith('error');
     row.checks.frame = verdict(!!row.layout.header && row.measurements.mainCount === 1 && (noFooter || !!row.layout.footer), { header: !!row.layout.header, main: row.measurements.mainCount, footer: !!row.layout.footer, allowedNoFooter: noFooter });
-    row.checks.gap = noFooter ? nm('Home login deliberately omits footer') : !row.layout.footer ? verdict(false, { reason: 'Missing footer; bare error page', expected: kind === 'long' ? 96 : 0 }) : kind === 'short' ? (row.layout.scrollHeight > viewport.height + 1 ? nm('Audited short route overflows this viewport; footer bottom cannot align to viewport') : verdict(near(row.layout.footerGap, 0), { footerBottomToViewport: row.layout.footerGap, expected: 0 })) : kind === 'long' ? verdict(near(row.measurements.contentFooter, 96), { contentToFooter: row.measurements.contentFooter, expected: 96 }) : nm('Supplementary error probe; frame checked separately');
+    row.checks.gap = noFooter ? nm('Home login deliberately omits footer') : !row.layout.footer ? verdict(false, { reason: 'Missing footer; bare error page', expected: kind === 'long' ? 96 : 0 }) : shortPage ? (row.layout.scrollHeight > viewport.height + 1 ? nm('Audited short route overflows this viewport; footer bottom cannot align to viewport') : verdict(near(row.layout.footerGap, 0), { footerBottomToViewport: row.layout.footerGap, expected: 0 })) : kind === 'long' ? verdict(near(row.measurements.contentFooter, 96), { contentToFooter: row.measurements.contentFooter, expected: 96 }) : nm('Supplementary error probe; frame checked separately');
     row.checks.body = verdict(near(row.layout.body.size, 16) && near(row.layout.body.lineHeight, 25), { ...row.layout.body, expected: '16/25px' });
     row.checks.title = verdict(validTitle(row.layout.title, site.id), { actual: row.layout.title, expected: `Page name — ${site.id === 'naeil' ? '.naeil' : `.naeil ${site.id}`}` });
     row.checks.theme = hasState ? nm('Supplied state may contain remembered theme; this is not a first visit') : verdict(row.layout.theme === 'dark', { actual: row.layout.theme, colorScheme: row.layout.colorScheme, expected: 'dark', os: scheme });
@@ -302,18 +266,22 @@ async function capture(job, browser, out, states, measure, blockedSites) {
       }, normalization.previous), 'restore band positioning'); }
 
     }
-    try {
-      row.fonts = await fontsFor(page, context);
-      row.checks.latinFont = fontVerdict(row.fonts.latin, /Pretendard/i);
-      row.checks.digitFont = row.fonts.digit ? fontVerdict(row.fonts.digit, /Pretendard/i) : nm('No visible digit text anywhere in the rendered document (not just chrome)');
-      row.checks.japaneseFont = fontVerdict(row.fonts.japanese, /Noto\s*Sans\s*JP|NotoSansJP/i);
-      const sample = row.fonts.body;
-      row.checks.bodyFont = sample && /[a-z0-9]/i.test(sample.text) && /[\u3040-\u30ff\u3400-\u9fff]/.test(sample.text) && locale === 'ja' ? nm('Mixed-script body sample; aggregate CDP families recorded in JSON, cannot assign font to each glyph') : fontVerdict(sample, locale === 'ja' && /[\u3040-\u30ff\u3400-\u9fff]/.test(sample?.text ?? '') ? /Noto\s*Sans\s*JP|NotoSansJP/i : /Pretendard/i);
-    } catch { for (const k of ['bodyFont', 'latinFont', 'digitFont', 'japaneseFont']) row.checks[k] = nm('CDP font measurement failed or exceeded 15s'); }
     row.icons = await iconsFor(site, row.measurements.icons, await bounded(page.evaluate(() => navigator.userAgent), 'browser user agent'));
     row.documentAtEnd = await bounded(page.evaluate(() => ({ title: document.title, lang: document.documentElement.lang, heading: document.querySelector('main h1')?.textContent ?? null })), 'final document identity');
     row.checks.title = verdict(validTitle(row.documentAtEnd.title, site.id), { actual: row.documentAtEnd.title, atLayout: row.layout.title, expected: `Page name — ${site.id === 'naeil' ? '.naeil' : `.naeil ${site.id}`}` });
-    const limit = row.responses.find(r => r.status === 429 && r.resourceType !== 'document');
+    if (row.document.kind === 'locale-fallback') {
+      for (const key of ['locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'title', 'theme', 'headerPixels', 'footerPixels', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns']) row.checks[key] = notRequired(FALLBACK_REASON);
+      Object.assign(row.checks, fallbackChecks({ ...row.documentSnapshot, title: row.documentAtEnd.title, lang: row.documentAtEnd.lang }, locale, validTitle(row.documentAtEnd.title, site.id)));
+    } else {
+      // Last operation that touches the page: fixed-position copies cannot
+      // change the original layout, and no screenshot/geometry follows them.
+      stage = 'Measure script-isolated rendered fonts (15s per operation)';
+      try {
+        row.fonts = await fontsFor(page, context, locale);
+        for (const [sample, key] of Object.entries({ body: 'bodyFont', latin: 'latinFont', digit: 'digitFont', japanese: 'japaneseFont' })) row.checks[key] = perScriptFontVerdict(row.fonts[sample]);
+      } catch { for (const key of ['bodyFont', 'latinFont', 'digitFont', 'japaneseFont']) row.checks[key] = nm('CDP per-script font measurement failed or exceeded 15s'); }
+    }
+    const limit = row.responses.find(r => r.status === 429);
     if (limit) {
       row.rateLimited = { ...limit, reason: `HTTP 429 at ${limit.path}: audited page state not measured` };
       row.checks = Object.fromEntries(CHECKS.map(key => [key, nm(row.rateLimited.reason)]));
@@ -373,33 +341,24 @@ export async function main(args = process.argv.slice(2)) {
   const measure = await loadMeasure();
   const browser = await chromium.launch({ channel: options.channel, headless: true, timeout: 30000 });
   const rows = [], jobs = [], blockedSites = new Map();
-  for (const site of SITES) for (const locale of ['ko', 'ja', 'en']) for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) for (const scheme of ['light', 'dark']) for (const kind of ['short', 'long', 'error']) jobs.push({ site, locale, viewport, scheme, kind });
+  for (const site of SITES) for (const locale of ['ko', 'ja', 'en']) for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) for (const scheme of ['light', 'dark']) for (const kind of ['short', 'long', 'error', ...(site.id === 'naeil' ? ['error-blog'] : [])]) jobs.push({ site, locale, viewport, scheme, kind });
   try {
     let next = 0;
     await Promise.all(Array.from({ length: 3 }, async () => {
       while (next < jobs.length) rows.push(await capture(jobs[next++], browser, out, options.states, measure, blockedSites));
     }));
-    for (let i = 0; i < rows.length; i++) if (rows[i].rateLimited) {
-      const first = rows[i], seconds = Number(first.rateLimited.retryAfter);
-      const delay = Number.isFinite(seconds) && seconds > 0 ? Math.min(60, seconds) * 1000 : 60000;
-      console.log(`${first.id}: ${first.rateLimited.reason}; one read-only retry after ${delay / 1000}s`);
-      await bounded(new Promise(done => setTimeout(done, delay)), 'rate-limit retry delay', delay + 1000);
-      const job = jobs.find(j => `${j.site.id}-${j.locale}-${j.viewport.width}-${j.scheme}-${j.kind}` === first.id);
-      rows[i] = await capture(job, browser, out, options.states, measure, blockedSites);
-      rows[i].previousAttempt = { at: first.at, rateLimited: first.rateLimited, title: first.documentAtEnd?.title, responses: first.responses };
-    }
     const context = await bounded(browser.newContext(), 'pixel context');
     const page = await bounded(context.newPage(), 'pixel page');
     // Inject only the local, unit-tested pure function into this blank page.
     await bounded(page.evaluate(`globalThis.naeilDiffRGBA = (${diffRGBA.toString()}); globalThis.naeilMaskedRGBA = (${maskedRGBA.toString()})`), 'install pixel function');
     for (const row of rows) {
       const reference = rows.find(r => r.site === 'naeil' && r.locale === row.locale && r.viewport.width === row.viewport.width && r.osColorScheme === row.osColorScheme && r.kind === 'short');
-      if (row.icons) row.checks.icons = iconVerdict(row.icons, reference?.icons, SITES.find(s => s.id === row.site));
+      if (row.icons && !row.rateLimited) row.checks.icons = iconVerdict(row.icons, reference?.icons, SITES.find(s => s.id === row.site));
       row.geometryComparisons = {};
       row.supportingPixelDiffs = {};
       for (const band of ['header', 'footer']) {
         const key = `${band}Pixels`;
-        if (!row.layout || row.rateLimited) continue;
+        if (!row.layout || row.rateLimited || row.document?.kind === 'locale-fallback') continue;
         const sameCondition = row.layout.lang === row.locale && reference?.layout?.lang === row.locale && row.layout.theme === reference?.layout?.theme;
         const geometry = sameCondition ? geometryComparison(row.chrome?.[band], reference?.chrome?.[band]) : nm('No same rendered language/theme reference');
         row.geometryComparisons[band] = geometry;
@@ -425,7 +384,8 @@ export async function main(args = process.argv.slice(2)) {
   const differences = differenceCount(rows);
   const notMeasured = rows.reduce((n, r) => n + Object.values(r.checks).filter(c => c.status === 'not measured').length, 0);
   const findings = distinctDifferences(rows);
-  const report = { schemaVersion: 2, measuredAt: new Date().toISOString(), browser: `${options.channel} (Chromium) ${browser.version()}`, differences, distinctDifferences: findings, notMeasured, masks: MASK_POLICY, rollup: rollup(rows, CHECKS, SITES.map(s => s.id)), pixelPolicy: 'Union masks and integer-origin comparison captures; channel tolerance 16 (same as audit visible-pixel metric); original raw differences retained. Geometry/resolved layout lengths tolerance 0.5px; other computed styles exact; inactive border colors recorded but excluded. Optional icon metadata not counted.', safety: 'GET/HEAD only; service workers and WebSockets blocked; opaque per-site state; cross-origin browser requests blocked with state. No login, submit or state-changing click.', coverageFailures: Object.fromEntries(blockedSites), rows };
+  const notRequiredCount = rows.reduce((n, r) => n + Object.values(r.checks).filter(c => c.status === 'not required').length, 0);
+  const report = { schemaVersion: 3, notRequired: notRequiredCount, errorDocuments: errorDocumentSummary(rows), measuredAt: new Date().toISOString(), browser: `${options.channel} (Chromium) ${browser.version()}`, differences, distinctDifferences: findings, notMeasured, masks: MASK_POLICY, rollup: rollup(rows, CHECKS, SITES.map(s => s.id)), pixelPolicy: 'Union masks and integer-origin comparison captures; channel tolerance 16 (same as audit visible-pixel metric); original raw differences retained. Geometry/resolved layout lengths tolerance 0.5px; other computed styles exact; inactive border colors recorded but excluded. Optional icon metadata not counted.', safety: 'GET/HEAD only; service workers and WebSockets blocked; opaque per-site state; cross-origin browser requests blocked with state. No login, submit or state-changing click.', coverageFailures: Object.fromEntries(blockedSites), rows };
   await writeReport(report, out, CHECKS, SITES.map(s => s.id));
   console.log(JSON.stringify({ out, rows: rows.length, distinctDifferences: findings.length, differingCheckCells: differences, notMeasured }));
   return findings.length > 0 ? 1 : notMeasured > 0 ? 2 : 0;

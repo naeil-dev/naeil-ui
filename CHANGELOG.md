@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.17.0 — screen frame contract (unpublished candidate)
+Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
+
+## 0.17.0 — screen frame contract
 
 - `NaeilServiceShell` owns one `.ui-service-shell[data-naeil-shell]` around skip link/header/main/footer, with a token-generated `100dvh` minimum and a growing main. Short screens end at the viewport bottom; long content retains the 96px footer gap; recorded `footer={false}` screens still fill the viewport. naeil.dev uses the same frame through the additive `service="main"` catalog profile (Projects/Blog, no service suffix). Landing artwork remains site-owned and spans the shell independently of the content cap.
 - Add `@naeil/ui/fonts.css`: one stylesheet with Pretendard Variable and variable Noto Sans JP, package-local unchanged WOFF2 build assets and OFL notices. No consumer font installation or resolver aliases are needed. A Latin-only Pretendard face leads Japanese body/chrome/locale-menu stacks; kana, kanji and Japanese punctuation remain Noto Sans JP. Variable Noto replaces four site weight stylesheets (127,688 → 31,249 gzip bytes for the source Noto definitions); Korean-only pages request no Japanese font files.
@@ -16,7 +18,7 @@
 - Remove unsupported `asChild` from the public types of Checkbox, Switch, SelectTrigger/Content/Item, DialogContent, SheetContent and DropdownMenuCheckboxItem/RadioItem/SubTrigger. Their wrappers own multiple children; migrate callers to the supported component structure. Button and supported trigger composition retain `asChild`.
 - Runtime conformance uses a 10-minute overall budget and 15-second step limits; `--header` values are scoped to the configured origin, including redirects. Service auto-merge policy is patch-only; a 0.x minor may require consumer changes and manual migration review. Service automation changes follow separately.
 
-Package metadata, generated `/release` and React/Next fixture pins are 0.17.0. Unpublished candidate; publication, live service comparison and deployment retain separate approval and acceptance.
+Publication, live service comparison and deployment require their own approval and acceptance; see [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
 ## 0.16.0 — shell-owned login and account control (published 2026-11-15)
 

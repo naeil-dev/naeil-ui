@@ -1,6 +1,6 @@
 # NaeilFooter — canonical service footer
 
-Available since **0.7.1**, the first published release containing this entry. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release; hosted Docs and service activation have separate receipts.
+Available since **0.7.1**, the first published release containing this entry. See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for current publication, hosted Docs and service adoption; hosted Docs and service activation have separate receipts.
 
 New owned-service adoption uses [NaeilServiceShell with root NaeilThemeProvider](naeil-shell.md); the shell renders this canonical full footer. The standalone examples and compatibility APIs below remain supported. naeil.dev retains its existing direct catalog/footer composition.
 

@@ -1,6 +1,6 @@
 # Application frame and shared navigation/footer
 
-Product navigation and controlled mobile APIs are available since 0.8.0; shared root reservation is available since 0.9.0. See [release identities and publication status](../package-release.md#publication-and-deployment) for the current published release; hosted Docs and service activation have separate receipts. See [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
+Product navigation and controlled mobile APIs are available since 0.8.0; shared root reservation is available since 0.9.0. See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for the current published release; hosted Docs and service activation have separate receipts. See [consumer setup](../design/v2-migration.md) for CSS, Tailwind sources and fonts.
 
 ## Choose the shared composition first
 
@@ -54,6 +54,8 @@ Alternatively, use that attribute selector in `@layer base` after the package im
 In classic mode, a fixed modal scrim covers the page's available width, leaving the reserved gutter strip undimmed (15px in the measured macOS Chromium profile). This is expected with a reserved root; 0.9.0 leaves the scrim styles unchanged. Overlay mode has no reserved strip. A full-viewport scrim redesign is outside this release.
 
 Frame and control tokens stay unchanged. At 1920px with a 15px classic gutter the centered 1600px frame starts at 152.5px on both short and long pages (overlay: 160px). Japanese signed-out canonical login content at width 320 has 257px inside the 305px classic sheet; its 261px toolbar wraps to 104px. Overlay remains 44px. Preserve all labels, 44px targets and keyboard access. Home Workspace/account and LoginGate/no-login-slot retain their 44px toolbars; this specific F3 profile difference is documented, not a new Home chrome exception.
+
+<a id="shared-naeildev-login-services-on-naeildev"></a>
 
 ## Canonical naeil application starter
 
@@ -124,7 +126,7 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 ## Shared application layout
 - Read the installed @naeil/ui/DESIGN.md and docs/components/application-layout.md before UI layout work.
 - Owned services use NaeilServiceShell + root NaeilThemeProvider from @naeil/ui/naeil-shell; replace the old root provider. The shell owns header, main, skip link and full footer. naeil.dev uses the same shell with service="main" and imports @naeil/ui/fonts.css. Navigation/SiteFooter remain for a different product menu; standalone NaeilHeader/NaeilFooter and Next Nav/Footer compatibility APIs remain available.
-- Pass real session state through the shell's account prop, including the busy flag and guarded logout callback. The shell supplies NaeilHeaderAccountControl with locale/Link. header.authSlot is deprecated for owned services. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup. Pass currentHref so the shell hides the signed-out login link on its matching login pathname; record that route with runtime --no-account. Static CI requires account= on every shell and rejects header.authSlot.
+- Pass real session state through the shell's account prop, including the busy flag and guarded logout callback. The shell supplies NaeilHeaderAccountControl with locale/Link. header.authSlot is deprecated for owned services. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup. Pass currentHref so the shell hides the signed-out login link on its matching login pathname; record that route with runtime --no-account. Static CI requires explicit account= on each reachable shell; presentation and deprecated-prop use require type/runtime review.
 - For owned Next services under NaeilLocaleProvider, import shell/provider/PageHeader/account from @naeil/ui/naeil-locale/chrome. Read docs/components/naeil-locale.md for the root controller, provider, server routing, message loading and checker. /naeil-header and /naeil-footer remain standalone React adapters.
 - Owned services must set the shell's service="abstorm" / "home" / "estimate" / "jev". The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.
 - Supply only the service's own header.appNavigation tabs; never copy naeil.dev Projects/Blog. Single-screen services leave appNavigation empty; the mobile menu still exposes theme/locale/account without empty navigation.

@@ -1,6 +1,6 @@
 # Component usage guides
 
-These maintained guides describe the repository APIs. See [release policy and identities](../package-release.md#publication-and-deployment) for the current published release. [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 18 Docs pages (16 UI and 2 Brand) and choose Docs or Usage. The [hosted Storybook](https://naeil-dev.github.io/naeil-ui/) has recorded [0.5.0 verification](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.5.0); each subsequent deployment requires its own receipt. Select chooses a value; DropdownMenu chooses an action.
+These maintained guides describe the repository APIs. See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for current publication, hosted Docs and service adoption. [Setup, themes, fonts and shared responsibilities](common.md). Run `pnpm storybook` for the current 18 Docs pages (16 UI and 2 Brand) and choose Docs or Usage. Select chooses a value; DropdownMenu chooses an action.
 
 Start application layouts with the [shared navigation/footer selection and frame guide](application-layout.md). It includes a starter, the 1600px frame contract and instructions to place in consumer repositories so agents reuse the shared implementation.
 

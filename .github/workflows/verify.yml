@@ -43,7 +43,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Audit deployed site runtime (including development dependencies)
         run: |
-          node --test scripts/ci/audit-site-runtime.test.mjs
+          node --test scripts/ci/audit-site-runtime.test.mjs scripts/ci/select-docs-verification.test.mjs
           node scripts/ci/audit-site-runtime.mjs
       # Rollout regression tests launch Chromium; package checks also use WebKit.
       - name: Verify preinstalled Playwright browsers
@@ -117,6 +117,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: matrix.browser == 'chromium' && matrix.suite == 'other'
         with:
+          # Publication selects this only after the entire Verify run succeeds.
           name: storybook-preview
           path: storybook-static/
           retention-days: 14
