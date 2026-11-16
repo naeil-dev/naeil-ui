@@ -2,7 +2,7 @@
 
 ## Current state
 
-As of 2026-11-16: `@naeil/ui@0.17.0` is published as `latest` ([run 43770011113](https://github.com/naeil-dev/naeil-ui/actions/runs/43770011113), registry tarball byte-identical to the [frozen archive](docs/releases/0.17.0/README.md)); tag `v0.17.0` and its [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.17.0) exist. naeil.dev production runs `b2aac59`. Hosted Docs for 0.17.0 are not yet published.
+As of 2026-11-16: `@naeil/ui@0.17.0` is published as `latest` ([run 43770011113](https://github.com/naeil-dev/naeil-ui/actions/runs/43770011113), registry tarball byte-identical to the [frozen archive](docs/releases/0.17.0/README.md)); tag `v0.17.0` and its [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.17.0) exist. naeil.dev production runs `b2aac59`. Hosted Docs serve 0.17.0 from `24e2553` ([run 43823533355](https://github.com/naeil-dev/naeil-ui/actions/runs/43823533355)).
 
 All four owned services run UI 0.17.0: abstorm `e431b79`, jev `cfd3d63` (deploy → rollback → redeploy rehearsed from the repository runbook), abestimate `2ad2400`, naeil-home `1eb13ae` with a replaced console proxy that forwards `/icon.svg` and `/apple-icon.png`. Hosted CI was not run for the service repositories (Actions unavailable); their suites ran locally.
 
