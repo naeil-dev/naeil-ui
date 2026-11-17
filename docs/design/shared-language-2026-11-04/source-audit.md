@@ -65,6 +65,6 @@ URL 통일안의 Opus 재검토 뒤 Estimate 소비 복사본의 `src/app/page.t
 
 ## 전체 도메인 범위의 근거와 한계
 
-[standing-services.json](../../rollout/standing-services.json)과 [inventory](../../rollout/inventory.md)의 최신 실행 범위는 메인·Jev·Estimate다. 메인 현재 route files에는 landing, login, projects, design, blog, blog/[slug]와 non-UI auth/API가 있다. `_archive`의 소스 존재만으로 활성 경로라고 판단하지 않는다.
+[standing-services.json](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/docs/rollout/standing-services.json)과 [inventory](../../rollout/inventory.md)의 최신 실행 범위는 메인·Jev·Estimate다. 메인 현재 route files에는 landing, login, projects, design, blog, blog/[slug]와 non-UI auth/API가 있다. `_archive`의 소스 존재만으로 활성 경로라고 판단하지 않는다.
 
 과거 inventory에는 baby, trip, work, digest, line, esg도 나온다. trip/work/digest/line/esg는 폐기된 서비스이고 Baby는 이전 작업에서 별도 제품으로 제외됐다는 기록이다. 이번 조사는 DNS 전체를 새로 검증하지 않았다. 과거 rollout 제외를 이번 언어 요구의 영구 제외로 전용하지 않으며, 구현 첫 단계에 **현재 활성 owned UI origin/경로 전수 확인**을 둔다. 새로 확인된 필수 서비스도 같은 어댑터/번역/검증 계약에 포함한다. API·webhook·callback·폐기 호스트를 화면 언어 전환 대상으로 취급하지 않는다.

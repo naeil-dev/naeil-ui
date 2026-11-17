@@ -6,7 +6,7 @@
 
 구현 검토에서 확인한 남은 범위: 첫 실행 세대는 정확한 0.7.2와 한 번의 Estimate 후속 시도에 묶인다. §6의 채택된 소스 기록 재사용과 후속 candidate 준비는 구현했지만, §6·§12의 다음 dependency-only 릴리스를 실제 worker로 실행하는 절차는 아직 충족하지 않았다. 현재 승인 기간 안의 0.7.3도 이 세대로 자동 배포할 수 없다. 이 요구를 삭제하거나 완료로 간주하지 않으며, 새 candidate·config·generation·attempt를 결합하는 별도 후속 절차가 필요하다. 이번 0.7.2 복구 수정에서 기존 실행 제한을 완화하지 않는다.
 
-기준: main `40a3928e24cd2f0141be3e605eed0a75260938fd`, 설치된 r5는 PR [#26](https://github.com/naeil-dev/naeil-ui/pull/26)의 `f2bef4b8f66831c07a4f601ae8ceeece41ebc408`이다. 기존 [standing 설계](2026-10-23-standing-ui-release.md), [운영 지침](../../rollout/standing-rollout.md), [reviewedMigration 설명](../../rollout/automation.md#proposed-policy-pending-approval)을 대체하는 구현이 아니라 다음 변경의 제안이다. 시각은 별도 표기 없으면 UTC다.
+기준: main `40a3928e24cd2f0141be3e605eed0a75260938fd`, 설치된 r5는 PR [#26](https://github.com/naeil-dev/naeil-ui/pull/26)의 `f2bef4b8f66831c07a4f601ae8ceeece41ebc408`이다. 기존 [standing 설계](2026-10-23-standing-ui-release.md), [운영 지침](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/docs/rollout/standing-rollout.md), [reviewedMigration 설명](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/docs/rollout/automation.md#proposed-policy-pending-approval)을 대체하는 구현이 아니라 다음 변경의 제안이다. 시각은 별도 표기 없으면 UTC다.
 
 ## 1. 결론과 승인할 범위
 
@@ -60,7 +60,7 @@ HTTP 관측에서 기본 Python User-Agent는 native public endpoint에 403을 �
 | 영수증 축적 = 상태 읽기 불능 | state에 전체 request/result/검증 자료·history를 중복 포함 | 작은 상태 인덱스와 크기 제한된 독립 영수증. writer와 reader의 공통 상한 |
 | 정기 job 존재 = 누군가 감시 | notifier 미설정. state 읽기 실패는 summary도 갱신 못 함 | 운영 의도·job 생존·배포 진행·사람에게 전달 여부를 각각 관측 |
 
-근거 코드: `scripts/verify-ui-production.mjs`, `standing-dispatcher.mjs`의 `poll`/`inspect`/`reconcile`, `standing-config.mjs`의 `readPrivateJSON`, `estimate-standing-adapter.mjs`의 `cleanCheckout`/E2E 호출, `jev-standing-adapter.mjs`의 sourceCheck, `jev-candidate.mjs`, `update-consumer.mjs`. 경로 앞 `scripts/rollout/`은 생략했다. 실제 테스트 literal은 보존된 consumer clone에서 읽기만 했다.
+근거 코드: [scripts/verify-ui-production.mjs](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/scripts/verify-ui-production.mjs), `standing-dispatcher.mjs`의 `poll`/`inspect`/`reconcile`, `standing-config.mjs`의 `readPrivateJSON`, `estimate-standing-adapter.mjs`의 `cleanCheckout`/E2E 호출, `jev-standing-adapter.mjs`의 sourceCheck, `jev-candidate.mjs`, `update-consumer.mjs`. 경로 앞 `scripts/rollout/`은 생략했다. 실제 테스트 literal은 보존된 consumer clone에서 읽기만 했다.
 
 ## 4. 유지할 경계
 

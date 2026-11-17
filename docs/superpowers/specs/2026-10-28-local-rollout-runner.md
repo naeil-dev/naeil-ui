@@ -18,7 +18,7 @@ Failures record `{stage, reasonCode, status, timeout, retryable}` without secret
 
 ## Interfaces and implementation ownership
 
-- Core: `scripts/rollout/local-runner.mjs`, `local-runtime.mjs` and their tests. Config holds `stateDirectory`, `lockFile`, `stopFile`, `approvalFile`, `plan` (release + services). Dependency interface: `validateRelease`, `prepare`, `inspect`, `deploy`, `verify`, `rollback`; every callback receives `{plan, service, transaction, directory}`. Native mutations belong only to `deploy`/`rollback`. CLI production wiring is integrated by main.
+- Core: [scripts/rollout/local-runner.mjs](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/scripts/rollout/local-runner.mjs), `local-runtime.mjs` and their tests. Config holds `stateDirectory`, `lockFile`, `stopFile`, `approvalFile`, `plan` (release + services). Dependency interface: `validateRelease`, `prepare`, `inspect`, `deploy`, `verify`, `rollback`; every callback receives `{plan, service, transaction, directory}`. Native mutations belong only to `deploy`/`rollback`. CLI production wiring is integrated by main.
 - Consumers: `local-consumers.mjs` and tests; simplify existing consumer adapters/native protocol as needed. Reuse isolated preflight and build checks. Agree exact request/response shapes with core before crossing file ownership. Native helper keeps legacy receipts readable but gains no legacy authority bypass.
 - Verification/integrity: main initially owns production verifier integration, release validation and old-state import; Astra reviews the design and each completed stage. Shared file edits are handed off explicitly.
 

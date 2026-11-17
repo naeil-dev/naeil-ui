@@ -2,11 +2,11 @@
 
 ## Current execution — 2026-10-29
 
-The [local rollout runner](local-runner.md) replaces the retired standing system. The 0.7.2 acceptance completed on 2026-10-28 (naeil and Estimate verify-only, Jev deployed once); the owner confirmed old launcher retirement on 2026-10-29. Repository cleanup preserves the original evidence and operational copies. Actual production rollback remains unexercised; its recovery tests are synthetic.
+The retired 0.7.x rollout runner and its verifier are preserved at [archive/rollout-runner-20261118](https://github.com/naeil-dev/naeil-ui/tree/archive/rollout-runner-20261118/); current service deployment and rollback use the [service runbooks](https://github.com/naeil-dev/naeil-ui/blob/main/docs/rollout/auto-update.md#service-deployment-and-rollback-runbooks).
 
 ## Operations closeout follow-up — 2026-10-23
 
-The original operations closeout verified shared Google/GitHub login/logout, central403 enforcement, Estimate save/restart persistence, private source recovery and DNS/callback inventory. Those are separate from standing release acceptance. That follow-up covered exact0.7.1 publication and the now-retired three-service standing pipeline; Home Console/Baby were excluded. Production checks use the [current concrete route snapshot](standing-services.json) and private renewing sessions. The dated evidence below is preserved, with its original scope and limitations, and does not by itself certify the local runner.
+The original operations closeout verified shared Google/GitHub login/logout, central403 enforcement, Estimate save/restart persistence, private source recovery and DNS/callback inventory. Those are separate from standing release acceptance. That follow-up covered exact0.7.1 publication and the now-retired three-service standing pipeline; Home Console/Baby were excluded. Production checks use the [current concrete route snapshot](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/docs/rollout/standing-services.json) and private renewing sessions. The dated evidence below is preserved, with its original scope and limitations, and does not by itself certify the local runner.
 
 ## Account correction — 2026-10-17
 
