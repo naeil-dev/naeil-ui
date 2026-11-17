@@ -7,7 +7,9 @@ import { join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { fixture, config, applyCookies } from "./invite-fixture";
 const origin = "http://127.0.0.1:2482";
-// Deliberately opt-in: owns2482 and a private fake HTTP Auth/RPC seam, never real OTP.
+// Opt-in outside CI: requires a production build with NAEIL_INVITE_DIST_DIR=.next-console-invite
+// and synthetic public Supabase values. verify.yml builds it and enables this suite.
+// Owns port 2482 and a private fake HTTP Auth/RPC seam; no credentials or real OTP.
 const enabled = process.env.NAEIL_INVITE_PRODUCTION_TEST === "1";
 async function rawRequest(
   path: string,

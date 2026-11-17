@@ -51,6 +51,7 @@ jobs:
       - run: pnpm test
       - run: pnpm test:rollout
       - run: python3 -B scripts/rollout/jev-native.test.py
+      - run: node --test scripts/build-chrome-fixtures.test.mjs
       - run: node --test scripts/account-render.test.mjs
       - run: node --test scripts/site-auth-slot.test.mjs
       - run: node --test scripts/site-account-language.test.mjs
@@ -76,6 +77,15 @@ jobs:
       - name: Separate website compatibility build
         run: pnpm build
         env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:55431
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture-anon
+
+      - name: Build and test compiled invitation boundary (synthetic local Auth/RPC)
+        run: |
+          pnpm exec next build --webpack
+          NAEIL_INVITE_PRODUCTION_TEST=1 pnpm exec vitest run src/lib/auth/__tests__/invite-production.test.ts
+        env:
+          NAEIL_INVITE_DIST_DIR: .next-console-invite
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:55431
           NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture-anon
 

@@ -154,18 +154,25 @@ export async function executeSandbox(sandbox, command) {
   const timeout=command.timeoutMs??120000;assert(Number.isSafeInteger(timeout)&&timeout>0&&timeout<=10800000,'Bounded timeout required');
   return await new Promise(resolveResult=>{
     const child=spawn('/usr/bin/sandbox-exec',['-p',sandbox.profile,command.file,...command.args],{cwd,env,stdio:['ignore','pipe','pipe'],detached:true});
-    let stdout=Buffer.alloc(0),stderr=Buffer.alloc(0),failed=false;
-    const kill=()=>{failed=true;try{process.kill(-child.pid,'SIGKILL');}catch{}};
-    const timer=setTimeout(kill,timeout);
+    let stdout=Buffer.alloc(0),stderr=Buffer.alloc(0),settled=false;
+    const kill=()=>{try{process.kill(-child.pid,'SIGKILL');}catch{}};
+    const finish=(exitCode,signal=null)=>{
+      if(settled)return;settled=true;clearTimeout(timer);kill();
+      // Like runRegistered: escaped descendants may retain the pipes. Never wait
+      // for their EOF to enforce the timeout/output budget.
+      child.stdout.destroy();child.stderr.destroy();
+      resolveResult({exitCode,signal,stdout:stdout.toString(),stderr:stderr.toString(),stdoutSha256:hash(stdout),stderrSha256:hash(stderr)});
+    };
+    const timer=setTimeout(()=>finish(1),timeout);
     for(const [stream,name] of [[child.stdout,'stdout'],[child.stderr,'stderr']]) stream.on('data',bytes=>{
-      if(name==='stdout') stdout=Buffer.concat([stdout,bytes]);else stderr=Buffer.concat([stderr,bytes]);
-      if(stdout.length+stderr.length>2097152) kill();
+      if(settled)return;
+      const remaining=2097152-stdout.length-stderr.length;
+      const retained=bytes.subarray(0,remaining);
+      if(name==='stdout')stdout=Buffer.concat([stdout,retained]);else stderr=Buffer.concat([stderr,retained]);
+      if(bytes.length>remaining)finish(1);
     });
-    child.once('error',()=>{failed=true;});
-    child.once('close',(exitCode,signal)=>{
-      clearTimeout(timer);try{process.kill(-child.pid,'SIGKILL');}catch{}
-      resolveResult({exitCode:failed||signal||exitCode===null?1:exitCode,signal,stdout:stdout.toString(),stderr:stderr.toString(),stdoutSha256:hash(stdout),stderrSha256:hash(stderr)});
-    });
+    child.once('error',()=>finish(1));
+    child.once('close',(exitCode,signal)=>finish(signal||exitCode===null?1:exitCode,signal));
   });
 }
 
