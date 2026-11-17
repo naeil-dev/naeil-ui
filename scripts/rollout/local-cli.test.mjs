@@ -57,3 +57,29 @@ test('fresh draft becomes a final plan whose approval runs once without state or
   await assert.rejects(() => main(['prepare-plan', draftPath, output]), /new output/);
   assert.equal(readFileSync(output, 'utf8'), 'existing');
 });
+
+test('help and no arguments print usage successfully without state, lock or config access', async t => {
+  const { spawnSync } = await import('node:child_process');
+  const { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, statSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os'), { join } = await import('node:path');
+  const directory = mkdtempSync(join(tmpdir(), 'local-cli-help-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const lock = join(directory, 'machine.lock'), state = join(directory, 'state.json');
+  writeFileSync(lock, 'existing owner'); writeFileSync(state, 'existing state');
+  const before = [statSync(lock).mtimeMs, statSync(state).mtimeMs];
+  const cli = new URL('./local-cli.mjs', import.meta.url).pathname;
+  for (const args of [[], ['--help'], ['-h'], ['run', join(directory, 'missing-config.json'), '--help'], ['rollback', join(directory, 'missing-config.json'), '-h']]) {
+    const result = spawnSync(process.execPath, [cli, ...args], { cwd: directory, encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr); assert.equal(result.stderr, '');
+    assert.match(result.stdout, /^Usage:/);
+    for (const command of ['discover', 'prepare-plan', 'approval-template', 'status', 'prepare', 'verify', 'run', 'rollback', 'recover-lock']) assert(result.stdout.includes(command));
+    assert.deepEqual(readdirSync(directory).sort(), ['machine.lock', 'state.json']);
+    assert.equal(readFileSync(lock, 'utf8'), 'existing owner'); assert.equal(readFileSync(state, 'utf8'), 'existing state');
+    assert.deepEqual([statSync(lock).mtimeMs, statSync(state).mtimeMs], before);
+  }
+  t.mock.method(console, 'log', () => {});
+  const mask = process.umask(0o022);
+  try {
+    await main(['--help']); assert.equal(process.umask(), 0o022);
+  } finally { process.umask(mask); }
+});

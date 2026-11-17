@@ -143,7 +143,7 @@ test("long labels, English and reduced motion", async ({ page }) => {
   await expect(sheet.getByRole("link", { name: /팀과 서비스별/ })).toBeVisible();
   expect(await sheet.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
   expect(await sheet.evaluate(element => getComputedStyle(element).animationDuration)).toBe("0s");
-  await sheet.getByRole("button", { name: /Change language/ }).click();
+  await sheet.getByRole("button", { name: "언어 변경 — 현재: KO", exact: true }).click();
   await page.getByRole("menuitem", { name: /English/ }).click();
   await expect(page.getByRole("dialog", { name: "Menu", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close menu", exact: true }).click();

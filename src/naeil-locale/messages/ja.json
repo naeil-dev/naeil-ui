@@ -14,7 +14,8 @@
         "switchToDark": "ダークテーマに切り替える"
       },
       "locale": {
-        "switchLabel": "言語"
+        "switchLabel": "言語",
+        "changeLabel": "言語を変更 — 現在: {current}"
       },
       "projects": {
         "cc": {

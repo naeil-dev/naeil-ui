@@ -42,10 +42,30 @@ export function localCommandOptions(command, rest) {
   return { command, ...(retryHeld ? { retryHeld: true } : {}), ...(recoverVerification ? { recoverVerification: true } : {}), ...(selectors[0] ? command === 'rollback' ? { transactionId: selectors[0] } : { serviceId: selectors[0] } : {}) };
 }
 
+const usage = `Usage: local-cli.mjs <command> <private-config.json> [selector] [options]
+
+Commands:
+  discover                         Inspect the configured local release
+  prepare-plan <output-config>     Bind a draft plan to prepared candidates
+  approval-template                Print the final plan's approval template
+  status                           Read rollout state
+  prepare [service-id]             Prepare candidates
+  verify [service-id]              Verify deployed services
+  run                              Run the approved sequential plan
+  rollback <transaction-id>        Roll back the selected transaction
+  recover-lock <lock-owner-id>      Recover the exact stale machine lock
+
+Options:
+  --retry-held                     Explicit retry for prepare, verify or run
+  --recover-verification           Verify one explicit service without retry
+  --help, -h                       Print this usage without loading config
+`;
+
 export async function main(args = process.argv.slice(2)) {
+  if (!args.length || args.includes("--help") || args.includes("-h")) { console.log(usage); return; }
   process.umask(0o077);
   const [command, configPath, ...rest] = args;
-  assert(['discover', 'prepare-plan', 'approval-template', 'status', 'prepare', 'verify', 'run', 'rollback', 'recover-lock'].includes(command) && configPath, 'Usage: local-cli.mjs <command> <private-config.json> [service-id | transaction-id | lock-owner-id | output-config.json] [--retry-held | --recover-verification (verify SERVICE only)]');
+  assert(['discover', 'prepare-plan', 'approval-template', 'status', 'prepare', 'verify', 'run', 'rollback', 'recover-lock'].includes(command) && configPath, usage);
   const config = readJSON(resolve(configPath));
   if (command === 'prepare-plan') {
     assert(rest.length === 1 && resolve(rest[0]) !== resolve(configPath) && !entryExists(resolve(rest[0])), 'Separate new output config required');
