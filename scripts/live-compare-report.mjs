@@ -26,6 +26,7 @@ export function observations(row, key, check) {
   const wrongLatin = v.runs?.filter(run => run.script === 'latin' && run.status === 'differs' && /Noto/.test(family(run)));
   if (row.locale === 'ja' && ['latinFont', 'digitFont', 'bodyFont'].includes(key) && (wrongLatin?.length || (!v.runs && /Noto/.test(family(v))))) return [{ id: 'ja-latin-digit-font', text: 'Japanese-page Latin/digits use Noto Sans JP instead of Pretendard', value: `${wrongLatin?.length ? wrongLatin.map(run => `${family(run)}; text=${JSON.stringify(run.text)}`).join('; ') : `${family(v)}; text=${JSON.stringify(v.text)}`}` }];
   if (['latinFont', 'digitFont', 'bodyFont', 'japaneseFont'].includes(key)) return [{ id: `${key}-rendered-family`, text: `${key}: rendered font differs`, value: `${family(v)}; text=${JSON.stringify(v.text)}` }];
+  if (key === 'sharedTheme') return [{ id: 'shared-theme-preference', text: 'Remembered theme differs between naeil.dev sites', value: v.sites.join(', ') }];
   if (key === 'theme') return [{ id: 'first-visit-theme', text: 'First-visit dark theme missing', value: `${v.actual}; CSS color-scheme=${v.colorScheme}` }];
   if (key === 'locale') return [{ id: 'document-language', text: 'Requested document language missing/different', value: `lang=${JSON.stringify(v.actual)}` }];
   if (key === 'title') return [{ id: 'document-title', text: 'Named-page title missing/incorrect', value: JSON.stringify(v.actual) }];

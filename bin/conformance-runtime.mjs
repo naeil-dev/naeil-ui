@@ -106,7 +106,7 @@ export async function checkRuntimeConformance({service, url, routes, noFooter = 
       const strings = (entry, keys) => entry && keys.every(key => typeof entry[key] === 'string');
       if (original.cookies.some(cookie => !strings(cookie, ['name','value','domain','path']) || !Number.isFinite(cookie.expires) || typeof cookie.httpOnly !== 'boolean' || typeof cookie.secure !== 'boolean' || !['Strict','Lax','None'].includes(cookie.sameSite))) throw new Error('Invalid cookie');
       if (original.origins.some(entry => !strings(entry, ['origin']) || !['http:','https:'].includes(new URL(entry.origin).protocol) || !Array.isArray(entry.localStorage) || entry.localStorage.some(item => !strings(item, ['name','value'])))) throw new Error('Invalid origin storage');
-      state = {...original, origins: original.origins.map(entry => ({...entry, localStorage: entry.localStorage.filter(item => item.name !== 'theme')}))};
+      state = {...original, cookies: original.cookies.filter(cookie => cookie.name !== 'naeil_theme_v1'), origins: original.origins.map(entry => ({...entry, localStorage: entry.localStorage.filter(item => item.name !== 'theme')}))};
     } catch { throw new Error('Cannot read --storage-state: supply a valid Playwright storageState JSON file'); }
   }
   function mappings(values, flag) {

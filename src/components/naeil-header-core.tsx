@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore, type JSX, type ReactNode } from "react";
-import { useTheme } from "next-themes";
+import { useNaeilTheme } from "./naeil-theme-provider";
 import { Moon, Sun } from "lucide-react";
 import { Logo } from "./logo";
 import { Badge } from "./ui/badge";
@@ -108,7 +108,7 @@ const subscribe = () => () => {};
 /** The actual header theme control; reads only the consumer's theme provider. */
 export function NaeilHeaderThemeControl({ locale }: { locale: NaeilHeaderLocale }) {
   const copy = useNaeilMessages(locale);
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useNaeilTheme();
   const mounted = useSyncExternalStore(subscribe, () => true, () => false);
   const dark = mounted && resolvedTheme === "dark";
   return (

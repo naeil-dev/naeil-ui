@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
 import ts from 'typescript';
 import { maskedRGBA, geometryComparison, footerMetaVerdict, MASK_POLICY, metaHeightAttribution } from './live-compare-chrome.mjs';
-import { scriptRuns, perScriptFontVerdict, classifyDocument, fallbackChecks, readDocumentContract, errorDocumentSummary } from './live-compare-contract.mjs';
+import { scriptRuns, perScriptFontVerdict, classifyDocument, fallbackChecks, readDocumentContract, errorDocumentSummary, compareRememberedThemes } from './live-compare-contract.mjs';
 import { prepareFontProbes } from './live-compare-fonts.mjs';
 import { distinctDifferences, rollup } from './live-compare-report.mjs';
 import { diffRGBA, differenceCount, iconVerdict, near, parseArgs, requestAllowed, validTitle } from './live-compare.mjs';
@@ -247,4 +247,19 @@ test('CDP probes isolate real text without changing the source layout', { timeou
     await page.setContent('<html><body><h1>404</h1><p>Not found</p><ul><li><a lang="ko" href="https://naeil.dev/ko">한국어</a></li></ul></body></html>');
     assert.equal(classifyDocument(await page.evaluate(readDocumentContract), 404).kind, 'locale-fallback');
   } finally { await browser.close(); }
+});
+
+test('supplied-state theme mismatches count, while Home and fresh contexts keep their rules', () => {
+  const row = (site, theme, hasStorageState = true, osColorScheme = 'dark') => ({ id: site, site, origin: site === 'home' ? 'https://private.ts.net' : site === 'naeil' ? 'https://naeil.dev' : `https://${site}.naeil.dev`, hasStorageState, osColorScheme, layout: { theme }, checks: {} });
+  const rows = [row('naeil', 'dark'), row('abstorm', 'light'), row('home', 'light'), row('jev', 'dark', false)];
+  compareRememberedThemes(rows);
+  assert.equal(rows[0].checks.sharedTheme.status, 'differs');
+  assert.equal(rows[1].checks.sharedTheme.status, 'differs');
+  assert.equal(rows[2].checks.sharedTheme.status, 'not required');
+  assert.equal(rows[3].checks.sharedTheme.status, 'not required');
+  assert.equal(distinctDifferences(rows)[0].id, 'shared-theme-preference');
+  rows[1].layout.theme = 'dark'; compareRememberedThemes(rows);
+  assert.equal(rows[0].checks.sharedTheme.status, 'match');
+  rows[1].osColorScheme = 'light'; compareRememberedThemes(rows);
+  assert.equal(rows[0].checks.sharedTheme.status, 'not measured');
 });

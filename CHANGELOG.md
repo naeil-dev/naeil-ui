@@ -2,9 +2,11 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
-## Unreleased
+## 0.18.0 — shared theme preference (unpublished candidate)
 
-- Runtime conformance reports non-empty footer meta inside owned-service shells. Owned services leave the row empty; public `meta` props and standalone/generic rendering remain compatible. `measureNaeilPage` exposes `footerMetaTexts` for this check. No version bump.
+- `NaeilThemeProvider` reads the strictly validated `naeil_theme_v1` preference before next-themes first paint and hydration. A cookie wins over per-origin `theme` storage; without it, remembered local values and the dark default remain unchanged. Only explicit shared-control light/dark/system choices write the one-year first-party cookie. HTTPS naeil.dev sites share Domain=naeil.dev; other hosts use host-only cookies, including Home's separate private-network host. No cross-domain live synchronization is added. Cookie/storage denial preserves local persistence/dark default respectively. Nested providers reuse the root.
+- Runtime conformance reports non-empty footer meta inside owned-service shells. Owned services leave the row empty; public `meta` props and standalone/generic rendering remain compatible. `measureNaeilPage` exposes `footerMetaTexts` for this check. Fresh-default runtime contexts strip only theme preference state; supplied-state live comparisons record rendered themes and count mismatches between naeil.dev-domain sites.
+- Consumers abstorm, estimate, jev and Home upgrade to 0.18.0, keep the root shared provider/controls and remove non-empty owned footer meta. No additional theme integration is required for consumers already on the 0.17.0 shell. See the [migration checklist](docs/design/v2-migration.md#0180-consumer-migration). Package metadata, generated release entry and fixture pins move together. This candidate is not published; merging, tagging, npm/Docs publication and deployment remain separate.
 
 ## 0.17.0 — screen frame contract
 

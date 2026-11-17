@@ -134,12 +134,15 @@ describe("owned service shell", () => {
     expect(() => render({ service, locale: "en" } as unknown as NaeilServiceShellProps)).toThrow("Unknown naeil service");
   });
   it("retains root theme policy and ignores cast provider overrides", () => {
-    const provider = NaeilThemeProvider({ children: "Child", defaultTheme: "light", storageKey: "custom" } as unknown as ComponentProps<typeof NaeilThemeProvider>);
-    expect(provider.props.children[1].props).toEqual({ attribute: "class", defaultTheme: "dark", enableSystem: true, disableTransitionOnChange: true, storageKey: "theme", children: "Child" });
+    const props = { children: "Child", defaultTheme: "light", storageKey: "custom" } as unknown as ComponentProps<typeof NaeilThemeProvider>;
+    const html = renderToStaticMarkup(<NaeilThemeProvider {...props} />);
+    expect(html).toContain('"class","theme","dark",null,["light","dark"],null,true,true');
+    expect(html).not.toContain('"custom"');
+    expect(html).toContain("Child");
   });
   it("uses one root theme bootstrap and one storage-denial preflight", () => {
     const html = renderToStaticMarkup(<NaeilThemeProvider><NaeilServiceShell service="home" locale="en" /></NaeilThemeProvider>);
-    expect(html.match(/<script>/g)).toHaveLength(2);
+    expect(html.match(/<script\b/g)).toHaveLength(2);
     expect(html.match(/localStorage.getItem/g)).toHaveLength(2);
     expect(html).toContain('"theme","dark"');
   });

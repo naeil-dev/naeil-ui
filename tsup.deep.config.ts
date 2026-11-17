@@ -40,6 +40,8 @@ export default defineConfig({
     "src/components/naeil-theme-provider.tsx",
     "src/naeil-locale/icons.generated.ts",
     "src/lib/ui-release.ts",
+    "src/lib/preference-cookie.ts",
+    "src/lib/theme/preference.ts",
     "src/components/footer.tsx",
     "src/components/logo.tsx",
     "src/components/brand-artwork.generated.tsx", // Internal generated source; no public export.

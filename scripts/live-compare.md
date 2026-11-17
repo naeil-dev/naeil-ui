@@ -166,3 +166,5 @@ state, which can leave fonts/assets unmeasured. Icon GETs remain anonymous.
 Supplied state is not proof of authentication; shared account-state markers
 are recorded. Remembered theme is not labeled as first visit. No authenticated
 long routes are invented. The comparison does not modify service applications, publish packages or deploy.
+
+Supplied-state rows retain remembered themes. The report records each rendered theme and counts `sharedTheme` mismatches between naeil.dev-domain sites under the same OS scheme. A missing peer stays unmeasured. Home is excluded because its registrable host cannot share the cookie; fresh signed-out first-visit checks are unchanged.

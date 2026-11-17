@@ -20,7 +20,7 @@ const html = (content = '<section><p>Content</p></section>') => `<!doctype html>
 <style>body{margin:0;font-size:16px;line-height:25px}.ui-service-shell{display:flex;flex-direction:column;min-height:100vh}main{flex:1}section{padding-top:1000px}header{height:64px}main{padding:48px 16px 96px}
 .ui-page-header{margin-bottom:32px}h1{font-size:32px;line-height:42px;font-weight:600;margin:0}
 .ui-page-description{margin:12px 0 0;line-height:25px}p{margin:0;line-height:25px}footer{height:100px}</style>
-<script>document.documentElement.className=localStorage.getItem('theme')||'dark';if(location.pathname==='/authenticated'&&localStorage.getItem('session-data')!=='keep')document.title='Lost authentication state';</script></head><body>
+<script>document.documentElement.className=document.cookie.includes('naeil_theme_v1=light')?'light':localStorage.getItem('theme')||'dark';if(location.pathname==='/authenticated'&&localStorage.getItem('session-data')!=='keep')document.title='Lost authentication state';</script></head><body>
 <div class="ui-service-shell" data-naeil-shell><header data-naeil-header><span hidden data-naeil-account-state="signed-out"></span></header><main id="main" class="ui-app-main"><div class="ui-page-header"><h1>Title</h1><p class="ui-page-description">Description</p></div>${content}</main><footer data-naeil-footer></footer></div></body></html>`;
 
 test.beforeAll(async () => {
@@ -75,7 +75,7 @@ test('runtime enforces desktop account markers and repeatable exact-route except
 test('runtime applies authentication to every fresh context and strips stored theme without mutating the file', async () => {
   test.setTimeout(90000);
   const state = join(root, 'session.json');
-  const json = JSON.stringify({cookies: [{name:'session',value:'fixture',domain:'127.0.0.1',path:'/',expires:-1,httpOnly:true,secure:false,sameSite:'Lax'}], origins:[{origin, localStorage:[{name:'theme',value:'light'},{name:'session-data',value:'keep'}]}]});
+  const json = JSON.stringify({cookies: [{name:'session',value:'fixture',domain:'127.0.0.1',path:'/',expires:-1,httpOnly:true,secure:false,sameSite:'Lax'}, {name:'naeil_theme_v1',value:'light',domain:'127.0.0.1',path:'/',expires:-1,httpOnly:false,secure:false,sameSite:'Lax'}], origins:[{origin, localStorage:[{name:'theme',value:'light'},{name:'session-data',value:'keep'}]}]});
   writeFileSync(state, json);
   const result = await cli(['/authenticated'], ['--storage-state',state,'--header','X-First:one:two','--header','X-Second:second']);
   expect(result.code, result.stdout + result.stderr).toBe(0);
