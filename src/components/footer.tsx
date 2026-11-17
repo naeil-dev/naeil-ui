@@ -21,6 +21,19 @@ export interface FooterProps {
   containerClassName?: string;
 }
 
+let warnedDeprecated = false;
+function warnDeprecated() {
+  let development = false;
+  try { development = process.env.NODE_ENV === "development"; } catch { /* Hosts need no process global. */ }
+  if (!development || warnedDeprecated) return;
+  warnedDeprecated = true;
+  console.warn("Footer: deprecated Next/next-intl adapter; use NaeilServiceShell for owned services or SiteFooter for other products. Removal target: next minor that removes deprecated APIs, with notice.");
+}
+
+/**
+ * @deprecated Use NaeilServiceShell for owned services or SiteFooter for other products.
+ * Removal target: next minor that removes deprecated APIs, with notice.
+ */
 export function Footer({
   Link,
   linksExternal = false,
@@ -33,6 +46,7 @@ export function Footer({
   className,
   containerClassName,
 }: FooterProps) {
+  warnDeprecated();
   const t = useTranslations("footer");
   const destinations = [
     { id: "projects", label: t("projects"), href: "/projects" },

@@ -144,6 +144,11 @@ try {
     }
   }
   checkModules(join(root, "dist"));
+  const uiEntry = readFileSync(join(root, pkg.exports["./ui"].import), "utf8");
+  assert(uiEntry.startsWith('"use client";'), "/ui must retain its client boundary");
+  assert.match(uiEntry, /from "\.\.\/\.\.\/source\/components\/ui\/button\.js"/);
+  assert.match(uiEntry, /import \{ Navigation \} from "\.\.\/\.\.\/chunk-[^"]+\.js"/,
+    "Navigation must retain its bundled header/account context instance");
   // /utils must never regain the client banner or import a client chunk.
   function checkServerModule(file: string, seen = new Set<string>()) {
     if (seen.has(file)) return;

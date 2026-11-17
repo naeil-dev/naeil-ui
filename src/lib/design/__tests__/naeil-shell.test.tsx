@@ -47,11 +47,14 @@ describe("owned service shell", () => {
       } finally {vi.unstubAllEnvs();}
     });
   });
-  it('warns once in development when account replaces header.authSlot', () => {
+  it('warns once for header.authSlot with or without account and preserves compatibility', () => {
     const warning = vi.spyOn(console,'warn').mockImplementation(()=>{}); vi.stubEnv('NODE_ENV','development');
     try {
       const props: NaeilServiceShellProps = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{authSlot:<button>Legacy</button>}};
-      render(props); render(props); expect(warning).toHaveBeenCalledTimes(1); expect(warning.mock.calls[0][0]).toContain('account'); expect(warning.mock.calls[0][0]).toContain('header.authSlot');
+      const legacy = {...props, account:undefined};
+      vi.stubEnv('NODE_ENV','production'); expect(render(legacy)).toContain('Legacy'); expect(warning).not.toHaveBeenCalled();
+      vi.stubEnv('NODE_ENV','development'); expect(render(legacy)).toContain('Legacy');
+      render(props); render(props); expect(warning).toHaveBeenCalledTimes(1); expect(warning.mock.calls[0][0]).toContain('account'); expect(warning.mock.calls[0][0]).toContain('header.authSlot'); expect(warning.mock.calls[0][0]).toContain('next minor that removes deprecated APIs');
     } finally {vi.unstubAllEnvs();warning.mockRestore();}
   });
   it('accepts both account variants in public wrappers and rejects incomplete variants on both entries', () => {
