@@ -117,7 +117,7 @@ Where the checks run: P1–P5 are added to the existing tools (vitest, `e2e/` Pl
 ## 7. Versioning and release
 
 - `0.8.0`: API + DOM/style contract change. `contractVersion` stays `1` only if every invariant in `contracts/naeil-chrome.v1.json` (frame, header height, brand heights, desktop brand reservation, footer variants/paths/github, viewports) still passes; otherwise stop and decide a contract change separately.
-- `scripts/rollout/prepare-release.mjs` only accepts consecutive stable 0.7.x. 0.8.0 uses the manual exact-archive path in `docs/package-release.md`; the standing `release.json` and rollout policy are not edited to pass it.
+- [scripts/rollout/prepare-release.mjs](https://github.com/naeil-dev/naeil-ui/blob/archive/rollout-runner-20261118/scripts/rollout/prepare-release.mjs) only accepts consecutive stable 0.7.x. 0.8.0 uses the manual exact-archive path in `docs/package-release.md`; the standing `release.json` and rollout policy are not edited to pass it.
 - Separate explicit approvals: npm publish, tag, GitHub release (all from the frozen reviewed SHA/archive), naeil-ui `main` merge, Home production deploy.
 - naeil.dev imports the header from this repository's source (`src/components/nav-wrapper.tsx`), so merging to `main` upgrades naeil.dev to the 0.8.0 source (default profile; must equal B1 by P1/P3). The merge is held until the owner approves that site impact and timing. Estimate and Jev stay on 0.7.2; STOP stays.
 - Rollback: the package is never unpublished or overwritten. Home's source rollback is a consistent revert of its adapter, CSS and manifest/lock together (re-pinning 0.7.2 alone breaks the new props); its operational rollback is the image-only path (previous image on a verified clone of current data).

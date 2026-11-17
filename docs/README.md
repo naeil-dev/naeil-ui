@@ -1,6 +1,6 @@
 # Documentation
 
-Maintained guides describe the repository APIs; [STATUS.md](../STATUS.md#current-state) records current publication, hosted Docs and service adoption. Frozen package source/tag, maintained guides, hosted Docs and service receipts are separate. The retained [local runner](rollout/local-runner.md) supports historical **0.7.x only**.
+Maintained guides describe the repository APIs; [STATUS.md](../STATUS.md#current-state) records current publication, hosted Docs and service adoption. Frozen package source/tag, maintained guides, hosted Docs and service receipts are separate. The retired 0.7.x rollout runner and its verifier are preserved at [archive/rollout-runner-20261118](https://github.com/naeil-dev/naeil-ui/tree/archive/rollout-runner-20261118/); current service deployment and rollback use the [service runbooks](https://github.com/naeil-dev/naeil-ui/blob/main/docs/rollout/auto-update.md#service-deployment-and-rollback-runbooks).
 
 ## Maintained public guides
 
