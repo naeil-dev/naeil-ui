@@ -2,6 +2,11 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
+## Unreleased
+
+- Localize the generic `LocaleSwitcher` accessible name for Korean, Japanese and English using the shared messages; retain existing props and the English fallback for other locale codes.
+- Make rollout CLI `--help`, `-h` and no-argument invocations print usage successfully without reading configuration or touching state/locks.
+
 ## 0.18.1 — first painted background (unpublished candidate)
 
 - **0.18.0 introduced a wrong pre-content CSS background frame in Estimate's measured upgrade**, while first contentful paint stayed correct (its 0.17.0 baseline passed). The stricter packed fixture also exposes a 0.17.0 body-script timing window; package-wide introduction is not established. 0.18.1 removes that frame through the explicit head bootstrap: server-safe `NaeilThemeScript` and `naeilThemeBootstrap` from `@naeil/ui/theme-bootstrap`. Next puts the script in root head outside Suspense; Vite injects it before styles/modules. Keep the root provider. A version bump alone cannot guarantee pre-content paint timing; see the [migration](docs/design/v2-migration.md#0181-consumer-migration).

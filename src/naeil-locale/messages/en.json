@@ -14,7 +14,8 @@
         "switchToDark": "Switch to dark theme"
       },
       "locale": {
-        "switchLabel": "Language"
+        "switchLabel": "Language",
+        "changeLabel": "Change language — current: {current}"
       },
       "projects": {
         "cc": {

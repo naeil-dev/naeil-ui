@@ -14,7 +14,9 @@ Trusted publishing needs a GitHub-hosted runner, Node **22.14.0+** and npm **11.
 
 ## Routine flow
 
-Owner-approved frozen-archive publish → owner-approved promotion to npm `latest` → daily Dependabot PR in each service → service CI → `naeil-ui-automerge` guard checks → merge. **Deployment stays manual per service.** Publishing, promoting, merging and deploying require their own evidence; a green UI-package run does not prove service acceptance.
+Owner-approved frozen-archive publish → owner-approved promotion to npm `latest` → daily Dependabot PR in each service → service workflow gates → `naeil-ui-automerge` guard checks → merge. **Deployment stays manual per service.** Publishing, promoting, merging and deploying require their own evidence; a green UI-package run does not prove service acceptance.
+
+Hosted CI is currently not running in the service repositories; enforce their workflow gates by running the same commands locally.
 
 The publish input can select `latest` only with explicit owner approval. Normally publish to `next`, verify the registry archive and clean consumers, then have the owner promote that exact version to `latest` separately. Dependabot proposes versions only up to `latest`; the publish workflow does not perform a later promotion.
 
@@ -22,11 +24,22 @@ Each service's merge workflow must verify the Dependabot author, a **patch-only*
 
 This policy replaces the former same-major rule. Service workflow changes are separate service-repository operations; consult [STATUS.md](../../STATUS.md#current-state) for adoption status. Hold minor update PRs for manual review until patch-only guards are installed.
 
+## Service deployment and rollback runbooks
+
+Use each service's maintained repository guide rather than dated local handoff folders.
+
+| Service | Deploy and rollback runbook |
+| --- | --- |
+| abstorm | [`naeil-dev/Co-STORM-Lab` — `docs/deploy/abstorm-runbook.md`](https://github.com/naeil-dev/Co-STORM-Lab/blob/main/docs/deploy/abstorm-runbook.md) |
+| jev | [`naeil-dev/jev` — `docs/ops/deployment.md`](https://github.com/naeil-dev/jev/blob/main/docs/ops/deployment.md); scripts in [`automation/deploy/jev/`](https://github.com/naeil-dev/jev/tree/main/automation/deploy/jev) |
+| estimate | [`naeil-dev/abestimate` — `docs/ops/native-release-runbook.md`](https://github.com/naeil-dev/abestimate/blob/main/docs/ops/native-release-runbook.md) |
+| Home | [`naeil-dev/naeil-home` — `docs/deployment/u-image-refresh.md`](https://github.com/naeil-dev/naeil-home/blob/main/docs/deployment/u-image-refresh.md) (U image refresh and R2 console proxy) |
+
 ## Stop, pause and rollback
 
 - Stop publication on an approval/configuration problem, archive/version/hash mismatch, registry error or existing version. Never treat network failure as absence. If the post-publication registry check fails, inspect the already-published version and run; do not retry publishing. An existing npm version is immutable.
-- Stop promotion or service merging on a suspected public API/header break, failing or missing service CI, unrelated files/dependencies, changed head SHA or an unavailable guard. Correct the release/version policy before continuing. Do not weaken checks to clear a PR.
+- Stop promotion or service merging on a suspected public API/header break, failing or missing service verification, unrelated files/dependencies, changed head SHA or an unavailable guard. Correct the release/version policy before continuing. Do not weaken checks to clear a PR.
 - Pause one service by disabling/removing its `@naeil/ui` Dependabot entry (or setting that entry's `open-pull-requests-limit: 0`) and/or disabling `naeil-ui-automerge` in Actions. Dependabot pause alone does not stop existing PRs: disable the merge workflow and cancel in-flight runs/queued auto-merges as needed. Close or hold pending PRs. To pause publication, do not dispatch/approve the environment job; cancel any pending run.
-- Roll back a service by reverting the dependency merge commit through its normal reviewed PR/CI process, restoring manifest and lockfile together. Redeploy the accepted revision manually if needed. Pause automation first so it cannot immediately reapply the version. The owner may deprecate the affected npm version and decide any `latest` correction separately; this workflow does neither. Keep the archive and record the incident and replacement version rather than overwriting it.
+- Use the [service runbook](#service-deployment-and-rollback-runbooks) for operational rollback to its retained predecessor artifact, preserving current data and configuration as that guide requires. Review any manifest/lockfile source revert separately. Pause automation first so it cannot immediately reapply the version. The owner may deprecate the affected npm version and decide any `latest` correction separately; this workflow does neither. Keep the archive and record the incident and replacement version rather than overwriting it.
 
 The [release procedure](../package-release.md#release-procedure) retains exact-archive preparation, manual OTP publication, registry verification, source tags and separate hosted Docs steps.

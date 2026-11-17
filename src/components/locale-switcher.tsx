@@ -1,5 +1,7 @@
 "use client";
 
+import { headerContent } from "./naeil-header-content";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,13 +24,15 @@ export function LocaleSwitcher({
   onLocaleChange,
 }: LocaleSwitcherProps) {
   const current = locales.find((l) => l.code === currentLocale);
+  const locale = currentLocale === "ko" || currentLocale === "ja" ? currentLocale : "en";
+  const label = headerContent[locale].locale.changeLabel.replace("{current}", () => current?.short ?? currentLocale);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           className="ui-focus text-muted-foreground hover:text-foreground inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md px-2 text-sm transition-colors"
-          aria-label={`Change language — current: ${current?.short ?? currentLocale}`}
+          aria-label={label}
         >
           <GlobeIcon />
           {current?.short ?? currentLocale.toUpperCase()}
