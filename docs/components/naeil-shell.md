@@ -1,6 +1,6 @@
 # NaeilServiceShell
 
-One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Existing header/footer, generic Navigation/SiteFooter and legacy Next adapters retain their compatibility APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
+One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Standalone NaeilHeader/NaeilFooter and generic Navigation/SiteFooter retain their APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
 
 ## Entries and setup
 
@@ -73,7 +73,7 @@ import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
 | `account` | Optional `NaeilHeaderAccount` in the component API (since 0.16.0); required by owned-service static CI. Signed-out: `{status:"signed-out", loginHref}`. Signed-in: `{status:"signed-in", onLogout, busy?, displayName?, email?}`. Both entries export the type. |
 | `children` | Page content; start with `PageHeader` |
 | `Link`, `onNavigate` | Existing header/footer routing adapter and guard |
-| `header` | Only `appNavigation`, `currentHref`, `brandHref`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`, plus deprecated `authSlot` for 0.15.0 compatibility. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
+| `header` | Only `appNavigation`, `currentHref`, `brandHref`, `labels`, `resolveHref`, `onLocaleChange`, `mobileOpen`, `onMobileOpenChange`. No header DOM/ARIA attributes or ids; the shell owns the header element. Navigation `labels` supplies accessible names. Standalone `NaeilHeader` retains its id/aria/dir contract outside the shell. |
 | `footer` | `resolveHref` or recorded `false`; defaults to the canonical full footer. `meta` remains in the public compatibility API, but owned services leave it empty (no meta row). |
 | `mainLabel` | Accessible label of main |
 
@@ -85,7 +85,7 @@ The frame has `min-height:100dvh` and a column layout; main grows to fill remain
 
 Canonical chrome typography is generated in `typography.css` by `pnpm build:tokens`. Existing chrome exceptions are explicit tokens: sheet title 20/28, menu/control 16/24, account metadata 14/20; supporting/footer text remains 14/21.875 from the 1.5625 ratio. They intentionally differ from content title/body/supporting roles (20/29, 16/25, 14/22). No chrome pixels change when generating these rules.
 
-Generic split-import consumers now receive semantic body colours, the shared font stack and 16/25 baseline where they previously inherited browser/Tailwind defaults. Zero-specificity selectors in `@layer base` let their explicit overrides win. Generic/legacy header/footer APIs and frame overrides stay available. Owned services use the baseline without overrides.
+Generic split-import consumers now receive semantic body colours, the shared font stack and 16/25 baseline where they previously inherited browser/Tailwind defaults. Zero-specificity selectors in `@layer base` let their explicit overrides win. Generic/standalone header/footer APIs and frame overrides stay available. Owned services use the baseline without overrides.
 
 Runtime conformance measures the frame and viewport fill as described below. A short page may have more than 96px between content and footer because main fills the available height.
 
@@ -95,9 +95,9 @@ Pass session state through `account`; the shell renders `NaeilHeaderAccountContr
 
 When signed out, the shell hides the login control only if `account.loginHref` is a same-app relative route and its URL pathname exactly equals `header.currentHref`'s. Queries and hashes are ignored; an absolute or protocol-relative login URL (e.g. the central `https://naeil.dev/<locale>/login?next=…`) never hides the control, even when a service route shares the pathname. Supply the real localized current path: `/ja/login` matches `/ja/login?next=/console`, while `/login` does not match `/ja/login`. Missing currentHref or an invalid URL keeps the control. Signed-in accounts are never hidden by this rule.
 
-Migrate `header={{authSlot:<NaeilHeaderAccountControl account={account} .../>}}` to `account={account}` and remove authSlot. `header.authSlot` remains accepted when account is omitted for 0.15.0 compatibility, but owned services must migrate it to account. Static checking requires account presence; types and rendered checks own presentation. When both are supplied, account wins (including login-page suppression), with a once-only development warning whenever `header.authSlot` is supplied; production emits no warning. Removal target: **next minor that removes deprecated APIs**, with notice; pass shell `account` instead. Standalone `NaeilHeader` continues using its existing authSlot contract.
+Shell `header.authSlot` is removed in 0.19.0. Pass session state through `account` instead; types reject the old input, including spreads, and JavaScript/cast extras are ignored. Standalone `NaeilHeader` retains its `authSlot` contract. See [0.19.0 consumer migration](../design/v2-migration.md#0190-consumer-migration).
 
-No root `className`, `style`, `id`, `data-*`, container classes, theme options or arbitrary extra props. Footer presentation/attributes and header compatibility escape hatches are also rejected. Strict mapped-never/exact types reject overrides including spreads; JS/cast attempts are dropped with one development-only warning per prop path. They cannot replace the fixed main id/classes or shared routing props. Do not style the shell through ancestors or reserved selectors. Product content styling belongs inside main; purpose widths use `data-ui-layout`, independently of the application frame. Generic/legacy composition overrides remain supported outside this opt-in service contract.
+No root `className`, `style`, `id`, `data-*`, container classes, theme options or arbitrary extra props. Footer presentation/attributes and header compatibility escape hatches are also rejected. Strict mapped-never/exact types reject overrides including spreads; JS/cast attempts are dropped with one development-only warning per prop path. They cannot replace the fixed main id/classes or shared routing props. Do not style the shell through ancestors or reserved selectors. Product content styling belongs inside main; purpose widths use `data-ui-layout`, independently of the application frame. Generic/standalone composition overrides remain supported outside this opt-in service contract.
 
 ### Recorded screens without a footer
 
@@ -141,7 +141,7 @@ naeil-ui-conformance --service estimate --framework vite --app .
 
 The existing lexical import/JSX reader recognizes named aliases and namespaces and follows relative and tsconfig path imports. It is not a module interpreter: reachability is existential, uncalled JSX can satisfy adoption, and account presence does not establish a value or visibility. Type checking remains required. No additional regex policy is added in 0.17.0.
 
-Removed checks: theme providers/root writes/options, literal service matching, header.authSlot, direct header/footer/main JSX, Vite base, CSS imports/selectors/tokens/frame classes/body typography, PageHeader presentation, icon files/metadata/links and document titles. Static PASS no longer claims any of those properties. Inert theme-write strings, nested plugin `base` options and unrelated locally named `NaeilHeader` components no longer fail. Geometry, identity and first-theme assertions belong to runtime; component props belong to types; pixel parity and icon HTTP/hash checks belong to live comparison.
+Removed checks: theme providers/root writes/options, literal service matching, direct header/footer/main JSX, Vite base, CSS imports/selectors/tokens/frame classes/body typography, PageHeader presentation, icon files/metadata/links and document titles. Static PASS no longer claims any of those properties. Inert theme-write strings, nested plugin `base` options and unrelated locally named `NaeilHeader` components no longer fail. Geometry, identity and first-theme assertions belong to runtime; component props belong to types; pixel parity and icon HTTP/hash checks belong to live comparison.
 
 Every violation prints `file:line rule message`. Exit 1 means violations or invalid arguments; exit 0 means adoption evidence only. Reviewable next-line exceptions remain supported:
 

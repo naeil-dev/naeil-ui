@@ -160,6 +160,7 @@ try {
     "naeil-shell",
     "release",
     "theme-bootstrap",
+    "components/index",
     "components/ui/index",
     "components/typography",
     "components/logo",
@@ -177,6 +178,7 @@ try {
     join(core, "src/packed-contract.tsx"),
     `${imports}
 import * as ui from '@naeil/ui/ui';
+import * as root from '@naeil/ui';
 import { Sheet as DeepSheet, SheetTrigger as DeepSheetTrigger } from '@naeil/ui/components/ui/sheet';
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
 import { NaeilFooter } from '@naeil/ui/naeil-footer';
@@ -209,6 +211,7 @@ export const home = renderToStaticMarkup(createElement(NaeilHeader, { locale: 'k
 export const html = renderToStaticMarkup(createElement(ui.Button, { className: 'h-8', 'aria-busy': true }, 'Consumer action'));
 export const sheet = renderToStaticMarkup(createElement(ui.Sheet, null, createElement(ui.SheetTrigger, null, "Packed React Sheet")));
 export const deepSheet = renderToStaticMarkup(createElement(DeepSheet, null, createElement(DeepSheetTrigger, null, "Packed React deep Sheet")));
+export const rootContract = typeof root.PageHeader === 'function' && !('Nav' in root) && !('Footer' in root);
 export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}].every(module => Object.keys(module).length > 0) && cn('p-6', 'p-2') === 'p-2' && !!ui.Select && !!ui.Switch && !!ui.Checkbox && !!ui.Tabs && !!ui.Textarea;
 `,
   );
@@ -222,6 +225,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     "--outfile=contract.mjs",
   ]);
   const result = await import(pathToFileURL(join(core, "contract.mjs")).href);
+  assert(result.rootContract, "React-only root must retain typography without removed adapters");
   assert.equal(result.release.version, version);
   assert.match(result.shell, /class="ui-skip-link" href="#main"/);
   assert.match(result.shell, /id="main"/);
@@ -251,7 +255,7 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     writeFileSync(entry, source.replace(accountInput, ''));
     checked = spawnSync(cli, args, {encoding: "utf8"});
     assert.equal(checked.status, 1); assert.match(checked.stderr, /must pass account=/);
-    writeFileSync(entry, source.replace(accountInput, 'account={session} header={{authSlot:null}}'));
+    writeFileSync(entry, source.replace(accountInput, 'account={session}'));
     checked = spawnSync(cli, args, {encoding: "utf8"});
     assert.equal(checked.status, 0, checked.stderr); // Presentation is owned by types/runtime.
     writeFileSync(entry, source);
@@ -382,7 +386,8 @@ export const valid = [${corePaths.map((_, index) => `deep${index}`).join(", ")}]
     assert.match(headerHtml, /data-naeil-account-trigger/);
     assert.match(headerHtml, /https:\/\/naeil.dev\/ja\/blog/);
     assert.match(html, /Packed Next compatibility/);
-    assert.match(html, /Consumer-owned messages/);
+    assert.match(html, /data-naeil-header/);
+    assert.match(html, /data-naeil-footer/);
     assert.match(html, /Consumer action/);
     assert.match(html, /Packed multiline value/);
     assert.match(html, /Packed Next Sheet/);

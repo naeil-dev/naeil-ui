@@ -2,9 +2,8 @@ import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Logo } from "../../../components/logo";
-import { Nav } from "../../../components/nav";
-import { Footer } from "../../../components/footer";
-import { NextIntlClientProvider } from "next-intl";
+import { NaeilHeader } from "../../../components/naeil-header";
+import { NaeilFooter } from "../../../components/naeil-footer";
 
 describe("Logo brand contract", () => {
   it("keeps legacy sizing/classes while exposing the approved symbol accessibly", () => {
@@ -46,14 +45,10 @@ describe("Logo brand contract", () => {
 
   it("uses the common lockups in default navigation/footer while retaining custom brand slots", () => {
     const Link = ({ children, ...props }: React.ComponentPropsWithoutRef<"a"> & { href: string }) => createElement("a", props, children);
-    // React 19 provider types require a children property even with variadic createElement children.
-    // eslint-disable-next-line react/no-children-prop
-    const render = (custom: boolean) => renderToStaticMarkup(createElement(NextIntlClientProvider,
-      { children: null, locale: "en", timeZone: "UTC", messages: { nav: {}, projects: {}, footer: { tagline: "Tomorrow starts here.", navigation: "Navigation", projects: "Projects", blog: "Blog", social: "Social" } } },
-      createElement(Fragment, null,
-        createElement(Nav, { Link, usePathname: () => "/", showProjects: false, showBlog: false,
-          ...(custom ? { brandSlot: createElement("span", null, "Consumer brand") } : {}) }),
-        createElement(Footer, {}))));
+    const render = (custom: boolean) => renderToStaticMarkup(createElement(Fragment, null,
+      createElement(NaeilHeader, { locale: "en", Link, showProjects: false, showBlog: false,
+        ...(custom ? { brandSlot: createElement("span", null, "Consumer brand") } : {}) }),
+      createElement(NaeilFooter, { locale: "en" })));
     expect(render(false)).toContain('data-naeil-variant="horizontal"');
     expect(render(false)).toContain('data-naeil-variant="footer"');
     const custom = render(true);

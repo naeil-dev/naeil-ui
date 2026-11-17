@@ -78,14 +78,6 @@
       "types": "./dist/source/components/ui/switch.d.ts",
       "import": "./dist/source/components/ui/switch.js"
     },
-    "./components/nav": {
-      "types": "./dist/source/components/nav.d.ts",
-      "import": "./dist/source/components/nav.js"
-    },
-    "./components/footer": {
-      "types": "./dist/source/components/footer.d.ts",
-      "import": "./dist/source/components/footer.js"
-    },
     "./components/logo": {
       "types": "./dist/source/components/logo.d.ts",
       "import": "./dist/source/components/logo.js"
@@ -259,7 +251,6 @@
     "reading-time": "^1.5.0",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
-    "shadcn": "^3.8.5",
     "storybook": "10.6.7",
     "style-dictionary": "^4.4.0",
     "tailwindcss": "^4",

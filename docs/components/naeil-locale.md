@@ -1,6 +1,6 @@
 # Owned-service language runtime
 
-The opt-in `@naeil/ui/naeil-locale` entries support the registered naeil Next applications. English uses `/`, Korean `/ko`, and Japanese `/ja`, including deep routes. The URL determines the language. Cookie and browser preferences never redirect or overwrite it. The existing public `i18n/routing`, `Nav` and `Footer` APIs retain their previous behavior.
+The opt-in `@naeil/ui/naeil-locale` entries support the registered naeil Next applications. English uses `/`, Korean `/ko`, and Japanese `/ja`, including deep routes. The URL determines the language. Cookie and browser preferences never redirect or overwrite it. The public `i18n/routing` API retains its behavior; use `NaeilServiceShell` for the application frame.
 
 Use exact `next-intl@4.14.8` with the shared server/client entries. Next and React remain external peers. Standalone header/footer imports do not require Next or next-intl.
 

@@ -19,7 +19,6 @@ export default async function HubPage({
   return <HubContent />;
 }
 
-// Retired project pages live in src/app/_archive; restore an entry with its page.
 const PROJECTS = [
   {
     key: "naeilUi" as const,

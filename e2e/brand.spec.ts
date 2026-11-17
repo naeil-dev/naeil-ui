@@ -40,7 +40,7 @@ for (const theme of ["light", "dark"]) {
     expect(a11y.violations).toEqual([]);
   });
 
-  for (const width of [390, 1440]) test(`shared Nav/Footer frame and mobile menu (${theme}, ${width})`, async ({ page, browserName }) => {
+  for (const width of [390, 1440]) test(`shared header/footer frame and mobile menu (${theme}, ${width})`, async ({ page, browserName }) => {
     mkdirSync(output, { recursive: true });
     await page.setViewportSize({ width, height: 900 });
     await open(page, "application", theme);

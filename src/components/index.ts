@@ -1,9 +1,6 @@
 // Shared components — re-exported for package consumers
-// Site-specific components (hero-scene, hero-section, workflow-diagram,
-// paraglider-cursor, accent-picker, project-layout) are excluded.
+// Site-specific components are excluded.
 
-export { Nav, type NavProps } from "./nav";
-export { Footer, type FooterProps } from "./footer";
 export { LocaleSwitcher } from "./locale-switcher";
 export { ThemeToggle } from "./theme-toggle";
 export { ThemeProvider } from "./theme-provider";

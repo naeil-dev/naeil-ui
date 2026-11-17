@@ -22,7 +22,6 @@ export default defineConfig({
     "src/components/ui/textarea.tsx",
     "src/components/ui/navigation.tsx",
     "src/components/ui/site-footer.tsx",
-    "src/components/nav.tsx",
     "src/components/naeil-header.tsx",
     "src/components/naeil-header-account.tsx", // Internal shared account UI, re-exported by naeil-header.
     "src/components/naeil-header-core.tsx",
@@ -42,7 +41,6 @@ export default defineConfig({
     "src/lib/ui-release.ts",
     "src/lib/preference-cookie.ts",
     "src/lib/theme/preference.ts",
-    "src/components/footer.tsx",
     "src/components/logo.tsx",
     "src/components/brand-artwork.generated.tsx", // Internal generated source; no public export.
     "src/components/locale-switcher.tsx",

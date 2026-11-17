@@ -1,8 +1,6 @@
 import { createElement, type ComponentPropsWithoutRef, type MouseEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { NextIntlClientProvider } from "next-intl";
-import { Nav } from "../../../components/nav";
 import type { NavigationProps } from "../../../components/ui/navigation";
 import type { NaeilHeaderProps, NaeilServiceHeaderProps } from "../../../components/naeil-header";
 
@@ -126,36 +124,13 @@ describe("complete branded header", () => {
   });
 });
 
-describe("legacy Nav compatibility", () => {
-  const messages = {
-    nav: { projects: "Consumer tools", blog: "Consumer journal" },
-    projects: { ...Object.fromEntries(["cc", "pkm", "naeilUi", "sa", "babyAgent"].map(key => [key, { name: `Consumer ${key}`, description: `Description ${key}` }])), status: { coming: "Later" } },
-  };
-  function legacy(locale: string, external = false) {
-    const InternalOnlyLink = ({ href, ...props }: ComponentPropsWithoutRef<"a"> & { href: string }) => {
-      if (href.startsWith("https://")) throw new Error("External destination reached internal-only Link");
-      return createElement("a", { href, ...props, "data-internal-link": true });
-    };
-    // eslint-disable-next-line react/no-children-prop
-    return renderToStaticMarkup(createElement(NextIntlClientProvider, { locale, messages, timeZone: "UTC", children: createElement(Nav, { Link: InternalOnlyLink, usePathname: () => "/", projectsExternal: external }) }));
-  }
-  it("uses consumer next-intl menu labels", () => {
-    expect(legacy("en")).toContain("Consumer tools");
-    expect(legacy("en")).toContain("Consumer journal");
-  });
-  it("supports consumer locales outside the canonical header catalog", () => {
-    expect(() => legacy("fr")).not.toThrow();
-    expect(legacy("fr")).toContain("Consumer journal");
-  });
-  it("keeps legacy external blog destinations away from an internal-only Link", () => {
-    expect(() => legacy("en", true)).not.toThrow();
-    expect(legacy("en", true)).toContain('href="https://naeil.dev/blog"');
+describe("standalone external project policy", () => {
+  it("preserves explicit external overrides except the current project", () => {
     const element = header({ locale: "en", resolveHref: path => `https://naeil.dev${path}`, projectsExternal: true });
     expect(element.props.items[0].items[0].external).toBe(true);
     expect(header({ locale: "en", projectsExternal: true, currentProjectKey: "naeilUi" }).props.items[0].items[0].external).toBe(false);
   });
 });
-
 
 describe("owned service profile", () => {
   it("falls back to legacy without leaking invalid service values or stripping overrides", () => {

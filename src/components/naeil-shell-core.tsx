@@ -12,12 +12,9 @@ export { measureNaeilPage, type NaeilPageMeasurements } from "./naeil-page-measu
 export { PageHeader } from "./typography";
 export type { NaeilHeaderAccount } from "./naeil-header-account-core";
 
-/** The only header inputs a service supplies: its menu, routing state, account slot and locale/mobile callbacks. */
-const headerKeys = ["resolveHref", "brandHref", "appNavigation", "onLocaleChange", "authSlot", "labels", "currentHref", "mobileOpen", "onMobileOpenChange"] as const;
-export type NaeilShellHeaderProps = Pick<NaeilServiceHeaderProps, Exclude<typeof headerKeys[number], "authSlot">> & {
-  /** @deprecated Pass account to NaeilServiceShell instead. Removal target: next minor that removes deprecated APIs, with notice. */
-  authSlot?: NaeilServiceHeaderProps["authSlot"];
-};
+/** The only header inputs a service supplies: its menu, routing state, locale/mobile callbacks. */
+const headerKeys = ["resolveHref", "brandHref", "appNavigation", "onLocaleChange", "labels", "currentHref", "mobileOpen", "onMobileOpenChange"] as const;
+export type NaeilShellHeaderProps = Pick<NaeilServiceHeaderProps, typeof headerKeys[number]>;
 export type NaeilShellFooterProps = Pick<NaeilServiceFooterProps, "meta" | "resolveHref"> & { [Key in Exclude<keyof NaeilServiceFooterProps, "meta" | "resolveHref">]?: never };
 export type NaeilShellInputs = Pick<NaeilServiceHeaderProps, "locale" | "Link" | "onNavigate"> & {
   /** `main` is naeil.dev's catalog: Projects/Blog, without a service suffix. */
@@ -69,8 +66,8 @@ export function NaeilServiceShell<const Props extends NaeilShellInputs, const He
   const props = filter(input, name => allowed.has(name)) as NaeilShellInputs;
   const { service, locale, Link, onNavigate, children, mainLabel, account } = props;
   const copy = useNaeilMessages(locale);
-  const header = filter(props.header ?? {}, name => headerAllowed.has(name), "header.") as NaeilShellHeaderProps;
-  if (Object.hasOwn(props.header ?? {}, "authSlot")) warn("header.authSlot", "NaeilServiceShell: header.authSlot is deprecated; pass account instead. account takes precedence when both are supplied. Removal target: next minor that removes deprecated APIs, with notice.");
+  // Only the shell supplies the internal Header slot; it is not a shell input.
+  const header = filter(props.header ?? {}, name => headerAllowed.has(name), "header.") as NaeilShellHeaderProps & Pick<NaeilServiceHeaderProps, "authSlot">;
   if (account !== undefined) {
     let loginPage = false;
     // Only a same-app relative login route can be "this page"; an absolute central login URL never hides the control.

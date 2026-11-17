@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Nav } from "@naeil/ui/components/nav";
-import { Footer } from "@naeil/ui/components/footer";
+import { NaeilHeader } from "@naeil/ui/naeil-header";
+import { NaeilFooter } from "@naeil/ui/naeil-footer";
 import { ThemeToggleIcon } from "@naeil/ui/components/theme-toggle-icon";
 import { LocaleSwitcher } from "@naeil/ui/components/locale-switcher";
 import { Logo, PageTitle, ThemeToggle } from "@naeil/ui";
@@ -13,11 +13,13 @@ import { locales } from "@naeil/ui/i18n/config";
 import { routing } from "@naeil/ui/i18n/routing";
 
 export default function Page() {
+  const pathname = usePathname();
   return (
     <>
-      <Nav
+      <NaeilHeader
+        locale="en"
         Link={Link}
-        usePathname={usePathname}
+        currentHref={pathname}
         showProjects={false}
         showBlog={false}
         toolbarSlot={
@@ -46,7 +48,7 @@ export default function Page() {
           {locales.join(", ")} / {routing.defaultLocale}
         </p>
       </main>
-      <Footer linksExternal />
+      <NaeilFooter locale="en" />
     </>
   );
 }
