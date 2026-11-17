@@ -19,6 +19,8 @@ export function useNaeilTheme() {
 function RootThemeProvider({ children }: { children: ReactNode }) {
   // CSR roots do not execute inserted script tags. SSR runs the identical
   // preflight before next-themes' script and before its hydration initializer.
+  // A body script cannot guarantee pre-content paint timing in streamed HTML;
+  // use NaeilThemeScript in head for that guarantee.
   useState(() => { if (typeof window !== "undefined") prepareThemeStorage(readThemePreference); return null; });
   return <>
     <script data-naeil-theme-preference="" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themePreflightScript }} />

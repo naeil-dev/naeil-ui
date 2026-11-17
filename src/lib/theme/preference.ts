@@ -29,17 +29,19 @@ export function writeThemePreference(value: NaeilThemePreference): void {
   catch { /* Cookie denial must not prevent next-themes from remembering locally. */ }
 }
 
-/** Called before next-themes reads storage, on SSR first paint and CSR roots. */
+/** Resolve and apply in one script; storage denial deliberately keeps dark. */
 export function prepareThemeStorage(readPreference: typeof readThemePreference): void {
   let preference;
   try { preference = readPreference(document.cookie); } catch { /* Cookies denied. */ }
+  let theme = "dark";
   try {
-    localStorage.getItem("theme");
-    if (preference) localStorage.setItem("theme", preference);
-  } catch {
-    const root = document.documentElement;
-    root.classList.remove("light"); root.classList.add("dark"); root.style.colorScheme = "dark";
-  }
+    theme = localStorage.getItem("theme") || "dark";
+    if (preference) { localStorage.setItem("theme", preference); theme = preference; }
+  } catch { theme = "dark"; }
+  const resolved = theme === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : theme;
+  const root = document.documentElement;
+  root.classList.remove("light", "dark"); root.classList.add(resolved);
+  if (resolved === "light" || resolved === "dark") root.style.colorScheme = resolved;
 }
 
 export const themePreflightScript = `(${prepareThemeStorage.toString()})(${readThemePreference.toString()})`;

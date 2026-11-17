@@ -2,7 +2,7 @@
 
 ## Current state
 
-As of 2026-11-17: `@naeil/ui@0.18.0` is a prepared, **unpublished candidate** for shared naeil.dev theme preferences and the owned-service footer-meta runtime check. Consumer upgrades, npm publication, tag/Release, hosted Docs and deployment have not been performed. Home keeps a separate theme preference by host. Published npm/Docs/services remain on 0.17.0; prior rollout findings remain open until remeasured.
+As of 2026-11-17: `@naeil/ui@0.18.0` is published with a pre-content theme-background defect; naeil.dev, jev and abstorm run it. Estimate and Home are held on 0.17.0. **0.18.1 is a prepared, unpublished patch candidate**; its strict first-background fix requires the documented head bootstrap. No 0.18.1 merge, tag/Release, publication, Docs publication or deployment has been performed. Home preferences remain separate by host.
 
 ## Dated records
 

@@ -45,9 +45,9 @@ jobs:
         run: |
           node --test scripts/ci/audit-site-runtime.test.mjs scripts/ci/select-docs-verification.test.mjs
           node scripts/ci/audit-site-runtime.mjs
-      # Rollout regression tests launch Chromium; package checks also use WebKit.
+      # Package/rollout checks and painted-theme fixtures use all three engines.
       - name: Verify preinstalled Playwright browsers
-        run: node scripts/ci/check-playwright-image.mjs chromium webkit
+        run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm test
       - run: pnpm test:rollout
       - run: python3 -B scripts/rollout/jev-native.test.py
@@ -62,6 +62,16 @@ jobs:
       - run: pnpm check:contrast
       - run: pnpm build:pkg
       - run: pnpm check:package
+      - name: Packed Next (both bundlers) and Vite theme paint regression
+        run: |
+          npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP" > "$RUNNER_TEMP/theme-pack.json"
+          NAEIL_UI_PAINT_ARCHIVE="$RUNNER_TEMP/$(node -p 'require(process.env.RUNNER_TEMP + "/theme-pack.json")[0].filename')" pnpm test:theme-paint
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: theme-paint-results
+          path: test-results/theme-paint/
+          if-no-files-found: ignore
       - run: node --test scripts/consumer-font-notices.test.mjs
       - name: Separate website compatibility build
         run: pnpm build

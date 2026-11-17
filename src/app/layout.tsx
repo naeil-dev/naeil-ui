@@ -1,3 +1,4 @@
+import { NaeilThemeScript } from "@/theme-bootstrap";
 import { JetBrains_Mono } from "next/font/google";
 import { SiteSessionStateProvider } from "@/components/site-session-state";
 import { NaeilLocaleController } from "@/naeil-locale/client";
@@ -18,6 +19,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head><NaeilThemeScript /></head>
       <body className={`${jetbrainsMono.variable} antialiased`}>
         <NaeilLocaleController service="main" preferenceWritesEnabled={process.env.NAEIL_LOCALE_SEND_ENABLED === "1"}><SiteSessionStateProvider>{children}</SiteSessionStateProvider></NaeilLocaleController>
       </body>

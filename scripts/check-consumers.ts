@@ -159,6 +159,7 @@ try {
     "naeil-footer",
     "naeil-shell",
     "release",
+    "theme-bootstrap",
     "components/ui/index",
     "components/typography",
     "components/logo",
