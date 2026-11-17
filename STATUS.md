@@ -2,6 +2,16 @@
 
 ## Current state
 
+As of 2026-11-17: `@naeil/ui@0.18.0` is a prepared, **unpublished candidate** for shared naeil.dev theme preferences and the owned-service footer-meta runtime check. Consumer upgrades, npm publication, tag/Release, hosted Docs and deployment have not been performed. Home keeps a separate theme preference by host. Published npm/Docs/services remain on 0.17.0; prior rollout findings remain open until remeasured.
+
+## Dated records
+
+The entries below are unchanged historical snapshots, including preparation states that were later superseded. Only “Current state” above describes current publication, Docs and service adoption status.
+
+---
+
+# Status — 2026-11-17 0.17.0 publication and service checkpoint
+
 As of 2026-11-17: `@naeil/ui@0.17.0` is published as `latest` ([run 43770011113](https://github.com/naeil-dev/naeil-ui/actions/runs/43770011113), registry tarball byte-identical to the [frozen archive](docs/releases/0.17.0/README.md)); tag `v0.17.0` and its [GitHub Release](https://github.com/naeil-dev/naeil-ui/releases/tag/v0.17.0) exist. naeil.dev production runs `b2aac59`. Hosted Docs serve 0.17.0 from `24e2553` ([run 43823533355](https://github.com/naeil-dev/naeil-ui/actions/runs/43823533355)).
 
 All four owned services run UI 0.17.0: abstorm `e431b79`, jev `cfd3d63` (deploy → rollback → redeploy rehearsed from the repository runbook), abestimate `e387ff5`, naeil-home `8413ff7` with a replaced console proxy that forwards `/icon.svg` and `/apple-icon.png`. Hosted CI was not run for the service repositories (Actions unavailable); their suites ran locally.
@@ -10,9 +20,6 @@ All four owned services run UI 0.17.0: abstorm `e431b79`, jev `cfd3d63` (deploy 
 
 Not measured: signed-in screens (including service long pages), Firefox and WebKit, real devices. Locale-layer fallback documents use their reduced contract (dark colours, declared stack, 16/25, home links).
 
-## Dated records
-
-The entries below are unchanged historical snapshots, including preparation states that were later superseded. Only “Current state” above describes current publication, Docs and service adoption status.
 
 ---
 

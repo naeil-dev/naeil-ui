@@ -1,3 +1,4 @@
+import { isNaeilPreferenceHost } from "../lib/preference-cookie";
 import { assertLocale, isNaeilLocale, type NaeilLocale } from "./routing";
 
 export const localePreferenceCookie = "naeil_locale_v1";
@@ -11,7 +12,7 @@ export function readLocalePreference(cookie: string, development = false): Naeil
 }
 export function preferenceCookieWrites(locale: NaeilLocale, location: { hostname: string; protocol: string }): string[] {
   assertLocale(locale);
-  const production = location.hostname === "naeil.dev" || location.hostname.endsWith(".naeil.dev");
+  const production = isNaeilPreferenceHost(location.hostname);
   if (production) {
     if (location.protocol !== "https:") return [];
     return [

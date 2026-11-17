@@ -162,6 +162,8 @@ This section is authoritative where an earlier paragraph or a dated specificatio
 - Kana, kanji and Japanese punctuation render in Noto Sans JP. Korean renders in Pretendard.
 - A page that needs no Japanese glyphs downloads no Japanese font file, and at most one Japanese font stylesheet.
 
+**Theme preference.** An explicit shared theme-control choice (`light`, `dark` or `system`) is remembered across HTTPS naeil.dev sites in the first-party `naeil_theme_v1` cookie (`Domain=naeil.dev`, Path=/, Secure, SameSite=Lax, one year). A valid shared value wins over origin-local `theme` storage before first paint. Without it, the remembered local value wins, then dark; old local values never create the shared cookie. Other hosts use a host-only cookie. Home uses a different registrable host and keeps its own choice; no cross-domain synchronization is provided. Storage denial retains the dark default; cookie denial retains local persistence.
+
 **Base text.** Shared CSS sets the body baseline — semantic background and foreground, the font stack above and 16/25px text — identically whether an application imports `globals.css` or `theme.css` + `components.css`. Applications do not restate body colour, font or line height. Chrome typography values are generated from the token source, not maintained beside it.
 
 **Icons.** `/favicon.ico`, `/icon.svg` and `/apple-icon.png` return 200 with the current brand kit's bytes at every address users actually open, including reverse-proxied and private-network addresses. A declaration in metadata is not sufficient; the response is the requirement.

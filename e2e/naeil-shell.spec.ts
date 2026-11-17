@@ -72,3 +72,10 @@ for (const [locale,label] of [['ko','로그인'],['ja','ログイン'],['en','Lo
     await control.click(); await expect(page.locator('main [role="status"]')).toHaveText('/login');
   });
 }
+
+test("shared header theme choice writes a host-only preference on loopback", async ({ page }) => {
+  await page.goto('/iframe.html?id=brand-naeilserviceshell--home&viewMode=story&shellLocale=en');
+  await page.getByRole('button', { name: 'Switch to light theme', exact: true }).click();
+  await expect(page.locator('html')).toHaveClass(/light/);
+  expect((await page.context().cookies()).find(cookie => cookie.name === 'naeil_theme_v1')).toMatchObject({ value: 'light', domain: '127.0.0.1', path: '/', sameSite: 'Lax' });
+});

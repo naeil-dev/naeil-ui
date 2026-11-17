@@ -7,7 +7,7 @@ import { chromium } from '@playwright/test';
 import ts from 'typescript';
 import { MASK_POLICY, STYLE_PROPERTIES, readChrome, maskedRGBA, geometryComparison, footerMetaVerdict, metaHeightAttribution } from './live-compare-chrome.mjs';
 import { distinctDifferences, rollup, writeReport } from './live-compare-report.mjs';
-import { FALLBACK_CHECKS, FALLBACK_REASON, notRequired, scriptRuns, perScriptFontVerdict, classifyDocument, readDocumentContract, fallbackChecks, errorDocumentSummary } from './live-compare-contract.mjs';
+import { FALLBACK_CHECKS, FALLBACK_REASON, notRequired, scriptRuns, perScriptFontVerdict, classifyDocument, readDocumentContract, fallbackChecks, errorDocumentSummary, compareRememberedThemes } from './live-compare-contract.mjs';
 import { prepareFontProbes } from './live-compare-fonts.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -21,7 +21,7 @@ export const SITES = [
   { id: 'home', origin: 'https://jay-macmini-2.tail165003.ts.net:2455', short: 'console', error: 'console/audit-missing-20261115' },
 ];
 const CANONICAL_ICONS = ['/favicon.ico', '/icon.svg', '/apple-icon.png'];
-const CHECKS = ['availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'footerMeta', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns', ...FALLBACK_CHECKS];
+const CHECKS = ['sharedTheme', 'availability', 'locale', 'frame', 'gap', 'body', 'bodyFont', 'latinFont', 'digitFont', 'japaneseFont', 'icons', 'title', 'theme', 'headerPixels', 'footerPixels', 'footerMeta', 'logo', 'wordmark', 'themeControl', 'localeControl', 'accountControl', 'footerColumns', ...FALLBACK_CHECKS];
 const nm = reason => ({ status: 'not measured', reason });
 const verdict = (ok, values) => ({ status: ok ? 'match' : 'differs', values });
 export const near = (actual, expected, tolerance = 0.5) => Number.isFinite(actual) && Math.abs(actual - expected) <= tolerance;
@@ -165,7 +165,7 @@ async function capture(job, browser, out, states, measure, blockedSites) {
   const id = `${site.id}-${locale}-${viewport.width}-${scheme}-${kind}`;
   const requestedURL = address(site, locale, kind);
   const hasState = !!states[site.id];
-  const row = { id, site: site.id, requestedURL, origin: site.origin, locale, viewport, osColorScheme: scheme, session: hasState ? 'signed-in requested (owner-supplied state; not authenticated by script)' : 'signed-out', browser: `Chrome ${browser.version()}`, deviceScaleFactor: 1, kind, at: new Date().toISOString(), checks: Object.fromEntries(CHECKS.map(k => [k, nm('Row did not complete')])) };
+  const row = { hasStorageState: hasState, id, site: site.id, requestedURL, origin: site.origin, locale, viewport, osColorScheme: scheme, session: hasState ? 'signed-in requested (owner-supplied state; not authenticated by script)' : 'signed-out', browser: `Chrome ${browser.version()}`, deviceScaleFactor: 1, kind, at: new Date().toISOString(), checks: Object.fromEntries(CHECKS.map(k => [k, nm('Row did not complete')])) };
   if (!requestedURL) {
     row.requestedURL = site.origin;
     row.checks = Object.fromEntries(CHECKS.map(k => [k, nm('No audited signed-out long page; business routes require authentication. No substitute route used.')]));
@@ -243,7 +243,7 @@ async function capture(job, browser, out, states, measure, blockedSites) {
     row.checks.gap = noFooter ? nm('Home login deliberately omits footer') : !row.layout.footer ? verdict(false, { reason: 'Missing footer; bare error page', expected: kind === 'long' ? 96 : 0 }) : shortPage ? (row.layout.scrollHeight > viewport.height + 1 ? nm('Audited short route overflows this viewport; footer bottom cannot align to viewport') : verdict(near(row.layout.footerGap, 0), { footerBottomToViewport: row.layout.footerGap, expected: 0 })) : kind === 'long' ? verdict(near(row.measurements.contentFooter, 96), { contentToFooter: row.measurements.contentFooter, expected: 96 }) : nm('Supplementary error probe; frame checked separately');
     row.checks.body = verdict(near(row.layout.body.size, 16) && near(row.layout.body.lineHeight, 25), { ...row.layout.body, expected: '16/25px' });
     row.checks.title = verdict(validTitle(row.layout.title, site.id), { actual: row.layout.title, expected: `Page name — ${site.id === 'naeil' ? '.naeil' : `.naeil ${site.id}`}` });
-    row.checks.theme = hasState ? nm('Supplied state may contain remembered theme; this is not a first visit') : verdict(row.layout.theme === 'dark', { actual: row.layout.theme, colorScheme: row.layout.colorScheme, expected: 'dark', os: scheme });
+    row.checks.theme = hasState ? verdict(['light', 'dark'].includes(row.layout.theme), { actual: row.layout.theme, colorScheme: row.layout.colorScheme, expected: 'remembered light or dark; cross-site parity checked separately' }) : verdict(row.layout.theme === 'dark', { actual: row.layout.theme, colorScheme: row.layout.colorScheme, expected: 'dark', os: scheme });
     // Geometry is final before any element capture can scroll the document.
     stage = 'Capture viewport and chrome (15s per image)';
     row.screenshot = `screenshots/${id}.png`;
@@ -391,6 +391,7 @@ export async function main(args = process.argv.slice(2)) {
     }
     await bounded(context.close(), 'close pixel context');
   } finally { await bounded(browser.close(), 'close browser'); }
+  compareRememberedThemes(rows);
   rows.sort((a, b) => a.id.localeCompare(b.id));
   const differences = differenceCount(rows);
   const notMeasured = rows.reduce((n, r) => n + Object.values(r.checks).filter(c => c.status === 'not measured').length, 0);

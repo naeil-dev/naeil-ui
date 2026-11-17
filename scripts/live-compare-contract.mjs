@@ -87,3 +87,18 @@ export function fallbackChecks(snapshot, locale, titleOK) {
 export function errorDocumentSummary(rows) {
   return [...new Set(rows.map(row => row.site))].map(site => ({ site, routes: [...new Set(rows.filter(row => row.site === site && (row.kind.startsWith('error') || row.document?.evidence.heading === '404' || (row.site === 'abstorm' && row.kind === 'short'))).map(row => JSON.stringify({ route: new URL(row.requestedURL).pathname.replace(/^\/(ko|ja|en)(?=\/|$)/, '/{locale}'), kind: row.document?.kind ?? 'not measured' })))].map(value => JSON.parse(value)) }));
 }
+
+/** Compare supplied-state rows under the same OS scheme; Home has another host. */
+export function compareRememberedThemes(rows) {
+  for (const row of rows) {
+    if (!row.hasStorageState) { row.checks.sharedTheme = notRequired('Fresh context: first-visit theme check applies'); continue; }
+    const host = new URL(row.origin).hostname;
+    if (!(host === 'naeil.dev' || host.endsWith('.naeil.dev'))) { row.checks.sharedTheme = notRequired('Separate registrable host (Home): cookie cannot be shared'); continue; }
+    if (!row.layout || row.document?.kind === 'locale-fallback') { row.checks.sharedTheme = { status: 'not measured', reason: 'No framed rendered theme' }; continue; }
+    const peers = rows.filter(peer => peer.hasStorageState && peer.site !== row.site && peer.osColorScheme === row.osColorScheme && peer.layout && peer.document?.kind !== 'locale-fallback' && /(^|\.)naeil\.dev$/.test(new URL(peer.origin).hostname));
+    row.checks.sharedTheme = peers.length ? {
+      status: ['light', 'dark'].includes(row.layout.theme) && peers.every(peer => peer.layout.theme === row.layout.theme) ? 'match' : 'differs',
+      values: { actual: row.layout.theme, sites: [...new Set([row, ...peers].map(peer => `${peer.site}=${peer.layout.theme}`))].sort(), os: row.osColorScheme },
+    } : { status: 'not measured', reason: 'No other naeil.dev-domain site with supplied state and the same OS scheme' };
+  }
+}

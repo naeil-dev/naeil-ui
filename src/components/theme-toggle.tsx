@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import { useNaeilTheme } from "./naeil-theme-provider";
 import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +15,7 @@ function useIsMounted() {
 }
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useNaeilTheme();
   const mounted = useIsMounted();
 
   if (!mounted) {

@@ -6,6 +6,15 @@ Home API는 0.8.0부터, 공통 root 예약 기본값은 0.9.0부터 제공한�
 
 소유한 Next 서비스는 [공통 언어 런타임](../components/naeil-locale.md)의 `/naeil-locale`, `/client`, `/server`, `/messages`, `/checker`를 사용한다. `NaeilLocaleProvider` 안에서는 `NaeilServiceShell`·`NaeilThemeProvider`·`PageHeader`·계정 컨트롤을 `/naeil-locale/chrome`에서 가져온다. `/naeil-header`와 `/naeil-footer`는 독립 React 어댑터로 유지된다. 공유 server/client 경로에는 정확한 `next-intl@4.14.8`이 필요하다.
 
+## 0.18.0 consumer migration
+
+For **abstorm, estimate, jev and Home**, upgrade `@naeil/ui` to **0.18.0** and update the consumer lockfile. This is an unpublished candidate; registry installation follows publication. Keep the existing root `NaeilThemeProvider` and shared shell controls: no new consumer theme code, cookie handling or API inputs are needed after the 0.17.0 migration.
+
+- Explicit light/dark/system choices use `naeil_theme_v1`. HTTPS naeil.dev sites share the first-party Domain=naeil.dev cookie; a valid cookie wins over old per-origin `theme` storage before first paint. With no cookie, the old local value/default-dark behavior continues. Existing local values do not create a cookie. Choose a theme once to establish the shared preference; other sites adopt it on next load. Same-origin tab synchronization remains available.
+- **Home remains separate** because its private-network address uses another registrable host. Other hosts (including loopback/previews) write host-only cookies. No cross-domain sync is built.
+- Runtime conformance now reports non-empty owned-service footer meta. Remove service version/status text from `footer.meta`; leave the owned-service row empty and put that text in app settings/content. Public standalone/generic `meta` APIs stay compatible. Runtime fresh-default checks strip only theme preference cookies/storage from supplied authentication state; live supplied-state comparisons retain and compare rendered themes.
+- Re-run types, static and representative runtime routes, plus signed-in live comparisons under matching viewport/language/OS conditions. Minor adoption requires manual review; deployment remains separate.
+
 ## 0.17.0 required consumer migration
 
 For abstorm, estimate, jev and Home, review these required changes before adopting 0.17.0; a dependency bump alone is insufficient:

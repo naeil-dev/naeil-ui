@@ -1,7 +1,8 @@
 {
   "git": {
     "deploymentEnabled": {
-      "feat/public-ui-readiness": false
+      "feat/public-ui-readiness": false,
+      "feat/shared-theme-preference-20261117": false
     }
   },
   "framework": "nextjs",
