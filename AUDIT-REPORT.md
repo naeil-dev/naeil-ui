@@ -1,3 +1,5 @@
+> Correction (2026-11-17; 2026-11-15 audit finding DOC-02-site2): This historical readiness report mistook package dependency classes for deployed website runtime reachability. The combined manifest places website runtime dependencies in devDependencies, and Vercel installs with `--prod=false`; `pnpm audit --prod` alone therefore did not establish website runtime safety. The original findings below are preserved as dated history and must not serve as current readiness approval.
+
 # 🏭 Production Readiness Audit Report
 
 **Project:** @naeil/ui (Design System)

@@ -179,3 +179,25 @@ test('release integrity evidence env is confined to canonical output before chil
  for(const path of [join(root,'checkout','evidence.json'),join(root,'outside','evidence.json')])await assert.rejects(()=>executeSandbox(sandbox,{file:node,args:['-e',`require('node:fs').writeFileSync(${JSON.stringify(marker)},'bad')`],env:{RELEASE_INTEGRITY_EVIDENCE_PATH:path}}),/isolated output/);
  assert(!existsSync(marker));
 });
+
+// Translate only the sandbox launcher to a synthetic Node child so this lifecycle
+// regression also runs on Linux CI; actual sandbox enforcement is covered above.
+for (const mode of ['timeout', 'output']) test(`escaped preflight pipe holder respects ${mode} bound`, async t => {
+  const { spec } = setup(t), original = cp.spawn;
+  delete spec.executables['/usr/bin/sandbox-exec'];
+  const pidFile = join(spec.writable[1], 'escaped-pid');
+  cp.spawn = (file, args, options) => file === '/usr/bin/sandbox-exec'
+    ? original(args[2], args.slice(3), options) : original(file, args, options);
+  syncBuiltinESMExports();
+  t.after(() => {
+    cp.spawn = original; syncBuiltinESMExports();
+    if (existsSync(pidFile)) { try { process.kill(-Number(readFileSync(pidFile, 'utf8')), 'SIGKILL'); } catch {} }
+  });
+  const escaped = `require('fs').writeFileSync(${JSON.stringify(pidFile)},String(process.pid));${mode === 'output' ? "setInterval(()=>process.stdout.write(Buffer.alloc(65536)),1);" : ''}setTimeout(()=>process.exit(0),1500);`;
+  const code = `require('child_process').spawn(process.execPath,['-e',${JSON.stringify(escaped)}],{detached:true,stdio:['ignore',1,2]}).unref();setInterval(()=>{},1000);`;
+  const started = Date.now();
+  const result = await executeSandbox({ spec, profile: '' }, { file: node, args: ['-e', code], timeoutMs: mode === 'timeout' ? 200 : 1000 });
+  assert.equal(result.exitCode, 1);
+  assert(Date.now() - started < 1200, 'Return without waiting for escaped descendant EOF');
+  assert(Buffer.byteLength(result.stdout) + Buffer.byteLength(result.stderr) <= 2097152, 'Never retain more than the output budget');
+});
