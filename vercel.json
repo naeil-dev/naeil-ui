@@ -2,7 +2,8 @@
   "git": {
     "deploymentEnabled": {
       "feat/public-ui-readiness": false,
-      "feat/shared-theme-preference-20261117": false
+      "feat/shared-theme-preference-20261117": false,
+      "fix/theme-first-paint-0.18.1": false
     }
   },
   "framework": "nextjs",

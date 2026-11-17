@@ -1,6 +1,6 @@
 {
   "name": "@naeil/ui",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
@@ -178,12 +178,16 @@
       "types": "./dist/components/naeil-shell.d.ts",
       "import": "./dist/components/naeil-shell.js"
     },
-    "./fonts.css": "./src/styles/fonts.css"
+    "./fonts.css": "./src/styles/fonts.css",
+    "./theme-bootstrap": {
+      "types": "./dist/theme-bootstrap.d.ts",
+      "import": "./dist/theme-bootstrap.js"
+    }
   },
   "scripts": {
     "dev": "pnpm build:fonts && next dev",
     "build": "pnpm build:fonts && next build",
-    "build:pkg": "pnpm check:messages && pnpm build:release && pnpm check:brand && tsup && tsup --config tsup.deep.config.ts && tsup --config tsup.locale.config.ts && tsx scripts/fix-locale-declarations.ts && tsx scripts/copy-locale-json.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens && pnpm build:fonts && node scripts/build-release-entry.mjs && node scripts/build-utils-entry.mjs && pnpm check:locale:package",
+    "build:pkg": "pnpm check:messages && pnpm build:release && pnpm check:brand && tsup && tsup --config tsup.theme.config.ts && tsup --config tsup.deep.config.ts && tsup --config tsup.locale.config.ts && tsx scripts/fix-locale-declarations.ts && tsx scripts/copy-locale-json.ts && tsx scripts/fix-deep-imports.ts && pnpm build:tokens && pnpm build:fonts && node scripts/build-release-entry.mjs && node scripts/build-utils-entry.mjs && pnpm check:locale:package",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
@@ -205,7 +209,8 @@
     "test:rollout": "node --test scripts/rollout/*.test.mjs scripts/verify-ui-production.test.mjs",
     "check:messages": "tsx scripts/check-locale-messages.ts",
     "check:locale:package": "tsx scripts/check-locale-package.ts",
-    "build:fonts": "tsx scripts/build-fonts.ts"
+    "build:fonts": "tsx scripts/build-fonts.ts",
+    "test:theme-paint": "tsx scripts/check-theme-paint.ts"
   },
   "peerDependencies": {
     "next": "^15 || ^16",

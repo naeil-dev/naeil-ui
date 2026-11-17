@@ -24,12 +24,14 @@ describe("explicit theme preference", () => {
 it("seeds cookie precedence without writing cookies or broadcasting old local values", () => {
   let stored: string | null = "dark";
   const setItem = vi.fn((_key: string, value: string) => { stored = value; });
-  const document = { cookie: "naeil_theme_v1=light" };
+  const document = { cookie: "naeil_theme_v1=light", documentElement: { classList: { remove: vi.fn(), add: vi.fn() }, style: { colorScheme: "" } } };
   vi.stubGlobal("document", document);
   vi.stubGlobal("localStorage", { getItem: () => stored, setItem });
   try {
     prepareThemeStorage(readThemePreference);
     expect(stored).toBe("light");
+    expect(document.documentElement.classList.add).toHaveBeenLastCalledWith("light");
+    expect(document.documentElement.style.colorScheme).toBe("light");
     expect(document.cookie).toBe("naeil_theme_v1=light");
     document.cookie = ""; stored = "dark"; setItem.mockClear();
     prepareThemeStorage(readThemePreference);
@@ -37,4 +39,22 @@ it("seeds cookie precedence without writing cookies or broadcasting old local va
     document.cookie = "naeil_theme_v1=invalid";
     prepareThemeStorage(readThemePreference); expect(setItem).not.toHaveBeenCalled();
   } finally { vi.unstubAllGlobals(); }
+});
+
+it.each([
+  { cookie: "naeil_theme_v1=light", local: "dark", os: "dark", expected: "light" },
+  { cookie: "naeil_theme_v1=dark", local: "light", os: "light", expected: "dark" },
+  { cookie: "naeil_theme_v1=system", local: "dark", os: "light", expected: "light" },
+  { cookie: "", local: null, os: "light", expected: "dark" },
+  { cookie: "", local: "light", os: "dark", expected: "light" },
+  { cookie: "naeil_theme_v1=light", local: "light", os: "light", denied: "storage", expected: "dark" },
+  { cookie: "", local: "light", os: "dark", denied: "cookie", expected: "light" },
+])("applies $expected within the first bootstrap: $cookie / $local / $denied", ({ cookie, local, os, denied, expected }) => {
+  const root = { classList: { remove: vi.fn(), add: vi.fn() }, style: { colorScheme: "" } };
+  const document = { documentElement: root, get cookie() { if (denied === "cookie") throw Error("denied"); return cookie; } };
+  vi.stubGlobal("document", document);
+  vi.stubGlobal("window", { matchMedia: () => ({ matches: os === "dark" }) });
+  vi.stubGlobal("localStorage", { getItem() { if (denied === "storage") throw Error("denied"); return local; }, setItem: vi.fn() });
+  try { prepareThemeStorage(readThemePreference); expect(root.classList.add).toHaveBeenLastCalledWith(expected); expect(root.style.colorScheme).toBe(expected); }
+  finally { vi.unstubAllGlobals(); }
 });

@@ -13,7 +13,40 @@ import { NaeilThemeProvider } from "@naeil/ui/naeil-shell";
 <NaeilThemeProvider>{children}</NaeilThemeProvider>
 ```
 
-The provider accepts `children` only. It sets next-themes `attribute="class"`, `defaultTheme="dark"`, `enableSystem`, `disableTransitionOnChange`, `storageKey="theme"`. A fresh profile starts dark even under OS light. A valid `naeil_theme_v1` cookie wins over origin-local `theme` storage; without it, the remembered local value wins, then dark. `system` remains supported. Only an explicit choice through shared controls writes the cookie; existing local values are never broadcast. The pre-hydration preflight strictly validates the cookie and seeds next-themes storage before its first-paint script and hydration initializer; CSR roots run the same initialization once. Storage denial retains dark by default, cookie denial retains local persistence. Cookies use the locale host rule: HTTPS naeil.dev and subdomains share `Domain=naeil.dev; Path=/; Max-Age=31536000; Secure; SameSite=Lax`; other hosts use host-only cookies (Secure on HTTPS), never a parent domain. Home's private-network host cannot share with naeil.dev. Another site picks up a choice on its next load; same-origin tab sync remains next-themes, with no cross-origin live sync. next-themes ignores a nested provider when a parent exists: replace the existing root provider. The shell includes the same provider for standalone use; under the root provider it is a no-op.
+The provider accepts `children` only. It sets next-themes `attribute="class"`, `defaultTheme="dark"`, `enableSystem`, `disableTransitionOnChange`, `storageKey="theme"`. A fresh profile starts dark even under OS light. A valid `naeil_theme_v1` cookie wins over origin-local `theme` storage; without it, the remembered local value wins, then dark. `system` remains supported. Only an explicit choice through shared controls writes the cookie; existing local values are never broadcast. The pre-hydration preflight strictly validates the cookie, seeds next-themes storage and applies the resolved class/color scheme atomically; CSR roots run the same initialization once. For a guarantee that includes blank pre-content backgrounds, add the head bootstrap below: a provider/body script alone is too late to prevent every streamed CSS frame. Storage denial retains dark by default, cookie denial retains local persistence. Cookies use the locale host rule: HTTPS naeil.dev and subdomains share `Domain=naeil.dev; Path=/; Max-Age=31536000; Secure; SameSite=Lax`; other hosts use host-only cookies (Secure on HTTPS), never a parent domain. Home's private-network host cannot share with naeil.dev. Another site picks up a choice on its next load; same-origin tab sync remains next-themes, with no cross-origin live sync. next-themes ignores a nested provider when a parent exists: replace the existing root provider. The shell includes the same provider for standalone use; under the root provider it is a no-op.
+
+### First painted background (0.18.1)
+
+Estimate's measured 0.18.0 upgrade introduced a wrong pre-content CSS background frame despite correct first contentful paint; its 0.17.0 comparison passed. The stricter packed streaming fixture also exposes an older 0.17.0 body-script timing window, so these results do not establish that the package window first existed in 0.18.0. The provider fallback now resolves and applies in one script, retaining local/default/storage-denied behavior, but it cannot control a browser paint before body scripts. **Upgrade and add the head bootstrap to remove that frame reliably.** It is additive and server-safe; keep the root provider and controls.
+
+Next root layout, outside Suspense and before body (not a delayed client effect):
+
+```tsx
+import { NaeilThemeScript } from "@naeil/ui/theme-bootstrap";
+
+<html suppressHydrationWarning>
+  <head><NaeilThemeScript /></head>
+  <body><NaeilThemeProvider>{children}</NaeilThemeProvider></body>
+</html>
+```
+
+`NaeilThemeScript` accepts optional `nonce` for a consumer's existing CSP. It emits an inline classic script, not a fetched/module script. The bootstrap reads the current cookie at runtime and uses the strict allowlist; no cookie text is interpolated into source. Do not defer it or place it behind a Suspense boundary. Consumers with CSP must permit this script with their nonce or its generated hash.
+
+React/Vite puts the identical exported string in the built HTML before styles and the module entry. Add this build plugin alongside existing plugins:
+
+```js
+import { naeilThemeBootstrap } from "@naeil/ui/theme-bootstrap";
+const themeBootstrap = {
+  name: "naeil-theme-bootstrap",
+  transformIndexHtml() {
+    return [{ tag: "script", attrs: { "data-naeil-theme-preference": "" },
+      children: naeilThemeBootstrap, injectTo: "head-prepend" }];
+  },
+};
+// defineConfig({ plugins: [/* existing plugins */, themeBootstrap] })
+```
+
+The bootstrap writes no cookie and stores nothing beyond the existing theme key. Cookie scope/precedence and Home's host boundary are unchanged. Without head integration the improved provider remains compatible, but **does not promise zero pre-content background frames**. `pnpm test:theme-paint` builds packed streaming Next with webpack/Turbopack and React/Vite, holding external scripts while Chromium captures every compositor frame. Firefox/WebKit provide raster checkpoints only; those do not prove every intervening frame.
 
 ```tsx
 import { NaeilServiceShell, PageHeader } from "@naeil/ui/naeil-shell";
