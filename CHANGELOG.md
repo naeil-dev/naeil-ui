@@ -5,7 +5,7 @@ Current publication, hosted Docs and service adoption status live in [STATUS.md]
 ## Unreleased
 
 - Deprecate the legacy Next/next-intl `Nav`/`Footer` adapters in JSDoc and once-only development warnings; use `NaeilServiceShell` for owned services or `Navigation`/`SiteFooter` for other products. Align shell `header.authSlot` guidance/warnings around `account`. Removal target: next minor that removes deprecated APIs, with notice; no date/version is chosen. Rendering, types and public exports stay compatible.
-- Preserve the `/ui` client boundary while re-exporting separate existing modules so unrelated initializers can be pruned. Packed Button-only JS gzip: webpack 204,641 → 182,482 B; Turbopack 215,814 → 184,262 B; Vite 75,432 → 70,794 B. Full-shell gzip also decreases in all three; see the [probe and complete raw/gzip table](https://github.com/naeil-dev/naeil-ui/blob/main/docs/design/legacy-safe-cleanup-2026-11-18.md). CSS entrypoints, export map and deep server helpers are unchanged.
+- Preserve the `/ui` client boundary while re-exporting separate existing modules so unrelated initializers can be pruned. Packed Button-only JS gzip: webpack 204,641 → 182,482 B; Turbopack 215,814 → 184,262 B; Vite 75,432 → 70,794 B. Full-shell JS gzip: webpack 239,688 → 236,280 B; Turbopack 246,887 → 241,315 B; Vite 129,624 → 125,867 B. CSS entrypoints, export map and deep server helpers are unchanged.
 
 - Localize the generic `LocaleSwitcher` accessible name for Korean, Japanese and English using the shared messages; retain existing props and the English fallback for other locale codes.
 - Make rollout CLI `--help`, `-h` and no-argument invocations print usage successfully without reading configuration or touching state/locks.
