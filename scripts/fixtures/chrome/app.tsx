@@ -40,7 +40,7 @@ function App() {
   const reopened = useRef(false);
   const opener = useRef<HTMLElement | null>(null);
   const loginGate = query.get("profile") === "login-gate";
-  const home = query.get("profile") === "home" || loginGate;
+  const home = query.get("profile") === "home" || query.get("profile") === "generic-account" || loginGate;
   const mode = query.get("mode") || "controlled";
   const lifecycle = query.get("lifecycle");
   const policy = query.get("policy");
@@ -63,7 +63,8 @@ function App() {
     onLogout: () => {
       if (!home) return;
       setLogoutCalls(value => value + 1);
-      setOpen(false);
+      // Generic consumers rely on the shared context to close their controlled sheet.
+      if (profile !== "generic-account") setOpen(false);
       setGuard(true);
     },
   }} />;
@@ -82,7 +83,7 @@ function App() {
     locked.current = true; setGuard(false); setBusy(true); setRequests(value => value + 1); setNotice("pending");
   };
   return <>
-    {!mounted ? null : profile === "generic" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} /> :
+    {!mounted ? null : profile === "generic" || profile === "generic-account" ? <Navigation brand={<a href="/">Generic</a>} items={appNavigation} labels={{ menu: "Menu", close: "Close", navigation: "Navigation" }} {...(profile === "generic-account" ? {...sheetProps, toolbar:account} : {})} /> :
       service ? service === "canonical" ? <NaeilHeader locale={locale}
         resolveHref={path => path} currentHref={href} onNavigate={navigate}
         onLocaleChange={setLocale} authSlot={account} /> : <NaeilHeader locale={locale} service={service}

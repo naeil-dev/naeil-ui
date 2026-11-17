@@ -15,7 +15,7 @@ export type { NaeilHeaderAccount } from "./naeil-header-account-core";
 /** The only header inputs a service supplies: its menu, routing state, account slot and locale/mobile callbacks. */
 const headerKeys = ["resolveHref", "brandHref", "appNavigation", "onLocaleChange", "authSlot", "labels", "currentHref", "mobileOpen", "onMobileOpenChange"] as const;
 export type NaeilShellHeaderProps = Pick<NaeilServiceHeaderProps, Exclude<typeof headerKeys[number], "authSlot">> & {
-  /** @deprecated Owned services pass account to the shell; retained for 0.15.0 compatibility. */
+  /** @deprecated Pass account to NaeilServiceShell instead. Removal target: next minor that removes deprecated APIs, with notice. */
   authSlot?: NaeilServiceHeaderProps["authSlot"];
 };
 export type NaeilShellFooterProps = Pick<NaeilServiceFooterProps, "meta" | "resolveHref"> & { [Key in Exclude<keyof NaeilServiceFooterProps, "meta" | "resolveHref">]?: never };
@@ -70,8 +70,8 @@ export function NaeilServiceShell<const Props extends NaeilShellInputs, const He
   const { service, locale, Link, onNavigate, children, mainLabel, account } = props;
   const copy = useNaeilMessages(locale);
   const header = filter(props.header ?? {}, name => headerAllowed.has(name), "header.") as NaeilShellHeaderProps;
+  if (Object.hasOwn(props.header ?? {}, "authSlot")) warn("header.authSlot", "NaeilServiceShell: header.authSlot is deprecated; pass account instead. account takes precedence when both are supplied. Removal target: next minor that removes deprecated APIs, with notice.");
   if (account !== undefined) {
-    if (Object.hasOwn(props.header ?? {}, "authSlot")) warn("account.authSlot", "NaeilServiceShell: account takes precedence over deprecated header.authSlot; pass account for owned services.");
     let loginPage = false;
     // Only a same-app relative login route can be "this page"; an absolute central login URL never hides the control.
     const relativeLogin = account.status === "signed-out" && !/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(account.loginHref);

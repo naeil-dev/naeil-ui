@@ -65,6 +65,27 @@ export async function checkFrameConsumer(root: string, framework: "react" | "nex
             await action(page, record);
           } finally { await context.close(); }
         };
+        // /ui Navigation and /naeil-header account controls must share their
+        // original controlled-sheet context even when primitives are unbundled.
+        await runCase("generic-account-context", 390, "reduce", async (page, record) => {
+          await page.goto(`${path()}?frame&boundary&profile=generic-account&locale=ko`);
+          await page.getByTestId("length").waitFor();
+          await page.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue("--naeil-consumer-frame-css").trim() === "ready");
+          await page.locator(".ui-navigation-toggle").click();
+          const sheet = page.locator('[data-slot="navigation-sheet"]');
+          await sheet.locator('[data-naeil-account-trigger]').click();
+          await page.getByRole("menuitem", {name:"로그아웃",exact:true}).click();
+          const guard = page.getByTestId("guard");
+          await expect(guard).toBeVisible();
+          await expect(sheet).toBeHidden();
+          await expect(page.getByRole("dialog")).toHaveCount(1);
+          await expect.poll(() => guard.evaluate(element => element.contains(document.activeElement)), {message:"Generic confirmation must own focus after both layers close"}).toBe(true);
+          await expect(page.getByTestId("logout-calls")).toHaveText("1");
+          await guard.getByRole("button", {name:"Cancel",exact:true}).click();
+          await expect.poll(() => page.locator("body").getAttribute("data-scroll-locked")).toBe(null);
+          await record("shared-context", {passed:true});
+          console.log(`Packed Navigation/account context: PASS (${framework}/${css})`);
+        });
         // Genuine separately compiled token-only/JS-only entries, never repaired candidate CSS.
         for (const control of ["optout", "false-guard", "theme", "js"]) {
           await runCase(`G1/${control}`, 1440, "reduce", async (page, record) => {
