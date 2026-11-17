@@ -2,7 +2,16 @@
 
 ## Current state
 
-As of 2026-11-17: `@naeil/ui@0.18.0` is published with a pre-content theme-background defect; naeil.dev, jev and abstorm run it. Estimate and Home are held on 0.17.0. **0.18.1 is a prepared, unpublished patch candidate**; its strict first-background fix requires the documented head bootstrap. No 0.18.1 merge, tag/Release, publication, Docs publication or deployment has been performed. Home preferences remain separate by host.
+As of 2026-11-17: `@naeil/ui@0.18.1` is published as `latest` ([run 44007534157](https://github.com/naeil-dev/naeil-ui/actions/runs/44007534157), registry tarball byte-identical to the [frozen archive](docs/releases/0.18.1/README.md)); tags `v0.18.0` and `v0.18.1` and their GitHub Releases exist; hosted Docs serve 0.18.1 ([run 44014023321](https://github.com/naeil-dev/naeil-ui/actions/runs/44014023321)). 0.18.0 shipped a blank pre-content background frame in the wrong scheme; 0.18.1 removes it and adds the head bootstrap.
+
+All five sites run UI 0.18.1 with the head bootstrap: naeil.dev, abstorm `75b30ac`, jev `254772d`, abestimate `5fe98df`, naeil-home `a5e35fc`. Hosted CI was not run for the service repositories (Actions unavailable); their suites ran locally. The live source revision of naeil.dev is reported by `/.well-known/naeil-ui.json`.
+
+**Measured on 2026-11-17.**
+- Painted frames (CDP screencast, signed out, real origins, six stored/OS theme conditions): abstorm 30 → 0 wrong frames, jev 21 → 0, estimate 0, Home 0. naeil.dev was sampled on a local production build only (0).
+- Signed-in screens, read-only in the owner's browser session (Chromium, 1440×900 and 390×844, 22 conditions across the five sites): frame element, 16/25 body, 32/42 title, 96px content-to-footer on long pages, footer on the viewport bottom on short pages, equal footer height, no footer meta row, account control signed in. Rendered-font identity and pixel comparison were not part of that measurement.
+- Signed-out comparison of the five addresses users open (2026-11-16): zero differences in the measured items.
+
+Open: theme is shared across naeil.dev sites through the `naeil_theme_v1` cookie, written only on an explicit choice — a site with an older per-origin value keeps it until the owner chooses a theme once. Home runs on another host and keeps its own preference. Not measured: Firefox and WebKit, real devices.
 
 ## Dated records
 
