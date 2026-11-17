@@ -1,13 +1,8 @@
 # Archived Playwright trace viewer attribution
 
-This notice applies to the unchanged generated third-party trace-viewer copies in:
+This notice applies to the unchanged generated third-party trace viewer retained at [`initial-report/trace/`](initial-report/trace/).
 
-- `initial-report/trace/`
-- `support-report/trace/`
-- `recheck1/report/trace/`
-- `recheck1/stability-report/trace/`
-
-There are 68 viewer files plus four `playwright-logo.svg` files (72 files in total). All 72 files match the corresponding `playwright-core@1.63.0/lib/vite/traceViewer/` files byte for byte. These are archived test tools, not naeil-authored code or part of the public UI package. Existing evidence files are preserved unchanged.
+The canonical copy contains 17 viewer files plus `playwright-logo.svg` (18 files total). All 18 match the corresponding `playwright-core@1.63.0/lib/vite/traceViewer/` files byte for byte. Three identical copies formerly under `support-report/trace/`, `recheck1/report/trace/` and `recheck1/stability-report/trace/` were removed; their HTML report launchers now point to this canonical viewer. Recorded test data and retained trace payload bytes are unchanged. These are archived test tools, not naeil-authored code or part of the public UI package.
 
 Playwright is Copyright (c) Microsoft Corporation, licensed under [Apache 2.0](licenses/Playwright-Apache-2.0.txt). It contains code derived from Puppeteer; retain the original [Playwright NOTICE](licenses/Playwright-NOTICE.txt) and [upstream third-party notice](licenses/Playwright-ThirdPartyNotices.txt). Source: [microsoft/playwright v1.63.0](https://github.com/microsoft/playwright/tree/v1.63.0). That package's general third-party notice points to bundle sidecars; the applicable viewer notices below are supplied here because the archived viewer has no such sidecars.
 

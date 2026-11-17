@@ -96,7 +96,10 @@ pnpm pack --pack-destination /tmp
 | `pnpm test` / `pnpm check:types` / `pnpm lint` | Unit tests (includes 9 Chromium tests; run `pnpm exec playwright install chromium` first) / types / lint |
 | `pnpm build:storybook` / `pnpm test:browser` | Build Docs/examples / Chromium, Firefox and WebKit checks (install configured Playwright engines first) |
 | `pnpm build:pkg` / `pnpm check:package` | Build package / inspect package boundary and independently install/build packed React + Next consumers |
+| `pnpm check:package:boundary` | Inspect the built package without rebuilding consumer applications |
 | `pnpm dev` / `pnpm build` | Brand/example website development / build |
+
+The retired 0.7.x rollout runner and its verifier are preserved at [archive/rollout-runner-20261118](https://github.com/naeil-dev/naeil-ui/tree/archive/rollout-runner-20261118/); current service deployment and rollback use the [service runbooks](https://github.com/naeil-dev/naeil-ui/blob/main/docs/rollout/auto-update.md#service-deployment-and-rollback-runbooks).
 
 A [reusable React consumer example](https://github.com/naeil-dev/naeil-ui/tree/main/examples/react) composes the packaged header, a settings form and footer. [Release policy](docs/package-release.md) and [changelog](CHANGELOG.md) distinguish implementation, publication and deployment. CI verifies the package and separate website/Storybook. Downloadable preview artifacts include notices and local fonts. Storybook includes the public component Docs and runnable examples; canonical footer and account examples live in NaeilHeader/SiteFooter stories. [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) records hosted Docs and service adoption. See [preview instructions](docs/package-release.md#storybook-preview-artifact) and [support limits](docs/design/public-ui-support.md) for verification scope and native/manual limits.
 

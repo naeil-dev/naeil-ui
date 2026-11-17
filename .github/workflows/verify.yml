@@ -24,8 +24,8 @@ jobs:
     # Browsers and OS dependencies are baked in, avoiding runner apt mirror stalls.
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
-      # Rollout process-group tests orphan descendants; reap them after exit.
-      options: --init --ipc=host
+      # Browser shared memory is still needed; retired orphan-worker tests are gone.
+      options: --ipc=host
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -45,12 +45,10 @@ jobs:
         run: |
           node --test scripts/ci/audit-site-runtime.test.mjs scripts/ci/select-docs-verification.test.mjs
           node scripts/ci/audit-site-runtime.mjs
-      # Package/rollout checks and painted-theme fixtures use all three engines.
+      # Package checks and painted-theme fixtures use all three engines.
       - name: Verify preinstalled Playwright browsers
         run: node scripts/ci/check-playwright-image.mjs chromium firefox webkit
       - run: pnpm test
-      - run: pnpm test:rollout
-      - run: python3 -B scripts/rollout/jev-native.test.py
       - run: node --test scripts/build-chrome-fixtures.test.mjs
       - run: node --test scripts/account-render.test.mjs
       - run: node --test scripts/site-auth-slot.test.mjs
