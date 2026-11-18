@@ -7,7 +7,7 @@
     "build:turbopack": "next build"
   },
   "dependencies": {
-    "@naeil/ui": "0.18.1",
+    "@naeil/ui": "0.18.2",
     "next": "16.4.6",
     "next-intl": "4.14.8",
     "react": "^19.2.3",
