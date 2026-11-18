@@ -15,6 +15,8 @@ The shell pairs this footer with [NaeilHeader and its account control](naeil-hea
 
 The shell uses the service profile below, which is always `full`. Without `service`, `compact` remains available for legacy consumers. Compact link groups are top-aligned so their titles line up; an `items-*` utility in legacy `containerClassName` still controls every child's vertical alignment.
 
+When the full footer's frame is narrower than 26rem (about 320–390px phones after gutters), the brand and tagline take their own row and the link groups sit side by side below it, so no single group is left alone on the next line. Wider frames keep the one-row layout unchanged. This applies to every full `SiteFooter`, including the owned-service shell; consumers need no override.
+
 ## Owned-service profile (0.14.0)
 
 ```tsx

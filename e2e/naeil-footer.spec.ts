@@ -77,3 +77,26 @@ test("compact footer keeps a consumer items-* containerClassName in charge of al
   expect(await frame.evaluate(element => getComputedStyle(element).alignItems)).toBe('flex-end');
   expect(new Set(await bottoms()).size, "items-end override aligns link group bottoms").toBe(1);
 });
+
+// Narrow full footer: brand gets its own row and both link groups sit together below it, never one orphaned group.
+for (const locale of ['ko', 'ja', 'en']) for (const width of [320, 360, 390, 768, 1440]) for (const theme of ['light', 'dark']) {
+  test(`full footer groups stay together ${locale} ${width} ${theme}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const story = `brand-naeilheader--reference-full${locale === 'ja' ? '' : `-${locale}`}`;
+    await page.goto(`/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`);
+    const footer = page.locator('[data-naeil-footer]');
+    await expect(footer).toHaveAttribute('data-variant', 'full');
+    await expect(footer.getByRole('heading', { level: 2 })).toHaveCount(2);
+    await page.evaluate(() => document.fonts.ready);
+    const box = await footer.evaluate(element => {
+      const rect = (node: Element) => node.getBoundingClientRect();
+      const brand = rect(element.querySelector('.ui-site-footer-brand')!);
+      const groups = [...element.querySelectorAll('.ui-site-footer-frame > nav')].map(rect);
+      return { brandTop: brand.top, brandBottom: brand.bottom, groupTops: groups.map(group => Math.round(group.top)) };
+    });
+    expect(new Set(box.groupTops).size, 'link groups share one row').toBe(1);
+    if (width <= 390) expect(box.groupTops[0]).toBeGreaterThan(box.brandBottom);
+    else expect(Math.abs(box.groupTops[0] - box.brandTop)).toBeLessThanOrEqual(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= Math.ceil(document.documentElement.getBoundingClientRect().width))).toBe(true);
+  });
+}

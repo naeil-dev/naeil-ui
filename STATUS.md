@@ -2,6 +2,8 @@
 
 ## Current state
 
+As of 2026-11-18: **0.18.2 is a prepared, unpublished patch candidate** (narrow full-footer layout from abstorm visual QA V18, plus the compatible changes listed in the CHANGELOG). No merge, tag/Release, publication, Docs publication or deployment has been performed for it; no consumer migration is required.
+
 As of 2026-11-17: `@naeil/ui@0.18.1` is published as `latest` ([run 44007534157](https://github.com/naeil-dev/naeil-ui/actions/runs/44007534157), registry tarball byte-identical to the [frozen archive](docs/releases/0.18.1/README.md)); tags `v0.18.0` and `v0.18.1` and their GitHub Releases exist; hosted Docs serve 0.18.1 ([run 44014023321](https://github.com/naeil-dev/naeil-ui/actions/runs/44014023321)). 0.18.0 shipped a blank pre-content background frame in the wrong scheme; 0.18.1 removes it and adds the head bootstrap.
 
 All five sites run UI 0.18.1 with the head bootstrap: naeil.dev, abstorm `75b30ac`, jev `254772d`, abestimate `5fe98df`, naeil-home `a5e35fc`. Hosted CI was not run for the service repositories (Actions unavailable); their suites ran locally. The live source revision of naeil.dev is reported by `/.well-known/naeil-ui.json`.

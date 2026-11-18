@@ -367,6 +367,15 @@
     gap: var(--spacing-4-value);
     margin-inline-end: auto;
   }
+  /* Narrow full footer: brand takes its own row so link groups sit together below it instead of orphaning the last one. */
+  .ui-site-footer[data-variant="full"] .ui-site-footer-frame {
+    container-type: inline-size;
+  }
+  @container (width < 26rem) {
+    .ui-site-footer[data-variant="full"] .ui-site-footer-brand {
+      flex-basis: 100%;
+    }
+  }
   .ui-site-footer-description {
     max-width: var(--ui-width-short-form);
     color: var(--muted-foreground);
