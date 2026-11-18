@@ -2,7 +2,7 @@
 
 ## Current state
 
-As of 2026-11-18: `@naeil/ui@0.18.2` is published as `latest` ([run 44313235781](https://github.com/naeil-dev/naeil-ui/actions/runs/44313235781), registry tarball byte-identical to the [frozen archive](docs/releases/0.18.2/README.md), SHA-256 `350488ae…74ed`); tag `v0.18.2` (source `d7a919a`) and its GitHub Release exist; merged to main as `f46cbfd`. It keeps narrow full-footer link groups together (abstorm visual QA V18) and needs no consumer migration. Hosted Docs still serve 0.18.1; no service has adopted 0.18.2 yet.
+As of 2026-11-18: `@naeil/ui@0.18.2` is published as `latest` ([run 44313235781](https://github.com/naeil-dev/naeil-ui/actions/runs/44313235781), registry tarball byte-identical to the [frozen archive](docs/releases/0.18.2/README.md), SHA-256 `350488ae…74ed`); tag `v0.18.2` (source `d7a919a`) and its GitHub Release exist; merged to main as `f46cbfd`. It keeps narrow full-footer link groups together (abstorm visual QA V18) and needs no consumer migration. Hosted Docs serve 0.18.2 ([run 44392061494](https://github.com/naeil-dev/naeil-ui/actions/runs/44392061494), reviewed `f4d70ed`); naeil.dev runs `f46cbfd` (UI 0.18.2). The four owned services have not adopted 0.18.2 yet.
 
 As of 2026-11-17: `@naeil/ui@0.18.1` is published as `latest` ([run 44007534157](https://github.com/naeil-dev/naeil-ui/actions/runs/44007534157), registry tarball byte-identical to the [frozen archive](docs/releases/0.18.1/README.md)); tags `v0.18.0` and `v0.18.1` and their GitHub Releases exist; hosted Docs serve 0.18.1 ([run 44014023321](https://github.com/naeil-dev/naeil-ui/actions/runs/44014023321)). 0.18.0 shipped a blank pre-content background frame in the wrong scheme; 0.18.1 removes it and adds the head bootstrap.
 
