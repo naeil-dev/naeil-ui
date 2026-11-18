@@ -23,7 +23,7 @@ async function prepare(page: Page, side: string, query: string, state: string, h
   await page.locator("header").waitFor();
   // Approved D2/D4 policy adjustment; the historical archives remain untouched.
   // Keep every geometry/style assertion against their actual chrome.
-  if (side !== "candidate") await page.addStyleTag({ content: frameComparisonPolicy });
+  if (side !== "candidate") await page.addStyleTag({ content: frameComparisonPolicy + NARROW_FULL_FOOTER });
   await page.evaluate(() => document.fonts.ready);
   const mobile = await page.locator(".ui-navigation-toggle").isVisible();
   if (mobile && ["sheet", "account", "locale", "current"].includes(state)) await page.locator(".ui-navigation-toggle").click();
@@ -142,6 +142,8 @@ async function snapshot(page: Page, home = false) {
 // Accepted 2026-11-12 (REQ-02-A1): the metadata role is 13/20px. Canonical chrome keeps its own line heights,
 // but consumer toolbar slot content (Button size="xs") uses the token. Apply it to B1 so every other difference still fails.
 const TYPOGRAPHY_LINE_HEIGHTS = ":root { --text-xs--line-height: 1.25rem; }";
+// Accepted 2026-11-18 (abstorm V18): below a 26rem frame the full footer brand takes its own row; apply it to historical sides so every other difference still fails.
+const NARROW_FULL_FOOTER = '.ui-site-footer[data-variant="full"] .ui-site-footer-frame { container-type: inline-size; } @container (width < 26rem) { .ui-site-footer[data-variant="full"] .ui-site-footer-brand { flex-basis: 100%; } }';
 const COMPACT_FOOTER_TOP_ALIGNMENT = '.ui-site-footer[data-variant="compact"] .ui-site-footer-frame:not([class*="items-"]) > nav { align-self: flex-start; }';
 function compare(a: unknown, b: unknown, prefix = "", failures: string[] = []): string[] {
   if (typeof a === "number" && typeof b === "number") { if (Math.abs(a - b) > 0.01) failures.push(`${prefix}: ${a} != ${b}`); }
