@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const services = ['abstorm', 'home', 'estimate', 'jev'];
+const services = ['abstorm', 'home', 'estimate', 'jev', 'storm'];
 const rules = new Set(['theme', 'chrome', 'rhythm', 'icons', 'titles']);
 const excluded = /^(?:node_modules|\.next|\.git|dist|build|out|coverage|storybook-static|test-results|playwright-report|__tests__|__mocks__|tests?|e2e)$/;
 const sourceFile = /\.(?:[cm]?[jt]sx?|css|html)$/;
@@ -91,7 +91,7 @@ export function checkConformance({ service, framework, app }) {
 }
 export async function main(args = process.argv.slice(2)) {
   try {
-    if (args.includes('--help')) { console.log('naeil-ui-conformance --service abstorm|home|estimate|jev --framework next|vite --app <dir>\nnaeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--no-account /login,/gate] [--app <consumer-dir>] [--storage-state <file>] [--header name:value] [--expect-status /unknown=404] [--allow-redirect /old=/new] [--wait-for /route=<selector>]\n--no-account, --header, --expect-status, --allow-redirect and --wait-for are repeatable. Measurement waits for fonts and no aria-busy region; network idle is best effort.'); return 0; }
+    if (args.includes('--help')) { console.log('naeil-ui-conformance --service storm|abstorm|home|estimate|jev --framework next|vite --app <dir>\nnaeil-ui-conformance --service <id> --url <origin> --routes /a,/b [--no-footer /login] [--no-account /login,/gate] [--app <consumer-dir>] [--storage-state <file>] [--header name:value] [--expect-status /unknown=404] [--allow-redirect /old=/new] [--wait-for /route=<selector>]\n--no-account, --header, --expect-status, --allow-redirect and --wait-for are repeatable. Measurement waits for fonts and no aria-busy region; network idle is best effort.'); return 0; }
     const options = {};
     for (let i = 0; i < args.length; i += 2) {
       const key = args[i].replace(/^--/, '');

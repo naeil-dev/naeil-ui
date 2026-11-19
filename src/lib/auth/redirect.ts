@@ -4,6 +4,7 @@ const ORIGINS = new Set([
   "https://jev.naeil.dev",
   "https://abestimate.naeil.dev",
   "https://abstorm.naeil.dev",
+  "https://storm.naeil.dev",
 ]);
 const UNSAFE = /[\s\\\x00-\x1f\x7f]/;
 

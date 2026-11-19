@@ -4,7 +4,7 @@ import { defineLocaleService, localeHref, localePath, naeilRouting, naeilService
 describe("owned locale routing", () => {
   it("uses deterministic paths with all next-intl personalization disabled", () => {
     expect(naeilRouting).toEqual({ locales: ["en", "ko", "ja"], defaultLocale: "en", localePrefix: "as-needed", localeDetection: false, localeCookie: false, alternateLinks: false });
-    for (const service of ["main", "jev", "estimate", "abstorm"] as const) for (const locale of ["en", "ko", "ja"] as const) {
+    for (const service of ["main", "jev", "estimate", "abstorm", "storm"] as const) for (const locale of ["en", "ko", "ja"] as const) {
       expect(localeHref(service, "/", locale)).toBe(naeilServices[service].origin + (locale === "en" ? "/" : "/" + locale));
     }
   });
@@ -96,4 +96,14 @@ describe("abstorm registered UI and protocol boundaries", () => {
 it("requires a registered root recovery route at definition time", () => {
   expect(() => defineLocaleService({ id: "jev", origin: "https://jev.naeil.dev", routes: ["/login"] })).toThrow("root route /");
   expect(() => defineLocaleService({ id: "jev", origin: "https://jev.naeil.dev", routes: [{path: "/", protected: true}] })).not.toThrow();
+});
+
+describe("storm replaces abstorm with the same registered routes", () => {
+  it("serves the same protected UI routes on storm.naeil.dev", () => {
+    expect(naeilServices.storm.routes).toEqual(naeilServices.abstorm.routes);
+    expect(localeHref("storm", "/new?copy=one#review", "ja")).toBe("https://storm.naeil.dev/ja/new?copy=one#review");
+    expect(resolveLocaleUrl("storm", "https://storm.naeil.dev/ko/runs/one/report")).toMatchObject({ kind: "ui", locale: "ko", route: { protected: true } });
+    expect(resolveLocaleUrl("storm", "/auth/session").kind).toBe("protocol");
+    for (const path of ["https://abstorm.naeil.dev/ko/new", "https://x.storm.naeil.dev/", "https://storm.naeil.dev.evil.example/", "http://storm.naeil.dev/"]) expect(resolveLocaleUrl("storm", path).kind).toBe("invalid");
+  });
 });
