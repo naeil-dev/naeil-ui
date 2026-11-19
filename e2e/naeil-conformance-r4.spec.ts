@@ -42,6 +42,8 @@ test.beforeAll(async () => {
       : path === '/late' ? '<section style="padding-bottom:64px"><p>Loading</p></section><script>setTimeout(()=>{const s=document.querySelector("section");s.style.paddingBottom="0";s.innerHTML="<p id=ready>Loaded</p>";},800)</script>'
       : path === '/closed-details' ? `<section><p>Content</p><details><summary style="line-height:25px">More</summary><pre>${'hidden line\n'.repeat(120)}</pre></details></section>`
       // A 44px flex disclosure control whose text sits in a child span: the summary box is the edge, not the span.
+      // Stretched grid items share a box bottom; the taller content (right) is the real edge, not the first item's.
+      : path === '/grid-tie' ? '<section style="display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><p>Short</p></div><div><p>Tall</p><p>Taller</p><p>Tallest</p></div></section>'
       : path === '/flex-summary' ? `<section><p>Content</p><details><summary style="display:flex;align-items:center;gap:8px;min-height:44px;line-height:25px;list-style:none"><svg width="16" height="16"><rect width="16" height="16"/></svg><span>More</span></summary><pre>${'hidden line\n'.repeat(120)}</pre></details></section>` : undefined);
     if (path.startsWith('/short')) document = document.replace('section{padding-top:1000px}', 'section{padding-top:0}');
     if (path === '/short-no-fill') document = document.replace('min-height:100vh', 'min-height:0');
@@ -146,6 +148,13 @@ test('transparent header wrappers and direct main text retain measured boundarie
 test('closed <details> content does not count as the last visible content', async () => {
   test.setTimeout(90000);
   const result = await cli(['/closed-details']);
+  expect(result.code, result.stdout + result.stderr).toBe(0);
+  expect(result.stdout).toContain('4 checks, 0 failures');
+});
+
+test('stretched grid items with equal box bottoms are measured by their tallest content', async () => {
+  test.setTimeout(90000);
+  const result = await cli(['/grid-tie']);
   expect(result.code, result.stdout + result.stderr).toBe(0);
   expect(result.stdout).toContain('4 checks, 0 failures');
 });
