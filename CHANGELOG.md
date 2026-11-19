@@ -2,6 +2,10 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
+## 0.19.0 — storm service id (unpublished candidate)
+
+- Add the owned service id `storm` (`.naeil storm`, `https://storm.naeil.dev`), replacing `abstorm` after the 2026-11-19 rename. `storm` has the same registered locale routes, shell/header/footer profile, login-return allowance and conformance `--service` value. `abstorm` stays valid during the move; no other service changes.
+
 ## 0.18.2 — narrow full footer (unpublished candidate)
 
 - Full `NaeilFooter`/`SiteFooter`: below a 26rem frame (320–390px phones in every locale, including Japanese at 390px) the brand row spans the width and Navigation/Social sit together below it, instead of the last group wrapping alone. Wider layouts (≥480px viewport, including 768/1440) render identical boxes; props, headings and link names are unchanged.
