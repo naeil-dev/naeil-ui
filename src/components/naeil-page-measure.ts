@@ -85,8 +85,10 @@ export function measureNaeilPage(): NaeilPageMeasurements {
     // A block holding only inline content is one line-box container: its box is the edge, not glyph boxes.
     const blockLevel = (child: Element) => ['block', 'flex', 'grid', 'flow-root', 'list-item', 'table'].includes(getComputedStyle(child).display);
     if (element !== main && !children.some(blockLevel)) return element.getBoundingClientRect().bottom;
-    const last = children.reduce((a, b) => b.getBoundingClientRect().bottom > a.getBoundingClientRect().bottom ? b : a);
-    const edge = isBoundary(last, getComputedStyle(last)) ? last.getBoundingClientRect().bottom : contentEdge(last) ?? last.getBoundingClientRect().bottom;
+    // Equal box bottoms (e.g. stretched grid/flex items) can hide different content ends: measure every tied child.
+    const lowest = Math.max(...children.map(child => child.getBoundingClientRect().bottom));
+    const edge = Math.max(...children.filter(child => lowest - child.getBoundingClientRect().bottom <= 0.5).map(child =>
+      isBoundary(child, getComputedStyle(child)) ? child.getBoundingClientRect().bottom : contentEdge(child) ?? child.getBoundingClientRect().bottom));
     return text === null ? edge : Math.max(edge, text);
   }
   const contentBottoms = main ? [contentEdge(main)].filter((value): value is number => value !== null) : [];

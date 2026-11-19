@@ -2,6 +2,10 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
+## 0.19.1 — conformance grid measurement (unpublished candidate)
+
+- Runtime conformance measures every child that shares the lowest box bottom (stretched grid/flex items) and uses the lowest content among them. It previously descended only into the first item, so a shorter left card hid taller right-card content (storm experts page at 768px: 103px instead of the real 96px content→footer gap). Found by the storm 30-condition deployment check on 2026-11-19. No rendering change.
+
 ## 0.19.0 — storm service id (unpublished candidate)
 
 - Runtime conformance treats a native `<summary>` as one control boundary, like `button`. A 44px flex disclosure control whose label sits in a child span was measured from the span (105.5px instead of the real 96px content→footer gap), so services adopting a shared disclosure markup failed the page-rhythm check. Found by the storm deployment gate on 2026-11-19.
