@@ -75,7 +75,7 @@ export function measureNaeilPage(): NaeilPageMeasurements {
     return (parseFloat(style.borderBottomWidth) > 0 && style.borderBottomStyle !== 'none') || !transparent(style.backgroundColor)
       || style.backgroundImage !== 'none' || style.boxShadow !== 'none' || style.overflowX !== 'visible' || style.overflowY !== 'visible'
       || !['block', 'flex', 'grid', 'flow-root', 'list-item'].includes(style.display)
-      || ['IMG', 'SVG', 'CANVAS', 'VIDEO', 'IFRAME', 'PRE', 'TEXTAREA', 'INPUT', 'SELECT', 'BUTTON', 'TABLE', 'PICTURE', 'OBJECT'].includes(element.tagName.toUpperCase())
+      || ['IMG', 'SVG', 'CANVAS', 'VIDEO', 'IFRAME', 'PRE', 'TEXTAREA', 'INPUT', 'SELECT', 'BUTTON', 'SUMMARY', 'TABLE', 'PICTURE', 'OBJECT'].includes(element.tagName.toUpperCase())
       || directTextBottom(element) !== null;
   }
   function contentEdge(element: Element): number | null {
