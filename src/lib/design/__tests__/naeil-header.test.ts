@@ -187,7 +187,7 @@ describe("owned service profile", () => {
   });
   it("exports the readonly service catalog from standalone and provider entries", async () => {
     const core = await import("../../../naeil-locale/chrome");
-    expect(entry!.naeilServices).toEqual(["abstorm", "home", "estimate", "jev"]);
+    expect(entry!.naeilServices).toEqual(["abstorm", "home", "estimate", "jev", "storm"]);
     expect(core.naeilServices).toBe(entry!.naeilServices);
     expect(Object.isFrozen(core.naeilServices)).toBe(true);
   });
@@ -202,7 +202,7 @@ describe("owned service profile", () => {
       expect(() => helpers.naeilServiceName("Home" as never)).toThrow("Unknown naeil service");
     }
   });
-  it.each(["abstorm", "home", "estimate", "jev"] as const)("owns %s branding and destinations with no catalog or indicator", service => {
+  it.each(["abstorm", "home", "estimate", "jev", "storm"] as const)("owns %s branding and destinations with no catalog or indicator", service => {
     const element = header({ locale: "en", service });
     expect(element.html).toContain(`class="naeil-header-brand-suffix">${service}</span>`);
     expect(element.props.brand.props["aria-label"]).toBe(`.naeil ${service}`);

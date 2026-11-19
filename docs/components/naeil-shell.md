@@ -1,6 +1,6 @@
 # NaeilServiceShell
 
-One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Existing header/footer, generic Navigation/SiteFooter and legacy Next adapters retain their compatibility APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
+One owned-service frame for `storm` (formerly `abstorm`, still accepted during the move), `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Existing header/footer, generic Navigation/SiteFooter and legacy Next adapters retain their compatibility APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
 
 ## Entries and setup
 

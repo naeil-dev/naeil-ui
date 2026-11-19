@@ -41,7 +41,7 @@ The canonical chrome can be imported from `/naeil-locale/chrome` under the share
 
 ## AB Storm registration (0.11.0 candidate)
 
-`service="abstorm"` binds to exactly `https://abstorm.naeil.dev`. Its protected UI inventory is `/`, `/new`, `/runs/[id]`, `/runs/[id]/report` and `/experts`; `/new?copy=<id>` uses the same registered page. All support English, Korean and Japanese paths. `/auth/session`, `/auth/logout`, `/api/*` and `/health` remain unlocalized protocol endpoints, with no UI exceptions. Unknown UI paths are rejected instead of inheriting the app’s catch-all history fallback.
+`service="storm"` binds to exactly `https://storm.naeil.dev`; the former `service="abstorm"` binds to `https://abstorm.naeil.dev` with the same routes during the move. Its protected UI inventory is `/`, `/new`, `/runs/[id]`, `/runs/[id]/report` and `/experts`; `/new?copy=<id>` uses the same registered page. All support English, Korean and Japanese paths. `/auth/session`, `/auth/logout`, `/api/*` and `/health` remain unlocalized protocol endpoints, with no UI exceptions. Unknown UI paths are rejected instead of inheriting the app’s catch-all history fallback.
 
 The inventory was checked against AB Storm source `087e67239db26506a73c51fde7a6d246e4a0d0d9`. Generic error documents originally used its `abstorm` title and no favicon; since 0.14.0 every service's error document uses the canonical `<message> — .naeil <service>` title (`.naeil` for naeil.dev) and links the shared `/icon.svg`. This registration does not add a default header/footer destination or application translations. Consumer provider, routing, authentication, message loading and upgrade remain app-owned; package registration alone does not establish production adoption.
 

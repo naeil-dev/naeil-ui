@@ -56,6 +56,7 @@ function Example({ service }: { service: NaeilService }) {
   </NaeilServiceShell>;
 }
 export const Abstorm: Story = { render: () => <Example service="abstorm" /> };
+export const Storm: Story = { render: () => <Example service="storm" /> };
 export const Home: Story = { render: () => <Example service="home" /> };
 export const Estimate: Story = { render: () => <Example service="estimate" /> };
 export const Jev: Story = { render: () => <Example service="jev" /> };

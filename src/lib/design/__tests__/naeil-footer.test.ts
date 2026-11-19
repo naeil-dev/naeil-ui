@@ -61,7 +61,7 @@ const ServiceFooter = NaeilFooter as (props: NaeilServiceFooterProps) => ReturnT
 const ProviderServiceFooter = ProviderFooter as (props: NaeilServiceFooterProps) => ReturnType<typeof ProviderFooter>;
 describe("owned service footer profile", () => {
   const legacy = renderToStaticMarkup(createElement(NaeilFooter, { locale: "ko" }));
-  it.each(["abstorm", "home", "estimate", "jev"] as const)("renders the canonical full .naeil footer for %s and drops overrides", service => {
+  it.each(["abstorm", "home", "estimate", "jev", "storm"] as const)("renders the canonical full .naeil footer for %s and drops overrides", service => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     try {
       const overrides = { variant: "compact", className: "app-footer", containerClassName: "x", style: { color: "red" }, "data-app-footer": "", "data-naeil-ui-version": "0", children: "extra" };
