@@ -2,6 +2,8 @@
 
 ## Current state
 
+As of 2026-11-19: **0.19.1 is a prepared, unpublished patch candidate** fixing runtime-conformance measurement of equal-bottom grid/flex items. No merge, tag/Release, publication or Docs publication has been performed for it.
+
 As of 2026-11-19: `@naeil/ui@0.19.0` is published as `latest` ([run 44453447082](https://github.com/naeil-dev/naeil-ui/actions/runs/44453447082), re-run after a Sigstore TLOG 409 that stopped before upload; registry tarball byte-identical to the [frozen archive](docs/releases/0.19.0/README.md), SHA-256 `5a149eb9…5031`); tag `v0.19.0` (source `f9618fb`) and its GitHub Release exist; merged as `c1e0a59`; hosted Docs serve 0.19.0 ([run 44456910851](https://github.com/naeil-dev/naeil-ui/actions/runs/44456910851)); naeil.dev runs `c1e0a59`. It adds the service id `storm` for the abstorm rename (`abstorm` stays valid) and treats `<summary>` as a control boundary in runtime conformance. The renamed service has not switched yet; the other services have not adopted 0.19.0.
 
 As of 2026-11-18: `@naeil/ui@0.18.2` is published as `latest` ([run 44313235781](https://github.com/naeil-dev/naeil-ui/actions/runs/44313235781), registry tarball byte-identical to the [frozen archive](docs/releases/0.18.2/README.md), SHA-256 `350488ae…74ed`); tag `v0.18.2` (source `d7a919a`) and its GitHub Release exist; merged to main as `f46cbfd`. It keeps narrow full-footer link groups together (abstorm visual QA V18) and needs no consumer migration. Hosted Docs serve 0.18.2 ([run 44392061494](https://github.com/naeil-dev/naeil-ui/actions/runs/44392061494), reviewed `f4d70ed`); naeil.dev runs `f46cbfd` (UI 0.18.2). The four owned services have not adopted 0.18.2 yet.
