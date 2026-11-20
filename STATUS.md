@@ -2,7 +2,7 @@
 
 ## Current state
 
-As of 2026-11-20: **0.20.0 is a prepared, unpublished minor candidate** removing the legacy adapters, shell slot input and retired site leftovers. Publication, tag/Release, hosted Docs and service adoption remain separate.
+As of 2026-11-20: `@naeil/ui@0.20.0` is published as `latest` ([run 44653147000](https://github.com/naeil-dev/naeil-ui/actions/runs/44653147000), registry tarball byte-identical to the [frozen archive](docs/releases/0.20.0/README.md), SHA-256 `25210846…ca4cd`); tag `v0.20.0` (source `6483fb4`) and its GitHub Release exist; merged as `ad1003f`; naeil.dev serves 0.20.0. It removes the legacy `Nav`/`Footer` adapters with their two deep exports, the shell's `header.authSlot` input and retired site sources. Hosted Docs still serve 0.19.1. The four services have not adopted 0.20.0; none uses a removed API (checked at storm `4393a87`, jev `4903e2a`, estimate `03feab8`, Home `0c70eb3`), so adoption is a version bump.
 
 As of 2026-11-19: `@naeil/ui@0.19.1` is published as `latest` ([run 44477216651](https://github.com/naeil-dev/naeil-ui/actions/runs/44477216651), registry tarball byte-identical to the [frozen archive](docs/releases/0.19.1/README.md), SHA-256 `d1918aa2…effbb`); tag `v0.19.1` (source `9101855`) and its GitHub Release exist; merged as `67c5d2a`; hosted Docs serve 0.19.1 ([run 44480965580](https://github.com/naeil-dev/naeil-ui/actions/runs/44480965580)). It fixes runtime-conformance measurement of equal-bottom grid/flex items found by the storm deployment check; no rendering change.
 
