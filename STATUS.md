@@ -2,6 +2,8 @@
 
 ## Current state
 
+As of 2026-11-20: **0.20.0 is a prepared, unpublished minor candidate** removing the legacy adapters, shell slot input and retired site leftovers. Publication, tag/Release, hosted Docs and service adoption remain separate.
+
 As of 2026-11-19: `@naeil/ui@0.19.1` is published as `latest` ([run 44477216651](https://github.com/naeil-dev/naeil-ui/actions/runs/44477216651), registry tarball byte-identical to the [frozen archive](docs/releases/0.19.1/README.md), SHA-256 `d1918aa2…effbb`); tag `v0.19.1` (source `9101855`) and its GitHub Release exist; merged as `67c5d2a`; hosted Docs serve 0.19.1 ([run 44480965580](https://github.com/naeil-dev/naeil-ui/actions/runs/44480965580)). It fixes runtime-conformance measurement of equal-bottom grid/flex items found by the storm deployment check; no rendering change.
 
 As of 2026-11-19: `@naeil/ui@0.19.0` is published as `latest` ([run 44453447082](https://github.com/naeil-dev/naeil-ui/actions/runs/44453447082), re-run after a Sigstore TLOG 409 that stopped before upload; registry tarball byte-identical to the [frozen archive](docs/releases/0.19.0/README.md), SHA-256 `5a149eb9…5031`); tag `v0.19.0` (source `f9618fb`) and its GitHub Release exist; merged as `c1e0a59`; hosted Docs serve 0.19.0 ([run 44456910851](https://github.com/naeil-dev/naeil-ui/actions/runs/44456910851)); naeil.dev runs `c1e0a59`. It adds the service id `storm` for the abstorm rename (`abstorm` stays valid) and treats `<summary>` as a control boundary in runtime conformance. The renamed service has not switched yet; the other services have not adopted 0.19.0.

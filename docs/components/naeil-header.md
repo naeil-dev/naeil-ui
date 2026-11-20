@@ -2,7 +2,7 @@
 
 Product navigation and controlled mobile APIs are available since 0.8.0; shared root reservation is available since 0.9.0. See [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state) for the current published release; hosted Docs and service activation have separate receipts.
 
-For new owned-service adoption, use [NaeilServiceShell with root NaeilThemeProvider](naeil-shell.md); the shell composes this header and the canonical footer. Pass product menu/locale state through `header`, session state through `account` (planned 0.16.0), and shared routing guards through the shell. naeil.dev keeps its direct no-service catalog composition. The examples and API below document the supported standalone/legacy header as well as the service-header profile reused by the shell.
+For owned-service adoption, use [NaeilServiceShell with root NaeilThemeProvider](naeil-shell.md); the shell composes this header and the canonical footer. Pass product menu/locale state through `header`, session state through `account`, and shared routing guards through the shell. naeil.dev uses the same shell with `service="main"`. The examples and API below document the supported standalone header as well as the service-header profile reused by the shell.
 
 ```tsx
 import { NaeilHeader, NaeilHeaderAccountControl } from '@naeil/ui/naeil-header';
@@ -18,7 +18,7 @@ import '@naeil/ui/globals.css';
 
 Load shared styles once. Apps that already own their Tailwind/base styles may import both `@naeil/ui/theme.css` and `@naeil/ui/components.css` instead of globals. Tailwind 4 consumers must register the installed `dist` with `@source`; see [setup](../design/v2-migration.md#시작하기).
 
-The module owns the brand, single-project naeil-ui catalog and header-only translations, project artwork references/status, theme/optional locale controls, toolbar order, fixed positioning, branded frame and Radix desktop/mobile behavior. Do not copy menu JSX or styles into a consumer. The website's `NavWrapper` imports this same module and supplies locale/router/auth state; estimate consumes the built package entry. Legacy `Nav` retains its Next/next-intl compatibility API.
+The module owns the brand, single-project naeil-ui catalog and header-only translations, project artwork references/status, theme/optional locale controls, toolbar order, fixed positioning, branded frame and Radix desktop/mobile behavior. Do not copy menu JSX or styles into a consumer. The website's `NavWrapper` supplies locale/router/account state through `NaeilServiceShell`; standalone compositions import this header directly.
 
 ## Consumer contract
 
@@ -89,7 +89,7 @@ While a controlled parent keeps `mobileOpen=true`, its rejection and delayed acc
 
 Keep errors visible in the consumer's recovery UI or toast. The package never calls an authentication endpoint. Compare signed-in and signed-out render states separately; anonymous-only acceptance cannot establish authenticated parity. `AccountStates` is a synthetic Storybook example for pending/cancel/error/retry.
 
-Own pending state and the in-flight request lock above the shell (or the standalone `NaeilHeader`). Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. Pass the same controller through shell `account`; `header.authSlot` is deprecated compatibility only. Standalone headers keep `authSlot`. Test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
+Own pending state and the in-flight request lock above the shell (or the standalone `NaeilHeader`). Navigation mounts desktop and mobile slot contents separately, and closing the mobile sheet unmounts its copy. Pass the same controller through shell `account`; shell header inputs do not accept `authSlot`. Standalone headers keep `authSlot`. Test reopening the sheet and changing viewport during a pending request. State inside an independently mounted slot component can enable duplicate requests.
 
 ## Frame and content clearance
 

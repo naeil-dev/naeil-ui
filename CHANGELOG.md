@@ -2,6 +2,16 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
+## 0.20.0 — deprecated API removal (unpublished candidate)
+
+### Removed
+
+- Remove legacy Next/next-intl `Nav`/`NavProps` and `Footer`/`FooterProps` from root and `components/index`, plus `components/nav` and `components/footer`. Use `NaeilServiceShell` + root `NaeilThemeProvider` for owned-service frames, or retained `Navigation`/`SiteFooter` for generic composition. Standalone header/footer/account APIs remain supported.
+- Remove shell `header.authSlot` on `/naeil-shell` and `/naeil-locale/chrome`; pass session, busy state and guarded callbacks through `account`. Standalone `NaeilHeader.authSlot` and the shell's internal header slot stay supported. The four owned-service code snapshots already use shell/account and need no source migration for these removals; see [0.20.0 consumer migration](docs/design/v2-migration.md#0200-consumer-migration).
+- Delete the permanently retired cc, sa, pkm and baby-agent site pages, their ProjectLayout/WorkflowDiagram helpers and 66 retired message leaves per locale. Keep redirects, assets, live invitation messages and other live translations.
+- Delete six stale planning files: `blog-plan.md`, `blog-spec.md`, `blog-tasks.md`, `docs/plan-auth.md`, `docs/plan-production-hardening.md`, `docs/plan.md`.
+- Remove the unused `shadcn` development dependency and its unreachable lockfile entries, without upgrading retained packages. Existing primitives, copied-code notices and manual CLI configuration remain.
+
 ## 0.19.1 — conformance grid measurement (unpublished candidate)
 
 - Runtime conformance measures every child that shares the lowest box bottom (stretched grid/flex items) and uses the lowest content among them. It previously descended only into the first item, so a shorter left card hid taller right-card content (storm experts page at 768px: 103px instead of the real 96px content→footer gap). Found by the storm 30-condition deployment check on 2026-11-19. No rendering change.

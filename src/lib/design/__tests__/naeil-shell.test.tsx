@@ -38,24 +38,18 @@ describe("owned service shell", () => {
       const html = await accountRender({service:'home',locale:'en',account:{status:'signed-in',onLogout:()=>{},busy:true,displayName:'Jay',email:'jay@example.test'},header:{currentHref:'/login'}});
       expect(html).toContain('data-naeil-account-state="signed-in"'); expect(html).toContain('aria-busy="true"');
     });
-    it('account wins over the compatible slot, including on login screens', async () => {
-      vi.stubEnv('NODE_ENV','production');
+    it.each(['no-account', 'signed-out', 'login'] as const)('drops removed header input from JS callers: %s', async scenario => {
+      vi.stubEnv('NODE_ENV', 'production');
       try {
-        const base = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{authSlot:<button>Legacy account</button>}} as const;
-        const html = await accountRender(base); expect(html).not.toContain('Legacy account'); expect(html).toContain('data-naeil-account-state="signed-out"');
-        const login = await accountRender({...base,header:{...base.header,currentHref:'/login'}}); expect(login).not.toContain('Legacy account'); expect(login).not.toContain('data-naeil-account-state');
-      } finally {vi.unstubAllEnvs();}
+        const props = {service: 'home', locale: 'en',
+          account: scenario === 'no-account' ? undefined : {status: 'signed-out', loginHref: '/login'},
+          header: {currentHref: scenario === 'login' ? '/login' : '/', authSlot: <button>Removed account slot</button>},
+        } as unknown as NaeilServiceShellProps;
+        const html = await accountRender(props);
+        expect(html).not.toContain('Removed account slot');
+        expect(html.includes('data-naeil-account-state="signed-out"')).toBe(scenario === 'signed-out');
+      } finally { vi.unstubAllEnvs(); }
     });
-  });
-  it('warns once for header.authSlot with or without account and preserves compatibility', () => {
-    const warning = vi.spyOn(console,'warn').mockImplementation(()=>{}); vi.stubEnv('NODE_ENV','development');
-    try {
-      const props: NaeilServiceShellProps = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'},header:{authSlot:<button>Legacy</button>}};
-      const legacy = {...props, account:undefined};
-      vi.stubEnv('NODE_ENV','production'); expect(render(legacy)).toContain('Legacy'); expect(warning).not.toHaveBeenCalled();
-      vi.stubEnv('NODE_ENV','development'); expect(render(legacy)).toContain('Legacy');
-      render(props); render(props); expect(warning).toHaveBeenCalledTimes(1); expect(warning.mock.calls[0][0]).toContain('account'); expect(warning.mock.calls[0][0]).toContain('header.authSlot'); expect(warning.mock.calls[0][0]).toContain('next minor that removes deprecated APIs');
-    } finally {vi.unstubAllEnvs();warning.mockRestore();}
   });
   it('accepts both account variants in public wrappers and rejects incomplete variants on both entries', () => {
     const props: NaeilServiceShellProps = {service:'home',locale:'en',account:{status:'signed-out',loginHref:'/login'}};
@@ -102,12 +96,12 @@ describe("owned service shell", () => {
     const guard = vi.fn();
     const links: NavigationLinkProps[] = [];
     const Link = (props: NavigationLinkProps) => { links.push(props); return <a {...props} data-guarded="" />; };
-    const html = render({ service: "estimate", locale: "ko", Link, onNavigate: guard,
-      header: { brandHref: "/estimates", appNavigation: [{ id: "list", href: "/list", label: "List" }], currentHref: "/list", authSlot: <button>Account</button> },
+    const html = render({ service: "estimate", locale: "ko", Link, onNavigate: guard, account: {status: "signed-out", loginHref: "/login"},
+      header: { brandHref: "/estimates", appNavigation: [{ id: "list", href: "/list", label: "List" }], currentHref: "/list" },
       footer: { meta: "Version 1", resolveHref: path => `/ko${path}` } });
     expect(html).toContain("Version 1");
     expect(html).toContain('aria-current="page"');
-    expect(html).toContain("Account");
+    expect(html).toContain('data-naeil-account-state="signed-out"');
     const event = { ctrlKey: true } as MouseEvent<HTMLAnchorElement>;
     for (const href of ["/estimates", "/ko/projects", "https://github.com/naeil-dev"]) {
       const link = links.find(link => link.href === href)!;
@@ -185,6 +179,11 @@ describe("owned service shell", () => {
     const unknownHeader = <ProviderShell {...base} header={{ ...{ unexpected: 1 } }} />;
     // @ts-expect-error header cannot replace shared guard
     const guard = <NaeilServiceShell {...base} header={{ onNavigate: () => {} }} />;
+    // @ts-expect-error removed shell input is rejected on the standalone entry
+    const removedSlot = <NaeilServiceShell {...base} header={{ authSlot: <button>Removed</button> }} />;
+    const removedHeader = { currentHref: '/', authSlot: <button>Removed</button> };
+    // @ts-expect-error provider entry rejects removed input even in a spread
+    const removedSpread = <ProviderShell {...base} header={{ ...removedHeader }} />;
     // @ts-expect-error footer cannot replace frame/density
     const footer = <ProviderShell {...base} footer={{ ...{ variant: "compact" } }} />;
     // @ts-expect-error arbitrary nested footer keys rejected
@@ -193,6 +192,6 @@ describe("owned service shell", () => {
     const invalid = <NaeilServiceShell locale="en" service="Home" />;
     // @ts-expect-error provider accepts children only
     const theme = <NaeilThemeProvider defaultTheme="light">Child</NaeilThemeProvider>;
-    expect([cls, spread, data, unknown, provider, header, unknownHeader, guard, footer, unknownFooter, invalid, theme, literalData]).toHaveLength(13);
+    expect([cls, spread, data, unknown, provider, header, unknownHeader, guard, footer, unknownFooter, invalid, theme, literalData, removedSlot, removedSpread]).toHaveLength(15);
   });
 });

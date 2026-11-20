@@ -2,18 +2,17 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState, type ComponentPropsWithoutRef } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { NextIntlClientProvider } from "next-intl";
 import { Logo } from "./logo";
 import { brandVersion } from "./brand-artwork.generated";
-import { Nav } from "./nav";
-import { Footer } from "./footer";
+import { NaeilHeader } from "./naeil-header";
+import { NaeilFooter } from "./naeil-footer";
 
 const meta = {
   title: "Brand/Logo",
   component: Logo,
   tags: ["autodocs"],
   parameters: {
-    docs: { description: { component: `naeil brand ${brandVersion}. Artwork is generated from the independent brand/naeil/${brandVersion} kit. The official wordmark is .naeil: an ending followed by tomorrow. Lato 400 is outlined in the logo only; the shared UI keeps Pretendard. Import from @naeil/ui/components/logo in React-only apps. size is rendered height (default 20). variant: symbol, horizontal, footer, stacked, wordmark. tone="gray" preserves island detail; legacy mono uses a single currentColor silhouette. theme="auto" follows an explicit .light/.dark or data-theme ancestor, otherwise the OS; theme="light"/"dark" works without automatic theme CSS. label=null makes a decorative logo. The same size/className/mono API and Nav brandSlot remain supported. Standalone SVG/PNG/favicon files do not require this React package. See DESIGN.md and docs/design/v2-migration.md for ownership and release rules.` } },
+    docs: { description: { component: `naeil brand ${brandVersion}. Artwork is generated from the independent brand/naeil/${brandVersion} kit. The official wordmark is .naeil: an ending followed by tomorrow. Lato 400 is outlined in the logo only; the shared UI keeps Pretendard. Import from @naeil/ui/components/logo in React-only apps. size is rendered height (default 20). variant: symbol, horizontal, footer, stacked, wordmark. tone="gray" preserves island detail; legacy mono uses a single currentColor silhouette. theme="auto" follows an explicit .light/.dark or data-theme ancestor, otherwise the OS; theme="light"/"dark" works without automatic theme CSS. label=null makes a decorative logo. The same size/className/mono API and standalone NaeilHeader brandSlot remain supported. Standalone SVG/PNG/favicon files do not require this React package. See DESIGN.md and docs/design/v2-migration.md for ownership and release rules.` } },
   },
   argTypes: {
     variant: { control: "select", options: ["symbol", "horizontal", "footer", "stacked", "wordmark"] },
@@ -49,15 +48,11 @@ export const Usage: Story = {
   </div>,
 };
 
-const messages = {
-  nav: { blog: "블로그", projects: "프로젝트" }, projects: {},
-  footer: { tagline: "Tomorrow starts here.", navigation: "내비게이션", projects: "프로젝트", blog: "블로그", social: "소셜" },
-};
 const DemoLink = ({ children, ...props }: ComponentPropsWithoutRef<"a"> & { href: string }) => <a {...props}>{children}</a>;
 function ApplicationExample() {
   const [login, setLogin] = useState(false);
-  return <NextIntlClientProvider locale="ko" timeZone="UTC" messages={messages}>
-    <Nav Link={DemoLink} usePathname={() => login ? "/login" : "/"} showProjects={false} toolbarSlot={<span>KO</span>} authSlot={<span>로그인</span>} />
+  return <>
+    <NaeilHeader locale="ko" Link={DemoLink} brandHref="/" currentHref={login ? "/login" : "/"} resolveHref={path => path} showProjects={false} toolbarSlot={<><span>로그인</span><span>KO</span></>} />
     <main style={{ minHeight: 600, maxWidth: login ? 480 : 1200, padding: "100px 24px 48px", margin: "auto" }}>
       <button type="button" onClick={() => setLogin(value => !value)} className="ui-control rounded-md border px-4">화면 전환</button>
       <div style={{ marginTop: 64, textAlign: login ? "center" : "left" }}>
@@ -66,7 +61,7 @@ function ApplicationExample() {
         <p>본문의 너비가 달라져도 내비게이션 로고와 메뉴 위치를 유지합니다.</p>
       </div>
     </main>
-    <Footer />
-  </NextIntlClientProvider>;
+    <NaeilFooter locale="ko" resolveHref={path => path} />
+  </>;
 }
 export const Application: Story = { parameters: { layout: "fullscreen" }, render: () => <ApplicationExample /> };

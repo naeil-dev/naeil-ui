@@ -38,7 +38,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "React-only shared header. Applications own translated menu data, routing/dirty guards, authentication, providers and the frame width. Groups contain native navigation links in a Radix Popover; mobile uses a Radix Dialog with focus trapping and dismissal. Nav remains the Next compatibility adapter. Home is a migration example, not a deployed product.",
+          "React-only shared header. Applications own translated menu data, routing/dirty guards, authentication, providers and the frame width. Groups contain native navigation links in a Radix Popover; mobile uses a Radix Dialog with focus trapping and dismissal. Home is a migration example, not a deployed product.",
       },
     },
   },
