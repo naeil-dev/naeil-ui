@@ -21,7 +21,7 @@ export function assertLocale(value: unknown): NaeilLocale {
   return value;
 }
 
-export type NaeilServiceId = "main" | "jev" | "estimate" | "abstorm";
+export type NaeilServiceId = "main" | "jev" | "estimate" | "abstorm" | "storm";
 export interface NaeilRoute { path: string; protected?: boolean }
 export interface NaeilLocaleService {
   id: NaeilServiceId;
@@ -32,7 +32,7 @@ export interface NaeilLocaleService {
   uiProtocolExceptions?: readonly string[];
 }
 const origins = {
-  abstorm: "https://abstorm.naeil.dev",
+  abstorm: "https://abstorm.naeil.dev", storm: "https://storm.naeil.dev",
   main: "https://naeil.dev", jev: "https://jev.naeil.dev", estimate: "https://abestimate.naeil.dev",
 } as const;
 const protocolPrefixes = ["/api", "/auth", "/_next", "/_vercel", "/.well-known", "/health", "/invite", "/return", "/webhook", "/images", "/fonts"];
@@ -51,12 +51,11 @@ export function defineLocaleService(service: NaeilLocaleService): NaeilLocaleSer
   return Object.freeze({ ...service, routes: Object.freeze(service.routes.map(route => typeof route === "string" ? route : Object.freeze({ ...route }))), protocolPrefixes: Object.freeze([...(service.protocolPrefixes ?? [])]), uiProtocolExceptions: Object.freeze([...(service.uiProtocolExceptions ?? [])]) });
 }
 const main = defineLocaleService({ id: "main", origin: origins.main, routes: ["/", "/projects", "/design", "/blog", "/blog/[slug]", "/login", { path: "/login/change-password", protected: true }] });
+const stormRoutes = ["/", "/new", "/runs/[id]", "/runs/[id]/report", "/experts"].map(path => ({ path, protected: true }));
 export const naeilServices = {
-  abstorm: defineLocaleService({
-    id: "abstorm", origin: origins.abstorm,
-    routes: ["/", "/new", "/runs/[id]", "/runs/[id]/report", "/experts"]
-      .map(path => ({ path, protected: true })),
-  }),
+  // `storm` replaces `abstorm` (renamed 2026-11-19); both stay registered during the move.
+  abstorm: defineLocaleService({ id: "abstorm", origin: origins.abstorm, routes: stormRoutes }),
+  storm: defineLocaleService({ id: "storm", origin: origins.storm, routes: stormRoutes }),
   main,
   site: main,
   jev: defineLocaleService({ id: "jev", origin: origins.jev, routes: [{ path: "/", protected: true }, "/login"] }),

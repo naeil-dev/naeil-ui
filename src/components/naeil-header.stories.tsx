@@ -105,6 +105,7 @@ function ServiceExample({ service, locale: initialLocale }: { service: NaeilServ
   </>;
 }
 export const Abstorm: Story = { render: args => <ServiceExample key={args.locale} service="abstorm" locale={args.locale} /> };
+export const Storm: Story = { render: args => <ServiceExample key={args.locale} service="storm" locale={args.locale} /> };
 export const Home: Story = { render: args => <ServiceExample key={args.locale} service="home" locale={args.locale} /> };
 export const Estimate: Story = { render: args => <ServiceExample key={args.locale} service="estimate" locale={args.locale} /> };
 export const Jev: Story = { render: args => <ServiceExample key={args.locale} service="jev" locale={args.locale} /> };

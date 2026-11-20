@@ -15,7 +15,7 @@ Product navigation and controlled mobile APIs are available since 0.8.0; shared 
 
 Choose one composition per application frame. Owned services use the shell; naeil.dev uses `service="main"` in the same shell for its no-suffix catalog. Supply menu data, links, route guards, authentication and supported locale state through props/slots. Owned services pass session state and guarded callbacks to the shared account control. Local adapters are appropriate; copies of the menu, responsive sheet, account presentation or footer implementation are not. Extend the shared component when a reusable behavior is missing.
 
-## 0.19.0 removed APIs
+## 0.20.0 removed APIs
 
 | API | Replacement |
 | --- | --- |
@@ -23,7 +23,7 @@ Choose one composition per application frame. Owned services use the shell; naei
 | `Footer` (Next/next-intl adapter) | `NaeilServiceShell` for owned services; `SiteFooter` for other products |
 | `NaeilServiceShell` `header.authSlot` | Pass session state, busy state and guarded callbacks through shell `account` |
 
-`Nav`, `Footer`, their prop types and deep entries, and shell `header.authSlot` are removed in 0.19.0. Use the replacements above. Standalone `NaeilHeader.authSlot` remains supported and supplies the shell's internal account presentation. See [the consumer checklist](../design/v2-migration.md#0190-consumer-migration).
+`Nav`, `Footer`, their prop types and deep entries, and shell `header.authSlot` are removed in 0.20.0. Use the replacements above. Standalone `NaeilHeader.authSlot` remains supported and supplies the shell's internal account presentation. See [the consumer checklist](../design/v2-migration.md#0200-consumer-migration).
 
 ## Width contract
 
@@ -137,7 +137,7 @@ Put this in the **consumer application's** `AGENTS.md` (or equivalent repository
 - Owned services use NaeilServiceShell + root NaeilThemeProvider from @naeil/ui/naeil-shell; replace the old root provider. The shell owns header, main, skip link and full footer. naeil.dev uses the same shell with service="main" and imports @naeil/ui/fonts.css. Navigation/SiteFooter remain for a different product menu; standalone NaeilHeader/NaeilFooter remain available.
 - Pass real session state through the shell's account prop, including the busy flag and guarded logout callback. The shell supplies NaeilHeaderAccountControl with locale/Link. Keep pending state and the request lock above the shell so desktop/mobile copies share them; do not copy account/avatar/menu markup. Pass currentHref so the shell hides the signed-out login link on its matching login pathname; record that route with runtime --no-account. Static CI requires explicit account= on each reachable shell; presentation and unsupported props require type/runtime review.
 - For owned Next services under NaeilLocaleProvider, import shell/provider/PageHeader/account from @naeil/ui/naeil-locale/chrome. Read docs/components/naeil-locale.md for the root controller, provider, server routing, message loading and checker. /naeil-header and /naeil-footer remain standalone React adapters.
-- Owned services must set the shell's service="abstorm" / "home" / "estimate" / "jev". The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.
+- Owned services must set the shell's service="storm" / "home" / "estimate" / "jev" (`abstorm` stays accepted until that service moves). The DS renders logo → .naeil → lowercase id; no statusSlot, status dot or extra indicator beside the brand.
 - Supply only the service's own header.appNavigation tabs; never copy naeil.dev Projects/Blog. Single-screen services leave appNavigation empty; the mobile menu still exposes theme/locale/account without empty navigation.
 - No header escape hatches: brandSuffix/brandSlot/toolbarSlot/subNav/brandLinkComponent, catalog/translations overrides, brandLinkProps/mobileFooter, className/containerClassName/style or data-slot/data-naeil-* marker overrides. Keep the shared tab and toolbar styles/states.
 - Local wrappers supply menu data, routing/guards, locale and shared auth state. Do not copy the menu, mobile sheet, controls or footer implementation. Extend the shared component for reusable missing behavior.

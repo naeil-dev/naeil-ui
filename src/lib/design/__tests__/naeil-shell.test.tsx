@@ -60,7 +60,7 @@ describe("owned service shell", () => {
     const signedIn = <ProviderShell {...props} account={{status:'signed-in'}}/>;
     expect([standalone,provider,out,signedIn]).toHaveLength(4);
   });
-  it.each(["abstorm", "home", "estimate", "jev"] as const)("renders ordered canonical regions for %s", service => {
+  it.each(["abstorm", "home", "estimate", "jev", "storm"] as const)("renders ordered canonical regions for %s", service => {
     const html = render({ service, locale: "en", mainLabel: "Estimates", children: <PageHeader title="Estimates" description="Your estimates" /> });
     expect(html).toContain('<div class="ui-service-shell" data-naeil-shell="">');
     expect(html).toContain('<a class="ui-skip-link" href="#main">Skip to content</a>');

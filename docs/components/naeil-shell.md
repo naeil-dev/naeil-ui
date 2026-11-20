@@ -1,6 +1,6 @@
 # NaeilServiceShell
 
-One owned-service frame for `abstorm`, `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Standalone NaeilHeader/NaeilFooter and generic Navigation/SiteFooter retain their APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
+One owned-service frame for `storm` (formerly `abstorm`, still accepted during the move), `home`, `estimate` and `jev`. Use the shell and the root `NaeilThemeProvider`; CI runs `naeil-ui-conformance`. Standalone NaeilHeader/NaeilFooter and generic Navigation/SiteFooter retain their APIs. naeil.dev uses the same shell with `service="main"`: its catalog keeps Projects/Blog and has no service suffix.
 
 ## Entries and setup
 
@@ -95,7 +95,7 @@ Pass session state through `account`; the shell renders `NaeilHeaderAccountContr
 
 When signed out, the shell hides the login control only if `account.loginHref` is a same-app relative route and its URL pathname exactly equals `header.currentHref`'s. Queries and hashes are ignored; an absolute or protocol-relative login URL (e.g. the central `https://naeil.dev/<locale>/login?next=…`) never hides the control, even when a service route shares the pathname. Supply the real localized current path: `/ja/login` matches `/ja/login?next=/console`, while `/login` does not match `/ja/login`. Missing currentHref or an invalid URL keeps the control. Signed-in accounts are never hidden by this rule.
 
-Shell `header.authSlot` is removed in 0.19.0. Pass session state through `account` instead; types reject the old input, including spreads, and JavaScript/cast extras are ignored. Standalone `NaeilHeader` retains its `authSlot` contract. See [0.19.0 consumer migration](../design/v2-migration.md#0190-consumer-migration).
+Shell `header.authSlot` is removed in 0.20.0. Pass session state through `account` instead; types reject the old input, including spreads, and JavaScript/cast extras are ignored. Standalone `NaeilHeader` retains its `authSlot` contract. See [0.20.0 consumer migration](../design/v2-migration.md#0200-consumer-migration).
 
 No root `className`, `style`, `id`, `data-*`, container classes, theme options or arbitrary extra props. Footer presentation/attributes and header compatibility escape hatches are also rejected. Strict mapped-never/exact types reject overrides including spreads; JS/cast attempts are dropped with one development-only warning per prop path. They cannot replace the fixed main id/classes or shared routing props. Do not style the shell through ancestors or reserved selectors. Product content styling belongs inside main; purpose widths use `data-ui-layout`, independently of the application frame. Generic/standalone composition overrides remain supported outside this opt-in service contract.
 

@@ -113,7 +113,7 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     const invalidOrigin = createNaeilLocaleProxy({ service: "estimate", requestOrigin: () => "https://abestimate.naeil.dev/path" });
     await expect(invalidOrigin(request("/calendar"))).rejects.toThrow("validated HTTP request origin");
   });
-  it.each(["main", "estimate", "jev", "abstorm"] as const)("passes through the icon linked by the %s error document", async service => {
+  it.each(["main", "estimate", "jev", "abstorm", "storm"] as const)("passes through the icon linked by the %s error document", async service => {
     const proxy = createNaeilLocaleProxy({ service });
     const response = await proxy(request("/missing"));
     const icon = (await response.text()).match(/<link rel="icon" href="([^"]+)">/)?.[1];
@@ -181,10 +181,11 @@ describe("common proxy preserves auth and protocol boundaries", () => {
     expect(localeMetadata({ service: "estimate", route: "/calendar", locale: "ko", title: "달력", serviceName: "Estimate" })).not.toHaveProperty("alternates");
   });
   it("derives the canonical service name from the service id", () => {
-    const title = (service: "main" | "abstorm" | "jev" | "estimate", page: string) => localeMetadata({ service, route: "/", locale: "ja", title: page }).title;
+    const title = (service: "main" | "abstorm" | "storm" | "jev" | "estimate", page: string) => localeMetadata({ service, route: "/", locale: "ja", title: page }).title;
     expect(title("main", "ブログ")).toBe("ブログ — .naeil");
     expect(title("main", "")).toBe(".naeil");
     expect(title("abstorm", "新しいレビュー")).toBe("新しいレビュー — .naeil abstorm");
+    expect(title("storm", "新しいレビュー")).toBe("新しいレビュー — .naeil storm");
     expect(title("jev", "")).toBe(".naeil jev");
     expect(title("estimate", "見積")).toBe("見積 — .naeil estimate");
     // Deprecated explicit names remain honored for compatibility until 1.0.

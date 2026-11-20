@@ -1,7 +1,10 @@
 // Server-safe owned-service identity: no "use client", so metadata code may call it.
 
-/** Canonical owned-service identifiers; their spelling is the visible brand suffix. */
-export const naeilServices = Object.freeze(["abstorm", "home", "estimate", "jev"] as const);
+/**
+ * Canonical owned-service identifiers; their spelling is the visible brand suffix.
+ * `storm` replaces `abstorm` (renamed 2026-11-19); `abstorm` stays valid until that service has moved.
+ */
+export const naeilServices = Object.freeze(["abstorm", "home", "estimate", "jev", "storm"] as const);
 export type NaeilService = typeof naeilServices[number];
 
 export function isNaeilService(value: unknown): value is NaeilService {

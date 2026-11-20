@@ -2,18 +2,29 @@
 
 Current publication, hosted Docs and service adoption status live in [STATUS.md](https://github.com/naeil-dev/naeil-ui/blob/main/STATUS.md#current-state).
 
-## 0.19.0 (unreleased)
+## 0.20.0 — deprecated API removal (unpublished candidate)
 
 ### Removed
 
 - Remove legacy Next/next-intl `Nav`/`NavProps` and `Footer`/`FooterProps` from root and `components/index`, plus `components/nav` and `components/footer`. Use `NaeilServiceShell` + root `NaeilThemeProvider` for owned-service frames, or retained `Navigation`/`SiteFooter` for generic composition. Standalone header/footer/account APIs remain supported.
-- Remove shell `header.authSlot` on `/naeil-shell` and `/naeil-locale/chrome`; pass session, busy state and guarded callbacks through `account`. Standalone `NaeilHeader.authSlot` and the shell's internal header slot stay supported. The four owned-service code snapshots already use shell/account and need no source migration for these removals; see [0.19.0 consumer migration](docs/design/v2-migration.md#0190-consumer-migration).
+- Remove shell `header.authSlot` on `/naeil-shell` and `/naeil-locale/chrome`; pass session, busy state and guarded callbacks through `account`. Standalone `NaeilHeader.authSlot` and the shell's internal header slot stay supported. The four owned-service code snapshots already use shell/account and need no source migration for these removals; see [0.20.0 consumer migration](docs/design/v2-migration.md#0200-consumer-migration).
 - Delete the permanently retired cc, sa, pkm and baby-agent site pages, their ProjectLayout/WorkflowDiagram helpers and 66 retired message leaves per locale. Keep redirects, assets, live invitation messages and other live translations.
 - Delete six stale planning files: `blog-plan.md`, `blog-spec.md`, `blog-tasks.md`, `docs/plan-auth.md`, `docs/plan-production-hardening.md`, `docs/plan.md`.
 - Remove the unused `shadcn` development dependency and its unreachable lockfile entries, without upgrading retained packages. Existing primitives, copied-code notices and manual CLI configuration remain.
 
-## Unreleased
+## 0.19.1 — conformance grid measurement (unpublished candidate)
 
+- Runtime conformance measures every child that shares the lowest box bottom (stretched grid/flex items) and uses the lowest content among them. It previously descended only into the first item, so a shorter left card hid taller right-card content (storm experts page at 768px: 103px instead of the real 96px content→footer gap). Found by the storm 30-condition deployment check on 2026-11-19. No rendering change.
+
+## 0.19.0 — storm service id (unpublished candidate)
+
+- Runtime conformance treats a native `<summary>` as one control boundary, like `button`. A 44px flex disclosure control whose label sits in a child span was measured from the span (105.5px instead of the real 96px content→footer gap), so services adopting a shared disclosure markup failed the page-rhythm check. Found by the storm deployment gate on 2026-11-19.
+- Add the owned service id `storm` (`.naeil storm`, `https://storm.naeil.dev`), replacing `abstorm` after the 2026-11-19 rename. `storm` has the same registered locale routes, shell/header/footer profile, login-return allowance and conformance `--service` value. `abstorm` stays valid during the move; no other service changes.
+
+## 0.18.2 — narrow full footer (unpublished candidate)
+
+- Full `NaeilFooter`/`SiteFooter`: below a 26rem frame (320–390px phones in every locale, including Japanese at 390px) the brand row spans the width and Navigation/Social sit together below it, instead of the last group wrapping alone. Wider layouts (≥480px viewport, including 768/1440) render identical boxes; props, headings and link names are unchanged.
+- Deprecate the legacy Next/next-intl `Nav`/`Footer` adapters in JSDoc and once-only development warnings; use `NaeilServiceShell` for owned services or `Navigation`/`SiteFooter` for other products. Align shell `header.authSlot` guidance/warnings around `account`. Removal target: next minor that removes deprecated APIs, with notice; no date/version is chosen. Rendering, types and public exports stay compatible.
 - Preserve the `/ui` client boundary while re-exporting separate existing modules so unrelated initializers can be pruned. Packed Button-only JS gzip: webpack 204,641 → 182,482 B; Turbopack 215,814 → 184,262 B; Vite 75,432 → 70,794 B. Full-shell JS gzip: webpack 239,688 → 236,280 B; Turbopack 246,887 → 241,315 B; Vite 129,624 → 125,867 B. CSS entrypoints, export map and deep server helpers are unchanged.
 
 - Localize the generic `LocaleSwitcher` accessible name for Korean, Japanese and English using the shared messages; retain existing props and the English fallback for other locale codes.
